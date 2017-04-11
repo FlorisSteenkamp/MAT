@@ -1,0 +1,29 @@
+{
+  "name": "mat",
+  "description": "Medial / Scale Axis Transform (MAT/SAT) Library",
+  "main": "./dist/mat-lib.min.js",
+  "keywords": [
+    "Medial",
+    "Scale",
+    "Axis",
+    "Transform",
+    "MAT",
+    "SAT",
+    "skeleton"
+  ],
+  "authors": [
+    "Floris Steenkamp"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+
+  }
+}
