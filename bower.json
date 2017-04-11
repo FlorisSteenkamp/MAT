@@ -1,7 +1,7 @@
 {
   "name": "mat",
   "description": "Medial / Scale Axis Transform (MAT/SAT) Library",
-  "main": "./dist/mat-lib.min.js",
+  "main": "./js/mat-lib.js",
   "keywords": [
     "Medial",
     "Scale",

@@ -1,2 +1,2 @@
 # MAT
-Medial Axis Transform - Library
+Medial Axis Transform - SVG
