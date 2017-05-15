@@ -1,8 +1,8 @@
-/**
+'use strict'
+
+/*
  * Vector utilities, mostly 2-vectors (represented as arrays).
  */
-
-
 let Vector = {}
 
 
@@ -66,6 +66,24 @@ Vector.fromTo = function(p1, p2) {
 }
 
 
+/**
+ * @description Performs linear interpolation between two points.
+ * @param {Number[]} p1 - The first point.
+ * @param {Number[]} p2 - The second point.
+ * @param {Number} t - The interpolation fraction (usually in [0,1]).  
+ * @returns The interpolated point.
+ */
+Vector.interpolate = function(p1, p2, t) {
+	return [
+		p1[0] + (p2[0] - p1[0])*t, 
+		p1[1] + (p2[1] - p1[1])*t
+	];
+}
+
+
+
+
+
 /** 
  * @param {[[Number, Number]]} ps 
  * 
@@ -97,6 +115,16 @@ Vector.length = function(p) {
 
 Vector.lengthSquared = function(p) {
 	return (p[0]*p[0]) + (p[1]*p[1]);
+}
+
+
+Vector.manhattanDistanceBetween = function(p1, p2) {
+	return Math.abs(p1[0] - p2[0]) + Math.abs(p1[1] - p2[1]);
+}
+
+
+Vector.manhattanLength = function(p) {
+	return Math.abs(p[0]) + Math.abs(p[1]);
 }
 
 
@@ -139,7 +167,6 @@ Vector.squaredDistanceBetweenPointAndLineSegment = function(p, l) {
 	var d2 = Vector.squaredDistanceBetween(
 		p, [v[0] + t * (w[0] - v[0]), v[1] + t * (w[1] - v[1]) ]);
 	
-	//return Math.sqrt(d2);
 	return d2;
 }
 
@@ -179,11 +206,10 @@ Vector.circumCenter = function(triangle) {
 }
 
 
-// TODO - CUT unused
 /** 
- * Returns the in-center of 3 given points (seen as a triangle) 
+ * @description Returns the incenter of 3 points (seen as a triangle).
+ * @see Wikipedia - https://en.wikipedia.org/wiki/Incenter 
  */
-//See https://en.wikipedia.org/wiki/Incenter
 Vector.inCenter = function(triangle) {
 	let p1 = triangle[0];
 	let p2 = triangle[1];
@@ -200,6 +226,9 @@ Vector.inCenter = function(triangle) {
 }
 
 
+/**
+ * @description
+ */
 Vector.centroid = function(polygon) {
 	if (polygon.length === 3) {
 		let p1 = polygon[0];
@@ -215,8 +244,7 @@ Vector.centroid = function(polygon) {
 	// polygon.length assumed > 3 and assumed to be non-self-intersecting
 	// See wikipedia
 	
-	// First calculate A def Area of polygon
-	
+	// First calculate the area, A, of the polygon
 	let A = 0;
 	for (let i=0; i<polygon.length; i++) {
 		let p0 = polygon[i];
@@ -226,7 +254,7 @@ Vector.centroid = function(polygon) {
 			
 		A = A + (p0[0]*p1[1] - p1[0]*p0[1]);
 	}
-	A = A / 2;
+	A = A/2;
 	
 	let C = [0,0];
 	for (let i=0; i<polygon.length; i++) {
@@ -241,8 +269,6 @@ Vector.centroid = function(polygon) {
 	
 	return [C[0] / (6*A), C[1] / (6*A)];
 }
-//TODO - CUT END unused
-
 
 
 /**
@@ -314,7 +340,8 @@ Vector.transform = function(p, f) {
  */
 Vector.getClosestTo = function(point, points, distanceFunc) {
 	let f = distanceFunc || Vector.squaredDistanceBetween; 
-	//var cp = null;
+
+	//if (points.length === 0) { console.log(point)}
 	let cp  = undefined;
 	let bestd = Number.POSITIVE_INFINITY; 
 	for (let i=0; i<points.length; i++) {
@@ -331,17 +358,6 @@ Vector.getClosestTo = function(point, points, distanceFunc) {
 }
 
 
-/*
-Vector.transformPoints = function(ps, f) {
-	var newpoints = [];
-	for (var i=0; i<points.length; i++) {
-		newpoints.push(f(points[i]));
-	}
-	return newpoints;
-}
-*/
-
-
 Vector.translatePoints = function(ps, v) {
 	// SLOW!
 	/*return ps.map(function(p) {
@@ -349,7 +365,7 @@ Vector.translatePoints = function(ps, v) {
 		return [p[0]+v[0], p[1]+v[1]]; 
 	});*/
 	
-	// FAST! (at least on V8, BUT WHAAY?!?!)
+	// FAST! (at least on V8, BUT WHY?!)
 	let result = [];
 	for (let i=0; i<ps.length; i++) {
 		result.push([ps[i][0]+v[0], ps[i][1]+v[1]]);
@@ -366,7 +382,7 @@ Vector.rotatePoints = function(ps, sinAngle, cosAngle) {
 }
 
 
-/** Applies translation + rotation to bezier
+/** Applies a translation and then rotation to to each point.
  * @returns transformed points 
  **/
 Vector.translateThenRotatePoints = function(ps, trans, sinAngle, cosAngle) {
@@ -375,7 +391,8 @@ Vector.translateThenRotatePoints = function(ps, trans, sinAngle, cosAngle) {
 	});
 }
 
-/** Applies translation + rotation to bezier
+
+/** Applies a rotation and then translation to each point.
  * @returns transformed points 
  **/
 Vector.rotateThenTranslatePoints = function(ps, trans, sinAngle, cosAngle) {
@@ -386,4 +403,3 @@ Vector.rotateThenTranslatePoints = function(ps, trans, sinAngle, cosAngle) {
 
 
 module.exports = Vector;
-

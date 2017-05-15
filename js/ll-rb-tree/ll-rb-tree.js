@@ -1,6 +1,6 @@
 'use strict'
 
-/**
+/*
  * Concise, Destructive, Left Leaning Red Black Tree implementation.
  * See: https://www.cs.princeton.edu/~rs/talks/LLRB/LLRB.pdf
  * See: https://en.wikipedia.org/wiki/Left-leaning_red%E2%80%93black_tree
@@ -266,4 +266,3 @@ function fixUp(h)	{
 
 
 module.exports = LlRbTree;
-

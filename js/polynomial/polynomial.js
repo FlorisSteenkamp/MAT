@@ -1,7 +1,7 @@
 'use strict'
 
+let Util             = require('../utils.js');
 let findCubicRoots01 = require('./functions/find-cubic-roots.js'); 
-let Util = require('../utils.js');
 
 
 /**
@@ -19,7 +19,7 @@ let Poly = {
 	positiveRootLowerBound,
 	positiveRootUpperBound,
 	zeroRoots,
-	rootsWithin,
+	numRootsWithin,
 	allRoots01,
 	newton,
 	rootsWithin,
@@ -61,6 +61,10 @@ function differentiate(p) {
 		result.push(coeff);
 	}
 	
+	if (result.length === 0) { 
+		return [0];
+	}
+	
 	return result;
 }
 
@@ -71,9 +75,9 @@ function differentiate(p) {
 function multiplyByConst(c, p) {
 	if (c === 0) { return []; }
 	
-	var d = p.length - 1;
-	var result = [];
-	for (var i=d; i >= 0; i--) {
+	let d = p.length - 1;
+	let result = [];
+	for (let i=d; i >= 0; i--) {
 		result.push(c * p[d-i]);
 	}
 	return result;
@@ -90,17 +94,17 @@ function negate(poly) {
  */
 // TODO - ugly code - improve
 function minus(poly1, poly2) {
-	var d1 = poly1.length - 1;
-	var d2 = poly2.length - 1;
-	var dr = Math.max(d1,d2);
-	var result = [];
-	for (var i=0; i<dr+1; i++) {
+	let d1 = poly1.length - 1;
+	let d2 = poly2.length - 1;
+	let dr = Math.max(d1,d2);
+	let result = [];
+	for (let i=0; i<dr+1; i++) {
 		result.push(0);
 	}
 	
-	for (var i=dr; i >= 0; i--) {
-		var v1 = poly1[dr-i];
-		var v2 = poly2[dr-i];
+	for (let i=dr; i >= 0; i--) {
+		let v1 = poly1[dr-i];
+		let v2 = poly2[dr-i];
 		result[dr-i] = (v1 ? v1 : 0) - (v2 ? v2 : 0);  
 	}
 	
@@ -116,16 +120,16 @@ function minus(poly1, poly2) {
  * 
  **/
 function multiply(poly1, poly2) {
-	var d1 = poly1.length - 1;
-	var d2 = poly2.length - 1;
-	var dr = d1+d2;
-	var result = [];
-	for (var i=0; i<dr+1; i++) {
+	let d1 = poly1.length - 1;
+	let d2 = poly2.length - 1;
+	let dr = d1+d2;
+	let result = [];
+	for (let i=0; i<dr+1; i++) {
 		result.push(0);
 	}
 	
-	for (var i=d1; i >= 0; i--) {
-		for (var j=d2; j >= 0; j--) {
+	for (let i=d1; i >= 0; i--) {
+		for (let j=d2; j >= 0; j--) {
 			result[dr-(i+j)] += (poly1[d1-i] * poly2[d2-j]); 				
 		}
 	}
@@ -171,12 +175,12 @@ function evaluateAt0(p) {
  */
 function signChanges(p) {
 
-	var result = 0;
+	let result = 0;
 	
-	var d = p.length - 1;
-	var curSign = 0;
-	for (var i=d; i >= 0; i--) {
-		var newSign = Math.sign(p[d-i]);
+	let d = p.length - 1;
+	let curSign = 0;
+	for (let i=d; i >= 0; i--) {
+		let newSign = Math.sign(p[d-i]);
 		if (newSign === 0) continue;
 		if (curSign !== 0 && curSign !== newSign) {
 			result++; 
@@ -196,19 +200,19 @@ function signChanges(p) {
 function remainder(p1, p2) {
 	//console.log(p1,p2)
 	
-	var d1 = p1.length - 1;  // Degree of p1
-	var d2 = p2.length - 1;  // Degree of p2
-	var d = d1 - d2;
-	for (var i=0; i<d-1; i++) {
+	let d1 = p1.length - 1;  // Degree of p1
+	let d2 = p2.length - 1;  // Degree of p2
+	let d = d1 - d2;
+	for (let i=0; i<d-1; i++) {
 		p2.unshift(0);
 	}
 	d2 = d1-1;
 
-	var pre1 = (p1[1]/p1[0] - p2[1]/p2[0]);
-	var pre2 = p1;
-	var pre3 = Poly.multiplyByConst(p1[0]/p2[0], p2);
-	var pre4 = Poly.multiply(pre3, [1, pre1]);
-	var pre5 = Poly.minus(pre4, pre2);
+	let pre1 = (p1[1]/p1[0] - p2[1]/p2[0]);
+	let pre2 = p1;
+	let pre3 = Poly.multiplyByConst(p1[0]/p2[0], p2);
+	let pre4 = Poly.multiply(pre3, [1, pre1]);
+	let pre5 = Poly.minus(pre4, pre2);
 	
 	return pre5.slice(2); 
 }
@@ -236,11 +240,11 @@ function deflate(poly, root) {
  * Generates a sturm chain for the given polynomial 
  */
 function sturmChain(p) {
-	var m = []; // Sturm chain
+	let m = []; // Sturm chain
 	m.push(p);
 	m.push(Poly.differentiate(p));
 	
-	var i = 1;
+	let i = 1;
 	
 	while (Poly.degree(m[i]) > 0) {
 		m.push(Poly.remainder(m[i-1], m[i]));
@@ -255,7 +259,7 @@ function sturmChain(p) {
  * Returns the number of roots in the interval (a,b) of a 
  * polynomial 
  */ 
-function rootsWithin(p, a, b) {
+function numRootsWithin(p, a, b) {
 
 	let sturmChain = Poly.sturmChain(p);
 	let as = sturmChain.map(function(p) {
@@ -292,31 +296,31 @@ function newton(p, initialGuess) {
  *       there are no sign changes then there are no roots! 
  */
 function positiveRootUpperBound(p) {
-	var deg = p.length-1;
+	let deg = p.length-1;
 	if (deg < 1) { return 0; }
 	
 	if (p[0] < 0) { p = Poly.negate(p); }
 	
 	let timesUsed = [];
-	for (var i=0; i<deg; i++) {
+	for (let i=0; i<deg; i++) {
 		timesUsed.push(1);
 	}
 	
-	var ub = 0;
+	let ub = 0;
 	
-	for (var m=0; m<=deg; m++) {
+	for (let m=0; m<=deg; m++) {
 		if (p[m] >= 0) continue;
 		
-		var tempub = Number.POSITIVE_INFINITY;
-		var any = false;
+		let tempub = Number.POSITIVE_INFINITY;
+		let any = false;
 		
-		for (var k=0; k<m; k++) {
+		for (let k=0; k<m; k++) {
 			if (p[k] <= 0) continue;
 		
 			// TODO - Both these pows can easily be replaced with a lookup that will speed things up a lot
 			// since (for low order polys) it will most of the time be a square, cube... root or multiplication by 1,2,4,8,...
 			// TODO - not 100% sure the timesUsed[k] is used correctly here but seems to give reasonable results
-			var temp = Math.pow(-p[m] / (p[k] / Math.pow(2, timesUsed[k])), 1/(m-k));
+			let temp = Math.pow(-p[m] / (p[k] / Math.pow(2, timesUsed[k])), 1/(m-k));
 			
 			timesUsed[k]++;
 			
@@ -337,10 +341,10 @@ function positiveRootUpperBound(p) {
  * p(x) -> x^deg(p) * p(1/x)
  */
 function invert(p) {
-	var len = p.length;
-	var newP = [];
+	let len = p.length;
+	let newP = [];
 	
-	for (var i=len-1; i>=0; i--) {
+	for (let i=len-1; i>=0; i--) {
 		newP.push(p[i]);
 	}
 	
@@ -407,10 +411,10 @@ function positiveRootLowerBound(p) {
  *       
  */
 function zeroRoots(p) {
-	var p_ = p.slice();
-	var i = 0;
+	let p_ = p.slice();
+	let i = 0;
 	while (Poly.evaluateAt0(p_) === 0) {
-		var len = p_.length;
+		let len = p_.length;
 		p_.splice(len-1, 1);
 		i++;
 	}
@@ -454,35 +458,20 @@ function allRoots01(poly) {
 
 function rootsWithin(poly, intervals) {
 
-	//let TOL = 1e-13;
-	
 	let len = intervals.length;
-	/*if (len < 2) {
-		return [];
-	}*/
-	
 	let roots = [];
-	
 	let peval = Poly.evaluate(poly);
 	
 	for (let i=0; i<len-1; i++) {
 		let a = intervals[i];
 		let b = intervals[i+1];
 		
-		//if (trace) {
-			//console.log(a,b);
-		//}
-		
 		let evA = peval(a);
 		let evB = peval(b);
 		
 		if (evA === 0 || evB === 0) {
-			if (evA === 0) {
-				roots.push(a);	
-			}
-			if (evB === 0) {
-				roots.push(b);
-			}
+			if (evA === 0) { roots.push(a);	}
+			if (evB === 0) { roots.push(b); }
 			
 			return roots;
 		}
@@ -490,11 +479,7 @@ function rootsWithin(poly, intervals) {
 		
 		let sgn = evA / evB; 
 		if (sgn < 0) {
-			let root = Poly.brent(
-					peval,  
-					a, b/*,
-					TOL*/
-			);
+			let root = Poly.brent(peval, a, b);
 			roots.push(root);
 		} 
 	}
@@ -506,10 +491,35 @@ function rootsWithin(poly, intervals) {
 /**
  * Returns <em>ordered</em> quadratic roots.
  */
-function findQuadraticRoots01([a,b,c]) {
-	var root1;
-	var root2;
-	var delta = b*b - 4*a*c;
+function findQuadraticRoots01(q) {
+	if (q.length === 0) {
+		return undefined;
+	}
+	if (q.length === 1) {
+		if (q[0] === 0) { return []; }
+		return [];
+	}
+	if (q.length === 2) {
+		if (q[0] === 0) {
+			if (q[1] === 0) { return []; } 
+			return []; 
+		}
+		let root = -q[1]/q[0];
+		if (root >= 0 && root <= 1) {
+			return [root];	
+		}
+		return [];
+	}
+	if (q.length > 3) {
+		// TODO Can we safely throw and stay optimized?
+		return undefined; 
+	}
+	
+	let [a,b,c] = q;
+	
+	let root1;
+	let root2;
+	let delta = b*b - 4*a*c;
 	if (delta < 0) {
 		// No real roots;
 		return []; 
@@ -531,8 +541,8 @@ function findQuadraticRoots01([a,b,c]) {
 		root2 = (-b + delta) / (2*a);
 	}
 	
-	var root1InRange = (root1 >= 0 && root1 <= 1); 
-	var root2InRange = (root2 >= 0 && root2 <= 1);
+	let root1InRange = (root1 >= 0 && root1 <= 1); 
+	let root2InRange = (root2 >= 0 && root2 <= 1);
 	if (root1InRange) {
 		if (root2InRange) {
 			if (root1 < root2) { 
@@ -563,16 +573,12 @@ function findQuadraticRoots01([a,b,c]) {
  * @param {Number} errorTol the desired accuracy (convergence tolerance).
  * @return An estimate for the root within accuracy.
  * 
- * Notes: Brent's Method is optimized for general functions. A more 
+ * NOTE: Brent's Method is optimized for general functions. A more 
  * specialzed algorithm targeted at polynomials using for example a
  * combination of the Secant and Newton methods might be much faster. 
  */
-let uuu = 0;
 let TOLERANCE = 1e-15;
 function brent(f, a, b, errorTol) {
-	
-	uuu++;
-	
 	if (a === b) { return a; } // Root already found
 	
 	let fa = f(a);
@@ -584,7 +590,8 @@ function brent(f, a, b, errorTol) {
     } 
     
     let c;
-    if (Math.abs(fa) < Math.abs(fb)) { // Swap a,b
+    if (Math.abs(fa) < Math.abs(fb)) { 
+    	// Swap a,b
     	c = a;  a = b;  b = c;
     }
     
@@ -620,6 +627,7 @@ function brent(f, a, b, errorTol) {
     		s = b - (fb * ((b-a)/(fb-fa)));
     	}
     	
+    	let d;
     	let t1 = (3*a + b) / 4;
     	let b_c = Math.abs(b-c);
     	let s_b = Math.abs(s-b);
@@ -648,16 +656,16 @@ function brent(f, a, b, errorTol) {
     		mflag = false;
     	}
     	
-    	var fs = f(s);
+    	let fs = f(s);
     	
-    	var d = c;
+    	d = c;
     	c = b;
     	
     	if (fa*fs < 0) { b = s; } else { a = s; }
     	
     	if (Math.abs(fa) < Math.abs(fb)) { 
     		// Swap a,b
-    		var t3 = a;  a = b;  b = t3;
+    		let t3 = a;  a = b;  b = t3;
     	}
 	    
     	

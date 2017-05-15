@@ -2,7 +2,7 @@
 
 
 /** 
- * Find bezier inflection points. 
+ * @description Find bezier inflection points. 
  **/
 function findBezierInflectionPoints(bezier) {
 	
@@ -20,9 +20,9 @@ function findBezierInflectionPoints(bezier) {
 	let b = ax*cy - ay*cx;
 	let c = ax*by - ay*bx;
 	
-	inflectionTimes = Poly.findQuadraticRoots01([a,b,c]);
+	let inflectionTimes = Poly.findQuadraticRoots01([a,b,c]);
 	
-	return inflectionTimes.map(bezier.evaluate);
+	return inflectionTimes.map(Bezier.evaluate(bezier));
 }
 
 

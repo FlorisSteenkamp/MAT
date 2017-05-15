@@ -4,24 +4,33 @@ const MAX_ITERATIONS = 50;
 //TODO Change tolerances to take shape dimension into 
 // account, e.g. shapeDim / 10000 for SEPERATION_TOLERANCE;
 //CONST SEPERATION_TOLERANCE = 1e-3;
-const SEPERATION_TOLERANCE = 1e-2;
+const SEPERATION_TOLERANCE = 1e-3;
 const SQUARED_SEPERATION_TOLERANCE = 
 		SEPERATION_TOLERANCE * SEPERATION_TOLERANCE;
+const _1PRONG_TOLERANCE = 1e-4;
+const SQUARED_1PRONG_TOLERANCE = 
+		_1PRONG_TOLERANCE * _1PRONG_TOLERANCE;
+
 //const ERROR_TOLERANCE = 1e-3;
 const ERROR_TOLERANCE = SEPERATION_TOLERANCE / 10;
 const SQUARED_ERROR_TOLERANCE = 
 		ERROR_TOLERANCE * ERROR_TOLERANCE;
 
+let MAT_CONSTANTS    = require('../../mat-constants.js');
 
-let Circle = require('../../geometry/classes/circle.js');
-let Geometry = require('../../geometry/geometry.js');
-let Shape = require('../../geometry/classes/shape.js');
-let LinkedLoop = require('../../linked-loop/linked-loop.js');
+let Circle       = require('../../geometry/classes/circle.js');
+let Bezier       = require('../../geometry/classes/bezier.js');
+let Geometry     = require('../../geometry/geometry.js');
+let Shape        = require('../../geometry/classes/shape.js');
+let LinkedLoop   = require('../../linked-loop/linked-loop.js');
+let Vector       = require('../../vector/vector.js');
+let PointOnShape = require('../../geometry/classes/Point-on-shape.js');
+let ContactPoint = require('../../mat/classes/contact-point.js');
+let MatCircle    = require('../../mat/classes/mat-circle.js');
+
 let getClosestBoundaryPointToPoint = 
 	require('../../geometry/functions/get-closest-boundary-point-to-point.js');
-let Vector = require('../../vector/vector.js');
-let PointOnShape = require('../../geometry/classes/Point-on-shape.js');
-
+let TwoProngForDebugging = require('../classes/debug/two-prong-for-debugging.js');
 
 
 /**
@@ -31,8 +40,7 @@ let PointOnShape = require('../../geometry/classes/Point-on-shape.js');
  * A 2-prong is a MAT circle that touches the shape in 2 points.
  * 
  * @param shape
- * @param {ListNode<ContactPoint>} cpNode The first point of the 2-prong.
- * @param _debug_ Used for debugging only.
+ * @param {PointOnShape} y - The first point of the 2-prong.
  * 
  * Before any 2-prongs are added the entire shape is our d-Omega δΩ
  * (1-prongs does not reduce the boundary),
@@ -44,16 +52,9 @@ let PointOnShape = require('../../geometry/classes/Point-on-shape.js');
  * In fact, we (and they) start by fixing one point on the boundary
  * beforehand. 
  */
-function find2Prong(shape, cpNode, _debug_) {
+let iii = 0;
+function find2Prong(shape, y, holeClosing) {
 	
-	// The first point on the shape of the 2-prong.
-	let y = cpNode.item.pointOnShape;
-	
-	/* The boundary piece that should contain the other point of 
-	 * the 2-prong circle. (Defined by start and end points).
-	 */
-	let δ = [cpNode, cpNode];
-
 	/* The failed flag is set if a 2-prong cannot be found. This occurs
 	 * when the 2 points are too close together and the 2-prong 
 	 * becomes, in the limit, a 1-prong. We do not want these 2-prongs
@@ -64,6 +65,13 @@ function find2Prong(shape, cpNode, _debug_) {
 	 */
 	let failed = false;
 	
+	// The first point on the shape of the 2-prong.
+	//let y = pos;
+	let bezierNode = y.bezierNode;
+	let t = y.t;
+	let oCircle = PointOnShape.getOsculatingCircle(y); 
+	let x = oCircle.center;
+	
 	/* 
 	 * The shortest distance so far between the first contact point and
 	 * the circle center - we require this to get shorter on each 
@@ -71,50 +79,68 @@ function find2Prong(shape, cpNode, _debug_) {
 	 * of the algorithm has occured due to floating point inaccuracy
 	 * and the algorithm must terminate.
 	 */
-	let shortestSquaredDistance = Number.POSITIVE_INFINITY;
+	let radius = oCircle.radius;
+	let shortestSquaredDistance = radius*radius;
 	
-	let pos = cpNode.item.pointOnShape;
-	let bezierNode = pos.bezierNode;
-	let t = pos.t;
+	/* The boundary piece that should contain the other point of 
+	 * the 2-prong circle. (Defined by start and end points).
+	 */
+	let δ;
+	let bezierPieces;
+	let k = y.bezierNode.loop.indx;
+	if (holeClosing) {
+		bezierPieces = [];
+		for (let k2=0; k2<k; k2++) {
+			let pieces = Shape.getBoundaryBeziers(shape, k2);
+			Array.prototype.push.apply(bezierPieces, pieces);
+		}
+	} else {
+		// TODO - getNeighbouringPoints *can* be eliminated (as with 3-prongs)
+		// by keeping track of boundary piece in which is being searched 
+		// - not sure if same can be done with hole-closing 2-prongs.
+		let ps = Shape.getNeighbouringPoints(shape, y);
+		δ = [ps[0], ps[0]];
+		bezierPieces = Shape.getBoundaryPieceBeziers(δ);
+	}
 	
-	let x = cpNode.item.matCircle.circle.center;
-	let bezierPieces = Geometry.getBoundaryPieceBeziers(shape, δ);
-	let xs; // Trace the convergence.
+	let xs = []; // Trace the convergence.
 	let z;
 	let squaredError;
-	//
-	//let slog = _debug_.twoProngs.length === 16;
 	let i=0;
-	/*if (slog) { 
-		console.log('a')
-	}*/
-	//
+	iii++;
 	do {
-		//
 		i++
-		//
+
 		let r = Vector.squaredDistanceBetween(x, y);
-		bezierPieces = cullBezierPieces(bezierPieces, x, r, _debug_);
-		
+		if (iii === 28) {
+			//console.log('a');
+		}
+		bezierPieces = cullBezierPieces(bezierPieces, x, r);
+	
 		z = getClosestBoundaryPointToPoint(
 			bezierPieces,
 			x,
-			y,
 			bezierNode, 
-			t,
-			_debug_/*,
-			slog && i > 3*/
+			t
 		);
+		if (!z) {
+			console.log(iii);
+		}
 		
-		//if (_debug_) { xs = xs || []; xs.push({ x, y, z, t });	}
+		if (MatLib._debug_) { xs.push({ x, y, z, t });	}
+		
+		let d = Vector.squaredDistanceBetween(x, z);
+		if (i === 1 && d+(SQUARED_1PRONG_TOLERANCE) >= r) {
+			// It is a 1-prong
+			add1Prong(shape, y); // TODO Refactor - adding a 1-prong in a function called 2-prong!?
+			//console.log('1-prong added')
+			// set point order (if dull corner!)
+			return undefined; // TODO - not pretty - so that we don't add it as a 2-prong
+		}
 		
 		let squaredChordDistance = Vector.squaredDistanceBetween(y,z);
-		
-		//if (slog) { console.log('sqd: ' + squaredChordDistance); }
-		
 		if (squaredChordDistance <= SQUARED_SEPERATION_TOLERANCE) {
 			failed = true;
-			//console.log(_debug_.twoProngs.length);
 			break;
 		} 
 
@@ -142,65 +168,124 @@ function find2Prong(shape, cpNode, _debug_) {
 		
 		x = nextX;
 		
-		if (_debug_) { xs = xs || []; xs.push({ x, y, z, t });	}
+		//if (MatLib._debug_) { xs.push({ x, y, z, t });	}
 	} while (squaredError > SQUARED_ERROR_TOLERANCE && i < MAX_ITERATIONS);
+	if (MatLib._debug_) { xs.push({ x, y, z, t });	}
 	
 	if (i === MAX_ITERATIONS) {
 		// This is simply a case of convergence being too slow. The
 		// gecko, for example, takes a max of 21 iterations.
+		//console.log('max')
 		failed = true;
 	}
 	
-
+	
 	let circle = new Circle(
 			x,
 			Vector.distanceBetween(x,z)
 	);
-	 
+	
+	PointOnShape.setPointOrder(shape, circle, y);
+	PointOnShape.setPointOrder(shape, circle, z);
+	
 
-	if (_debug_) { recordForDebugging(_debug_, failed, cpNode, circle, y,z, δ, xs); }
+	if (MatLib._debug_) { 
+		recordForDebugging(failed, y, circle, y,z, δ, xs, holeClosing);
+	}
 	
 	
 	if (failed) {
-		// Remove failed point.
-		LinkedLoop.remove(shape.contactPoints, cpNode);
+		//console.log('failed');
 		return undefined;
 	} 
 	
 	
-	PointOnShape.setPointOrder(shape, circle, z, _debug_);
 	return { circle, z };
 }
 
 
-function recordForDebugging(
-		_debug_, failed, cpNode, circle, y,z, δ, xs) {
-	
-	// This is a medial axis point.
-	if (failed) {
-		//_debug_.draw.dot(cpNode.item, 0.6, 'black');
-		_debug_.draw.dot(cpNode.item, 1, 'black');
-		_debug_.draw.dot(cpNode.item, 0.1, 'yellow');
-		//_debug_.draw.dot(cpNode.item, 0.01, 'black');
-		//_debug_.draw.dot(cpNode.item, 0.001, 'yellow');
-		//_debug_.draw.dot(cpNode.item, 0.0001, 'black');
-	} else {
-		_debug_.draw.dot(circle.center, 0.5, 'yellow'); 
-		if (_debug_.drawStuff) {
-			_debug_.draw.circle(circle, 'red thin2 nofill');
-			_debug_.draw.dot(cpNode.item, 0.55, 'red'); 
-			_debug_.draw.dot(z, 0.7, 'red');
+function add1Prong(shape, pos) {
+	if (pos.type === MAT_CONSTANTS.pointType.dull) {
+		// This is a 1-prong at a dull corner.
+		
+		/* TODO IMPORTANT remove this line, uncomment piece below 
+		 * it and implement the following strategy to find the 
+		 * 3-prongs: if deltas are conjoined due to dull corner, 
+		 * split the conjoinment by inserting successively closer 
+		 * (binary division) 2-prongs. If a 2-prong actually fails, 
+		 * simply remove the 1-prong at the dull corner.
+		 * 
+		 * In this way **all** terminal points are found, e.g.
+		 * zoom in on top left leg of ant.
+		 */
+		//console.log(posNode);
+		//toRemove.push(posNode); /* this */
+		
+		if (MatLib._debug_) {
+			// TODO - why would it be NaN in some cases?
+			let oCircle = PointOnShape.getOsculatingCircle(pos);
+			if (!Number.isNaN(oCircle.center[0])) {
+				MatLib._debug_.generated.oneProngsAtDullCorner.push({pos});	
+			}
 		}
+		
+		return;
 	}
 	
-	_debug_.twoProngs.push({
-		twoProng: cpNode,
-		δ,
-		y,
-		x: circle.center, 
-		xs,
-		failed,
-	});	
+
+	let cp = new ContactPoint(pos, undefined);
+	let delta = Shape.getNeighbouringPoints(shape, pos);
+	let cmp1 = ContactPoint.compare(delta[0].item, cp);
+	let cmp2 = ContactPoint.compare(cp, delta[1].item);
+	if (MatLib._debug_) {
+		if (cmp1 > 0 || cmp2 > 0) {
+			//console.log(`1-PRONG Order is wrong: ${cmp1}, ${cmp2}`);
+		}
+	}
+	// If they are so close together, don't add it - there's already 1
+	if (cmp1 === 0 || cmp2 === 0) {
+		return;
+	}
+	let k = pos.bezierNode.loop.indx;
+	let newCpNode = LinkedLoop.insert(
+			shape.contactPointsPerLoop[k],  
+			cp, 
+			delta[0]
+	);
+	
+	let matCircle = MatCircle.create(
+			//pos.osculatingCircle,
+			PointOnShape.getOsculatingCircle(pos),
+			[newCpNode]
+	);
+	
+	newCpNode.prevOnCircle = newCpNode;  // Trivial loop
+	newCpNode.nextOnCircle = newCpNode;  // ...
+	
+	if (MatLib._debug_) {
+		MatLib._debug_.generated.oneProngs.push({pos});	
+	}
+	
+	return;
+}
+
+
+function recordForDebugging(
+		failed, pos, circle, y, z, δ, xs, holeClosing) {
+	
+	let twoProngForDebugging = new TwoProngForDebugging(
+			pos,
+			δ,
+			y,
+			z,
+			circle.center,
+			circle,
+			xs,
+			failed,
+			holeClosing
+	); 
+	
+	MatLib._debug_.generated.twoProngs.push( twoProngForDebugging );	
 }
 
 
@@ -212,7 +297,7 @@ function recordForDebugging(
  * @param {Number} r
  * @returns
  */
-function cullBezierPieces(bezierPieces, p, rSquared, _debug_) {
+function cullBezierPieces(bezierPieces, p, rSquared) {
 	const CULL_THRESHOLD = 5;
 	
 	if (bezierPieces.length <= CULL_THRESHOLD) {
@@ -224,12 +309,13 @@ function cullBezierPieces(bezierPieces, p, rSquared, _debug_) {
 	for (let bezierPiece of bezierPieces) {
 		let bezier = bezierPiece.bezierNode.item;
 		
-		let rect = bezier.getBoundingBox();
+		//let rect = bezier.getBoundingBox();
+		let rect = Bezier.getBoundingBox(bezier);
 		let bd = Geometry.getClosestSquareDistanceToRect(
 				rect,
 				p
 		);
-		if (bd <= rSquared) {
+		if (bd <= rSquared + 0.1 /* Make this in relation to shape extents!*/) {
 			newPieces.push(bezierPiece);
 		} 
 	}

@@ -3,18 +3,19 @@
 let PointOnShape = require('../../geometry/classes/point-on-shape.js');
 let Vector = require('../../vector/vector.js');
 
+
 /** 
- * Class representing a single contact point of a MatCircle instance. 
+ * @description Class representing a single contact point of a MatCircle 
+ * instance. 
  * @onstructor
- *  
+ *
+ * @param {PointOnShape} pointOnShape
  * @param {MatCircle} matCircle 
- * @param {PointOnShape} pointOnShape  
  */
 function ContactPoint(pointOnShape, matCircle) {
 	this.pointOnShape = pointOnShape;
 	this.matCircle    = matCircle;
-	this.key = PointOnShape.toHumanString(pointOnShape);
-	this.simpleKey = pointOnShape.simpleKey;
+	this.key = PointOnShape.toHumanString(pointOnShape); // TODO
 	
 	this[0] = pointOnShape[0]; // Shortcut
 	this[1] = pointOnShape[1]; // ...
@@ -32,6 +33,3 @@ ContactPoint.equal = function(a,b) {
 
 
 module.exports = ContactPoint;
-
-
-

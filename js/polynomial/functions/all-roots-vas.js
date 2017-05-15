@@ -7,7 +7,7 @@ let Mobius = require('../../mobius/mobius.js');
  * @param p {Array[Number]} The polynomial from highest to lowest coefficient
  * 
  **/
-function allRootsVAS(p, tRange, _debug_) {
+function allRootsVAS(p, tRange) {
 	// TODO - First remove all zero roots - The VAS method can't handle them
 	let zeroRoots;
 	if (tRange[0] <= 0 && tRange[1] >= 0) {
@@ -25,17 +25,13 @@ function allRootsVAS(p, tRange, _debug_) {
 	.filter(function(interval) {
 		let notOverlap = (interval[1] < tRange[0] || interval[0] > tRange[1])
 		if (notOverlap) { 
-			if (_debug_) {
-				_debug_.rootsSkipped++;
-			} 
+			if (MatLib._debug_) { MatLib._debug_.generated.rootsSkipped++; } 
 		}
 		return !notOverlap;
 	})
 	.map(function(interval) {
 		// TODO - 0.0001 was emperically chosen
-		if (_debug_) {
-			_debug_.rootsNotSkipped++;
-		}
+		if (MatLib._debug_) { MatLib._debug_.generated.rootsNotSkipped++; }
 		
 		return Poly.brent(
 				Poly.evaluate(p_), 
@@ -50,8 +46,8 @@ function allRootsVAS(p, tRange, _debug_) {
 	}
 	
 	/*
-	if (_debug_) {
-		_debug_.rootsNotSkipped++;
+	if (MatLib._debug_) {
+		MatLib._debug_.generated.rootsNotSkipped++;
 	}
 	*/
 	 

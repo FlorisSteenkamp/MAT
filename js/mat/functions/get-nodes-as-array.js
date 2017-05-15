@@ -2,7 +2,9 @@
 
 let traverse = require('./traverse.js')
 
-
+/**
+ * @description Returns all the calculated MAT nodes as an array. 
+ */
 function getNodesAsArray(mat) {
 	let nodes = [];
 	

@@ -9,7 +9,9 @@
  * @param {ListNode} next - The next item.
  */
 function ListNode(
-		item, prev, next) {
+		loop, item, prev, next) {
+	
+	this.loop = loop;
 	
 	this.item = item;
 	this.prev = prev;	
@@ -18,9 +20,8 @@ function ListNode(
 
 
 /**
- * Advances the node by the given number of steps.
- * 
- * NOTE: This is slow ( O(n) ); use in debugging code only.
+ * @description Advances the node by the given number of steps.
+ * @note This is slow ( O(n) ); use in debugging code only.
  */
 ListNode.advanceNSteps = function(node, n) {
 	for (let i=0; i<n; i++) {
@@ -32,7 +33,3 @@ ListNode.advanceNSteps = function(node, n) {
 
 
 module.exports = ListNode;
-
-
-
-

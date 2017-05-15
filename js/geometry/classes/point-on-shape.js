@@ -1,7 +1,12 @@
 'use strict'
 
 let MAT_CONSTANTS = require('../../mat-constants.js');
-let Vector        = require('../../vector/vector.js');
+
+let Vector = require('../../vector/vector.js');
+let Memoize = require('../../memoize.js');
+
+let Bezier = require('./bezier.js');
+let Circle = require('./circle.js');
 
 
 /** 
@@ -11,227 +16,223 @@ let Vector        = require('../../vector/vector.js');
  * @param {ListNode<Bezier>} bezierNode	
  * @param t
  * @param type {MAT_CONSTANTS.pointType} 	
- *  'osculating'        : 0, // Osculating - Max curvatre inward,   	
- *  'sharp'             : 1, // Sharp corner, 	
- *  'dull'              : 2, // dull corner, 	
- *  'reverseOsculating' : 3, // Osculating - Max curvature outward, 	
- *  'standard'          : 4, // just another point
+ *  'standard' : 0, // Not special,   	
+ *  'sharp'    : 1, // Sharp corner, 	
+ *  'dull'     : 2, // dull corner, 	
  * @param {Number} order - For dull corners only; equals the cross of
  * 		  the tangents at the corner interface to impose an order on
- * 		  points with the same point coordinates or t values.   
- * @param {Circle} circle - The osculating circle at this point.
- * @param {Number} sharpness - Measure of corner sharpness.
- *   	
+ * 		  points with the same point coordinates and t values.   
+ * @param {Number} order2 - For points of hole closing 2-prongs only;
+ *		  these points are duplicated to split the shape so they need
+ *        to be ordered appropriately. 
+ * @param {Circle} circle - The osculating circle at this point pointing
+ * towards the inside of the shape.
  */	
-// TODO - The order property should be a property of ContactPoint instead.
-let PointOnShape = function(
-		p, bezierNode, t, type, order, osculatingCircle, sharpness) {
-	
+function PointOnShape(
+		bezierNode, t, type, order, order2) {
+
 	this.bezierNode = bezierNode; 	
-	this.t = t;	
-	this.type = type;	
-	this.order = order; // z-order order arbitration decider to make all points on the shape well-ordered
-	this.osculatingCircle = osculatingCircle;
-	this.sharpness = sharpness;
-	//if (sharpness) { console.log(sharpness); }
-	
-	this.simpleKey = PointOnShape.makeSimpleKey(p);
-	//this.p = p; // TODO - see below
+	this.t          = t;	
+	this.type       = type;	
+	this.order      = order; 
+	this.order2     = order2;
 	
 	//---- Cache
-	// Removed 2 lines below - if {PointOnShape} is called as parameter 
-	// it will more likely result in monomorphic behaviour as opposed 
-	// to polymorphic or megamorphic
+	let p = Bezier.evaluate(bezierNode.item)(t);
+	this.p = p;
+	// Removing this cache will help in that if {PointOnShape} is 
+	// called as a parameter (where a point is required) it will more 
+	// likely result in monomorphic behaviour as opposed to polymorphic 
+	// or megamorphic.
 	this[0] = p[0];
 	this[1] = p[1];
-	this.key = PointOnShape.toString(this);	
 }	
 	
 
-function dullCornerAt(shape, p) {
+PointOnShape.getOsculatingCircle = Memoize.m1(function(pos) {
+	if (pos.type === MAT_CONSTANTS.pointType.sharp) {
+		return new Circle(pos.p, 0);
+	} else if (pos.type === MAT_CONSTANTS.pointType.extreme) {
+		let r = MAT_CONSTANTS.maxOsculatingCircleRadius;
+		let p = [pos.p[0], pos.p[1] - r];
+		return new Circle(p, r);
+	}
+	return calcOsculatingCircle(
+			pos.bezierNode.item, 
+			pos.t
+	); 
+});
 
-	let dullCornerHash = shape.dullCornerHash;
-	let key = PointOnShape.makeSimpleKey(p); // First point
- 
-	let result = dullCornerHash[key] || null;
+
+/**
+ * @description Calculates the osculating circle of the bezier at a 
+ * specific t. If it is found to have negative or nearly zero radius
+ * it is clipped to have positive radius so it can point into the shape.
+ * @param bezier
+ * @param t
+ * @returns {Circle}
+ */
+function calcOsculatingCircle(bezier, t) {	
+	let κ = -Bezier.κ(bezier)(t); 
+
+	// If (κ > 0) { Bending inwards. }
 	
-	//console.log(result);
+	let radius;
+	if (κ <= 1/MAT_CONSTANTS.maxOsculatingCircleRadius) { 
+		// Curving wrong way (or flat, or too big), but probably a 
+		// significant point to put a 2-prong.
+		radius = MAT_CONSTANTS.maxOsculatingCircleRadius;
+	} else {
+		radius = Math.min(
+				1/κ, 
+				MAT_CONSTANTS.maxOsculatingCircleRadius
+		);
+	}
+	
+	let normal = Bezier.normal(bezier)(t);
+	let p = Bezier.evaluate(bezier)(t);
+	let circleCenter = [
+		p[0] + normal[0]*radius, 
+		p[1] + normal[1]*radius
+	];
 
-	return result;
+	return new Circle(circleCenter, radius);
 }
 
 
 /**
- * Sets the order (to distinguish between points lying on top of each 
- * other) of the contact point if it is a dull corner.
- *
- * Notes: Modifies p
- * 
- * @param {PointOnShape} p 
- * 
+ * @description Compares two PointOnShapes according to its position on
+ * the bezier loop.
  */
-PointOnShape.setPointOrder = function(shape, circle, p, _debug_) {
+PointOnShape.compare = function(a,b) {
+	if (a === undefined || b === undefined) {
+		return undefined;
+	}
 	
-	let dullCorner = dullCornerAt(shape, p);
+	let res;
 	
-	if (!dullCorner) { return; /* or use different scheme */ }
+	res = a.bezierNode.item.indx - b.bezierNode.item.indx;
+	if (res !== 0) { return res; }
+
+	res = a.t - b.t;
+	if (res !== 0) { return res; }
+
+	res = a.order - b.order;
+	if (res !== 0) { return res; }
 	
-	//let bez = dullCorner.pointOnShape.bezierNode.item;
-	let bez = dullCorner.bezier;
-	let tan1pre = bez.tangent(1);
+	res = a.order2 - b.order2;
+	
+	return res;
+}
+
+
+/**
+ * @description Returns true if its osculation circle is pointing 
+ * straight upwards. 
+ */
+PointOnShape.isPointingStraightUp = function(pos) {
+	let circle = PointOnShape.getOsculatingCircle(pos); 
+	if (!circle) { return false; }
+	
+	let circleDirection = Vector.toUnitVector(
+			Vector.fromTo(pos, circle.center)
+	);
+	
+	// If not almost pointing straight up
+	if (Math.abs(circleDirection[0]) > 1e-6 || 
+		circleDirection[1] > 0) {
+		
+		return false;
+	}
+	
+	return true;
+}
+
+
+function dullCornerAt(shape, p) {
+	let dullCornerHash = shape.dullCornerHash;
+	let key = PointOnShape.makeSimpleKey(p); 
+	
+	return dullCornerHash[key] || null;
+}
+
+
+/**
+ * @description Sets the order (to distinguish between points lying on top of each 
+ * other) of the contact point if it is a dull corner.
+ * @param {PointOnShape} pos
+ * @note Modifies pos
+ */
+PointOnShape.setPointOrder = function(shape, circle, pos) {
+	
+	let dullCorner = dullCornerAt(shape, pos);
+	
+	if (!dullCorner) { return; }
+	
+	let bezier = dullCorner.beziers[0];
+	let tan1pre = Bezier.tangent(bezier)(1);
 	
 	let tan1 = [tan1pre[1], -tan1pre[0]]; // rotate by -90 degrees
 	let tan2 = Vector.toUnitVector(
-			Vector.fromTo(p, circle.center)
+			Vector.fromTo(pos, circle.center)
 	);
 	
-	let crossTangents = -Vector.dot(tan1, tan2);
-
-	p.order = crossTangents;
-	p.key = PointOnShape.toString(p);
+	pos.order = -Vector.dot(tan1, tan2);
 	
-	if (_debug_) {
-		// TODO Add a _debug_ flag to switch this on or off.
-		if (_debug_.drawStuff) {
-			if (dullCorner) {
-				//_debug_.draw.line([p, circle.center], 'red thin5');
-			}
-		}
-	}
-	
-	return p.order;
+	return pos.order;
 }
 
-	
-/**	
- * Return a new point on the shape from given point shifted by a given t distance	
- * 	
- * Δt The distance to shift the point	
- * 	
- * @return {PointOnShape} Shifted point  	
- */	
-PointOnShape.shift = function(p, Δt) {
 
-	if (Δt <= -1 || Δt >= 1) {	
-		// TODO: relatively easy to support the case where Δt can by any {Number}	
-		throw 'Δt not in range (-1, 1); Δt was ' + Δt; 	
-	}	
-		
-	let newBezierNode = p.bezierNode; 	
-	
-
-	let t = p.t + Δt;	
-	if (t < 0) {	
-		t = t + 1;	
-		newBezierNode = newBezierNode.prev; 	
-	} else if (t > 1) {	
-		t = t - 1;	
-		newBezierNode = newBezierNode.next;	
-	}	
-		
-	//console.log(p.t, Δt, t, newBezierNode.item.evaluate(t));	
-		
+/**
+ * @description Clones the PointOnShape.
+ */
+PointOnShape.copy = function(pos) {
 	return new PointOnShape(	
-			newBezierNode.item.evaluate(t),	
-			newBezierNode,	
-			t, 	
-			MAT_CONSTANTS.pointType.standard,	
-			0 /* order */	
-	);	
-}	
-	
-
-PointOnShape.cloneAndAdv = function(p) {
-	return new PointOnShape(	
-			p.bezierNode.item.evaluate(p.t),	
-			p.bezierNode,	
-			p.t, 	
-			p.type,	
-			p.order + (p.order / 111111111111) // hack  	
+			pos.bezierNode, 
+			pos.t, 
+			pos.type, 
+			pos.order, 
+			pos.order2 
 	);
 }
 
-	
-/**	
- * Takes a single point and splits it and moves it apart along shape boundary.	
- * 	
- * @param p {PointOnShape} pointOnShape 
- * @param Δt {Number} The distance (in t) to move the points apart. Ideally we would	
- *        much prefer a pixel distance, but the implementation would be more complex. 	
- * 	
- * @return Splitted points as array, i.e. [p1,p2]	
- */	
-PointOnShape.split = function(p, Δt) {	
-	return [	
-		PointOnShape.shift(p, -Δt),	
-		PointOnShape.shift(p, +Δt)	
-	]	
-}	
 
-
-PointOnShape.splitForward = function(p, Δt) {	
-	return [	
-		p,	
-		PointOnShape.shift(p, +2*Δt)	
-	]	
+/**
+ * @description Creates a string key that only depends on the 
+ * PointOnShape's coordinates.
+ */
+PointOnShape.makeSimpleKey = function(p) {	
+	return '' + p[0] + ', ' + p[1]; 		
 }
 
-PointOnShape.splitBack = function(p, Δt) {	
-	return [	
-		PointOnShape.shift(p, -2*Δt),	
-		p	
-	]	
-}
-	
-	
 
+/**
+ * @description Returns the PointOnShape type as a human-readable 
+ * string.
+ * @param type
+ * @returns
+ */
 function typeToStr(type) {
 	for (let key in MAT_CONSTANTS.pointType) {
 		if (MAT_CONSTANTS.pointType[key] === type) {
 			return key;
 		}
 	}
-	
-	return undefined;
-}
-
-PointOnShape.toString = function(p) {	
-	return '' + p[0] + ', ' + p[1] + '|' + p.order + '|' + p.type;
 }
 
 
-PointOnShape.toHumanString = function(p) {
-	let str =  '' + p[0] + ', ' + p[1] + 
-			   ' | bz: '  + p.bezierNode.item.indx + 
-			   ' | t: '   + p.t + 
-			   ' | ord: ' + p.order + ' | ';
-	return str + typeToStr(p.type);
+/**
+ * @description Returns a human-readable string of the PointOnShape.
+ * @note For debugging only.
+ */
+PointOnShape.toHumanString = function(pos) {
+	return '' + pos[0] + ', ' + pos[1] + 
+		   ' | bz: '   + pos.bezierNode.item.indx + 
+		   ' | t: '    + pos.t + 
+		   ' | ord: '  + pos.order + 
+		   ' | ord2: ' + pos.order2 + ' | ' +
+		   typeToStr(pos.type);
 }
-
-
-PointOnShape.makeSimpleKey = function(p) {	
-	return '' + p[0] + ', ' + p[1]; 		
-}
-
-
-PointOnShape.compare = function(a,b) {
-	var res = a.bezierNode.item.indx - b.bezierNode.item.indx;
-	
-	if (res !== 0) { return res; }
-
-	res = a.t - b.t;
-	if (res !== 0) { return res; }
-
-	return a.order - b.order;
-}	
 
 
 module.exports = PointOnShape;
-
-
-
-
-
-
-
-

@@ -11,11 +11,17 @@ var es2015     = require('babel-preset-es2015');
 var rename     = require('gulp-rename');
 
 
-gulp.task('default',    browserifyTask);
-gulp.task('browserify', browserifyTask);
+gulp.task('default', browserifyDistTask);
+
+gulp.task('dist',    browserifyDistTask);
+gulp.task('dev',     browserifyDevTask );
 
 
-function browserifyTask() {
+/**
+ * Build for distribution - slower 
+ * @returns
+ */
+function browserifyDistTask() {
 	
 	function showOnError(err) {	if (err) { console.error(err.stack); } } 
 	
@@ -36,3 +42,19 @@ function browserifyTask() {
 }
 
 
+/**
+ * Build for development - faster 
+ * @returns
+ */
+ function browserifyDevTask() {
+	
+	function showOnError(err) {	if (err) { console.error(err.stack); } } 
+	
+    return browserify({
+    		entries: '../js/mat-lib.js',
+    		plugins: ["transform-es2015-arrow-functions"]
+    	})
+    	.bundle(showOnError)
+    	.pipe(source('mat-lib.js'))
+    	.pipe(gulp.dest('../dist/'));
+}

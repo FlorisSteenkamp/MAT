@@ -12,50 +12,40 @@ let LinkedLoop   = require('../../linked-loop/linked-loop.js');
  * @param deltas
  * @returns {MatCircle} matCircle
  */
-let kkk=0;
-function add3Prong(shape, threeProng, _debug_) {
+function add3Prong(shape, threeProng) {
 	
 	let { circle, ps, delta3s } = threeProng;
 
-	let cps = [];
-	for (let i=0; i<3; i++) {
-		cps.push(new ContactPoint(ps[i], undefined));
-	}
+	let cps = [0,1,2].map(i => new ContactPoint(ps[i], undefined))
 	
-
-	if (_debug_) {
-		let cmp1 = ContactPoint.compare(cps[0], cps[1]); 
-		let cmp2 = ContactPoint.compare(cps[1], cps[2]);
-		//if (cmp1 >= 0 || cmp2 >= 0) {
-		if (cmp1 > 0 || cmp2 > 0) {
-			//kkk++;
-			//if (kkk < 2) {
-				//console.log(`3-PRONG Order is wrong: cmp1: ${cmp1}, cmp2: ${cmp2}`);
-				//console.log(threeProng);
-			//}
-		} 
-	}
-	
-	if (_debug_) {
-		let cmps = [];
+	if (MatLib._debug_) {
+		// Keep for possible future debugging.
+		/*
 		for (let i=0; i<3; i++) {
-			cmps.push( 
-					ContactPoint.compare(delta3s[i][0].item, cps[i])
-			);
-			
-			if (cmps[i] > 0) {
-				console.log(`3-PRONG Order is wrong : i: ${i} - cmp: ${cmps[i]}`);
+			let cmpBef = ContactPoint.compare(delta3s[i][0].item, cps[i]);
+			let cmpAft = ContactPoint.compare(delta3s[i][1].item, cps[i]); 
+
+			let len = MatLib._debug_.generated.threeProngs.length-1; // Used by debug functions to reference a particular three-prong
+			if (cmpBef > 0) {
+				console.log(`3-PRONG Order is wrong (bef) : i: ${i} - cmp: ${cmpBef} - n: ${len}`);
+				console.log(threeProng);
+			}
+			if (cmpAft < 0) {
+				console.log(`3-PRONG Order is wrong (aft) : i: ${i} - cmp: ${cmpAft} - n: ${len}`);
 				console.log(threeProng);
 			}
 		}
+		*/
 	}
 	
 	
 	let cpNodes = [];
 	for (let i=0; i<3; i++) {
+		let pos = ps[i];
+		let k = pos.bezierNode.loop.indx;
 		cpNodes.push(
 			LinkedLoop.insert(
-				shape.contactPoints, 
+				shape.contactPointsPerLoop[k], 
 				cps[i], 
 				delta3s[i][0]
 			)

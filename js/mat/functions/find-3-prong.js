@@ -1,87 +1,93 @@
 'use strict'
 
-let Util = require('../..//utils.js');
-let Circle = require('../../geometry/classes/circle.js');
-let Geometry = require('../../geometry/geometry.js');
-let Vector = require('../../vector/vector.js');
+let MAT_CONSTANTS = require('../../mat-constants.js');
+
+let Util          = require('../../utils.js');
+let Geometry      = require('../../geometry/geometry.js');
+let Vector        = require('../../vector/vector.js');
+
+let Circle        = require('../../geometry/classes/circle.js');
+let Bezier        = require('../../geometry/classes/bezier.js');
+let PointOnShape  = require('../../geometry/classes/point-on-shape.js');
+let Shape         = require('../../geometry/classes/shape.js');
+
 let getClosestBoundaryPointToPoint = 
 	require('../../geometry/functions/get-closest-boundary-point-to-point.js');
-let PointOnShape = require('../../geometry/classes/point-on-shape.js');
-
-
-let calcVectorToZeroV_StraightToIt = Vector.fromTo;
-
-
-function calcVectorToZeroV_AlongMedial(circleCenter, ps, _debug_) {
-	let v1 = Vector.fromTo(ps[0], ps[2]); 
-	let v2 = [-v1[1], v1[0]]; // Rotate by 90 degrees
-	let l1 = Vector.length(Vector.fromTo(x, circleCenter));
-	let v3 = Vector.toUnitVector(v2);
-	let v4 = Vector.scale(v3, l1);
-	if (_debug_) {
-		_debug_.draw.line([x, Vector.translate(x,vectorToZeroV)], 'thin10 red');
-		_debug_.draw.line([x, Vector.translate(x,v4)], 'thin10 blue');
-	}
-	
-	return v4;			
-}
+let ThreeProngForDebugging = require('../classes/debug/three-prong-for-debugging.js');
 
 
 /**
  * Look for a 3-prong from the given walked boundary piece.
  *
  * @param {Shape} shape
- * @param {[ContactPoint]} deltas
+ * @param {ContactPoint[][]} δs
  * 
  */ 
-function find3Prong(shape, deltas, _debug_) {
+function find3Prong(shape, δs) {
 	
-	let bezierPiecess = deltas.map(function(δ) {
-		return Geometry.getBoundaryPieceBeziers(shape, δ);
+	let bezierPiecess = δs.map(function(δ) {
+		//MatLib._debug_.draw.crossHair(δ[0].item, 'nofill thin50 green', 1.5);
+		//MatLib._debug_.draw.crossHair(δ[1].item, 'nofill thin50 green', 1.9);
+		//console.log(δ)
+		
+		return Shape.getBoundaryPieceBeziers(δ);
 	});
 
 	
-	let bps; // Best ps
-	let bx;
-	
-	let dbgInfo;
-	if (_debug_) { dbgInfo = { cs: [] }; }
+	let candidateThreeProngs = [];
 
 	
-	let iindx;
-	let smallestRadiusDelta = Number.POSITIVE_INFINITY;
-	for (let i=1; i<deltas.length-1; i++) {
+	// The best candidate amongst the different 'permutations' of the
+	// given δs.
+	let threeProng;
+	let bestIndx = undefined; 
+	let smallestError = Number.POSITIVE_INFINITY;
+	for (let i=1; i<δs.length-1; i++) {
 		
-		let { radiusDelta, ps, x } = find3ProngForDelta3s(
-			shape, deltas, i, bezierPiecess, 
-			dbgInfo, _debug_
-		);
+		let { circle, ps, error } = 
+			find3ProngForDelta3s(shape, δs, i, bezierPiecess);
 		
-		if (radiusDelta < smallestRadiusDelta) {
-			smallestRadiusDelta = radiusDelta;
-			iindx = i;
-			bps = ps;
-			bx = x;
+		if (MatLib._debug_) { 
+			candidateThreeProngs.push({ circle, ps });
+		}
+		
+		if (error < smallestError) {
+			smallestError = error;
+			
+			bestIndx = i-1;
+			threeProng = { circle, ps };
 		}
 	}
 
-	
-	let totDist = 
-		Vector.distanceBetween(bx, bps[0]) + 
-		Vector.distanceBetween(bx, bps[1]) + 
-		Vector.distanceBetween(bx, bps[2]);
+	/*
+	if (MatLib._debug_ && MatLib._debug_.log) { 
+		if (smallestError > 0.01) {
+			console.log('%c' + smallestError, 'color: #f00');	
+		} else {
+			console.log(smallestError);
+		} 
+	}
+	*/
 
-	let circle = new Circle(bx, totDist/3);
+	//if (MatLib._debug_ && MatLib._debug_.log) { console.log('====================='); }
 	
-	let delta3s = [deltas[0], deltas[iindx], deltas[deltas.length-1]];
+	//-------------------------------------
+	//---- Add some additional properties
+	//-------------------------------------
+	let delta3s = [δs[0], δs[bestIndx+1], δs[δs.length-1]];
+	threeProng.delta3s = delta3s;
+	//-------------------------------------
 	
-
-	let threeProng = { delta3s, circle, ps: bps };
 	
-	if (_debug_) { 
-		add3ProngForDebugging(
-			threeProng, deltas, iindx, dbgInfo, bps, _debug_
-		); 
+	if (MatLib._debug_) { 
+		let threeProngForDebugging = new ThreeProngForDebugging(
+				threeProng,
+				δs, 
+				bestIndx, 
+				candidateThreeProngs
+		);
+		
+		MatLib._debug_.generated.threeProngs.push( threeProngForDebugging ); 
 	}
 	
 	return threeProng;
@@ -95,7 +101,7 @@ function find3Prong(shape, deltas, _debug_) {
  * @returns
  */
 function find3ProngForDelta3s(
-		shape, deltas, idx, bezierPiecess, dbgInfo, _debug_) {
+		shape, deltas, idx, bezierPiecess) {
 	
 	// TODO - Choose a tolerance relative to shape size.
 	const TOLERANCE = 1e-7;
@@ -114,21 +120,21 @@ function find3ProngForDelta3s(
 	
 
 	let ps;
-	let circleCenter;
+	let circumCenter;
 	let ii = 0; // Safeguard
-	let x = calcInitial3ProngPoint(shape, delta3s, bezierPiece3s, _debug_);
+	let x = calcInitial3ProngPoint(shape, delta3s, bezierPiece3s);
 	let tolerance = Number.POSITIVE_INFINITY;
 	// TODO 10 below is magic, fix or add somewhere as a constant
 	while (tolerance > TOLERANCE && ii < 10) { 
 		ii++;
 		
-		ps = getClosestPoints(x, bezierPiece3s, _debug_);
-		circleCenter = myCircumCenter(ps, _debug_);
+		ps = getClosestPoints(x, bezierPiece3s);
+		circumCenter = Vector.circumCenter(ps);
 	
-		let vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circleCenter);
-		//let vectorToZeroV = calcVectorToZeroV_AlongMedial (x, circleCenter, ps);
+		let vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter);
+		//let vectorToZeroV = calcVectorToZeroV_AlongMedial (x, circumCenter, ps);
 		
-		let upds = calcBetterX(bezierPiece3s, x, vectorToZeroV, _debug_);
+		let upds = calcBetterX(bezierPiece3s, x, vectorToZeroV);
 		x = upds.newX;
 		
 		let V = Vector.length(vectorToZeroV);
@@ -138,31 +144,143 @@ function find3ProngForDelta3s(
 	}
 
 
-	// CircumCircle radius
-	let radius = Vector.length(Vector.fromTo(ps[0], circleCenter));
+	let radius =  
+		(Vector.distanceBetween(x, ps[0]) + 
+		 Vector.distanceBetween(x, ps[1]) + 
+		 Vector.distanceBetween(x, ps[2])) / 3;
 	
+	let circle = new Circle(x, radius);
+
+	
+	
+	//-----------------------------------------------------------------
+	// Calculate the unit tangent vector at 3-prong circle points -
+	// they should be very close to tangent to the boundary piece 
+	// tangents at those points (up to sign). Sharp corners are a
+	// common special case.
+	//-----------------------------------------------------------------
+	let totalAngleError = 0;
+	for (let i=0; i<3; i++) {
+		let p = ps[i];
+		//----------------------------
+		// Tangent of circle at point
+		//----------------------------
+		let vv = Vector.toUnitVector( Vector.fromTo(p, x) );
+		let v1 = Vector.rotateBy90Degrees( vv );
+		
+		
+		//if (MatLib._debug_ && MatLib._debug_.log) { console.log(p); }
+		
+		//-----------------------------------
+		// Check if point is on dull crorner
+		//-----------------------------------
+		let key = PointOnShape.makeSimpleKey(p);
+		let dullCorner = shape.dullCornerHash[key];
+		if (dullCorner) {
+			//if (MatLib._debug_ && MatLib._debug_.log) { console.log(dullCorner); }
+				
+			let tans = dullCorner.tans;
+			let perps = tans.map( Vector.rotateBy90Degrees );
+				
+			
+			if (MatLib._debug_ && MatLib._debug_.log) { 
+				
+				/*
+				MatLib._debug_.draw.line(
+						[p, Vector.translate(p, perps[0])], 
+						'thin10 red'
+				);
+				MatLib._debug_.draw.line(
+						[p, Vector.translate(p, perps[1])], 
+						'thin10 red'
+				);
+				*/
+				
+			}
+			//if (MatLib._debug_ && MatLib._debug_.log) { console.log(perps); }
+			if (MatLib._debug_ && MatLib._debug_.log) {
+				// The below must be elem [0,1].
+				//console.log(Vector.cross( perps[0], perps[1] )); 
+			}
+			
+			let angleError1Pre = Vector.cross( perps[0], vv );
+			let angleError2Pre = Vector.cross( vv, perps[1] );
+			let angleError1 = Math.asin( angleError1Pre );
+			let angleError2 = Math.asin( angleError2Pre );
+			
+			let angleError = 0;
+			if (angleError1 > 0) { angleError += angleError1; }
+			if (angleError2 > 0) { angleError += angleError2; }
+			
+			totalAngleError += angleError;
+		} else {
+			//---------------------------
+			// Tangent of curve at point
+			//---------------------------
+			let bezier = p.bezierNode.item;
+			let v2 = Vector.toUnitVector( Bezier.tangent(bezier)(p.t) );
+			
+			// Cross is more numerically stable than Vector.dot at angles
+			// a multiple of Math.PI **and** is close to the actual angle
+			// value and can thus just be added to cone method of looking
+			// at tolerance.
+			
+			// Should be close to zero and is close to the actual angle.
+			let cross = Math.abs( Math.asin( Vector.cross(v1, v2) ) );
+			
+			totalAngleError += cross;
+		}		
+	}
+	//if (MatLib._debug_ && MatLib._debug_.log) { console.log(totalAngleError); }
+	
+	//-----------------------------------------------------------------
+	// Calculate radiusDelta, the difference between the radius and 
+	// the closest point to the 3-prong. It should be around 0. If not,
+	// this is not a good candidate for the 3-prong.
+	//-----------------------------------------------------------------
 	let closestDs = [];
 	for (let i=0; i<bezierPiecess.length; i++) {
 		let p = getClosestBoundaryPointToPoint(
 				bezierPiecess[i],
-				circleCenter, 
-				undefined, // exclPoint,
+				x,
 				undefined, // bezierNode
-				undefined, // t
-				_debug_
+				undefined // t
 		);
 		
-		closestDs.push(Vector.length(Vector.fromTo(p, circleCenter)));
+		closestDs.push( Vector.distanceBetween(p, x) );
 	}
+	let closestD = Util.min(closestDs);
+	let radiusDelta = Math.abs(radius - closestD);
+	
+	//if (MatLib._debug_ && MatLib._debug_.log) { console.log(radiusDelta); }
+	//if (MatLib._debug_ && MatLib._debug_.log) { console.log('---------------------'); }
+	//-----------------------------------------------------------------
+	
+	// TODO Weights still need to be determined
+	let W1 = 1;
+	let W2 = 1;
+	let error = W1*radiusDelta + W2*totalAngleError;
 
-	let closestD = Util.bestBy(closestDs);
-	let radiusDelta = radius - closestD;
-	
-	if (_debug_) {
-		dbgInfo.cs.push({ ps, x, ccr: radius, indxi: idx });
+	return { ps, circle, error };
+}
+
+
+let calcVectorToZeroV_StraightToIt = Vector.fromTo;
+
+function calcVectorToZeroV_AlongMedial(circleCenter, ps) {
+	let v1 = Vector.fromTo(ps[0], ps[2]); 
+	let v2 = [-v1[1], v1[0]]; // Rotate by 90 degrees
+	let l1 = Vector.length(Vector.fromTo(x, circleCenter));
+	let v3 = Vector.toUnitVector(v2);
+	let v4 = Vector.scale(v3, l1);
+	/*
+	if (MatLib._debug_) {
+		MatLib._debug_.draw.line([x, Vector.translate(x,vectorToZeroV)], 'thin10 red');
+		MatLib._debug_.draw.line([x, Vector.translate(x,v4)], 'thin10 blue');
 	}
+	*/
 	
-	return { radiusDelta, ps, x };
+	return v4;			
 }
 
 
@@ -174,7 +292,7 @@ function find3ProngForDelta3s(
  * actual 3 prong circle center.
  */
 function calcBetterX(
-		bezierPiece3s, x, vectorToZeroV, _debug_) {
+		bezierPiece3s, x, vectorToZeroV) {
 	
 	let V = Vector.length(vectorToZeroV);
 	
@@ -188,10 +306,10 @@ function calcBetterX(
 		let shift = Vector.scale(vectorToZeroV, nu);
 		newX = Vector.translate(x, shift); 
 		
-		newPs = getClosestPoints(newX, bezierPiece3s, _debug_);
+		newPs = getClosestPoints(newX, bezierPiece3s);
 					
 		// Point of zero V
-		let newCircleCenter = myCircumCenter(newPs, _debug_); 
+		let newCircleCenter = Vector.circumCenter(newPs); 
 		let newVectorToZeroV = Vector.fromTo(newX, newCircleCenter);
 		newV = Vector.length(newVectorToZeroV);
 		
@@ -201,7 +319,7 @@ function calcBetterX(
 		
 		i++;
 	} while (!better && i < 3);
-	//console.log(i); 
+
 	
 	return { newX, newV, newPs } 
 }
@@ -217,7 +335,7 @@ function calcBetterX(
  * @returns
  */
 function calcInitial3ProngPoint(
-		shape, delta3s, bezierPiece3s, _debug_) {
+		shape, delta3s, bezierPiece3s) {
 
 	// TODO - No need to calculate, we already have this info somewhere.
 	let twoProngCircleCenter = 
@@ -225,10 +343,8 @@ function calcInitial3ProngPoint(
 	let point1 = getClosestBoundaryPointToPoint(
 			bezierPiece3s[1],
 			twoProngCircleCenter, 
-			undefined, // exclPoint,
 			undefined, // bezierNode
-			undefined, // t
-			_debug_
+			undefined // t
 	);
 	
 	
@@ -241,7 +357,9 @@ function calcInitial3ProngPoint(
 	
 	
 	let p; 
-	if (delta3s[0][0].item.pointOnShape.type === 1) {
+	if (delta3s[0][0].item.pointOnShape.type === 
+		MAT_CONSTANTS.pointType.sharp) {
+		
 		// delta3s start and end at sharp corner.
 		// If delta3s start at a sharp corner it will end there also
 		// so no need to check for end point as well.
@@ -252,10 +370,10 @@ function calcInitial3ProngPoint(
 	
 	
 	if (!Number.isFinite(p[0])) {
-		if (_debug_) {
+		if (MatLib._debug_) {
 			// TODO - check why this actuall happens sometimes
-			//console.log(_debug_.pointsToNiceStr(meanPoints));
-			//console.log(_debug_.deltasToNiceStr(delta3s));
+			//console.log(MatLib._debug_.pointsToNiceStr(meanPoints));
+			//console.log(MatLib._debug_.deltasToNiceStr(delta3s));
 			//console.log(p, meanPoints);
 		}
 	}
@@ -266,40 +384,6 @@ function calcInitial3ProngPoint(
 	
 	return p;
 	
-}
-
-
-function add3ProngForDebugging(
-		threeProng, deltas, iindx, dbgInfo, bps, _debug_) {
-	
-	_debug_.nProngs.push(threeProng);
-	
-	dbgInfo.deltas = deltas; 
-	dbgInfo.deltasSimple = deltas.map(function(delta) {
-		return [
-			PointOnShape.toHumanString(delta[0].item.pointOnShape),
-			PointOnShape.toHumanString(delta[1].item.pointOnShape)
-		]; 
-	});
-	dbgInfo.iindx = iindx;
-	
-
-	if (_debug_.drawStuff) {
-		for (let i=0; i<bps.length;i++) {
-			let p = bps[i];
-			_debug_.draw.dot(p, 0.1*(i+1), 'blue');
-		}
-	}
-	
-	if (_debug_.drawStuff) {
-		// This is a MAT point!
-		_debug_.draw.dot(threeProng.circle.center, 0.3, 'blue'); 
-		
-		_debug_.draw.circle(
-				threeProng.circle,
-				'blue thin1 nofill'
-		);
-	}
 }
 
 
@@ -316,17 +400,16 @@ function whichNotSame(ps) {
 }
 
 
-function getClosestPoints(x, bezierPiece3s, _debug_) {
+function getClosestPoints(x, bezierPiece3s) {
 
 	return bezierPiece3s.map(function(bezierPieces) {
 		
 		let p = getClosestBoundaryPointToPoint(
 				bezierPieces,
 				x, 
-				undefined, // exclPoint,
+
 				undefined, // bezierNode
-				undefined, // t
-				_debug_
+				undefined // t
 		);
 		
 		return p; 
@@ -334,158 +417,5 @@ function getClosestPoints(x, bezierPiece3s, _debug_) {
 }
 
 
-/**
- * 
- * @param ps
- * @param _debug_
- * @returns
- * 
- * NOTES: Intead of using splitBack, split and splitForward, we should
- *        use the tangents at the inward cone.
- */
-function myCircumCenter(ps, _debug_) {
-	//return Vector.circumCenter(ps);
-	
-	
-	const minD = 0.0005; // Keep this smaller than 2-prong gaps?
-	const tGap = 0.0005;
-	
-	let l1 = Vector.distanceBetween(ps[0], ps[1]);
-	let l2 = Vector.distanceBetween(ps[1], ps[2]);
-	let l3 = Vector.distanceBetween(ps[2], ps[0]);
-	
-	
-	let indxs;
-	if (l1 < minD) {
-		indxs = [0,1,2];
-	} else if (l2 < minD) {
-		indxs = [1,2,0];
-	} else if (l3 < minD) {
-		indxs = [2,0,1];
-	}
- 
-	if (indxs) {
-	
-		let newPs = [
-			
-			PointOnShape.splitBack   (ps[indxs[0]], tGap),
-			PointOnShape.split       (ps[indxs[0]], tGap),
-			PointOnShape.splitForward(ps[indxs[0]], tGap),
-			
-			/*
-			PointOnShape.splitForward(ps[indxs[0]], tGap),
-			PointOnShape.splitForward(ps[indxs[0]], tGap),
-			PointOnShape.splitForward(ps[indxs[0]], tGap),
-			*/
-		];	
-
-		
-		//return Vector.circumCenter([newPs[0][0], newPs[0][1], ps[indxs[2]]]);
-		
-		
-		let ccs = newPs.map(function(newP) {
-			return Vector.circumCenter([newP[0], newP[1], ps[indxs[2]]]);
-		});
-		
-		let idx = 0;
-		let minD = Number.POSITIVE_INFINITY;
-		for (let i=0; i<3; i++) {
-			let d = Vector.distanceBetween(ccs[i], ps[indxs[2]]);
-			if (d < minD) {
-				minD = d;
-				idx = i;
-			}
-		}
-		
-		
-		return ccs[idx];
-	}
-	
-	
-	
-	return Vector.circumCenter(ps);
-}
-
-
-function myCircumCenter1(ps, _debug_) {
-	//return Vector.circumCenter(ps);
-	
-	
-	const minD = 0.0005; // Keep this smaller than 2-prong gaps?
-	const tGap = 0.0005;
-	
-	let l1 = Vector.distanceBetween(ps[0], ps[1]);
-	let l2 = Vector.distanceBetween(ps[1], ps[2]);
-	
-	
-	let indxs;
-	//if (l1 < minD) {
-	if (l1 === 0) {
-		let newPs = PointOnShape.splitForward(ps[0], tGap);
-		return Vector.circumCenter([newPs[0], newPs[1], ps[2]]);
-	//} else if (l2 < minD) {
-	} else if (l2 === 0) {		
-		let newPs = PointOnShape.splitBack(ps[0], tGap);
-		return Vector.circumCenter([newPs[0], newPs[1], ps[2]]);
-	} 
-	
-	return Vector.circumCenter(ps);
-}
-
-
-/*
-function whichSame(ps) {
-	if (ps[0][0] === ps[1][0] && ps[0][1] === ps[1][1]) {
-		return [0,1];
-	} else if (ps[1][0] === ps[2][0] && ps[1][1] === ps[2][1]) {
-		return [1,2];
-	} else if (ps[2][0] === ps[0][0] && ps[2][1] === ps[0][1]) {
-		return [2,0];
-	};
-	
-	return []; 
-}
-*/
-
-
-/** 
- * Resolve ps (as in stellar) if they are too close together, 
- * i.e. same point.
- */
-/*
-function resolvePs(ps) {
-	
-	let sames = whichSame(ps);
-	if (sames.length === 0) {
-		return ps;
-	}
-	
-
-	let pps = [];
-	let s0 = sames[0];
-	let s1 = sames[1];
-	let abit = 0.0000001; 
-	//let abit = 0.01; 
-	
-	pps = ps.slice();
-	
-	if (pps[s0].t < abit) {
-		if (pps[s1].t + abit > 1) {
-			[s0,s1] = [s1,s0];
-		}
-		pps[s1] = PointOnShape.shift(ps[s1], abit);
-	} else {
-		if (pps[s0].t < abit) {
-			[s0,s1] = [s1,s0];
-		}
-		pps[s0] = PointOnShape.shift(ps[s0], -abit);
-	}
-	
-	return pps;
-}
-*/
-
-
 module.exports = find3Prong;
 
-// 459

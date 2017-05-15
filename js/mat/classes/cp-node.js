@@ -11,4 +11,5 @@ function CpNode(item, prev, next) {
 	this.next = next;
 }
 
+
 module.exports = CpNode;

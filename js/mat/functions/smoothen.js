@@ -1,21 +1,17 @@
 'use strict'
 
 let Geometry      = require('../../geometry/geometry.js');
+let Bezier        = require('../../geometry/classes/bezier.js');
 let Vector        = require('../../vector/vector.js');
 let Mat           = require('../classes/mat.js');
 let MAT_CONSTANTS = require('../../mat-constants.js');
-
-const DRAW_CLASS_LINE = 'nofill thin20 blue';
-const DRAW_CLASS_QUAD = 'nofill thin20 blue';
-const DRAW_CLASS_CUBE = 'nofill thin20 blue';
-//const DRAW_CLASS_CUBE = 'thin20 blue';
 
 /**
  * Smoothens the given MAT by fitting consecutive node links by
  * lines, quadratic or cubic beziers. 
  */
 
-function smoothen(mat, _debug_) {
+function smoothen(mat) {
 	
 	/**
 	 * Get the linked contact points. TODO This information to be
@@ -36,6 +32,12 @@ function smoothen(mat, _debug_) {
 			}
 		}		
 	}
+	
+	
+	let lines = [];
+	let quads = [];
+	let cubes = [];
+	
 	
 	Mat.traverse(mat, function(currNode, prevNode) {
 		if (!prevNode) { return; }
@@ -79,9 +81,9 @@ function smoothen(mat, _debug_) {
 						bezierNode2 = cp1.pointOnShape.bezierNode;
 					}
 
-					let tan1 = bezierNode1.item.tangent(0);
+					let tan1 = Bezier.tangent(bezierNode1.item)(0);
 					let tan2 = Vector.reverse(
-							bezierNode2.item.tangent(1)
+							Bezier.tangent(bezierNode2.item)(1)
 					);
 					
 					let x = Vector.dot(tan1, tan2);
@@ -121,12 +123,7 @@ function smoothen(mat, _debug_) {
 		 
 
 		if (!mid) {
-			if (_debug_) {
-				_debug_.draw.line(
-						[prevCc, currCc], 
-						DRAW_CLASS_LINE
-				);
-			}
+			lines.push([prevCc, currCc]);
 		} else if (twisted) {
 			let lp1 = Vector.mean([prevCc,currCc]);
 			let vv1 = Vector.fromTo(prevCc,currCc);
@@ -135,22 +132,19 @@ function smoothen(mat, _debug_) {
 			let l = [lp1,lpp1];
 			let mid1 = Geometry.lineLineIntersection(prevL,l);
 			let mid2 = Geometry.lineLineIntersection(currL,l);
-			if (_debug_) {
-				_debug_.draw.bezier(
-						{ bezierPoints: [prevCc, mid1, mid2, currCc] }, 
-						DRAW_CLASS_CUBE
-				);
-			}
+
+			cubes.push([prevCc, mid1, mid2, currCc]);
 		} else {
 			//console.log(prevCc, mid, currCc);
-			if (_debug_) {
-				_debug_.draw.quadBezier(
-						[prevCc, mid, currCc], 
-						DRAW_CLASS_QUAD
-				);
-			}
+			quads.push([prevCc, mid, currCc]);
 		}
 	});
+	
+	return {
+		lines,
+		quads,
+		cubes,
+	}
 }
 
 

@@ -8,8 +8,8 @@ let PointOnShape   = require('../../geometry/classes/point-on-shape.js');
 let Mat            = require('../classes/mat.js');
 
 
-const width  = 620; // TODO change to actual shape coordinates
-const height = 560; // ...
+const width  = 1620; // TODO change to actual shape coordinates
+const height = 1560; // ...
 
 
 /**
@@ -20,7 +20,7 @@ const height = 560; // ...
  * @param {Number} s The scale factor >= 1 (e.g. 1.3)
  * @returns {Sat}
  */
-function toScaleAxis(mat_, s, _debug_) {
+function toScaleAxis(mat_, s) {
 	/*
 	 * This algorithm might be made somewhat faster by building tree  
      * to a depth where there is say less than 4 other circles and then 
@@ -58,10 +58,13 @@ function toScaleAxis(mat_, s, _debug_) {
 	let t1 = performance.now();
 	//console.log((t1 - t0).toFixed(0) + ' milliseconds.');
 	
-	if (_debug_) {
-		if (_debug_.shouldDrawSATTree) {
-			_debug_.drawSATTree(tree);
+	if (MatLib._debug_) {
+		/*
+		if (MatLib._debug_.shouldDrawSATTree) {
+			MatLib._debug_.drawSATTree(tree);
 		}
+		*/
+		MatLib._debug_.generated.sat.tree = tree;
 	}
 	
 	// Grab the MAT tree at its biggest node.
@@ -217,9 +220,10 @@ function getCullNodes(s, tree, testNode) {
 		let branch = tree[5];
 		if (!branch) { return; }
 		
+		//console.log(branch);
 		branch.forEach(function(node, key) {
 			let c2 = Circle.scale(node.matCircle.circle, s);
-			if (Geometry.doesCircleEngulfCircle(c1, c2)) {
+			if (Circle.engulfsCircle(c1, c2)) {
 				cullNodes[key] = node;
 				
 				branch.delete(key);

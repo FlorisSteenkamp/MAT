@@ -1,32 +1,38 @@
 'use strict'
 
+let MAT_CONSTANTS = require('../../mat-constants.js');
+
+let Mat          = require('../classes/mat.js');
+let ContactPoint = require('../classes/contact-point.js');
+let LinkedLoop   = require('../../linked-loop/linked-loop.js');
+let Circle       = require('../../geometry/classes/circle.js');
+let PointOnShape = require('../../geometry/classes/Point-on-shape.js');
 
 let add2Prong    = require('./add-2-prong.js');
 let find2Prong   = require('./find-2-prong.js');
 let buildMat     = require('./build-mat.js');
-let Mat          = require('../classes/mat.js');
+
 
 /**
  * Find the MAT from the given Shape.
  */
-function findMat(shape, _debug_) {
+function findMat(shape) {
 
-	// TODO - run KILL_HOMOLOGY - this step will allow for shapes 
-	// with homology (i.e. with holes in them) to work as well.
-	
 	let t0;
-	//if (_debug_) {
+	//if (MatLib._debug_) {
 		t0 = performance.now(); 
 	//}
 	
-	add2Prongs(shape, _debug_);
-	//return;
+		
+	findAndAddHoleClosing2Prongs(shape);
+	findAndAdd2ProngsOnAllPaths(shape);
 	
-	//if (_debug_) { 
+	
+	//if (MatLib._debug_) { 
 		let t1 = performance.now();
 		
-		if (_debug_) {
-			_debug_.add2ProngsDuration = (t1 - t0);
+		if (MatLib._debug_) {
+			MatLib._debug_.add2ProngsDuration = (t1 - t0);
 		}
 		console.log('    2-prongs took '  + 
 				(t1 - t0).toFixed(0) + ' milliseconds.');
@@ -50,10 +56,13 @@ function findMat(shape, _debug_) {
 	let ta0;
 	ta0 = performance.now(); 
 	
-	let contactPoints = shape.contactPoints;
+	let contactPoints = shape.contactPointsPerLoop[0];
+	
 	let cpNode = contactPoints.head;
 	do {
-		if (cpNode.item.matCircle.cpNodes.length === 2) {
+		if ((cpNode.item.matCircle.cpNodes.length === 2) &&
+			!(cpNode.next.prevOnCircle === cpNode)) {
+			
 			break;
 		}
 		
@@ -62,35 +71,69 @@ function findMat(shape, _debug_) {
 
 
 	let cptest = cpNode.prevOnCircle;
-	
-	let branchBack  = buildMat(
-			shape, cptest.prevOnCircle,	undefined, undefined,
-			false, _debug_
-	);
+
 	let branchForth = buildMat(
-			shape, cptest, undefined, undefined,
-			false, _debug_
+			shape, cptest, undefined, undefined, false
+	);
+	let branchBack  = buildMat(
+			shape, cptest.prevOnCircle,	undefined, undefined, false
 	);
 	
-	branchForth.branches.push(branchForth.branches[0]);
-	branchForth.branches[0] = branchBack.branches[0]; 
+	branchForth.branches.push(branchBack.branches[0]);
 	branchBack.branches[0].branches[0] = branchForth;
 	
 	let mat = new Mat(branchForth);
 	
 	let ta1 = performance.now();
-	if (_debug_) {
-		_debug_.add2ProngsDuration = (ta1 - ta0);
+	if (MatLib._debug_) {
+		MatLib._debug_.add2ProngsDuration = (ta1 - ta0);
 	}
 	console.log('    3-prongs took '  + 
 			(ta1 - ta0).toFixed(0) + ' milliseconds.');
 	
 	
-	//return mat;
+	return fixMat(mat)
+}
+
+
+/**
+ * @description Finds and adds two-prongs that removes any holes in the
+ * shape.
+ * @param shape
+ * @returns
+ */
+function findAndAddHoleClosing2Prongs(shape) {
+	let extremes = shape.extremes;
 	
-	let matFixed = fixMat(mat)
-	
-	return matFixed;
+	for (let k=1; k<extremes.length; k++) {
+		
+		let extreme = extremes[k];
+		//console.log(extreme.p)
+		let r = MAT_CONSTANTS.maxOsculatingCircleRadius;
+		let p = [extreme.p[0], extreme.p[1] - r];
+		let osculatingCircle = new Circle(p, r);
+		let posA2 = new PointOnShape(
+				extreme.bezierNode, 
+				extreme.t, 
+				MAT_CONSTANTS.pointType.extreme, 
+				0, //order 
+				0
+		);
+		
+		// A normal traversal should give (cyclically) A1->A2->B1->B2
+		let twoProngInfo = find2Prong(shape, posA2, true);
+		let { circle, z } = twoProngInfo;
+		let posA1 = z;
+		
+		let key = PointOnShape.makeSimpleKey(posA2);
+		if (shape.straightUpHash[key]) {
+			// Skip these when doing normal 2-prong procedure
+			shape.skip2ProngHash[key] = posA2;	
+		}
+
+		
+		add2Prong(shape, circle, posA2, posA1, true);
+	}	
 }
 
 
@@ -99,33 +142,71 @@ function findMat(shape, _debug_) {
  * 
  * See comments on the add2Prong function.
  */ 
-let failCount = 0; 
-function add2Prongs(shape, _debug_) {
+function findAndAdd2ProngsOnAllPaths(shape) {
+	let for2ProngsArray = shape.for2ProngsArray;
 	
-	let for2Prongs = shape.for2Prongs;
-	
+	for (let k=0; k<for2ProngsArray.length; k++) {
+		let for2Prongs = for2ProngsArray[k];
+		
+		findAndAdd2Prongs(shape, k, for2Prongs);
+	}
+}
+
+
+function findAndAdd2Prongs(shape, k, for2Prongs) {
 	let len = for2Prongs.length;
-	
 	//let index = indexInterlaced(len); // Keep for debuggin.
 	let index = indexLinear(len);
 
-	//console.log(len);
 	for (let i=0; i<len; i++) {
-		let cpNode = for2Prongs[index[i]];
-		let twoProngInfo = find2Prong(shape, cpNode, _debug_);
+		
+		let posNode = for2Prongs[index[i]];
+		let pos = posNode.item;
+		
+		let key = PointOnShape.makeSimpleKey(pos);
+		if (shape.skip2ProngHash[key]) {
+			continue;
+		}
+		
+		let twoProngInfo = find2Prong(shape, pos, false);
 		
 		if (twoProngInfo) {
 			let { circle, z } = twoProngInfo;
-			let newCpNode = add2Prong(shape, circle, cpNode, z, _debug_);
-			/*if (!newCpNode) {
-				
-			}*/
+			add2Prong(shape, circle, pos, z, false);
 		} else {
-			failCount++;
+			// failed
 		}
 	}
 	
-	console.log('2-prong fails: ' + failCount);
+
+	/* 
+	 * Don't delete - keep for future debugging.
+	 * Check if point orders follow each other - they absolutely must.
+	 */
+	/* 
+	if (MatLib._debug_) {
+		let contactPoints = shape.contactPointsPerLoop[k];
+		let cpNode = contactPoints.head;
+		let first = true;
+		let prev = undefined;
+		do {
+			if (first) {
+				first = false;
+				prev = cpNode.item;
+				cpNode = cpNode.next;
+				continue;
+			}
+		
+			let cmp = ContactPoint.compare(prev, cpNode.item);
+			if (cmp >= 0) {
+				console.log(cmp);	
+			}
+			
+			prev = cpNode.item;
+			cpNode = cpNode.next;
+		} while (cpNode !== contactPoints.head);
+	}
+	*/
 }
 
 

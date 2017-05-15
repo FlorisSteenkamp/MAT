@@ -8,11 +8,10 @@ let findNode = require('./find-node.js');
  * Get the branches from the given MAT.
  * 
  * @param mat
- * @param _debug_
  * @returns
  */
 
-function getBranches(mat, _debug_) {
+function getBranches(mat) {
 	
 	// Start at a node with 1 or 3 branches.
 	let startNode = findNode(mat, function(node) {
@@ -39,16 +38,23 @@ function getBranches(mat, _debug_) {
 			//console.log(branch);
 			for (let node of branch) {
 				let color = ['red', 'blue', 'green'][i];
-				_debug_.drawDot(node.matCircle.circle.center, 1, color);
+				/*
+				if (MatLib._debug_) {
+					MatLib._debug_.draw.dot(node.matCircle.circle.center, 1, color);
+				}
+				*/
 			}
 			
 			
 			let endNode = branch[branch.length-1];
 			let prevNode = branch[branch.length-2];
 
-			if (_debug_) {
-				//_debug_.drawDot(endNode.matCircle.circle.center, 2, 'yellow');	
+			/*
+			if (MatLib._debug_) {
+				MatLib._debug_.draw.dot(endNode.matCircle.circle.center, 2, 'yellow');	
 			}
+			*/
+			
 			helper(endNode, prevNode, depth + 1);
 		}
 	} 

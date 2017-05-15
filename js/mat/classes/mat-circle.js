@@ -2,6 +2,7 @@
 
 let Circle = require('../../geometry/classes/circle.js');
 
+
 /**
  * Medial (or Scale) Axis Transform (MAT) maximal contact circle class, 
  * i.e. a representative data point of the MAT.
@@ -9,22 +10,15 @@ let Circle = require('../../geometry/classes/circle.js');
  * @constructor
  * @param {Circle} circle - If null we consider it a virtual circle.
  * @param {ListNode<ContactPoint>[]} cpNodes - The contact points of this circle on the shape.
+ * @note Do not do 'new MatCircle', rather use 'MatCircle.create'.
  */
-let MatCircle = function(circle, cpNodes) {
+function MatCircle(circle, cpNodes) {
 	this.circle = circle;
 	this.cpNodes = cpNodes;
 	this.visited = 0; // TODO - does not belong inside the class
 }
 	
 	
-MatCircle.copy = function(matCircle) {
-	return new MatCircle(
-			matCircle.circle,
-			matCircle.cpNodes
-	)
-}
-
-
 /** 
  * MatCircle creator.
  * @param {Circle} circle 
@@ -47,7 +41,3 @@ MatCircle.create = function(circle, cpNodes) {
 
 
 module.exports = MatCircle;
-
-	
-
-

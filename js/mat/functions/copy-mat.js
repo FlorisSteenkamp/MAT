@@ -5,7 +5,7 @@ let Mat     = require('../classes/mat.js');
 
 
 function copyMat(mat) {
-	return new Mat(MatNode.copy(mat.startNode));
+	return new Mat( MatNode.copy(mat.startNode) );
 }
 
 
