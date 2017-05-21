@@ -11,7 +11,7 @@ The MAT is an analytical form of skeletonization of a shape. It is perfectly sui
 * **Image compression**
 
 
-![Alt text](https://github.com/FlorisSteenkamp/MAT/tree/master/github%20assets)
+![Alt text](https://github.com/FlorisSteenkamp/MAT/tree/master/github%20assets/two-hole.png)
 
 
 <!-- SVGs from publicdomainvectors.org -->
