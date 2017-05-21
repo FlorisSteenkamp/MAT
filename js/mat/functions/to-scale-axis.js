@@ -53,12 +53,9 @@ function toScaleAxis(mat_, s) {
 	}
 	
 	
-	let t0 = performance.now(); 
 	let tree = createSpacialTree(s, nodeHash);
-	let t1 = performance.now();
-	//console.log((t1 - t0).toFixed(0) + ' milliseconds.');
 	
-	if (MatLib._debug_) {
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		/*
 		if (MatLib._debug_.shouldDrawSATTree) {
 			MatLib._debug_.drawSATTree(tree);
@@ -84,6 +81,11 @@ function toScaleAxis(mat_, s) {
 	cullIt(cullHash, cullNodes, sat.startNode);
 	 
 	cullTheNodes(cullNodes);
+	
+	if (MatLib._debug_) {
+		MatLib._debug_.generated.timing.afterSat = 
+			performance.now(); 
+	}
 	
 	return sat;
 }

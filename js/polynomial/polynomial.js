@@ -232,7 +232,6 @@ function deflate(poly, root) {
 		);
 	}
 
-	//console.log(bs);
 	return bs;
 }
 

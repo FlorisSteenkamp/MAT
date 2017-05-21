@@ -52,7 +52,6 @@ let TwoProngForDebugging = require('../classes/debug/two-prong-for-debugging.js'
  * In fact, we (and they) start by fixing one point on the boundary
  * beforehand. 
  */
-let iii = 0;
 function find2Prong(shape, y, holeClosing) {
 	
 	/* The failed flag is set if a 2-prong cannot be found. This occurs
@@ -96,25 +95,25 @@ function find2Prong(shape, y, holeClosing) {
 		}
 	} else {
 		// TODO - getNeighbouringPoints *can* be eliminated (as with 3-prongs)
-		// by keeping track of boundary piece in which is being searched 
+		// by keeping track of boundary piece in which it is being searched 
 		// - not sure if same can be done with hole-closing 2-prongs.
 		let ps = Shape.getNeighbouringPoints(shape, y);
 		δ = [ps[0], ps[0]];
-		bezierPieces = Shape.getBoundaryPieceBeziers(δ);
+		if (!ps[0]) {
+			bezierPieces = Shape.getBoundaryBeziers(shape, k);
+		} else {
+			bezierPieces = Shape.getBoundaryPieceBeziers(δ);	
+		}
 	}
 	
 	let xs = []; // Trace the convergence.
 	let z;
 	let squaredError;
 	let i=0;
-	iii++;
 	do {
 		i++
 
 		let r = Vector.squaredDistanceBetween(x, y);
-		if (iii === 28) {
-			//console.log('a');
-		}
 		bezierPieces = cullBezierPieces(bezierPieces, x, r);
 	
 		z = getClosestBoundaryPointToPoint(
@@ -123,19 +122,16 @@ function find2Prong(shape, y, holeClosing) {
 			bezierNode, 
 			t
 		);
-		if (!z) {
-			console.log(iii);
-		}
 		
-		if (MatLib._debug_) { xs.push({ x, y, z, t });	}
+		if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
+			xs.push({ x, y, z, t });	
+		}
 		
 		let d = Vector.squaredDistanceBetween(x, z);
 		if (i === 1 && d+(SQUARED_1PRONG_TOLERANCE) >= r) {
-			// It is a 1-prong
-			add1Prong(shape, y); // TODO Refactor - adding a 1-prong in a function called 2-prong!?
-			//console.log('1-prong added')
-			// set point order (if dull corner!)
-			return undefined; // TODO - not pretty - so that we don't add it as a 2-prong
+			// It is a 1-prong.
+			add1Prong(shape, y); 
+			return undefined; 
 		}
 		
 		let squaredChordDistance = Vector.squaredDistanceBetween(y,z);
@@ -168,9 +164,10 @@ function find2Prong(shape, y, holeClosing) {
 		
 		x = nextX;
 		
-		//if (MatLib._debug_) { xs.push({ x, y, z, t });	}
 	} while (squaredError > SQUARED_ERROR_TOLERANCE && i < MAX_ITERATIONS);
-	if (MatLib._debug_) { xs.push({ x, y, z, t });	}
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
+		xs.push({ x, y, z, t });	
+	}
 	
 	if (i === MAX_ITERATIONS) {
 		// This is simply a case of convergence being too slow. The
@@ -189,7 +186,7 @@ function find2Prong(shape, y, holeClosing) {
 	PointOnShape.setPointOrder(shape, circle, z);
 	
 
-	if (MatLib._debug_) { 
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
 		recordForDebugging(failed, y, circle, y,z, δ, xs, holeClosing);
 	}
 	
@@ -221,7 +218,7 @@ function add1Prong(shape, pos) {
 		//console.log(posNode);
 		//toRemove.push(posNode); /* this */
 		
-		if (MatLib._debug_) {
+		if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 			// TODO - why would it be NaN in some cases?
 			let oCircle = PointOnShape.getOsculatingCircle(pos);
 			if (!Number.isNaN(oCircle.center[0])) {
@@ -235,9 +232,11 @@ function add1Prong(shape, pos) {
 
 	let cp = new ContactPoint(pos, undefined);
 	let delta = Shape.getNeighbouringPoints(shape, pos);
-	let cmp1 = ContactPoint.compare(delta[0].item, cp);
-	let cmp2 = ContactPoint.compare(cp, delta[1].item);
-	if (MatLib._debug_) {
+	//let cmp1 = ContactPoint.compare(delta[0].item, cp);
+	//let cmp2 = ContactPoint.compare(cp, delta[1].item);
+	let cmp1 = delta[0] === undefined ? undefined : ContactPoint.compare(delta[0].item, cp);
+	let cmp2 = delta[1] === undefined ? undefined : ContactPoint.compare(cp, delta[1].item);
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		if (cmp1 > 0 || cmp2 > 0) {
 			//console.log(`1-PRONG Order is wrong: ${cmp1}, ${cmp2}`);
 		}
@@ -262,7 +261,7 @@ function add1Prong(shape, pos) {
 	newCpNode.prevOnCircle = newCpNode;  // Trivial loop
 	newCpNode.nextOnCircle = newCpNode;  // ...
 	
-	if (MatLib._debug_) {
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		MatLib._debug_.generated.oneProngs.push({pos});	
 	}
 	

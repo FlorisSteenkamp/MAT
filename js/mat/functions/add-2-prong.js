@@ -27,7 +27,7 @@ function add2Prong(shape, circle, pos1, pos2, holeClosing) {
 	let delta2 = Shape.getNeighbouringPoints(shape, pos2); 
 	let cmp3 = delta2[0] === undefined ? undefined : ContactPoint.compare(delta2[0].item, cp2); 
 	let cmp4 = delta2[1] === undefined ? undefined : ContactPoint.compare(cp2, delta2[1].item);
-	if (MatLib._debug_) {
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		if (cmp3 > 0 || cmp4 > 0) {
 			//console.log(`2-PRONG 2 Order is wrong 2: ${cmp3}, ${cmp4}`);
 		}
@@ -48,7 +48,7 @@ function add2Prong(shape, circle, pos1, pos2, holeClosing) {
 	let delta1 = Shape.getNeighbouringPoints(shape, pos1);
 	let cmp1 = delta1[0] === undefined ? undefined : ContactPoint.compare(delta1[0].item, cp1);
 	let cmp2 = delta1[1] === undefined ? undefined : ContactPoint.compare(cp1, delta1[1].item);
-	if (MatLib._debug_) {
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		if (cmp1 > 0 || cmp2 > 0) {
 			//console.log(`2-PRONG 1 Order is wrong 2: ${cmp1}, ${cmp2}`);
 		}
@@ -70,10 +70,9 @@ function add2Prong(shape, circle, pos1, pos2, holeClosing) {
 	
 	newCp1Node.prevOnCircle = newCp2Node;
 	newCp1Node.nextOnCircle = newCp2Node;
-	
+
 	newCp2Node.prevOnCircle = newCp1Node;
 	newCp2Node.nextOnCircle = newCp1Node;
-	
 	
 	
 	if (holeClosing) {
@@ -114,7 +113,7 @@ function add2Prong(shape, circle, pos1, pos2, holeClosing) {
 	}
 	
 	
-	if (MatLib._debug_) {
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		// Add points so when we alt-click shape point is logged.
 		prepForDebug(newCp1Node);
 		prepForDebug(newCp2Node);

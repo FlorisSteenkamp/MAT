@@ -20,7 +20,7 @@ function buildMat(
 	let visitedPoints;
 	do {
 		visitedPoints = traverseShape(cpNodeStart);
-		if (MatLib._debug_) {
+		if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 			// Oops - fix
 			// cpHashDebugObj.visitedPointsArr.push(visitedPoints);
 		}
@@ -107,7 +107,9 @@ function createMatNode(cp, branches) {
 			branches
 	);
 	
-	if (MatLib._debug_) { prepDebugHashes(cp, matNode); }
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
+		prepDebugHashes(cp, matNode); 
+	}
 	
 	return matNode;
 }

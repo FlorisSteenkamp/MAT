@@ -26,8 +26,8 @@ let ThreeProngForDebugging = require('../classes/debug/three-prong-for-debugging
 function find3Prong(shape, δs) {
 	
 	let bezierPiecess = δs.map(function(δ) {
-		//MatLib._debug_.draw.crossHair(δ[0].item, 'nofill thin50 green', 1.5);
-		//MatLib._debug_.draw.crossHair(δ[1].item, 'nofill thin50 green', 1.9);
+		//MatLib._debug_.fs.draw.crossHair(δ[0].item, 'nofill thin50 green', 1.5);
+		//MatLib._debug_.fs.draw.crossHair(δ[1].item, 'nofill thin50 green', 1.9);
 		//console.log(δ)
 		
 		return Shape.getBoundaryPieceBeziers(δ);
@@ -47,7 +47,7 @@ function find3Prong(shape, δs) {
 		let { circle, ps, error } = 
 			find3ProngForDelta3s(shape, δs, i, bezierPiecess);
 		
-		if (MatLib._debug_) { 
+		if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
 			candidateThreeProngs.push({ circle, ps });
 		}
 		
@@ -79,7 +79,7 @@ function find3Prong(shape, δs) {
 	//-------------------------------------
 	
 	
-	if (MatLib._debug_) { 
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
 		let threeProngForDebugging = new ThreeProngForDebugging(
 				threeProng,
 				δs, 
@@ -186,11 +186,11 @@ function find3ProngForDelta3s(
 			if (MatLib._debug_ && MatLib._debug_.log) { 
 				
 				/*
-				MatLib._debug_.draw.line(
+				MatLib._debug_.fs.draw.line(
 						[p, Vector.translate(p, perps[0])], 
 						'thin10 red'
 				);
-				MatLib._debug_.draw.line(
+				MatLib._debug_.fs.draw.line(
 						[p, Vector.translate(p, perps[1])], 
 						'thin10 red'
 				);
@@ -274,9 +274,9 @@ function calcVectorToZeroV_AlongMedial(circleCenter, ps) {
 	let v3 = Vector.toUnitVector(v2);
 	let v4 = Vector.scale(v3, l1);
 	/*
-	if (MatLib._debug_) {
-		MatLib._debug_.draw.line([x, Vector.translate(x,vectorToZeroV)], 'thin10 red');
-		MatLib._debug_.draw.line([x, Vector.translate(x,v4)], 'thin10 blue');
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
+		MatLib._debug_.fs.draw.line([x, Vector.translate(x,vectorToZeroV)], 'thin10 red');
+		MatLib._debug_.fs.draw.line([x, Vector.translate(x,v4)], 'thin10 blue');
 	}
 	*/
 	
@@ -370,7 +370,7 @@ function calcInitial3ProngPoint(
 	
 	
 	if (!Number.isFinite(p[0])) {
-		if (MatLib._debug_) {
+		if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 			// TODO - check why this actuall happens sometimes
 			//console.log(MatLib._debug_.pointsToNiceStr(meanPoints));
 			//console.log(MatLib._debug_.deltasToNiceStr(delta3s));

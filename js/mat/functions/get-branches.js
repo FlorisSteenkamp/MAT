@@ -39,7 +39,7 @@ function getBranches(mat) {
 			for (let node of branch) {
 				let color = ['red', 'blue', 'green'][i];
 				/*
-				if (MatLib._debug_) {
+				if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 					MatLib._debug_.draw.dot(node.matCircle.circle.center, 1, color);
 				}
 				*/
@@ -50,7 +50,7 @@ function getBranches(mat) {
 			let prevNode = branch[branch.length-2];
 
 			/*
-			if (MatLib._debug_) {
+			if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 				MatLib._debug_.draw.dot(endNode.matCircle.circle.center, 2, 'yellow');	
 			}
 			*/

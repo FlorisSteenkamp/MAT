@@ -18,7 +18,7 @@ function add3Prong(shape, threeProng) {
 
 	let cps = [0,1,2].map(i => new ContactPoint(ps[i], undefined))
 	
-	if (MatLib._debug_) {
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		// Keep for possible future debugging.
 		/*
 		for (let i=0; i<3; i++) {

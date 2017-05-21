@@ -29,7 +29,12 @@ let getBezierOsculatingCircles =
  * 
  * @constructor  
  */
-let Shape = function(bezierArrays) {
+function Shape(bezierArrays) {
+	
+	if (MatLib._debug_) {
+		MatLib._debug_.generated.timing.start = 
+			performance.now(); 
+	}
 
 	// Hash of PointOnShapes that has a normal pointing straight up. 
 	this.straightUpHash = {}; 
@@ -88,7 +93,7 @@ let Shape = function(bezierArrays) {
 	// straightUpHash.
 	Shape.forEachPointOnShape(this, pos => {
 		if (pos.type === MAT_CONSTANTS.pointType.sharp) {
-			if (MatLib._debug_) {
+			if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 				MatLib._debug_.generated.sharpCorners.push({pos});
 			}			
 		} else {
@@ -97,7 +102,7 @@ let Shape = function(bezierArrays) {
 				this.straightUpHash[key] = pos;	
 			}
 			
-			if (MatLib._debug_) {
+			if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 				if (pos.type === MAT_CONSTANTS.pointType.dull) {
 					MatLib._debug_.generated.dullCorners.push({pos});
 				}
@@ -108,6 +113,11 @@ let Shape = function(bezierArrays) {
 	
 	this.contactPointsPerLoop = 
 		createSharpCornerCpLoops(this, sharpCornersArray);
+	
+	if (MatLib._debug_) {
+		MatLib._debug_.generated.timing.after1Prongs = 
+			performance.now(); 
+	}
 }
 
 

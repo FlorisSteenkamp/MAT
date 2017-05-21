@@ -18,44 +18,17 @@ let buildMat     = require('./build-mat.js');
  */
 function findMat(shape) {
 
-	let t0;
-	//if (MatLib._debug_) {
-		t0 = performance.now(); 
-	//}
-	
-		
 	findAndAddHoleClosing2Prongs(shape);
 	findAndAdd2ProngsOnAllPaths(shape);
 	
+	if (MatLib._debug_) {
+		MatLib._debug_.generated.timing.after2Prongs = 
+			performance.now(); 
+	}
 	
-	//if (MatLib._debug_) { 
-		let t1 = performance.now();
-		
-		if (MatLib._debug_) {
-			MatLib._debug_.add2ProngsDuration = (t1 - t0);
-		}
-		console.log('    2-prongs took '  + 
-				(t1 - t0).toFixed(0) + ' milliseconds.');
-	//}
 	
-	/*
-	 * Connect the dots and add the 3-prongs.
-	 * 
-	 * 1. Start with any 2-prong (might not be neccessary, we might be able
-	 * to start with any contact-point
-	 * 
-	 */
-	
-
-	/* ---- 
-	 * Find a good starting point for our tree structure 
-	 * e.g. (first 2-prong).
-	 * TODO Check if this step is really necessary.  
-	 */
-		
-	let ta0;
-	ta0 = performance.now(); 
-	
+	//---- Connect the n-prong centers and add the 3-prongs.
+ 
 	let contactPoints = shape.contactPointsPerLoop[0];
 	
 	let cpNode = contactPoints.head;
@@ -84,13 +57,10 @@ function findMat(shape) {
 	
 	let mat = new Mat(branchForth);
 	
-	let ta1 = performance.now();
 	if (MatLib._debug_) {
-		MatLib._debug_.add2ProngsDuration = (ta1 - ta0);
+		MatLib._debug_.generated.timing.after3Prongs = 
+			performance.now(); 
 	}
-	console.log('    3-prongs took '  + 
-			(ta1 - ta0).toFixed(0) + ' milliseconds.');
-	
 	
 	return fixMat(mat)
 }

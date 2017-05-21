@@ -25,13 +25,17 @@ function allRootsVAS(p, tRange) {
 	.filter(function(interval) {
 		let notOverlap = (interval[1] < tRange[0] || interval[0] > tRange[1])
 		if (notOverlap) { 
-			if (MatLib._debug_) { MatLib._debug_.generated.rootsSkipped++; } 
+			if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
+				MatLib._debug_.generated.rootsSkipped++; 
+			} 
 		}
 		return !notOverlap;
 	})
 	.map(function(interval) {
 		// TODO - 0.0001 was emperically chosen
-		if (MatLib._debug_) { MatLib._debug_.generated.rootsNotSkipped++; }
+		if (MatLib._debug_ && !MatLib._debug_.config.isTiming) { 
+			MatLib._debug_.generated.rootsNotSkipped++; 
+		}
 		
 		return Poly.brent(
 				Poly.evaluate(p_), 
@@ -46,7 +50,7 @@ function allRootsVAS(p, tRange) {
 	}
 	
 	/*
-	if (MatLib._debug_) {
+	if (MatLib._debug_ && !MatLib._debug_.config.isTiming) {
 		MatLib._debug_.generated.rootsNotSkipped++;
 	}
 	*/
