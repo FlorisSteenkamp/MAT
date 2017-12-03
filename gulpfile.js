@@ -15,7 +15,7 @@ var babelify   = require("babelify");
 
 var tsProject  = ts.createProject("./tsconfig.json");
 
-gulp.task('default', browserTask);
+gulp.task('default', nodeTask);
 gulp.task('node',    nodeTask);
 gulp.task('browser', browserTask);
 

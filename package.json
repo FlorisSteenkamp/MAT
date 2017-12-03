@@ -26,8 +26,11 @@
     "skeleton"
   ],
   "dependencies": {
-    "flo-poly": "^1.0.1",
-    "flo-vector2d": "^0.0.1"
+    "flo-poly": "*",
+    "flo-vector2d": "*",
+    "flo-ll-rb-tree": "*",
+    "flo-bezier3": "*",
+    "flo-lines-intersections": "*"
   },
   "devDependencies": {
     "@types/node": "^8.0.53",
