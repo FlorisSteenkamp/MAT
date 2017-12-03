@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "alwaysStrict": true,
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "target": "es2015",
+        "declaration": true,
+        "noEmitOnError": true
+    },
+    "include": [
+        "index.ts",
+        "lib/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
