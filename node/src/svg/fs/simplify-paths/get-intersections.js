@@ -5,7 +5,7 @@ const point_on_shape_1 = require("../../../point-on-shape");
 const pair_set_1 = require("./pair-set");
 const find_bb_intersections_1 = require("../../../bounding-box/find-bb-intersections");
 // TODO - DELTA is arbitrary
-const DELTA = 1e-9;
+const DELTA = 1e-12;
 /**
  * Find and return all intersections on all given loops.
  * @param loops
@@ -63,27 +63,61 @@ function getIntersections(loops) {
         for (let tPair of tPairs) {
             // TODO - the below check is temporary - there is a better way
             // TODO - eliminate the fact that intersections are found twice
-            if ((Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1] - 1) < DELTA) ||
-                (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]) < DELTA) ||
-                (Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1]) < DELTA) ||
-                (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1] - 1) < DELTA)) {
-                continue;
-            }
             /*
-            if (_debug_ !== undefined) {
-                let p = evaluate(pss[0], tPair[0]);
-                _debug_.fs.draw.crossHair(p, 'nofill thin1 red', 2);
+            if (
+                ((Math.abs(tPair[0]    ) < DELTA && Math.abs(tPair[1] - 1) < DELTA) ||
+                 (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]    ) < DELTA) ||
+                 (Math.abs(tPair[0]    ) < DELTA && Math.abs(tPair[1]    ) < DELTA) ||
+                 (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1] - 1) < DELTA))
+             ) {
+                if (!(curves[0].next === curves[1] || curves[1].next === curves[0])) {
+                    _debug_.fs.draw.crossHair(_debug_.generated.g, new PointOnShape(curves[0], tPair[0]).p, 'blue nofill thin10', 0.1);
+                    _debug_.fs.draw.crossHair(_debug_.generated.g, new PointOnShape(curves[1], tPair[1]).p, 'blue nofill thin10', 0.1);
+                    console.log(tPair[0], tPair[1], pss);
+                    console.log(curves);
+                }
             }
             */
-            let xInfos = [];
+            if (((Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1] - 1) < DELTA) ||
+                (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]) < DELTA) ||
+                (Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1]) < DELTA) ||
+                (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1] - 1) < DELTA)) &&
+                (curves[0].next === curves[1] || curves[1].next === curves[0])) {
+                continue;
+            }
+            if (Math.abs(tPair[0] - 1) < DELTA) {
+                // If the intersection occurs at the end, move it to the start
+                // so we don't have a very small bezier piece left.
+                curves[0] = curves[0].next;
+                tPair[0] = 0;
+                // Recheck
+                if (pair_set_1.pairSet_has(checkedPairs, [curves[0], curves[1]])) {
+                    continue;
+                }
+            }
+            if (Math.abs(tPair[1] - 1) < DELTA) {
+                // If the intersection occurs at the end, move it to the start
+                // so we don't have a very small bezier piece left.
+                curves[1] = curves[1].next;
+                tPair[1] = 0;
+                // Recheck
+                if (pair_set_1.pairSet_has(checkedPairs, [curves[0], curves[1]])) {
+                    continue;
+                }
+            }
             let pos1 = new point_on_shape_1.PointOnShape(curves[0], tPair[0]);
+            let pos2 = new point_on_shape_1.PointOnShape(curves[1], tPair[1]);
+            //_debug_.fs.draw.crossHair(_debug_.generated.g, pos1.p, 'blue nofill thin10', 0.1);
+            //_debug_.fs.draw.crossHair(_debug_.generated.g, pos2.p, 'blue nofill thin10', 0.1);
+            //console.log(tPair[0], tPair[1], pss);
+            //console.log(curves);
+            let xInfos = [];
             xInfos.push({
                 loop: curves[0].loop,
                 pos: pos1,
                 opposite: undefined,
                 loopTree: undefined,
             });
-            let pos2 = new point_on_shape_1.PointOnShape(curves[1], tPair[1]);
             xInfos.push({
                 loop: curves[1].loop,
                 pos: pos2,
@@ -91,9 +125,6 @@ function getIntersections(loops) {
                 loopTree: undefined,
             });
             xInfos[0].opposite = xInfos[1];
-            _debug_.fs.draw.crossHair(_debug_.generated.g, pos1.p, 'blue nofill thin2', 0.01);
-            _debug_.fs.draw.crossHair(_debug_.generated.g, pos2.p, 'blue nofill thin2', 0.01);
-            console.log(tPair[0], tPair[1], pss);
             for (let j = 0; j < 2; j++) {
                 let intersectingCurves = intersections.get(curves[j]);
                 if (!intersectingCurves) {

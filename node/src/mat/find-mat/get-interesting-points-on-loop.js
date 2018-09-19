@@ -9,9 +9,9 @@ const point_on_shape_1 = require("../../point-on-shape");
 // is an integer and in the closed interval [1..2^n] and thus use only a few
 // bits of mantissa in its floating point representation.
 //const EXTRA_POINTS = 0;
-//const EXTRA_POINTS = 1;
+const EXTRA_POINTS = 1;
 //const EXTRA_POINTS = 3;
-const EXTRA_POINTS = 7;
+//const EXTRA_POINTS = 7;
 //const EXTRA_POINTS = 15;
 //const EXTRA_POINTS = 31;
 /**
