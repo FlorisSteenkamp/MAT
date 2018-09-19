@@ -34,6 +34,10 @@ function nodeTask() {
 
 	return tsProject.src()
 		.pipe(tsProject())
+		//.pipe(sourcemaps.init())
+		//.pipe(sourcemaps.write('./'))
+		//.pipe(sourcemaps.write('.', { sourceRoot: function(file){ return file.cwd + '/lib'; } }))
+		//.pipe(sourcemaps.write()) // Will inline the source map and include the entire source
 		.pipe(gulp.dest("node"));
 }
 
@@ -49,9 +53,7 @@ function browserTask() {
 		console.error(err.toString());
 		console.error(err.stack); 
 	}
-	
     browserify({
-    		//entries: 'index.ts',
     		standalone: 'FloMat',
 	})
 	.add('browser.js')   
@@ -61,7 +63,6 @@ function browserTask() {
 		declaration: false 
 	})
 	.transform(babelify, {
-		//plugins: ["transform-es2015-modules-commonjs"],
 		presets: ['env'],
 		extensions: ['.ts'] 
 	})

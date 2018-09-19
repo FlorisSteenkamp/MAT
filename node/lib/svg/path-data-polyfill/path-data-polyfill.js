@@ -12,28 +12,27 @@
 // @license
 //   MIT License
 Object.defineProperty(exports, "__esModule", { value: true });
-function applyPathDataPolyFill() {
+function pathDataPolyFill() {
     if (!SVGPathElement.prototype.getPathData ||
         !SVGPathElement.prototype.setPathData) {
         applyPolyFill();
     }
 }
-exports.default = applyPathDataPolyFill;
-function applyPathDataPolyFill() {
+function applyPolyFill() {
+    // TODO - 
     var commandsMap = {
         "Z": "Z", "M": "M", "L": "L", "C": "C", "Q": "Q", "A": "A", "H": "H", "V": "V", "S": "S", "T": "T",
         "z": "Z", "m": "m", "l": "l", "c": "c", "q": "q", "a": "a", "h": "h", "v": "v", "s": "s", "t": "t"
     };
-    var Source = function (string) {
-        this._string = string;
-        this._currentIndex = 0;
-        this._endIndex = this._string.length;
-        this._prevCommand = null;
-        this._skipOptionalSpaces();
-    };
-    var isIE = window.navigator.userAgent.indexOf("MSIE ") !== -1;
-    Source.prototype = {
-        parseSegment: function () {
+    class Source {
+        constructor(string) {
+            this._string = string;
+            this._currentIndex = 0;
+            this._endIndex = this._string.length;
+            this._prevCommand = null;
+            this._skipOptionalSpaces();
+        }
+        parseSegment() {
             var char = this._string[this._currentIndex];
             var command = commandsMap[char] ? commandsMap[char] : null;
             if (command === null) {
@@ -107,15 +106,15 @@ function applyPathDataPolyFill() {
             else {
                 return { type: command, values: values };
             }
-        },
-        hasMoreData: function () {
+        }
+        hasMoreData() {
             return this._currentIndex < this._endIndex;
-        },
-        peekSegmentType: function () {
+        }
+        peekSegmentType() {
             var char = this._string[this._currentIndex];
             return commandsMap[char] ? commandsMap[char] : null;
-        },
-        initialCommandIsMoveTo: function () {
+        }
+        initialCommandIsMoveTo() {
             // If the path is empty it is still valid, so return true.
             if (!this.hasMoreData()) {
                 return true;
@@ -123,18 +122,18 @@ function applyPathDataPolyFill() {
             var command = this.peekSegmentType();
             // Path must start with moveTo.
             return command === "M" || command === "m";
-        },
-        _isCurrentSpace: function () {
+        }
+        _isCurrentSpace() {
             var char = this._string[this._currentIndex];
             return char <= " " && (char === " " || char === "\n" || char === "\t" || char === "\r" || char === "\f");
-        },
-        _skipOptionalSpaces: function () {
+        }
+        _skipOptionalSpaces() {
             while (this._currentIndex < this._endIndex && this._isCurrentSpace()) {
                 this._currentIndex += 1;
             }
             return this._currentIndex < this._endIndex;
-        },
-        _skipOptionalSpacesOrDelimiter: function () {
+        }
+        _skipOptionalSpacesOrDelimiter() {
             if (this._currentIndex < this._endIndex &&
                 !this._isCurrentSpace() &&
                 this._string[this._currentIndex] !== ",") {
@@ -147,11 +146,11 @@ function applyPathDataPolyFill() {
                 }
             }
             return this._currentIndex < this._endIndex;
-        },
+        }
         // Parse a number from an SVG path. This very closely follows genericParseNumber(...) from
         // Source/core/svg/SVGParserUtilities.cpp.
         // Spec: http://www.w3.org/TR/SVG11/single-page.html#paths-PathDataBNF
-        _parseNumber: function () {
+        _parseNumber() {
             var exponent = 0;
             var integer = 0;
             var frac = 1;
@@ -185,7 +184,7 @@ function applyPathDataPolyFill() {
                 var scanIntPartIndex = this._currentIndex - 1;
                 var multiplier = 1;
                 while (scanIntPartIndex >= startIntPartIndex) {
-                    integer += multiplier * (this._string[scanIntPartIndex] - "0");
+                    integer += multiplier * (Number(this._string[scanIntPartIndex]) - 0);
                     scanIntPartIndex -= 1;
                     multiplier *= 10;
                 }
@@ -203,7 +202,7 @@ function applyPathDataPolyFill() {
                     this._string[this._currentIndex] >= "0" &&
                     this._string[this._currentIndex] <= "9") {
                     frac *= 10;
-                    decimal += (this._string.charAt(this._currentIndex) - "0") / frac;
+                    decimal += (Number(this._string.charAt(this._currentIndex))) / frac;
                     this._currentIndex += 1;
                 }
             }
@@ -231,7 +230,7 @@ function applyPathDataPolyFill() {
                     this._string[this._currentIndex] >= "0" &&
                     this._string[this._currentIndex] <= "9") {
                     exponent *= 10;
-                    exponent += (this._string[this._currentIndex] - "0");
+                    exponent += (Number(this._string[this._currentIndex]));
                     this._currentIndex += 1;
                 }
             }
@@ -245,8 +244,8 @@ function applyPathDataPolyFill() {
             }
             this._skipOptionalSpacesOrDelimiter();
             return number;
-        },
-        _parseArcFlag: function () {
+        }
+        _parseArcFlag() {
             if (this._currentIndex >= this._endIndex) {
                 return null;
             }
@@ -265,7 +264,8 @@ function applyPathDataPolyFill() {
             this._skipOptionalSpacesOrDelimiter();
             return flag;
         }
-    };
+    }
+    var isIE = window.navigator.userAgent.indexOf("MSIE ") !== -1;
     var parsePathDataString = function (string) {
         if (!string || string.length === 0)
             return [];
@@ -286,19 +286,19 @@ function applyPathDataPolyFill() {
     };
     var setAttribute = SVGPathElement.prototype.setAttribute;
     var removeAttribute = SVGPathElement.prototype.removeAttribute;
-    var $cachedPathData = window.Symbol ? Symbol() : "__cachedPathData";
-    var $cachedNormalizedPathData = window.Symbol ? Symbol() : "__cachedNormalizedPathData";
+    var $cachedPathData = Symbol();
+    var $cachedNormalizedPathData = Symbol();
+    var degToRad = function (degrees) {
+        return (Math.PI * degrees) / 180;
+    };
+    var rotate = function (x, y, angleRad) {
+        var X = x * Math.cos(angleRad) - y * Math.sin(angleRad);
+        var Y = x * Math.sin(angleRad) + y * Math.cos(angleRad);
+        return { x: X, y: Y };
+    };
     // @info
     //   Get an array of corresponding cubic bezier curve parameters for given arc curve paramters.
     var arcToCubicCurves = function (x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag, _recursive) {
-        var degToRad = function (degrees) {
-            return (Math.PI * degrees) / 180;
-        };
-        var rotate = function (x, y, angleRad) {
-            var X = x * Math.cos(angleRad) - y * Math.sin(angleRad);
-            var Y = x * Math.sin(angleRad) + y * Math.cos(angleRad);
-            return { x: X, y: Y };
-        };
         var angleRad = degToRad(angle);
         var params = [];
         var f1, f2, cx, cy;
@@ -337,8 +337,8 @@ function applyPathDataPolyFill() {
             var k = sign * Math.sqrt(Math.abs(left / right));
             cx = k * r1 * y / r2 + (x1 + x2) / 2;
             cy = k * -r2 * x / r1 + (y1 + y2) / 2;
-            f1 = Math.asin(((y1 - cy) / r2).toFixed(9));
-            f2 = Math.asin(((y2 - cy) / r2).toFixed(9));
+            f1 = Math.asin(Number(((y1 - cy) / r2).toFixed(9)));
+            f2 = Math.asin(Number(((y2 - cy) / r2).toFixed(9)));
             if (x1 < cx) {
                 f1 = Math.PI - f1;
             }
@@ -388,18 +388,20 @@ function applyPathDataPolyFill() {
         m2[0] = 2 * m1[0] - m2[0];
         m2[1] = 2 * m1[1] - m2[1];
         if (_recursive) {
-            return [m2, m3, m4].concat(params);
+            //return [m2, m3, m4].concat(params);
+            return [m2, m3, m4, ...params];
         }
         else {
-            params = [m2, m3, m4].concat(params).join().split(",");
+            //params = [m2, m3, m4].concat(params).join().split(",");
+            let params2 = [].concat(m2, m3, m4, ...params);
             var curves = [];
-            var curveParams = [];
-            params.forEach(function (param, i) {
+            var curveParams;
+            params2.forEach(function (param, i) {
                 if (i % 2) {
-                    curveParams.push(rotate(params[i - 1], params[i], angleRad).y);
+                    curveParams.push(rotate(params2[i - 1], params2[i], angleRad).y);
                 }
                 else {
-                    curveParams.push(rotate(params[i], params[i + 1], angleRad).x);
+                    curveParams.push(rotate(params2[i], params2[i + 1], angleRad).x);
                 }
                 if (curveParams.length === 6) {
                     curves.push(curveParams);
@@ -411,7 +413,8 @@ function applyPathDataPolyFill() {
     };
     var clonePathData = function (pathData) {
         return pathData.map(function (seg) {
-            return { type: seg.type, values: Array.prototype.slice.call(seg.values) };
+            //return {type: seg.type, values: Array.prototype.slice.call(seg.values)}
+            return { type: seg.type, values: seg.values.slice() };
         });
     };
     // @info
@@ -581,13 +584,13 @@ function applyPathDataPolyFill() {
     //   "M", "L", "C" and "Z" commands.
     var reducePathData = function (pathData) {
         var reducedPathData = [];
-        var lastType = null;
-        var lastControlX = null;
-        var lastControlY = null;
-        var currentX = null;
-        var currentY = null;
-        var subpathX = null;
-        var subpathY = null;
+        var lastType;
+        var lastControlX;
+        var lastControlY;
+        var currentX;
+        var currentY;
+        var subpathX;
+        var subpathY;
         pathData.forEach(function (seg) {
             if (seg.type === "M") {
                 var x = seg.values[0];
@@ -633,7 +636,8 @@ function applyPathDataPolyFill() {
                 var y2 = seg.values[1];
                 var x = seg.values[2];
                 var y = seg.values[3];
-                var cx1, cy1;
+                var cx1;
+                var cy1;
                 if (lastType === "C" || lastType === "S") {
                     cx1 = currentX + (currentX - lastControlX);
                     cy1 = currentY + (currentY - lastControlY);
@@ -651,7 +655,8 @@ function applyPathDataPolyFill() {
             else if (seg.type === "T") {
                 var x = seg.values[0];
                 var y = seg.values[1];
-                var x1, y1;
+                var x1;
+                var y1;
                 if (lastType === "Q" || lastType === "T") {
                     x1 = currentX + (currentX - lastControlX);
                     y1 = currentY + (currentY - lastControlY);
@@ -700,7 +705,7 @@ function applyPathDataPolyFill() {
                 }
                 else {
                     if (currentX !== x || currentY !== y) {
-                        var curves = arcToCubicCurves(currentX, currentY, x, y, r1, r2, angle, largeArcFlag, sweepFlag);
+                        var curves = arcToCubicCurves(currentX, currentY, x, y, r1, r2, angle, largeArcFlag, sweepFlag, undefined);
                         curves.forEach(function (curve) {
                             reducedPathData.push({ type: "C", values: curve });
                             currentX = x;
@@ -725,7 +730,7 @@ function applyPathDataPolyFill() {
         }
         setAttribute.call(this, name, value);
     };
-    SVGPathElement.prototype.removeAttribute = function (name, value) {
+    SVGPathElement.prototype.removeAttribute = function (name) {
         if (name === "d") {
             this[$cachedPathData] = null;
             this[$cachedNormalizedPathData] = null;
@@ -762,29 +767,31 @@ function applyPathDataPolyFill() {
             }
         }
     };
-    SVGPathElement.prototype.setPathData = function (pathData) {
-        if (pathData.length === 0) {
-            if (isIE) {
-                // @bugfix https://github.com/mbostock/d3/issues/1737
-                this.setAttribute("d", "");
+    SVGPathElement.prototype.setPathData =
+        function (pathData) {
+            if (pathData.length === 0) {
+                if (isIE) {
+                    // @bugfix https://github.com/mbostock/d3/issues/1737
+                    this.setAttribute("d", "");
+                }
+                else {
+                    this.removeAttribute("d");
+                }
             }
             else {
-                this.removeAttribute("d");
-            }
-        }
-        else {
-            var d = "";
-            for (var i = 0, l = pathData.length; i < l; i += 1) {
-                var seg = pathData[i];
-                if (i > 0) {
-                    d += " ";
+                var d = "";
+                for (var i = 0, l = pathData.length; i < l; i += 1) {
+                    var seg = pathData[i];
+                    if (i > 0) {
+                        d += " ";
+                    }
+                    d += seg.type;
+                    if (seg.values && seg.values.length > 0) {
+                        d += " " + seg.values.join(" ");
+                    }
                 }
-                d += seg.type;
-                if (seg.values && seg.values.length > 0) {
-                    d += " " + seg.values.join(" ");
-                }
+                this.setAttribute("d", d);
             }
-            this.setAttribute("d", d);
-        }
-    };
+        };
 }
+exports.default = pathDataPolyFill;

@@ -1,58 +1,75 @@
 
-import smoothen        from './lib/mat/functions/smoothen';
-import findMat         from './lib/mat/functions/find-mat';
-import toScaleAxis     from './lib/mat/functions/to-scale-axis';
-import getNodesAsArray from './lib/mat/functions/get-nodes-as-array';
+import { Mat          } from './src/mat';
+import { Loop         } from './src/loop';
+import { Curve        } from './src/curve';
+import { CpNode       } from './src/cp-node';
+import { PointOnShape } from './src/point-on-shape';
+import { Circle       } from './src/circle';
+import { ContactPoint } from './src/contact-point';
+import { BezierPiece  } from './src/bezier-piece';
 
-import MatTree         from './lib/mat/classes/mat-tree';
-import PointOnShape    from './lib/geometry/classes/point-on-shape';
-import LinkedLoop      from './lib/linked-list/linked-loop';
-import ListNode        from './lib/linked-list/list-node';
-import MatNode         from './lib/mat/classes/mat-node';
-import PathCurve       from './lib/geometry/classes/path-curve';
-import Shape           from './lib/geometry/classes/shape';
-import Circle          from './lib/geometry/classes/circle';
-import ContactPoint    from './lib/mat/classes/contact-point';
-import BezierPiece     from './lib/geometry/classes/bezier-piece';
-import Svg             from './lib/svg/svg';
+import { smoothen        } from './src/mat/smoothen/smoothen';
+import { findMat         } from './src/mat/find-mat/find-mat';
+import { trimMat 	     } from './src/mat/trim-mat';
+import { toScaleAxis     } from './src/mat/to-scale-axis/to-scale-axis';
+import { toEnhancedScaleAxis } from './src/mat/to-scale-axis/to-enhanced-scale-axis';
+import { toSpectrumScaleAxis } from './src/mat/to-scale-axis/to-spectrum-scale-axis';
+
+import { getBranches     } from './src/mat/get-branches';
+import { traverseEdges   } from './src/mat/traverse-edges';
+import { getVerticesAsArray } from './src/mat/get-vertices-as-array';
+
+import { MatDebug } from './src/debug/debug';
+import { getPathsFromStr } from './src/svg/svg';
+
+import { DebugElemType } from './src/debug/debug-elem-types';
+import { IDrawElemFunctions } from './src/debug/functions/draw-elem/draw-elem';
+
+import { CpNodeForDebugging } from './src/debug/cp-node-for-debugging';
+
+import { ITiming } from './src/debug/debug';
+
+import { 
+	getClosestBoundaryPoint, 
+	closestPointOnBezier 
+} from './src/mat/get-closest-boundary-point';
 
 
-const FloMat = {
-	findMat,
-	toScaleAxis,
-	smoothen,
-	getNodesAsArray,
+import * as Svg from './src/svg/svg';
 
-	MatTree,
+
+export { 
+	Mat,
 	PointOnShape,
-	LinkedLoop,
-	ListNode,
-	MatNode,
-	PathCurve,
-	Shape,
+	Curve,
+	Loop,
+	CpNode,
 	Circle,
 	ContactPoint,
 	BezierPiece,
+
+	findMat,
+	toScaleAxis,
+	toEnhancedScaleAxis,
+	toSpectrumScaleAxis,
+	trimMat,
+	smoothen,
+	getVerticesAsArray,
+	getBranches,
+	traverseEdges,
+
+	MatDebug,
+
 	Svg,
-};
+	getPathsFromStr,
 
+	DebugElemType,
+	IDrawElemFunctions,
 
-export { findMat         };
-export { toScaleAxis     };
-export { smoothen        };
-export { getNodesAsArray };
+	CpNodeForDebugging,
+	ITiming,
 
-export { MatTree         };
-export { PointOnShape    };
-export { LinkedLoop      };
-export { ListNode        };
-export { MatNode         };
-export { PathCurve       };
-export { Shape           };
-export { Circle          };
-export { ContactPoint    };
-export { BezierPiece     };
-export { Svg             };
+	getClosestBoundaryPoint, 
+	closestPointOnBezier 
+}
 
-
-export default FloMat;

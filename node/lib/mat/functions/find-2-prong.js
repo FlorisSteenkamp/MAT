@@ -17,7 +17,7 @@ const flo_bezier3_1 = require("flo-bezier3");
 const circle_1 = require("../../geometry/classes/circle");
 const geometry_1 = require("../../geometry/geometry");
 const shape_1 = require("../../geometry/classes/shape");
-const Point_on_shape_1 = require("../../geometry/classes/Point-on-shape");
+const point_on_shape_1 = require("../../geometry/classes/point-on-shape");
 const contact_point_1 = require("../../mat/classes/contact-point");
 const mat_circle_1 = require("../../mat/classes/mat-circle");
 const get_closest_boundary_point_to_point_1 = require("../../geometry/functions/get-closest-boundary-point-to-point");
@@ -54,7 +54,7 @@ function find2Prong(shape, y, holeClosing) {
     //let y = pos;
     let bezierNode = y.bezierNode;
     let t = y.t;
-    let oCircle = Point_on_shape_1.default.getOsculatingCircle(y);
+    let oCircle = point_on_shape_1.default.getOsculatingCircle(y);
     let x = oCircle.center;
     /*
      * The shortest distance so far between the first contact point and
@@ -145,8 +145,8 @@ function find2Prong(shape, y, holeClosing) {
         failed = true;
     }
     let circle = new circle_1.default(x, flo_vector2d_1.default.distanceBetween(x, z.p));
-    Point_on_shape_1.default.setPointOrder(shape, circle, y);
-    Point_on_shape_1.default.setPointOrder(shape, circle, z);
+    point_on_shape_1.default.setPointOrder(shape, circle, y);
+    point_on_shape_1.default.setPointOrder(shape, circle, z);
     if (typeof window !== 'undefined' && window._debug_) {
         let _debug_ = window._debug_;
         recordForDebugging(failed, y, circle, y.p, z.p, δ, xs, holeClosing, _debug_);
@@ -175,7 +175,7 @@ function add1Prong(shape, pos) {
         if (typeof window !== 'undefined' && window._debug_) {
             let _debug_ = window._debug_;
             // TODO - why would it be NaN in some cases?
-            let oCircle = Point_on_shape_1.default.getOsculatingCircle(pos);
+            let oCircle = point_on_shape_1.default.getOsculatingCircle(pos);
             if (!Number.isNaN(oCircle.center[0])) {
                 _debug_.generated.oneProngsAtDullCorner.push({ pos });
             }
@@ -201,7 +201,7 @@ function add1Prong(shape, pos) {
     let newCpNode = shape.contactPointsPerLoop[k].insert(cp, delta[0]);
     let matCircle = mat_circle_1.default.create(
     //pos.osculatingCircle,
-    Point_on_shape_1.default.getOsculatingCircle(pos), [newCpNode]);
+    point_on_shape_1.default.getOsculatingCircle(pos), [newCpNode]);
     newCpNode.prevOnCircle = newCpNode; // Trivial loop
     newCpNode.nextOnCircle = newCpNode; // ...
     if (typeof window !== 'undefined' && window._debug_) {

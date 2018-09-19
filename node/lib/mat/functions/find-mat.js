@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mat_constants_1 = require("../../mat-constants");
 const mat_tree_1 = require("../classes/mat-tree");
 const circle_1 = require("../../geometry/classes/circle");
-const Point_on_shape_1 = require("../../geometry/classes/Point-on-shape");
+const point_on_shape_1 = require("../../geometry/classes/point-on-shape");
 const add_2_prong_1 = require("./add-2-prong");
 const find_2_prong_1 = require("./find-2-prong");
 const build_mat_1 = require("./build-mat");
@@ -54,13 +54,13 @@ function findAndAddHoleClosing2Prongs(shape) {
         let r = mat_constants_1.default.maxOsculatingCircleRadius;
         let p = [extreme.p[0], extreme.p[1] - r];
         let osculatingCircle = new circle_1.default(p, r);
-        let posA2 = new Point_on_shape_1.default(extreme.bezierNode, extreme.t, mat_constants_1.default.pointType.extreme, 0, //order 
+        let posA2 = new point_on_shape_1.default(extreme.bezierNode, extreme.t, mat_constants_1.default.pointType.extreme, 0, //order 
         0);
         // A normal traversal should give (cyclically) A1->A2->B1->B2
         let twoProngInfo = find_2_prong_1.default(shape, posA2, true);
         let { circle, z } = twoProngInfo;
         let posA1 = z;
-        let key = Point_on_shape_1.default.makeSimpleKey(posA2.p);
+        let key = point_on_shape_1.default.makeSimpleKey(posA2.p);
         if (shape.straightUpHash[key]) {
             // Skip these when doing normal 2-prong procedure.
             shape.skip2ProngHash[key] = posA2;
@@ -87,7 +87,7 @@ function findAndAdd2Prongs(shape, k, for2Prongs) {
     for (let i = 0; i < len; i++) {
         let posNode = for2Prongs[index[i]];
         let pos = posNode.item;
-        let key = Point_on_shape_1.default.makeSimpleKey(pos.p);
+        let key = point_on_shape_1.default.makeSimpleKey(pos.p);
         if (shape.skip2ProngHash[key]) {
             continue;
         }

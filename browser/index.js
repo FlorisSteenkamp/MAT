@@ -4,38 +4,59 @@
 module.exports = _dereq_("./index").default;
 
 },{"./index":2}],2:[function(_dereq_,module,exports){
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-//---- Functions 
 var smoothen_1 = _dereq_("./lib/mat/functions/smoothen");
+exports.smoothen = smoothen_1.default;
 var find_mat_1 = _dereq_("./lib/mat/functions/find-mat");
+exports.findMat = find_mat_1.default;
 var to_scale_axis_1 = _dereq_("./lib/mat/functions/to-scale-axis");
-//---- Classes - can be instantiated
-var mat_tree_1 = _dereq_("./lib/mat/classes/mat-tree");
+exports.toScaleAxis = to_scale_axis_1.default;
 var get_nodes_as_array_1 = _dereq_("./lib/mat/functions/get-nodes-as-array");
+exports.getNodesAsArray = get_nodes_as_array_1.default;
+var mat_tree_1 = _dereq_("./lib/mat/classes/mat-tree");
+exports.MatTree = mat_tree_1.default;
 var point_on_shape_1 = _dereq_("./lib/geometry/classes/point-on-shape");
+exports.PointOnShape = point_on_shape_1.default;
 var linked_loop_1 = _dereq_("./lib/linked-list/linked-loop");
+exports.LinkedLoop = linked_loop_1.default;
+var list_node_1 = _dereq_("./lib/linked-list/list-node");
+exports.ListNode = list_node_1.default;
+var mat_node_1 = _dereq_("./lib/mat/classes/mat-node");
+exports.MatNode = mat_node_1.default;
+var path_curve_1 = _dereq_("./lib/geometry/classes/path-curve");
+exports.PathCurve = path_curve_1.default;
 var shape_1 = _dereq_("./lib/geometry/classes/shape");
+exports.Shape = shape_1.default;
 var circle_1 = _dereq_("./lib/geometry/classes/circle");
+exports.Circle = circle_1.default;
+var contact_point_1 = _dereq_("./lib/mat/classes/contact-point");
+exports.ContactPoint = contact_point_1.default;
+var bezier_piece_1 = _dereq_("./lib/geometry/classes/bezier-piece");
+exports.BezierPiece = bezier_piece_1.default;
 var svg_1 = _dereq_("./lib/svg/svg");
+exports.Svg = svg_1.default;
 var FloMat = {
     findMat: find_mat_1.default,
     toScaleAxis: to_scale_axis_1.default,
     smoothen: smoothen_1.default,
+    getNodesAsArray: get_nodes_as_array_1.default,
     MatTree: mat_tree_1.default,
     PointOnShape: point_on_shape_1.default,
     LinkedLoop: linked_loop_1.default,
+    ListNode: list_node_1.default,
+    MatNode: mat_node_1.default,
+    PathCurve: path_curve_1.default,
     Shape: shape_1.default,
     Circle: circle_1.default,
-    Svg: svg_1.default,
-    fs: {
-        getNodesAsArray: get_nodes_as_array_1.default
-    }
+    ContactPoint: contact_point_1.default,
+    BezierPiece: bezier_piece_1.default,
+    Svg: svg_1.default
 };
 exports.default = FloMat;
 
-},{"./lib/geometry/classes/circle":6,"./lib/geometry/classes/point-on-shape":9,"./lib/geometry/classes/shape":10,"./lib/linked-list/linked-loop":16,"./lib/mat/classes/mat-tree":25,"./lib/mat/functions/find-mat":32,"./lib/mat/functions/get-nodes-as-array":33,"./lib/mat/functions/smoothen":35,"./lib/mat/functions/to-scale-axis":36,"./lib/svg/svg":38}],3:[function(_dereq_,module,exports){
+},{"./lib/geometry/classes/bezier-piece":5,"./lib/geometry/classes/circle":6,"./lib/geometry/classes/path-curve":8,"./lib/geometry/classes/point-on-shape":9,"./lib/geometry/classes/shape":10,"./lib/linked-list/linked-loop":16,"./lib/linked-list/list-node":17,"./lib/mat/classes/contact-point":19,"./lib/mat/classes/mat-node":24,"./lib/mat/classes/mat-tree":25,"./lib/mat/functions/find-mat":32,"./lib/mat/functions/get-nodes-as-array":33,"./lib/mat/functions/smoothen":35,"./lib/mat/functions/to-scale-axis":36,"./lib/svg/svg":39}],3:[function(_dereq_,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -236,7 +257,7 @@ PointOnShape.toHumanString = function (pos) {
 };
 exports.default = PointOnShape;
 
-},{"../../mat-constants":18,"./circle":6,"flo-bezier3":39,"flo-memoize":46,"flo-vector2d":55}],4:[function(_dereq_,module,exports){
+},{"../../mat-constants":18,"./circle":6,"flo-bezier3":40,"flo-memoize":47,"flo-vector2d":56}],4:[function(_dereq_,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -332,7 +353,7 @@ var Arc = function () {
 
 exports.default = Arc;
 
-},{"../geometry":15,"./circle":6,"flo-vector2d":55}],5:[function(_dereq_,module,exports){
+},{"../geometry":15,"./circle":6,"flo-vector2d":56}],5:[function(_dereq_,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -418,7 +439,7 @@ var Circle = function () {
 
 exports.default = Circle;
 
-},{"flo-vector2d":55}],7:[function(_dereq_,module,exports){
+},{"flo-vector2d":56}],7:[function(_dereq_,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -668,7 +689,7 @@ PointOnShape.toHumanString = function (pos) {
 };
 exports.default = PointOnShape;
 
-},{"../../mat-constants":18,"./circle":6,"flo-bezier3":39,"flo-memoize":46,"flo-vector2d":55}],10:[function(_dereq_,module,exports){
+},{"../../mat-constants":18,"./circle":6,"flo-bezier3":40,"flo-memoize":47,"flo-vector2d":56}],10:[function(_dereq_,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1625,7 +1646,7 @@ function getTotalBy(f) {
 }
 exports.default = Shape;
 
-},{"../../geometry/classes/bezier-piece":5,"../../geometry/classes/path-curve":8,"../../geometry/classes/point-on-shape":9,"../../linked-list/linked-loop":16,"../../linked-list/list-node":17,"../../mat-constants":18,"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23,"../functions/get-bezier-osculating-circles":12,"../functions/get-contact-circles-at-bezier-bezier-interface":14,"flo-bezier3":39,"flo-memoize":46,"flo-vector2d":55}],11:[function(_dereq_,module,exports){
+},{"../../geometry/classes/bezier-piece":5,"../../geometry/classes/path-curve":8,"../../geometry/classes/point-on-shape":9,"../../linked-list/linked-loop":16,"../../linked-list/list-node":17,"../../mat-constants":18,"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23,"../functions/get-bezier-osculating-circles":12,"../functions/get-contact-circles-at-bezier-bezier-interface":14,"flo-bezier3":40,"flo-memoize":47,"flo-vector2d":56}],11:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -1911,7 +1932,7 @@ function lookForRoot(ps, _ref) {
 }
 exports.default = getBezierOsculatingCircles;
 
-},{"../../geometry/classes/point-on-shape":9,"../../mat-constants":18,"./calc-bezier-curvature-extrema":11,"flo-bezier3":39,"flo-poly":47}],13:[function(_dereq_,module,exports){
+},{"../../geometry/classes/point-on-shape":9,"../../mat-constants":18,"./calc-bezier-curvature-extrema":11,"flo-bezier3":40,"flo-poly":48}],13:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2234,7 +2255,7 @@ function getClosest(p, ps, f) {
 }
 exports.default = getClosestBoundaryPointToPoint;
 
-},{"../../mat-constants":18,"../classes/Point-on-shape":3,"../geometry":15,"flo-bezier3":39,"flo-poly":47,"flo-vector2d":55}],14:[function(_dereq_,module,exports){
+},{"../../mat-constants":18,"../classes/Point-on-shape":3,"../geometry":15,"flo-bezier3":40,"flo-poly":48,"flo-vector2d":56}],14:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2305,7 +2326,7 @@ function getContactCirclesAtBezierBezierInterface(bezierNodes, dullCornerHash) {
 }
 exports.default = getContactCirclesAtBezierBezierInterface;
 
-},{"../../geometry/classes/point-on-shape":9,"../../mat-constants":18,"../classes/corner":7,"flo-bezier3":39,"flo-vector2d":55}],15:[function(_dereq_,module,exports){
+},{"../../geometry/classes/point-on-shape":9,"../../mat-constants":18,"../classes/corner":7,"flo-bezier3":40,"flo-vector2d":56}],15:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2576,7 +2597,7 @@ var Geometry = {
 };
 exports.default = Geometry;
 
-},{"./classes/arc":4,"./classes/circle":6,"./classes/shape":10,"flo-bezier3":39,"flo-poly":47,"flo-vector2d":55}],16:[function(_dereq_,module,exports){
+},{"./classes/arc":4,"./classes/circle":6,"./classes/shape":10,"flo-bezier3":40,"flo-poly":48,"flo-vector2d":56}],16:[function(_dereq_,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2740,7 +2761,7 @@ var LinkedLoop = function () {
 
 exports.default = LinkedLoop;
 
-},{"./list-node":17,"flo-ll-rb-tree":42}],17:[function(_dereq_,module,exports){
+},{"./list-node":17,"flo-ll-rb-tree":43}],17:[function(_dereq_,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2855,7 +2876,7 @@ var ContactPoint = function () {
 
 exports.default = ContactPoint;
 
-},{"../../geometry/classes/point-on-shape":9,"flo-vector2d":55}],20:[function(_dereq_,module,exports){
+},{"../../geometry/classes/point-on-shape":9,"flo-vector2d":56}],20:[function(_dereq_,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -3712,7 +3733,7 @@ function findEquidistantPointOnLine(x, y, z) {
 }
 exports.default = find2Prong;
 
-},{"../../geometry/classes/Point-on-shape":3,"../../geometry/classes/circle":6,"../../geometry/classes/shape":10,"../../geometry/functions/get-closest-boundary-point-to-point":13,"../../geometry/geometry":15,"../../mat-constants":18,"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23,"../classes/debug/two-prong-for-debugging":21,"flo-bezier3":39,"flo-vector2d":55}],31:[function(_dereq_,module,exports){
+},{"../../geometry/classes/Point-on-shape":3,"../../geometry/classes/circle":6,"../../geometry/classes/shape":10,"../../geometry/functions/get-closest-boundary-point-to-point":13,"../../geometry/geometry":15,"../../mat-constants":18,"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23,"../classes/debug/two-prong-for-debugging":21,"flo-bezier3":40,"flo-vector2d":56}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -4006,7 +4027,7 @@ function getClosestPoints(x, bezierPiece3s) {
 }
 exports.default = find3Prong;
 
-},{"../../geometry/classes/circle":6,"../../geometry/classes/point-on-shape":9,"../../geometry/classes/shape":10,"../../geometry/functions/get-closest-boundary-point-to-point":13,"../../mat-constants":18,"../classes/debug/three-prong-for-debugging":20,"flo-bezier3":39,"flo-vector2d":55}],32:[function(_dereq_,module,exports){
+},{"../../geometry/classes/circle":6,"../../geometry/classes/point-on-shape":9,"../../geometry/classes/shape":10,"../../geometry/functions/get-closest-boundary-point-to-point":13,"../../mat-constants":18,"../classes/debug/three-prong-for-debugging":20,"flo-bezier3":40,"flo-vector2d":56}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -4406,7 +4427,7 @@ function smoothen(mat) {
 }
 exports.default = smoothen;
 
-},{"../../geometry/geometry":15,"../../mat-constants":18,"../classes/mat-tree":25,"flo-bezier3":39,"flo-vector2d":55}],36:[function(_dereq_,module,exports){
+},{"../../geometry/geometry":15,"../../mat-constants":18,"../classes/mat-tree":25,"flo-bezier3":40,"flo-vector2d":56}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -4847,12 +4868,756 @@ exports.default = traverse;
 
 },{}],38:[function(_dereq_,module,exports){
 "use strict";
+// @info
+//   Polyfill for SVG 2 getPathData() and setPathData() methods. Based on:
+//   - SVGPathSeg polyfill by Philip Rogers (MIT License)
+//     https://github.com/progers/pathseg
+//   - SVGPathNormalizer by Tadahisa Motooka (MIT License)
+//     https://github.com/motooka/SVGPathNormalizer/tree/master/src
+//   - arcToCubicCurves() by Dmitry Baranovskiy (MIT License)
+//     https://github.com/DmitryBaranovskiy/raphael/blob/v2.1.1/raphael.core.js#L1837
+// @author
+//   Jarosław Foksa
+// @license
+//   MIT License
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function pathDataPolyFill() {
+    if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathData) {
+        applyPolyFill();
+    }
+}
+function applyPolyFill() {
+    // TODO - 
+    var commandsMap = {
+        "Z": "Z", "M": "M", "L": "L", "C": "C", "Q": "Q", "A": "A", "H": "H", "V": "V", "S": "S", "T": "T",
+        "z": "Z", "m": "m", "l": "l", "c": "c", "q": "q", "a": "a", "h": "h", "v": "v", "s": "s", "t": "t"
+    };
+
+    var Source = function () {
+        function Source(string) {
+            _classCallCheck(this, Source);
+
+            this._string = string;
+            this._currentIndex = 0;
+            this._endIndex = this._string.length;
+            this._prevCommand = null;
+            this._skipOptionalSpaces();
+        }
+
+        _createClass(Source, [{
+            key: "parseSegment",
+            value: function parseSegment() {
+                var char = this._string[this._currentIndex];
+                var command = commandsMap[char] ? commandsMap[char] : null;
+                if (command === null) {
+                    // Possibly an implicit command. Not allowed if this is the first command.
+                    if (this._prevCommand === null) {
+                        return null;
+                    }
+                    // Check for remaining coordinates in the current command.
+                    if ((char === "+" || char === "-" || char === "." || char >= "0" && char <= "9") && this._prevCommand !== "Z") {
+                        if (this._prevCommand === "M") {
+                            command = "L";
+                        } else if (this._prevCommand === "m") {
+                            command = "l";
+                        } else {
+                            command = this._prevCommand;
+                        }
+                    } else {
+                        command = null;
+                    }
+                    if (command === null) {
+                        return null;
+                    }
+                } else {
+                    this._currentIndex += 1;
+                }
+                this._prevCommand = command;
+                var values = null;
+                var cmd = command.toUpperCase();
+                if (cmd === "H" || cmd === "V") {
+                    values = [this._parseNumber()];
+                } else if (cmd === "M" || cmd === "L" || cmd === "T") {
+                    values = [this._parseNumber(), this._parseNumber()];
+                } else if (cmd === "S" || cmd === "Q") {
+                    values = [this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber()];
+                } else if (cmd === "C") {
+                    values = [this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber()];
+                } else if (cmd === "A") {
+                    values = [this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseArcFlag(), this._parseArcFlag(), this._parseNumber(), this._parseNumber()];
+                } else if (cmd === "Z") {
+                    this._skipOptionalSpaces();
+                    values = [];
+                }
+                if (values === null || values.indexOf(null) >= 0) {
+                    // Unknown command or known command with invalid values
+                    return null;
+                } else {
+                    return { type: command, values: values };
+                }
+            }
+        }, {
+            key: "hasMoreData",
+            value: function hasMoreData() {
+                return this._currentIndex < this._endIndex;
+            }
+        }, {
+            key: "peekSegmentType",
+            value: function peekSegmentType() {
+                var char = this._string[this._currentIndex];
+                return commandsMap[char] ? commandsMap[char] : null;
+            }
+        }, {
+            key: "initialCommandIsMoveTo",
+            value: function initialCommandIsMoveTo() {
+                // If the path is empty it is still valid, so return true.
+                if (!this.hasMoreData()) {
+                    return true;
+                }
+                var command = this.peekSegmentType();
+                // Path must start with moveTo.
+                return command === "M" || command === "m";
+            }
+        }, {
+            key: "_isCurrentSpace",
+            value: function _isCurrentSpace() {
+                var char = this._string[this._currentIndex];
+                return char <= " " && (char === " " || char === "\n" || char === "\t" || char === "\r" || char === "\f");
+            }
+        }, {
+            key: "_skipOptionalSpaces",
+            value: function _skipOptionalSpaces() {
+                while (this._currentIndex < this._endIndex && this._isCurrentSpace()) {
+                    this._currentIndex += 1;
+                }
+                return this._currentIndex < this._endIndex;
+            }
+        }, {
+            key: "_skipOptionalSpacesOrDelimiter",
+            value: function _skipOptionalSpacesOrDelimiter() {
+                if (this._currentIndex < this._endIndex && !this._isCurrentSpace() && this._string[this._currentIndex] !== ",") {
+                    return false;
+                }
+                if (this._skipOptionalSpaces()) {
+                    if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === ",") {
+                        this._currentIndex += 1;
+                        this._skipOptionalSpaces();
+                    }
+                }
+                return this._currentIndex < this._endIndex;
+            }
+            // Parse a number from an SVG path. This very closely follows genericParseNumber(...) from
+            // Source/core/svg/SVGParserUtilities.cpp.
+            // Spec: http://www.w3.org/TR/SVG11/single-page.html#paths-PathDataBNF
+
+        }, {
+            key: "_parseNumber",
+            value: function _parseNumber() {
+                var exponent = 0;
+                var integer = 0;
+                var frac = 1;
+                var decimal = 0;
+                var sign = 1;
+                var expsign = 1;
+                var startIndex = this._currentIndex;
+                this._skipOptionalSpaces();
+                // Read the sign.
+                if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === "+") {
+                    this._currentIndex += 1;
+                } else if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === "-") {
+                    this._currentIndex += 1;
+                    sign = -1;
+                }
+                if (this._currentIndex === this._endIndex || (this._string[this._currentIndex] < "0" || this._string[this._currentIndex] > "9") && this._string[this._currentIndex] !== ".") {
+                    // The first character of a number must be one of [0-9+-.].
+                    return null;
+                }
+                // Read the integer part, build right-to-left.
+                var startIntPartIndex = this._currentIndex;
+                while (this._currentIndex < this._endIndex && this._string[this._currentIndex] >= "0" && this._string[this._currentIndex] <= "9") {
+                    this._currentIndex += 1; // Advance to first non-digit.
+                }
+                if (this._currentIndex !== startIntPartIndex) {
+                    var scanIntPartIndex = this._currentIndex - 1;
+                    var multiplier = 1;
+                    while (scanIntPartIndex >= startIntPartIndex) {
+                        integer += multiplier * (Number(this._string[scanIntPartIndex]) - 0);
+                        scanIntPartIndex -= 1;
+                        multiplier *= 10;
+                    }
+                }
+                // Read the decimals.
+                if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === ".") {
+                    this._currentIndex += 1;
+                    // There must be a least one digit following the .
+                    if (this._currentIndex >= this._endIndex || this._string[this._currentIndex] < "0" || this._string[this._currentIndex] > "9") {
+                        return null;
+                    }
+                    while (this._currentIndex < this._endIndex && this._string[this._currentIndex] >= "0" && this._string[this._currentIndex] <= "9") {
+                        frac *= 10;
+                        decimal += Number(this._string.charAt(this._currentIndex)) / frac;
+                        this._currentIndex += 1;
+                    }
+                }
+                // Read the exponent part.
+                if (this._currentIndex !== startIndex && this._currentIndex + 1 < this._endIndex && (this._string[this._currentIndex] === "e" || this._string[this._currentIndex] === "E") && this._string[this._currentIndex + 1] !== "x" && this._string[this._currentIndex + 1] !== "m") {
+                    this._currentIndex += 1;
+                    // Read the sign of the exponent.
+                    if (this._string[this._currentIndex] === "+") {
+                        this._currentIndex += 1;
+                    } else if (this._string[this._currentIndex] === "-") {
+                        this._currentIndex += 1;
+                        expsign = -1;
+                    }
+                    // There must be an exponent.
+                    if (this._currentIndex >= this._endIndex || this._string[this._currentIndex] < "0" || this._string[this._currentIndex] > "9") {
+                        return null;
+                    }
+                    while (this._currentIndex < this._endIndex && this._string[this._currentIndex] >= "0" && this._string[this._currentIndex] <= "9") {
+                        exponent *= 10;
+                        exponent += Number(this._string[this._currentIndex]);
+                        this._currentIndex += 1;
+                    }
+                }
+                var number = integer + decimal;
+                number *= sign;
+                if (exponent) {
+                    number *= Math.pow(10, expsign * exponent);
+                }
+                if (startIndex === this._currentIndex) {
+                    return null;
+                }
+                this._skipOptionalSpacesOrDelimiter();
+                return number;
+            }
+        }, {
+            key: "_parseArcFlag",
+            value: function _parseArcFlag() {
+                if (this._currentIndex >= this._endIndex) {
+                    return null;
+                }
+                var flag = null;
+                var flagChar = this._string[this._currentIndex];
+                this._currentIndex += 1;
+                if (flagChar === "0") {
+                    flag = 0;
+                } else if (flagChar === "1") {
+                    flag = 1;
+                } else {
+                    return null;
+                }
+                this._skipOptionalSpacesOrDelimiter();
+                return flag;
+            }
+        }]);
+
+        return Source;
+    }();
+
+    var isIE = window.navigator.userAgent.indexOf("MSIE ") !== -1;
+    var parsePathDataString = function parsePathDataString(string) {
+        if (!string || string.length === 0) return [];
+        var source = new Source(string);
+        var pathData = [];
+        if (source.initialCommandIsMoveTo()) {
+            while (source.hasMoreData()) {
+                var pathSeg = source.parseSegment();
+                if (pathSeg === null) {
+                    break;
+                } else {
+                    pathData.push(pathSeg);
+                }
+            }
+        }
+        return pathData;
+    };
+    var setAttribute = SVGPathElement.prototype.setAttribute;
+    var removeAttribute = SVGPathElement.prototype.removeAttribute;
+    var $cachedPathData = Symbol();
+    var $cachedNormalizedPathData = Symbol();
+    var degToRad = function degToRad(degrees) {
+        return Math.PI * degrees / 180;
+    };
+    var rotate = function rotate(x, y, angleRad) {
+        var X = x * Math.cos(angleRad) - y * Math.sin(angleRad);
+        var Y = x * Math.sin(angleRad) + y * Math.cos(angleRad);
+        return { x: X, y: Y };
+    };
+    // @info
+    //   Get an array of corresponding cubic bezier curve parameters for given arc curve paramters.
+    var arcToCubicCurves = function arcToCubicCurves(x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag, _recursive) {
+        var angleRad = degToRad(angle);
+        var params = [];
+        var f1, f2, cx, cy;
+        if (_recursive) {
+            f1 = _recursive[0];
+            f2 = _recursive[1];
+            cx = _recursive[2];
+            cy = _recursive[3];
+        } else {
+            var p1 = rotate(x1, y1, -angleRad);
+            x1 = p1.x;
+            y1 = p1.y;
+            var p2 = rotate(x2, y2, -angleRad);
+            x2 = p2.x;
+            y2 = p2.y;
+            var x = (x1 - x2) / 2;
+            var y = (y1 - y2) / 2;
+            var h = x * x / (r1 * r1) + y * y / (r2 * r2);
+            if (h > 1) {
+                h = Math.sqrt(h);
+                r1 = h * r1;
+                r2 = h * r2;
+            }
+            var sign;
+            if (largeArcFlag === sweepFlag) {
+                sign = -1;
+            } else {
+                sign = 1;
+            }
+            var r1Pow = r1 * r1;
+            var r2Pow = r2 * r2;
+            var left = r1Pow * r2Pow - r1Pow * y * y - r2Pow * x * x;
+            var right = r1Pow * y * y + r2Pow * x * x;
+            var k = sign * Math.sqrt(Math.abs(left / right));
+            cx = k * r1 * y / r2 + (x1 + x2) / 2;
+            cy = k * -r2 * x / r1 + (y1 + y2) / 2;
+            f1 = Math.asin(Number(((y1 - cy) / r2).toFixed(9)));
+            f2 = Math.asin(Number(((y2 - cy) / r2).toFixed(9)));
+            if (x1 < cx) {
+                f1 = Math.PI - f1;
+            }
+            if (x2 < cx) {
+                f2 = Math.PI - f2;
+            }
+            if (f1 < 0) {
+                f1 = Math.PI * 2 + f1;
+            }
+            if (f2 < 0) {
+                f2 = Math.PI * 2 + f2;
+            }
+            if (sweepFlag && f1 > f2) {
+                f1 = f1 - Math.PI * 2;
+            }
+            if (!sweepFlag && f2 > f1) {
+                f2 = f2 - Math.PI * 2;
+            }
+        }
+        var df = f2 - f1;
+        if (Math.abs(df) > Math.PI * 120 / 180) {
+            var f2old = f2;
+            var x2old = x2;
+            var y2old = y2;
+            if (sweepFlag && f2 > f1) {
+                f2 = f1 + Math.PI * 120 / 180 * 1;
+            } else {
+                f2 = f1 + Math.PI * 120 / 180 * -1;
+            }
+            x2 = cx + r1 * Math.cos(f2);
+            y2 = cy + r2 * Math.sin(f2);
+            params = arcToCubicCurves(x2, y2, x2old, y2old, r1, r2, angle, 0, sweepFlag, [f2, f2old, cx, cy]);
+        }
+        df = f2 - f1;
+        var c1 = Math.cos(f1);
+        var s1 = Math.sin(f1);
+        var c2 = Math.cos(f2);
+        var s2 = Math.sin(f2);
+        var t = Math.tan(df / 4);
+        var hx = 4 / 3 * r1 * t;
+        var hy = 4 / 3 * r2 * t;
+        var m1 = [x1, y1];
+        var m2 = [x1 + hx * s1, y1 - hy * c1];
+        var m3 = [x2 + hx * s2, y2 - hy * c2];
+        var m4 = [x2, y2];
+        m2[0] = 2 * m1[0] - m2[0];
+        m2[1] = 2 * m1[1] - m2[1];
+        if (_recursive) {
+            //return [m2, m3, m4].concat(params);
+            return [m2, m3, m4].concat(_toConsumableArray(params));
+        } else {
+            var _ref;
+
+            //params = [m2, m3, m4].concat(params).join().split(",");
+            var params2 = (_ref = []).concat.apply(_ref, [m2, m3, m4].concat(_toConsumableArray(params)));
+            var curves = [];
+            var curveParams;
+            params2.forEach(function (param, i) {
+                if (i % 2) {
+                    curveParams.push(rotate(params2[i - 1], params2[i], angleRad).y);
+                } else {
+                    curveParams.push(rotate(params2[i], params2[i + 1], angleRad).x);
+                }
+                if (curveParams.length === 6) {
+                    curves.push(curveParams);
+                    curveParams = [];
+                }
+            });
+            return curves;
+        }
+    };
+    var clonePathData = function clonePathData(pathData) {
+        return pathData.map(function (seg) {
+            //return {type: seg.type, values: Array.prototype.slice.call(seg.values)}
+            return { type: seg.type, values: seg.values.slice() };
+        });
+    };
+    // @info
+    //   Takes any path data, returns path data that consists only from absolute commands.
+    var absolutizePathData = function absolutizePathData(pathData) {
+        var absolutizedPathData = [];
+        var currentX = null;
+        var currentY = null;
+        var subpathX = null;
+        var subpathY = null;
+        pathData.forEach(function (seg) {
+            var type = seg.type;
+            if (type === "M") {
+                var x = seg.values[0];
+                var y = seg.values[1];
+                absolutizedPathData.push({ type: "M", values: [x, y] });
+                subpathX = x;
+                subpathY = y;
+                currentX = x;
+                currentY = y;
+            } else if (type === "m") {
+                var x = currentX + seg.values[0];
+                var y = currentY + seg.values[1];
+                absolutizedPathData.push({ type: "M", values: [x, y] });
+                subpathX = x;
+                subpathY = y;
+                currentX = x;
+                currentY = y;
+            } else if (type === "L") {
+                var x = seg.values[0];
+                var y = seg.values[1];
+                absolutizedPathData.push({ type: "L", values: [x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "l") {
+                var x = currentX + seg.values[0];
+                var y = currentY + seg.values[1];
+                absolutizedPathData.push({ type: "L", values: [x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "C") {
+                var x1 = seg.values[0];
+                var y1 = seg.values[1];
+                var x2 = seg.values[2];
+                var y2 = seg.values[3];
+                var x = seg.values[4];
+                var y = seg.values[5];
+                absolutizedPathData.push({ type: "C", values: [x1, y1, x2, y2, x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "c") {
+                var x1 = currentX + seg.values[0];
+                var y1 = currentY + seg.values[1];
+                var x2 = currentX + seg.values[2];
+                var y2 = currentY + seg.values[3];
+                var x = currentX + seg.values[4];
+                var y = currentY + seg.values[5];
+                absolutizedPathData.push({ type: "C", values: [x1, y1, x2, y2, x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "Q") {
+                var x1 = seg.values[0];
+                var y1 = seg.values[1];
+                var x = seg.values[2];
+                var y = seg.values[3];
+                absolutizedPathData.push({ type: "Q", values: [x1, y1, x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "q") {
+                var x1 = currentX + seg.values[0];
+                var y1 = currentY + seg.values[1];
+                var x = currentX + seg.values[2];
+                var y = currentY + seg.values[3];
+                absolutizedPathData.push({ type: "Q", values: [x1, y1, x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "A") {
+                var x = seg.values[5];
+                var y = seg.values[6];
+                absolutizedPathData.push({
+                    type: "A",
+                    values: [seg.values[0], seg.values[1], seg.values[2], seg.values[3], seg.values[4], x, y]
+                });
+                currentX = x;
+                currentY = y;
+            } else if (type === "a") {
+                var x = currentX + seg.values[5];
+                var y = currentY + seg.values[6];
+                absolutizedPathData.push({
+                    type: "A",
+                    values: [seg.values[0], seg.values[1], seg.values[2], seg.values[3], seg.values[4], x, y]
+                });
+                currentX = x;
+                currentY = y;
+            } else if (type === "H") {
+                var x = seg.values[0];
+                absolutizedPathData.push({ type: "H", values: [x] });
+                currentX = x;
+            } else if (type === "h") {
+                var x = currentX + seg.values[0];
+                absolutizedPathData.push({ type: "H", values: [x] });
+                currentX = x;
+            } else if (type === "V") {
+                var y = seg.values[0];
+                absolutizedPathData.push({ type: "V", values: [y] });
+                currentY = y;
+            } else if (type === "v") {
+                var y = currentY + seg.values[0];
+                absolutizedPathData.push({ type: "V", values: [y] });
+                currentY = y;
+            } else if (type === "S") {
+                var x2 = seg.values[0];
+                var y2 = seg.values[1];
+                var x = seg.values[2];
+                var y = seg.values[3];
+                absolutizedPathData.push({ type: "S", values: [x2, y2, x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "s") {
+                var x2 = currentX + seg.values[0];
+                var y2 = currentY + seg.values[1];
+                var x = currentX + seg.values[2];
+                var y = currentY + seg.values[3];
+                absolutizedPathData.push({ type: "S", values: [x2, y2, x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "T") {
+                var x = seg.values[0];
+                var y = seg.values[1];
+                absolutizedPathData.push({ type: "T", values: [x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "t") {
+                var x = currentX + seg.values[0];
+                var y = currentY + seg.values[1];
+                absolutizedPathData.push({ type: "T", values: [x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (type === "Z" || type === "z") {
+                absolutizedPathData.push({ type: "Z", values: [] });
+                currentX = subpathX;
+                currentY = subpathY;
+            }
+        });
+        return absolutizedPathData;
+    };
+    // @info
+    //   Takes path data that consists only from absolute commands, returns path data that consists only from
+    //   "M", "L", "C" and "Z" commands.
+    var reducePathData = function reducePathData(pathData) {
+        var reducedPathData = [];
+        var lastType;
+        var lastControlX;
+        var lastControlY;
+        var currentX;
+        var currentY;
+        var subpathX;
+        var subpathY;
+        pathData.forEach(function (seg) {
+            if (seg.type === "M") {
+                var x = seg.values[0];
+                var y = seg.values[1];
+                reducedPathData.push({ type: "M", values: [x, y] });
+                subpathX = x;
+                subpathY = y;
+                currentX = x;
+                currentY = y;
+            } else if (seg.type === "C") {
+                var x1 = seg.values[0];
+                var y1 = seg.values[1];
+                var x2 = seg.values[2];
+                var y2 = seg.values[3];
+                var x = seg.values[4];
+                var y = seg.values[5];
+                reducedPathData.push({ type: "C", values: [x1, y1, x2, y2, x, y] });
+                lastControlX = x2;
+                lastControlY = y2;
+                currentX = x;
+                currentY = y;
+            } else if (seg.type === "L") {
+                var x = seg.values[0];
+                var y = seg.values[1];
+                reducedPathData.push({ type: "L", values: [x, y] });
+                currentX = x;
+                currentY = y;
+            } else if (seg.type === "H") {
+                var x = seg.values[0];
+                reducedPathData.push({ type: "L", values: [x, currentY] });
+                currentX = x;
+            } else if (seg.type === "V") {
+                var y = seg.values[0];
+                reducedPathData.push({ type: "L", values: [currentX, y] });
+                currentY = y;
+            } else if (seg.type === "S") {
+                var x2 = seg.values[0];
+                var y2 = seg.values[1];
+                var x = seg.values[2];
+                var y = seg.values[3];
+                var cx1;
+                var cy1;
+                if (lastType === "C" || lastType === "S") {
+                    cx1 = currentX + (currentX - lastControlX);
+                    cy1 = currentY + (currentY - lastControlY);
+                } else {
+                    cx1 = currentX;
+                    cy1 = currentY;
+                }
+                reducedPathData.push({ type: "C", values: [cx1, cy1, x2, y2, x, y] });
+                lastControlX = x2;
+                lastControlY = y2;
+                currentX = x;
+                currentY = y;
+            } else if (seg.type === "T") {
+                var x = seg.values[0];
+                var y = seg.values[1];
+                var x1;
+                var y1;
+                if (lastType === "Q" || lastType === "T") {
+                    x1 = currentX + (currentX - lastControlX);
+                    y1 = currentY + (currentY - lastControlY);
+                } else {
+                    x1 = currentX;
+                    y1 = currentY;
+                }
+                var cx1 = currentX + 2 * (x1 - currentX) / 3;
+                var cy1 = currentY + 2 * (y1 - currentY) / 3;
+                var cx2 = x + 2 * (x1 - x) / 3;
+                var cy2 = y + 2 * (y1 - y) / 3;
+                reducedPathData.push({ type: "C", values: [cx1, cy1, cx2, cy2, x, y] });
+                lastControlX = x1;
+                lastControlY = y1;
+                currentX = x;
+                currentY = y;
+            } else if (seg.type === "Q") {
+                var x1 = seg.values[0];
+                var y1 = seg.values[1];
+                var x = seg.values[2];
+                var y = seg.values[3];
+                var cx1 = currentX + 2 * (x1 - currentX) / 3;
+                var cy1 = currentY + 2 * (y1 - currentY) / 3;
+                var cx2 = x + 2 * (x1 - x) / 3;
+                var cy2 = y + 2 * (y1 - y) / 3;
+                reducedPathData.push({ type: "C", values: [cx1, cy1, cx2, cy2, x, y] });
+                lastControlX = x1;
+                lastControlY = y1;
+                currentX = x;
+                currentY = y;
+            } else if (seg.type === "A") {
+                var r1 = seg.values[0];
+                var r2 = seg.values[1];
+                var angle = seg.values[2];
+                var largeArcFlag = seg.values[3];
+                var sweepFlag = seg.values[4];
+                var x = seg.values[5];
+                var y = seg.values[6];
+                if (r1 === 0 || r2 === 0) {
+                    reducedPathData.push({ type: "C", values: [currentX, currentY, x, y, x, y] });
+                    currentX = x;
+                    currentY = y;
+                } else {
+                    if (currentX !== x || currentY !== y) {
+                        var curves = arcToCubicCurves(currentX, currentY, x, y, r1, r2, angle, largeArcFlag, sweepFlag, undefined);
+                        curves.forEach(function (curve) {
+                            reducedPathData.push({ type: "C", values: curve });
+                            currentX = x;
+                            currentY = y;
+                        });
+                    }
+                }
+            } else if (seg.type === "Z") {
+                reducedPathData.push(seg);
+                currentX = subpathX;
+                currentY = subpathY;
+            }
+            lastType = seg.type;
+        });
+        return reducedPathData;
+    };
+    SVGPathElement.prototype.setAttribute = function (name, value) {
+        if (name === "d") {
+            this[$cachedPathData] = null;
+            this[$cachedNormalizedPathData] = null;
+        }
+        setAttribute.call(this, name, value);
+    };
+    SVGPathElement.prototype.removeAttribute = function (name) {
+        if (name === "d") {
+            this[$cachedPathData] = null;
+            this[$cachedNormalizedPathData] = null;
+        }
+        removeAttribute.call(this, name);
+    };
+    SVGPathElement.prototype.getPathData = function (options) {
+        if (options && options.normalize) {
+            if (this[$cachedNormalizedPathData]) {
+                return clonePathData(this[$cachedNormalizedPathData]);
+            } else {
+                var pathData;
+                if (this[$cachedPathData]) {
+                    pathData = clonePathData(this[$cachedPathData]);
+                } else {
+                    pathData = parsePathDataString(this.getAttribute("d") || "");
+                    this[$cachedPathData] = clonePathData(pathData);
+                }
+                var normalizedPathData = reducePathData(absolutizePathData(pathData));
+                this[$cachedNormalizedPathData] = clonePathData(normalizedPathData);
+                return normalizedPathData;
+            }
+        } else {
+            if (this[$cachedPathData]) {
+                return clonePathData(this[$cachedPathData]);
+            } else {
+                var pathData = parsePathDataString(this.getAttribute("d") || "");
+                this[$cachedPathData] = clonePathData(pathData);
+                return pathData;
+            }
+        }
+    };
+    SVGPathElement.prototype.setPathData = function (pathData) {
+        if (pathData.length === 0) {
+            if (isIE) {
+                // @bugfix https://github.com/mbostock/d3/issues/1737
+                this.setAttribute("d", "");
+            } else {
+                this.removeAttribute("d");
+            }
+        } else {
+            var d = "";
+            for (var i = 0, l = pathData.length; i < l; i += 1) {
+                var seg = pathData[i];
+                if (i > 0) {
+                    d += " ";
+                }
+                d += seg.type;
+                if (seg.values && seg.values.length > 0) {
+                    d += " " + seg.values.join(" ");
+                }
+            }
+            this.setAttribute("d", d);
+        }
+    };
+}
+exports.default = pathDataPolyFill;
+
+},{}],39:[function(_dereq_,module,exports){
+"use strict";
 // TODO - move later out of mat module
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var flo_vector2d_1 = _dereq_("flo-vector2d");
 var path_curve_1 = _dereq_("../geometry/classes/path-curve");
-//import pathDataPolyFill from './path-data-polyfill/path-data-polyfill.js';
+var path_data_polyfill_1 = _dereq_("./path-data-polyfill/path-data-polyfill");
 //		'./path-data-polyfill/path-data-polyfill.js';
 var DELTA = 1e-6; // TODO - must be replaced with value relative to image size.
 /**
@@ -4863,6 +5628,7 @@ var DELTA = 1e-6; // TODO - must be replaced with value relative to image size.
  * @returns aaa
  */
 function getBeziersFromSvgElem(elem) {
+    path_data_polyfill_1.default(); // Ensure polyfill has been applied
     /**
      * Returns true if the given point is close to the origin (by Manhattan
      * distance), fale otherwise.
@@ -4932,12 +5698,13 @@ function getBeziersFromSvgElem(elem) {
     var MUST_START_WITH_M = 'Invalid SVG - every new path must start with an M or m.';
     var INVALID_COMMAND = 'Invalid SVG - command not recognized.';
     //pathDataPolyFill(); // Ensure polyfill is applied.
-    //let paths = (elem as any).getPathData();  
+    var paths = elem.getPathData();
     // TODO - must still implement handling of multiple <path>s
-    var paths = elem.getElementsByTagName('path');
-    var path = paths[0];
-    var pathSegs = path.pathSegList;
-    if (pathSegs.numberOfItems < 2) {
+    console.dir(elem);
+    //let paths = elem.getElementsByTagName('path');
+    //let path = paths[0];
+    //let pathSegs = path.pathSegList;
+    if (paths.length < 2) {
         // A shape is not described   
         return [];
     }
@@ -4957,11 +5724,11 @@ function getBeziersFromSvgElem(elem) {
         type: string/*,
         values: number[]*/ /*
                            };*/
-    for (var i = 0; i < pathSegs.numberOfItems; i++) {
-        var pathSeg = pathSegs.getItem(i);
-        //let vals = pathSeg.values;
+    for (var i = 0; i < paths.length; i++) {
+        var pathSeg = paths[i];
+        var vals = pathSeg.values;
         //pathSeg.type = pathSeg_.pathSegTypeAsLetter;
-        var _type = pathSeg.pathSegTypeAsLetter;
+        var _type = pathSeg.type;
         var addX = 0;
         var addY = 0;
         if (_type == _type.toLowerCase()) {
@@ -4992,8 +5759,8 @@ function getBeziersFromSvgElem(elem) {
             case 'M':
                 {
                     // Note: A valid SVG path must start with "M" or "m".
-                    var _path = pathSeg;
-                    var vals = [_path.x, _path.y];
+                    //let path = (pathSeg as SVGPathSegMovetoAbs);
+                    //let vals = [path.x, path.y];
                     if (pathStarted) {
                         // This is a subpath, close as if a Z or z was the
                         // previous command.
@@ -5040,9 +5807,9 @@ function getBeziersFromSvgElem(elem) {
                     if (!pathStarted) {
                         throw new Error(MUST_START_WITH_M);
                     }
-                    var _path2 = pathSeg;
-                    var _vals = [_path2.x, _path2.y, _path2.x1, _path2.y1, _path2.x2, _path2.y2];
-                    ps = [[x0, y0], [addX + _vals[0], addY + _vals[1]], [addX + _vals[2], addY + _vals[3]], [addX + _vals[4], addY + _vals[5]]];
+                    //let path = (pathSeg as SVGPathSegCurvetoCubicAbs);
+                    //let vals = [path.x, path.y, path.x1, path.y1, path.x2, path.y2];
+                    ps = [[x0, y0], [addX + vals[0], addY + vals[1]], [addX + vals[2], addY + vals[3]], [addX + vals[4], addY + vals[5]]];
                     prev2ndCubicControlPoint = ps[2];
                     prev2ndQuadraticControlPoint = undefined;
                     // Update current point
@@ -5077,8 +5844,8 @@ function getBeziersFromSvgElem(elem) {
                     if (!pathStarted) {
                         throw new Error(MUST_START_WITH_M);
                     }
-                    var _path3 = pathSeg;
-                    var _vals2 = [_path3.x, _path3.y, _path3.x2, _path3.y2];
+                    //let path = (pathSeg as SVGPathSegCurvetoCubicSmoothAbs);
+                    //let vals = [path.x, path.y, path.x2, path.y2];
                     var x1 = void 0;
                     var y1 = void 0;
                     if (prev2ndCubicControlPoint) {
@@ -5088,7 +5855,7 @@ function getBeziersFromSvgElem(elem) {
                         x1 = x0;
                         y1 = y0;
                     }
-                    ps = [[x0, y0], [x1, y1], [addX + _vals2[0], addY + _vals2[1]], [addX + _vals2[2], addY + _vals2[3]]];
+                    ps = [[x0, y0], [x1, y1], [addX + vals[0], addY + vals[1]], [addX + vals[2], addY + vals[3]]];
                     prev2ndCubicControlPoint = ps[2];
                     prev2ndQuadraticControlPoint = undefined;
                     // Update current point
@@ -5117,10 +5884,10 @@ function getBeziersFromSvgElem(elem) {
                     if (!pathStarted) {
                         throw new Error(MUST_START_WITH_M);
                     }
-                    var _path4 = pathSeg;
-                    var _vals3 = [_path4.x, _path4.y];
-                    var _xInterval2 = (_vals3[0] + addX - x0) / 3;
-                    var _yInterval2 = (_vals3[1] + addY - y0) / 3;
+                    //let path = (pathSeg as SVGPathSegLinetoAbs);
+                    //let vals = [path.x, path.y];
+                    var _xInterval2 = (vals[0] + addX - x0) / 3;
+                    var _yInterval2 = (vals[1] + addY - y0) / 3;
                     ps = [[x0, y0], [x0 + _xInterval2 * 1, y0 + _yInterval2 * 1], [x0 + _xInterval2 * 2, y0 + _yInterval2 * 2], [x0 + _xInterval2 * 3, y0 + _yInterval2 * 3]];
                     prev2ndCubicControlPoint = undefined;
                     prev2ndQuadraticControlPoint = undefined;
@@ -5149,9 +5916,9 @@ function getBeziersFromSvgElem(elem) {
                     if (!pathStarted) {
                         throw new Error(MUST_START_WITH_M);
                     }
-                    var _path5 = pathSeg;
-                    var _vals4 = [_path5.x];
-                    var _xInterval3 = (_vals4[0] + addX - x0) / 3;
+                    //let path = (pathSeg as SVGPathSegLinetoHorizontalAbs);
+                    //let vals = [path.x];
+                    var _xInterval3 = (vals[0] + addX - x0) / 3;
                     ps = [[x0, y0], [x0 + _xInterval3 * 1, y0], [x0 + _xInterval3 * 2, y0], [x0 + _xInterval3 * 3, y0]];
                     prev2ndCubicControlPoint = undefined;
                     prev2ndQuadraticControlPoint = undefined;
@@ -5180,10 +5947,10 @@ function getBeziersFromSvgElem(elem) {
                     if (!pathStarted) {
                         throw new Error(MUST_START_WITH_M);
                     }
-                    var _path6 = pathSeg;
-                    var _vals5 = [_path6.y];
+                    //let path = (pathSeg as SVGPathSegLinetoVerticalAbs);
+                    //let vals = [path.y];
                     //let yInterval = (vals[1] + addY - y0)/3;
-                    var _yInterval3 = (_vals5[0] + addY - y0) / 3;
+                    var _yInterval3 = (vals[0] + addY - y0) / 3;
                     ps = [[x0, y0], [x0, y0 + _yInterval3 * 1], [x0, y0 + _yInterval3 * 2], [x0, y0 + _yInterval3 * 3]];
                     prev2ndCubicControlPoint = undefined;
                     prev2ndQuadraticControlPoint = undefined;
@@ -5213,15 +5980,15 @@ function getBeziersFromSvgElem(elem) {
                     if (!pathStarted) {
                         throw new Error(MUST_START_WITH_M);
                     }
-                    var _path7 = pathSeg;
-                    var _vals6 = [_path7.x, _path7.y, _path7.x1, _path7.y1];
+                    //let path = (pathSeg as SVGPathSegCurvetoQuadraticAbs);
+                    //let vals = [path.x, path.y, path.x1, path.y1];
                     //---------------------------------------------------
                     // Convert quadratic to cubic
                     // see https://stackoverflow.com/questions/3162645/convert-a-quadratic-bezier-to-a-cubic/3162732#3162732
                     //---------------------------------------------------
                     var QP0 = [x0, y0];
-                    var QP1 = [addX + _vals6[0], addY + _vals6[1]];
-                    var QP2 = [addX + _vals6[2], addY + _vals6[3]];
+                    var QP1 = [addX + vals[0], addY + vals[1]];
+                    var QP2 = [addX + vals[2], addY + vals[3]];
                     // Endpoints stay the same
                     var CP0 = QP0;
                     var CP3 = QP2;
@@ -5261,8 +6028,8 @@ function getBeziersFromSvgElem(elem) {
                     if (!pathStarted) {
                         throw new Error(MUST_START_WITH_M);
                     }
-                    var _path8 = pathSeg;
-                    var _vals7 = [_path8.x, _path8.y];
+                    //let path = (pathSeg as SVGPathSegCurvetoQuadraticSmoothAbs);
+                    //let vals = [path.x, path.y];
                     var _x3 = void 0;
                     var _y = void 0;
                     if (prev2ndQuadraticControlPoint) {
@@ -5278,7 +6045,7 @@ function getBeziersFromSvgElem(elem) {
                     //---------------------------------------------------
                     var _QP = [x0, y0];
                     var _QP2 = [_x3, _y];
-                    var _QP3 = [addX + _vals7[0], addY + _vals7[1]];
+                    var _QP3 = [addX + vals[0], addY + vals[1]];
                     // Endpoints stay the same
                     var _CP = _QP;
                     var _CP2 = _QP3;
@@ -5417,7 +6184,7 @@ var Svg = {
 };
 exports.default = Svg;
 
-},{"../geometry/classes/path-curve":8,"flo-vector2d":55}],39:[function(_dereq_,module,exports){
+},{"../geometry/classes/path-curve":8,"./path-data-polyfill/path-data-polyfill":38,"flo-vector2d":56}],40:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -6983,80 +7750,79 @@ var Bezier3 = {
 };
 exports.default = Bezier3;
 
-},{"flo-gauss-quadrature":40,"flo-graham-scan":41,"flo-memoize":46,"flo-poly":47,"flo-vector2d":55}],40:[function(_dereq_,module,exports){
-'use strict';
-
+},{"flo-gauss-quadrature":41,"flo-graham-scan":42,"flo-memoize":47,"flo-poly":48,"flo-vector2d":56}],41:[function(_dereq_,module,exports){
+"use strict";
 // TODO A future improvement can be to use the Gauss–Kronrod rules
 // to estimate the error and thus choose a number of constants based
 // on the error.
 // TODO In future, the constants can be calculated and cached so we can
 // chooce any value for the order.
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-/** 
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
  * <p>
  * Integrates the given function using the Gaussian Quadrature method.
  * </p>
- * <p> 
+ * <p>
  * See https://en.wikipedia.org/wiki/Gaussian_quadrature
  * </p>
  * <p>
  * See http://pomax.github.io/bezierinfo/#arclength
  * </p>
- * 
- * @param {function} f - The univariate function to be integrated
- * @param {number[]} interval - The integration interval
- * @param {number} order - Can be 2, 4, 8, or 16. Higher values give 
+ * @param f - The univariate function to be integrated
+ * @param interval - The integration interval
+ * @param order - Can be 2, 4, 8, or 16. Higher values give
  * more accurate results but is slower - defaults to 16.
  */
+function gaussQuadrature(f, interval) {
+    var order = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 16;
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+    if (interval[0] === interval[1]) {
+        return 0;
+    }
+    var _GAUSS_CONSTANTS$orde = GAUSS_CONSTANTS[order],
+        weights = _GAUSS_CONSTANTS$orde.weights,
+        abscissas = _GAUSS_CONSTANTS$orde.abscissas;
 
-function gaussQuadrature(f, interval, order) {
-	order = order === undefined ? 16 : order;
+    var _interval = _slicedToArray(interval, 2),
+        a = _interval[0],
+        b = _interval[1];
 
-	var _GAUSS_CONSTANTS$orde = GAUSS_CONSTANTS[order],
-	    weights = _GAUSS_CONSTANTS$orde.weights,
-	    abscissas = _GAUSS_CONSTANTS$orde.abscissas;
-
-	var _interval = _slicedToArray(interval, 2),
-	    a = _interval[0],
-	    b = _interval[1];
-
-	var result = 0;
-	var m1 = (b - a) / 2;
-	var m2 = (b + a) / 2;
-	for (var i = 0; i <= order - 1; i++) {
-		result += weights[i] * f(m1 * abscissas[i] + m2);
-	}
-
-	return m1 * result;
+    var result = 0;
+    var m1 = (b - a) / 2;
+    var m2 = (b + a) / 2;
+    for (var i = 0; i <= order - 1; i++) {
+        result += weights[i] * f(m1 * abscissas[i] + m2);
+    }
+    return m1 * result;
 }
-
 // The Gaussian Legendre Quadrature method constants. 
 var GAUSS_CONSTANTS = {
-	2: {
-		weights: [1, 1],
-		abscissas: [-0.5773502691896257, 0.5773502691896257]
-	},
-	4: {
-		weights: [0.6521451548625461, 0.6521451548625461, 0.3478548451374538, 0.3478548451374538],
-		abscissas: [-0.3399810435848563, 0.3399810435848563, -0.8611363115940526, 0.8611363115940526]
-	},
-	8: {
-		weights: [0.3626837833783620, 0.3626837833783620, 0.3137066458778873, 0.3137066458778873, 0.2223810344533745, 0.2223810344533745, 0.1012285362903763, 0.1012285362903763],
-		abscissas: [-0.1834346424956498, 0.1834346424956498, -0.5255324099163290, 0.5255324099163290, -0.7966664774136267, 0.7966664774136267, -0.9602898564975363, 0.9602898564975363]
-	},
-	// Taken from http://keisan.casio.com/exec/system/1330940731
-	16: {
-		abscissas: [-0.989400934991649932596, -0.944575023073232576078, -0.86563120238783174388, -0.7554044083550030338951, -0.6178762444026437484467, -0.4580167776572273863424, -0.28160355077925891323, -0.0950125098376374401853, 0.0950125098376374401853, 0.28160355077925891323, 0.4580167776572273863424, 0.617876244402643748447, 0.755404408355003033895, 0.8656312023878317438805, 0.944575023073232576078, 0.989400934991649932596],
-		weights: [0.0271524594117540948518, 0.062253523938647892863, 0.0951585116824927848099, 0.1246289712555338720525, 0.1495959888165767320815, 0.169156519395002538189, 0.182603415044923588867, 0.189450610455068496285, 0.1894506104550684962854, 0.182603415044923588867, 0.1691565193950025381893, 0.149595988816576732081, 0.124628971255533872053, 0.095158511682492784809, 0.062253523938647892863, 0.027152459411754094852]
-	}
+    2: {
+        weights: [1, 1],
+        abscissas: [-0.5773502691896257, 0.5773502691896257]
+    },
+    4: {
+        weights: [0.6521451548625461, 0.6521451548625461, 0.3478548451374538, 0.3478548451374538],
+        abscissas: [-0.3399810435848563, 0.3399810435848563, -0.8611363115940526, 0.8611363115940526]
+    },
+    8: {
+        weights: [0.3626837833783620, 0.3626837833783620, 0.3137066458778873, 0.3137066458778873, 0.2223810344533745, 0.2223810344533745, 0.1012285362903763, 0.1012285362903763],
+        abscissas: [-0.1834346424956498, 0.1834346424956498, -0.5255324099163290, 0.5255324099163290, -0.7966664774136267, 0.7966664774136267, -0.9602898564975363, 0.9602898564975363]
+    },
+    // Taken from http://keisan.casio.com/exec/system/1330940731
+    16: {
+        abscissas: [-0.989400934991649932596, -0.944575023073232576078, -0.86563120238783174388, -0.7554044083550030338951, -0.6178762444026437484467, -0.4580167776572273863424, -0.28160355077925891323, -0.0950125098376374401853, 0.0950125098376374401853, 0.28160355077925891323, 0.4580167776572273863424, 0.617876244402643748447, 0.755404408355003033895, 0.8656312023878317438805, 0.944575023073232576078, 0.989400934991649932596],
+        weights: [0.0271524594117540948518, 0.062253523938647892863, 0.0951585116824927848099, 0.1246289712555338720525, 0.1495959888165767320815, 0.169156519395002538189, 0.182603415044923588867, 0.189450610455068496285, 0.1894506104550684962854, 0.182603415044923588867, 0.1691565193950025381893, 0.149595988816576732081, 0.124628971255533872053, 0.095158511682492784809, 0.062253523938647892863, 0.027152459411754094852]
+    }
 };
+exports.default = gaussQuadrature;
 
-module.exports = gaussQuadrature;
-
-},{}],41:[function(_dereq_,module,exports){
+},{}],42:[function(_dereq_,module,exports){
+(function (global){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.FloGrahamScan = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -7135,13 +7901,13 @@ function getSmallestIndxYThenX(ps) {
  * </p>
  * @param {number[][]} ps_ - A set of points
  * @param {boolean} includeAllBoundaryPoints - Set this to true to if all boundary points
- * should be returned, even redundant ones - defaults to false
+ * should be returned, even redundant ones
  * @param {number} delta - Tolerance at which three points are considered collinear -
  * defaults to 1e-10
  * @returns {number[][]}
  */
 function grahamScan(ps_, includeAllBoundaryPoints, delta) {
-	includeAllBoundaryPoints = !!includeAllBoundaryPoints;
+
 	delta = delta === undefined ? DELTA : delta;
 
 	function fail(p1, p2, p3) {
@@ -7202,7 +7968,612 @@ function grahamScan(ps_, includeAllBoundaryPoints, delta) {
 
 module.exports = grahamScan;
 
-},{"flo-vector2d":55}],42:[function(_dereq_,module,exports){
+},{"flo-vector2d":2}],2:[function(_dereq_,module,exports){
+(function (global){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.FloVector2d = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+'use strict';
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var DELTA = 1e-10;
+
+/*
+ * Purely functional 2d vector utilities.
+ */
+var Vector = {
+	dot: dot,
+	cross: cross,
+	ccw: ccw,
+	segSegIntersection: segSegIntersection,
+	doesSegSegIntersect: doesSegSegIntersect,
+	squaredDistanceBetween: squaredDistanceBetween,
+	scale: scale,
+	reverse: reverse,
+	toUnitVector: toUnitVector,
+	toLength: toLength,
+	fromTo: fromTo,
+	interpolate: interpolate,
+	mean: mean,
+	distanceBetween: distanceBetween,
+	length: length,
+	lengthSquared: lengthSquared,
+	manhattanDistanceBetween: manhattanDistanceBetween,
+	manhattanLength: manhattanLength,
+	distanceBetweenPointAndLine: distanceBetweenPointAndLine,
+	squaredDistanceBetweenPointAndLineSegment: squaredDistanceBetweenPointAndLineSegment,
+	circumCenter: circumCenter,
+	inCenter: inCenter,
+	centroid: centroid,
+	equal: equal,
+	rotate: rotate,
+	reverseRotate: reverseRotate,
+	rotateBy90Degrees: rotateBy90Degrees,
+	rotateByNeg90Degrees: rotateByNeg90Degrees,
+	transform: transform,
+	getClosestTo: getClosestTo,
+	translatePoints: translatePoints,
+	rotatePoints: rotatePoints,
+	translateThenRotatePoints: translateThenRotatePoints,
+	rotateThenTranslatePoints: rotateThenTranslatePoints
+
+	/** 
+  * Returns the dot (inner) product between two 2-vectors. 
+  * @param {number} a - The first vector
+  * @param {number} b - The second vector
+  * @returns {number}
+  */
+};function dot(a, b) {
+	return a[0] * b[0] + a[1] * b[1];
+}
+
+/** 
+ * Returns the cross product signed magnitude between two 2-vectors.
+ * @param {number} a - The first vector
+ * @param {number} b - The second vector
+ * @returns {number}
+ */
+function cross(a, b) {
+	return a[0] * b[1] - a[1] * b[0];
+}
+
+/**
+ * Three 2d points are a counter-clockwise turn if ccw > 0, 
+ * clockwise if ccw < 0, and colinear if ccw = 0 because ccw is a 
+ * determinant that gives twice the signed area of the triangle formed 
+ * by p1, p2 and p3.
+ * @param {number[]} p1 - The first point
+ * @param {number[]} p2 - The second point
+ * @param {number[]} p3 - The third point
+ * @param {number} delta - The tolerance at which the three points are 
+ * considered colinear - defaults to 1e-10
+ * @returns {number}
+ */
+function ccw(p1, p2, p3, delta) {
+	delta = delta === undefined ? DELTA : delta;
+
+	var res = (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
+
+	return Math.abs(res) <= delta ? 0 : res;
+}
+
+/**
+ * <p>
+ * Finds the point where two 2d line segments intersect.
+ * </p>
+ * <p>
+ * See <a href="http://algs4.cs.princeton.edu/91primitives">Geometric primitves</a>
+ * </p> 
+ * @param {number[][]} ab - The first line 
+ * @param {number[][]} cd - The second line
+ * @param {number} delta - The tolerance at which the lines are considered 
+ * parallel - defaults to 1e-10
+ * @returns {number[]} The point where the two line segments intersect  
+ * or undefined if they don't intersect or a line if they intersect at 
+ * infinitely many points. 
+ */
+function segSegIntersection(ab, cd, delta) {
+	delta = delta === undefined ? DELTA : delta;
+
+	var _ab = _slicedToArray(ab, 2),
+	    a = _ab[0],
+	    b = _ab[1];
+
+	var _cd = _slicedToArray(cd, 2),
+	    c = _cd[0],
+	    d = _cd[1];
+
+	var denom = (b[0] - a[0]) * (d[1] - c[1]) - (b[1] - a[1]) * (d[0] - c[0]);
+	var rNumer = (a[1] - c[1]) * (d[0] - c[0]) - (a[0] - c[0]) * (d[1] - c[1]);
+	var sNumer = (a[1] - c[1]) * (b[0] - a[0]) - (a[0] - c[0]) * (b[1] - a[1]);
+
+	if (Math.abs(denom) <= delta) {
+		// parallel
+		if (Math.abs(rNumer) <= delta) {
+			// colinear
+			// TODO Check if x-projections and y-projections intersect
+			// and return the line of intersection if they do.
+			return undefined;
+		}
+		return undefined;
+	}
+
+	var r = rNumer / denom;
+	var s = sNumer / denom;
+
+	if (0 <= r && r <= 1 && 0 <= s && s <= 1) {
+		return [a[0] + r * (b[0] - a[0]), a[1] + r * (b[1] - a[1])];
+	}
+
+	return undefined;
+}
+
+/**
+ * Returns true if the two given 2d line segments intersect, false otherwise.
+ * @param {number[][]} a - A line segment
+ * @param {number[][]} b - Another line segment
+ * @returns {boolean}
+ */
+function doesSegSegIntersect(a, b) {
+	if (ccw(a[0], a[1], b[0]) * ccw(a[0], a[1], b[1]) > 0) {
+		return false;
+	}
+	if (ccw(b[0], b[1], a[0]) * ccw(b[0], b[1], a[1]) > 0) {
+		return false;
+	}
+
+	return true;
+}
+
+/** 
+ * Returns the squared distance between two 2d points.
+ * @param {number[]} p1 - A point
+ * @param {number[]} p2 - Another point
+ * @returns {number}
+ */
+function squaredDistanceBetween(p1, p2) {
+	var x = p2[0] - p1[0];
+	var y = p2[1] - p1[1];
+
+	return x * x + y * y;
+}
+
+/**
+ * Returns a scaled version of the given 2-vector.
+ * @param {number[]} p - A vector
+ * @param {number} factor - A scale factor
+ * @returns {number[]}
+ */
+function scale(p, factor) {
+	return [p[0] * factor, p[1] * factor];
+}
+
+/**
+ * Returns the 2-vector reversed.
+ * @param {number[]} p 
+ * @returns {number[]}
+ */
+function reverse(p) {
+	return [-p[0], -p[1]];
+}
+
+/**
+ * Returns the given 2-vector scaled to a length of one.
+ * @param {number[]} p
+ * @returns {number[]}
+ */
+function toUnitVector(p) {
+	var scaleFactor = 1 / length(p);
+
+	return [p[0] * scaleFactor, p[1] * scaleFactor];
+}
+
+/**
+ * Returns the given 2-vector scaled to the given length.
+ * @param {number[]} p 
+ * @param {number} length 
+ * @returns {number[]}
+ */
+function toLength(p, length) {
+	var scaleFactor = length / length(p);
+
+	return [p[0] * scaleFactor, p[1] * scaleFactor];
+}
+
+/** 
+ * Returns the second 2-vector minus the first.
+ * @param {number[]} p1 - The first vector
+ * @param {number[]} p2 - The second vector
+ * @returns {number[]}
+ */
+function fromTo(p1, p2) {
+	return [p2[0] - p1[0], p2[1] - p1[1]];
+}
+
+/**
+ * Performs linear interpolation between two 2d points and returns the resultant point.
+ * @param {number[]} p1 - The first point.
+ * @param {number[]} p2 - The second point.
+ * @param {number} t - The interpolation fraction (usually in [0,1]).  
+ * @returns {number[]}
+ */
+function interpolate(p1, p2, t) {
+	return [p1[0] + (p2[0] - p1[0]) * t, p1[1] + (p2[1] - p1[1]) * t];
+}
+
+/**
+ * Returns the mean point value of the provided array of two 2d points. 
+ * @param {number[][]} ps - The two points
+ * @returns {number[]}
+ */
+function mean(ps) {
+	var p1 = ps[0];
+	var p2 = ps[1];
+
+	return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+}
+
+/** 
+ * Returns the distance between two 2d points.
+ * @param {number[]} p1 - A point.
+ * @param {number[]} p2 - Another point.
+ * @returns {number}
+ */
+function distanceBetween(p1, p2) {
+	return Math.sqrt(squaredDistanceBetween(p1, p2));
+}
+
+/** 
+ * Returns the length of the given 2-vector.
+ * @param {number[]} p - A vector
+ * @returns {number}
+ */
+function length(p) {
+	return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
+}
+
+/**
+ * Returns the squared length of the given 2-vector.
+ * @param {number[]} p - A vector
+ * @returns {number}
+ */
+function lengthSquared(v) {
+	return v[0] * v[0] + v[1] * v[1];
+}
+
+/** 
+ * Returns the Manhattan distance between two 2d points.
+ * @param {number[]} p1 - A point.
+ * @param {number[]} p2 - Another point.
+ * @returns {number}
+ */
+function manhattanDistanceBetween(p1, p2) {
+	return Math.abs(p1[0] - p2[0]) + Math.abs(p1[1] - p2[1]);
+}
+
+/** 
+ * Returns the Manhattan length of the given 2-vector.
+ * @param {number[]} p - A vector
+ * @returns {number}
+ */
+function manhattanLength(p) {
+	return Math.abs(p[0]) + Math.abs(p[1]);
+}
+
+/**
+ * <p>
+ * Returns the distance between the given point and line. 
+ * </p>
+ * <p>
+ * See https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points 
+ * </p>
+ * @param {number[]} p - A point
+ * @param {number[][]} l - A line
+ * @returns {number}
+ */
+function distanceBetweenPointAndLine(p, l) {
+	var x0 = p[0];
+	var y0 = p[1];
+	var x1 = l[0][0];
+	var y1 = l[0][1];
+	var x2 = l[1][0];
+	var y2 = l[1][1];
+
+	var y2_y1 = y2 - y1;
+	var x2_x1 = x2 - x1;
+
+	var numerator = y2_y1 * x0 - x2_x1 * y0 + x2 * y1 - y2 * x1;
+	var denominator = Math.sqrt(y2_y1 * y2_y1 + x2_x1 * x2_x1);
+
+	return Math.abs(numerator / denominator);
+}
+
+/**
+ * Return the squared distance between the given point and line segment. 
+ * @param {number[]} p - A point
+ * @param {number[][]} l - A line
+ * @returns {number}
+ */
+function squaredDistanceBetweenPointAndLineSegment(p, l) {
+	var v = l[0];
+	var w = l[1];
+
+	var l2 = squaredDistanceBetween(v, w);
+	if (l2 == 0) {
+		return squaredDistanceBetween(p, v);
+	}
+
+	var t = ((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2;
+	t = Math.max(0, Math.min(1, t));
+
+	var d2 = squaredDistanceBetween(p, [v[0] + t * (w[0] - v[0]), v[1] + t * (w[1] - v[1])]);
+
+	return d2;
+}
+
+/**
+ * Returns the circumcenter of the given 2d triangle (given as three 2d points).
+ * @param {number[][]} triangle 
+ * @returns {number[]}
+ */
+function circumCenter(triangle) {
+	// See wikipedia
+	var p1 = triangle[0];
+	var p2 = triangle[1];
+	var p3 = triangle[2];
+
+	var Sx = 0.5 * det3([squaredNorm(p1), p1[1], 1], [squaredNorm(p2), p2[1], 1], [squaredNorm(p3), p3[1], 1]);
+
+	var Sy = 0.5 * det3([p1[0], squaredNorm(p1), 1], [p2[0], squaredNorm(p2), 1], [p3[0], squaredNorm(p3), 1]);
+
+	var a = det3([p1[0], p1[1], 1], [p2[0], p2[1], 1], [p3[0], p3[1], 1]);
+
+	var b = det3([p1[0], p1[1], squaredNorm(p1)], [p2[0], p2[1], squaredNorm(p2)], [p3[0], p3[1], squaredNorm(p3)]);
+
+	return [Sx / a, Sy / a];
+}
+
+/** 
+ * <p>
+ * Returns the incenter of the given triangle.
+ * </p>
+ * <p>
+ * See Wikipedia - https://en.wikipedia.org/wiki/Incenter 
+ * </p>
+ * @param {number[][]} triangle 
+ * @returns {number[]}
+ */
+function inCenter(triangle) {
+	var p1 = triangle[0];
+	var p2 = triangle[1];
+	var p3 = triangle[2];
+
+	var l1 = distanceBetween(p2, p3);
+	var l2 = distanceBetween(p1, p3);
+	var l3 = distanceBetween(p1, p2);
+	var lengthSum = l1 + l2 + l3;
+	return [(l1 * p1[0] + l2 * p2[0] + l3 * p3[0]) / lengthSum, (l1 * p1[1] + l2 * p2[1] + l3 * p3[1]) / lengthSum];
+}
+
+/**
+ * Returns the centroid of the given polygon, e.g. triangle. The polygon
+ * must be simple, i.e. not self-intersecting.
+ * @param {number[][]} polygon 
+ * @returns {number[]}
+ */
+function centroid(polygon) {
+	if (polygon.length === 3) {
+		var p1 = polygon[0];
+		var p2 = polygon[1];
+		var p3 = polygon[2];
+
+		var x = p1[0] + p2[0] + p3[0];
+		var y = p1[1] + p2[1] + p3[1];
+
+		return [x / 3, y / 3];
+	}
+
+	// polygon.length assumed > 3 and assumed to be non-self-intersecting
+	// See wikipedia
+
+	// First calculate the area, A, of the polygon
+	var A = 0;
+	for (var i = 0; i < polygon.length; i++) {
+		var p0 = polygon[i];
+		var _p = i === polygon.length - 1 ? polygon[0] : polygon[i + 1];
+
+		A = A + (p0[0] * _p[1] - _p[0] * p0[1]);
+	}
+	A = A / 2;
+
+	var C = [0, 0];
+	for (var _i = 0; _i < polygon.length; _i++) {
+		var _p2 = polygon[_i];
+		var _p3 = _i === polygon.length - 1 ? polygon[0] : polygon[_i + 1];
+
+		C[0] = C[0] + (_p2[0] + _p3[0]) * (_p2[0] * _p3[1] - _p3[0] * _p2[1]);
+		C[1] = C[1] + (_p2[1] + _p3[1]) * (_p2[0] * _p3[1] - _p3[0] * _p2[1]);
+	}
+
+	return [C[0] / (6 * A), C[1] / (6 * A)];
+}
+
+/**
+ * Calculate the determinant of three 3-vectors, i.e. 3x3 matrix
+ * @param {number[]} x 
+ * @param {number[]} y
+ * @param {number[]} z
+ * @returns {number}
+ */
+function det3(x, y, z) {
+	return x[0] * (y[1] * z[2] - y[2] * z[1]) - x[1] * (y[0] * z[2] - y[2] * z[0]) + x[2] * (y[0] * z[1] - y[1] * z[0]);
+}
+
+/**
+ * Returns the result of adding two 2-vectors.
+ * @param {number[]} a - A vector
+ * @param {number[]} b - Another vector
+ * @param {number[]}
+ */
+function add(a, b) {
+	return [a[0] + b[0], a[1] + b[1]];
+}
+
+/**
+ * Returns true if two 2-vectors are identical, false otherwise.
+ * @param {number[]} a
+ * @param {number[]} b
+ * @returns {boolean}
+ */
+function equal(a, b) {
+	return a[0] === b[0] && a[1] === b[1];
+}
+
+/**
+ * Returns a rotated version of the given 2-vector given the sine and cosine of the angle.
+ * @param {number[]} p 
+ * @param {number} sinAngle 
+ * @param {number} cosAngle 
+ * @returns {number[]}
+ */
+function rotate(p, sinAngle, cosAngle) {
+	return [p[0] * cosAngle - p[1] * sinAngle, p[0] * sinAngle + p[1] * cosAngle];
+}
+
+/**
+ * Returns a anti-clockwise rotated version of the given 2-vector given the sine and cosine of the angle.
+ * @param {number[]} p 
+ * @param {number} sinθ
+ * @param {number} cosθ
+ * @returns {number[]}
+ */
+function reverseRotate(p, sinθ, cosθ) {
+	return [+p[0] * cosθ + p[1] * sinθ, -p[0] * sinθ + p[1] * cosθ];
+}
+
+/**
+ * Returns a 90 degrees rotated version of the given 2-vector.
+ * @param {number[]} p 
+ * @returns {number[]}
+ */
+function rotateBy90Degrees(p) {
+	return [-p[1], p[0]];
+}
+
+/**
+ * Returns a negative 90 degrees rotated version of the given 2-vector.
+ * @param {number[]} p 
+ * @returns {number[]}
+ */
+function rotateByNeg90Degrees(p) {
+	return [p[1], -p[0]];
+}
+
+/**
+ * Transforms the given 2-vector by applying the given function to each coordinate.
+ * @param {number[]} p 
+ * @param {function} f 
+ * @returns {*[]}
+ */
+function transform(p, f) {
+	return [f(p[0]), f(p[1])];
+}
+
+/**
+ * Returns the closest point to the array of 2d points, optionally providing a distance function.
+ * @param {number[]} p
+ * @param {number[][]} ps
+ * @param {function} f - Distance function - if undefined uses squaredDistanceBetween
+ */
+function getClosestTo(p, ps, f) {
+	f = f === undefined ? squaredDistanceBetween : f;
+
+	var cp = undefined; // Closest Point
+	var bestd = Number.POSITIVE_INFINITY;
+	for (var i = 0; i < ps.length; i++) {
+		var p_ = ps[i];
+
+		var d = f(p, p_);
+		if (d < bestd) {
+			cp = p_;
+			bestd = d;
+		}
+	}
+
+	return cp;
+}
+
+/**
+ * Return the given 2d points translated by the given 2d vector.
+ * @param {number[][]} ps 
+ * @param {number[]} v 
+ * @returns {number[][]}
+ */
+function translatePoints(ps, v) {
+	// SLOW!
+	/*return ps.map(function(p) {
+ 	//return add(p, v);
+ 	return [p[0]+v[0], p[1]+v[1]]; 
+ });*/
+
+	// FAST! (at least on V8, BUT WHY?!)
+	var result = [];
+	for (var i = 0; i < ps.length; i++) {
+		result.push([ps[i][0] + v[0], ps[i][1] + v[1]]);
+	}
+
+	return result;
+}
+
+/**
+ * Returns the given points rotated by a given angle given as the sine and cosine of the angle.
+ * @param {number[][]} ps 
+ * @param {number} sinθ 
+ * @param {number} cosθ
+ * @returns {number[][]}
+ */
+function rotatePoints(ps, sinθ, cosθ) {
+	return ps.map(function (p) {
+		return rotate(p, sinθ, cosθ);
+	});
+}
+
+/** 
+ * Returns an array of points by applying a translation and then rotation to the given points.
+ * @param {number[][]} ps - The input points
+ * @param {number[]} t - The translation vector
+ * @param {number} sinθ 
+ * @param {number} cosθ
+ * @returns {number[][]}
+ **/
+function translateThenRotatePoints(ps, t, sinθ, cosθ) {
+	return ps.map(function (p) {
+		return rotate(add(p, t), sinθ, cosθ);
+	});
+}
+
+/** 
+ * Returns an array of points by applying a rotation and then translation to the given points.
+ * @param {number[][]} ps - The input points
+ * @param {number[]} t - The translation vector
+ * @param {number} sinθ 
+ * @param {number} cosθ
+ * @returns {number[][]}
+ **/
+function rotateThenTranslatePoints(ps, t, sinθ, cosθ) {
+	return ps.map(function (p) {
+		return add(rotate(p, sinθ, cosθ), t);
+	});
+}
+
+module.exports = Vector;
+
+},{}]},{},[1])(1)
+});
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}]},{},[1])(1)
+});
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"flo-vector2d":56}],43:[function(_dereq_,module,exports){
 "use strict";
 /*
  * Concise, Destructive, Left Leaning Red Black Tree implementation.
@@ -7657,7 +9028,7 @@ function fixUp(h) {
 }
 exports.default = LlRbTree;
 
-},{"./src/tree-node":45,"./src/tree-node-color":43,"./src/tree-node-direction":44}],43:[function(_dereq_,module,exports){
+},{"./src/tree-node":46,"./src/tree-node-color":44,"./src/tree-node-direction":45}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -7668,7 +9039,7 @@ var TreeNodeColor;
 })(TreeNodeColor || (TreeNodeColor = {}));
 exports.default = TreeNodeColor;
 
-},{}],44:[function(_dereq_,module,exports){
+},{}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -7679,7 +9050,7 @@ var TreeNodeDirection;
 })(TreeNodeDirection || (TreeNodeDirection = {}));
 exports.default = TreeNodeDirection;
 
-},{}],45:[function(_dereq_,module,exports){
+},{}],46:[function(_dereq_,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -7705,7 +9076,7 @@ var TreeNode = function TreeNode(data, asArray) {
 
 exports.default = TreeNode;
 
-},{"./tree-node-color":43}],46:[function(_dereq_,module,exports){
+},{"./tree-node-color":44}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -7733,7 +9104,7 @@ function m1(f) {
 var Memoize = { m1: m1 };
 exports.default = Memoize;
 
-},{}],47:[function(_dereq_,module,exports){
+},{}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -7746,16 +9117,14 @@ var error_analysis_1 = _dereq_("./src/error-analysis");
 var from_roots_1 = _dereq_("./src/from-roots");
 var multiply = core_operators_1.default.multiply;
 /**
-* <p>
 * Simple & fast practical library functions for functional univariate
 * polynomials over the reals (actually ECMAScript numbers, i.e. double
 * floats).
-* </p>
-* <p>
+*
 * All polinomials are represented as a simple array starting with the
 * highest non-zero power, e.g.
 *   3x^3 + 5x^2 + 7x + 2 -> [3,5,7,2]
-* </p>
+*
 * @ignore
 */
 var FloPoly = Object.assign({}, core_operators_1.default, root_operators_1.default, root_bounds_1.default, error_analysis_1.default, { random: random_1.default,
@@ -7763,7 +9132,7 @@ var FloPoly = Object.assign({}, core_operators_1.default, root_operators_1.defau
     allRoots: all_roots_recursive_1.default });
 exports.default = FloPoly;
 
-},{"./src/all-roots-recursive":48,"./src/core-operators":49,"./src/error-analysis":50,"./src/from-roots":51,"./src/random":52,"./src/root-bounds":53,"./src/root-operators":54}],48:[function(_dereq_,module,exports){
+},{"./src/all-roots-recursive":49,"./src/core-operators":50,"./src/error-analysis":51,"./src/from-roots":52,"./src/random":53,"./src/root-bounds":54,"./src/root-operators":55}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -7927,7 +9296,7 @@ function rootsWithin(p, intervals) {
 }
 exports.default = allRoots;
 
-},{"./core-operators":49,"./root-bounds":53,"./root-operators":54}],49:[function(_dereq_,module,exports){
+},{"./core-operators":50,"./root-bounds":54,"./root-operators":55}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -8387,7 +9756,7 @@ var coreOperators = {
 };
 exports.default = coreOperators;
 
-},{}],50:[function(_dereq_,module,exports){
+},{}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -8437,7 +9806,7 @@ var errorAnalysis = {
 };
 exports.default = errorAnalysis;
 
-},{"./core-operators":49}],51:[function(_dereq_,module,exports){
+},{"./core-operators":50}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -8474,8 +9843,8 @@ function fromRoots(roots) {
 }
 exports.default = fromRoots;
 
-},{"./core-operators":49}],52:[function(_dereq_,module,exports){
-'use strict';
+},{"./core-operators":50}],53:[function(_dereq_,module,exports){
+"use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var from_roots_1 = _dereq_("./from-roots");
@@ -8673,7 +10042,7 @@ var random = {
 };
 exports.default = random;
 
-},{"./from-roots":51}],53:[function(_dereq_,module,exports){
+},{"./from-roots":52}],54:[function(_dereq_,module,exports){
 "use strict";
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -8835,7 +10204,7 @@ var rootBounds = {
 };
 exports.default = rootBounds;
 
-},{"./core-operators":49}],54:[function(_dereq_,module,exports){
+},{"./core-operators":50}],55:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -9204,7 +10573,7 @@ var rootOperators = {
 };
 exports.default = rootOperators;
 
-},{"./core-operators":49}],55:[function(_dereq_,module,exports){
+},{"./core-operators":50}],56:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();

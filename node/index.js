@@ -1,50 +1,47 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const smoothen_1 = require("./lib/mat/functions/smoothen");
-exports.smoothen = smoothen_1.default;
-const find_mat_1 = require("./lib/mat/functions/find-mat");
-exports.findMat = find_mat_1.default;
-const to_scale_axis_1 = require("./lib/mat/functions/to-scale-axis");
-exports.toScaleAxis = to_scale_axis_1.default;
-const get_nodes_as_array_1 = require("./lib/mat/functions/get-nodes-as-array");
-exports.getNodesAsArray = get_nodes_as_array_1.default;
-const mat_tree_1 = require("./lib/mat/classes/mat-tree");
-exports.MatTree = mat_tree_1.default;
-const point_on_shape_1 = require("./lib/geometry/classes/point-on-shape");
-exports.PointOnShape = point_on_shape_1.default;
-const linked_loop_1 = require("./lib/linked-list/linked-loop");
-exports.LinkedLoop = linked_loop_1.default;
-const list_node_1 = require("./lib/linked-list/list-node");
-exports.ListNode = list_node_1.default;
-const mat_node_1 = require("./lib/mat/classes/mat-node");
-exports.MatNode = mat_node_1.default;
-const path_curve_1 = require("./lib/geometry/classes/path-curve");
-exports.PathCurve = path_curve_1.default;
-const shape_1 = require("./lib/geometry/classes/shape");
-exports.Shape = shape_1.default;
-const circle_1 = require("./lib/geometry/classes/circle");
-exports.Circle = circle_1.default;
-const contact_point_1 = require("./lib/mat/classes/contact-point");
-exports.ContactPoint = contact_point_1.default;
-const bezier_piece_1 = require("./lib/geometry/classes/bezier-piece");
-exports.BezierPiece = bezier_piece_1.default;
-const svg_1 = require("./lib/svg/svg");
-exports.Svg = svg_1.default;
-const FloMat = {
-    findMat: find_mat_1.default,
-    toScaleAxis: to_scale_axis_1.default,
-    smoothen: smoothen_1.default,
-    getNodesAsArray: get_nodes_as_array_1.default,
-    MatTree: mat_tree_1.default,
-    PointOnShape: point_on_shape_1.default,
-    LinkedLoop: linked_loop_1.default,
-    ListNode: list_node_1.default,
-    MatNode: mat_node_1.default,
-    PathCurve: path_curve_1.default,
-    Shape: shape_1.default,
-    Circle: circle_1.default,
-    ContactPoint: contact_point_1.default,
-    BezierPiece: bezier_piece_1.default,
-    Svg: svg_1.default,
-};
-exports.default = FloMat;
+const mat_1 = require("./src/mat");
+exports.Mat = mat_1.Mat;
+const loop_1 = require("./src/loop");
+exports.Loop = loop_1.Loop;
+const curve_1 = require("./src/curve");
+exports.Curve = curve_1.Curve;
+const cp_node_1 = require("./src/cp-node");
+exports.CpNode = cp_node_1.CpNode;
+const point_on_shape_1 = require("./src/point-on-shape");
+exports.PointOnShape = point_on_shape_1.PointOnShape;
+const circle_1 = require("./src/circle");
+exports.Circle = circle_1.Circle;
+const contact_point_1 = require("./src/contact-point");
+exports.ContactPoint = contact_point_1.ContactPoint;
+const bezier_piece_1 = require("./src/bezier-piece");
+exports.BezierPiece = bezier_piece_1.BezierPiece;
+const smoothen_1 = require("./src/mat/smoothen/smoothen");
+exports.smoothen = smoothen_1.smoothen;
+const find_mat_1 = require("./src/mat/find-mat/find-mat");
+exports.findMat = find_mat_1.findMat;
+const trim_mat_1 = require("./src/mat/trim-mat");
+exports.trimMat = trim_mat_1.trimMat;
+const to_scale_axis_1 = require("./src/mat/to-scale-axis/to-scale-axis");
+exports.toScaleAxis = to_scale_axis_1.toScaleAxis;
+const to_enhanced_scale_axis_1 = require("./src/mat/to-scale-axis/to-enhanced-scale-axis");
+exports.toEnhancedScaleAxis = to_enhanced_scale_axis_1.toEnhancedScaleAxis;
+const to_spectrum_scale_axis_1 = require("./src/mat/to-scale-axis/to-spectrum-scale-axis");
+exports.toSpectrumScaleAxis = to_spectrum_scale_axis_1.toSpectrumScaleAxis;
+const get_branches_1 = require("./src/mat/get-branches");
+exports.getBranches = get_branches_1.getBranches;
+const traverse_edges_1 = require("./src/mat/traverse-edges");
+exports.traverseEdges = traverse_edges_1.traverseEdges;
+const get_vertices_as_array_1 = require("./src/mat/get-vertices-as-array");
+exports.getVerticesAsArray = get_vertices_as_array_1.getVerticesAsArray;
+const debug_1 = require("./src/debug/debug");
+exports.MatDebug = debug_1.MatDebug;
+const svg_1 = require("./src/svg/svg");
+exports.getPathsFromStr = svg_1.getPathsFromStr;
+const cp_node_for_debugging_1 = require("./src/debug/cp-node-for-debugging");
+exports.CpNodeForDebugging = cp_node_for_debugging_1.CpNodeForDebugging;
+const get_closest_boundary_point_1 = require("./src/mat/get-closest-boundary-point");
+exports.getClosestBoundaryPoint = get_closest_boundary_point_1.getClosestBoundaryPoint;
+exports.closestPointOnBezier = get_closest_boundary_point_1.closestPointOnBezier;
+const Svg = require("./src/svg/svg");
+exports.Svg = Svg;

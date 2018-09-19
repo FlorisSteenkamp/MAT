@@ -1,4 +1,4 @@
-import PointOnShape from '../classes/Point-on-shape';
+import PointOnShape from '../classes/point-on-shape';
 import BezierPiece from '../classes/bezier-piece';
 import ListNode from '../../linked-list/list-node';
 import PathCurve from '../classes/path-curve';

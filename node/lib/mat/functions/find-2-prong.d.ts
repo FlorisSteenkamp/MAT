@@ -1,6 +1,6 @@
 import Circle from '../../geometry/classes/circle';
 import Shape from '../../geometry/classes/shape';
-import PointOnShape from '../../geometry/classes/Point-on-shape';
+import PointOnShape from '../../geometry/classes/point-on-shape';
 /**
  * Adds a 2-prong to the MAT. The first point is given and the second one is
  * found by the algorithm.

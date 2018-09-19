@@ -6,11 +6,12 @@
         "noImplicitThis": true,
         "target": "es2015",
         "declaration": true,
-        "noEmitOnError": true
+        "noEmitOnError": true,
+        "sourceMap": true
     },
     "include": [
         "index.ts",
-        "lib/**/*"
+        "src/**/*"
     ],
     "exclude": [
         "node_modules"

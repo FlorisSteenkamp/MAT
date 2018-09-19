@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 const path_curve_1 = require("../geometry/classes/path-curve");
-//import pathDataPolyFill from './path-data-polyfill/path-data-polyfill.js';
+const path_data_polyfill_1 = require("./path-data-polyfill/path-data-polyfill");
 //		'./path-data-polyfill/path-data-polyfill.js';
 const DELTA = 1e-6; // TODO - must be replaced with value relative to image size.
 /**
@@ -14,6 +14,7 @@ const DELTA = 1e-6; // TODO - must be replaced with value relative to image size
  * @returns aaa
  */
 function getBeziersFromSvgElem(elem) {
+    path_data_polyfill_1.default(); // Ensure polyfill has been applied
     /**
      * Returns true if the given point is close to the origin (by Manhattan
      * distance), fale otherwise.
@@ -110,12 +111,13 @@ function getBeziersFromSvgElem(elem) {
     const MUST_START_WITH_M = 'Invalid SVG - every new path must start with an M or m.';
     const INVALID_COMMAND = 'Invalid SVG - command not recognized.';
     //pathDataPolyFill(); // Ensure polyfill is applied.
-    //let paths = (elem as any).getPathData();  
+    let paths = elem.getPathData();
     // TODO - must still implement handling of multiple <path>s
-    let paths = elem.getElementsByTagName('path');
-    let path = paths[0];
-    let pathSegs = path.pathSegList;
-    if (pathSegs.numberOfItems < 2) {
+    console.dir(elem);
+    //let paths = elem.getElementsByTagName('path');
+    //let path = paths[0];
+    //let pathSegs = path.pathSegList;
+    if (paths.length < 2) {
         // A shape is not described   
         return [];
     }
@@ -135,11 +137,11 @@ function getBeziersFromSvgElem(elem) {
         type: string/*,
         values: number[]*/ /*
 };*/
-    for (let i = 0; i < pathSegs.numberOfItems; i++) {
-        let pathSeg = pathSegs.getItem(i);
-        //let vals = pathSeg.values;
+    for (let i = 0; i < paths.length; i++) {
+        let pathSeg = paths[i];
+        let vals = pathSeg.values;
         //pathSeg.type = pathSeg_.pathSegTypeAsLetter;
-        let type = pathSeg.pathSegTypeAsLetter;
+        let type = pathSeg.type;
         let addX = 0;
         let addY = 0;
         if (type == type.toLowerCase()) {
@@ -169,8 +171,8 @@ function getBeziersFromSvgElem(elem) {
              */
             case 'M': {
                 // Note: A valid SVG path must start with "M" or "m".
-                let path = pathSeg;
-                let vals = [path.x, path.y];
+                //let path = (pathSeg as SVGPathSegMovetoAbs);
+                //let vals = [path.x, path.y];
                 if (pathStarted) {
                     // This is a subpath, close as if a Z or z was the
                     // previous command.
@@ -221,8 +223,8 @@ function getBeziersFromSvgElem(elem) {
                 if (!pathStarted) {
                     throw new Error(MUST_START_WITH_M);
                 }
-                let path = pathSeg;
-                let vals = [path.x, path.y, path.x1, path.y1, path.x2, path.y2];
+                //let path = (pathSeg as SVGPathSegCurvetoCubicAbs);
+                //let vals = [path.x, path.y, path.x1, path.y1, path.x2, path.y2];
                 ps = [
                     [x0, y0],
                     [addX + vals[0], addY + vals[1]],
@@ -262,8 +264,8 @@ function getBeziersFromSvgElem(elem) {
                 if (!pathStarted) {
                     throw new Error(MUST_START_WITH_M);
                 }
-                let path = pathSeg;
-                let vals = [path.x, path.y, path.x2, path.y2];
+                //let path = (pathSeg as SVGPathSegCurvetoCubicSmoothAbs);
+                //let vals = [path.x, path.y, path.x2, path.y2];
                 let x1;
                 let y1;
                 if (prev2ndCubicControlPoint) {
@@ -307,8 +309,8 @@ function getBeziersFromSvgElem(elem) {
                 if (!pathStarted) {
                     throw new Error(MUST_START_WITH_M);
                 }
-                let path = pathSeg;
-                let vals = [path.x, path.y];
+                //let path = (pathSeg as SVGPathSegLinetoAbs);
+                //let vals = [path.x, path.y];
                 let xInterval = (vals[0] + addX - x0) / 3;
                 let yInterval = (vals[1] + addY - y0) / 3;
                 ps = [
@@ -343,8 +345,8 @@ function getBeziersFromSvgElem(elem) {
                 if (!pathStarted) {
                     throw new Error(MUST_START_WITH_M);
                 }
-                let path = pathSeg;
-                let vals = [path.x];
+                //let path = (pathSeg as SVGPathSegLinetoHorizontalAbs);
+                //let vals = [path.x];
                 let xInterval = (vals[0] + addX - x0) / 3;
                 ps = [
                     [x0, y0],
@@ -378,8 +380,8 @@ function getBeziersFromSvgElem(elem) {
                 if (!pathStarted) {
                     throw new Error(MUST_START_WITH_M);
                 }
-                let path = pathSeg;
-                let vals = [path.y];
+                //let path = (pathSeg as SVGPathSegLinetoVerticalAbs);
+                //let vals = [path.y];
                 //let yInterval = (vals[1] + addY - y0)/3;
                 let yInterval = (vals[0] + addY - y0) / 3;
                 ps = [
@@ -415,8 +417,8 @@ function getBeziersFromSvgElem(elem) {
                 if (!pathStarted) {
                     throw new Error(MUST_START_WITH_M);
                 }
-                let path = pathSeg;
-                let vals = [path.x, path.y, path.x1, path.y1];
+                //let path = (pathSeg as SVGPathSegCurvetoQuadraticAbs);
+                //let vals = [path.x, path.y, path.x1, path.y1];
                 //---------------------------------------------------
                 // Convert quadratic to cubic
                 // see https://stackoverflow.com/questions/3162645/convert-a-quadratic-bezier-to-a-cubic/3162732#3162732
@@ -468,8 +470,8 @@ function getBeziersFromSvgElem(elem) {
                 if (!pathStarted) {
                     throw new Error(MUST_START_WITH_M);
                 }
-                let path = pathSeg;
-                let vals = [path.x, path.y];
+                //let path = (pathSeg as SVGPathSegCurvetoQuadraticSmoothAbs);
+                //let vals = [path.x, path.y];
                 let x1;
                 let y1;
                 if (prev2ndQuadraticControlPoint) {

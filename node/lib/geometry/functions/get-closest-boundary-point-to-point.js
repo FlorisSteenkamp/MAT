@@ -5,7 +5,7 @@ const flo_poly_1 = require("flo-poly");
 const geometry_1 = require("../geometry");
 const flo_vector2d_1 = require("flo-vector2d");
 const flo_bezier3_1 = require("flo-bezier3");
-const Point_on_shape_1 = require("../classes/Point-on-shape");
+const point_on_shape_1 = require("../classes/point-on-shape");
 /**
  * Gets the closest boundary point to the given point, limited to the
  * given bezier pieces.
@@ -26,7 +26,7 @@ function getClosestBoundaryPointToPoint(bezierPieces_, point, touchedBezierNode,
             ? Number.POSITIVE_INFINITY
             : flo_vector2d_1.default.distanceBetween(p.p, point);
         if (d < bestDistance) {
-            pos = new Point_on_shape_1.default(bezierPiece.bezierNode, p.t, mat_constants_1.default.pointType.standard, 0, 0);
+            pos = new point_on_shape_1.default(bezierPiece.bezierNode, p.t, mat_constants_1.default.pointType.standard, 0, 0);
             bestDistance = d;
         }
     }

@@ -7,9 +7,9 @@ import PointOnShape from '../../geometry/classes/point-on-shape';
 import Corner from './corner';
 import HoleClosing2Prong from '../../mat/classes/hole-closing-2-prong';
 declare class Shape {
-    private shapeBoundingBox;
     private pointsOnShapePerLoop;
-    private bezierLoops;
+    shapeBoundingBox: number[][];
+    bezierLoops: LinkedLoop<PathCurve>[];
     for2ProngsArray: ListNode<PointOnShape>[][];
     /** Hash of 2-prongs that need to be skipped in 2-prong procedure
     since we already have a hole-closing 2-prong there. */
