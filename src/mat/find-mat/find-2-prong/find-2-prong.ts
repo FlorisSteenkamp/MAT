@@ -146,7 +146,6 @@ function find2Prong(
 		//if (i === 1 && d*oneProngTolerance >= r) {
 		if (i === 1 && r < d+oneProngTolerance) {
 			// It is a 1-prong.
-			// TODO - uncomment line below!
 			add1Prong(Math.sqrt(maxOsculatingCircleRadiusSquared), cpTrees, y); 
 			return undefined; 
 		}

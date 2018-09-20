@@ -14,8 +14,8 @@ import { PointOnShape } from '../../../point-on-shape';
 import { pairSet_add, pairSet_has } from './pair-set';
 import findBbIntersections from '../../../bounding-box/find-bb-intersections';
 
-// TODO - DELTA is arbitrary
-const DELTA = 1e-12;
+// TODO - DELTA is somewhat arbitrary
+const DELTA = 1e-10;
 
 
 interface IBoxInfo {

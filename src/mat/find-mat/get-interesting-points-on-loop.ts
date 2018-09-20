@@ -6,11 +6,6 @@ import { Loop } from '../../loop';
 
 import { PointOnShape } from '../../point-on-shape';
 
-// Keep EXTRA_POINTS of the form (2^n)-1. This will allow e.g. bezier 
-// polynomials of the form at^3 + bt^2 + ... to be evaluated with much more
-// accuracy since the ts in the polynomial will be of the form c*2^(-n) where c
-// is an integer and in the closed interval [1..2^n] and thus use only a few
-// bits of mantissa in its floating point representation.
 //const EXTRA_POINTS = 0;
 //const EXTRA_POINTS = 1;
 const EXTRA_POINTS = 3;

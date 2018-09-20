@@ -4,8 +4,8 @@ const flo_bezier3_1 = require("flo-bezier3");
 const point_on_shape_1 = require("../../../point-on-shape");
 const pair_set_1 = require("./pair-set");
 const find_bb_intersections_1 = require("../../../bounding-box/find-bb-intersections");
-// TODO - DELTA is arbitrary
-const DELTA = 1e-12;
+// TODO - DELTA is somewhat arbitrary
+const DELTA = 1e-10;
 /**
  * Find and return all intersections on all given loops.
  * @param loops

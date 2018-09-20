@@ -102,7 +102,6 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         //if (i === 1 && d*oneProngTolerance >= r) {
         if (i === 1 && r < d + oneProngTolerance) {
             // It is a 1-prong.
-            // TODO - uncomment line below!
             add_1_prong_1.add1Prong(Math.sqrt(maxOsculatingCircleRadiusSquared), cpTrees, y);
             return undefined;
         }
