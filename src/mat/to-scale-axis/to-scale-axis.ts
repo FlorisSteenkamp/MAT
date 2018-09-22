@@ -1,8 +1,4 @@
 
-declare var _debug_: MatDebug; 
-
-import { MatDebug }   from '../../debug/debug';
-
 import { CpNode } from '../../cp-node';
 import { Circle } from '../../circle';
 import { Mat    } from '../../mat';

@@ -98,21 +98,6 @@ function getIntersections(loops: Loop[]) {
         for (let tPair of tPairs) {
             // TODO - the below check is temporary - there is a better way
             // TODO - eliminate the fact that intersections are found twice
-            /*
-            if (
-                ((Math.abs(tPair[0]    ) < DELTA && Math.abs(tPair[1] - 1) < DELTA) ||
-                 (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]    ) < DELTA) ||
-                 (Math.abs(tPair[0]    ) < DELTA && Math.abs(tPair[1]    ) < DELTA) ||
-                 (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1] - 1) < DELTA)) 
-             ) {
-                if (!(curves[0].next === curves[1] || curves[1].next === curves[0])) {
-                    _debug_.fs.draw.crossHair(_debug_.generated.g, new PointOnShape(curves[0], tPair[0]).p, 'blue nofill thin10', 0.1);
-                    _debug_.fs.draw.crossHair(_debug_.generated.g, new PointOnShape(curves[1], tPair[1]).p, 'blue nofill thin10', 0.1);
-                    console.log(tPair[0], tPair[1], pss);
-                    console.log(curves);
-                }
-            }
-            */
             if (
                 ((Math.abs(tPair[0]    ) < DELTA && Math.abs(tPair[1] - 1) < DELTA) ||
                  (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]    ) < DELTA) ||

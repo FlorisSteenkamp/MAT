@@ -33,7 +33,7 @@ function simplifyPaths(loops) {
         windingNum: 0
     };
     loops.sort(ascendingByTopmostPoint);
-    if (typeof _debug_ !== undefined) {
+    if (typeof _debug_ !== 'undefined') {
         for (let loop of loops) {
             _debug_.fs.nameObj(loop);
         }

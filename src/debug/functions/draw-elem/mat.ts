@@ -11,7 +11,7 @@ function mat(type: 'mat' | 'sat', smooth: boolean) {
 
     let classes: string = type === 'mat'
         ? 'thin5 purple nofill'
-        : 'thin5 red nofill';
+        : 'thin10 red nofill';
 
     return f;
 

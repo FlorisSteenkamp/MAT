@@ -46,7 +46,7 @@ function getIntersections(loops) {
                 continue;
             }
             /*
-            if (_debug_ !== undefined) {
+            if (_debug_ !== 'undefined') {
                 let p = evaluate(pss[0], tPair[0]);
                 _debug_.fs.draw.crossHair(p, 'nofill thin1 red', 2);
             }

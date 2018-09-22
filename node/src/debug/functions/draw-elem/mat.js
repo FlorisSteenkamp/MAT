@@ -4,7 +4,7 @@ const traverse_edges_1 = require("../../../mat/traverse-edges");
 function mat(type, smooth) {
     let classes = type === 'mat'
         ? 'thin5 purple nofill'
-        : 'thin5 red nofill';
+        : 'thin10 red nofill';
     return f;
     function f(g, cpNode) {
         if (!cpNode) {
