@@ -14,7 +14,6 @@ import { findMats        } from './src/mat/find-mat/find-mats';
 import { trimMat 	     } from './src/mat/trim-mat';
 import { toScaleAxis     } from './src/mat/to-scale-axis/to-scale-axis';
 
-import { getBranches     } from './src/mat/get-branches';
 import { traverseEdges   } from './src/mat/traverse-edges';
 import { traverseVertices } from './src/mat/traverse-vertices';
 
@@ -52,7 +51,6 @@ export {
 	trimMat,
 	smoothen,
 	traverseVertices,
-	getBranches,
 	traverseEdges,
 
 	MatDebug,

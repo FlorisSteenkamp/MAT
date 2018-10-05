@@ -4,13 +4,14 @@ var gulp       = require('gulp');
 var browserify = require('browserify');
 var source     = require('vinyl-source-stream');
 var buffer     = require('vinyl-buffer');
-var uglify     = require('gulp-uglify');
+var uglify     = require('gulp-uglify-es').default;
 var sourcemaps = require('gulp-sourcemaps');
 var rename     = require('gulp-rename');
 var derequire  = require('gulp-derequire');
 var ts         = require("gulp-typescript");
 var tsify      = require("tsify");
 var babelify   = require("babelify");
+var env        = require('babel-preset-env');
 
 var tsProject  = ts.createProject("./tsconfig.json");
 

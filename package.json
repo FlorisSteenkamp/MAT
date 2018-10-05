@@ -48,6 +48,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-typescript": "^3.2.3",
     "gulp-uglify": "^2.0.0",
+    "gulp-uglify-es": "^1.0.4",
     "gulp-util": "^3.0.8",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.5.5",

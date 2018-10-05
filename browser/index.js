@@ -7,4186 +7,1090 @@ module.exports = _dereq_("./index").default;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var smoothen_1 = _dereq_("./lib/mat/functions/smoothen");
-exports.smoothen = smoothen_1.default;
-var find_mat_1 = _dereq_("./lib/mat/functions/find-mat");
-exports.findMat = find_mat_1.default;
-var to_scale_axis_1 = _dereq_("./lib/mat/functions/to-scale-axis");
-exports.toScaleAxis = to_scale_axis_1.default;
-var get_nodes_as_array_1 = _dereq_("./lib/mat/functions/get-nodes-as-array");
-exports.getNodesAsArray = get_nodes_as_array_1.default;
-var mat_tree_1 = _dereq_("./lib/mat/classes/mat-tree");
-exports.MatTree = mat_tree_1.default;
-var point_on_shape_1 = _dereq_("./lib/geometry/classes/point-on-shape");
-exports.PointOnShape = point_on_shape_1.default;
-var linked_loop_1 = _dereq_("./lib/linked-list/linked-loop");
-exports.LinkedLoop = linked_loop_1.default;
-var list_node_1 = _dereq_("./lib/linked-list/list-node");
-exports.ListNode = list_node_1.default;
-var mat_node_1 = _dereq_("./lib/mat/classes/mat-node");
-exports.MatNode = mat_node_1.default;
-var path_curve_1 = _dereq_("./lib/geometry/classes/path-curve");
-exports.PathCurve = path_curve_1.default;
-var shape_1 = _dereq_("./lib/geometry/classes/shape");
-exports.Shape = shape_1.default;
-var circle_1 = _dereq_("./lib/geometry/classes/circle");
-exports.Circle = circle_1.default;
-var contact_point_1 = _dereq_("./lib/mat/classes/contact-point");
-exports.ContactPoint = contact_point_1.default;
-var bezier_piece_1 = _dereq_("./lib/geometry/classes/bezier-piece");
-exports.BezierPiece = bezier_piece_1.default;
-var svg_1 = _dereq_("./lib/svg/svg");
-exports.Svg = svg_1.default;
-var FloMat = {
-    findMat: find_mat_1.default,
-    toScaleAxis: to_scale_axis_1.default,
-    smoothen: smoothen_1.default,
-    getNodesAsArray: get_nodes_as_array_1.default,
-    MatTree: mat_tree_1.default,
-    PointOnShape: point_on_shape_1.default,
-    LinkedLoop: linked_loop_1.default,
-    ListNode: list_node_1.default,
-    MatNode: mat_node_1.default,
-    PathCurve: path_curve_1.default,
-    Shape: shape_1.default,
-    Circle: circle_1.default,
-    ContactPoint: contact_point_1.default,
-    BezierPiece: bezier_piece_1.default,
-    Svg: svg_1.default
-};
-exports.default = FloMat;
-
-},{"./lib/geometry/classes/bezier-piece":5,"./lib/geometry/classes/circle":6,"./lib/geometry/classes/path-curve":8,"./lib/geometry/classes/point-on-shape":9,"./lib/geometry/classes/shape":10,"./lib/linked-list/linked-loop":16,"./lib/linked-list/list-node":17,"./lib/mat/classes/contact-point":19,"./lib/mat/classes/mat-node":24,"./lib/mat/classes/mat-tree":25,"./lib/mat/functions/find-mat":32,"./lib/mat/functions/get-nodes-as-array":33,"./lib/mat/functions/smoothen":35,"./lib/mat/functions/to-scale-axis":36,"./lib/svg/svg":39}],3:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_memoize_1 = _dereq_("flo-memoize");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var circle_1 = _dereq_("./circle");
-var memoize = flo_memoize_1.default.m1;
-/**
- * @constructor
- *
- * @param bezierNode
- * @param t - The bezier parameter value
- * @param type {MAT_CONSTANTS.pointType}
- *  'standard' : 0, // Not special,
- *  'sharp'    : 1, // Sharp corner,
- *  'dull'     : 2, // dull corner,
- * @param order - For dull corners only; equals the cross of
- * 		  the tangents at the corner interface to impose an order on
- * 		  points with the same point coordinates and t values.
- * @param order2 - For points of hole closing 2-prongs only;
- *		  these points are duplicated to split the shape so they need
- *        to be ordered appropriately.
- * @param circle - The osculating circle at this point pointing
- * towards the inside of the shape.
- */
-
-var PointOnShape = function () {
-    function PointOnShape(bezierNode, t, type, order, order2) {
-        _classCallCheck(this, PointOnShape);
-
-        this.bezierNode = bezierNode;
-        this.t = t;
-        this.type = type;
-        this.order = order;
-        this.order2 = order2;
-        //---- Cache
-        var p = flo_bezier3_1.default.evaluate(bezierNode.item.bezier3, t);
-        this.p = p;
-        // Removing this cache will help in that if {PointOnShape} is 
-        // called as a parameter (where a point is required) it will more 
-        // likely result in monomorphic behaviour as opposed to polymorphic 
-        // or megamorphic.
-        this[0] = p[0];
-        this[1] = p[1];
-    }
-    /**
-     * Calculates the osculating circle of the bezier at a
-     * specific t. If it is found to have negative or nearly zero radius
-     * it is clipped to have positive radius so it can point into the shape.
-     * @param pathCurve
-     * @param t
-     */
-
-
-    _createClass(PointOnShape, null, [{
-        key: "calcOsculatingCircle",
-        value: function calcOsculatingCircle(pathCurve, t) {
-            var ps = pathCurve.bezier3;
-            var κ = -flo_bezier3_1.default.κ(ps, t);
-            // If (κ > 0) { Bending inwards. }
-            var radius = void 0;
-            if (κ <= 1 / mat_constants_1.default.maxOsculatingCircleRadius) {
-                // Curving wrong way (or flat, or too big), but probably a 
-                // significant point to put a 2-prong.
-                radius = mat_constants_1.default.maxOsculatingCircleRadius;
-            } else {
-                radius = Math.min(1 / κ, mat_constants_1.default.maxOsculatingCircleRadius);
-            }
-            var normal = flo_bezier3_1.default.normal(ps, t);
-            var p = flo_bezier3_1.default.evaluate(ps, t);
-            var circleCenter = [p[0] + normal[0] * radius, p[1] + normal[1] * radius];
-            return new circle_1.default(circleCenter, radius);
-        }
-    }, {
-        key: "dullCornerAt",
-        value: function dullCornerAt(shape, p) {
-            var dullCornerHash = shape.dullCornerHash;
-            var key = PointOnShape.makeSimpleKey(p);
-            return dullCornerHash[key] || null;
-        }
-        /**
-         * Clones the PointOnShape.
-         */
-        // TODO - rename to clone
-        // TODO - deep clone?
-
-    }, {
-        key: "copy",
-        value: function copy(pos) {
-            return new PointOnShape(pos.bezierNode, pos.t, pos.type, pos.order, pos.order2);
-        }
-        /**
-         * Returns the PointOnShape type as a human-readable
-         * string.
-         * @param {number} type
-         * @returns {string}
-         */
-        // TODO - remove - use enum
-
-    }, {
-        key: "typeToStr",
-        value: function typeToStr(type) {
-            for (var key in mat_constants_1.default.pointType) {
-                if (mat_constants_1.default.pointType[key] === type) {
-                    return key;
-                }
-            }
-        }
-    }]);
-
-    return PointOnShape;
-}();
-
-PointOnShape.getOsculatingCircle = memoize(function (pos) {
-    if (pos.type === mat_constants_1.default.pointType.sharp) {
-        return new circle_1.default(pos.p, 0);
-    } else if (pos.type === mat_constants_1.default.pointType.extreme) {
-        var r = mat_constants_1.default.maxOsculatingCircleRadius;
-        var p = [pos.p[0], pos.p[1] - r];
-        return new circle_1.default(p, r);
-    }
-    return PointOnShape.calcOsculatingCircle(pos.bezierNode.item, pos.t);
-});
-/**
-* Compares two PointOnShapes according to their position on the bezier loop.
-*/
-PointOnShape.compare = function (a, b) {
-    if (a === undefined || b === undefined) {
-        return undefined;
-    }
-    var res = void 0;
-    res = a.bezierNode.item.indx - b.bezierNode.item.indx;
-    if (res !== 0) {
-        return res;
-    }
-    res = a.t - b.t;
-    if (res !== 0) {
-        return res;
-    }
-    res = a.order - b.order;
-    if (res !== 0) {
-        return res;
-    }
-    res = a.order2 - b.order2;
-    return res;
-};
-/**
-* Returns true if its osculation circle is pointing straight upwards.
-*/
-PointOnShape.isPointingStraightUp = function (pos) {
-    var circle = PointOnShape.getOsculatingCircle(pos);
-    if (!circle) {
-        return false;
-    }
-    var circleDirection = flo_vector2d_1.default.toUnitVector(flo_vector2d_1.default.fromTo(pos.p, circle.center));
-    // If not almost pointing straight up
-    if (Math.abs(circleDirection[0]) > 1e-6 || circleDirection[1] > 0) {
-        return false;
-    }
-    return true;
-};
-/**
- * Sets the order (to distinguish between points lying on top of each
- * other) of the contact point if it is a dull corner.
- * @param {PointOnShape} pos
- * @note Modifies pos
- */
-PointOnShape.setPointOrder = function (shape, circle, pos) {
-    var dullCorner = PointOnShape.dullCornerAt(shape, pos.p);
-    if (!dullCorner) {
-        return;
-    }
-    var ps = dullCorner.beziers[0];
-    var tan1pre = flo_bezier3_1.default.tangent(ps, 1);
-    var tan1 = [tan1pre[1], -tan1pre[0]]; // rotate by -90 degrees
-    var tan2 = flo_vector2d_1.default.toUnitVector(flo_vector2d_1.default.fromTo(pos.p, circle.center));
-    pos.order = -flo_vector2d_1.default.dot(tan1, tan2);
-    return pos.order;
-};
-/**
- * Creates a string key that only depends on the PointOnShape's coordinates.
- */
-PointOnShape.makeSimpleKey = function (p) {
-    return '' + p[0] + ', ' + p[1];
-};
-/**
- * @description Returns a human-readable string of the PointOnShape.
- * @note For debugging only.
- */
-PointOnShape.toHumanString = function (pos) {
-    return '' + pos[0] + ', ' + pos[1] + ' | bz: ' + pos.bezierNode.item.indx + ' | t: ' + pos.t + ' | ord: ' + pos.order + ' | ord2: ' + pos.order2 + ' | ' + PointOnShape.typeToStr(pos.type); // TODO - use enum
-};
-exports.default = PointOnShape;
-
-},{"../../mat-constants":18,"./circle":6,"flo-bezier3":40,"flo-memoize":47,"flo-vector2d":56}],4:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var circle_1 = _dereq_("./circle");
-var geometry_1 = _dereq_("../geometry");
-
-var Arc = function () {
-    /**
-     * Arc class.
-     * If circle === null then the arc degenerates into a line segment
-     * given by sinAngle1 and cosAngle2 which now represent points.
-     * The arc curve is always defined as the piece from angle1 -> angle2.
-     * Note: startpoint and endpoint is redundant
-     */
-    function Arc(circle, sinAngle1, cosAngle1, sinAngle2, cosAngle2, startpoint, endpoint) {
-        _classCallCheck(this, Arc);
-
-        // Intrinsic
-        this.circle = circle;
-        this.sinAngle1 = sinAngle1;
-        this.sinAngle2 = sinAngle2;
-        this.cosAngle1 = cosAngle1;
-        this.cosAngle2 = cosAngle2;
-        // Cache
-        this.startpoint = startpoint; // Redundant but useful
-        this.endpoint = endpoint; // Redundant but useful
-    }
-    /**
-     * Returns the closest point on the arc.
-     * NOTE: Not currently used.
-     * @private
-     */
-
-
-    _createClass(Arc, null, [{
-        key: "closestPointOnArc",
-        value: function closestPointOnArc(p, arc) {
-            if (arc.circle !== null) {
-                // First move arc circle onto origin
-                var x = arc.circle.center[0];
-                var y = arc.circle.center[1];
-                var translate = flo_vector2d_1.default.translate([-x, -y]);
-                var arco = new Arc(new circle_1.default([0, 0], arc.circle.radius), arc.sinAngle1, arc.cosAngle1, arc.sinAngle2, arc.cosAngle2, translate(arc.startpoint), translate(arc.endpoint));
-                var pp = translate(p);
-                var l = flo_vector2d_1.default.len(pp);
-                var sin_pp = -pp[1] / l;
-                var cos_pp = pp[0] / l;
-                if (geometry_1.default.isAngleBetween(sin_pp, cos_pp, arco.sinAngle1, arco.cosAngle1, arco.sinAngle2, arco.cosAngle2)) {
-                    var r_o_l = arco.circle.radius;
-                    var _res = { p: flo_vector2d_1.default.translate([x, y], [r_o_l * cos_pp, r_o_l * -sin_pp]), position: 0 };
-                    return _res;
-                } else {
-                    var _asp = arc.startpoint;
-                    var _aep = arc.endpoint;
-                    var _d = flo_vector2d_1.default.distanceBetween(_asp, p);
-                    var _d2 = flo_vector2d_1.default.distanceBetween(_aep, p);
-                    if (_d < _d2) {
-                        return { p: _asp, position: 1 };
-                    }
-                    return { p: _aep, position: 2 };
-                }
-            }
-            // Line degenerate case - this is exactly a routine for 
-            // distance (and closest point) between point and line segment.
-            var asp = arc.startpoint;
-            var aep = arc.endpoint;
-            var d1 = flo_vector2d_1.default.distanceBetween(asp, p);
-            var d2 = flo_vector2d_1.default.distanceBetween(aep, p);
-            var ds = Math.sqrt(flo_vector2d_1.default.squaredDistanceBetweenPointAndLineSegment(p, [asp, aep]));
-            if (d1 <= d2 && d1 <= ds) {
-                return { p: asp, position: 1 };
-            } else if (d2 <= d1 && d2 <= ds) {
-                return { p: aep, position: 2 };
-            }
-            // else ds is shortest
-            var v = flo_vector2d_1.default.fromTo(asp, aep);
-            var l1p2 = [p[0] + v[1], p[1] + -v[0]];
-            var res = {
-                p: geometry_1.default.lineLineIntersection([p, l1p2], [asp, aep]),
-                position: 0
-            };
-            return res;
-        }
-    }]);
-
-    return Arc;
-}();
-
-exports.default = Arc;
-
-},{"../geometry":15,"./circle":6,"flo-vector2d":56}],5:[function(_dereq_,module,exports){
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-
-var BezierPiece =
-/**
- * @param bezierNode
- * @param tRange
- */
-function BezierPiece(bezierNode, tRange) {
-    _classCallCheck(this, BezierPiece);
-
-    this.bezierNode = bezierNode;
-    this.tRange = tRange;
-};
-
-exports.default = BezierPiece;
-
-},{}],6:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-
-var Circle = function () {
-    /**
-    * @param center
-    * @param radius
-    */
-    function Circle(center, radius) {
-        _classCallCheck(this, Circle);
-
-        this.center = center;
-        this.radius = radius;
-    }
-    /**
-     * Returns a scaled version of the given circle without
-     * changing its center position.
-     * @param circle
-     * @param s multiplier
-     */
-
-
-    _createClass(Circle, null, [{
-        key: "scale",
-        value: function scale(circle, s) {
-            return new Circle(circle.center, circle.radius * s);
-        }
-        /**
-         * Returns true if the first circle engulfs the second.
-         */
-
-    }, {
-        key: "engulfsCircle",
-        value: function engulfsCircle(c1, c2) {
-            if (c1.radius <= c2.radius) {
-                return false;
-            }
-            var d = flo_vector2d_1.default.squaredDistanceBetween(c1.center, c2.center);
-            var dr = c1.radius - c2.radius;
-            var δ = dr * dr;
-            return δ > d;
-        }
-        /**
-         * Returns a human-readable string description.
-         */
-
-    }, {
-        key: "toString",
-        value: function toString(circle) {
-            return 'c: ' + circle.center + ' radius: ' + circle.radius;
-        }
-    }]);
-
-    return Circle;
-}();
-
-exports.default = Circle;
-
-},{"flo-vector2d":56}],7:[function(_dereq_,module,exports){
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-
-var Corner = function Corner(beziers, tans) {
-    _classCallCheck(this, Corner);
-
-    this.beziers = beziers;
-    this.tans = tans;
-};
-
-exports.default = Corner;
-
-},{}],8:[function(_dereq_,module,exports){
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-
-var PathCurve =
-/**
- * An indexed cubic bezier curve.
- * @param indx
- * @param bezier3
- */
-function PathCurve(indx, bezier3) {
-    _classCallCheck(this, PathCurve);
-
-    this.indx = indx;
-    this.bezier3 = bezier3;
-};
-/**
- * Returns the reverse of the given bezier and assign the new given idx.
- * @param {PathCurve} curve - a path curve
- * @param {number} idx
- * @returns {Bezier3}
- */
-
-
-PathCurve.reverse = function (curve, newIndx) {
-    var ps = curve.bezier3.slice().reverse();
-    return new PathCurve(newIndx, ps);
-};
-exports.default = PathCurve;
-
-},{}],9:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_memoize_1 = _dereq_("flo-memoize");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var circle_1 = _dereq_("./circle");
-var memoize = flo_memoize_1.default.m1;
-/**
- * @constructor
- *
- * @param bezierNode
- * @param t - The bezier parameter value
- * @param type {MAT_CONSTANTS.pointType}
- *  'standard' : 0, // Not special,
- *  'sharp'    : 1, // Sharp corner,
- *  'dull'     : 2, // dull corner,
- * @param order - For dull corners only; equals the cross of
- * 		  the tangents at the corner interface to impose an order on
- * 		  points with the same point coordinates and t values.
- * @param order2 - For points of hole closing 2-prongs only;
- *		  these points are duplicated to split the shape so they need
- *        to be ordered appropriately.
- * @param circle - The osculating circle at this point pointing
- * towards the inside of the shape.
- */
-
-var PointOnShape = function () {
-    function PointOnShape(bezierNode, t, type, order, order2) {
-        _classCallCheck(this, PointOnShape);
-
-        this.bezierNode = bezierNode;
-        this.t = t;
-        this.type = type;
-        this.order = order;
-        this.order2 = order2;
-        //---- Cache
-        var p = flo_bezier3_1.default.evaluate(bezierNode.item.bezier3, t);
-        this.p = p;
-        // Removing this cache will help in that if {PointOnShape} is 
-        // called as a parameter (where a point is required) it will more 
-        // likely result in monomorphic behaviour as opposed to polymorphic 
-        // or megamorphic.
-        this[0] = p[0];
-        this[1] = p[1];
-    }
-    /**
-     * Calculates the osculating circle of the bezier at a
-     * specific t. If it is found to have negative or nearly zero radius
-     * it is clipped to have positive radius so it can point into the shape.
-     * @param pathCurve
-     * @param t
-     */
-
-
-    _createClass(PointOnShape, null, [{
-        key: "calcOsculatingCircle",
-        value: function calcOsculatingCircle(pathCurve, t) {
-            var ps = pathCurve.bezier3;
-            var κ = -flo_bezier3_1.default.κ(ps, t);
-            // If (κ > 0) { Bending inwards. }
-            var radius = void 0;
-            if (κ <= 1 / mat_constants_1.default.maxOsculatingCircleRadius) {
-                // Curving wrong way (or flat, or too big), but probably a 
-                // significant point to put a 2-prong.
-                radius = mat_constants_1.default.maxOsculatingCircleRadius;
-            } else {
-                radius = Math.min(1 / κ, mat_constants_1.default.maxOsculatingCircleRadius);
-            }
-            var normal = flo_bezier3_1.default.normal(ps, t);
-            var p = flo_bezier3_1.default.evaluate(ps, t);
-            var circleCenter = [p[0] + normal[0] * radius, p[1] + normal[1] * radius];
-            return new circle_1.default(circleCenter, radius);
-        }
-    }, {
-        key: "dullCornerAt",
-        value: function dullCornerAt(shape, p) {
-            var dullCornerHash = shape.dullCornerHash;
-            var key = PointOnShape.makeSimpleKey(p);
-            return dullCornerHash[key] || null;
-        }
-        /**
-         * Clones the PointOnShape.
-         */
-        // TODO - rename to clone
-        // TODO - deep clone?
-
-    }, {
-        key: "copy",
-        value: function copy(pos) {
-            return new PointOnShape(pos.bezierNode, pos.t, pos.type, pos.order, pos.order2);
-        }
-        /**
-         * Returns the PointOnShape type as a human-readable
-         * string.
-         * @param {number} type
-         * @returns {string}
-         */
-        // TODO - remove - use enum
-
-    }, {
-        key: "typeToStr",
-        value: function typeToStr(type) {
-            for (var key in mat_constants_1.default.pointType) {
-                if (mat_constants_1.default.pointType[key] === type) {
-                    return key;
-                }
-            }
-        }
-    }]);
-
-    return PointOnShape;
-}();
-
-PointOnShape.getOsculatingCircle = memoize(function (pos) {
-    if (pos.type === mat_constants_1.default.pointType.sharp) {
-        return new circle_1.default(pos.p, 0);
-    } else if (pos.type === mat_constants_1.default.pointType.extreme) {
-        var r = mat_constants_1.default.maxOsculatingCircleRadius;
-        var p = [pos.p[0], pos.p[1] - r];
-        return new circle_1.default(p, r);
-    }
-    return PointOnShape.calcOsculatingCircle(pos.bezierNode.item, pos.t);
-});
-/**
-* Compares two PointOnShapes according to their position on the bezier loop.
-*/
-PointOnShape.compare = function (a, b) {
-    if (a === undefined || b === undefined) {
-        return undefined;
-    }
-    var res = void 0;
-    res = a.bezierNode.item.indx - b.bezierNode.item.indx;
-    if (res !== 0) {
-        return res;
-    }
-    res = a.t - b.t;
-    if (res !== 0) {
-        return res;
-    }
-    res = a.order - b.order;
-    if (res !== 0) {
-        return res;
-    }
-    res = a.order2 - b.order2;
-    return res;
-};
-/**
-* Returns true if its osculation circle is pointing straight upwards.
-*/
-PointOnShape.isPointingStraightUp = function (pos) {
-    var circle = PointOnShape.getOsculatingCircle(pos);
-    if (!circle) {
-        return false;
-    }
-    var circleDirection = flo_vector2d_1.default.toUnitVector(flo_vector2d_1.default.fromTo(pos.p, circle.center));
-    // If not almost pointing straight up
-    if (Math.abs(circleDirection[0]) > 1e-6 || circleDirection[1] > 0) {
-        return false;
-    }
-    return true;
-};
-/**
- * Sets the order (to distinguish between points lying on top of each
- * other) of the contact point if it is a dull corner.
- * @param {PointOnShape} pos
- * @note Modifies pos
- */
-PointOnShape.setPointOrder = function (shape, circle, pos) {
-    var dullCorner = PointOnShape.dullCornerAt(shape, pos.p);
-    if (!dullCorner) {
-        return;
-    }
-    var ps = dullCorner.beziers[0];
-    var tan1pre = flo_bezier3_1.default.tangent(ps, 1);
-    var tan1 = [tan1pre[1], -tan1pre[0]]; // rotate by -90 degrees
-    var tan2 = flo_vector2d_1.default.toUnitVector(flo_vector2d_1.default.fromTo(pos.p, circle.center));
-    pos.order = -flo_vector2d_1.default.dot(tan1, tan2);
-    return pos.order;
-};
-/**
- * Creates a string key that only depends on the PointOnShape's coordinates.
- */
-PointOnShape.makeSimpleKey = function (p) {
-    return '' + p[0] + ', ' + p[1];
-};
-/**
- * @description Returns a human-readable string of the PointOnShape.
- * @note For debugging only.
- */
-PointOnShape.toHumanString = function (pos) {
-    return '' + pos[0] + ', ' + pos[1] + ' | bz: ' + pos.bezierNode.item.indx + ' | t: ' + pos.t + ' | ord: ' + pos.order + ' | ord2: ' + pos.order2 + ' | ' + PointOnShape.typeToStr(pos.type); // TODO - use enum
-};
-exports.default = PointOnShape;
-
-},{"../../mat-constants":18,"./circle":6,"flo-bezier3":40,"flo-memoize":47,"flo-vector2d":56}],10:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_memoize_1 = _dereq_("flo-memoize");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var path_curve_1 = _dereq_("../../geometry/classes/path-curve");
-var linked_loop_1 = _dereq_("../../linked-list/linked-loop");
-var list_node_1 = _dereq_("../../linked-list/list-node");
-var bezier_piece_1 = _dereq_("../../geometry/classes/bezier-piece");
-var contact_point_1 = _dereq_("../../mat/classes/contact-point");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-var mat_circle_1 = _dereq_("../../mat/classes/mat-circle");
-var memoize = flo_memoize_1.default.m1;
-
-var get_contact_circles_at_bezier_bezier_interface_1 = _dereq_("../functions/get-contact-circles-at-bezier-bezier-interface");
-var get_bezier_osculating_circles_1 = _dereq_("../functions/get-bezier-osculating-circles");
-
-var Shape = function () {
-    /**
-     * A Shape represents the loop of individual cubic bezier curves composing
-     * an SVG element. When constructed, some initial analysis is done.
-     * @param bezierArrays - An array (loop) of cubic bezier arrays. Each loop
-     * represents a closed path of the shape.
-     */
-    function Shape(bezierArrays) {
-        var _this = this;
-
-        _classCallCheck(this, Shape);
-
-        /** Hash of 2-prongs that need to be skipped in 2-prong procedure
-        since we already have a hole-closing 2-prong there. */
-        this.skip2ProngHash = {};
-        /** Hash of PointOnShapes that has a normal pointing straight up. */
-        this.straightUpHash = {};
-        /** A hash of all the dull corners (i.e. those with angle > 180 deg) */
-        this.dullCornerHash = {};
-        /** Hole closing 2-prongs that will be populated during find-mat */
-        this.holeClosers = [];
-        // TODO - check if this will run in node (due to window object)
-        if (typeof window !== 'undefined' && window._debug_) {
-            window._debug_.generated.timing.start = performance.now();
-        }
-        // The shape paths and sub-paths, a.k.a bezier loops.
-        var bezierLoops = bezierArrays.map(function (array, k) {
-            return new linked_loop_1.default(array, undefined, k);
-        });
-        // Orient the loops so that the outer loop is oriented positively - 
-        // defined as anti-clockwise.  
-        this.bezierLoops = orient(bezierLoops);
-        this.extremes = this.bezierLoops.map(getExtremes);
-        // This is to find the topmost points on each loop.
-        this.extremes.sort(function (a, b) {
-            return a.p[1] - b.p[1];
-        });
-        this.bezierLoops.sort(function (a_, b_) {
-            var a = getExtremes(a_);
-            var b = getExtremes(b_);
-            return a.p[1] - b.p[1];
-        });
-        // Re-index after ordering.
-        for (var i = 0; i < this.bezierLoops.length; i++) {
-            this.bezierLoops[i].indx = i;
-        }
-        // Get metrics of the outer loop. ??
-        this.shapeBoundingBox = getLoopBounds(bezierLoops[0]).shapeBoundingBox;
-        // Gets interesting points on the shape, i.e. those that makes 
-        // sense to use for the 2-prong procedure.
-        var pointOnShapeArrPerLoop = Shape.getInterestingPointsOnShape(this);
-        this.pointsOnShapePerLoop = pointOnShapeArrPerLoop.map(function (array, i) {
-            return createCoupledLoops(array, i);
-        });
-        // TODO Finish implementation. This is to space the points more
-        // evenly. 
-        //respacePoints(this.contactPointsPerLoop, 30);
-
-        var _Shape$getPotential2P = Shape.getPotential2Prongs(this),
-            sharpCornersArray = _Shape$getPotential2P.sharpCornersArray,
-            for2ProngsArray = _Shape$getPotential2P.for2ProngsArray;
-
-        this.for2ProngsArray = for2ProngsArray;
-        // Take account of sharp and dull corners for debugging and update 
-        // straightUpHash.
-        Shape.forEachPointOnShape(this, function (pos) {
-            if (pos.type === mat_constants_1.default.pointType.sharp) {
-                if (typeof window !== 'undefined' && window._debug_) {
-                    var _debug_ = window._debug_;
-                    _debug_.generated.sharpCorners.push({ pos: pos });
-                }
-            } else {
-                if (point_on_shape_1.default.isPointingStraightUp(pos)) {
-                    var key = point_on_shape_1.default.makeSimpleKey(pos.p);
-                    _this.straightUpHash[key] = pos;
-                }
-                if (typeof window !== 'undefined' && window._debug_) {
-                    if (pos.type === mat_constants_1.default.pointType.dull) {
-                        var _debug_2 = window._debug_;
-                        _debug_2.generated.dullCorners.push({ pos: pos });
-                    }
-                }
-            }
-        });
-        this.contactPointsPerLoop = createSharpCornerCpLoops(this, sharpCornersArray);
-        if (typeof window !== 'undefined' && window._debug_) {
-            var _debug_ = window._debug_;
-            _debug_.generated.timing.after1Prongs = performance.now();
-        }
-    }
-    /**
-     * Applies f to each PointOnShape within the shape
-     * @param shape - The shape
-     * @param f - The function to call.
-     */
-
-
-    _createClass(Shape, null, [{
-        key: "forEachPointOnShape",
-        value: function forEachPointOnShape(shape, f) {
-            var pointsOnShapePerLoop = shape.pointsOnShapePerLoop;
-            for (var k = 0; k < pointsOnShapePerLoop.length; k++) {
-                var pointsOnShape = pointsOnShapePerLoop[k];
-                var posNode = pointsOnShape.head;
-                do {
-                    var pos = posNode.item;
-                    f(pos);
-                    posNode = posNode.next;
-                } while (posNode !== pointsOnShape.head);
-            }
-        }
-        /**
-         * Get potential 2-prong points on shape.
-         * @param shape
-         */
-
-    }, {
-        key: "getPotential2Prongs",
-        value: function getPotential2Prongs(shape) {
-            var pointsOnShapePerLoop = shape.pointsOnShapePerLoop;
-            var sharpCornersArray = [];
-            var for2ProngsArray = [];
-            for (var k = 0; k < pointsOnShapePerLoop.length; k++) {
-                var pointsOnShape = pointsOnShapePerLoop[k];
-                var sharpCorners = [];
-                var for2Prongs = [];
-                var posNode = pointsOnShape.head;
-                do {
-                    var pos = posNode.item;
-                    if (pos.type === mat_constants_1.default.pointType.sharp) {
-                        sharpCorners.push(pos);
-                    } else {
-                        for2Prongs.push(posNode);
-                    }
-                    posNode = posNode.next;
-                } while (posNode !== pointsOnShape.head);
-                sharpCornersArray.push(sharpCorners);
-                for2ProngsArray.push(for2Prongs);
-            }
-            return { sharpCornersArray: sharpCornersArray, for2ProngsArray: for2ProngsArray };
-        }
-        /**
-         * Get useful points on the shape - these incude osculating points and points at
-         * the bezier-bezier interfaces.
-         * @param shape
-         */
-
-    }, {
-        key: "getInterestingPointsOnShape",
-        value: function getInterestingPointsOnShape(shape) {
-            var bezierLoops = shape.bezierLoops;
-            var allPointsArray = [];
-            for (var k = 0; k < bezierLoops.length; k++) {
-                var bezierLoop = bezierLoops[k];
-                allPointsArray.push(Shape.getInterestingPointsOnLoop(shape, bezierLoop));
-            }
-            return allPointsArray;
-        }
-        /**
-         * TODO - uncomment and finish
-         * Get all points where shape intersect itself.
-         */
-        /*
-        function getSelfIntersections(shape: Shape) {
-            //aaa
-        }
-        */
-        /**
-         * @param shape
-         * @param bezierLoop
-         */
-
-    }, {
-        key: "getInterestingPointsOnLoop",
-        value: function getInterestingPointsOnLoop(shape, bezierLoop) {
-            var dullCornerHash = shape.dullCornerHash;
-            var points = [];
-            var allPoints = [];
-            var node = bezierLoop.head;
-            do {
-                //let bezier = node.item;
-                var pointsOnShape1 = get_contact_circles_at_bezier_bezier_interface_1.default([node.prev, node], dullCornerHash);
-                allPoints.push.apply(allPoints, _toConsumableArray(pointsOnShape1));
-                var pointsOnShape2 = get_bezier_osculating_circles_1.default(node);
-                allPoints.push.apply(allPoints, _toConsumableArray(pointsOnShape2));
-                // TODO - remove; experimenting
-                for (var i = 1; i < 2; i++) {
-                    var pos = new point_on_shape_1.default(node, i / 2, mat_constants_1.default.pointType.standard, 0, 0);
-                    allPoints.push(pos);
-                }
-                node = node.next;
-            } while (node !== bezierLoop.head);
-            // Ensure order - first point may be ordered last at this stage
-            // (due to bezier-bezier interface checking)
-            var firstPoint = allPoints[0];
-            var lastPoint = allPoints[allPoints.length - 1];
-            if (point_on_shape_1.default.compare(firstPoint, lastPoint) > 0) {
-                allPoints.push(firstPoint); // Add the first point to the end
-                allPoints.splice(0, 1); // ... and remove the front point.
-            }
-            allPoints.sort(point_on_shape_1.default.compare);
-            // Check if at least one 2-prong has been added. If not, add one.
-            var atLeast1 = false;
-            for (var _i = 0; _i < allPoints.length; _i++) {
-                if (allPoints[_i].type !== mat_constants_1.default.pointType.sharp) {
-                    atLeast1 = true;
-                    break;
-                }
-            }
-            //if (bezierLoop.indx === 0 && !atLeast1) {
-            if (!atLeast1) {
-                // Not a single potential 2-prong found on envelope. Add one 
-                // to make the algorithm simpler from here on.
-                var _node = bezierLoop.head;
-                var _pos = new point_on_shape_1.default(_node, 0.4999995, // Can really be anything in the range (0,1)
-                mat_constants_1.default.pointType.standard, 0, 0);
-                allPoints.push(_pos);
-            }
-            return allPoints;
-        }
-        /**
-         * Returns the boundary piece that starts at the immediate previous point on
-         * the shape and ends at the immediate next point.
-         * Note: Uses a red-black tree to quickly find the required bounds
-         */
-
-    }, {
-        key: "getNeighbouringPoints",
-        value: function getNeighbouringPoints(shape, pos) {
-            var k = pos.bezierNode.loop.indx;
-            var cptree = shape.contactPointsPerLoop[k].cptree;
-            //let cps = cptree.findBounds({ item: new ContactPoint(pos) });
-            // TODO - ugly - improve code
-            var cps = cptree.findBounds(new list_node_1.default(undefined, new contact_point_1.default(pos, undefined), undefined, undefined));
-            if (!cps[0] && !cps[1]) {
-                // The tree is still empty
-                return [undefined, undefined];
-            }
-            if (!cps[0] || !cps[1]) {
-                // Smaller than all -> cptree.min() === cps[1].data OR
-                // Larger than all -> cptree.max() === cps[0].data
-                return [
-                //LlRbTree.max(cptree.root), 
-                //LlRbTree.min(cptree.root)
-                cptree.max(cptree.root), cptree.min(cptree.root)];
-            }
-            return [cps[0].data, cps[1].data];
-        }
-    }]);
-
-    return Shape;
-}();
-/**
- * TODO - uncomment and finish implementation
- * Respace points so that the total absolute curvature between
- * consecutive points are very roughly equal.
- *
- * @param contactPointsPerLoop
- * @param maxAbsCurvatureInDegrees
- *
- * NOTES: Mutates contactPoints.
- */
-/*
-private static respacePoints(
-        contactPointsPerLoop: LinkedLoop<ContactPoint>[],
-        maxAbsCurvatureInDegrees: number) {
-    
-    for (let k=0; k<contactPointsPerLoop.length; k++) {
-        let contactPoints = contactPointsPerLoop[k];
-        
-        let cpNode = contactPoints.head;
-        let recheck;
-        do {
-            recheck = false;
-            
-            let totalCurvatures = [];
-            let denseCpNode = cpNode.coupledNode;
-            
-            do {
-                let c = getTotalAbsCurvatureBetweenCps(
-                        [denseCpNode.item, denseCpNode.next.item]
-                );
-                
-                totalCurvatures.push({cpNode: denseCpNode, c});
-                
-                denseCpNode = denseCpNode.next;
-            } while (denseCpNode.coupledNode !== cpNode.next);
-
-            let totalCurvature = sumCurvatures(totalCurvatures);
-            
-            cpNode.totalCurvatures = totalCurvatures;
-            cpNode.totalCurvature  = totalCurvature;
-            
-            
-            let totalInDegrees = totalCurvature * 180 / Math.PI;
-            // if (totalInDegrees > 180 || totalInDegrees < 5) { console.log(totalInDegrees); }
-            if (totalInDegrees > maxAbsCurvatureInDegrees) {
-                // Add a point
-                //console.log(totalCurvatures);
-                
-                let accumTot = 0;
-                let tc = cpNode.totalCurvature; // cache
-                let bestIndx = undefined;
-                let leftDenseIndx = 0;
-                let rightDenseIndx;
-                let accumTotAtLeft  = 0;
-                let accumTotAtRight = undefined;
-                let bestDiff = Number.POSITIVE_INFINITY;
-                for (let i=0; i<totalCurvatures.length; i++) {
-                    
-                    let c = totalCurvatures[i].c;
-                    let cTot = c.totalCurvature + c.totalTurn;
-                    accumTot += cTot;
-                    
-                    let cpn = totalCurvatures[i].cpNode;
-                    if (accumTot <= tc/2) {
-                        leftDenseIndx = i;
-                        accumTotAtLeft = accumTot;
-                    }
-
-                    if (!rightDenseIndx && accumTot > tc/2) {
-                        // This may be out of bounds but really means cpNode.next
-                        rightDenseIndx = i;
-                        accumTotAtRight = accumTot;
-                    }
-                
-                    let absDiff = Math.abs(tc/2 - accumTot);
-                    // TODO - We can also add a weight for point values here
-                    // such that for instance inverse curvature points
-                    // carry more weight than dull corners, etc.
-                    // TODO Make the 1/4 or 1/3 below a constant that can
-                    // be set.
-                    //if (accumTot > tc/3 && accumTot < 2*tc/3 &&
-                    if (accumTot > tc/4 && accumTot < 3*tc/4 &&
-                        bestDiff > absDiff) {
-                        // If within middle 1/3 and better
-                        
-                        bestIndx = i;
-                        bestDiff = absDiff;
-                    }
-                }
-
-                
-                // aaa console.log(leftDenseIndx, bestIndx, rightDenseIndx);
-                
-                if (bestIndx !== undefined) {
-                    // Reify the point
-                    let tcInfo = totalCurvatures[bestIndx];
-                    
-                    // Note that after the below insert cpNode.next will
-                    // equal the newly inserted cpNode.
-                    let newCpNode = LinkedLoop.insert(
-                            contactPoints,
-                            tcInfo.cpNode.next.item,
-                            cpNode,
-                            tcInfo.cpNode.next
-                    );
-                    tcInfo.cpNode.next.coupledNode = newCpNode;
-                    
-                    cpNode.totalCurvatures = cpNode.totalCurvatures.slice(
-                            0, bestIndx+1
-                    );
-                    cpNode.totalCurvature = sumCurvatures(
-                            cpNode.totalCurvatures
-                    );
-                    
-                    recheck = true; // Start again from same contact point.
-                } else {
-                    // We could not find an 'interesting' point to use, so
-                    // find some center point between the two contact
-                    // points.
-                    
-
-                    let leftTcInfo  = totalCurvatures[leftDenseIndx];
-                    let rightTcInfo = totalCurvatures[rightDenseIndx];
-                    
-                    let leftCpNode  = leftTcInfo. cpNode;
-                    let rightCpNode = rightTcInfo.cpNode;
-                    
-                    let leftC = leftTcInfo.c;
-                    
-                    let leftCp = leftTcInfo.cpNode.next;
-                    let rightCp = rightTcInfo.cpNode.next;
-                    
-                    //aaa console.log(accumTotAtLeft,	accumTotAtRight, tc/2);
-                    
-                    
-                    let pos = getCPointBetweenCps(
-                            leftCpNode.item, rightCpNode.item,
-                            accumTotAtLeft,	accumTotAtRight,
-                            tc/2
-                    );
-
-                    
-                    /*
-                    let newCp = new ContactPoint(pos, undefined);
-                    let newCpNode = LinkedLoop.insert(
-                            contactPoints,
-                            newCp,
-                            leftCpNode,
-                            undefined
-                    );
-                    
-                    let newDenseCpNode = LinkedLoop.insert(
-                            denseContactPoints,
-                            newCp,
-                            cpNode,
-                            undefined
-                    );
-                    
-                    newCpNode.coupledNode = newDenseCpNode;
-                    newDenseCpNode.coupledNode = newCpNode;
-                    
-                    
-                    aaa
-                    cpNode.totalCurvatures = cpNode.totalCurvatures.slice(
-                            0, bestIndx
-                    );
-                    cpNode.totalCurvature = sumCurvatures(
-                            cpNode.totalCurvatures
-                    );
-                    
-                    recheck = true; // Start again from same contact point.
-                    */ /*
-                       }
-                       } else if (totalInDegrees < 15) {
-                       // Remove a point
-                       //console.log(totalCurvatures);
-                       }
-                       if (!recheck) {
-                       cpNode = cpNode.next;
-                       }
-                       } while (cpNode !== contactPoints.head);
-                       }
-                       }*/
-/**
- *
- */
-
-
-Shape.getBoundaryBeziers = function (shape, k) {
-    var bezierLoop = shape.bezierLoops[k];
-    var bezierPieces = [];
-    bezierLoop.forEach(function (bezierNode) {
-        var bezierPiece = new bezier_piece_1.default(bezierNode, [0, 1]);
-        bezierPieces.push(bezierPiece);
-    });
-    return bezierPieces;
-};
-/**
- *
- */
-Shape.getTotalCurvature = getTotalBy(function (bezierNode) {
-    var bezierCurvature = flo_bezier3_1.default.totalCurvature(bezierNode.item.bezier3, [0, 1]);
-    var interfaceCurvature = getCurvatureAtInterface(bezierNode);
-    return bezierCurvature + interfaceCurvature;
-});
-/**
- *
- */
-Shape.getTotalAbsoluteCurvature = getTotalBy(function (bezierNode) {
-    return flo_bezier3_1.default.totalAbsoluteCurvature(bezierNode.item.bezier3, [0, 1]) + Math.abs(getCurvatureAtInterface(bezierNode));
-});
-/**
- *
- */
-Shape.forAllBeziers = function (f, shape) {
-    var bezierLoops = shape.bezierLoops;
-    for (var i = 0; i < bezierLoops.length; i++) {
-        var bezierLoop = bezierLoops[i];
-        var node = bezierLoop.head;
-        do {
-            var ps = node.item.bezier3;
-            f(ps);
-            node = node.next;
-        } while (node !== bezierLoop.head);
-    }
-};
-/**
- * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)
- * from the given boundary piece.
- * @param δ - An ordered pair that represents the start and ending points of
- * the boundary piece
- * @param keepStraight - If true then don't go around any mat circles
- */
-Shape.getBoundaryPieceBeziers = function (δ) {
-    var keepStraight = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-    var cp0 = δ[0];
-    var cp1 = δ[1];
-    var bezierPieces = [];
-    // As opposed to going around the circle and taking the last exit
-    var goStraight = true;
-    do {
-        if (!goStraight && !keepStraight) {
-            goStraight = true;
-            // Actually, next, next, ..., i.e. take last exit
-            cp0 = cp0.prevOnCircle;
-            continue;
-        }
-        goStraight = false;
-        var posThis = cp0.item.pointOnShape;
-        var posNext = cp0.next.item.pointOnShape;
-        if (posNext.bezierNode === posThis.bezierNode && (posNext.t > posThis.t || posNext.t === posThis.t && posNext.order > posThis.order)) {
-            var pos = cp0.item.pointOnShape;
-            var bezierPiece = new bezier_piece_1.default(pos.bezierNode, [pos.t, posNext.t]);
-            bezierPieces.push(bezierPiece);
-        } else {
-            var _pos2 = cp0.item.pointOnShape;
-            var _bezierPiece = new bezier_piece_1.default(_pos2.bezierNode, [_pos2.t, 1]);
-            bezierPieces.push(_bezierPiece);
-            addSkippedBeziers(bezierPieces, posThis.bezierNode, posNext.bezierNode, posNext.t);
-        }
-        cp0 = cp0.next;
-    } while (cp0 !== cp1);
-    return bezierPieces;
-    /**
-     * Adds pieces of skipped beziers
-     */
-    function addSkippedBeziers(bezierPieces, bezierNode0, bezierNode1, t1) {
-        var ii = 0;
-        var bNode = bezierNode0;
-        do {
-            ii++;
-            bNode = bNode.next;
-            if (bNode === bezierNode1) {
-                var _bezierPiece2 = new bezier_piece_1.default(bNode, [0, t1]);
-                bezierPieces.push(_bezierPiece2);
-            } else {
-                var _bezierPiece3 = new bezier_piece_1.default(bNode, [0, 1]);
-                bezierPieces.push(_bezierPiece3);
-            }
-        } while (bNode !== bezierNode1 && ii < 100);
-        if (ii === 100) {
-            console.log('maxed');
-        }
-    }
-};
-/**
- * Creates the initial ContactPoint loops from the given sharp corners.
- * @param shape
- * @param sharpCornersArray
- */
-function createSharpCornerCpLoops(shape, sharpCornersArray) {
-    var contactPointsPerLoop = [];
-    var comparator = function comparator(a, b) {
-        return contact_point_1.default.compare(a.item, b.item);
-    };
-    for (var k = 0; k < sharpCornersArray.length; k++) {
-        var sharpCorners = sharpCornersArray[k];
-        var cpLoop = new linked_loop_1.default([], comparator, k);
-        var prevNode = undefined;
-        for (var i = 0; i < sharpCorners.length; i++) {
-            var pos = sharpCorners[i];
-            var cp = new contact_point_1.default(pos, undefined);
-            prevNode = cpLoop.insert(cp, prevNode, undefined);
-            var mCircle = mat_circle_1.default.create(point_on_shape_1.default.getOsculatingCircle(pos), [prevNode]);
-            prevNode.prevOnCircle = prevNode; // Trivial loop
-            prevNode.nextOnCircle = prevNode; // ...
-        }
-        contactPointsPerLoop.push(cpLoop);
-    }
-    return contactPointsPerLoop;
-}
-/**
- * Destructively orient the bezier loops so that the outermost loop is
- * positively oriented (i.e. counter-clockwise).
- */
-function orient(bezierLoops) {
-    var orientations = bezierLoops.map(isPathPositivelyOrientated);
-    //console.log(orientations)
-    if (!orientations[0]) {
-        return bezierLoops;
-    } else {
-        var loops = bezierLoops.map(function (loop, k) {
-            return reverseBeziersOrientation(loop, k);
-        });
-        return loops;
-    }
-}
-/**
- * Completely reverse the loop direction of the given bezier loop. Returns the
- * reversed loop.
- * @param bezierLoop
- * @param k
- */
-function reverseBeziersOrientation(bezierLoop, k) {
-    var beziers = [];
-    var bezierArray = bezierLoop.getAsArray();
-    var idx = 0;
-    for (var i = bezierArray.length - 1; i >= 0; i--) {
-        var curve = path_curve_1.default.reverse(bezierArray[i], idx);
-        idx++;
-        beziers.push(curve);
-    }
-    return new linked_loop_1.default(beziers, undefined, k);
-}
-/**
- * Returns the the top, left, bottom and right extreme points of the given
- * bezier loop, including the bezier nodes they belong to. If an extreme is at a
- * bezier-bezier interface the first bezier will always be used (at t=1).
- */
-var getLoopBounds = memoize(function (bezierLoop) {
-    var INF = Number.POSITIVE_INFINITY;
-    var shapeBoundingBox = [[INF, INF], [-INF, -INF]];
-    var extremeBeziers = [[undefined, undefined], [undefined, undefined]];
-    bezierLoop.forEach(function (bezierNode) {
-        var ps = bezierNode.item.bezier3;
-        var boundingBox = flo_bezier3_1.default.getBoundingBox(ps);
-        //console.log(boundingBox)
-        for (var i = 0; i < 2; i++) {
-            for (var j = 0; j < 2; j++) {
-                var v = boundingBox[i][j];
-                var m = i === 0 ? 1 : -1;
-                if (m * v < m * shapeBoundingBox[i][j]) {
-                    shapeBoundingBox[i][j] = v;
-                    extremeBeziers[i][j] = bezierNode;
-                }
-            }
-        }
-    });
-    return { shapeBoundingBox: shapeBoundingBox, extremeBeziers: extremeBeziers };
-});
-/**
- * Returns true if the given beizer loop is positively orientated, false
- * otherwise.
- */
-var isPathPositivelyOrientated = function isPathPositivelyOrientated(bezierLoop) {
-    var _getLoopBounds = getLoopBounds(bezierLoop),
-        extremeBeziers = _getLoopBounds.extremeBeziers;
-
-    var maxXBezierNode = extremeBeziers[1][0];
-    var ps = maxXBezierNode.item.bezier3;
-    var ts = flo_bezier3_1.default.getBounds(ps).ts;
-    var tAtMaxX = ts[1][0];
-    var tan = flo_bezier3_1.default.tangent(ps)(tAtMaxX);
-    if (tAtMaxX !== 1) {
-        // Not a sharp corner
-        return tan[1] > 0;
-    }
-    var psNext = maxXBezierNode.next.item.bezier3;
-    var tanNext = flo_bezier3_1.default.tangent(psNext)(0);
-    if (tan[1] * tanNext[1] > 0) {
-        // Both tangents points up or both points down.
-        return tan[1] > 0;
-    }
-    // One tangent points up and the other down.
-    return flo_vector2d_1.default.cross(tan, tanNext) > 0;
-    // We don't check for the very special case where the cross === 0. 
-};
-/*
-class LoopExtreme {
-    p: number[];
-    bezierNode: ListNode<number[][]>;
-    t: number;
-
-    constructor(p: number[], bezierNode: ListNode<number[][]>, t: number) {
-        this.p = p;
-        this.bezierNode = bezierNode;
-        this.t = t;
-    }
-}
-*/
-/**
- * Get topmost point, bezierNode and t-value of the given loop.
- */
-var getExtremes = memoize(function (bezierLoop) {
-    var _getLoopBounds2 = getLoopBounds(bezierLoop),
-        extremeBeziers = _getLoopBounds2.extremeBeziers;
-
-    var bezierNode = extremeBeziers[0][1]; // Bezier at minimum y
-    var ts = flo_bezier3_1.default.getBounds(bezierNode.item.bezier3).ts;
-    var t = ts[0][1];
-    var p = flo_bezier3_1.default.evaluate(bezierNode.item.bezier3)(t);
-    //return new LoopExtreme(p, bezierNode, t);
-    return { p: p, bezierNode: bezierNode, t: t };
-});
-/**
- * Returns true if bezier box is entirely outside circle box, false otherwise.
- *
- * Given a circle, bound it tightly by an axes-aligned box (i.e. circle
- * box). And given a bezier, bound tightly by a rectangle (not
- * necessarily axes aligned) (i.e. bezier box).
- */
-function isBezierBoxWhollyOutsideCircleBox(ps, circle) {
-    //---- Cache
-    var r = circle.radius;
-    var ox = circle.center[0];
-    var oy = circle.center[1];
-    var radius_2 = r * r;
-    //---- Translate bezier tight bounding box (4 point rectangle) so that circle center is at origin. 
-    var boxTight = flo_vector2d_1.default.translatePs([-ox, -oy], flo_bezier3_1.default.getBoundingBoxTight(ps));
-    //---- Rotate circle and rectangle together so that box rectangle is aligned with axes.
-    var boxDiagonal = flo_vector2d_1.default.fromTo(boxTight[0], boxTight[1]);
-    var l = flo_vector2d_1.default.len(boxDiagonal);
-    var sinθ = boxDiagonal[1] / l;
-    var cosθ = boxDiagonal[0] / l;
-    var rotateByθ = flo_vector2d_1.default.rotate(sinθ, -cosθ);
-    var b0 = rotateByθ(boxTight[0]);
-    var b1 = rotateByθ(boxTight[2]);
-    var anyBoxVerticalInside = b0[0] > -r && b0[0] < r || b1[0] > -r && b1[0] < r;
-    var boxVerticalsCapture = b0[0] < -r && b1[0] > r || b1[0] < -r && b0[0] > r;
-    var anyBoxHorizontalInside = b0[1] > -r && b0[1] < r || b1[1] > -r && b1[1] < r;
-    var boxHorizontalsCapture = b0[1] < -r && b1[1] > r || b1[1] < -r && b0[1] > r;
-    if (anyBoxVerticalInside && (anyBoxHorizontalInside || boxHorizontalsCapture) || anyBoxHorizontalInside && (anyBoxVerticalInside || boxVerticalsCapture) || boxVerticalsCapture && boxHorizontalsCapture) {
-        return false;
-    }
-    return true;
-}
-/**
- * Floating-point 'safer' version of acos. If x is larger than 1 (or smaller
- * than -1), still returns 0 (or Math.PI) instead of NAN.
- * @param x
- * @example
- * 		acos(1);  //=> 0
- *      acos(2);  //=> 0
- */
-function acos(x) {
-    if (x > 1) {
-        return 0;
-    } else if (x < -1) {
-        return Math.PI;
-    }
-    return Math.acos(x);
-}
-/**
- * TODO - finish implementation - the function below with the same name
- * is temporary.
- * @param contactPointArr
- */ /*
-    function createCoupledLoops(contactPointArr, k) {
-     let comparator = (a,b) => ContactPoint.compare(a.item, b.item);
-    let cpLoop = new LinkedLoop([], comparator, k);
-    
-    let denseContactPoints = new LinkedLoop([], undefined, k);
-    
-    let prevCpNode = undefined;
-    let prevCoupledCpNode = undefined;
-    for (let i=0; i<contactPointArr.length; i++) {
-       let cp = contactPointArr[i];
-       let pos = cp.pointOnShape;
-       
-       prevCoupledCpNode = LinkedLoop.insert(
-               denseContactPoints, cp, prevCoupledCpNode
-       );
-       // TODO !!!!
-       /*
-       if (pos.type === MAT_CONSTANTS.pointType.dull) {
-           if (acos(1-pos.sharpness) * 180 / Math.PI > 16) {
-               prevCpNode = LinkedLoop.insert(cpLoop, cp, prevCpNode, prevCoupledCpNode);
-           }
-       } else if (pos.type === MAT_CONSTANTS.pointType.sharp) {
-           if (acos(1-pos.sharpness) * 180 / Math.PI > 16) {
-               prevCpNode = LinkedLoop.insert(cpLoop, cp, prevCpNode, prevCoupledCpNode);
-           }
-       } else {*/ /*
-                  prevCpNode = LinkedLoop.insert(cpLoop, cp, prevCpNode, prevCoupledCpNode);
-                  //}
-                  prevCoupledCpNode.coupledNode = prevCpNode;
-                  }
-                  return cpLoop;
-                  }*/
-function createCoupledLoops(pointOnShapeArr, k) {
-    var posLoop = new linked_loop_1.default([], undefined, k);
-    var prevNode = undefined;
-    for (var i = 0; i < pointOnShapeArr.length; i++) {
-        var pos = pointOnShapeArr[i];
-        prevNode = posLoop.insert(pos, prevNode, undefined);
-    }
-    return posLoop;
-}
-/**
- * TODO - uncomment and finish
- * Finds a point on the shape between the given contact points which
- * is as close as possible to a point with accumalated abs curvature
- * (from accumAtLeft) equal to totAtMid.
- *
- * @param leftCp
- * @param rightCp
- * @param accumTotAtLeft
- * @param accumTotAtRight
- * @param totAtMid
- * @returns {PointOnShape}
- */
-/*
-function getCPointBetweenCps(
-        leftCp: ContactPoint,
-        rightCp: ContactPoint,
-        accumTotAtLeft: number,
-        accumTotAtRight: number,
-        totAtMid: number) {
-    
-    let accumTo = totAtMid - accumTotAtLeft;
-    
-    let posStart = leftCp .pointOnShape;
-    let posEnd   = rightCp.pointOnShape;
-    
-    let bezierNodeStart = posStart.bezierNode;
-    let bezierNodeEnd   = posEnd.  bezierNode;
-    
-    let bezierNode = bezierNodeStart;
-    
-    let totalTurn = 0;
-    let totalCurvature = 0;
-    do {
-        let turn;
-        if (bezierNode !== bezierNodeEnd) {
-            turn = Math.abs(getCurvatureAtInterface(bezierNode));
-        } else {
-            turn = 0;
-        }
-        
-        
-        let curvature;
-        let interval = [0,1];
-        if (bezierNode === bezierNodeStart) { interval[0] = posStart.t; }
-        if (bezierNode === bezierNodeEnd)   { interval[1] = posEnd.t; }
-        curvature = Bezier3.getTotalAbsoluteCurvature(bezierNode.item.bezier3)(interval);
-
-        
-        totalTurn += turn;
-        totalCurvature += curvature;
-        
-        let totalBoth = totalTurn + totalCurvature;
-        if (totalBoth >= accumTo) {
-            // aaa console.log('accumTo: ' + accumTo, 'totalBoth: ' + totalBoth);
-            break;
-        }
-        
-        bezierNode = bezierNode.next;
-    } while (bezierNode.prev !== bezierNodeEnd);
-
-    
-    //return { totalTurn, totalCurvature };
-}
-*/
-/**
- * TODO - uncomment and finish
- */
-/*
-function sumCurvatures(curvatures: number[]): number {
-    let total = 0;
-    
-    for (let i=0; i<curvatures.length; i++) {
-        let c = curvatures[i].c;
-        
-        total += c.totalTurn + c.totalCurvature;
-    }
-    
-    return total;
-}
-*/
-/**
- * TODO - uncomment and finish
- * Calculates and returns total absolute curvature between
- * the given contact points.
- * @param {ContactPoint[]}
- * @returns {Object}
- */
-/*
-function getTotalAbsCurvatureBetweenCps([cpStart, cpEnd]) {
-    let posStart = cpStart.pointOnShape;
-    let posEnd   = cpEnd.  pointOnShape;
-    
-    let bezierNodeStart = posStart.bezierNode;
-    let bezierNodeEnd   = posEnd.  bezierNode;
-    
-    let bezierNode = bezierNodeStart;
-    
-    let totalTurn = 0;
-    let totalCurvature = 0;
-    do {
-        let turn;
-        if (bezierNode !== bezierNodeEnd) {
-            turn = Math.abs(getCurvatureAtInterface(bezierNode));
-        } else {
-            turn = 0;
-        }
-        
-        
-        let curvature;
-        let interval = [0,1];
-        if (bezierNode === bezierNodeStart) { interval[0] = posStart.t; }
-        if (bezierNode === bezierNodeEnd)   { interval[1] = posEnd.t; }
-        curvature = Bezier3.getTotalAbsoluteCurvature(bezierNode.item.bezier3)(interval);
-
-        
-        totalTurn += turn;
-        totalCurvature += curvature;
-        
-        bezierNode = bezierNode.next;
-    } while (bezierNode.prev !== bezierNodeEnd);
-
-    
-    return { totalTurn, totalCurvature };
-}
-*/
-/**
- * Get the angle between the given bezier endpoint and the
- * startpoint of the next bezier.
- * @param bezierNode
- */
-function getCurvatureAtInterface(bezierNode) {
-    var ts = [1, 0];
-    var pss = [bezierNode.item.bezier3, bezierNode.next.item.bezier3];
-    var tans = [flo_bezier3_1.default.tangent(pss[0])(1), flo_bezier3_1.default.tangent(pss[0])(0)];
-    // The integral of a kind of Dirac Delta function.
-    var cosθ = flo_vector2d_1.default.dot(tans[0], tans[1]);
-    var sinθ = flo_vector2d_1.default.cross(tans[0], tans[1]);
-    var θ = acos(cosθ);
-    var result = sinθ >= 0 ? θ : -θ;
-    return result;
-}
-/**
- * @description Helper function.
- * @param f
- * @returns {Funtion}
- */
-function getTotalBy(f) {
-    return function (bezierLoop) {
-        var node = bezierLoop.head;
-        var total = 0;
-        do {
-            total += f(node);
-            node = node.next;
-        } while (node !== bezierLoop.head);
-        return total;
-    };
-}
-exports.default = Shape;
-
-},{"../../geometry/classes/bezier-piece":5,"../../geometry/classes/path-curve":8,"../../geometry/classes/point-on-shape":9,"../../linked-list/linked-loop":16,"../../linked-list/list-node":17,"../../mat-constants":18,"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23,"../functions/get-bezier-osculating-circles":12,"../functions/get-contact-circles-at-bezier-bezier-interface":14,"flo-bezier3":40,"flo-memoize":47,"flo-vector2d":56}],11:[function(_dereq_,module,exports){
+var mat_1 = _dereq_("./src/mat");
+exports.Mat = mat_1.Mat;
+var loop_1 = _dereq_("./src/loop");
+exports.Loop = loop_1.Loop;
+var curve_1 = _dereq_("./src/curve");
+exports.Curve = curve_1.Curve;
+var cp_node_1 = _dereq_("./src/cp-node");
+exports.CpNode = cp_node_1.CpNode;
+var point_on_shape_1 = _dereq_("./src/point-on-shape");
+exports.PointOnShape = point_on_shape_1.PointOnShape;
+var circle_1 = _dereq_("./src/circle");
+exports.Circle = circle_1.Circle;
+var contact_point_1 = _dereq_("./src/contact-point");
+exports.ContactPoint = contact_point_1.ContactPoint;
+var bezier_piece_1 = _dereq_("./src/bezier-piece");
+exports.BezierPiece = bezier_piece_1.BezierPiece;
+var x_1 = _dereq_("./src/x");
+exports.X = x_1.X;
+var smoothen_1 = _dereq_("./src/mat/smoothen/smoothen");
+exports.smoothen = smoothen_1.smoothen;
+var find_mats_1 = _dereq_("./src/mat/find-mat/find-mats");
+exports.findMats = find_mats_1.findMats;
+var trim_mat_1 = _dereq_("./src/mat/trim-mat");
+exports.trimMat = trim_mat_1.trimMat;
+var to_scale_axis_1 = _dereq_("./src/mat/to-scale-axis/to-scale-axis");
+exports.toScaleAxis = to_scale_axis_1.toScaleAxis;
+var traverse_edges_1 = _dereq_("./src/mat/traverse-edges");
+exports.traverseEdges = traverse_edges_1.traverseEdges;
+var traverse_vertices_1 = _dereq_("./src/mat/traverse-vertices");
+exports.traverseVertices = traverse_vertices_1.traverseVertices;
+var debug_1 = _dereq_("./src/debug/debug");
+exports.MatDebug = debug_1.MatDebug;
+var svg_1 = _dereq_("./src/svg/svg");
+exports.getPathsFromStr = svg_1.getPathsFromStr;
+var cp_node_for_debugging_1 = _dereq_("./src/debug/cp-node-for-debugging");
+exports.CpNodeForDebugging = cp_node_for_debugging_1.CpNodeForDebugging;
+var get_closest_boundary_point_1 = _dereq_("./src/mat/get-closest-boundary-point");
+exports.getClosestBoundaryPoint = get_closest_boundary_point_1.getClosestBoundaryPoint;
+exports.closestPointOnBezier = get_closest_boundary_point_1.closestPointOnBezier;
+var Svg = _dereq_("./src/svg/svg");
+exports.Svg = Svg;
+
+},{"./src/bezier-piece":51,"./src/circle":53,"./src/contact-point":54,"./src/cp-node":55,"./src/curve":56,"./src/debug/cp-node-for-debugging":57,"./src/debug/debug":58,"./src/loop":84,"./src/mat":85,"./src/mat/find-mat/find-mats":108,"./src/mat/get-closest-boundary-point":117,"./src/mat/smoothen/smoothen":125,"./src/mat/to-scale-axis/to-scale-axis":129,"./src/mat/traverse-edges":130,"./src/mat/traverse-vertices":131,"./src/mat/trim-mat":132,"./src/point-on-shape":133,"./src/svg/svg":171,"./src/x":172}],3:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var DELTA = 1e-6;
-/**
- * Calculates the curvature extrema brackets of the given
- * bezier.
- *
- * See the paper at: http://ac.els-cdn.com/S037704270000529X/1-s2.0-S037704270000529X-main.pdf?_tid=0b25a2cc-ad35-11e5-a728-00000aacb362&acdnat=1451288083_86359fc83af9dec3232c90a6d2e71031
- * Note that naming conventions is roughly as in the paper above.
- */
-function calcBezierCurvatureExtremaBrackets(ps) {
-    var _ps = _slicedToArray(ps, 4),
-        _ps$ = _slicedToArray(_ps[0], 2),
-        x0 = _ps$[0],
-        y0 = _ps$[1],
-        _ps$2 = _slicedToArray(_ps[1], 2),
-        x1 = _ps$2[0],
-        y1 = _ps$2[1],
-        _ps$3 = _slicedToArray(_ps[2], 2),
-        x2 = _ps$3[0],
-        y2 = _ps$3[1],
-        _ps$4 = _slicedToArray(_ps[3], 2),
-        x3 = _ps$4[0],
-        y3 = _ps$4[1];
-
-    var brackets = [];
-    // Bezier points translated to origin;
-    var P_1x = x1 - x0;
-    var P_1y = y1 - y0;
-    var P_2x = x2 - x0;
-    var P_2y = y2 - y0;
-    var P_3x = x3 - x0;
-    var P_3y = y3 - y0;
-    // Distance to consecutive points
-    var W_0x = P_1x;
-    var W_1x = P_2x - P_1x;
-    var W_2x = P_3x - P_2x;
-    var W_0y = P_1y;
-    var W_1y = P_2y - P_1y;
-    var W_2y = P_3y - P_2y;
-    // Check for degenerate case in which cubic curve becomes quadratic. 
-    if (Math.abs(W_0x - 2 * W_1x + W_2x) < DELTA && Math.abs(W_0y - 2 * W_1y + W_2y) < DELTA) {}
-    // TODO - This case is simpler due to being quadratic but we're 
-    // lazy now and will skip it for the moment. 
-
-    // See : http://ac.els-cdn.com/S037704270000529X/1-s2.0-S037704270000529X-main.pdf?_tid=0b25a2cc-ad35-11e5-a728-00000aacb362&acdnat=1451288083_86359fc83af9dec3232c90a6d2e71031
-    // Rotate curve so that W0 - 2W1 + W2 = (0, (1/3)a), a != 0
-    var atan_numer = P_3x - 3 * P_2x + 3 * P_1x;
-    var atan_denom = P_3y - 3 * P_2y + 3 * P_1y;
-    var atan_numer_squared = atan_numer * atan_numer;
-    var atan_denom_squared = atan_denom * atan_denom;
-    var radpre = atan_numer_squared / atan_denom_squared + 1;
-    var rad = Math.sqrt(radpre);
-    var cos_theta = 1 / rad;
-    var sin_theta = void 0;
-    if (cos_theta === 0) {
-        sin_theta = 1;
-    } else {
-        sin_theta = atan_numer / (atan_denom * rad);
-    }
-    // For next rotated points see Maxima file bez5 - here we skip 
-    // expensive trig evaluations
-    var R_0x = 0;
-    var R_0y = 0;
-    var R_1x = P_1x * cos_theta - P_1y * sin_theta;
-    var R_1y = P_1x * sin_theta + P_1y * cos_theta;
-    var R_2x = P_2x * cos_theta - P_2y * sin_theta;
-    var R_2y = P_2x * sin_theta + P_2y * cos_theta;
-    var R_3x = P_3x * cos_theta - P_3y * sin_theta;
-    var R_3y = P_3x * sin_theta + P_3y * cos_theta;
-    // Modify W_0x, etc. to be correct for new rotated curve 
-    W_0x = R_1x;
-    W_1x = R_2x - R_1x;
-    W_2x = R_3x - R_2x;
-    W_0y = R_1y;
-    W_1y = R_2y - R_1y;
-    W_2y = R_3y - R_2y;
-    var a_ = 3 * (W_0y - 2 * W_1y + W_2y);
-    var dif = R_2x - 2 * R_1x; // which = W_1x - W_0x;
-    if (dif === 0) {
-        // Case 1 (special) - W_1x - W_0x === 0
-        // Degenerate to cubic function	
-        if (W_0x !== 0) {
-            // TODO - FINISH!!!
-            // TODO - we also still need to check for degenerate cubic 
-            // (see start of paper)
-        } else {
-            // We have a straight line x=0!
-            return [];
-        }
-    } else {
-        // Case 2 (usual) - W_1x - W_0x !== 0
-        if (dif < 0) {
-            // Reflect curve accross y-axis to make dif > 0
-            R_1x = -R_1x;
-            R_2x = -R_2x;
-            R_3x = -R_3x;
-            // Modify W_0x, etc. to be correct for new reflected 
-            W_0x = -W_0x;
-            W_1x = -W_1x;
-            W_2x = -W_2x;
-            dif = -dif;
-        }
-        // From the paper:
-        // ---------------
-        // All curves has exactly one of 4 cases:
-        //
-        // 1. It has a single inflection point and exactly 2 curvature 
-        //    maxima (symmetrically positioned about inflection point).
-        //    This is the case if dif === 0 in above code.
-        // 2. It has a single cusp - we ignore this case for now - but 
-        //    we must still do it!
-        // 3. It has a point of self-intersection - occurs if d < 0 in 
-        //    paper (in code d is called sigd_). 
-        // 4. It has 2 inflection points, no cusps, no self-
-        //    intersections.
-        //    It can have either 3 or 5 curvature extrema
-        //    a. The case of 5 curvature extrema is ignored for now - 
-        //       in the paper it is mentioned to even find such a curve 
-        //       is difficult and it seems such curves have very sharp 
-        //       curvature at one point which should not usually occur 
-        //       in an SVG shape. 
-        //       But this case should later be included or we'll miss 
-        //       some points.
-        //    b. There are 3 curvature extrema:
-        //       Extrema occur in the range (-inf, -sqrt(d)), 
-        //       (-sqrt(d), sqrt(d)), (sqrt(d), inf). 
-        //       Since we dont know how to select -inf and inf we will 
-        //       just choose them to be -10 and 11 (remember bezier runs 
-        //       from t=0 to t=1). If Brent's method runs out of the 
-        //       (0,1) interval we stop and use 0 or 1 as the extremum? 
-        //       Remember extrema can also occur at t=0 and t=1!
-        //
-        // At the moment we only test for case 1 and 4b, but in future 
-        // we can test and eliminate the other cases.
-        var mu = 6 * dif;
-        var lambda = 3 * a_ * W_0x / (mu * mu);
-        var gamma1 = 3 * a_ * W_0y / (mu * mu);
-        var gamma2 = 3 * (W_1y - W_0y) / mu;
-        // This d in the paper
-        var sigd_ = lambda * lambda - 2 * gamma2 * lambda + gamma1;
-        var b_ = 2 * (gamma2 - lambda);
-        var deReParamBoundary = deReParameterizeBoundary(lambda, mu, a_);
-        if (sigd_ > 0) {
-            var ssigd_ = Math.sqrt(sigd_);
-            //console.log(ssigd_);
-            // de-reparametize
-            // Note: the sda and sdb here are the inflection points for 
-            // a case iv!! there are easier ways to calculate these
-            var sda = -ssigd_;
-            var sdb = ssigd_;
-            brackets = [[Number.NEGATIVE_INFINITY, sda], [sda, sdb], [sdb, Number.POSITIVE_INFINITY]].map(deReParamBoundary).map(clipBoundary);
-        } else if (sigd_ < 0) {
-            // Loop 
-            // Note: The loop intersection may be outside t=[0,1]. 
-            // In fact, for a well behaved shape this is always the 
-            // case.
-            // But, curvature maxima may still occur inside t=[0,1] 
-            // of course.
-            // There can be 1 or 3 maxima of curvature
-            var ksi_pre1 = 2 * b_ * b_ - 8 * sigd_ - 3;
-            if (ksi_pre1 < 0) {
-                brackets = [[0, Math.sqrt(-3 * sigd_)]].map(deReParamBoundary).map(clipBoundary);
-            } else {
-                var ksi_pre2 = Math.sqrt(5 * ksi_pre1);
-                var ksi1 = (-5 * b_ - ksi_pre2) / 10;
-                var ksi2 = (-5 * b_ + ksi_pre2) / 10;
-                brackets = [[Number.NEGATIVE_INFINITY, ksi1], [ksi1, Math.min(0, ksi2)], [Math.max(0, ksi2), Math.sqrt(-3 * sigd_)]].map(deReParamBoundary).map(clipBoundary);
-            }
-        } else if (sigd_ === 0) {
-            // TODO Cusp - ignore for now - lazy
-        }
-    }
-    return brackets;
-}
-/**
- * Clips to [0,1] or returns false if not within [0,1].
- * @private
- */
-function clipBoundary(bound) {
-    var b0 = bound[0];
-    var b1 = bound[1];
-    if (b0 < 0 && b1 < 0 || b0 > 1 && b1 > 1) {
-        return undefined;
-    }
-    if (b0 < 0) {
-        b0 = 0;
-    }
-    if (b0 > 1) {
-        b0 = 1;
-    }
-    if (b1 < 0) {
-        b1 = 0;
-    }
-    if (b1 > 1) {
-        b1 = 1;
-    }
-    return [b0, b1];
-}
-/**
- * @private
- */
-function deReParameterize(lambda, mu, a_) {
-    return function (sigma) {
-        return (sigma - lambda) * (mu / a_);
-    };
-}
-/**
- * @private
- */
-function deReParameterizeBoundary(lambda, mu, a_) {
-    return function (boundary) {
-        return boundary.map(deReParameterize(lambda, mu, a_));
-    };
-}
-;
-exports.default = calcBezierCurvatureExtremaBrackets;
-
-},{}],12:[function(_dereq_,module,exports){
-"use strict";
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var flo_poly_1 = _dereq_("flo-poly");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-var calc_bezier_curvature_extrema_1 = _dereq_("./calc-bezier-curvature-extrema");
-/**
- * Finds the osculating circles for the given bezier.
- */
-function getBezierOsculatingCircles(bezierNode) {
-    var pointsOnShape = [];
-    var root = void 0;
-    var ps = bezierNode.item.bezier3;
-    var brackets = calc_bezier_curvature_extrema_1.default(ps);
-    var κPs = flo_bezier3_1.default.κ(ps);
-    var lenb = brackets.length;
-    for (var k = 0; k < lenb; k++) {
-        var bracket = brackets[k];
-        if (!bracket) {
-            continue;
-        }
-        var _root = lookForRoot(ps, bracket);
-        if (!_root) {
-            continue;
-        }
-        var κ = -κPs(_root);
-        // Check if local extrema is a maximum or minimum.
-        var κAtMinsd = -κPs(bracket[0]);
-        var κAtMaxsd = -κPs(bracket[1]);
-        if (κ > κAtMinsd && κ > κAtMaxsd) {
-            // maximum
-        } else if (κ <= κAtMinsd && κ <= κAtMaxsd) {
-            // minimum
-            continue;
-        }
-        var pos = new point_on_shape_1.default(bezierNode, _root, mat_constants_1.default.pointType.standard, 0, 0);
-        pointsOnShape.push(pos);
-    }
-    pointsOnShape.sort(point_on_shape_1.default.compare);
-    return pointsOnShape;
-}
-function lookForRoot(ps, _ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        minsd = _ref2[0],
-        maxsd = _ref2[1];
-
-    // At this point there can be exactly 0 or 1 roots within 
-    // [minsd, maxsd]
-    var c0 = flo_bezier3_1.default.dκMod(ps)(minsd);
-    var c1 = flo_bezier3_1.default.dκMod(ps)(maxsd);
-    if (c0 * c1 >= 0) {
-        return;
-    }
-    // There is exactly one root in the interval.
-    var root = flo_poly_1.default.brent(flo_bezier3_1.default.dκMod(ps), minsd, maxsd);
-    return root;
-}
-exports.default = getBezierOsculatingCircles;
-
-},{"../../geometry/classes/point-on-shape":9,"../../mat-constants":18,"./calc-bezier-curvature-extrema":11,"flo-bezier3":40,"flo-poly":48}],13:[function(_dereq_,module,exports){
-"use strict";
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var flo_poly_1 = _dereq_("flo-poly");
-var geometry_1 = _dereq_("../geometry");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var Point_on_shape_1 = _dereq_("../classes/Point-on-shape");
-/**
- * Gets the closest boundary point to the given point, limited to the
- * given bezier pieces.
- *
- * @param bezierPieces
- * @param point
- * @param touchedBezierNode
- * @returns {PointOnShape} The closest point.
- */
-function getClosestBoundaryPointToPoint(bezierPieces_, point, touchedBezierNode, t) {
-    var bezierPieces = cullBezierPieces(bezierPieces_, point);
-    var bestDistance = Number.POSITIVE_INFINITY;
-    var pos = void 0;
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = bezierPieces[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var bezierPiece = _step.value;
-
-            //let bezier = bezierPiece.bezierNode.item;
-            var p = closestPointOnBezier(bezierPiece.bezierNode, point, bezierPiece.tRange, touchedBezierNode, t);
-            var d = p === undefined ? Number.POSITIVE_INFINITY : flo_vector2d_1.default.distanceBetween(p.p, point);
-            if (d < bestDistance) {
-                pos = new Point_on_shape_1.default(bezierPiece.bezierNode, p.t, mat_constants_1.default.pointType.standard, 0, 0);
-                bestDistance = d;
-            }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return pos;
-}
-function cullBezierPieces(bezierPieces, p) {
-    var CULL_THRESHOLD = 5; // TODO Put somewhere better.
-    var shortCircuit = bezierPieces.length > CULL_THRESHOLD;
-    if (shortCircuit) {
-        // First get an initial point such that the closest point can not be 
-        // further than this point.
-        var bestSquaredDistance = getClosePoint(bezierPieces, p);
-        bezierPieces = cullByLooseBoundingBox(bezierPieces, p, bestSquaredDistance);
-        bezierPieces = cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance);
-    }
-    return bezierPieces;
-}
-/**
- * Finds an initial point such that the closest point can not be further than
- * this point.
- */
-function getClosePoint(bezierPieces, p) {
-    var bestSquaredDistance = Number.POSITIVE_INFINITY;
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-        for (var _iterator2 = bezierPieces[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var bezierPiece = _step2.value;
-
-            var ps = bezierPiece.bezierNode.item.bezier3;
-            var evPs = flo_bezier3_1.default.evaluate(ps);
-            var p1 = evPs(bezierPiece.tRange[0]);
-            var p2 = evPs(bezierPiece.tRange[1]);
-            var d1 = flo_vector2d_1.default.squaredDistanceBetween(p, p1);
-            var d2 = flo_vector2d_1.default.squaredDistanceBetween(p, p2);
-            var d = Math.min(d1, d2);
-            if (d < bestSquaredDistance) {
-                bestSquaredDistance = d;
-            }
-        }
-        // The extra bit is to account for floating point precision 
-        // TODO change 0.01 below to more meaningfull value dependent on 
-        // shape dimensions.
-    } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                _iterator2.return();
-            }
-        } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
-            }
-        }
-    }
-
-    return bestSquaredDistance + 0.01;
-}
-/**
- * When checking distances, ignore all those with closest
- * possible distance further than 'bestSquaredDistance',
- * i.e. cull them.
- */
-function cullByLooseBoundingBox(bezierPieces, p, bestSquaredDistance) {
-    var candidateBezierPieces = [];
-    var _iteratorNormalCompletion3 = true;
-    var _didIteratorError3 = false;
-    var _iteratorError3 = undefined;
-
-    try {
-        for (var _iterator3 = bezierPieces[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var bezierPiece = _step3.value;
-
-            var ps = bezierPiece.bezierNode.item.bezier3;
-            var boundingBox = flo_bezier3_1.default.getBoundingBox(ps);
-            var d = geometry_1.default.getClosestSquareDistanceToRect(boundingBox, p);
-            if (d <= bestSquaredDistance) {
-                candidateBezierPieces.push(bezierPiece);
-            }
-        }
-    } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
-            }
-        } finally {
-            if (_didIteratorError3) {
-                throw _iteratorError3;
-            }
-        }
-    }
-
-    return candidateBezierPieces;
-}
-/**
- * When checking distances, ignore all those with closest
- * possible distance further than 'bestSquaredDistance',
- * i.e. cull them.
- */
-function cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance) {
-    var candidateBezierPieces = [];
-    var _iteratorNormalCompletion4 = true;
-    var _didIteratorError4 = false;
-    var _iteratorError4 = undefined;
-
-    try {
-        for (var _iterator4 = bezierPieces[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var bezierPiece = _step4.value;
-
-            var ps = bezierPiece.bezierNode.item.bezier3;
-            var tightBoundingBox = flo_bezier3_1.default.getBoundingBoxTight(ps);
-            var d = geometry_1.default.closestSquaredDistanceToRotatedRect(tightBoundingBox, p);
-            if (d <= bestSquaredDistance) {
-                candidateBezierPieces.push(bezierPiece);
-            }
-        }
-    } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                _iterator4.return();
-            }
-        } finally {
-            if (_didIteratorError4) {
-                throw _iteratorError4;
-            }
-        }
-    }
-
-    return candidateBezierPieces;
-}
-/**
- * @private
- * @param bezierNode - The bezier
- * @param p - The point from which to check
- * @param tRange - The allowed t range
- * @param touchedBezierNode - The bezier on which p is located
- * @param t - The t value of the bezier that locates p
- */
-function closestPointOnBezier(bezierNode, p, tRange, touchedBezierNode, t) {
-    var ps = bezierNode.item.bezier3;
-    // TODO The site at http://jazzros.blogspot.ca/2011/03/projecting-point-on-bezier-curve.html
-    // may hint at requiring much fewer assignments?
-
-    var _ps = _slicedToArray(ps, 4),
-        _ps$ = _slicedToArray(_ps[0], 2),
-        x0 = _ps$[0],
-        y0 = _ps$[1],
-        _ps$2 = _slicedToArray(_ps[1], 2),
-        x1 = _ps$2[0],
-        y1 = _ps$2[1],
-        _ps$3 = _slicedToArray(_ps[2], 2),
-        x2 = _ps$3[0],
-        y2 = _ps$3[1],
-        _ps$4 = _slicedToArray(_ps[3], 2),
-        x3 = _ps$4[0],
-        y3 = _ps$4[1];
-
-    var _p = _slicedToArray(p, 2),
-        xp = _p[0],
-        yp = _p[1];
-
-    var xx0 = x0 - xp;
-    var xx1 = x1 - xp;
-    var xx2 = x2 - xp;
-    var xx3 = x3 - xp;
-    var yy0 = y0 - yp;
-    var yy1 = y1 - yp;
-    var yy2 = y2 - yp;
-    var yy3 = y3 - yp;
-    var x00 = xx0 * xx0;
-    var x01 = 6 * xx0 * xx1;
-    var x02 = 6 * xx0 * xx2;
-    var x03 = 2 * xx0 * xx3;
-    var x11 = 9 * xx1 * xx1;
-    var x12 = 18 * xx1 * xx2;
-    var x13 = 6 * xx1 * xx3;
-    var x22 = 9 * xx2 * xx2;
-    var x23 = 6 * xx2 * xx3;
-    var x33 = xx3 * xx3;
-    var y00 = yy0 * yy0;
-    var y01 = 6 * yy0 * yy1;
-    var y02 = 6 * yy0 * yy2;
-    var y03 = 2 * yy0 * yy3;
-    var y11 = 9 * yy1 * yy1;
-    var y12 = 18 * yy1 * yy2;
-    var y13 = 6 * yy1 * yy3;
-    var y22 = 9 * yy2 * yy2;
-    var y23 = 6 * yy2 * yy3;
-    var y33 = yy3 * yy3;
-    var t5 = 6 * (x33 - x23 + x13 - x03 + x22 - x12 + x02 + x11 - x01 + x00 + (y33 - y23 + y13 - y03 + y22 - y12 + y02 + y11 - y01 + y00));
-    var t4 = 5 * (x23 - 2 * x13 + 3 * x03 - 2 * x22 + 3 * x12 - 4 * x02 - 4 * x11 + 5 * x01 - 6 * x00 + (y23 - 2 * y13 + 3 * y03 - 2 * y22 + 3 * y12 - 4 * y02 - 4 * y11 + 5 * y01 - 6 * y00));
-    var t3 = 4 * (x13 - 3 * x03 + x22 - 3 * x12 + 6 * x02 + 6 * x11 - 10 * x01 + 15 * x00 + (y13 - 3 * y03 + y22 - 3 * y12 + 6 * y02 + 6 * y11 - 10 * y01 + 15 * y00));
-    var t2 = 3 * (x03 + x12 - 4 * x02 - 4 * x11 + 10 * x01 - 20 * x00 + (y03 + y12 - 4 * y02 - 4 * y11 + 10 * y01 - 20 * y00));
-    var t1 = 2 * (x02 + x11 - 5 * x01 + 15 * x00 + (y02 + y11 - 5 * y01 + 15 * y00));
-    var t0 = x01 - 6 * x00 + (y01 - 6 * y00);
-    var poly = [t5, t4, t3, t2, t1, t0];
-    if (bezierNode === touchedBezierNode) {
-        var deflatedPoly = flo_poly_1.default.deflate(poly, t);
-        poly = deflatedPoly;
-    }
-    var roots = flo_poly_1.default.allRoots(poly, tRange[0], tRange[1]);
-    var push0 = true;
-    var push1 = true;
-    if (t === 1 && bezierNode === touchedBezierNode.next || bezierNode === touchedBezierNode && t === 0) {
-        push0 = false;
-    }
-    if (t === 0 && bezierNode === touchedBezierNode.prev || bezierNode === touchedBezierNode && t === 1) {
-        push1 = false;
-    }
-    if (tRange[0] === 0) {
-        if (push0) {
-            roots.push(tRange[0]);
-        }
-    } else if (tRange[0] === 1) {
-        if (push1) {
-            roots.push(tRange[0]);
-        }
-    } else {
-        roots.push(tRange[0]);
-    }
-    if (tRange[1] === 0) {
-        if (push0) {
-            roots.push(tRange[1]);
-        }
-    } else if (tRange[1] === 1) {
-        if (push1) {
-            roots.push(tRange[1]);
-        }
-    } else {
-        roots.push(tRange[1]);
-    }
-    /*
-    let closestPs = roots.map(function(root) {
-        return Bezier3.evaluate(ps)(root);
-    });
-    let closestPoint = Vector.getClosestTo(p, closestPs);
-    */
-    var closestPs = roots.map(function (root) {
-        return { p: flo_bezier3_1.default.evaluate(ps)(root), t: root };
-    });
-    var closestPoint = getClosest(p, closestPs, function (p1, p2) {
-        return flo_vector2d_1.default.squaredDistanceBetween(p1, p2.p);
-    });
-    return closestPoint;
-}
-function getClosest(p, ps, f) {
-    var cp = undefined; // Closest Point
-    var bestd = Number.POSITIVE_INFINITY;
-    for (var i = 0; i < ps.length; i++) {
-        var p_ = ps[i];
-        var d = f(p, p_);
-        if (d < bestd) {
-            cp = p_;
-            bestd = d;
-        }
-    }
-    return cp;
-}
-exports.default = getClosestBoundaryPointToPoint;
-
-},{"../../mat-constants":18,"../classes/Point-on-shape":3,"../geometry":15,"flo-bezier3":40,"flo-poly":48,"flo-vector2d":56}],14:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var mat_constants_1 = _dereq_("../../mat-constants");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-var corner_1 = _dereq_("../classes/corner");
-// Angle in degrees
-var DEGREES = {
-    '0': 0.0000,
-    '0.25': 0.0050,
-    '1': 0.0167,
-    '4': 0.0698,
-    '15': 0.2588,
-    '16': 0.2756
-};
-var CROSS_TANGENT_LIMIT = DEGREES[0.25];
-/**
- * Get the circles at the bezier-bezier interface points with circle
- * curvature coinciding with the bezier curvature at those points.
- *
- * @param bezierNodes - The two bezier nodes.
- **/
-// TODO dullCornerHash should not be modified inside the function
-function getContactCirclesAtBezierBezierInterface(bezierNodes, dullCornerHash) {
-    var ts = [1, 0];
-    var beziers = [0, 1].map(function (i) {
-        return bezierNodes[i].item.bezier3;
-    });
-    var tans = [0, 1].map(function (i) {
-        return flo_bezier3_1.default.tangent(beziers[i], ts[i]);
-    });
-    var crossTangents = +flo_vector2d_1.default.cross(tans[0], tans[1]);
-    var negDot = -flo_vector2d_1.default.dot(tans[0], tans[1]);
-    // The if below is important. Due to floating point approximation
-    // it sometimes happen that crossTangents !== 0 but
-    // negDot === -1. Remove the if and see what happens. :)
-    if (crossTangents === 0 || negDot === -1) {
-        // Too close to call 
-        return [];
-    }
-    var p = beziers[0][3];
-    if (crossTangents < -CROSS_TANGENT_LIMIT) {
-        // Sharp corner
-        var pos = new point_on_shape_1.default(bezierNodes[0], 1, mat_constants_1.default.pointType.sharp, 0, 0);
-        return [pos];
-    }
-    if (crossTangents > 0) {
-        var key = point_on_shape_1.default.makeSimpleKey(p);
-        dullCornerHash[key] = new corner_1.default(beziers, tans);
-    }
-    if (crossTangents <= CROSS_TANGENT_LIMIT) {
-        // The interface is too straight, but put a point close-by.
-        // TODO - this point may be order wrong in the end causing 
-        // disaster. Fix.
-        var _pos = new point_on_shape_1.default(bezierNodes[0], 0.9, mat_constants_1.default.pointType.standard, 0, 0);
-        return [_pos];
-    }
-    //---- Dull corner
-    var pointsOnShape = [];
-    var orders = [-1, negDot];
-    for (var i = 0; i < 2; i++) {
-        var _pos2 = new point_on_shape_1.default(bezierNodes[i], ts[i], mat_constants_1.default.pointType.dull, orders[i], 0);
-        pointsOnShape.push(_pos2);
-    }
-    return pointsOnShape;
-}
-exports.default = getContactCirclesAtBezierBezierInterface;
-
-},{"../../geometry/classes/point-on-shape":9,"../../mat-constants":18,"../classes/corner":7,"flo-bezier3":40,"flo-vector2d":56}],15:[function(_dereq_,module,exports){
-"use strict";
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var flo_poly_1 = _dereq_("flo-poly");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var circle_1 = _dereq_("./classes/circle");
-var shape_1 = _dereq_("./classes/shape");
-var arc_1 = _dereq_("./classes/arc");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
+var Vector = _dereq_("flo-vector2d");
+var flo_memoize_1 = _dereq_("flo-memoize");
+var flo_gauss_quadrature_1 = _dereq_("flo-gauss-quadrature");
+var flo_graham_scan_1 = _dereq_("flo-graham-scan");
+var get_x_1 = _dereq_("./src/get-x");
+exports.getX = get_x_1.getX;
+var get_y_1 = _dereq_("./src/get-y");
+exports.getY = get_y_1.getY;
+var get_dx_1 = _dereq_("./src/get-dx");
+exports.getDx = get_dx_1.getDx;
+var get_dy_1 = _dereq_("./src/get-dy");
+exports.getDy = get_dy_1.getDy;
+var evaluate_x_1 = _dereq_("./src/evaluate-x");
+exports.evaluateX = evaluate_x_1.evaluateX;
+var evaluate_y_1 = _dereq_("./src/evaluate-y");
+exports.evaluateY = evaluate_y_1.evaluateY;
+var evaluate_1 = _dereq_("./src/evaluate");
+exports.evaluate = evaluate_1.evaluate;
+var evaluate_dx_1 = _dereq_("./src/evaluate-dx");
+exports.evaluateDx = evaluate_dx_1.evaluateDx;
+var evaluate_dy_1 = _dereq_("./src/evaluate-dy");
+exports.evaluateDy = evaluate_dy_1.evaluateDy;
+var tangent_1 = _dereq_("./src/tangent");
+exports.tangent = tangent_1.tangent;
+var normal_1 = _dereq_("./src/normal");
+exports.normal = normal_1.normal;
+var from_0_to_T_1 = _dereq_("./src/from-0-to-T");
+exports.from0ToT = from_0_to_T_1.from0ToT;
+var from_T_to_1_1 = _dereq_("./src/from-T-to-1");
+exports.fromTTo1 = from_T_to_1_1.fromTTo1;
+var from_to_1 = _dereq_("./src/from-to");
+exports.fromTo = from_to_1.fromTo;
+var to_hybrid_quadratic_1 = _dereq_("./src/to-hybrid-quadratic");
+exports.toHybridQuadratic = to_hybrid_quadratic_1.toHybridQuadratic;
+var coincident_1 = _dereq_("./src/coincident");
+exports.coincident = coincident_1.coincident;
+var line_intersection_1 = _dereq_("./src/line-intersection");
+exports.lineIntersection = line_intersection_1.lineIntersection;
+var bezier3_intersection_1 = _dereq_("./src/bezier3-intersection/bezier3-intersection");
+exports.bezier3Intersection = bezier3_intersection_1.bezier3Intersection;
+var bezier3_intersection_sylvester_1 = _dereq_("./src/bezier3-intersection-sylvester/bezier3-intersection-sylvester");
+exports.bezier3IntersectionSylvester = bezier3_intersection_sylvester_1.bezier3IntersectionSylvester;
+var ts_at_x_1 = _dereq_("./src/ts-at-x");
+exports.tsAtX = ts_at_x_1.tsAtX;
+var ts_at_y_1 = _dereq_("./src/ts-at-y");
+exports.tsAtY = ts_at_y_1.tsAtY;
+var debug_1 = _dereq_("./src/debug/debug");
+exports.BezDebug = debug_1.BezDebug;
+var fat_line_1 = _dereq_("./src/debug/fat-line");
+exports.FatLine = fat_line_1.FatLine;
+var de_casteljau_1 = _dereq_("./src/de-casteljau");
+exports.deCasteljau = de_casteljau_1.deCasteljau;
+var eval_de_casteljau_1 = _dereq_("./src/eval-de-casteljau");
+exports.evalDeCasteljau = eval_de_casteljau_1.evalDeCasteljau;
+// Possibly typescript bug? Below line does not work
+//const { rotatePs: rotate, translatePs: translate } = Vector;
+var rotate = Vector.rotatePs;
+exports.rotate = rotate;
+var translate = Vector.translatePs;
+exports.translate = translate;
+var memoize = flo_memoize_1.default.m1;
 /**
- * Find point where two lines intersect. Returns he point where the two lines
- * intersect or null if they don't intersect or are the same line.
- * @param l1 - The first line
- * @param l2 - The second line
+ * Returns the second derivative of the power basis representation of the
+ * bezier's x-coordinates. This function is memoized on its points parameter by
+ * object reference.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns The twice differentiated power basis polynomial from
+ * highest power to lowest, e.g. at + b is returned as [a,b]
  */
-function lineLineIntersection(l1, l2) {
-    var _l = _slicedToArray(l1, 2),
+var getDdx = memoize(function (ps) {
+    return flo_poly_1.default.differentiate(get_dx_1.getDx(ps));
+});
+exports.getDdx = getDdx;
+/**
+ * Returns the second derivative of the power basis representation of the
+ * bezier's y-coordinates. This function is memoized on its points parameter by
+ * object reference.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns The twice differentiated power basis polynomial from
+ * highest power to lowest, e.g. at + b is returned as [a,b]
+ */
+var getDdy = memoize(function (ps) {
+    return flo_poly_1.default.differentiate(get_dy_1.getDy(ps));
+});
+exports.getDdy = getDdy;
+/**
+ * Returns the third derivative of the power basis representation of the
+ * bezier's x-coordinates. This function is memoized on its points parameter by
+ * object reference.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns The thrice differentiated power basis polynomial (a
+ * constant in array from), e.g. a is returned as [a]
+ */
+var getDddx = memoize(function (ps) {
+    return flo_poly_1.default.differentiate(getDdx(ps));
+});
+exports.getDddx = getDddx;
+/**
+ * Returns the third derivative of the power basis representation of the
+ * bezier's y-coordinates. This function is memoized on its points parameter by
+ * object reference.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns The thrice differentiated power basis polynomial (a
+ * constant in array from), e.g. a is returned as [a]
+ */
+var getDddy = memoize(function (ps) {
+    return flo_poly_1.default.differentiate(getDdy(ps));
+});
+exports.getDddy = getDddy;
+/**
+ * Returns the convex hull of a bezier's control points. This hull bounds the
+ * bezier curve. This function is memoized.
+ *
+ * The tolerance at which the cross product of two nearly collinear lines of the
+ * hull are considered collinear is 1e-12.
+ * @param ps - A bezier curve, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns An ordered array of convex hull points.
+ */
+var getBoundingHull = memoize(flo_graham_scan_1.default);
+exports.getBoundingHull = getBoundingHull;
+/**
+ * Returns a cubic bezier from the given line with evenly spaced control points.
+ * @param l - a 2d line represented by two points
+ * @returns Control points of the cubic bezier.
+ */
+function fromLine(l) {
+    var _l = _slicedToArray(l, 2),
         _l$ = _slicedToArray(_l[0], 2),
-        p1x = _l$[0],
-        p1y = _l$[1],
+        x0 = _l$[0],
+        y0 = _l$[1],
         _l$2 = _slicedToArray(_l[1], 2),
-        p2x = _l$2[0],
-        p2y = _l$2[1];
+        x1 = _l$2[0],
+        y1 = _l$2[1];
 
-    var _l2 = _slicedToArray(l2, 2),
-        _l2$ = _slicedToArray(_l2[0], 2),
-        p3x = _l2$[0],
-        p3y = _l2$[1],
-        _l2$2 = _slicedToArray(_l2[1], 2),
-        p4x = _l2$2[0],
-        p4y = _l2$2[1];
+    var xInterval = (x1 - x0) / 3;
+    var yInterval = (y1 - y0) / 3;
+    return [[x0, y0], [x0 + xInterval, y0 + yInterval], [x0 + xInterval * 2, y0 + yInterval * 2], [x1, y1]];
+}
+exports.fromLine = fromLine;
+/**
+ * Returns the given bezier's inflection points.
+ **/
+function findInflectionPoints(ps) {
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        x0 = _ps$[0],
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[1], 2),
+        x1 = _ps$2[0],
+        y1 = _ps$2[1],
+        _ps$3 = _slicedToArray(_ps[2], 2),
+        x2 = _ps$3[0],
+        y2 = _ps$3[1],
+        _ps$4 = _slicedToArray(_ps[3], 2),
+        x3 = _ps$4[0],
+        y3 = _ps$4[1];
+    // From http://www.caffeineowl.com/graphics/2d/vectorial/cubic-inflexion.html eq. 4
 
-    var v1x = p2x - p1x;
-    var v1y = p2y - p1y;
-    var v2x = p4x - p3x;
-    var v2y = p4y - p3y;
-    var cross = v2x * v1y - v2y * v1x;
-    if (cross === 0) {
-        // parallel
-        return undefined;
+
+    var ax = x1 - x0;
+    var ay = y1 - y0;
+    var bx = x2 - x1 - ax;
+    var by = y2 - y1 - ay;
+    var cx = x3 - x2 - ax - 2 * bx;
+    var cy = y3 - y2 - ay - 2 * by;
+    // From http://www.caffeineowl.com/graphics/2d/vectorial/cubic-inflexion.html eq. 6:
+    //   infl(t) := ax*by - ay*bx + t*(ax*cy - ay*cx) + t^2*(bx*cy - by*cx);
+    // We find the roots of the quadratic - a,b,c are the quadratic coefficients
+    var a = bx * cy - by * cx;
+    var b = ax * cy - ay * cx;
+    var c = ax * by - ay * bx;
+    var inflectionTs = flo_poly_1.default.allRoots([a, b, c], 0, 1);
+    var evPs = evaluate_1.evaluate(ps);
+    return inflectionTs.map(evPs);
+}
+function κ(ps, t) {
+    var evDx = evaluate_dx_1.evaluateDx(ps);
+    var evDy = evaluate_dy_1.evaluateDy(ps);
+    var evDdx = evaluateDdx(ps);
+    var evDdy = evaluateDdy(ps);
+    function f(t) {
+        var dx = evDx(t);
+        var dy = evDy(t);
+        var ddx = evDdx(t);
+        var ddy = evDdy(t);
+        var a = dx * ddy - dy * ddx;
+        var b = Math.sqrt(Math.pow(dx * dx + dy * dy, 3));
+        return a / b;
     }
-    var b = ((p3y - p1y) * v1x - (p3x - p1x) * v1y) / cross;
-    return [p3x + b * v2x, p3y + b * v2y];
+    // Curry
+    return t === undefined ? f : f(t);
 }
+exports.κ = κ;
 /**
- * Get line shape intersection points.
- *
- * @param line A line described by two points
- * @param δ A boundary piece described by start and end contact points
- *
- * Currently not used
+ * Alias of κ.
  */
-function getLineBoundaryIntersectionPoints(line, δ) {
-    var points = [];
-    var bezierPieces = shape_1.default.getBoundaryPieceBeziers(δ);
-    for (var i = 0; i < bezierPieces.length; i++) {
-        var bezierPiece = bezierPieces[i];
-        var ps = bezierPiece.bezierNode.item.bezier3;
-        var iPoints = getLineBezierIntersectionPoints(line, ps, bezierPiece.tRange);
-        for (var j = 0; j < iPoints.length; j++) {
-            points.push(iPoints[j].p);
-        }
+var curvature = κ;
+exports.curvature = curvature;
+function κds(ps, t) {
+    var evDx = evaluate_dx_1.evaluateDx(ps);
+    var evDy = evaluate_dy_1.evaluateDy(ps);
+    var evDdx = evaluateDdx(ps);
+    var evDdy = evaluateDdy(ps);
+    function f(t) {
+        var dx = evDx(t);
+        var dy = evDy(t);
+        var ddx = evDdx(t);
+        var ddy = evDdy(t);
+        var a = dx * ddy - dy * ddx;
+        var b = dx * dx + dy * dy;
+        return a / b;
     }
-    return points;
+    // Curry
+    return t === undefined ? f : f(t);
 }
-/**
- * @description .
- */
-function closestSquaredDistanceToRotatedRect(ps, p) {
-    var tightBoundingBox = ps;
-    var ds = [0, 1, 2, 3].map(function (i) {
-        return flo_vector2d_1.default.squaredDistanceBetweenPointAndLineSegment(p, [tightBoundingBox[i], tightBoundingBox[(i + 1) % 4]]);
-    });
-    return Math.min.apply(Math, _toConsumableArray(ds));
+function dκMod(ps, t) {
+    var _ps2 = _slicedToArray(ps, 4),
+        _ps2$ = _slicedToArray(_ps2[0], 2),
+        x0 = _ps2$[0],
+        y0 = _ps2$[1],
+        _ps2$2 = _slicedToArray(_ps2[1], 2),
+        x1 = _ps2$2[0],
+        y1 = _ps2$2[1],
+        _ps2$3 = _slicedToArray(_ps2[2], 2),
+        x2 = _ps2$3[0],
+        y2 = _ps2$3[1],
+        _ps2$4 = _slicedToArray(_ps2[3], 2),
+        x3 = _ps2$4[0],
+        y3 = _ps2$4[1];
+
+    function f(t) {
+        var ts = t * t;
+        var omt = 1 - t;
+        var a = ts * x3;
+        var b = ts * y3;
+        var c = 2 * t - 3 * ts;
+        var d = (3 * t - 1) * omt;
+        var e = omt * omt;
+        var f = 3 * (a + c * x2 - d * x1 - e * x0);
+        var g = 3 * (b + c * y2 - d * y1 - e * y0);
+        var h = 6 * (t * y3 - (3 * t - 1) * y2 + (3 * t - 2) * y1 + omt * y0);
+        var i = 6 * (t * x3 - (3 * t - 1) * x2 + (3 * t - 2) * x1 + omt * x0);
+        var j = Math.sqrt(f * f + g * g);
+        return 4 * (f * (y3 - 3 * y2 + 3 * y1 - y0) - g * (x3 - 3 * x2 + 3 * x1 - x0)) * Math.pow(j, 3) - (f * h - i * g) * (2 * h * g + 2 * i * f) * j;
+    }
+    return t === undefined ? f : f(t);
 }
+exports.dκMod = dκMod;
 /**
- * .
+ * Categorizes the given cubic bezier curve according to whether it has a loop,
+ * a cusp, or zero, one or two inflection points all of which are mutually
+ * exclusive.
+ *
+ * See <a href="http://graphics.pixar.com/people/derose/publications/CubicClassification/paper.pdf">
+ * this</a> paper.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns A value of 'L', 'C', '0', '1', or '2' depending on whether
+ * the curve has a loop, a cusp, or zero, one or two inflection points.
  */
-function getClosestSquareDistanceToRect(box, p) {
-    var _box = _slicedToArray(box, 2),
-        _box$ = _slicedToArray(_box[0], 2),
-        x0 = _box$[0],
-        y0 = _box$[1],
-        _box$2 = _slicedToArray(_box[1], 2),
-        x1 = _box$2[0],
-        y1 = _box$2[1];
+function categorize(ps) {
+    // TODO - finish
+}
+function totalCurvature(ps, interval) {
+    var tanPs = tangent_1.tangent(ps);
+    function f(interval) {
+        return flo_gauss_quadrature_1.default(κds(ps), interval);
+        // TODO
+        /*
+        let [a,b] = interval;
+        let tangentA = tanPs(a);
+        let tangentB = tanPs(b);
+        let sinθ = Vector.cross(tanA, tanB)
+        */
+    }
+    // Curry
+    return interval === undefined ? f : f(interval);
+}
+exports.totalCurvature = totalCurvature;
+function totalAbsoluteCurvature(ps, interval) {
+    function f() {
+        var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [0, 1];
 
-    var _p = _slicedToArray(p, 2),
-        xp = _p[0],
-        yp = _p[1];
-
-    if (xp < x0) {
-        if (yp < y0) {
-            return flo_vector2d_1.default.squaredDistanceBetween(box[0], p);
-        } else if (yp > y1) {
-            return flo_vector2d_1.default.squaredDistanceBetween([x0, y1], p);
-        } else {
-            var d = x0 - xp;
-            return d * d;
-        }
-    } else if (xp > x1) {
-        if (yp < y0) {
-            return flo_vector2d_1.default.squaredDistanceBetween([x1, y0], p);
-        } else if (yp > y1) {
-            return flo_vector2d_1.default.squaredDistanceBetween(box[1], p);
-        } else {
-            var _d = xp - x1;
-            return _d * _d;
-        }
-    } else {
-        if (yp < y0) {
-            var _d2 = y0 - yp;
-            return _d2 * _d2;
-        } else if (yp > y1) {
-            var _d3 = yp - y1;
-            return _d3 * _d3;
-        } else {
+        // Numerically integrate the absolute curvature
+        var result = flo_gauss_quadrature_1.default(function (t) {
+            return Math.abs(κds(ps)(t));
+        }, interval);
+        return result;
+    }
+    // Curry
+    return interval === undefined ? f : f(interval);
+}
+exports.totalAbsoluteCurvature = totalAbsoluteCurvature;
+function len(interval, ps) {
+    function f(ps) {
+        if (interval[0] === interval[1]) {
             return 0;
         }
+
+        var _ps3 = _slicedToArray(ps, 4),
+            _ps3$ = _slicedToArray(_ps3[0], 2),
+            x0 = _ps3$[0],
+            y0 = _ps3$[1],
+            _ps3$2 = _slicedToArray(_ps3[1], 2),
+            x1 = _ps3$2[0],
+            y1 = _ps3$2[1],
+            _ps3$3 = _slicedToArray(_ps3[2], 2),
+            x2 = _ps3$3[0],
+            y2 = _ps3$3[1],
+            _ps3$4 = _slicedToArray(_ps3[3], 2),
+            x3 = _ps3$4[0],
+            y3 = _ps3$4[1];
+        // Keep line below to ensure zero length curve returns zero!
+
+
+        if (x0 === x1 && x1 === x2 && x2 === x3 && y0 === y1 && y1 === y2 && y2 === y3) {
+            return 0;
+        }
+        var evDs = ds(ps);
+        return flo_gauss_quadrature_1.default(evDs, interval);
     }
+    // Curry
+    return ps === undefined ? f : f(ps);
 }
-/**
- * Returns the angle (in degrees) given the sine and the cosine of an angle.
- * @private
- */
-function degAngleFromSinCos(sinθ, cosθ) {
-    var toDeg = function toDeg(θ) {
-        return θ * (180 / Math.PI);
+exports.len = len;
+function getTAtLength(ps, s) {
+    var lenAtT = function lenAtT(t) {
+        return len([0, t], ps);
     };
-    if (cosθ === 0) {
-        if (sinθ > 0) {
-            return 90;
+    function f(s) {
+        return flo_poly_1.default.brent(function (t) {
+            return lenAtT(t) - s;
+        }, 0, 1);
+    }
+    // Curry
+    return s === undefined ? f : f(s);
+}
+exports.getTAtLength = getTAtLength;
+function ds(ps, t) {
+    var evDx = evaluate_dx_1.evaluateDx(ps);
+    var evDy = evaluate_dy_1.evaluateDy(ps);
+    function f(t) {
+        var dx = evDx(t);
+        var dy = evDy(t);
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    // Curry
+    return t === undefined ? f : f(t);
+}
+function evaluateDdx(ps, t) {
+    var ddPs = getDdx(ps); // Speed optimizing cache
+    var f = flo_poly_1.default.evaluate(ddPs);
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateDdx = evaluateDdx;
+function evaluateDdy(ps, t) {
+    var ddPs = getDdy(ps); // Speed optimizing cache
+    var f = flo_poly_1.default.evaluate(ddPs);
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateDdy = evaluateDdy;
+function evaluateDddx(ps, t) {
+    var dddPs = getDddx(ps); // Speed optimizing cache
+    var f = flo_poly_1.default.evaluate(dddPs);
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateDddx = evaluateDddx;
+function evaluateDddy(ps, t) {
+    var dddPs = getDddy(ps); // Speed optimizing cache
+    var f = flo_poly_1.default.evaluate(dddPs);
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateDddy = evaluateDddy;
+// TODO - refactor getBounds, getBoundingBox, etc.
+/**
+ * Helper function. Returns the bounding box of the normalized (i.e. first point
+ * moved to origin and rotated so that last point lies on x-axis) given cubic
+ * bezier.
+ * @ignore
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @param sinθ - Sine of angle made by line from first bezier point to
+ * last with x-axis.
+ * @param cosθ - Cosine of angle made by line from first bezier point
+ * to last with x-axis.
+ * @returns Bounding box in the form [[minX, minY], [maxX,maxY]
+ */
+function getNormalizedBoundingBox(ps, sinθ, cosθ) {
+    var vectorToOrigin = Vector.transform(ps[0], function (x) {
+        return -x;
+    });
+    var boundingPs = Vector.translateThenRotatePs(vectorToOrigin, -sinθ, cosθ, ps);
+    return getBoundingBox(boundingPs);
+}
+/**
+ * Returns the tight bounding box of the given cubic bezier.
+ * @returns The tight bounding box of the bezier as four ordered
+ * points of a rotated rectangle.
+ * TODO - test case of baseLength === 0
+ */
+var getBoundingBoxTight = memoize(function (ps) {
+    var _ps4 = _slicedToArray(ps, 4),
+        _ps4$ = _slicedToArray(_ps4[0], 2),
+        x0 = _ps4$[0],
+        y0 = _ps4$[1],
+        _ps4$2 = _slicedToArray(_ps4[1], 2),
+        x1 = _ps4$2[0],
+        y1 = _ps4$2[1],
+        _ps4$3 = _slicedToArray(_ps4[2], 2),
+        x2 = _ps4$3[0],
+        y2 = _ps4$3[1],
+        _ps4$4 = _slicedToArray(_ps4[3], 2),
+        x3 = _ps4$4[0],
+        y3 = _ps4$4[1];
+
+    var baseLength = Math.sqrt((x3 - x0) * (x3 - x0) + (y3 - y0) * (y3 - y0));
+    var sinθ = (y3 - y0) / baseLength;
+    var cosθ = (x3 - x0) / baseLength;
+    var box = getNormalizedBoundingBox(ps, sinθ, cosθ);
+
+    var _box = _slicedToArray(box, 2),
+        _box$ = _slicedToArray(_box[0], 2),
+        p0x = _box$[0],
+        p0y = _box$[1],
+        _box$2 = _slicedToArray(_box[1], 2),
+        p1x = _box$2[0],
+        p1y = _box$2[1];
+
+    var axisAlignedBox = [box[0], [p1x, p0y], box[1], [p0x, p1y]];
+    return Vector.rotateThenTranslatePs(sinθ, cosθ, ps[0], axisAlignedBox);
+});
+exports.getBoundingBoxTight = getBoundingBoxTight;
+/**
+ * Returns the axis-aligned bounding box of a given bezier.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns the axis-aligned bounding box in the form
+ * [[minx, miny], [maxx,maxy]
+ */
+var getBoundingBox = memoize(function (ps) {
+    return getBounds(ps).box;
+});
+exports.getBoundingBox = getBoundingBox;
+/**
+ * Calculates and returns general bezier bounds.
+ * @returns The axis-aligned bounding box together with the t values
+ * where the bounds on the bezier are reached.
+ */
+var getBounds = memoize(function (ps) {
+    // Roots of derivative
+    var roots = [get_dx_1.getDx(ps), get_dy_1.getDy(ps)].map(function (poly) {
+        return flo_poly_1.default.allRoots(poly, 0, 1);
+    });
+    // Endpoints
+    roots[0].push(0, 1);
+    roots[1].push(0, 1);
+    var minX = Number.POSITIVE_INFINITY;
+    var maxX = Number.NEGATIVE_INFINITY;
+    var minY = Number.POSITIVE_INFINITY;
+    var maxY = Number.NEGATIVE_INFINITY;
+    var tMinX = undefined;
+    var tMinY = undefined;
+    var tMaxX = undefined;
+    var tMaxY = undefined;
+    // Test points
+    for (var i = 0; i < roots[0].length; i++) {
+        var t = roots[0][i];
+        var x = evaluate_x_1.evaluateX(ps, t);
+        if (x < minX) {
+            minX = x;
+            tMinX = t;
         }
-        return 270;
-    }
-    if (cosθ > 0) {
-        return toDeg(Math.atan(sinθ / cosθ));
-    }
-    return 180 + toDeg(Math.atan(sinθ / cosθ));
-}
-/**
- * Returns a directional arc from 3 ordered points.
- */
-function arcFrom3Points(ps) {
-    var midPoint1 = flo_vector2d_1.default.mean([ps[0], ps[1]]);
-    var midPoint2 = flo_vector2d_1.default.mean([ps[1], ps[2]]);
-    var chord1 = flo_vector2d_1.default.fromTo(ps[0], ps[1]);
-    var chord2 = flo_vector2d_1.default.fromTo(ps[1], ps[2]);
-    var perpendicular1 = [chord1[1], -chord1[0]];
-    var perpendicular2 = [chord2[1], -chord2[0]];
-    var l1 = [midPoint1, flo_vector2d_1.default.translate(perpendicular1, midPoint1)];
-    var l2 = [midPoint2, flo_vector2d_1.default.translate(perpendicular2, midPoint2)];
-    var circleCenter = lineLineIntersection(l1, l2);
-    var arc = void 0;
-    if (!circleCenter) {
-        // TODO - not right - fix
-        /*
-        // The circle is in effect a line segment.
-        if (Vector.equal(ps[0], ps[2])) {
-            return null;
+        if (x > maxX) {
+            maxX = x;
+            tMaxX = t;
         }
-        arc = new Arc(null, ps[0], ps[2]);
-        return arc;
-        */
-        return undefined;
     }
-    var sideVector1 = flo_vector2d_1.default.fromTo(circleCenter, ps[0]);
-    var midVector = flo_vector2d_1.default.fromTo(circleCenter, ps[1]);
-    var sideVector2 = flo_vector2d_1.default.fromTo(circleCenter, ps[2]);
-    var radius = flo_vector2d_1.default.len(sideVector1);
-    var sinθ1 = -sideVector1[1] / radius;
-    var cosθ1 = sideVector1[0] / radius;
-    var sinθ2 = -sideVector2[1] / radius;
-    var cosθ2 = sideVector2[0] / radius;
-    var sin_midangle = -midVector[1] / radius;
-    var cos_midangle = midVector[0] / radius;
-    if (isAngleBetween(sin_midangle, cos_midangle, sinθ1, cosθ1, sinθ2, cosθ2)) {
-        arc = new arc_1.default(new circle_1.default(circleCenter, radius), sinθ1, cosθ1, sinθ2, cosθ2, ps[0], ps[2]);
-    } else {
-        arc = new arc_1.default(new circle_1.default(circleCenter, radius), sinθ2, cosθ2, sinθ1, cosθ1, ps[2], ps[0]);
-    }
-    return arc;
-}
-/**
- * @description .
- */
-function quadrant(sinθ, cosθ) {
-    if (sinθ >= 0) {
-        if (cosθ >= 0) {
-            return 1;
+    for (var _i = 0; _i < roots[1].length; _i++) {
+        var _t = roots[1][_i];
+        var y = evaluate_y_1.evaluateY(ps, _t);
+        if (y < minY) {
+            minY = y;
+            tMinY = _t;
         }
-        return 2;
+        if (y > maxY) {
+            maxY = y;
+            tMaxY = _t;
+        }
     }
-    if (cosθ >= 0) {
-        return 4;
-    }
-    return 3;
-}
+    var ts = [[tMinX, tMinY], [tMaxX, tMaxY]];
+    var box = [[minX, minY], [maxX, maxY]];
+    return { ts: ts, box: box };
+});
+exports.getBounds = getBounds;
 /**
- * @description .
- */
-function isAngle1LargerOrEqual(sinθ1, cosθ1, sinθ2, cosθ2) {
-    var q1 = quadrant(sinθ1, cosθ1);
-    var q2 = quadrant(sinθ2, cosθ2);
-    if (q1 > q2) {
-        return true;
-    }
-    if (q1 < q2) {
-        return false;
-    }
-    // Same quadrant
-    if (q1 === 1 || q1 === 4) {
-        return sinθ1 >= sinθ2;
-    }
-    return sinθ1 <= sinθ2;
-}
-/**
- * Returns true if angle1 < angle < angle2 in the non-trivial sense.
- */
-function isAngleBetween(sinθ, cosθ, sinθ1, cosθ1, sinθ2, cosθ2) {
-    var θ1_larger_θ2 = isAngle1LargerOrEqual(sinθ1, cosθ1, sinθ2, cosθ2);
-    var θ_larger_θ2 = isAngle1LargerOrEqual(sinθ, cosθ, sinθ2, cosθ2);
-    var θ_larger_θ1 = isAngle1LargerOrEqual(sinθ, cosθ, sinθ1, cosθ1);
-    return θ1_larger_θ2 ? θ_larger_θ1 || !θ_larger_θ2 : θ_larger_θ1 && !θ_larger_θ2;
-}
-/**
+ * Returns 2 new beziers split at the given t parameter, i.e. for the ranges
+ * [0,t] and [t,1]. Uses de Casteljau's algorithm.
  *
+ * A loose bound on the accuracy of the resultant points is given by:
+ * |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
+ * abd η is Number.EPSILON.
+ * @param ps - A cubic bezier curve
+ * @param t - The t parameter where the curve should be split
  */
-function lineThroughPointAtRightAngleTo(p, v) {
-    var u = [-v[1], v[0]];
-    var p20 = p[0] + u[0];
-    var p21 = p[1] + u[1];
-    return [p, [p20, p21]];
+function splitAt(ps, t) {
+    var _ps5 = _slicedToArray(ps, 4),
+        _ps5$ = _slicedToArray(_ps5[0], 2),
+        x0 = _ps5$[0],
+        y0 = _ps5$[1],
+        _ps5$2 = _slicedToArray(_ps5[1], 2),
+        x1 = _ps5$2[0],
+        y1 = _ps5$2[1],
+        _ps5$3 = _slicedToArray(_ps5[2], 2),
+        x2 = _ps5$3[0],
+        y2 = _ps5$3[1],
+        _ps5$4 = _slicedToArray(_ps5[3], 2),
+        x3 = _ps5$4[0],
+        y3 = _ps5$4[1];
+
+    var s = 1 - t;
+    var t2 = t * t;
+    var t3 = t2 * t;
+    var s2 = s * s;
+    var s3 = s2 * s;
+    var ps1 = [[x0, y0], [t * x1 + s * x0, t * y1 + s * y0], [t2 * x2 + 2 * s * t * x1 + s2 * x0, t2 * y2 + 2 * s * t * y1 + s2 * y0], [t3 * x3 + 3 * s * t2 * x2 + 3 * s2 * t * x1 + s3 * x0, t3 * y3 + 3 * s * t2 * y2 + 3 * s2 * t * y1 + s3 * y0]];
+    var ps2 = [ps1[3], [t2 * x3 + 2 * t * s * x2 + s2 * x1, t2 * y3 + 2 * t * s * y2 + s2 * y1], [t * x3 + s * x2, t * y3 + s * y2], [x3, y3]];
+    return [ps1, ps2];
+}
+exports.splitAt = splitAt;
+/**
+ * Returns a new bezier from the given bezier by limiting its t range.
+ *
+ * Uses de Casteljau's algorithm.
+ *
+ * @param ps A bezier
+ * @param tRange A t range
+ */
+function bezierFromBezierPiece(ps, tRange) {
+    // If tRange = [0,1] then return original bezier.
+    if (tRange[0] === 0 && tRange[1] === 1) {
+        return ps;
+    }
+    // If tRange[0] === tRange[1] then return a single point degenerated bezier.
+    if (tRange[0] === tRange[1]) {
+        var p = evaluate_1.evaluate(ps)(tRange[0]);
+        return [p, p, p, p];
+    }
+    if (tRange[0] === 0) {
+        return from_0_to_T_1.from0ToT(ps, tRange[1]);
+    }
+    if (tRange[1] === 1) {
+        return from_T_to_1_1.fromTTo1(ps, tRange[0]);
+    }
+    // At this stage we know the t range is not degenerate and tRange[0] !== 0 
+    // and tRange[1] !== 1
+    return from_0_to_T_1.from0ToT(from_T_to_1_1.fromTTo1(ps, tRange[0]), (tRange[1] - tRange[0]) / (1 - tRange[0]));
+}
+exports.bezierFromBezierPiece = bezierFromBezierPiece;
+/**
+ * Returns a human readable string representation of the given bezier.
+ * @param ps - A bezier curve
+ */
+function toString(ps) {
+    var _ps6 = _slicedToArray(ps, 4),
+        _ps6$ = _slicedToArray(_ps6[0], 2),
+        x0 = _ps6$[0],
+        y0 = _ps6$[1],
+        _ps6$2 = _slicedToArray(_ps6[1], 2),
+        x1 = _ps6$2[0],
+        y1 = _ps6$2[1],
+        _ps6$3 = _slicedToArray(_ps6[2], 2),
+        x2 = _ps6$3[0],
+        y2 = _ps6$3[1],
+        _ps6$4 = _slicedToArray(_ps6[3], 2),
+        x3 = _ps6$4[0],
+        y3 = _ps6$4[1];
+
+    return "[[" + x0 + "," + y0 + "],[" + x1 + "," + y1 + "],[" + x2 + "," + y2 + "],[" + x3 + "," + y3 + "]]";
 }
 /**
- * Get all intersection points between a line and a bezier within a certain t
- * range.
+ * Scales all control points of the given bezier by the given factor.
+ * @param ps - A bezier curve
+ * @param c - The scale factor
  */
-function getLineBezierIntersectionPoints(line, ps, tRange) {
-    var t = [-line[0][0], -line[0][1]];
-    var p = [line[1][0] + t[0], line[1][1] + t[1]];
+function scale(ps, c) {
+    return ps.map(function (x) {
+        return [x[0] * c, x[1] * c];
+    });
+}
+exports.scale = scale;
+/**
+ * Returns the best least squares quadratic bezier approximation to the given
+ * cubic bezier. Note that the two bezier endpoints differ in general.
+ * @param ps - A cubic bezier curve.
+ */
+function toQuadratic(ps) {
+    var _ps7 = _slicedToArray(ps, 4),
+        _ps7$ = _slicedToArray(_ps7[0], 2),
+        x0 = _ps7$[0],
+        y0 = _ps7$[1],
+        _ps7$2 = _slicedToArray(_ps7[1], 2),
+        x1 = _ps7$2[0],
+        y1 = _ps7$2[1],
+        _ps7$3 = _slicedToArray(_ps7[2], 2),
+        x2 = _ps7$3[0],
+        y2 = _ps7$3[1],
+        _ps7$4 = _slicedToArray(_ps7[3], 2),
+        x3 = _ps7$4[0],
+        y3 = _ps7$4[1];
+
+    return [[19 / 20 * x0 + 3 / 20 * x1 + -3 / 20 * x2 + 1 / 20 * x3, 19 / 20 * y0 + 3 / 20 * y1 + -3 / 20 * y2 + 1 / 20 * y3], [-1 / 4 * x0 + 3 / 4 * x1 + 3 / 4 * x2 + -1 / 4 * x3, -1 / 4 * y0 + 3 / 4 * y1 + 3 / 4 * y2 + -1 / 4 * y3], [1 / 20 * x0 + -3 / 20 * x1 + 3 / 20 * x2 + 19 / 20 * x3, 1 / 20 * y0 + -3 / 20 * y1 + 3 / 20 * y2 + 19 / 20 * y3]];
+}
+exports.toQuadratic = toQuadratic;
+/**
+ * Evaluates the given hybrid quadratic at the given t and th parameters. (see
+ * toHybridQuadratic for details).
+ * @param hq - A hybrid quadratic
+ * @param t - The bezier parameter value
+ * @param th - The parameter value for the hybrid quadratic point.
+ */
+function evaluateHybridQuadratic(hq, t, th) {
+    var P0 = hq[0];
+    var P1_ = hq[1];
+    var P2 = hq[2];
+    var P1 = evaluateLinear(hq[1], th);
+    return evaluateQuadratic([P0, P1, P2], t);
+}
+exports.evaluateHybridQuadratic = evaluateHybridQuadratic;
+/**
+ * Evaluates the given linear bezier (line) at a specific t value.
+ * @param ps - A linear bezier curve.
+ * @param t - The value where the bezier should be evaluated
+ */
+function evaluateLinear(ps, t) {
+    var _ps8 = _slicedToArray(ps, 2),
+        _ps8$ = _slicedToArray(_ps8[0], 2),
+        x0 = _ps8$[0],
+        y0 = _ps8$[1],
+        _ps8$2 = _slicedToArray(_ps8[1], 2),
+        x1 = _ps8$2[0],
+        y1 = _ps8$2[1];
+
+    var x = x0 * (1 - t) + x1 * t;
+    var y = y0 * (1 - t) + y1 * t;
+    return [x, y];
+}
+exports.evaluateLinear = evaluateLinear;
+/**
+ * Returns a clone of the given cubic bezier. Use sparingly; this is not in the
+ * spirit of functional programming.
+ * @param ps - A cubic bezier given by its array of control points
+ */
+function clone(ps) {
+    var _ps9 = _slicedToArray(ps, 4),
+        _ps9$ = _slicedToArray(_ps9[0], 2),
+        x0 = _ps9$[0],
+        y0 = _ps9$[1],
+        _ps9$2 = _slicedToArray(_ps9[1], 2),
+        x1 = _ps9$2[0],
+        y1 = _ps9$2[1],
+        _ps9$3 = _slicedToArray(_ps9[2], 2),
+        x2 = _ps9$3[0],
+        y2 = _ps9$3[1],
+        _ps9$4 = _slicedToArray(_ps9[3], 2),
+        x3 = _ps9$4[0],
+        y3 = _ps9$4[1];
+
+    return [[x0, y0], [x1, y1], [x2, y2], [x3, y3]];
+}
+exports.clone = clone;
+/**
+ * Evaluates the given quadratic bezier at a specific t value.
+ * @param ps - A quadratic bezier curve.
+ * @param t - The value where the bezier should be evaluated
+ */
+function evaluateQuadratic(ps, t) {
+    var _ps10 = _slicedToArray(ps, 3),
+        _ps10$ = _slicedToArray(_ps10[0], 2),
+        x0 = _ps10$[0],
+        y0 = _ps10$[1],
+        _ps10$2 = _slicedToArray(_ps10[1], 2),
+        x1 = _ps10$2[0],
+        y1 = _ps10$2[1],
+        _ps10$3 = _slicedToArray(_ps10[2], 2),
+        x2 = _ps10$3[0],
+        y2 = _ps10$3[1];
+
+    var x = x0 * Math.pow(1 - t, 2) + x1 * 2 * (1 - t) * t + x2 * Math.pow(t, 2);
+    var y = y0 * Math.pow(1 - t, 2) + y1 * 2 * (1 - t) * t + y2 * Math.pow(t, 2);
+    return [x, y];
+}
+exports.evaluateQuadratic = evaluateQuadratic;
+/**
+ * Returns the cubic version of the given quadratic bezier curve. Quadratic
+ * bezier curves can always be represented by cubics - the converse is false.
+ * @param ps - A quadratic bezier curve.
+ */
+function toCubic(ps) {
+    var _ps11 = _slicedToArray(ps, 3),
+        _ps11$ = _slicedToArray(_ps11[0], 2),
+        x0 = _ps11$[0],
+        y0 = _ps11$[1],
+        _ps11$2 = _slicedToArray(_ps11[1], 2),
+        x1 = _ps11$2[0],
+        y1 = _ps11$2[1],
+        _ps11$3 = _slicedToArray(_ps11[2], 2),
+        x2 = _ps11$3[0],
+        y2 = _ps11$3[1];
+
+    return [[x0, y0], [1 / 3 * x0 + 2 / 3 * x1, 1 / 3 * y0 + 2 / 3 * y1], [2 / 3 * x1 + 1 / 3 * x2, 2 / 3 * y1 + 1 / 3 * y2], [x2, y2]];
+}
+exports.toCubic = toCubic;
+/**
+ * Returns the given points (e.g. bezier) in reverse order.
+ * @param ps
+ */
+function reverse(ps) {
+    return ps.slice().reverse();
+}
+exports.reverse = reverse;
+function equal(psA, psB) {
+    var _psA = _slicedToArray(psA, 4),
+        _psA$ = _slicedToArray(_psA[0], 2),
+        ax0 = _psA$[0],
+        ay0 = _psA$[1],
+        _psA$2 = _slicedToArray(_psA[1], 2),
+        ax1 = _psA$2[0],
+        ay1 = _psA$2[1],
+        _psA$3 = _slicedToArray(_psA[2], 2),
+        ax2 = _psA$3[0],
+        ay2 = _psA$3[1],
+        _psA$4 = _slicedToArray(_psA[3], 2),
+        ax3 = _psA$4[0],
+        ay3 = _psA$4[1];
+
+    var _psB = _slicedToArray(psB, 4),
+        _psB$ = _slicedToArray(_psB[0], 2),
+        bx0 = _psB$[0],
+        by0 = _psB$[1],
+        _psB$2 = _slicedToArray(_psB[1], 2),
+        bx1 = _psB$2[0],
+        by1 = _psB$2[1],
+        _psB$3 = _slicedToArray(_psB[2], 2),
+        bx2 = _psB$3[0],
+        by2 = _psB$3[1],
+        _psB$4 = _slicedToArray(_psB[3], 2),
+        bx3 = _psB$4[0],
+        by3 = _psB$4[1];
+
+    return ax0 === bx0 && ax1 === bx1 && ax2 === bx2 && ax3 === bx3 && ay0 === by0 && ay1 === by1 && ay2 === by2 && ay3 === by3;
+}
+exports.equal = equal;
+
+
+
+},{"./src/bezier3-intersection-sylvester/bezier3-intersection-sylvester":4,"./src/bezier3-intersection/bezier3-intersection":5,"./src/coincident":11,"./src/de-casteljau":12,"./src/debug/debug":13,"./src/debug/fat-line":15,"./src/eval-de-casteljau":16,"./src/evaluate":21,"./src/evaluate-dx":17,"./src/evaluate-dy":18,"./src/evaluate-x":19,"./src/evaluate-y":20,"./src/from-0-to-T":22,"./src/from-T-to-1":23,"./src/from-to":24,"./src/get-dx":25,"./src/get-dy":26,"./src/get-x":27,"./src/get-y":28,"./src/line-intersection":29,"./src/normal":30,"./src/tangent":31,"./src/to-hybrid-quadratic":32,"./src/ts-at-x":33,"./src/ts-at-y":34,"flo-gauss-quadrature":35,"flo-graham-scan":36,"flo-memoize":41,"flo-poly":42,"flo-vector2d":50}],4:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var get_x_1 = _dereq_("../get-x");
+var get_y_1 = _dereq_("../get-y");
+var DELTA = 10 - 6;
+// Belongs in graveyard because it is not numerically stable enough, e.g. if
+// the cubic bezier resembles a quadratic no intersection can be found.
+/**
+ * Returns the intersection points between two cubic beziers. This function is
+ * not numerically stable and thus not publically exposed. It can not, for
+ * instance, handle cases where one or both beziers degenerate into a quadratic
+ * bezier. Use for experimentation and comparison only.
+ * @ignore
+ * @param ps1 - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @param ps2 - Another cubic bezier
+ * @returns The t-value pairs at intersection of the first
+ * and second beziers respectively.
+ * See <a href="http://mat.polsl.pl/sjpam/zeszyty/z6/Silesian_J_Pure_Appl_Math_v6_i1_str_155-176.pdf">
+ * this paper</a>
+ */
+function bezier3IntersectionSylvester(ps1, ps2) {
+    var _ps1$ = _slicedToArray(ps1[0], 2),
+        x1 = _ps1$[0],
+        y1 = _ps1$[1];
+
+    var _ps2$ = _slicedToArray(ps2[0], 2),
+        x2 = _ps2$[0],
+        y2 = _ps2$[1];
+    // Rotate by θ so that Δx ≡ d_0x - c_0x === 0 (as suggested by the paper)
+
+
+    var rotatedPs1 = void 0;
+    var rotatedPs2 = void 0;
+    if (Math.abs(x1 - x2) > 1e-12) {
+        var tanθ = (x1 - x2) / (y1 - y2);
+        var tanθ2 = tanθ * tanθ;
+        var sinθ = tanθ2 / (1 + tanθ2); // Trig. identity
+        var cosθ = sinθ / tanθ;
+        var rotatedPs1_ = flo_vector2d_1.rotatePs(sinθ, cosθ, ps1);
+        var rotatedPs2_ = flo_vector2d_1.rotatePs(sinθ, cosθ, ps2);
+        rotatedPs1 = rotatedPs1_;
+        rotatedPs2 = rotatedPs2_;
+    } else {
+        rotatedPs1 = ps1;
+        rotatedPs2 = ps2;
+    }
     // Cache
-    var lineLength = flo_vector2d_1.default.len(p);
-    var sinθ = -p[1] / lineLength;
-    var cosθ = p[0] / lineLength;
-    var newPs = flo_vector2d_1.default.translateThenRotatePs(t, sinθ, cosθ, ps);
-    var roots = flo_poly_1.default.allRoots(flo_bezier3_1.default.getY(newPs), 0, 1);
-    return roots.map(function (t) {
-        return { p: flo_bezier3_1.default.evaluate(ps)(t), t: t };
-    });
-}
-var Geometry = {
-    lineLineIntersection: lineLineIntersection,
-    getLineBoundaryIntersectionPoints: getLineBoundaryIntersectionPoints,
-    closestSquaredDistanceToRotatedRect: closestSquaredDistanceToRotatedRect,
-    getClosestSquareDistanceToRect: getClosestSquareDistanceToRect,
-    degAngleFromSinCos: degAngleFromSinCos,
-    arcFrom3Points: arcFrom3Points,
-    quadrant: quadrant,
-    isAngle1LargerOrEqual: isAngle1LargerOrEqual,
-    isAngleBetween: isAngleBetween,
-    lineThroughPointAtRightAngleTo: lineThroughPointAtRightAngleTo,
-    getLineBezierIntersectionPoints: getLineBezierIntersectionPoints
-};
-exports.default = Geometry;
 
-},{"./classes/arc":4,"./classes/circle":6,"./classes/shape":10,"flo-bezier3":40,"flo-poly":48,"flo-vector2d":56}],16:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var flo_ll_rb_tree_1 = _dereq_("flo-ll-rb-tree");
-var list_node_1 = _dereq_("./list-node");
-/**
- * Represents a destructive (i.e. not functional) two-way linked loop.
- * @param items - A pre-ordered array of items to add initially; it is
- * faster to add items initially than to add them in a loop with insert.
- * @param comparator - Tree item comparator
- * @param indx - Loop identifier.
- */
-
-var LinkedLoop = function () {
-    function LinkedLoop(items, comparator, indx) {
-        _classCallCheck(this, LinkedLoop);
-
-        if (comparator) {
-            this.cptree = new flo_ll_rb_tree_1.default(comparator, [], true);
-        }
-        this.indx = indx;
-        this.addAllFromScratch(items || []);
-    }
-    /**
-     * Adds all given items from scratch onto the empty LinkedLoop.
-     */
-
-
-    _createClass(LinkedLoop, [{
-        key: "addAllFromScratch",
-        value: function addAllFromScratch(arr) {
-            if (arr.length === 0) {
-                return;
-            }
-            var head = void 0;
-            var prevNode = null;
-            var node = void 0;
-            for (var i = 0; i < arr.length; i++) {
-                node = new list_node_1.default(this, arr[i], prevNode, null);
-                if (prevNode) {
-                    prevNode.next = node;
-                }
-                prevNode = node;
-                if (i === 0) {
-                    head = node;
-                }
-                if (this.cptree) {
-                    this.cptree.insert(node);
-                }
-                ;
-            }
-            // Close loop
-            head.prev = node;
-            node.next = head;
-            this.head = head;
-        }
-        /**
-         * Insert an item into the linked loop after the specified point.
-         * @param item - Item to insert
-         * @param prev - Inserts the new item right after this item
-         * @param coupledNode - A node coupled to this one
-         */
-
-    }, {
-        key: "insert",
-        value: function insert(item, prev_) {
-            var coupledNode = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
-
-            var loop = this;
-            var node = new list_node_1.default(loop, item, undefined, undefined);
-            var prev = void 0;
-            var next = void 0;
-            if (!loop.head) {
-                prev = node;
-                next = node;
-                loop.head = node;
-            } else {
-                prev = prev_;
-                next = prev.next;
-            }
-            next.prev = node;
-            prev.next = node;
-            node.prev = prev;
-            node.next = next;
-            node.coupledNode = coupledNode;
-            if (loop.cptree) {
-                loop.cptree.insert(node);
-            }
-            ;
-            return node;
-        }
-        /**
-         * Removes a node from the linked loop.
-         */
-
-    }, {
-        key: "remove",
-        value: function remove(node) {
-            var loop = this;
-            var prev = node.prev;
-            var next = node.next;
-            if (node === loop.head) {
-                loop.head = next;
-            }
-            prev.next = next;
-            next.prev = prev;
-            if (loop.cptree) {
-                loop.cptree.remove(node, false); // TODO, make the second parameter default
-            }
-            ;
-        }
-        /**
-         *
-         */
-
-    }, {
-        key: "getAsArray",
-        value: function getAsArray() {
-            var loop = this;
-            var nodes = [];
-            var node = loop.head;
-            do {
-                nodes.push(node.item);
-                node = node.next;
-            } while (node !== loop.head);
-            return nodes;
-        }
-        /**
-         *
-         */
-
-    }, {
-        key: "forEach",
-        value: function forEach(f) {
-            var loop = this;
-            var node = loop.head;
-            do {
-                f(node);
-                node = node.next;
-            } while (node !== loop.head);
-        }
-        /**
-         * Returns the item at the specified index position.
-         * @note This is slow ( O(n) ); use in debugging code only.
-         */
-
-    }, {
-        key: "getByIndx",
-        value: function getByIndx(n) {
-            var loop = this;
-            return list_node_1.default.advanceNSteps(loop.head, n);
-        }
-    }]);
-
-    return LinkedLoop;
-}();
-
-exports.default = LinkedLoop;
-
-},{"./list-node":17,"flo-ll-rb-tree":43}],17:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Representation of a linked loop vertex (i.e. node) having various edges, two
- * of which enforce an ordering on the nodes, i.e. 'prev' and 'next'.
- * @param loop - The linked loop this node belongs to.
- * @param item - The actual item stored at a node.
- * @param prev - The previous item.
- * @param next - The next item.
- */
-
-var ListNode = function () {
-    function ListNode(loop, item, prev, next) {
-        _classCallCheck(this, ListNode);
-
-        // TODO - we should really subclass linked-loop and/or list-node as the 
-        // below only applies to the segregated shape pieces
-        this.prevOnCircle = undefined;
-        this.nextOnCircle = undefined;
-        this.loop = loop;
-        this.item = item;
-        this.prev = prev;
-        this.next = next;
-    }
-    /**
-     * Advances the node by the given number of steps. This is slow ( O(n) );
-     * use mostly for debugging.
-     * @param node - Node to start counting from
-     * @param n - Number of steps to advance
-     */
-
-
-    _createClass(ListNode, null, [{
-        key: "advanceNSteps",
-        value: function advanceNSteps(node, n) {
-            for (var i = 0; i < n; i++) {
-                node = node.next;
-            }
-            return node;
-        }
-    }]);
-
-    return ListNode;
-}();
-
-exports.default = ListNode;
-
-},{}],18:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var MAT_CONSTANTS = {
-    // TODO - should be dynamic and of order of shape dimensions.
-    maxOsculatingCircleRadius: 800,
-    pointType: {
-        'standard': 0,
-        'sharp': 1,
-        'dull': 2,
-        'extreme': 3
-    }
-};
-exports.default = MAT_CONSTANTS;
-
-},{}],19:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-/**
- * Class representing a single contact point of a MatCircle.
- *
- * @param pointOnShape
- * @param {MatCircle} matCircle
- */
-
-var ContactPoint = function () {
-    function ContactPoint(pointOnShape, matCircle) {
-        _classCallCheck(this, ContactPoint);
-
-        this.pointOnShape = pointOnShape;
-        this.matCircle = matCircle;
-        this.key = point_on_shape_1.default.toHumanString(pointOnShape); // TODO - remove
-        // TODO - remove from cache?
-        this[0] = pointOnShape[0]; // Shortcut
-        this[1] = pointOnShape[1]; // ...
-    }
-
-    _createClass(ContactPoint, null, [{
-        key: "compare",
-        value: function compare(a, b) {
-            return point_on_shape_1.default.compare(a.pointOnShape, b.pointOnShape);
-        }
-    }, {
-        key: "equal",
-        value: function equal(a, b) {
-            return flo_vector2d_1.default.equal(a.pointOnShape.p, b.pointOnShape.p);
-        }
-    }]);
-
-    return ContactPoint;
-}();
-
-exports.default = ContactPoint;
-
-},{"../../geometry/classes/point-on-shape":9,"flo-vector2d":56}],20:[function(_dereq_,module,exports){
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var point_on_shape_1 = _dereq_("../../../geometry/classes/point-on-shape");
-
-var ThreeProngForDebugging = function ThreeProngForDebugging(threeProng, deltas, bestIndx, candidateThreeProngs) {
-    _classCallCheck(this, ThreeProngForDebugging);
-
-    this.threeProng = threeProng;
-    this.deltas = deltas;
-    this.bestIndx = bestIndx;
-    this.candidateThreeProngs = candidateThreeProngs;
-    this.deltasSimple = deltas.map(function (delta) {
-        return [point_on_shape_1.default.toHumanString(delta[0].item.pointOnShape), point_on_shape_1.default.toHumanString(delta[1].item.pointOnShape)];
-    });
-};
-
-exports.default = ThreeProngForDebugging;
-
-},{"../../../geometry/classes/point-on-shape":9}],21:[function(_dereq_,module,exports){
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-
-var TwoProngForDebugging = function TwoProngForDebugging(pos, δ, y, z, x, circle, xs, failed, holeClosing) {
-    _classCallCheck(this, TwoProngForDebugging);
-
-    this.pos = pos;
-    this.δ = δ;
-    this.y = y;
-    this.z = z;
-    this.x = x;
-    this.circle = circle;
-    this.xs = xs;
-    this.failed = failed;
-    this.holeClosing = holeClosing;
-};
-
-exports.default = TwoProngForDebugging;
-
-},{}],22:[function(_dereq_,module,exports){
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-
-var HoleClosing2Prong = function HoleClosing2Prong(k1, k2, cpNodeA2, cpNodeA1, cpNodeB1, cpNodeB2) {
-    _classCallCheck(this, HoleClosing2Prong);
-
-    this.k1 = k1;
-    this.k2 = k2;
-    this.cpNodeA2 = cpNodeA2;
-    this.cpNodeA1 = cpNodeA1;
-    this.cpNodeB1 = cpNodeB1;
-    this.cpNodeB2 = cpNodeB2;
-};
-
-exports.default = HoleClosing2Prong;
-
-},{}],23:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Medial (or Scale) Axis Transform (MAT) maximal contact circle class,
- * i.e. a representative data point of the MAT.
- *
- * @constructor
- * @param {Circle} circle
- * @param {ListNode[]} cpNodes - The contact points of this circle on the shape.
- * @note Do not do 'new MatCircle', rather use 'MatCircle.create'.
- */
-
-var MatCircle = function () {
-    function MatCircle(circle, cpNodes) {
-        _classCallCheck(this, MatCircle);
-
-        this.circle = circle;
-        this.cpNodes = cpNodes;
-        this.visited = 0; // TODO - does not belong inside the class
-    }
-    /**
-     * MatCircle creator.
-     * @param {Circle} circle
-     * @param {ListNode[]} cpNodes An array of 'orphaned'
-     *        (i.e. without belonging to a MatCircle) contact points.
-     * Notes: Due to the mutual dependency between the matCircle and
-     * contactPoints fields, a normal constructor can not instantiate a
-     * MatCircle in one step - hence this creator.
-     */
-
-
-    _createClass(MatCircle, null, [{
-        key: "create",
-        value: function create(circle, cpNodes) {
-            var matCircle = new MatCircle(circle, undefined);
-            for (var i = 0; i < cpNodes.length; i++) {
-                cpNodes[i].item.matCircle = matCircle;
-            }
-            matCircle.cpNodes = cpNodes;
-            return matCircle;
-        }
-    }]);
-
-    return MatCircle;
-}();
-
-exports.default = MatCircle;
-
-},{}],24:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Representation of a node in the MAT structure.
- * @param matCircle
- * @param branches
- */
-
-var MatNode = function () {
-    function MatNode(matCircle, branches) {
-        _classCallCheck(this, MatNode);
-
-        this.matCircle = matCircle;
-        this.branches = branches;
-    }
-
-    _createClass(MatNode, null, [{
-        key: "copy",
-        value: function copy(node) {
-            return f(node);
-            function f(matNode, priorNode, newPriorNode) {
-                var branches = [];
-                var newNode = new MatNode(matNode.matCircle, branches);
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
-
-                try {
-                    for (var _iterator = matNode.branches[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var _node = _step.value;
-
-                        if (_node === priorNode) {
-                            // Don't go back in tracks.
-                            branches.push(newPriorNode);
-                            continue;
-                        }
-                        branches.push(f(_node, matNode, newNode));
-                    }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator.return) {
-                            _iterator.return();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
+    var _get_x_1$getX = get_x_1.getX(rotatedPs1),
+        _get_x_1$getX2 = _slicedToArray(_get_x_1$getX, 4),
+        c_3x = _get_x_1$getX2[0],
+        c_2x = _get_x_1$getX2[1],
+        c_1x = _get_x_1$getX2[2],
+        c_0x = _get_x_1$getX2[3];
+
+    var _get_y_1$getY = get_y_1.getY(rotatedPs1),
+        _get_y_1$getY2 = _slicedToArray(_get_y_1$getY, 4),
+        c_3y = _get_y_1$getY2[0],
+        c_2y = _get_y_1$getY2[1],
+        c_1y = _get_y_1$getY2[2],
+        c_0y = _get_y_1$getY2[3];
+
+    var _get_x_1$getX3 = get_x_1.getX(rotatedPs2),
+        _get_x_1$getX4 = _slicedToArray(_get_x_1$getX3, 4),
+        d_3x = _get_x_1$getX4[0],
+        d_2x = _get_x_1$getX4[1],
+        d_1x = _get_x_1$getX4[2],
+        d_0x = _get_x_1$getX4[3];
+
+    var _get_y_1$getY3 = get_y_1.getY(rotatedPs2),
+        _get_y_1$getY4 = _slicedToArray(_get_y_1$getY3, 4),
+        d_3y = _get_y_1$getY4[0],
+        d_2y = _get_y_1$getY4[1],
+        d_1y = _get_y_1$getY4[2],
+        d_0y = _get_y_1$getY4[3];
+
+    var a = d_3x,
+        b = c_3x,
+        c = d_2x,
+        d = c_2x,
+        e = d_1x,
+        f = c_1x;
+    //let Δx = d_0x - c_0x; // === 0 after rotation
+
+    var m = d_3y,
+        n = c_3y,
+        p = d_2y,
+        q = c_2y,
+        r = d_1y,
+        s = c_1y;
+
+    var Δy = d_0y - c_0y;
+    var a2 = a * a;
+    var b2 = b * b;
+    var c2 = c * c;
+    var d2 = d * d;
+    var e2 = e * e;
+    var f2 = f * f;
+    var m2 = m * m;
+    var n2 = n * n;
+    var p2 = p * p;
+    var q2 = q * q;
+    var r2 = r * r;
+    var s2 = s * s;
+    var Δy2 = Δy * Δy;
+    var a3 = a2 * a;
+    var b3 = b2 * b;
+    var c3 = c2 * c;
+    var d3 = d2 * d;
+    var e3 = e2 * e;
+    var f3 = f2 * f;
+    var Δy3 = Δy2 * Δy;
+    var dΔy = d * Δy;
+    var dΔy2 = d * Δy2;
+    var bdΔy = b * dΔy;
+    var bdΔy2 = b * dΔy2;
+    var cΔy = c * Δy;
+    var cΔy2 = c * Δy2;
+    var bΔy = b * Δy;
+    var bΔy2 = b * Δy2;
+    var bΔy3 = b * Δy3;
+    // Rotate both beziers so that delta-x = 0, i.e. so that the x-coordinate of 
+    // both beziers are equal. This reduces the complexity of calculating the 
+    // determinant of the Sylvester matrix.
+    var k9 = -b2 * Δy * f * s2 + bdΔy * f * q * s + 2 * bΔy * f2 * n * s - d2 * Δy * f * n * s - b2 * dΔy2 * s - bΔy * f2 * q2 + dΔy * f2 * n * q - 2 * b2 * Δy2 * f * q + d2 * bΔy2 * q - Δy * f3 * n2 + 3 * bdΔy2 * f * n - d3 * Δy2 * n - b3 * Δy3;
+    var k8 = b2 * Δy * e * s2 + 2 * b2 * Δy * f * r * s - bdΔy * e * q * s - 4 * bΔy * e * f * n * s + d2 * Δy * e * n * s - bdΔy * f * q * r - 2 * bΔy * f2 * n * r + d2 * Δy * f * n * r + b2 * dΔy2 * r + 2 * bΔy * e * f * q2 - 2 * dΔy * e * f * n * q + 2 * b2 * Δy2 * e * q + 3 * Δy * e * f2 * n2 - 3 * bdΔy2 * e * n;
+    var k7 = -2 * b2 * Δy * e * r * s - b * cΔy * f * q * s - bdΔy * f * p * s + 2 * c * dΔy * f * n * s + 2 * bΔy * e2 * n * s + b2 * cΔy2 * s - b2 * Δy * f * r2 + bdΔy * e * q * r + 4 * bΔy * e * f * n * r - d2 * Δy * e * n * r - bΔy * e2 * q2 + 2 * bΔy * f2 * p * q - cΔy * f2 * n * q + dΔy * e2 * n * q - 2 * b * c * dΔy2 * q - dΔy * f2 * n * p + 2 * b2 * Δy2 * f * p - b * d2 * Δy2 * p - 3 * Δy * e2 * f * n2 - 3 * b * cΔy2 * f * n + 3 * c * d2 * Δy2 * n;
+    var k6 = 2 * a * bΔy * f * s2 - a * dΔy * f * q * s + b * cΔy * e * q * s + bdΔy * e * p * s - 2 * a * Δy * f2 * n * s - 2 * c * dΔy * e * n * s - 2 * bΔy * f2 * m * s + d2 * Δy * f * m * s + 2 * a * bdΔy2 * s + b2 * Δy * e * r2 + b * cΔy * f * q * r + bdΔy * f * p * r - 2 * c * dΔy * f * n * r - 2 * bΔy * e2 * n * r - b2 * cΔy2 * r + a * Δy * f2 * q2 - 4 * bΔy * e * f * p * q + 2 * cΔy * e * f * n * q - dΔy * f2 * m * q + 4 * a * bΔy2 * f * q - a * d2 * Δy2 * q + 2 * dΔy * e * f * n * p - 2 * b2 * Δy2 * e * p + Δy * e3 * n2 + 2 * Δy * f3 * m * n - 3 * a * dΔy2 * f * n + 3 * b * cΔy2 * e * n - 3 * bdΔy2 * f * m + d3 * Δy2 * m + 3 * a * b2 * Δy3;
+    var k5 = -2 * a * bΔy * e * s2 - 4 * a * bΔy * f * r * s + a * dΔy * e * q * s + b * cΔy * f * p * s + 4 * a * Δy * e * f * n * s - c2 * Δy * f * n * s + 4 * bΔy * e * f * m * s - d2 * Δy * e * m * s + a * dΔy * f * q * r - b * cΔy * e * q * r - bdΔy * e * p * r + 2 * a * Δy * f2 * n * r + 2 * c * dΔy * e * n * r + 2 * bΔy * f2 * m * r - d2 * Δy * f * m * r - 2 * a * bdΔy2 * r - 2 * a * Δy * e * f * q2 + 2 * bΔy * e2 * p * q - cΔy * e2 * n * q + 2 * dΔy * e * f * m * q - 4 * a * bΔy2 * e * q + b * c2 * Δy2 * q - bΔy * f2 * p2 + cΔy * f2 * n * p - dΔy * e2 * n * p + 2 * b * c * dΔy2 * p - 6 * Δy * e * f2 * m * n + 3 * a * dΔy2 * e * n - 3 * c2 * dΔy2 * n + 3 * bdΔy2 * e * m;
+    var k4 = 4 * a * bΔy * e * r * s + a * cΔy * f * q * s + a * dΔy * f * p * s - b * cΔy * e * p * s - 2 * a * Δy * e2 * n * s + c2 * Δy * e * n * s - 2 * c * dΔy * f * m * s - 2 * bΔy * e2 * m * s - 2 * a * b * cΔy2 * s + 2 * a * bΔy * f * r2 - a * dΔy * e * q * r - b * cΔy * f * p * r - 4 * a * Δy * e * f * n * r + c2 * Δy * f * n * r - 4 * bΔy * e * f * m * r + d2 * Δy * e * m * r + a * Δy * e2 * q2 - 2 * a * Δy * f2 * p * q + cΔy * f2 * m * q - dΔy * e2 * m * q + 2 * a * c * dΔy2 * q + 2 * bΔy * e * f * p2 - 2 * cΔy * e * f * n * p + dΔy * f2 * m * p - 4 * a * bΔy2 * f * p + a * d2 * Δy2 * p + 6 * Δy * e2 * f * m * n + 3 * a * cΔy2 * f * n + 3 * b * cΔy2 * f * m - 3 * c * d2 * Δy2 * m;
+    var k3 = -a2 * Δy * f * s2 - a * cΔy * e * q * s - a * dΔy * e * p * s + 2 * a * Δy * f2 * m * s + 2 * c * dΔy * e * m * s - a2 * dΔy2 * s - 2 * a * bΔy * e * r2 - a * cΔy * f * q * r - a * dΔy * f * p * r + b * cΔy * e * p * r + 2 * a * Δy * e2 * n * r - c2 * Δy * e * n * r + 2 * c * dΔy * f * m * r + 2 * bΔy * e2 * m * r + 2 * a * b * cΔy2 * r + 4 * a * Δy * e * f * p * q - 2 * cΔy * e * f * m * q - 2 * a2 * Δy2 * f * q - bΔy * e2 * p2 + cΔy * e2 * n * p - 2 * dΔy * e * f * m * p + 4 * a * bΔy2 * e * p - b * c2 * Δy2 * p - 2 * Δy * e3 * m * n - 3 * a * cΔy2 * e * n + c3 * Δy2 * n - Δy * f3 * m2 + 3 * a * dΔy2 * f * m - 3 * b * cΔy2 * e * m - 3 * a2 * bΔy3;
+    var k2 = a2 * Δy * e * s2 + 2 * a2 * Δy * f * r * s - a * cΔy * f * p * s - 4 * a * Δy * e * f * m * s + c2 * Δy * f * m * s + a * cΔy * e * q * r + a * dΔy * e * p * r - 2 * a * Δy * f2 * m * r - 2 * c * dΔy * e * m * r + a2 * dΔy2 * r - 2 * a * Δy * e2 * p * q + cΔy * e2 * m * q + 2 * a2 * Δy2 * e * q - a * c2 * Δy2 * q + a * Δy * f2 * p2 - cΔy * f2 * m * p + dΔy * e2 * m * p - 2 * a * c * dΔy2 * p + 3 * Δy * e * f2 * m2 - 3 * a * dΔy2 * e * m + 3 * c2 * dΔy2 * m;
+    var k1 = -2 * a2 * Δy * e * r * s + a * cΔy * e * p * s + 2 * a * Δy * e2 * m * s - c2 * Δy * e * m * s + a2 * cΔy2 * s - a2 * Δy * f * r2 + a * cΔy * f * p * r + 4 * a * Δy * e * f * m * r - c2 * Δy * f * m * r - 2 * a * Δy * e * f * p2 + 2 * cΔy * e * f * m * p + 2 * a2 * Δy2 * f * p - 3 * Δy * e2 * f * m2 - 3 * a * cΔy2 * f * m;
+    var k0 = a2 * Δy * e * r2 - a * cΔy * e * p * r - 2 * a * Δy * e2 * m * r + c2 * Δy * e * m * r - a2 * cΔy2 * r + a * Δy * e2 * p2 - cΔy * e2 * m * p - 2 * a2 * Δy2 * e * p + a * c2 * Δy2 * p + Δy * e3 * m2 + 3 * a * cΔy2 * e * m - c3 * Δy2 * m + a3 * Δy3;
+    var poly = [k9, k8, k7, k6, k5, k4, k3, k2, k1, k0];
+    var roots = flo_poly_1.default.allRoots(poly, 0);
+    var tPairs = [];
+    for (var i = 0; i < roots.length; i++) {
+        var k = roots[i];
+        var _k = k * k;
+        var _k2 = _k * k;
+        var ps1k = {
+            x: [c_3x * _k2, c_2x * _k, c_1x * k, c_0x],
+            y: [c_3y * _k2, c_2y * _k, c_1y * k, c_0y]
+        };
+        var ps2k = {
+            x: [d_3x * _k2, d_2x * _k, d_1x * k, d_0x],
+            y: [d_3y * _k2, d_2y * _k, d_1y * k, d_0y]
+        };
+        var xx = flo_poly_1.default.subtract(get_x_1.getX(rotatedPs2), ps1k.x);
+        var yy = flo_poly_1.default.subtract(get_y_1.getY(rotatedPs2), ps1k.y);
+        var rootsx = flo_poly_1.default.allRoots(xx, 0, 1);
+        var rootsy = flo_poly_1.default.allRoots(yy, 0, 1);
+        for (var j = 0; j < rootsx.length; j++) {
+            var rootx = rootsx[j];
+            for (var l = 0; l < rootsy.length; l++) {
+                var rooty = rootsy[l];
+                if (Math.abs(rootx - rooty) < DELTA) {
+                    var t = (rootx + rooty) / 2;
+                    var tk = t * k;
+                    if (t >= 0 && t <= 1 && tk >= 0 && tk <= 1) {
+                        tPairs.push([tk, t]);
                     }
                 }
-
-                return newNode;
             }
         }
-    }]);
+    }
+    return tPairs;
+}
+exports.bezier3IntersectionSylvester = bezier3IntersectionSylvester;
 
-    return MatNode;
-}();
 
-exports.default = MatNode;
 
-},{}],25:[function(_dereq_,module,exports){
+},{"../get-x":27,"../get-y":28,"flo-poly":42,"flo-vector2d":50}],5:[function(_dereq_,module,exports){
 "use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var traverse_1 = _dereq_("../../mat/functions/traverse");
+var coincident_1 = _dereq_("../coincident");
+var from_to_1 = _dereq_("../from-to");
+var get_distance_to_line_function_1 = _dereq_("./get-distance-to-line-function");
+var calc_other_t_1 = _dereq_("./calc-other-t");
+var geo_clip_1 = _dereq_("./geo-clip");
+var center_1 = _dereq_("./center");
+var evaluate_1 = _dereq_("../evaluate");
+var fat_line_1 = _dereq_("../debug/fat-line");
 /**
- * The Medial Axis Transform. It is defined recursively as a rooted tree with
- * each node containing a point, a radius and 1, 2 or 3 branches.
- * @param node - A handle on the MAT tree structure.
+ * Extremely accurate and extremely fast (cubically convergent in general with
+ * fast iteration steps) algorithm that returns the intersections between two
+ * cubic beziers.
+ *
+ * At stretches where the two curves run extremely close to (or on top of) each
+ * other and curve the same direction an interval is returned instead of a
+ * point. This tolerance can be set by the Δ parameter.
+ *
+ * The algorithm is based on a <a href="http://scholarsarchive.byu.edu/cgi/viewcontent.cgi?article=2206&context=etd">paper</a>
+ * that finds the intersection of a fat line and a so-called geometric interval
+ * making it faster and more accurate than the standard fat-line intersection
+ * algorithm. The algorithm has been modified to prevent run-away recursion
+ * by checking for coincident pieces at subdivision steps.
+ *
+ * @param ps1 - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @param ps2 - Another cubic bezier
+ * @param δ - An optional tolerance to within which the t parameter
+ * should be calculated - defaults to the minimum value of 24*Number.EPSILON or
+ * approximately 5e-15. Note that it might not make sense to set this to as
+ * large as say 1e-5 since only a single iteration later the maximum accuracy
+ * will be attained and not much speed will be gained anyway. Similarly if δ is
+ * set to 1e-2 only two iterations will be saved. This is due to the algorithm
+ * being cubically convergent (usually converging in about 4 to 8 iterations for
+ * typical intersections).
+ * @param Δ - A tolerance that indicates how closely a stretch of the
+ * beziers can run together before being considered coincident. Defaults to the
+ * minimum possible value of 1e-6 if not specified.
+ * @returns An array that contains the t-value pairs at intersection
+ * of the first and second beziers respectively. The array can also contain t
+ * range pairs for coincident pieces that can be either used or ignored
+ * depending on the application, e.g. the return value might be [[0.1,0.2],
+ * [0.3,0.5],[[0.4,0.5],[0.6,0.7]]] that indicates intersection points at t
+ * values of t1=0.1 and t2=0.2 for the first and second bezier respectively as
+ * well as at t1=0.3 and t2=0.5 and finally indicates the curves to be nearly
+ * coincident from t1=0.4 to t1=0.5 for the first bezier and t2=0.6 to t=0.7 for
+ * the second bezier.
  */
-
-var MatTree = function MatTree(node) {
-    _classCallCheck(this, MatTree);
-
-    this.startNode = node;
-};
-
-MatTree.traverse = traverse_1.default;
-exports.default = MatTree;
-
-},{"../../mat/functions/traverse":37}],26:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var contact_point_1 = _dereq_("../../mat/classes/contact-point");
-var mat_circle_1 = _dereq_("../../mat/classes/mat-circle");
-var shape_1 = _dereq_("../../geometry/classes/shape");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-var hole_closing_2_prong_1 = _dereq_("../classes/hole-closing-2-prong");
-/**
- * Adds a 2-prong contact circle to the shape.
- *
- * @param shape Shape to add the 2-prong to
- * @param circle Circle containing the 2 contact points
- * @param pos1 - First point on shape
- * @param pos2 - Second point on shape
- * @param delta The boundary piece within which the new contact point should be
- * placed
- */
-function add2Prong(shape, circle, pos1, pos2, holeClosing) {
-    if (holeClosing) {
-        pos1.order2 = 1;
-        pos2.order2 = -1;
+function bezier3Intersection(ps1, ps2, δ, Δ) {
+    // The minimum value Δ can be. If it is too small the algorithm may take too
+    // long in cases where the two curves run extremely close to each other for
+    // their entire length and curve the same direction.
+    var ΔMin = 1e-6;
+    // This is an estimate of the relative floating point error during clipping.
+    // A bound is given by |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k
+    // are the control points indexed by k=0,1,2,3 and η is machine epsilon, 
+    // i.e. Number.EPSILON. We quadruple the bound to be sure.
+    //const δMin = 6*4*Number.EPSILON; 
+    var δMin = 6 * 4 * 8 * Number.EPSILON;
+    // Maximum error - limited to take rounding error into account.
+    if (δ === undefined) {
+        δ = 0;
     }
-    var cp2 = new contact_point_1.default(pos2, undefined);
-    var delta2 = shape_1.default.getNeighbouringPoints(shape, pos2);
-    var cmp3 = delta2[0] === undefined ? undefined : contact_point_1.default.compare(delta2[0].item, cp2);
-    var cmp4 = delta2[1] === undefined ? undefined : contact_point_1.default.compare(cp2, delta2[1].item);
-    if (typeof window !== 'undefined' && window._debug_) {
-        if (cmp3 > 0 || cmp4 > 0) {
-            //console.log(`2-PRONG 2 Order is wrong 2: ${cmp3}, ${cmp4}`);
-        }
+    δ = Math.max(δ, δMin);
+    if (Δ === undefined) {
+        Δ = ΔMin;
     }
-    if (cmp3 === 0 || cmp4 === 0) {
-        // Should not really be possible with hole-closing 2-prongs.
-        return undefined;
-    }
-    var k2 = pos2.bezierNode.loop.indx;
-    var newCp2Node = shape.contactPointsPerLoop[k2].insert(cp2, delta2[0]);
-    var cp1 = new contact_point_1.default(pos1, undefined);
-    var delta1 = shape_1.default.getNeighbouringPoints(shape, pos1);
-    var cmp1 = delta1[0] === undefined ? undefined : contact_point_1.default.compare(delta1[0].item, cp1);
-    var cmp2 = delta1[1] === undefined ? undefined : contact_point_1.default.compare(cp1, delta1[1].item);
-    if (typeof window !== 'undefined' && window._debug_) {
-        if (cmp1 > 0 || cmp2 > 0) {
-            //console.log(`2-PRONG 1 Order is wrong 2: ${cmp1}, ${cmp2}`);
-        }
-    }
-    // If they are so close together, don't add it - there's already 1
-    if (cmp1 === 0 || cmp2 === 0) {
-        // Should not be possible with hole-closing 2-prongs.
-        shape.contactPointsPerLoop[k2].remove(newCp2Node);
-        return undefined;
-    }
-    var k1 = pos1.bezierNode.loop.indx;
-    var newCp1Node = shape.contactPointsPerLoop[k1].insert(cp1, delta1[0]);
-    var matCircle = mat_circle_1.default.create(circle, [newCp1Node, newCp2Node]);
-    newCp1Node.prevOnCircle = newCp2Node;
-    newCp1Node.nextOnCircle = newCp2Node;
-    newCp2Node.prevOnCircle = newCp1Node;
-    newCp2Node.nextOnCircle = newCp1Node;
-    if (holeClosing) {
-        // If hole-closing then we duplicate the 2 contact points
-        // so that we can 'split the loop'.
-        var posA1 = pos2;
-        var posB2 = point_on_shape_1.default.copy(posA1);
-        posB2.order2 = 1;
-        var cpB2 = new contact_point_1.default(posB2, undefined);
-        var newCpB2Node = shape.contactPointsPerLoop[k2].insert(cpB2, newCp2Node);
-        var posA2 = pos1;
-        var posB1 = point_on_shape_1.default.copy(posA2);
-        posB1.order2 = -1;
-        var cpB1 = new contact_point_1.default(posB1, undefined);
-        var newCpB1Node = shape.contactPointsPerLoop[k1].insert(cpB1, newCp1Node.prev);
-        mat_circle_1.default.create(circle, [newCpB1Node, newCpB2Node]);
-        newCpB1Node.prevOnCircle = newCpB2Node;
-        newCpB1Node.nextOnCircle = newCpB2Node;
-        newCpB2Node.prevOnCircle = newCpB1Node;
-        newCpB2Node.nextOnCircle = newCpB1Node;
-        newCp2Node.next = newCp1Node;
-        newCp1Node.prev = newCp2Node;
-        newCpB1Node.next = newCpB2Node;
-        newCpB2Node.prev = newCpB1Node;
-        shape.holeClosers.push(new hole_closing_2_prong_1.default(k1, k2, newCp1Node, newCp2Node, newCpB1Node, newCpB2Node));
-    }
-    if (typeof window !== 'undefined' && window._debug_) {
-        // Add points so when we alt-click shape point is logged.
-        var _debug_ = window._debug_;
-        prepForDebug(newCp1Node, _debug_);
-        prepForDebug(newCp2Node, _debug_);
-    }
-    return;
-}
-function prepForDebug(contactPoint, _debug_) {
-    //---- Prepare debug info for the ContactPoint
-    var cpKey = point_on_shape_1.default.makeSimpleKey(contactPoint.item.pointOnShape.p);
-    var cpHash = _debug_.generated.cpHash;
-    var cpArr = _debug_.generated.cpArr;
-    if (!cpHash[cpKey]) {
-        cpHash[cpKey] = {
-            cp: contactPoint,
-            arrIndx: cpArr.length
-        };
-        cpArr.push(contactPoint);
-    }
-    var cpHashDebugObj = cpHash[cpKey];
-    cpHashDebugObj.visitedPointsArr = cpHashDebugObj.visitedPointsArr || [];
-}
-exports.default = add2Prong;
-
-},{"../../geometry/classes/point-on-shape":9,"../../geometry/classes/shape":10,"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23,"../classes/hole-closing-2-prong":22}],27:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_circle_1 = _dereq_("../../mat/classes/mat-circle");
-var contact_point_1 = _dereq_("../../mat/classes/contact-point");
-/**
- * Adds a 3-prong MAT circle according to the 3 given
- * (previously calculated) points on the shape.
- *
- * @param shape
- * @param circle
- * @param [p1,p2,p3]
- * @param deltas
- * @returns {MatCircle} matCircle
- */
-function add3Prong(shape, threeProng) {
-    var circle = threeProng.circle,
-        ps = threeProng.ps,
-        delta3s = threeProng.delta3s;
-
-    var cps = [0, 1, 2].map(function (i) {
-        return new contact_point_1.default(ps[i], undefined);
-    });
-    if (typeof window !== 'undefined' && window._debug_) {
-        // Keep for possible future debugging.
-        /*
-        for (let i=0; i<3; i++) {
-            let cmpBef = ContactPoint.compare(delta3s[i][0].item, cps[i]);
-            let cmpAft = ContactPoint.compare(delta3s[i][1].item, cps[i]);
-              let len = FloMat._debug_.generated.threeProngs.length-1; // Used by debug functions to reference a particular three-prong
-            if (cmpBef > 0) {
-                console.log(`3-PRONG Order is wrong (bef) : i: ${i} - cmp: ${cmpBef} - n: ${len}`);
-                console.log(threeProng);
-            }
-            if (cmpAft < 0) {
-                console.log(`3-PRONG Order is wrong (aft) : i: ${i} - cmp: ${cmpAft} - n: ${len}`);
-                console.log(threeProng);
-            }
-        }
-        */
-    }
-    var cpNodes = [];
-    for (var i = 0; i < 3; i++) {
-        var pos = ps[i];
-        var k = pos.bezierNode.loop.indx;
-        cpNodes.push(shape.contactPointsPerLoop[k].insert(cps[i], delta3s[i][0]));
-    }
-    var matCircle = mat_circle_1.default.create(circle, cpNodes);
-    var idxsPrev = [2, 0, 1];
-    var idxsNext = [1, 2, 0];
-    for (var _i = 0; _i < 3; _i++) {
-        cpNodes[_i].prevOnCircle = cpNodes[idxsPrev[_i]];
-        cpNodes[_i].nextOnCircle = cpNodes[idxsNext[_i]];
-    }
-    return matCircle;
-}
-exports.default = add3Prong;
-
-},{"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23}],28:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var find_3_prong_1 = _dereq_("./find-3-prong");
-var add_3_prong_1 = _dereq_("./add-3-prong");
-var mat_node_1 = _dereq_("../../mat/classes/mat-node");
-var contact_point_1 = _dereq_("../../mat/classes/contact-point");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-/**
- * Recursively builds the MAT tree.
- *
- * @param {ListNode} cpNodeStart
- * @returns {MatNode}
- */
-function buildMat(shape, cpNodeStart, fromNode, fromCpNode, isRetry) {
-    var visitedPoints = void 0;
-    do {
-        visitedPoints = traverseShape(cpNodeStart);
-        if (typeof window !== 'undefined' && window._debug_) {
-            // Oops - fix
-            // cpHashDebugObj.visitedPointsArr.push(visitedPoints);
-        }
-        if (visitedPoints.length > 2) {
-            findAndAdd3Prong(shape, visitedPoints);
-        }
-    } while (visitedPoints.length > 2);
-    if (cpNodeStart.item.matCircle.cpNodes.length === 1) /*&&
-                                                         (fromCpNode.nextOnCircle === cpNodeStart.next)*/{
-            //console.log('terminal 1-prong');
-            var matNode = createMatNode(cpNodeStart, fromNode ? [fromNode] : []);
-            return matNode;
-        }
-    if (visitedPoints.length === 1) {
-        // Terminating 2-prong - should mostly have been eliminated
-        // by osculating circles and points, but can still occur
-        // due to floating point incaccuracies.
-        // console.log('terminal 2-prong');
-        var _matNode = createMatNode(cpNodeStart, fromNode ? [fromNode] : []);
-        return _matNode;
-    } else if (visitedPoints.length === 2) {
-        var branches = fromNode ? [fromNode] : [];
-        var _matNode2 = createMatNode(cpNodeStart, branches);
-        var cpBranches = cpNodeStart;
-        var i = 0;
-        while (cpBranches.nextOnCircle !== cpNodeStart && cpBranches.next !== cpBranches.nextOnCircle) {
-            i++;
-            var cpNext = void 0;
-            if (i === 1) {
-                cpNext = cpBranches.next;
-                cpNodeStart.item.matCircle.visited++;
-            } else if (i === 2) {
-                // TODO - instead of the commented line below working
-                // perfectly, we must call the few lines below it and
-                // then later call fixMat. WHY!!!??? does the line
-                // below not simply work?
-                // cpNext = cpBranches.next;
-                cpNext = cpBranches;
-                if (cpBranches.item.matCircle.visited !== 1) {
-                    break;
-                }
-            }
-            var bm = buildMat(shape, cpNext, _matNode2, cpBranches, false);
-            branches.push(bm);
-            cpBranches = cpBranches.nextOnCircle;
-        }
-        return _matNode2;
-    }
-}
-function createMatNode(cp, branches) {
-    var matNode = new mat_node_1.default(cp.item.matCircle, branches);
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_ = window._debug_;
-        prepDebugHashes(cp, matNode, _debug_);
-    }
-    return matNode;
-}
-function traverseShape(cpNodeStart) {
-    var visitedPoints = void 0;
-    var cpNode = cpNodeStart;
-    visitedPoints = [];
-    do {
-        //if ()
-        visitedPoints.push(cpNode);
-        var next = cpNode.next;
-        cpNode = next.prevOnCircle; // Take last exit
-    } while (cpNode !== cpNodeStart);
-    return visitedPoints;
-}
-/**
- * Finds and add a 3-prong MAT circle to the given shape. Modifies shape.
- *
- * @param shape
- * @param visitedPoints
- */
-function findAndAdd3Prong(shape, visitedPoints) {
-    /*
-     * visitedPoints.sort(function(a,b) { return
-     * PointOnShape.compare(a.item.pointOnShape,b.item.pointOnShape); });
-     */
-    var deltas = [];
-    for (var i = 0; i < visitedPoints.length; i++) {
-        var visitedPoint = visitedPoints[i];
-        deltas.push([visitedPoint, visitedPoint.next]);
-    }
-    // Check if any deltas are continuous (they should rather be
-    // disjoint). It should be quite safe to consider points 'equal'
-    // if they are within a certain threshold of each other, but is it
-    // necessary? Maybe not.
-    var continuous = false;
-    for (var _i = 0; _i < deltas.length; _i++) {
-        var idxi = _i + 1;
-        if (idxi === deltas.length) {
-            idxi = 0;
-        }
-        var endP = deltas[_i][1].item;
-        var startP = deltas[idxi][0].item;
-        if (contact_point_1.default.equal(endP, startP)) {
-            continuous = true;
-            break;
-        }
-    }
-    if (continuous) {
-        // aaa
-    }
-    var threeProng = find_3_prong_1.default(shape, deltas);
-    for (var _i2 = 0; _i2 < 3; _i2++) {
-        point_on_shape_1.default.setPointOrder(shape, threeProng.circle, threeProng.ps[_i2]);
-    }
-    add_3_prong_1.default(shape, threeProng);
-}
-function prepDebugHashes(cpNodeStart, matNode, _debug_) {
-    // ---- Prepare debug info for the MatCircle
-    var circle = cpNodeStart.item.matCircle.circle;
-    var key = point_on_shape_1.default.makeSimpleKey(circle.center);
-    var nodeHash = _debug_.generated.nodeHash;
-    nodeHash[key] = nodeHash[key] || {};
-    nodeHash[key].matNode = matNode;
-    // ---- Prepare debug info for the ContactPoint
-    var cpKey = point_on_shape_1.default.makeSimpleKey(cpNodeStart.item.pointOnShape.p);
-    var cpHash = _debug_.generated.cpHash;
-    var cpArr = _debug_.generated.cpArr;
-    if (!cpHash[cpKey]) {
-        cpHash[cpKey] = {
-            cp: cpNodeStart,
-            arrIndx: cpArr.length
-        };
-        cpArr.push(cpNodeStart);
-    }
-    var cpHashDebugObj = cpHash[cpKey];
-    cpHashDebugObj.visitedPointsArr = cpHashDebugObj.visitedPointsArr || [];
-}
-exports.default = buildMat;
-
-},{"../../geometry/classes/point-on-shape":9,"../../mat/classes/contact-point":19,"../../mat/classes/mat-node":24,"./add-3-prong":27,"./find-3-prong":31}],29:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_node_1 = _dereq_("../../mat/classes/mat-node");
-var mat_tree_1 = _dereq_("../classes/mat-tree");
-function copyMat(matTree) {
-    return new mat_tree_1.default(mat_node_1.default.copy(matTree.startNode));
-}
-exports.default = copyMat;
-
-},{"../../mat/classes/mat-node":24,"../classes/mat-tree":25}],30:[function(_dereq_,module,exports){
-"use strict";
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var MAX_ITERATIONS = 50;
-//TODO Change tolerances to take shape dimension into 
-// account, e.g. shapeDim / 10000 for SEPERATION_TOLERANCE;
-//CONST SEPERATION_TOLERANCE = 1e-3;
-var SEPERATION_TOLERANCE = 1e-3;
-var SQUARED_SEPERATION_TOLERANCE = SEPERATION_TOLERANCE * SEPERATION_TOLERANCE;
-var _1PRONG_TOLERANCE = 1e-4;
-var SQUARED_1PRONG_TOLERANCE = _1PRONG_TOLERANCE * _1PRONG_TOLERANCE;
-//const ERROR_TOLERANCE = 1e-3;
-var ERROR_TOLERANCE = SEPERATION_TOLERANCE / 10;
-var SQUARED_ERROR_TOLERANCE = ERROR_TOLERANCE * ERROR_TOLERANCE;
-var mat_constants_1 = _dereq_("../../mat-constants");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var circle_1 = _dereq_("../../geometry/classes/circle");
-var geometry_1 = _dereq_("../../geometry/geometry");
-var shape_1 = _dereq_("../../geometry/classes/shape");
-var Point_on_shape_1 = _dereq_("../../geometry/classes/Point-on-shape");
-var contact_point_1 = _dereq_("../../mat/classes/contact-point");
-var mat_circle_1 = _dereq_("../../mat/classes/mat-circle");
-var get_closest_boundary_point_to_point_1 = _dereq_("../../geometry/functions/get-closest-boundary-point-to-point");
-var two_prong_for_debugging_1 = _dereq_("../classes/debug/two-prong-for-debugging");
-/**
- * Adds a 2-prong to the MAT. The first point is given and the second one is
- * found by the algorithm.
- *
- * A 2-prong is a MAT circle that touches the shape at exactly 2 points.
- *
- * Before any 2-prongs are added the entire shape is our δΩ (1-prongs do not
- * reduce the boundary).
- *
- * As per the paper by Choi, Choi, Moon and Wee:
- *   "The starting point of this algorithm is a choice of a circle
- *    Br(x) centered at an interior point x which contains two boundary
- *    portions c and d of d-Omega as in Fig. 19."
- * In fact, we (and they) start by fixing one point on the boundary beforehand.
- *
- * @param shape
- * @param y - The first point of the 2-prong.
- */
-function find2Prong(shape, y, holeClosing) {
-    /* The failed flag is set if a 2-prong cannot be found. This occurs
-     * when the 2 points are too close together and the 2-prong
-     * becomes, in the limit, a 1-prong. We do not want these 2-prongs
-     * as they push the floating point precision limits when finding
-     * their circle center causing too much inaccuracy. Of course, our
-     * entire algorithm's precision is limited by floating point
-     * doubles.
-     */
-    var failed = false;
-    // The first point on the shape of the 2-prong.
-    //let y = pos;
-    var bezierNode = y.bezierNode;
-    var t = y.t;
-    var oCircle = Point_on_shape_1.default.getOsculatingCircle(y);
-    var x = oCircle.center;
-    /*
-     * The shortest distance so far between the first contact point and
-     * the circle center - we require this to get shorter on each
-     * iteration as convergence occurs. If it does not, oscillation
-     * of the algorithm has occured due to floating point inaccuracy
-     * and the algorithm must terminate.
-     */
-    var radius = oCircle.radius;
-    var shortestSquaredDistance = radius * radius;
-    /* The boundary piece that should contain the other point of
-     * the 2-prong circle. (Defined by start and end points).
-     */
-    var δ = void 0;
-    var bezierPieces = void 0;
-    var k = y.bezierNode.loop.indx;
-    if (holeClosing) {
-        bezierPieces = [];
-        for (var k2 = 0; k2 < k; k2++) {
-            var _bezierPieces;
-
-            var pieces = shape_1.default.getBoundaryBeziers(shape, k2);
-            (_bezierPieces = bezierPieces).push.apply(_bezierPieces, _toConsumableArray(pieces));
-        }
-    } else {
-        // TODO - getNeighbouringPoints *can* be eliminated (as with 3-prongs)
-        // by keeping track of boundary piece in which it is being searched 
-        // - not sure if same can be done with hole-closing 2-prongs.
-        var ps = shape_1.default.getNeighbouringPoints(shape, y);
-        δ = [ps[0], ps[0]];
-        if (!ps[0]) {
-            bezierPieces = shape_1.default.getBoundaryBeziers(shape, k);
-        } else {
-            bezierPieces = shape_1.default.getBoundaryPieceBeziers(δ);
-        }
-    }
-    var xs = []; // Trace the convergence.
-    var z = void 0;
-    var squaredError = void 0;
-    var i = 0;
-    do {
-        i++;
-        var r = flo_vector2d_1.default.squaredDistanceBetween(x, y.p);
-        bezierPieces = cullBezierPieces(bezierPieces, x, r);
-        z = get_closest_boundary_point_to_point_1.default(bezierPieces, x, bezierNode, t);
-        if (typeof window !== 'undefined' && window._debug_) {
-            xs.push({ x: x, y: y, z: z, t: t });
-        }
-        var d = flo_vector2d_1.default.squaredDistanceBetween(x, z.p);
-        if (i === 1 && d + SQUARED_1PRONG_TOLERANCE >= r) {
-            // It is a 1-prong.
-            add1Prong(shape, y);
-            return undefined;
-        }
-        var squaredChordDistance = flo_vector2d_1.default.squaredDistanceBetween(y.p, z.p);
-        if (squaredChordDistance <= SQUARED_SEPERATION_TOLERANCE) {
-            failed = true;
-            break;
-        }
-        /*
-         * Find the point on the line connecting y with x that is
-         * equidistant from y and z. This will be our next x.
-         */
-        var nextX = findEquidistantPointOnLine(x, y.p, z.p);
-        squaredError = flo_vector2d_1.default.squaredDistanceBetween(x, nextX);
-        /*
-         * Prevent oscillation of calculated x (due to floating point
-         * inaccuracies). See comment above decleration of
-         * shortestSquaredDistance.
-         */
-        var squaredDistance = flo_vector2d_1.default.squaredDistanceBetween(y.p, nextX);
-        if (squaredDistance < shortestSquaredDistance) {
-            shortestSquaredDistance = squaredDistance;
-        } else {
-            //failed = true;
-            //break;
-        }
-        x = nextX;
-    } while (squaredError > SQUARED_ERROR_TOLERANCE && i < MAX_ITERATIONS);
-    if (typeof window !== 'undefined' && window._debug_) {
-        xs.push({ x: x, y: y, z: z, t: t });
-    }
-    if (i === MAX_ITERATIONS) {
-        // This is simply a case of convergence being too slow. The
-        // gecko, for example, takes a max of 21 iterations.
-        //console.log('max')
-        failed = true;
-    }
-    var circle = new circle_1.default(x, flo_vector2d_1.default.distanceBetween(x, z.p));
-    Point_on_shape_1.default.setPointOrder(shape, circle, y);
-    Point_on_shape_1.default.setPointOrder(shape, circle, z);
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_ = window._debug_;
-        recordForDebugging(failed, y, circle, y.p, z.p, δ, xs, holeClosing, _debug_);
-    }
-    if (failed) {
-        //console.log('failed');
-        return undefined;
-    }
-    return { circle: circle, z: z };
-}
-function add1Prong(shape, pos) {
-    if (pos.type === mat_constants_1.default.pointType.dull) {
-        // This is a 1-prong at a dull corner.
-        /* TODO IMPORTANT remove this line, uncomment piece below
-         * it and implement the following strategy to find the
-         * 3-prongs: if deltas are conjoined due to dull corner,
-         * split the conjoinment by inserting successively closer
-         * (binary division) 2-prongs. If a 2-prong actually fails,
-         * simply remove the 1-prong at the dull corner.
-         *
-         * In this way **all** terminal points are found, e.g.
-         * zoom in on top left leg of ant.
-         */
-        //console.log(posNode);
-        //toRemove.push(posNode); /* this */
-        if (typeof window !== 'undefined' && window._debug_) {
-            var _debug_ = window._debug_;
-            // TODO - why would it be NaN in some cases?
-            var oCircle = Point_on_shape_1.default.getOsculatingCircle(pos);
-            if (!Number.isNaN(oCircle.center[0])) {
-                _debug_.generated.oneProngsAtDullCorner.push({ pos: pos });
-            }
-        }
-        return;
-    }
-    var cp = new contact_point_1.default(pos, undefined);
-    var delta = shape_1.default.getNeighbouringPoints(shape, pos);
-    //let cmp1 = ContactPoint.compare(delta[0].item, cp);
-    //let cmp2 = ContactPoint.compare(cp, delta[1].item);
-    var cmp1 = delta[0] === undefined ? undefined : contact_point_1.default.compare(delta[0].item, cp);
-    var cmp2 = delta[1] === undefined ? undefined : contact_point_1.default.compare(cp, delta[1].item);
-    if (typeof window !== 'undefined' && window._debug_) {
-        if (cmp1 > 0 || cmp2 > 0) {
-            //console.log(`1-PRONG Order is wrong: ${cmp1}, ${cmp2}`);
-        }
-    }
-    // If they are so close together, don't add it - there's already 1
-    if (cmp1 === 0 || cmp2 === 0) {
-        return;
-    }
-    var k = pos.bezierNode.loop.indx;
-    var newCpNode = shape.contactPointsPerLoop[k].insert(cp, delta[0]);
-    var matCircle = mat_circle_1.default.create(
-    //pos.osculatingCircle,
-    Point_on_shape_1.default.getOsculatingCircle(pos), [newCpNode]);
-    newCpNode.prevOnCircle = newCpNode; // Trivial loop
-    newCpNode.nextOnCircle = newCpNode; // ...
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_2 = window._debug_;
-        _debug_2.generated.oneProngs.push({ pos: pos });
-    }
-    return;
-}
-function recordForDebugging(failed, pos, circle, y, z, δ, xs, holeClosing, _debug_) {
-    var twoProngForDebugging = new two_prong_for_debugging_1.default(pos, δ, y, z, circle.center, circle, xs, failed, holeClosing);
-    _debug_.generated.twoProngs.push(twoProngForDebugging);
-}
-/**
- * Cull all bezierPieces not within given radius of a given point.
- *
- * @param {BezierPieces[]} bezierPieces
- * @param {number[]} p
- * @param {number} r
- * @returns {BezierPieces[]}
- */
-function cullBezierPieces(bezierPieces, p, rSquared) {
-    var CULL_THRESHOLD = 5;
-    if (bezierPieces.length <= CULL_THRESHOLD) {
-        return bezierPieces;
-    }
-    var newPieces = [];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = bezierPieces[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var bezierPiece = _step.value;
-
-            var ps = bezierPiece.bezierNode.item.bezier3;
-            var rect = flo_bezier3_1.default.getBoundingBox(ps);
-            var bd = geometry_1.default.getClosestSquareDistanceToRect(rect, p);
-            if (bd <= rSquared + 0.1 /* Make this in relation to shape extents! <- No! Do proper error analysis */) {
-                    newPieces.push(bezierPiece);
-                }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return newPieces;
-}
-/**
- *
- * @param x
- * @param y
- * @param z
- * @returns The point on the line from y to x that is equidistant from
- *          y and z.
- *
- * Notes: It is important that this function is numerically stable,
- * but this has not been investigated properly yet.
- */
-function findEquidistantPointOnLine(x, y, z) {
-    // Some basic algebra (not shown) finds the required point.
-    // Swap axis if x and y are more aligned to y-axis than to x-axis.
-    var swapAxes = Math.abs((x[1] - y[1]) / (x[0] - y[0])) > 1;
-    // Cache
-    var x1 = void 0,
-        x2 = void 0,
-        y1 = void 0,
-        y2 = void 0,
-        z1 = void 0,
-        z2 = void 0;
-    if (swapAxes) {
-        x1 = x[1];
-        x2 = x[0];
-        y1 = y[1];
-        y2 = y[0];
-        z1 = z[1];
-        z2 = z[0];
-    } else {
-        x1 = x[0];
-        x2 = x[1];
-        y1 = y[0];
-        y2 = y[1];
-        z1 = z[0];
-        z2 = z[1];
-    }
-    // a <= 1 (due to swapped axes)
-    var a = (x2 - y2) / (x1 - y1);
-    var b = y2 - a * y1;
-    var c = y1 * y1 + y2 * y2 - z1 * z1 - z2 * z2 + 2 * b * (z2 - y2);
-    var d = y1 - z1 + a * (y2 - z2);
-    var t1 = c / (2 * d);
-    var t2 = a * t1 + b;
-    return swapAxes ? [t2, t1] : [t1, t2];
-}
-exports.default = find2Prong;
-
-},{"../../geometry/classes/Point-on-shape":3,"../../geometry/classes/circle":6,"../../geometry/classes/shape":10,"../../geometry/functions/get-closest-boundary-point-to-point":13,"../../geometry/geometry":15,"../../mat-constants":18,"../../mat/classes/contact-point":19,"../../mat/classes/mat-circle":23,"../classes/debug/two-prong-for-debugging":21,"flo-bezier3":40,"flo-vector2d":56}],31:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var circle_1 = _dereq_("../../geometry/classes/circle");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-var shape_1 = _dereq_("../../geometry/classes/shape");
-var get_closest_boundary_point_to_point_1 = _dereq_("../../geometry/functions/get-closest-boundary-point-to-point");
-var three_prong_for_debugging_1 = _dereq_("../classes/debug/three-prong-for-debugging");
-/**
- * Look for a 3-prong from the given walked boundary piece.
- *
- * @param shape
- * @param δs
- *
- */
-function find3Prong(shape, δs) {
-    var bezierPiecess = δs.map(function (δ) {
-        return shape_1.default.getBoundaryPieceBeziers(δ);
-    });
-    var candidateThreeProngs = [];
-    // The best candidate amongst the different 'permutations' of the given δs.
-    var threeProng = void 0;
-    var bestIndx = undefined;
-    var smallestError = Number.POSITIVE_INFINITY;
-    for (var i = 1; i < δs.length - 1; i++) {
-        var _find3ProngForDelta3s = find3ProngForDelta3s(shape, δs, i, bezierPiecess),
-            circle = _find3ProngForDelta3s.circle,
-            ps = _find3ProngForDelta3s.ps,
-            error = _find3ProngForDelta3s.error;
-
-        if (typeof window !== 'undefined' && window._debug_) {
-            var _debug_ = window._debug_;
-            candidateThreeProngs.push({ circle: circle, ps: ps });
-        }
-        if (error < smallestError) {
-            smallestError = error;
-            bestIndx = i - 1;
-            threeProng = { circle: circle, ps: ps, delta3s: undefined };
-        }
-    }
-    //-------------------------------------
-    //---- Add some additional properties
-    //-------------------------------------
-    var delta3s = [δs[0], δs[bestIndx + 1], δs[δs.length - 1]];
-    threeProng.delta3s = delta3s;
-    //-------------------------------------
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_2 = window._debug_;
-        var threeProngForDebugging = new three_prong_for_debugging_1.default(threeProng, δs, bestIndx, candidateThreeProngs);
-        _debug_2.generated.threeProngs.push(threeProngForDebugging);
-    }
-    return threeProng;
-}
-/**
- * Finds a 3-prong using only the 3 given delta's.
- *
- * @param i - Specific delta indx.
- * @returns {Object}
- */
-function find3ProngForDelta3s(shape, deltas, idx, bezierPiecess) {
-    // TODO - Choose a tolerance relative to shape size.
-    var TOLERANCE = 1e-7;
-    var delta3s = [deltas[0], deltas[idx], deltas[deltas.length - 1]];
-    var bezierPiece3s = [bezierPiecess[0], bezierPiecess[idx], bezierPiecess[deltas.length - 1]];
-    var ps = void 0;
-    var circumCenter = void 0;
-    var ii = 0; // Safeguard
-    var x = calcInitial3ProngPoint(shape, delta3s, bezierPiece3s);
-    var tolerance = Number.POSITIVE_INFINITY;
-    // TODO 10 below is magic, fix or add somewhere as a constant
-    while (tolerance > TOLERANCE && ii < 10) {
-        ii++;
-        ps = getClosestPoints(x, bezierPiece3s);
-        circumCenter = flo_vector2d_1.default.circumCenter(ps.map(function (x) {
-            return x.p;
-        }));
-        var vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter);
-        var upds = calcBetterX(bezierPiece3s, x, vectorToZeroV);
-        x = upds.newX;
-        var V = flo_vector2d_1.default.len(vectorToZeroV);
-        ps = upds.newPs;
-        tolerance = Math.abs(V - upds.newV);
-    }
-    var radius = (flo_vector2d_1.default.distanceBetween(x, ps[0].p) + flo_vector2d_1.default.distanceBetween(x, ps[1].p) + flo_vector2d_1.default.distanceBetween(x, ps[2].p)) / 3;
-    var circle = new circle_1.default(x, radius);
-    //-----------------------------------------------------------------
-    // Calculate the unit tangent vector at 3-prong circle points -
-    // they should be very close to tangent to the boundary piece 
-    // tangents at those points (up to sign). Sharp corners are a
-    // common special case.
-    //-----------------------------------------------------------------
-    var totalAngleError = 0;
-    for (var i = 0; i < 3; i++) {
-        var p = ps[i];
-        //----------------------------
-        // Tangent of circle at point
-        //----------------------------
-        var vv = flo_vector2d_1.default.toUnitVector(flo_vector2d_1.default.fromTo(p.p, x));
-        var v1 = flo_vector2d_1.default.rotate90Degrees(vv);
-        //-----------------------------------
-        // Check if point is on dull crorner
-        //-----------------------------------
-        var key = point_on_shape_1.default.makeSimpleKey(p.p);
-        var dullCorner = shape.dullCornerHash[key];
-        if (dullCorner) {
-            //if (FloMat._debug_ && FloMat._debug_.log) { console.log(dullCorner); }
-            var tans = dullCorner.tans;
-            var perps = tans.map(flo_vector2d_1.default.rotate90Degrees);
-            if (typeof window !== 'undefined' && window._debug_) {
-                var _debug_ = window._debug_;
-                if (_debug_.log) {
-                    /*
-                    FloMat._debug_.fs.draw.line(
-                            [p, Vector.translate(p, perps[0])],
-                            'thin10 red'
-                    );
-                    FloMat._debug_.fs.draw.line(
-                            [p, Vector.translate(p, perps[1])],
-                            'thin10 red'
-                    );
-                    */
-                    // The below must be elem [0,1].
-                    //console.log(Vector.cross( perps[0], perps[1] )); 
-                }
-            }
-            var angleError1Pre = flo_vector2d_1.default.cross(perps[0], vv);
-            var angleError2Pre = flo_vector2d_1.default.cross(vv, perps[1]);
-            var angleError1 = Math.asin(angleError1Pre);
-            var angleError2 = Math.asin(angleError2Pre);
-            var angleError = 0;
-            if (angleError1 > 0) {
-                angleError += angleError1;
-            }
-            if (angleError2 > 0) {
-                angleError += angleError2;
-            }
-            totalAngleError += angleError;
-        } else {
-            //---------------------------
-            // Tangent of curve at point
-            //---------------------------
-            var _ps = p.bezierNode.item.bezier3;
-            var v2 = flo_vector2d_1.default.toUnitVector(flo_bezier3_1.default.tangent(_ps)(p.t));
-            // Cross is more numerically stable than Vector.dot at angles
-            // a multiple of Math.PI **and** is close to the actual angle
-            // value and can thus just be added to cone method of looking
-            // at tolerance.
-            // Should be close to zero and is close to the actual angle.
-            var cross = Math.abs(Math.asin(flo_vector2d_1.default.cross(v1, v2)));
-            totalAngleError += cross;
-        }
-    }
-    //if (FloMat._debug_ && FloMat._debug_.log) { console.log(totalAngleError); }
-    //-----------------------------------------------------------------
-    // Calculate radiusDelta, the difference between the radius and 
-    // the closest point to the 3-prong. It should be around 0. If not,
-    // this is not a good candidate for the 3-prong.
-    //-----------------------------------------------------------------
-    var closestDs = [];
-    for (var _i = 0; _i < bezierPiecess.length; _i++) {
-        var _p = get_closest_boundary_point_to_point_1.default(bezierPiecess[_i], x, undefined, undefined // TODO - bug: we must provide a t value and the
-        // parameter order of the last 2 parameters of this function
-        // should be swapped. Consider the consequences of leaving this
-        // bug unchecked.
+    Δ = Math.max(Δ, ΔMin);
+    var flip = 0;
+    // Intersection t values for both beziers
+    var tss = [];
+    var kk = 0;
+    if (typeof _bez_debug_ !== 'undefined') {
+        _bez_debug_.generated.elems.beziers.push([ps1, ps2]);
+        _bez_debug_.generated.elems.fatLine.push(new fat_line_1.FatLine([[0, 0], [1e-10, 1e-10]], 0, 0) // unused
         );
-        closestDs.push(flo_vector2d_1.default.distanceBetween(_p.p, x));
     }
-    var closestD = Math.min.apply(Math, closestDs);
-    var radiusDelta = Math.abs(radius - closestD);
-    //if (FloMat._debug_ && FloMat._debug_.log) { console.log(radiusDelta); }
-    //if (FloMat._debug_ && FloMat._debug_.log) { console.log('---------------------'); }
-    //-----------------------------------------------------------------
-    // TODO Weights still need to be determined
-    var W1 = 1;
-    var W2 = 1;
-    var error = W1 * radiusDelta + W2 * totalAngleError;
-    return { ps: ps, circle: circle, error: error };
-}
-var calcVectorToZeroV_StraightToIt = flo_vector2d_1.default.fromTo;
-// This function is currently unused
-/*
-function calcVectorToZeroV_AlongMedial(
-        circleCenter: number[],
-        ps: number[][]) {
+    var stack = [];
+    stack.push({ ps1: ps1, ps2: ps2, tRange1: [0, 1], tRange2: [0, 1], idx: 1 });
+    while (stack.length !== 0) {
+        var toCheck = stack.pop();
+        var _ps = toCheck.ps1,
+            _ps2 = toCheck.ps2,
+            tRange1 = toCheck.tRange1,
+            tRange2 = toCheck.tRange2,
+            idx = toCheck.idx;
 
-    let v1 = Vector.fromTo(ps[0], ps[2]);
-    let v2 = [-v1[1], v1[0]]; // Rotate by 90 degrees
-    let l1 = Vector.len(Vector.fromTo(x, circleCenter));
-    let v3 = Vector.toUnitVector(v2);
-    let v4 = Vector.scale(v3, l1);
-    /*
-    if (typeof FloMat !== 'undefined' && FloMat._debug_ && !FloMat._debug_.config.isTiming) {
-        FloMat._debug_.fs.draw.line([x, Vector.translate(x,vectorToZeroV)], 'thin10 red');
-        FloMat._debug_.fs.draw.line([x, Vector.translate(x,v4)], 'thin10 blue');
+        f(_ps, _ps2, tRange1, tRange2, idx);
     }
-    */ /*
-       return v4;
-       }
-       */
-/**
- * Find new x and ps that are a better estimate of the 3-prong
- * circle.
- *
- * The potential function, V, is defined as the distance to the
- * actual 3 prong circle center.
- */
-function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
-    var V = flo_vector2d_1.default.len(vectorToZeroV);
-    var nu = 1;
-    var better = void 0;
-    var newX = void 0;
-    var newPs = void 0;
-    var newV = void 0;
-    var i = 0; // Safeguard
-    do {
-        var shift = flo_vector2d_1.default.scale(vectorToZeroV, nu);
-        newX = flo_vector2d_1.default.translate(shift, x);
-        newPs = getClosestPoints(newX, bezierPiece3s);
-        // Point of zero V
-        var newCircleCenter = flo_vector2d_1.default.circumCenter(newPs.map(function (x) {
-            return x.p;
-        }));
-        var newVectorToZeroV = flo_vector2d_1.default.fromTo(newX, newCircleCenter);
-        newV = flo_vector2d_1.default.len(newVectorToZeroV);
-        better = newV < V;
-        nu = nu / 2;
-        i++;
-    } while (!better && i < 3);
-    return { newX: newX, newV: newV, newPs: newPs };
-}
-/**
- * Finds an initial 3-prong circle center point from which to iterate.
- * The point must be within the shape.
- *
- * @param delta3s - The three boundary pieces of which we need to find the three
- * 3-prong points.
- */
-function calcInitial3ProngPoint(shape, delta3s, bezierPiece3s) {
-    // TODO - No need to calculate, we already have this info somewhere.
-    var twoProngCircleCenter = flo_vector2d_1.default.mean([delta3s[0][0].item.pointOnShape.p, delta3s[2][1].item.pointOnShape.p]);
-    var point1 = get_closest_boundary_point_to_point_1.default(bezierPiece3s[1], twoProngCircleCenter, undefined, // bezierNode
-    undefined // t
-    );
-    var meanPoints = [delta3s[0][0].item.pointOnShape.p,
-    //Vector.mean([delta3s[1][0].item, delta3s[1][1].item]),
-    point1.p, delta3s[2][1].item.pointOnShape.p];
-    var p = void 0;
-    if (delta3s[0][0].item.pointOnShape.type === mat_constants_1.default.pointType.sharp) {
-        // delta3s start and end at sharp corner. If delta3s start at a sharp 
-        // corner it will end there also so no need to check for end point as 
-        // well.
-        p = flo_vector2d_1.default.mean([meanPoints[0], meanPoints[1]]);
-    } else {
-        p = flo_vector2d_1.default.circumCenter(meanPoints);
-    }
-    if (!Number.isFinite(p[0])) {
-        if (typeof window !== 'undefined' && window._debug_) {
-            // TODO - check why this actuall happens sometimes
-            //console.log(FloMat._debug_.pointsToNiceStr(meanPoints));
-            //console.log(FloMat._debug_.deltasToNiceStr(delta3s));
-            //console.log(p, meanPoints);
-        }
-    }
-    if (!Number.isFinite(p[0])) {
-        var sames = whichNotSame(meanPoints);
-        return flo_vector2d_1.default.mean([meanPoints[sames[0]], meanPoints[sames[1]]]);
-    }
-    return p;
-}
-function whichNotSame(ps) {
-    if (ps[0][0] === ps[1][0] && ps[0][1] === ps[1][1]) {
-        return [0, 2];
-    } else if (ps[1][0] === ps[2][0] && ps[1][1] === ps[2][1]) {
-        return [0, 2];
-    } else if (ps[2][0] === ps[0][0] && ps[2][1] === ps[0][1]) {
-        return [1, 2];
-    }
-    ;
-    return [];
-}
-function getClosestPoints(x, bezierPiece3s) {
-    return bezierPiece3s.map(function (bezierPieces) {
-        var p = get_closest_boundary_point_to_point_1.default(bezierPieces, x, undefined, // bezierNode
-        undefined // t
-        );
-        return p;
-    });
-}
-exports.default = find3Prong;
-
-},{"../../geometry/classes/circle":6,"../../geometry/classes/point-on-shape":9,"../../geometry/classes/shape":10,"../../geometry/functions/get-closest-boundary-point-to-point":13,"../../mat-constants":18,"../classes/debug/three-prong-for-debugging":20,"flo-bezier3":40,"flo-vector2d":56}],32:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var mat_tree_1 = _dereq_("../classes/mat-tree");
-var circle_1 = _dereq_("../../geometry/classes/circle");
-var Point_on_shape_1 = _dereq_("../../geometry/classes/Point-on-shape");
-var add_2_prong_1 = _dereq_("./add-2-prong");
-var find_2_prong_1 = _dereq_("./find-2-prong");
-var build_mat_1 = _dereq_("./build-mat");
-/**
- * Find the MAT from the given Shape.
- * @param shape
- */
-function findMat(shape) {
-    findAndAddHoleClosing2Prongs(shape);
-    findAndAdd2ProngsOnAllPaths(shape);
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_ = window._debug_;
-        _debug_.generated.timing.after2Prongs = performance.now();
-    }
-    //---- Connect the n-prong centers and add the 3-prongs.
-    var contactPoints = shape.contactPointsPerLoop[0];
-    var cpNode = contactPoints.head;
-    do {
-        if (cpNode.item.matCircle.cpNodes.length === 2 && !(cpNode.next.prevOnCircle === cpNode)) {
-            break;
-        }
-        cpNode = cpNode.next;
-    } while (cpNode !== contactPoints.head);
-    var cptest = cpNode.prevOnCircle;
-    var branchForth = build_mat_1.default(shape, cptest, undefined, undefined, false);
-    var branchBack = build_mat_1.default(shape, cptest.prevOnCircle, undefined, undefined, false);
-    branchForth.branches.push(branchBack.branches[0]);
-    branchBack.branches[0].branches[0] = branchForth;
-    var mat = new mat_tree_1.default(branchForth);
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_2 = window._debug_;
-        _debug_2.generated.timing.after3Prongs = performance.now();
-    }
-    return fixMat(mat);
-}
-/**
- * Finds and adds two-prongs that removes any holes in the shape.
- * @param {Shape} shape
- * @returns {undefined}
- */
-function findAndAddHoleClosing2Prongs(shape) {
-    var extremes = shape.extremes;
-    for (var k = 1; k < extremes.length; k++) {
-        var extreme = extremes[k];
-        var r = mat_constants_1.default.maxOsculatingCircleRadius;
-        var p = [extreme.p[0], extreme.p[1] - r];
-        var osculatingCircle = new circle_1.default(p, r);
-        var posA2 = new Point_on_shape_1.default(extreme.bezierNode, extreme.t, mat_constants_1.default.pointType.extreme, 0, //order 
-        0);
-        // A normal traversal should give (cyclically) A1->A2->B1->B2
-        var twoProngInfo = find_2_prong_1.default(shape, posA2, true);
-        var circle = twoProngInfo.circle,
-            z = twoProngInfo.z;
-
-        var posA1 = z;
-        var key = Point_on_shape_1.default.makeSimpleKey(posA2.p);
-        if (shape.straightUpHash[key]) {
-            // Skip these when doing normal 2-prong procedure.
-            shape.skip2ProngHash[key] = posA2;
-        }
-        add_2_prong_1.default(shape, circle, posA2, posA1, true);
-    }
-}
-/**
- * Add 2 prongs.
- *
- * See comments on the add2Prong function.
- */
-function findAndAdd2ProngsOnAllPaths(shape) {
-    var for2ProngsArray = shape.for2ProngsArray;
-    for (var k = 0; k < for2ProngsArray.length; k++) {
-        var for2Prongs = for2ProngsArray[k];
-        findAndAdd2Prongs(shape, k, for2Prongs);
-    }
-}
-function findAndAdd2Prongs(shape, k, for2Prongs) {
-    var len = for2Prongs.length;
-    //let index = indexInterlaced(len); // Keep for debuggin.
-    var index = indexLinear(len);
-    for (var i = 0; i < len; i++) {
-        var posNode = for2Prongs[index[i]];
-        var pos = posNode.item;
-        var key = Point_on_shape_1.default.makeSimpleKey(pos.p);
-        if (shape.skip2ProngHash[key]) {
-            continue;
-        }
-        var twoProngInfo = find_2_prong_1.default(shape, pos, false);
-        if (twoProngInfo) {
-            var circle = twoProngInfo.circle,
-                z = twoProngInfo.z;
-
-            add_2_prong_1.default(shape, circle, pos, z, false);
-        } else {
-            // failed
-        }
-    }
-    /*
-     * Don't delete - keep for future debugging.
-     * Check if point orders follow each other - they absolutely must.
-     */
-    /*
-    if (typeof FloMat !== 'undefined' && FloMat._debug_) {
-        let contactPoints = shape.contactPointsPerLoop[k];
-        let cpNode = contactPoints.head;
-        let first = true;
-        let prev = undefined;
-        do {
-            if (first) {
-                first = false;
-                prev = cpNode.item;
-                cpNode = cpNode.next;
-                continue;
-            }
-        
-            let cmp = ContactPoint.compare(prev, cpNode.item);
-            if (cmp >= 0) {
-                console.log(cmp);
-            }
-            
-            prev = cpNode.item;
-            cpNode = cpNode.next;
-        } while (cpNode !== contactPoints.head);
-    }
-    */
-}
-/**
- * This is unfortunately currently required since I can't get the buildMat
- * recursive algorithm right on the first pass.
- * @param mat
- */
-function fixMat(mat) {
-    f(mat.startNode, undefined);
-    function f(matNode, priorNode) {
-        if (matNode.branches.length === 3 && matNode.branches[2].matCircle === matNode.matCircle) {
-            var firstRight = matNode.branches[2];
-            var secondRight = firstRight.branches[1];
-            matNode.branches[2] = secondRight;
-            secondRight.branches[0] = matNode;
-        }
+    //f(ps1, ps2, [0,1], [0,1], 1);
+    if (typeof _bez_debug_ !== 'undefined') {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
 
         try {
-            for (var _iterator = matNode.branches[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var node = _step.value;
+            for (var _iterator = tss[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var ts = _step.value;
 
-                if (node === priorNode) {
-                    // Don't go back in tracks.
-                    continue;
-                }
-                f(node, matNode);
+                _bez_debug_.generated.elems.intersection.push(evaluate_1.evaluate(ps1, ts[0]));
             }
         } catch (err) {
             _didIteratorError = true;
@@ -4203,1962 +1107,527 @@ function fixMat(mat) {
             }
         }
     }
-    return mat;
-}
-/**
- * Creates a kind of interlaced index vector, e.g. TODO
- *
- * @param n
- * @returns {number[]}
- */
-/*
-function indexInterlaced(n) {
-    
-    let arr = [];
-    helper(0, n, arr);
-    
-    return arr;
-    
-    function helper(start, end) {
-        
-        if (end === start) {
-            return;
+    return tss;
+    // Helper function
+    function f(Q_, P_, qRange, pRange, idx) {
+        var cidx = idx === 0 ? 1 : 0; // Counter flip-flop index
+        // Move intersection toward the origin to prevent floating point issues
+        // that are introduced specifically by the getLineEquation function. 
+        // This allows us to get a relative error in the final result usually in 
+        // the 10 ULPS or less range.
+        //let [mx, my] = cc(P_, Q_); // TODO - REMOVE! JUST FOR TESTING
+
+        var _center_1$center = center_1.center(P_, Q_);
+
+        var _center_1$center2 = _slicedToArray(_center_1$center, 2);
+
+        P_ = _center_1$center2[0];
+        Q_ = _center_1$center2[1];
+
+        if (typeof _bez_debug_ !== 'undefined') {
+            _bez_debug_.generated.elems.beziers.push([P_, Q_]);
         }
-        
-        if ((end - start) === 1) {
-            arr.push(start);
-            return;
+
+        var _Q_ = Q_,
+            _Q_2 = _slicedToArray(_Q_, 4),
+            Q0 = _Q_2[0],
+            Q3 = _Q_2[3];
+        // Get the implict line equation for the line defined by the first and 
+        // last control point of Q. This equation gives the distance between any 
+        // point and the line.
+
+
+        var dQ = void 0;
+        var dMin = void 0;
+        var dMax = void 0;
+        flip++;
+        var doA = flip === 1 || flip === 2;
+        if (flip === 4) {
+            flip = 0;
         }
-        
-        
-        let halfway = start + Math.floor((end-start) / 2);
-        
-        arr.push(halfway);
-        helper(start, halfway);
-        helper(halfway+1, end);
-    }
-}
-*/
-function indexInterlaced(n) {
-    var source = {};
-    var arr = [];
-    // l <=> the lowest power of 2 so that 2^l > n
-    var l = Math.pow(2, Math.floor(Math.log2(n)));
-    while (l >= 1) {
-        var k = 0;
-        while (k < n) {
-            if (!source[k]) {
-                arr.push(k);
-                source[k] = true;
+        //if (doA) {
+        dQ = get_distance_to_line_function_1.getDistanceToLineFunction([Q0, Q3]);
+        // Calculate the distance from the control points of Q to the line 
+        var dQi = function dQi(i) {
+            return dQ(Q_[i]);
+        };
+
+        var _map = [1, 2].map(dQi),
+            _map2 = _slicedToArray(_map, 2),
+            dQ1 = _map2[0],
+            dQ2 = _map2[1];
+        // Calculate the fat line of Q.
+
+
+        var C = dQ1 * dQ2 > 0 ? 3 / 4 : 4 / 9;
+        dMin = C * Math.min(0, dQ1, dQ2);
+        dMax = C * Math.max(0, dQ1, dQ2);
+        if (typeof _bez_debug_ !== 'undefined') {
+            _bez_debug_.generated.elems.fatLine.push(new fat_line_1.FatLine([Q0, Q3], dMin, dMax));
+        }
+        /*} else if (!doA) {
+            
+            let mid = [(Q0[0] + Q3[0]) / 2, (Q0[1] + Q3[1]) / 2];
+            // Rotate line [Q0,Q3]
+            let l_ = [[-Q0[1], Q0[0]], [-Q3[1], Q3[0]]];
+              let v = [l_[1][0] - l_[0][0], l_[1][1] - l_[0][1]];
+            let l = [
+                [mid[0], mid[1]],
+                [mid[0] + v[0], mid[1] + v[1]]
+            ];
+            dQ = getDistanceToLineFunction(l);
+              // Calculate the distance from the control points of Q to the line
+            let dQi = (i: number) => dQ(Q_[i]);
+            let dQs = [0,1,2,3].map(dQi);
+            let [dQ0,dQ1,dQ2,dQ3] = dQs;
+              // Calculate the fat line of Q.
+            dMin = Math.min(0,dQ0,dQ1,dQ2,dQ3);
+            dMax = Math.max(0,dQ0,dQ1,dQ2,dQ3);
+              //console.log(dMin, dMax)
+            if (typeof _bez_debug_ !== 'undefined') {
+                _bez_debug_.generated.elems.fatLine.push(
+                    new FatLine(l, dMin, dMax)
+                );
             }
-            k = k + l;
+        }*/
+
+        var _geo_clip_1$geoClip = geo_clip_1.geoClip(P_, dQ, dMin, dMax),
+            tMin = _geo_clip_1$geoClip.tMin,
+            tMax = _geo_clip_1$geoClip.tMax;
+
+        if (tMin === Number.POSITIVE_INFINITY) {
+            return; // No intersection
         }
-        l = l / 2;
+        // The paper calls for a heuristic that if less than 30% will be
+        // clipped, rather split the longest curve and find intersections in the
+        // two halfs seperately.
+        if (tMax - tMin > 0.7) {
+            // Some length measure
+            var pSpan = pRange[1] - pRange[0];
+            var qSpan = qRange[1] - qRange[0];
+            var pq = coincident_1.coincident(P_, Q_);
+            if (pq !== undefined) {
+                return;
+            }
+            // Split the curve in half
+            if (pSpan <= qSpan) {
+                cidx = idx;
+                var _ref = [Q_, P_];
+                P_ = _ref[0];
+                Q_ = _ref[1];
+                var _ref2 = [qRange, pRange];
+                pRange = _ref2[0];
+                qRange = _ref2[1];
+            }
+            // Update t range.
+            var _span = pRange[1] - pRange[0];
+            // 1st half
+            var tMinA = pRange[0];
+            var tMaxA = tMinA + _span / 2;
+            // 2nd half
+            var tMinB = tMaxA;
+            var tMaxB = pRange[1];
+            var A = from_to_1.fromTo(P_)(0, 0.5);
+            var B = from_to_1.fromTo(P_)(0.5, 1);
+            stack.push({ ps1: A, ps2: Q_, tRange1: [tMinA, tMaxA], tRange2: qRange, idx: cidx });
+            stack.push({ ps1: B, ps2: Q_, tRange1: [tMinB, tMaxB], tRange2: qRange, idx: cidx });
+            //f(A, Q_, [tMinA, tMaxA], qRange, cidx);
+            //f(B, Q_, [tMinB, tMaxB], qRange, cidx);
+            return;
+        }
+        // Update t range.
+        var span = pRange[1] - pRange[0];
+        var tMin_ = tMin * span + pRange[0];
+        var tMax_ = tMax * span + pRange[0];
+        // Clip
+        P_ = from_to_1.fromTo(P_)(tMin, tMax);
+        if (Math.abs(tMax_ - tMin_) < δ) {
+            var t1 = (tMax_ + tMin_) / 2;
+            var _pq = idx === 0 ? [ps1, ps2] : [ps2, ps1];
+            var t2 = calc_other_t_1.calcOtherT(t1, _pq[0], _pq[1]);
+            if (t2 === undefined) {
+                return undefined;
+            }
+            var _ts = idx === 0 ? [t1, t2] : [t2, t1];
+            tss.push(_ts);
+            return;
+        }
+        // Swap Q and P and iterate.
+        stack.push({ ps1: P_, ps2: Q_, tRange1: [tMin_, tMax_], tRange2: qRange, idx: cidx });
+        //f(P_, Q_, [tMin_,tMax_], qRange, cidx);
     }
-    return arr;
 }
-/**
- * Simple linear array indexing.
- * @param n
- * @returns {number[]}
- */
-function indexLinear(n) {
-    var arr = [];
-    for (var i = 0; i < n; i++) {
-        arr.push(i);
-    }
-    return arr;
-}
-exports.default = findMat;
+exports.bezier3Intersection = bezier3Intersection;
 
-},{"../../geometry/classes/Point-on-shape":3,"../../geometry/classes/circle":6,"../../mat-constants":18,"../classes/mat-tree":25,"./add-2-prong":26,"./build-mat":28,"./find-2-prong":30}],33:[function(_dereq_,module,exports){
-"use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
-var traverse_1 = _dereq_("./traverse");
-/**
- * Returns all the calculated MAT nodes as an array.
- */
-function getNodesAsArray(mat) {
-    var nodes = [];
-    traverse_1.default(mat, function (node) {
-        nodes.push(node);
-    });
-    return nodes;
-}
-exports.default = getNodesAsArray;
 
-},{"./traverse":37}],34:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-var traverse_1 = _dereq_("./traverse");
-function getNodesAsHash(mat) {
-    var nodes = {};
-    traverse_1.default(mat, function (node) {
-        var key = point_on_shape_1.default.makeSimpleKey(node.matCircle.circle.center);
-        nodes[key] = node;
-    });
-    return nodes;
-}
-exports.default = getNodesAsHash;
-
-},{"../../geometry/classes/point-on-shape":9,"./traverse":37}],35:[function(_dereq_,module,exports){
+},{"../coincident":11,"../debug/fat-line":15,"../evaluate":21,"../from-to":24,"./calc-other-t":6,"./center":7,"./geo-clip":8,"./get-distance-to-line-function":9}],6:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-Object.defineProperty(exports, "__esModule", { value: true });
-var mat_constants_1 = _dereq_("../../mat-constants");
-var geometry_1 = _dereq_("../../geometry/geometry");
-var flo_bezier3_1 = _dereq_("flo-bezier3");
-var flo_vector2d_1 = _dereq_("flo-vector2d");
-var mat_tree_1 = _dereq_("../classes/mat-tree");
-/**
- * Smoothens the given MAT by fitting consecutive node links by
- * lines, quadratic or cubic beziers.
- */
-function smoothen(mat) {
-    /**
-     * Get the linked contact points. TODO This information to be
-     * stored in the MatCircle in the future then there is no need
-     * to actually search for it!
-     */
-    function getLinkedCps(prevCpNodes, currCpNodes) {
-        for (var i = 0; i < prevCpNodes.length; i++) {
-            var prevCpNode = prevCpNodes[i];
-            for (var j = 0; j < currCpNodes.length; j++) {
-                var currCpNode = currCpNodes[j];
-                if (prevCpNode.next === currCpNode) {
-                    return [prevCpNode, currCpNode];
-                }
-            }
-        }
-    }
-    var lines = [];
-    var quads = [];
-    var cubes = [];
-    mat_tree_1.default.traverse(mat, function (currNode, prevNode) {
-        if (!prevNode) {
-            return;
-        }
-        var prevMatCircle = prevNode.matCircle;
-        var prevCc = prevMatCircle.circle.center;
-        var prevCpNodes = prevMatCircle.cpNodes;
-        var currMatCircle = currNode.matCircle;
-        var currCc = currMatCircle.circle.center;
-        var currCpNodes = currMatCircle.cpNodes;
-
-        var _getLinkedCps = getLinkedCps(prevCpNodes, currCpNodes),
-            _getLinkedCps2 = _slicedToArray(_getLinkedCps, 2),
-            prevCpNode = _getLinkedCps2[0],
-            currCpNode = _getLinkedCps2[1];
-
-        var prevL = getDirectionToNextMatCircle(prevCpNode, prevCc, true);
-        var currL = getDirectionToNextMatCircle(currCpNode, currCc, false);
-        function getDirectionToNextMatCircle(cpNode, circleCenter, isPrev) {
-            var cp1 = cpNode.item;
-            var cp2 = isPrev ? cpNode.nextOnCircle.item : cpNode.prevOnCircle.item;
-            var vDir = void 0;
-            if (cp1 !== cp2) {
-                // Not a 1-prong.
-                var spanner = flo_vector2d_1.default.fromTo(cp1.pointOnShape.p, cp2.pointOnShape.p);
-                vDir = flo_vector2d_1.default.rotate90Degrees(spanner);
-            } else {
-                if (cp1.pointOnShape.type === mat_constants_1.default.pointType.sharp) {
-                    var bezierNode1 = void 0;
-                    var bezierNode2 = void 0;
-                    if (cp1.pointOnShape.t === 0) {
-                        bezierNode1 = cp1.pointOnShape.bezierNode;
-                        bezierNode2 = cp1.pointOnShape.bezierNode.prev;
-                    } else if (cp1.pointOnShape.t === 1) {
-                        bezierNode1 = cp1.pointOnShape.bezierNode.next;
-                        bezierNode2 = cp1.pointOnShape.bezierNode;
-                    }
-                    var tan1 = flo_bezier3_1.default.tangent(bezierNode1.item.bezier3)(0);
-                    var tan2 = flo_vector2d_1.default.reverse(flo_bezier3_1.default.tangent(bezierNode2.item.bezier3)(1));
-                    var x = flo_vector2d_1.default.dot(tan1, tan2);
-                    // Recall the identities sin(acos(x)) = sqrt(1-x^2),
-                    // etc. Also recall the half angle formulas. Then 
-                    // the rotation matrix, R, can be calculated.
-                    var cosθ = Math.sqrt((1 + x) / 2);
-                    var sinθ = Math.sqrt((1 - x) / 2);
-                    vDir = flo_vector2d_1.default.rotate(sinθ, cosθ, tan2);
-                } else {
-                    vDir = flo_vector2d_1.default.fromTo(cp1.pointOnShape.p, circleCenter);
-                }
-            }
-            var v = flo_vector2d_1.default.translate(flo_vector2d_1.default.toLength(vDir, 1), circleCenter);
-            var l = [circleCenter, v];
-            return l;
-        }
-        var mid = geometry_1.default.lineLineIntersection(prevL, currL);
-        var twisted = void 0;
-        if (mid) {
-            var a = flo_vector2d_1.default.fromTo(prevCc, mid);
-            var b = flo_vector2d_1.default.fromTo(currCc, mid);
-            var c = flo_vector2d_1.default.fromTo(prevCc, currCc);
-            var dot1 = flo_vector2d_1.default.dot(a, c);
-            var dot2 = flo_vector2d_1.default.dot(b, c);
-            twisted = dot1 < 0 || dot2 > 0;
-        }
-        if (!mid) {
-            lines.push([prevCc, currCc]);
-        } else if (twisted) {
-            var lp1 = flo_vector2d_1.default.mean([prevCc, currCc]);
-            var vv1 = flo_vector2d_1.default.fromTo(prevCc, currCc);
-            var vvv1 = flo_vector2d_1.default.rotate90Degrees(vv1);
-            var lpp1 = flo_vector2d_1.default.translate(vvv1, lp1);
-            var l = [lp1, lpp1];
-            var mid1 = geometry_1.default.lineLineIntersection(prevL, l);
-            var mid2 = geometry_1.default.lineLineIntersection(currL, l);
-            cubes.push([prevCc, mid1, mid2, currCc]);
-        } else {
-            //console.log(prevCc, mid, currCc);
-            quads.push([prevCc, mid, currCc]);
-        }
-    });
-    return {
-        lines: lines,
-        quads: quads,
-        cubes: cubes
-    };
-}
-exports.default = smoothen;
-
-},{"../../geometry/geometry":15,"../../mat-constants":18,"../classes/mat-tree":25,"flo-bezier3":40,"flo-vector2d":56}],36:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var circle_1 = _dereq_("../../geometry/classes/circle");
-var copy_mat_1 = _dereq_("./copy-mat");
-var get_nodes_as_hash_1 = _dereq_("./get-nodes-as-hash");
-var point_on_shape_1 = _dereq_("../../geometry/classes/point-on-shape");
-var mat_tree_1 = _dereq_("../classes/mat-tree");
-// TODO - fix highly convoluted typescript typings by modifiying code so that 
-// a tree node (i.e. TTree type) does not use type union
-var width = 1620; // TODO change to actual shape coordinates
-var height = 1560; // ...
-/**
- * Apply the Scale Axis Transform (SAT) to the MAT.
- *
- * @param mat_ - The Medial Axis Transform (MAT) on which to apply the SAT.
- * @param s - The scale factor >= 1 (e.g. 1.3)
- * @returns {MatTree}
- */
-function toScaleAxis(mat_, s) {
-    // TODO
-    // This algorithm might be made somewhat faster by building tree to a depth 
-    // where there is say less than 4 other circles and then only split the 
-    // branch once this threshold has been exceeded.
-    // 
-    // Also, when searching, search only in relevant branches even when circle 
-    // overlaps more than one group.
-    var mat = copy_mat_1.default(mat_);
-    // Start with the biggest circle (since it is the most likely to eclipse 
-    // other circles), multiply its radius by s and see which circles are fully 
-    // contained in it and trim it away in the MAT tree.
-    var nodeHash = get_nodes_as_hash_1.default(mat);
-    var biggest = -Number.POSITIVE_INFINITY;
-    var biggestNode = void 0;
-    for (var key in nodeHash) {
-        var node = nodeHash[key];
-        var r = node.matCircle.circle.radius;
-        if (r > biggest) {
-            biggestNode = node;
-            biggest = r;
-        }
-    }
-    var tree = createSpacialTree(s, nodeHash);
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_ = window._debug_;
-        /*
-        if (FloMat._debug_.shouldDrawSATTree) {
-            FloMat._debug_.drawSATTree(tree);
-        }
-        */
-        _debug_.generated.sat.tree = tree;
-    }
-    // Grab the MAT tree at its biggest node.
-    var sat = new mat_tree_1.default(biggestNode);
-    var cullHash = {};
-    // Look at circles in roughly order of size for each tree branch,
-    // e.g. circles in branch 5 are always larger than in branches 0
-    // to 4.
-    traverseSpacialTree(tree, cullem, { s: s, tree: tree, cullHash: cullHash });
-    // We now walk the MAT tree and keep all non-culled nodes and any
-    // nodes that have a non-culled node further down the line toward
-    // the tree leaves.
-    var cullNodes = [];
-    cullIt(cullHash, cullNodes, sat.startNode);
-    cullTheNodes(cullNodes);
-    if (typeof window !== 'undefined' && window._debug_) {
-        var _debug_2 = window._debug_;
-        _debug_2.generated.timing.afterSat = performance.now();
-    }
-    return sat;
-}
-function addToTree(s, tree, coordinate, limits, node, key, depth) {
-    // DEPTH_LIMIT can be anything from 1 to 16, but from 2 to 6 seem 
-    // to be the fastest.
-    var DEPTH_LIMIT = 6;
-    var circle = node.matCircle.circle;
-
-    var _calcGroups = calcGroups(s, coordinate, limits, circle),
-        groups = _calcGroups.groups,
-        newLimits = _calcGroups.newLimits;
-    // Create new branch if it does not exist yet.
-
-
-    if (groups.length === 1 && depth !== DEPTH_LIMIT) {
-        var group = groups[0];
-        if (!tree[group]) {
-            tree[group] = {};
-        }
-        var _branch = tree[group];
-        // Flip coordinates
-        var newCoordinate = coordinate ? 0 : 1;
-        addToTree(s, _branch, newCoordinate, newLimits, node, key, depth + 1);
-        return;
-    }
-    if (!tree[5]) {
-        tree[5] = new Map();
-    }
-    var branch = tree[5];
-    branch.set(key, node);
-}
-function createSpacialTree(s, nodeHash) {
-    var coordinate = 0;
-    var limits = [[0, width], [0, height]];
-    var tree = {};
-    for (var key in nodeHash) {
-        var node = nodeHash[key];
-        addToTree(s, tree, coordinate, limits, node, key, 0);
-    }
-    return tree;
-}
-function cullem(node, key, extraParams) {
-    var s = extraParams.s,
-        tree = extraParams.tree,
-        cullHash = extraParams.cullHash;
-
-    if (node.matCircle.circle.radius === 0) {
-        return;
-    }
-    if (cullHash[key]) {
-        return;
-    }
-    var cullNodes = getCullNodes(s, tree, node);
-    for (var _key in cullNodes) {
-        if (!cullHash[_key]) {
-            cullHash[_key] = node;
-        }
-    }
-}
-function traverseSpacialTree(tree, f, extraParams) {
-    function helper(tree) {
-        if (!tree) {
-            return;
-        }
-        if (tree.size) {
-            tree.forEach(function (node, key) {
-                f(node, key, extraParams);
-            });
-            return; // Leaf reached 
-        }
-        if (tree[5]) {
-            helper(tree[5]);
-        }
-        if (tree[0]) {
-            helper(tree[0]);
-        }
-        if (tree[2]) {
-            helper(tree[2]);
-        }
-        if (tree[4]) {
-            helper(tree[4]);
-        }
-        if (tree[1]) {
-            helper(tree[1]);
-        }
-        if (tree[3]) {
-            helper(tree[3]);
-        }
-    }
-    helper(tree);
-}
-function getCullNodes(s, tree, testNode) {
-    var c1 = circle_1.default.scale(testNode.matCircle.circle, s);
-    var cullNodes = {};
-    var limits = [[0, width], [0, height]];
-    var circle = testNode.matCircle.circle;
-    helper(tree, 0, limits, 0);
-    return cullNodes;
-    function cullBranch5(tree) {
-        var branch = tree[5];
-        if (!branch) {
-            return;
-        }
-        branch.forEach(function (node, key) {
-            var c2 = circle_1.default.scale(node.matCircle.circle, s);
-            if (circle_1.default.engulfsCircle(c1, c2)) {
-                cullNodes[key] = node;
-                branch.delete(key);
-            }
-        });
-    }
-    function helper(tree, coordinate, limits, depth) {
-        if (limits === null) {
-            // If we already reached a circle which spans multiple groups 
-            // previously, then check all circles in the tree.
-            cullBranch5(tree);
-            for (var i = 0; i <= 4; i++) {
-                var branch = tree[i];
-                if (branch) {
-                    helper(branch, 0, null, depth + 1);
-                }
-            }
-            return;
-        }
-
-        var _calcGroups2 = calcGroups(s, coordinate, limits, circle),
-            groups = _calcGroups2.groups,
-            newLimits = _calcGroups2.newLimits;
-
-        if (groups.length === 1) {
-            cullBranch5(tree);
-            var group = groups[0];
-            var newCoordinate = coordinate ? 0 : 1;
-            if (group === 1 || group === 3) {
-                // One of the higher priority left/top or 
-                // right/bottom half groups.
-                var _branch2 = tree[group];
-                if (_branch2) {
-                    helper(_branch2, newCoordinate, newLimits, depth + 1);
-                }
-            } else {
-                // One of the lower priority even 
-                // groups (0,2 or 4).
-                var branches = [];
-                branches.push(tree[group]);
-                if (group > 0) {
-                    branches.push(tree[group - 1]);
-                }
-                if (group < 4) {
-                    branches.push(tree[group + 1]);
-                }
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
-
-                try {
-                    for (var _iterator = branches[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var _branch3 = _step.value;
-
-                        if (_branch3) {
-                            helper(_branch3, newCoordinate, newLimits, depth + 1);
-                        }
-                    }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator.return) {
-                            _iterator.return();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
-                    }
-                }
-            }
-            return;
-        }
-        cullBranch5(tree);
-        // Circle spans multiple groups at this level of the 
-        // tree. Check all circles in all branches.
-        for (var _i = 0; _i <= 4; _i++) {
-            var _branch4 = tree[_i];
-            if (_branch4) {
-                helper(_branch4, 0, null, depth + 1);
-            }
-        }
-    }
-}
-/**
- * Modifies cullNodes by adding nodes that potentially need to be called.
- * Returns true if a node should NOT be culled, false otherwise.
- */
-function cullIt(cullHash, cullNodes, satNode, priorNode) {
-    var key = point_on_shape_1.default.makeSimpleKey(satNode.matCircle.circle.center);
-    var anyNotCull = !cullHash[key];
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-        for (var _iterator2 = satNode.branches[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var node = _step2.value;
-
-            if (node === priorNode) {
-                continue;
-            }
-            if (cullIt(cullHash, cullNodes, node, satNode)) {
-                anyNotCull = true;
-            }
-        }
-    } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                _iterator2.return();
-            }
-        } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
-            }
-        }
-    }
-
-    if (anyNotCull) {
-        return true; // Don't cull me
-    }
-    cullNodes.push({ satNode: satNode, priorNode: priorNode });
-    return false;
-}
-function cullTheNode(cullNode) {
-    var satNode = cullNode.satNode,
-        priorNode = cullNode.priorNode;
-
-    var idx = priorNode.branches.indexOf(satNode);
-    if (idx >= 0) {
-        priorNode.branches.splice(idx, 1);
-    }
-}
-function cullTheNodes(cullNodes) {
-    var _iteratorNormalCompletion3 = true;
-    var _didIteratorError3 = false;
-    var _iteratorError3 = undefined;
-
-    try {
-        for (var _iterator3 = cullNodes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var node = _step3.value;
-
-            cullTheNode(node);
-        }
-    } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
-            }
-        } finally {
-            if (_didIteratorError3) {
-                throw _iteratorError3;
-            }
-        }
-    }
-}
-/**
- * Spacially divide into 5 special groups as follows:
- *
- *   *******||*******|*******|*******|*******||*******
- * 0 <--------------->
- * 1         <--------------->
- * 2                 <--------------->
- * 3                         <--------------->
- * 4                                 <--------------->
- * 5 - If the circle does not fall in any of above 5 groups.
- *
- * Note: In the above, the double pipes denote the limits for
- *       a coordinate, so as can be seen groups 0 and 4 go outside
- *       the limits. Also, groups 1 and 3 are preferred and checked
- *       first.
- *
- * @param s Scale parameter, e.g. 1.1
- * @param coordinate - 0 -> horizontal or 1 -> vertical.
- * @param limits - The limits within which the circle bounds can fall.
- * @param circle - The circle to categorize into a group.
- */
-function calcGroups(s, coordinate, limits, circle) {
-    var limit = limits[coordinate];
-    var l1 = limit[0];
-    var l2 = limit[1];
-    // Relevant cut-off lines.
-    var q = (l2 - l1) / 4;
-    var w = q + q;
-    // Shift origin
-    var r = circle.radius;
-    var x = circle.center[coordinate] - l1;
-    var x0 = x - r * s;
-    var x1 = x + r * s;
-    var newLimit = [,];
-    var groups = []; // Group to which circle belongs;
-    /* This was the old method to get groups and newLimit, but it
-     * seems to be only slightly slower so could also be used
-    let is = [1,3,0,2,4]; // Groups 1 and 3 takes priority.
-    for (let i=0; i<=4; i++) {
-        let q0 = q*(is[i]-1);
-        let q1 = q0 + w;
-        if (x0 > q0 && x1 <= q1) {
-            groups.push(is[i]);
-            newLimit = [l1 + q0, l1 + q1];
-            break;
-        }
-    }*/
-    var qStart = Math.floor(x0 / q);
-    var qEnd = Math.floor(x1 / q) + 1;
-    var qDiff = qEnd - qStart;
-    var group = void 0;
-    if (qDiff === 1) {
-        // If contained in sliver.
-        group = 2 * Math.floor(qStart / 2) + 1;
-        groups.push(group);
-        var lowerLimit = l1 + q * (group - 1);
-        newLimit = [lowerLimit, lowerLimit + w];
-    } else if (qDiff === 2) {
-        group = qStart + 1;
-        groups.push(group);
-        var _lowerLimit = l1 + q * (group - 1);
-        newLimit = [_lowerLimit, _lowerLimit + w];
-    }
-    var newLimits = [,];
-    if (groups.length === 1) {
-        var otherCoordinate = coordinate ? 0 : 1;
-        newLimits[otherCoordinate] = limits[otherCoordinate];
-        newLimits[coordinate] = newLimit;
-    }
-    return { groups: groups, newLimits: newLimits };
-}
-exports.default = toScaleAxis;
-
-},{"../../geometry/classes/circle":6,"../../geometry/classes/point-on-shape":9,"../classes/mat-tree":25,"./copy-mat":29,"./get-nodes-as-hash":34}],37:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Traverses the MAT tree and calls a function on each node. This
- * function must have side effects to be useful.
- *
- * @param mat
- */
-function traverse(mat, f) {
-    g(mat.startNode);
-    function g(matNode, priorNode) {
-        f(matNode, priorNode);
-        //for (let node of matNode.branches) {
-        for (var i = 0; i < matNode.branches.length; i++) {
-            var node = matNode.branches[i];
-            if (node === priorNode) {
-                // Don't go back in tracks.
-                continue;
-            }
-            g(node, matNode);
-        }
-    }
-}
-exports.default = traverse;
-
-},{}],38:[function(_dereq_,module,exports){
-"use strict";
-// @info
-//   Polyfill for SVG 2 getPathData() and setPathData() methods. Based on:
-//   - SVGPathSeg polyfill by Philip Rogers (MIT License)
-//     https://github.com/progers/pathseg
-//   - SVGPathNormalizer by Tadahisa Motooka (MIT License)
-//     https://github.com/motooka/SVGPathNormalizer/tree/master/src
-//   - arcToCubicCurves() by Dmitry Baranovskiy (MIT License)
-//     https://github.com/DmitryBaranovskiy/raphael/blob/v2.1.1/raphael.core.js#L1837
-// @author
-//   Jarosław Foksa
-// @license
-//   MIT License
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function pathDataPolyFill() {
-    if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathData) {
-        applyPolyFill();
-    }
-}
-function applyPolyFill() {
-    // TODO - 
-    var commandsMap = {
-        "Z": "Z", "M": "M", "L": "L", "C": "C", "Q": "Q", "A": "A", "H": "H", "V": "V", "S": "S", "T": "T",
-        "z": "Z", "m": "m", "l": "l", "c": "c", "q": "q", "a": "a", "h": "h", "v": "v", "s": "s", "t": "t"
-    };
-
-    var Source = function () {
-        function Source(string) {
-            _classCallCheck(this, Source);
-
-            this._string = string;
-            this._currentIndex = 0;
-            this._endIndex = this._string.length;
-            this._prevCommand = null;
-            this._skipOptionalSpaces();
-        }
-
-        _createClass(Source, [{
-            key: "parseSegment",
-            value: function parseSegment() {
-                var char = this._string[this._currentIndex];
-                var command = commandsMap[char] ? commandsMap[char] : null;
-                if (command === null) {
-                    // Possibly an implicit command. Not allowed if this is the first command.
-                    if (this._prevCommand === null) {
-                        return null;
-                    }
-                    // Check for remaining coordinates in the current command.
-                    if ((char === "+" || char === "-" || char === "." || char >= "0" && char <= "9") && this._prevCommand !== "Z") {
-                        if (this._prevCommand === "M") {
-                            command = "L";
-                        } else if (this._prevCommand === "m") {
-                            command = "l";
-                        } else {
-                            command = this._prevCommand;
-                        }
-                    } else {
-                        command = null;
-                    }
-                    if (command === null) {
-                        return null;
-                    }
-                } else {
-                    this._currentIndex += 1;
-                }
-                this._prevCommand = command;
-                var values = null;
-                var cmd = command.toUpperCase();
-                if (cmd === "H" || cmd === "V") {
-                    values = [this._parseNumber()];
-                } else if (cmd === "M" || cmd === "L" || cmd === "T") {
-                    values = [this._parseNumber(), this._parseNumber()];
-                } else if (cmd === "S" || cmd === "Q") {
-                    values = [this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber()];
-                } else if (cmd === "C") {
-                    values = [this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseNumber()];
-                } else if (cmd === "A") {
-                    values = [this._parseNumber(), this._parseNumber(), this._parseNumber(), this._parseArcFlag(), this._parseArcFlag(), this._parseNumber(), this._parseNumber()];
-                } else if (cmd === "Z") {
-                    this._skipOptionalSpaces();
-                    values = [];
-                }
-                if (values === null || values.indexOf(null) >= 0) {
-                    // Unknown command or known command with invalid values
-                    return null;
-                } else {
-                    return { type: command, values: values };
-                }
-            }
-        }, {
-            key: "hasMoreData",
-            value: function hasMoreData() {
-                return this._currentIndex < this._endIndex;
-            }
-        }, {
-            key: "peekSegmentType",
-            value: function peekSegmentType() {
-                var char = this._string[this._currentIndex];
-                return commandsMap[char] ? commandsMap[char] : null;
-            }
-        }, {
-            key: "initialCommandIsMoveTo",
-            value: function initialCommandIsMoveTo() {
-                // If the path is empty it is still valid, so return true.
-                if (!this.hasMoreData()) {
-                    return true;
-                }
-                var command = this.peekSegmentType();
-                // Path must start with moveTo.
-                return command === "M" || command === "m";
-            }
-        }, {
-            key: "_isCurrentSpace",
-            value: function _isCurrentSpace() {
-                var char = this._string[this._currentIndex];
-                return char <= " " && (char === " " || char === "\n" || char === "\t" || char === "\r" || char === "\f");
-            }
-        }, {
-            key: "_skipOptionalSpaces",
-            value: function _skipOptionalSpaces() {
-                while (this._currentIndex < this._endIndex && this._isCurrentSpace()) {
-                    this._currentIndex += 1;
-                }
-                return this._currentIndex < this._endIndex;
-            }
-        }, {
-            key: "_skipOptionalSpacesOrDelimiter",
-            value: function _skipOptionalSpacesOrDelimiter() {
-                if (this._currentIndex < this._endIndex && !this._isCurrentSpace() && this._string[this._currentIndex] !== ",") {
-                    return false;
-                }
-                if (this._skipOptionalSpaces()) {
-                    if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === ",") {
-                        this._currentIndex += 1;
-                        this._skipOptionalSpaces();
-                    }
-                }
-                return this._currentIndex < this._endIndex;
-            }
-            // Parse a number from an SVG path. This very closely follows genericParseNumber(...) from
-            // Source/core/svg/SVGParserUtilities.cpp.
-            // Spec: http://www.w3.org/TR/SVG11/single-page.html#paths-PathDataBNF
-
-        }, {
-            key: "_parseNumber",
-            value: function _parseNumber() {
-                var exponent = 0;
-                var integer = 0;
-                var frac = 1;
-                var decimal = 0;
-                var sign = 1;
-                var expsign = 1;
-                var startIndex = this._currentIndex;
-                this._skipOptionalSpaces();
-                // Read the sign.
-                if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === "+") {
-                    this._currentIndex += 1;
-                } else if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === "-") {
-                    this._currentIndex += 1;
-                    sign = -1;
-                }
-                if (this._currentIndex === this._endIndex || (this._string[this._currentIndex] < "0" || this._string[this._currentIndex] > "9") && this._string[this._currentIndex] !== ".") {
-                    // The first character of a number must be one of [0-9+-.].
-                    return null;
-                }
-                // Read the integer part, build right-to-left.
-                var startIntPartIndex = this._currentIndex;
-                while (this._currentIndex < this._endIndex && this._string[this._currentIndex] >= "0" && this._string[this._currentIndex] <= "9") {
-                    this._currentIndex += 1; // Advance to first non-digit.
-                }
-                if (this._currentIndex !== startIntPartIndex) {
-                    var scanIntPartIndex = this._currentIndex - 1;
-                    var multiplier = 1;
-                    while (scanIntPartIndex >= startIntPartIndex) {
-                        integer += multiplier * (Number(this._string[scanIntPartIndex]) - 0);
-                        scanIntPartIndex -= 1;
-                        multiplier *= 10;
-                    }
-                }
-                // Read the decimals.
-                if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === ".") {
-                    this._currentIndex += 1;
-                    // There must be a least one digit following the .
-                    if (this._currentIndex >= this._endIndex || this._string[this._currentIndex] < "0" || this._string[this._currentIndex] > "9") {
-                        return null;
-                    }
-                    while (this._currentIndex < this._endIndex && this._string[this._currentIndex] >= "0" && this._string[this._currentIndex] <= "9") {
-                        frac *= 10;
-                        decimal += Number(this._string.charAt(this._currentIndex)) / frac;
-                        this._currentIndex += 1;
-                    }
-                }
-                // Read the exponent part.
-                if (this._currentIndex !== startIndex && this._currentIndex + 1 < this._endIndex && (this._string[this._currentIndex] === "e" || this._string[this._currentIndex] === "E") && this._string[this._currentIndex + 1] !== "x" && this._string[this._currentIndex + 1] !== "m") {
-                    this._currentIndex += 1;
-                    // Read the sign of the exponent.
-                    if (this._string[this._currentIndex] === "+") {
-                        this._currentIndex += 1;
-                    } else if (this._string[this._currentIndex] === "-") {
-                        this._currentIndex += 1;
-                        expsign = -1;
-                    }
-                    // There must be an exponent.
-                    if (this._currentIndex >= this._endIndex || this._string[this._currentIndex] < "0" || this._string[this._currentIndex] > "9") {
-                        return null;
-                    }
-                    while (this._currentIndex < this._endIndex && this._string[this._currentIndex] >= "0" && this._string[this._currentIndex] <= "9") {
-                        exponent *= 10;
-                        exponent += Number(this._string[this._currentIndex]);
-                        this._currentIndex += 1;
-                    }
-                }
-                var number = integer + decimal;
-                number *= sign;
-                if (exponent) {
-                    number *= Math.pow(10, expsign * exponent);
-                }
-                if (startIndex === this._currentIndex) {
-                    return null;
-                }
-                this._skipOptionalSpacesOrDelimiter();
-                return number;
-            }
-        }, {
-            key: "_parseArcFlag",
-            value: function _parseArcFlag() {
-                if (this._currentIndex >= this._endIndex) {
-                    return null;
-                }
-                var flag = null;
-                var flagChar = this._string[this._currentIndex];
-                this._currentIndex += 1;
-                if (flagChar === "0") {
-                    flag = 0;
-                } else if (flagChar === "1") {
-                    flag = 1;
-                } else {
-                    return null;
-                }
-                this._skipOptionalSpacesOrDelimiter();
-                return flag;
-            }
-        }]);
-
-        return Source;
-    }();
-
-    var isIE = window.navigator.userAgent.indexOf("MSIE ") !== -1;
-    var parsePathDataString = function parsePathDataString(string) {
-        if (!string || string.length === 0) return [];
-        var source = new Source(string);
-        var pathData = [];
-        if (source.initialCommandIsMoveTo()) {
-            while (source.hasMoreData()) {
-                var pathSeg = source.parseSegment();
-                if (pathSeg === null) {
-                    break;
-                } else {
-                    pathData.push(pathSeg);
-                }
-            }
-        }
-        return pathData;
-    };
-    var setAttribute = SVGPathElement.prototype.setAttribute;
-    var removeAttribute = SVGPathElement.prototype.removeAttribute;
-    var $cachedPathData = Symbol();
-    var $cachedNormalizedPathData = Symbol();
-    var degToRad = function degToRad(degrees) {
-        return Math.PI * degrees / 180;
-    };
-    var rotate = function rotate(x, y, angleRad) {
-        var X = x * Math.cos(angleRad) - y * Math.sin(angleRad);
-        var Y = x * Math.sin(angleRad) + y * Math.cos(angleRad);
-        return { x: X, y: Y };
-    };
-    // @info
-    //   Get an array of corresponding cubic bezier curve parameters for given arc curve paramters.
-    var arcToCubicCurves = function arcToCubicCurves(x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag, _recursive) {
-        var angleRad = degToRad(angle);
-        var params = [];
-        var f1, f2, cx, cy;
-        if (_recursive) {
-            f1 = _recursive[0];
-            f2 = _recursive[1];
-            cx = _recursive[2];
-            cy = _recursive[3];
-        } else {
-            var p1 = rotate(x1, y1, -angleRad);
-            x1 = p1.x;
-            y1 = p1.y;
-            var p2 = rotate(x2, y2, -angleRad);
-            x2 = p2.x;
-            y2 = p2.y;
-            var x = (x1 - x2) / 2;
-            var y = (y1 - y2) / 2;
-            var h = x * x / (r1 * r1) + y * y / (r2 * r2);
-            if (h > 1) {
-                h = Math.sqrt(h);
-                r1 = h * r1;
-                r2 = h * r2;
-            }
-            var sign;
-            if (largeArcFlag === sweepFlag) {
-                sign = -1;
-            } else {
-                sign = 1;
-            }
-            var r1Pow = r1 * r1;
-            var r2Pow = r2 * r2;
-            var left = r1Pow * r2Pow - r1Pow * y * y - r2Pow * x * x;
-            var right = r1Pow * y * y + r2Pow * x * x;
-            var k = sign * Math.sqrt(Math.abs(left / right));
-            cx = k * r1 * y / r2 + (x1 + x2) / 2;
-            cy = k * -r2 * x / r1 + (y1 + y2) / 2;
-            f1 = Math.asin(Number(((y1 - cy) / r2).toFixed(9)));
-            f2 = Math.asin(Number(((y2 - cy) / r2).toFixed(9)));
-            if (x1 < cx) {
-                f1 = Math.PI - f1;
-            }
-            if (x2 < cx) {
-                f2 = Math.PI - f2;
-            }
-            if (f1 < 0) {
-                f1 = Math.PI * 2 + f1;
-            }
-            if (f2 < 0) {
-                f2 = Math.PI * 2 + f2;
-            }
-            if (sweepFlag && f1 > f2) {
-                f1 = f1 - Math.PI * 2;
-            }
-            if (!sweepFlag && f2 > f1) {
-                f2 = f2 - Math.PI * 2;
-            }
-        }
-        var df = f2 - f1;
-        if (Math.abs(df) > Math.PI * 120 / 180) {
-            var f2old = f2;
-            var x2old = x2;
-            var y2old = y2;
-            if (sweepFlag && f2 > f1) {
-                f2 = f1 + Math.PI * 120 / 180 * 1;
-            } else {
-                f2 = f1 + Math.PI * 120 / 180 * -1;
-            }
-            x2 = cx + r1 * Math.cos(f2);
-            y2 = cy + r2 * Math.sin(f2);
-            params = arcToCubicCurves(x2, y2, x2old, y2old, r1, r2, angle, 0, sweepFlag, [f2, f2old, cx, cy]);
-        }
-        df = f2 - f1;
-        var c1 = Math.cos(f1);
-        var s1 = Math.sin(f1);
-        var c2 = Math.cos(f2);
-        var s2 = Math.sin(f2);
-        var t = Math.tan(df / 4);
-        var hx = 4 / 3 * r1 * t;
-        var hy = 4 / 3 * r2 * t;
-        var m1 = [x1, y1];
-        var m2 = [x1 + hx * s1, y1 - hy * c1];
-        var m3 = [x2 + hx * s2, y2 - hy * c2];
-        var m4 = [x2, y2];
-        m2[0] = 2 * m1[0] - m2[0];
-        m2[1] = 2 * m1[1] - m2[1];
-        if (_recursive) {
-            //return [m2, m3, m4].concat(params);
-            return [m2, m3, m4].concat(_toConsumableArray(params));
-        } else {
-            var _ref;
-
-            //params = [m2, m3, m4].concat(params).join().split(",");
-            var params2 = (_ref = []).concat.apply(_ref, [m2, m3, m4].concat(_toConsumableArray(params)));
-            var curves = [];
-            var curveParams;
-            params2.forEach(function (param, i) {
-                if (i % 2) {
-                    curveParams.push(rotate(params2[i - 1], params2[i], angleRad).y);
-                } else {
-                    curveParams.push(rotate(params2[i], params2[i + 1], angleRad).x);
-                }
-                if (curveParams.length === 6) {
-                    curves.push(curveParams);
-                    curveParams = [];
-                }
-            });
-            return curves;
-        }
-    };
-    var clonePathData = function clonePathData(pathData) {
-        return pathData.map(function (seg) {
-            //return {type: seg.type, values: Array.prototype.slice.call(seg.values)}
-            return { type: seg.type, values: seg.values.slice() };
-        });
-    };
-    // @info
-    //   Takes any path data, returns path data that consists only from absolute commands.
-    var absolutizePathData = function absolutizePathData(pathData) {
-        var absolutizedPathData = [];
-        var currentX = null;
-        var currentY = null;
-        var subpathX = null;
-        var subpathY = null;
-        pathData.forEach(function (seg) {
-            var type = seg.type;
-            if (type === "M") {
-                var x = seg.values[0];
-                var y = seg.values[1];
-                absolutizedPathData.push({ type: "M", values: [x, y] });
-                subpathX = x;
-                subpathY = y;
-                currentX = x;
-                currentY = y;
-            } else if (type === "m") {
-                var x = currentX + seg.values[0];
-                var y = currentY + seg.values[1];
-                absolutizedPathData.push({ type: "M", values: [x, y] });
-                subpathX = x;
-                subpathY = y;
-                currentX = x;
-                currentY = y;
-            } else if (type === "L") {
-                var x = seg.values[0];
-                var y = seg.values[1];
-                absolutizedPathData.push({ type: "L", values: [x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "l") {
-                var x = currentX + seg.values[0];
-                var y = currentY + seg.values[1];
-                absolutizedPathData.push({ type: "L", values: [x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "C") {
-                var x1 = seg.values[0];
-                var y1 = seg.values[1];
-                var x2 = seg.values[2];
-                var y2 = seg.values[3];
-                var x = seg.values[4];
-                var y = seg.values[5];
-                absolutizedPathData.push({ type: "C", values: [x1, y1, x2, y2, x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "c") {
-                var x1 = currentX + seg.values[0];
-                var y1 = currentY + seg.values[1];
-                var x2 = currentX + seg.values[2];
-                var y2 = currentY + seg.values[3];
-                var x = currentX + seg.values[4];
-                var y = currentY + seg.values[5];
-                absolutizedPathData.push({ type: "C", values: [x1, y1, x2, y2, x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "Q") {
-                var x1 = seg.values[0];
-                var y1 = seg.values[1];
-                var x = seg.values[2];
-                var y = seg.values[3];
-                absolutizedPathData.push({ type: "Q", values: [x1, y1, x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "q") {
-                var x1 = currentX + seg.values[0];
-                var y1 = currentY + seg.values[1];
-                var x = currentX + seg.values[2];
-                var y = currentY + seg.values[3];
-                absolutizedPathData.push({ type: "Q", values: [x1, y1, x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "A") {
-                var x = seg.values[5];
-                var y = seg.values[6];
-                absolutizedPathData.push({
-                    type: "A",
-                    values: [seg.values[0], seg.values[1], seg.values[2], seg.values[3], seg.values[4], x, y]
-                });
-                currentX = x;
-                currentY = y;
-            } else if (type === "a") {
-                var x = currentX + seg.values[5];
-                var y = currentY + seg.values[6];
-                absolutizedPathData.push({
-                    type: "A",
-                    values: [seg.values[0], seg.values[1], seg.values[2], seg.values[3], seg.values[4], x, y]
-                });
-                currentX = x;
-                currentY = y;
-            } else if (type === "H") {
-                var x = seg.values[0];
-                absolutizedPathData.push({ type: "H", values: [x] });
-                currentX = x;
-            } else if (type === "h") {
-                var x = currentX + seg.values[0];
-                absolutizedPathData.push({ type: "H", values: [x] });
-                currentX = x;
-            } else if (type === "V") {
-                var y = seg.values[0];
-                absolutizedPathData.push({ type: "V", values: [y] });
-                currentY = y;
-            } else if (type === "v") {
-                var y = currentY + seg.values[0];
-                absolutizedPathData.push({ type: "V", values: [y] });
-                currentY = y;
-            } else if (type === "S") {
-                var x2 = seg.values[0];
-                var y2 = seg.values[1];
-                var x = seg.values[2];
-                var y = seg.values[3];
-                absolutizedPathData.push({ type: "S", values: [x2, y2, x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "s") {
-                var x2 = currentX + seg.values[0];
-                var y2 = currentY + seg.values[1];
-                var x = currentX + seg.values[2];
-                var y = currentY + seg.values[3];
-                absolutizedPathData.push({ type: "S", values: [x2, y2, x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "T") {
-                var x = seg.values[0];
-                var y = seg.values[1];
-                absolutizedPathData.push({ type: "T", values: [x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "t") {
-                var x = currentX + seg.values[0];
-                var y = currentY + seg.values[1];
-                absolutizedPathData.push({ type: "T", values: [x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (type === "Z" || type === "z") {
-                absolutizedPathData.push({ type: "Z", values: [] });
-                currentX = subpathX;
-                currentY = subpathY;
-            }
-        });
-        return absolutizedPathData;
-    };
-    // @info
-    //   Takes path data that consists only from absolute commands, returns path data that consists only from
-    //   "M", "L", "C" and "Z" commands.
-    var reducePathData = function reducePathData(pathData) {
-        var reducedPathData = [];
-        var lastType;
-        var lastControlX;
-        var lastControlY;
-        var currentX;
-        var currentY;
-        var subpathX;
-        var subpathY;
-        pathData.forEach(function (seg) {
-            if (seg.type === "M") {
-                var x = seg.values[0];
-                var y = seg.values[1];
-                reducedPathData.push({ type: "M", values: [x, y] });
-                subpathX = x;
-                subpathY = y;
-                currentX = x;
-                currentY = y;
-            } else if (seg.type === "C") {
-                var x1 = seg.values[0];
-                var y1 = seg.values[1];
-                var x2 = seg.values[2];
-                var y2 = seg.values[3];
-                var x = seg.values[4];
-                var y = seg.values[5];
-                reducedPathData.push({ type: "C", values: [x1, y1, x2, y2, x, y] });
-                lastControlX = x2;
-                lastControlY = y2;
-                currentX = x;
-                currentY = y;
-            } else if (seg.type === "L") {
-                var x = seg.values[0];
-                var y = seg.values[1];
-                reducedPathData.push({ type: "L", values: [x, y] });
-                currentX = x;
-                currentY = y;
-            } else if (seg.type === "H") {
-                var x = seg.values[0];
-                reducedPathData.push({ type: "L", values: [x, currentY] });
-                currentX = x;
-            } else if (seg.type === "V") {
-                var y = seg.values[0];
-                reducedPathData.push({ type: "L", values: [currentX, y] });
-                currentY = y;
-            } else if (seg.type === "S") {
-                var x2 = seg.values[0];
-                var y2 = seg.values[1];
-                var x = seg.values[2];
-                var y = seg.values[3];
-                var cx1;
-                var cy1;
-                if (lastType === "C" || lastType === "S") {
-                    cx1 = currentX + (currentX - lastControlX);
-                    cy1 = currentY + (currentY - lastControlY);
-                } else {
-                    cx1 = currentX;
-                    cy1 = currentY;
-                }
-                reducedPathData.push({ type: "C", values: [cx1, cy1, x2, y2, x, y] });
-                lastControlX = x2;
-                lastControlY = y2;
-                currentX = x;
-                currentY = y;
-            } else if (seg.type === "T") {
-                var x = seg.values[0];
-                var y = seg.values[1];
-                var x1;
-                var y1;
-                if (lastType === "Q" || lastType === "T") {
-                    x1 = currentX + (currentX - lastControlX);
-                    y1 = currentY + (currentY - lastControlY);
-                } else {
-                    x1 = currentX;
-                    y1 = currentY;
-                }
-                var cx1 = currentX + 2 * (x1 - currentX) / 3;
-                var cy1 = currentY + 2 * (y1 - currentY) / 3;
-                var cx2 = x + 2 * (x1 - x) / 3;
-                var cy2 = y + 2 * (y1 - y) / 3;
-                reducedPathData.push({ type: "C", values: [cx1, cy1, cx2, cy2, x, y] });
-                lastControlX = x1;
-                lastControlY = y1;
-                currentX = x;
-                currentY = y;
-            } else if (seg.type === "Q") {
-                var x1 = seg.values[0];
-                var y1 = seg.values[1];
-                var x = seg.values[2];
-                var y = seg.values[3];
-                var cx1 = currentX + 2 * (x1 - currentX) / 3;
-                var cy1 = currentY + 2 * (y1 - currentY) / 3;
-                var cx2 = x + 2 * (x1 - x) / 3;
-                var cy2 = y + 2 * (y1 - y) / 3;
-                reducedPathData.push({ type: "C", values: [cx1, cy1, cx2, cy2, x, y] });
-                lastControlX = x1;
-                lastControlY = y1;
-                currentX = x;
-                currentY = y;
-            } else if (seg.type === "A") {
-                var r1 = seg.values[0];
-                var r2 = seg.values[1];
-                var angle = seg.values[2];
-                var largeArcFlag = seg.values[3];
-                var sweepFlag = seg.values[4];
-                var x = seg.values[5];
-                var y = seg.values[6];
-                if (r1 === 0 || r2 === 0) {
-                    reducedPathData.push({ type: "C", values: [currentX, currentY, x, y, x, y] });
-                    currentX = x;
-                    currentY = y;
-                } else {
-                    if (currentX !== x || currentY !== y) {
-                        var curves = arcToCubicCurves(currentX, currentY, x, y, r1, r2, angle, largeArcFlag, sweepFlag, undefined);
-                        curves.forEach(function (curve) {
-                            reducedPathData.push({ type: "C", values: curve });
-                            currentX = x;
-                            currentY = y;
-                        });
-                    }
-                }
-            } else if (seg.type === "Z") {
-                reducedPathData.push(seg);
-                currentX = subpathX;
-                currentY = subpathY;
-            }
-            lastType = seg.type;
-        });
-        return reducedPathData;
-    };
-    SVGPathElement.prototype.setAttribute = function (name, value) {
-        if (name === "d") {
-            this[$cachedPathData] = null;
-            this[$cachedNormalizedPathData] = null;
-        }
-        setAttribute.call(this, name, value);
-    };
-    SVGPathElement.prototype.removeAttribute = function (name) {
-        if (name === "d") {
-            this[$cachedPathData] = null;
-            this[$cachedNormalizedPathData] = null;
-        }
-        removeAttribute.call(this, name);
-    };
-    SVGPathElement.prototype.getPathData = function (options) {
-        if (options && options.normalize) {
-            if (this[$cachedNormalizedPathData]) {
-                return clonePathData(this[$cachedNormalizedPathData]);
-            } else {
-                var pathData;
-                if (this[$cachedPathData]) {
-                    pathData = clonePathData(this[$cachedPathData]);
-                } else {
-                    pathData = parsePathDataString(this.getAttribute("d") || "");
-                    this[$cachedPathData] = clonePathData(pathData);
-                }
-                var normalizedPathData = reducePathData(absolutizePathData(pathData));
-                this[$cachedNormalizedPathData] = clonePathData(normalizedPathData);
-                return normalizedPathData;
-            }
-        } else {
-            if (this[$cachedPathData]) {
-                return clonePathData(this[$cachedPathData]);
-            } else {
-                var pathData = parsePathDataString(this.getAttribute("d") || "");
-                this[$cachedPathData] = clonePathData(pathData);
-                return pathData;
-            }
-        }
-    };
-    SVGPathElement.prototype.setPathData = function (pathData) {
-        if (pathData.length === 0) {
-            if (isIE) {
-                // @bugfix https://github.com/mbostock/d3/issues/1737
-                this.setAttribute("d", "");
-            } else {
-                this.removeAttribute("d");
-            }
-        } else {
-            var d = "";
-            for (var i = 0, l = pathData.length; i < l; i += 1) {
-                var seg = pathData[i];
-                if (i > 0) {
-                    d += " ";
-                }
-                d += seg.type;
-                if (seg.values && seg.values.length > 0) {
-                    d += " " + seg.values.join(" ");
-                }
-            }
-            this.setAttribute("d", d);
-        }
-    };
-}
-exports.default = pathDataPolyFill;
-
-},{}],39:[function(_dereq_,module,exports){
-"use strict";
-// TODO - move later out of mat module
-
 Object.defineProperty(exports, "__esModule", { value: true });
 var flo_vector2d_1 = _dereq_("flo-vector2d");
-var path_curve_1 = _dereq_("../geometry/classes/path-curve");
-var path_data_polyfill_1 = _dereq_("./path-data-polyfill/path-data-polyfill");
-//		'./path-data-polyfill/path-data-polyfill.js';
-var DELTA = 1e-6; // TODO - must be replaced with value relative to image size.
+var evaluate_1 = _dereq_("../evaluate");
+var ts_at_x_1 = _dereq_("../ts-at-x");
+var ts_at_y_1 = _dereq_("../ts-at-y");
 /**
- * Get the cubic beziers from the given SVG DOM element. If a path
- * data tag is not "C", i.e. if it is not an absolute cubic bezier
- * coordinate then it is converted into one.
- * @param elem - An SVG element
- * @returns aaa
+ * Calculates the t-value of the closest point on Q to P(t).
+ * @param δ
+ * @param t
+ * @param P
+ * @param Q
  */
-function getBeziersFromSvgElem(elem) {
-    path_data_polyfill_1.default(); // Ensure polyfill has been applied
-    /**
-     * Returns true if the given point is close to the origin (by Manhattan
-     * distance), fale otherwise.
-     * @private
-     * @param p - a point
-     * @param delta - a tolerance - defaults to 1e-6;
-     */
-    function isCloseToOrigin(p) {
-        var delta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DELTA;
+function calcOtherT(t, P, Q) {
+    // Get some length measure on P and Q
+    var max = Math.max(P[0][0], P[0][1], P[1][0], P[1][1], P[2][0], P[2][1], P[3][0], P[3][1], Q[0][0], Q[0][1], Q[1][0], Q[1][1], Q[2][0], Q[2][1], Q[3][0], Q[3][1]);
+    var pp = evaluate_1.evaluate(P)(t);
 
-        return flo_vector2d_1.default.manhattanLength(p) < delta;
-    }
-    /**
-     * Returns true if distance between consecutive points are all less than
-     * some delta, false otherwise.
-     * @private
-     * @param ps - an array of points
-     * @param {number} [delta] - a tolerance - defaults to 1e-6;
-     * @returns {boolean}
-     */
-    function isAlmostZeroLength(ps) {
-        var delta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DELTA;
+    var _pp = _slicedToArray(pp, 2),
+        x = _pp[0],
+        y = _pp[1];
 
-        for (var i = 1; i < ps.length; i++) {
-            var p1 = ps[i - 1];
-            var p2 = ps[i];
-            if (flo_vector2d_1.default.manhattanDistanceBetween(p1, p2) > DELTA) {
-                return false;
-            }
-        }
-        return true;
+    var tqsh = ts_at_y_1.tsAtY(Q, y);
+    var tqsv = ts_at_x_1.tsAtX(Q, x);
+    if (!tqsh.length && !tqsv.length) {
+        return undefined;
     }
-    function pushBezier(arr, ps_, j) {
-        // TODO 
-        // We check if any of the ps are coincident and thus
-        // that the bezier is degenerate in some sense. If that is the
-        // case we apply a heuristic to get a new similar bezier by 
-        // respacing the points. This entire function is very 
-        // convoluted.
-        // We should investigate a better mathematical solution.
-        // Currently if the bezier degenerates more or less into a point
-        // we make the next bezier start at the previous bezier's end
-        // point else we adjust the bezier to be less pathological.
-        //console.log(Vector)
-        var ds = [[0, flo_vector2d_1.default.manhattanDistanceBetween(ps_[0], ps_[1]), flo_vector2d_1.default.manhattanDistanceBetween(ps_[0], ps_[2]), flo_vector2d_1.default.manhattanDistanceBetween(ps_[0], ps_[3])], [flo_vector2d_1.default.manhattanDistanceBetween(ps_[1], ps_[0]), 0, flo_vector2d_1.default.manhattanDistanceBetween(ps_[1], ps_[2]), flo_vector2d_1.default.manhattanDistanceBetween(ps_[1], ps_[3])], [flo_vector2d_1.default.manhattanDistanceBetween(ps_[2], ps_[0]), flo_vector2d_1.default.manhattanDistanceBetween(ps_[2], ps_[1]), 0, flo_vector2d_1.default.manhattanDistanceBetween(ps_[2], ps_[3])], [flo_vector2d_1.default.manhattanDistanceBetween(ps_[3], ps_[0]), flo_vector2d_1.default.manhattanDistanceBetween(ps_[3], ps_[1]), flo_vector2d_1.default.manhattanDistanceBetween(ps_[3], ps_[2]), 0]];
-        var ps = ps_;
-        var SHIFT = 0.1;
-        // Check if first or last 3 points are coincident
-        if (ds[0][1] < DELTA && ds[1][2] < DELTA || ds[1][2] < DELTA && ds[2][3] < DELTA) {
-            ps = [ps_[0], flo_vector2d_1.default.interpolate(ps_[0], ps_[3], 1 / 3), flo_vector2d_1.default.interpolate(ps_[0], ps_[3], 2 / 3), ps_[3]];
-        }
-        // Check if first 2 points are coincident
-        if (ds[0][1] < DELTA) {
-            ps[1] = flo_vector2d_1.default.interpolate(ps_[0], ps_[2], SHIFT);
-        }
-        // Check if last 2 points are coincident
-        if (ds[2][3] < DELTA) {
-            ps[2] = flo_vector2d_1.default.interpolate(ps_[1], ps_[3], 1 - SHIFT);
-        }
-        // Check if middle 2 points are coincident
-        if (ds[1][2] < DELTA) {
-            ps[1] = flo_vector2d_1.default.interpolate(ps_[0], ps_[1], 1 - SHIFT);
-            ps[2] = flo_vector2d_1.default.interpolate(ps_[2], ps_[3], SHIFT);
-        }
-        arr.push(new path_curve_1.default(j, ps));
-    }
-    var MUST_START_WITH_M = 'Invalid SVG - every new path must start with an M or m.';
-    var INVALID_COMMAND = 'Invalid SVG - command not recognized.';
-    //pathDataPolyFill(); // Ensure polyfill is applied.
-    var paths = elem.getPathData();
-    // TODO - must still implement handling of multiple <path>s
-    console.dir(elem);
-    //let paths = elem.getElementsByTagName('path');
-    //let path = paths[0];
-    //let pathSegs = path.pathSegList;
-    if (paths.length < 2) {
-        // A shape is not described   
-        return [];
-    }
-    var pathStarted = false;
-    // Used in conjunction with "S" and "s"
-    var prev2ndCubicControlPoint = undefined;
-    var prev2ndQuadraticControlPoint = undefined;
-    var bezierArrays = [];
-    var bezierArray = [];
-    var j = void 0;
-    var type = undefined;
-    var initialPoint = undefined;
-    var x0 = void 0;
-    var y0 = void 0;
-    /*
-    let pathSeg: {
-        type: string/*,
-        values: number[]*/ /*
-                           };*/
-    for (var i = 0; i < paths.length; i++) {
-        var pathSeg = paths[i];
-        var vals = pathSeg.values;
-        //pathSeg.type = pathSeg_.pathSegTypeAsLetter;
-        var _type = pathSeg.type;
-        var addX = 0;
-        var addY = 0;
-        if (_type == _type.toLowerCase()) {
-            addX = x0;
-            addY = y0;
-        }
-        var prevType = _type;
-        _type = _type.toUpperCase();
-        // TODO - massively simplify this code by using SVGPathSegCurvetoCubicAbs ??????
-        var ps = void 0;
-        switch (_type) {
-            /*
-             * M and m: (from www.w3.org)
-             * --------------------------
-             * Start a new sub-path at the given (x,y) coordinate.
-             * M (uppercase) indicates that absolute coordinates will
-             * follow; m (lowercase) indicates that relative coordinates
-             * will follow. If a moveto is followed by multiple pairs of
-             * coordinates, the subsequent pairs are treated as implicit
-             * lineto commands. Hence, implicit lineto commands will be
-             * relative if the moveto is relative, and absolute if the
-             * moveto is absolute. If a relative moveto (m) appears as the
-             * first element of the path, then it is treated as a pair of
-             * absolute coordinates. In this case, subsequent pairs of
-             * coordinates are treated as relative even though the initial
-             * moveto is interpreted as an absolute moveto.
-             */
-            case 'M':
-                {
-                    // Note: A valid SVG path must start with "M" or "m".
-                    //let path = (pathSeg as SVGPathSegMovetoAbs);
-                    //let vals = [path.x, path.y];
-                    if (pathStarted) {
-                        // This is a subpath, close as if a Z or z was the
-                        // previous command.
-                        if (prevType !== 'Z') {
-                            var _xInterval = (vals[0] + addX - x0) / 3;
-                            var _yInterval = (vals[1] + addY - y0) / 3;
-                            ps = [[x0, y0], [x0 + _xInterval * 1, y0 + _yInterval * 1], [x0 + _xInterval * 2, y0 + _yInterval * 2], [x0 + _xInterval * 3, y0 + _yInterval * 3]];
-                            prev2ndCubicControlPoint = undefined;
-                            prev2ndQuadraticControlPoint = undefined;
-                            if (!isCloseToOrigin([_xInterval, _yInterval])) {
-                                pushBezier(bezierArray, ps, j++);
-                            }
-                        }
-                    }
-                    if (bezierArray.length) {
-                        bezierArrays.push(bezierArray);
-                        bezierArray = [];
-                    }
-                    pathStarted = true;
-                    // Update current point
-                    x0 = vals[0];
-                    y0 = vals[1];
-                    // Update initial point of current path/sub-path.
-                    initialPoint = [x0, y0];
-                    j = 0;
-                    break;
-                }
-            /*
-             * C and c: (from www.w3.org)
-             * params: x1 y1 x2 y2 x y
-             * --------------------------
-             * Draws a cubic Bézier curve from the current point to (x,y)
-             * using (x1,y1) as the control point at the beginning of the
-             * curve and (x2,y2) as the control point at the end of the
-             * curve. C (uppercase) indicates that absolute coordinates
-             * will follow; c (lowercase) indicates that relative
-             * coordinates will follow. Multiple sets of coordinates may
-             * be specified to draw a polybézier. At the end of the
-             * command, the new current point becomes the final (x,y)
-             * coordinate pair used in the polybézier.
-             */
-            case 'C':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    //let path = (pathSeg as SVGPathSegCurvetoCubicAbs);
-                    //let vals = [path.x, path.y, path.x1, path.y1, path.x2, path.y2];
-                    ps = [[x0, y0], [addX + vals[0], addY + vals[1]], [addX + vals[2], addY + vals[3]], [addX + vals[4], addY + vals[5]]];
-                    prev2ndCubicControlPoint = ps[2];
-                    prev2ndQuadraticControlPoint = undefined;
-                    // Update current point
-                    x0 = ps[3][0];
-                    y0 = ps[3][1];
-                    if (!isAlmostZeroLength(ps)) {
-                        pushBezier(bezierArray, ps, j++);
-                    }
-                    break;
-                }
-            /*
-             * S and s: (from www.w3.org)
-             * params: x2 y2 x y
-             * --------------------------
-             * Draws a cubic Bézier curve from the current point to
-             * (x,y). The first control point is assumed to be the
-             * reflection of the second control point on the previous
-             * command relative to the current point. (If there is no
-             * previous command or if the previous command was not an
-             * C, c, S or s, assume the first control point is
-             * coincident with the current point.) (x2,y2) is the
-             * second control point (i.e., the control point at the end
-             * of the curve). S (uppercase) indicates that absolute
-             * coordinates will follow; s (lowercase) indicates that
-             * relative coordinates will follow. Multiple sets of
-             * coordinates may be specified to draw a polybézier.
-             * At the end of the command, the new current point becomes
-             * the final (x,y) coordinate pair used in the polybézier.
-             */
-            case 'S':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    //let path = (pathSeg as SVGPathSegCurvetoCubicSmoothAbs);
-                    //let vals = [path.x, path.y, path.x2, path.y2];
-                    var x1 = void 0;
-                    var y1 = void 0;
-                    if (prev2ndCubicControlPoint) {
-                        x1 = x0 - prev2ndCubicControlPoint[0] + x0;
-                        y1 = y0 - prev2ndCubicControlPoint[1] + y0;
-                    } else {
-                        x1 = x0;
-                        y1 = y0;
-                    }
-                    ps = [[x0, y0], [x1, y1], [addX + vals[0], addY + vals[1]], [addX + vals[2], addY + vals[3]]];
-                    prev2ndCubicControlPoint = ps[2];
-                    prev2ndQuadraticControlPoint = undefined;
-                    // Update current point
-                    x0 = ps[3][0];
-                    y0 = ps[3][1];
-                    if (!isAlmostZeroLength(ps)) {
-                        pushBezier(bezierArray, ps, j++);
-                    }
-                    break;
-                }
-            /*
-             * L and l: (from www.w3.org)
-             * params: x y
-             * --------------------------
-             * Draw a line from the current point to the given (x,y)
-             * coordinate which becomes the new current point. L
-             * (uppercase) indicates that absolute coordinates will
-             * follow; l (lowercase) indicates that relative
-             * coordinates will follow. A number of coordinates pairs
-             * may be specified to draw a polyline. At the end of the
-             * command, the new current point is set to the final set
-             * of coordinates provided.
-             */
-            case 'L':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    //let path = (pathSeg as SVGPathSegLinetoAbs);
-                    //let vals = [path.x, path.y];
-                    var _xInterval2 = (vals[0] + addX - x0) / 3;
-                    var _yInterval2 = (vals[1] + addY - y0) / 3;
-                    ps = [[x0, y0], [x0 + _xInterval2 * 1, y0 + _yInterval2 * 1], [x0 + _xInterval2 * 2, y0 + _yInterval2 * 2], [x0 + _xInterval2 * 3, y0 + _yInterval2 * 3]];
-                    prev2ndCubicControlPoint = undefined;
-                    prev2ndQuadraticControlPoint = undefined;
-                    // Update current point
-                    x0 = ps[3][0];
-                    y0 = ps[3][1];
-                    if (!isCloseToOrigin([_xInterval2, _yInterval2])) {
-                        pushBezier(bezierArray, ps, j++);
-                    }
-                    break;
-                }
-            /*
-             * H and h: (from www.w3.org)
-             * params: x
-             * --------------------------
-             * Draws a horizontal line from the current point (cpx, cpy)
-             * to (x, cpy). H (uppercase) indicates that absolute
-             * coordinates will follow; h (lowercase) indicates that
-             * relative coordinates will follow. Multiple x values can
-             * be provided (although usually this doesn't make sense).
-             * At the end of the command, the new current point becomes
-             * (x, cpy) for the final value of x.
-             */
-            case 'H':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    //let path = (pathSeg as SVGPathSegLinetoHorizontalAbs);
-                    //let vals = [path.x];
-                    var _xInterval3 = (vals[0] + addX - x0) / 3;
-                    ps = [[x0, y0], [x0 + _xInterval3 * 1, y0], [x0 + _xInterval3 * 2, y0], [x0 + _xInterval3 * 3, y0]];
-                    prev2ndCubicControlPoint = undefined;
-                    prev2ndQuadraticControlPoint = undefined;
-                    // Update current point
-                    x0 = ps[3][0];
-                    y0 = ps[3][1];
-                    if (Math.abs(_xInterval3) > DELTA) {
-                        pushBezier(bezierArray, ps, j++);
-                    }
-                    break;
-                }
-            /*
-             * V and v: (from www.w3.org)
-             * params: y
-             * --------------------------
-             * Draws a vertical line from the current point (cpx, cpy)
-             * to (cpx, y). V (uppercase) indicates that absolute
-             * coordinates will follow; v (lowercase) indicates that
-             * relative coordinates will follow. Multiple y values can
-             * be provided (although usually this doesn't make sense).
-             * At the end of the command, the new current point becomes
-             * (cpx, y) for the final value of y.
-             */
-            case 'V':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    //let path = (pathSeg as SVGPathSegLinetoVerticalAbs);
-                    //let vals = [path.y];
-                    //let yInterval = (vals[1] + addY - y0)/3;
-                    var _yInterval3 = (vals[0] + addY - y0) / 3;
-                    ps = [[x0, y0], [x0, y0 + _yInterval3 * 1], [x0, y0 + _yInterval3 * 2], [x0, y0 + _yInterval3 * 3]];
-                    prev2ndCubicControlPoint = undefined;
-                    prev2ndQuadraticControlPoint = undefined;
-                    // Update current point
-                    x0 = ps[3][0];
-                    y0 = ps[3][1];
-                    if (Math.abs(_yInterval3) > DELTA) {
-                        pushBezier(bezierArray, ps, j++);
-                    }
-                    break;
-                }
-            /*
-             * Q and q: (from www.w3.org)
-             * params: x1 y1 x y
-             * --------------------------
-             * Draws a quadratic Bézier curve from the current point to
-             * (x,y) using (x1,y1) as the control point. Q (uppercase)
-             * indicates that absolute coordinates will follow; q
-             * (lowercase) indicates that relative coordinates will
-             * follow. Multiple sets of coordinates may be specified
-             * to draw a polybézier. At the end of the command, the new
-             * current point becomes the final (x,y) coordinate pair
-             * used in the polybézier.
-             */
-            case 'Q':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    //let path = (pathSeg as SVGPathSegCurvetoQuadraticAbs);
-                    //let vals = [path.x, path.y, path.x1, path.y1];
-                    //---------------------------------------------------
-                    // Convert quadratic to cubic
-                    // see https://stackoverflow.com/questions/3162645/convert-a-quadratic-bezier-to-a-cubic/3162732#3162732
-                    //---------------------------------------------------
-                    var QP0 = [x0, y0];
-                    var QP1 = [addX + vals[0], addY + vals[1]];
-                    var QP2 = [addX + vals[2], addY + vals[3]];
-                    // Endpoints stay the same
-                    var CP0 = QP0;
-                    var CP3 = QP2;
-                    // CP1 = QP0 + 2/3 *(QP1-QP0)
-                    var CP1 = [QP0[0] + 2 / 3 * (QP1[0] - QP0[0]), QP0[1] + 2 / 3 * (QP1[1] - QP0[1])];
-                    // CP2 = QP2 + 2/3 *(QP1-QP2)
-                    var CP2 = [QP2[0] + 2 / 3 * (QP1[0] - QP2[0]), QP2[1] + 2 / 3 * (QP1[1] - QP2[1])];
-                    ps = [CP0, CP1, CP2, CP3];
-                    prev2ndCubicControlPoint = undefined;
-                    prev2ndQuadraticControlPoint = QP1;
-                    // Update current point
-                    x0 = ps[3][0];
-                    y0 = ps[3][1];
-                    if (!isAlmostZeroLength(ps)) {
-                        pushBezier(bezierArray, ps, j++);
-                    }
-                    break;
-                }
-            /*
-             * T and t: (from www.w3.org)
-             * params: x y
-             * --------------------------
-             * Draws a quadratic Bézier curve from the current point to
-             * (x,y). The control point is assumed to be the reflection
-             * of the control point on the previous command relative to
-             * the current point. (If there is no previous command or if
-             * the previous command was not a Q, q, T or t, assume the
-             * control point is coincident with the current point.) T
-             * (uppercase) indicates that absolute coordinates will
-             * follow; t (lowercase) indicates that relative coordinates
-             * will follow. At the end of the command, the new current
-             * point becomes the final (x,y) coordinate pair used in the
-             * polybézier.
-             */
-            case 'T':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    //let path = (pathSeg as SVGPathSegCurvetoQuadraticSmoothAbs);
-                    //let vals = [path.x, path.y];
-                    var _x3 = void 0;
-                    var _y = void 0;
-                    if (prev2ndQuadraticControlPoint) {
-                        _x3 = x0 - prev2ndQuadraticControlPoint[0] + x0;
-                        _y = y0 - prev2ndQuadraticControlPoint[1] + y0;
-                    } else {
-                        _x3 = x0;
-                        _y = y0;
-                    }
-                    //---------------------------------------------------
-                    // Convert quadratic to cubic
-                    // see https://stackoverflow.com/questions/3162645/convert-a-quadratic-bezier-to-a-cubic/3162732#3162732
-                    //---------------------------------------------------
-                    var _QP = [x0, y0];
-                    var _QP2 = [_x3, _y];
-                    var _QP3 = [addX + vals[0], addY + vals[1]];
-                    // Endpoints stay the same
-                    var _CP = _QP;
-                    var _CP2 = _QP3;
-                    // CP1 = QP0 + 2/3 *(QP1-QP0)
-                    var _CP3 = [_QP[0] + 2 / 3 * (_QP2[0] - _QP[0]), _QP[1] + 2 / 3 * (_QP2[1] - _QP[1])];
-                    // CP2 = QP2 + 2/3 *(QP1-QP2)
-                    var _CP4 = [_QP3[0] + 2 / 3 * (_QP2[0] - _QP3[0]), _QP3[1] + 2 / 3 * (_QP2[1] - _QP3[1])];
-                    ps = [_CP, _CP3, _CP4, _CP2];
-                    prev2ndCubicControlPoint = undefined;
-                    prev2ndQuadraticControlPoint = _QP2;
-                    // Update current point
-                    x0 = ps[3][0];
-                    y0 = ps[3][1];
-                    if (!isAlmostZeroLength(ps)) {
-                        pushBezier(bezierArray, ps, j++);
-                    }
-                    break;
-                }
-            /*
-             * A and a: (from www.w3.org)
-             * params: rx ry x-axis-rotation large-arc-flag
-             *         sweep-flag x y
-             * --------------------------------------------
-             * Draws an elliptical arc from the current point to (x, y).
-             * The size and orientation of the ellipse are defined by
-             * two radii (rx, ry) and an x-axis-rotation, which
-             * indicates how the ellipse as a whole is rotated relative
-             * to the current coordinate system. The center (cx, cy) of
-             * the ellipse is calculated automatically to satisfy the
-             * constraints imposed by the other parameters.
-             * large-arc-flag and sweep-flag contribute to the automatic
-             * calculations and help determine how the arc is drawn.
-             */
-            case 'A':
-                {
-                    if (!pathStarted) {
-                        throw new Error(MUST_START_WITH_M);
-                    }
-                    prev2ndCubicControlPoint = undefined;
-                    prev2ndQuadraticControlPoint = undefined;
-                    // Update current point
-                    //x0 = ? ps[3][0]; 
-                    //y0 = ? ps[3][1];
-                    pushBezier(bezierArray, ps, j++);
-                    break;
-                }
-            /*
-             * Z and z: (from www.w3.org)
-             * params: (none)
-             * --------------------------
-             * Close the current subpath by drawing a straight line
-             * from the current point to current subpath's initial
-             * point. Since the Z and z commands take no parameters,
-             * they have an identical effect.
-             */
-            case 'Z':
-                if (!pathStarted) {
-                    throw new Error(MUST_START_WITH_M);
-                }
-                var xInterval = (initialPoint[0] + addX - x0) / 3;
-                var yInterval = (initialPoint[1] + addY - y0) / 3;
-                ps = [[x0, y0], [x0 + xInterval * 1, y0 + yInterval * 1], [x0 + xInterval * 2, y0 + yInterval * 2], [x0 + xInterval * 3, y0 + yInterval * 3]];
-                prev2ndCubicControlPoint = undefined;
-                prev2ndQuadraticControlPoint = undefined;
-                // Update current point
-                x0 = ps[3][0];
-                y0 = ps[3][1];
-                if (!isCloseToOrigin([xInterval, yInterval])) {
-                    pushBezier(bezierArray, ps, j++);
-                }
-                break;
-            default:
-                throw new Error(INVALID_COMMAND);
-        }
-    }
-    if (bezierArray.length) {
-        bezierArrays.push(bezierArray);
-        bezierArray = [];
-    }
-    return bezierArrays;
-}
-/**
- * Returns a string representation of the given beziers linked loop.
- * @param beziers - A linked loop of cubic beziers.
- */
-function getPathStrFromBezierLoop(bezierLoop) {
-    var beziers = bezierLoop.getAsArray().map(function (x) {
-        return x.item;
-    });
-    return Svg.getPathStrFromBeziers(beziers);
-}
-/**
- * Returns a string representation of the given array of beziers.
- * @param {number[][][]} beziers - An array of cubic beziers.
- * @returns {string}
- */
-function getPathStrFromBeziers(beziers) {
-    var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
-
-    var D = decimalPlaces;
-    var str = '';
+    var tqs = [].concat(_toConsumableArray(tqsh), _toConsumableArray(tqsv));
+    var bestT = undefined;
+    var bestD = Number.POSITIVE_INFINITY;
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-        for (var _iterator = beziers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var ps = _step.value;
+        for (var _iterator = tqs[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var tq = _step.value;
 
-            if (ps === beziers[0]) {
-                str = 'M ' + ps[0][0].toFixed(D) + ' ' + ps[0][1].toFixed(D) + '\n';
+            var pq = evaluate_1.evaluate(Q)(tq);
+            var d = flo_vector2d_1.squaredDistanceBetween(pp, pq);
+            if (d < bestD) {
+                bestD = d;
+                bestT = tq;
             }
-            str += 'C ' + ps[1][0].toFixed(D) + ' ' + ps[1][1].toFixed(D) + ' ' + ps[2][0].toFixed(D) + ' ' + ps[2][1].toFixed(D) + ' ' + ps[3][0].toFixed(D) + ' ' + ps[3][1].toFixed(D) + ' ' + '\n';
+        }
+        // If the best distance > the max allowed tolerance then no intersection
+        // occured - this happens only in special cases where clipping occured at
+        // the endpoint of a curve.
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    var maxTolerance = 256 * 24 * Number.EPSILON * max;
+    if (bestD > maxTolerance * maxTolerance) {
+        return undefined;
+    }
+    return bestT;
+}
+exports.calcOtherT = calcOtherT;
+
+
+
+},{"../evaluate":21,"../ts-at-x":33,"../ts-at-y":34,"flo-vector2d":50}],7:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+/**
+ * Return the given two beziers but translated such that the shorter (by
+ * some length measure) is closer to the origin.
+ * @private
+ * @param P
+ * @param Q
+ */
+function center(P, Q) {
+    var _P = P,
+        _P2 = _slicedToArray(_P, 4),
+        P0 = _P2[0],
+        P1 = _P2[1],
+        P2 = _P2[2],
+        P3 = _P2[3];
+
+    var _Q = Q,
+        _Q2 = _slicedToArray(_Q, 4),
+        Q0 = _Q2[0],
+        Q1 = _Q2[1],
+        Q2 = _Q2[2],
+        Q3 = _Q2[3];
+
+    var lengthP = flo_vector2d_1.squaredDistanceBetween(P0, P1) + flo_vector2d_1.squaredDistanceBetween(P1, P2) + flo_vector2d_1.squaredDistanceBetween(P2, P3);
+    var lengthQ = flo_vector2d_1.squaredDistanceBetween(Q0, Q1) + flo_vector2d_1.squaredDistanceBetween(Q1, Q2) + flo_vector2d_1.squaredDistanceBetween(Q2, Q3);
+    var moveX = void 0;
+    var moveY = void 0;
+    if (lengthQ < lengthP) {
+        moveX = (Q0[0] + Q1[0] + Q2[0] + Q3[0]) / 4;
+        moveY = (Q0[1] + Q1[1] + Q2[1] + Q3[1]) / 4;
+    } else {
+        moveX = (P0[0] + P1[0] + P2[0] + P3[0]) / 4;
+        moveY = (P0[1] + P1[1] + P2[1] + P3[1]) / 4;
+    }
+    P = P.map(function (x) {
+        return [x[0] - moveX, x[1] - moveY];
+    });
+    Q = Q.map(function (x) {
+        return [x[0] - moveX, x[1] - moveY];
+    });
+    return [P, Q];
+}
+exports.center = center;
+
+
+
+},{"flo-vector2d":50}],8:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var to_hybrid_quadratic_1 = _dereq_("../to-hybrid-quadratic");
+/**
+ * @param P
+ * @param dQ
+ * @param dMin
+ * @param dMax
+ */
+function geoClip(P, dQ, dMin, dMax) {
+    var hq = to_hybrid_quadratic_1.toHybridQuadratic(P);
+    var dH0 = dQ(hq[0]);
+    var dH2 = dQ(hq[2]);
+    var dH10 = dQ(hq[1][0]);
+    var dH11 = dQ(hq[1][1]);
+    var dHmin = Math.min(dH10, dH11);
+    var dHmax = Math.max(dH10, dH11);
+    var DyMin = [dH0 - 2 * dHmin + dH2, -2 * dH0 + 2 * dHmin, dH0];
+    var DyMax = [dH0 - 2 * dHmax + dH2, -2 * dH0 + 2 * dHmax, dH0];
+    var errorBound = 2 * Math.max(flo_poly_1.default.hornerErrorBound(DyMin, 1), flo_poly_1.default.hornerErrorBound(DyMax, 1));
+    dMin = dMin - errorBound;
+    dMax = dMax + errorBound;
+    var DyMinMin = DyMin.slice();
+    DyMinMin[2] = DyMinMin[2] - dMin;
+    var DyMinMax = DyMin.slice();
+    DyMinMax[2] = DyMinMax[2] - dMax;
+    var DyMaxMin = DyMax.slice();
+    DyMaxMin[2] = DyMaxMin[2] - dMin;
+    var DyMaxMax = DyMax.slice();
+    DyMaxMax[2] = DyMaxMax[2] - dMax;
+    var tMin = Number.POSITIVE_INFINITY;
+    var tMax = Number.NEGATIVE_INFINITY;
+    var rootsMinMin = flo_poly_1.default.allRoots(DyMinMin, 0, 1);
+    var rootsMinMax = flo_poly_1.default.allRoots(DyMinMax, 0, 1);
+    var rootsMaxMin = flo_poly_1.default.allRoots(DyMaxMin, 0, 1);
+    var rootsMaxMax = flo_poly_1.default.allRoots(DyMaxMax, 0, 1);
+    tMin = Math.min.apply(Math, _toConsumableArray(rootsMinMin).concat(_toConsumableArray(rootsMinMax), _toConsumableArray(rootsMaxMin), _toConsumableArray(rootsMaxMax)));
+    tMax = Math.max.apply(Math, _toConsumableArray(rootsMinMin).concat(_toConsumableArray(rootsMinMax), _toConsumableArray(rootsMaxMin), _toConsumableArray(rootsMaxMax)));
+    if (dH0 >= dMin && dH0 <= dMax) {
+        tMin = 0;
+    }
+    if (dH2 >= dMin && dH2 <= dMax) {
+        tMax = 1;
+    }
+    if (tMin < 0) {
+        tMin = 0;
+    }
+    if (tMax > 1) {
+        tMax = 1;
+    }
+    return { tMin: tMin, tMax: tMax };
+}
+exports.geoClip = geoClip;
+
+
+
+},{"../to-hybrid-quadratic":32,"flo-poly":42}],9:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_line_equation_1 = _dereq_("./get-line-equation");
+/**
+ * @private
+ * @param l
+ */
+function getDistanceToLineFunction(l) {
+    var _get_line_equation_1$ = get_line_equation_1.getLineEquation(l),
+        _get_line_equation_1$2 = _slicedToArray(_get_line_equation_1$, 3),
+        a = _get_line_equation_1$2[0],
+        b = _get_line_equation_1$2[1],
+        c = _get_line_equation_1$2[2];
+
+    return function (p) {
+        return a * p[0] + b * p[1] + c;
+    };
+}
+exports.getDistanceToLineFunction = getDistanceToLineFunction;
+
+
+
+},{"./get-line-equation":10}],10:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Get the implicit line equation from two 2d points in the form f(x,y) ax + by + c = 0
+ * returned as the array [a,b,c].
+ * @param l - A line given by two points, e.g. [[2,0],[3,3]]
+ */
+function getLineEquation(l) {
+    var _l = _slicedToArray(l, 2),
+        _l$ = _slicedToArray(_l[0], 2),
+        x1 = _l$[0],
+        y1 = _l$[1],
+        _l$2 = _slicedToArray(_l[1], 2),
+        x2 = _l$2[0],
+        y2 = _l$2[1];
+
+    var a = y1 - y2;
+    var b = x2 - x1;
+    var c = x1 * y2 - x2 * y1;
+    var d = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+    return [a / d, b / d, c / d];
+}
+exports.getLineEquation = getLineEquation;
+
+
+
+},{}],11:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Vector = _dereq_("flo-vector2d");
+var evaluate_1 = _dereq_("./evaluate");
+var line_intersection_1 = _dereq_("./line-intersection");
+var normal_1 = _dereq_("./normal");
+var sdst = Vector.squaredDistanceBetween;
+/**
+ * Check if the two given cubic beziers are nearly coincident everywhere along
+ * a finite stretch and returns the coincident stretch (if any), otherwise
+ * returns undefined.
+ * @param P - A cubic bezier curve.
+ * @param Q - Another cubic bezier curve.
+ * @param δ - An indication of how closely the curves should stay to
+ * each other before considered coincident.
+ */
+function coincident(P, Q) {
+    var δ = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1e-6;
+
+    //let [P0, P1, P2, P3] = P; 
+    //let [Q0, Q1, Q2, Q3] = Q; 
+    var PtoQs = [0.01, 0.99].map(function (i) {
+        return calcPointAndNeighbor(P, Q, i);
+    });
+    var QtoPs = [0.01, 0.99].map(function (i) {
+        return calcPointAndNeighbor(Q, P, i);
+    });
+    // Check if start and end points are coincident.
+    var tStartQ = 0.01;
+    var tEndQ = 0.99;
+    var tStartP = 0.01;
+    var tEndP = 0.99;
+    /*
+    let c = 0;
+    if (PtoQs[0].d <= δ) { tStartQ = PtoQs[0].t;  c++; }
+    if (PtoQs[1].d <= δ) { tEndQ   = PtoQs[1].t;  c++; }
+    if (QtoPs[0].d <= δ) { tStartP = QtoPs[0].t;  c++; }
+    if (QtoPs[1].d <= δ) { tEndP   = QtoPs[1].t;  c++; }
+    // At least 2 endpoints must be coincident.
+    if (c < 2) { return undefined; }
+    */
+    if (PtoQs[0].d <= δ) {
+        tStartQ = PtoQs[0].t;
+    }
+    if (PtoQs[1].d <= δ) {
+        tEndQ = PtoQs[1].t;
+    }
+    if (QtoPs[0].d <= δ) {
+        tStartP = QtoPs[0].t;
+    }
+    if (QtoPs[1].d <= δ) {
+        tEndP = QtoPs[1].t;
+    }
+    if (tStartP > tEndP) {
+        var _ref = [tEndP, tStartP];
+        tStartP = _ref[0];
+        tEndP = _ref[1];
+    }
+    if (tStartQ > tEndQ) {
+        var _ref2 = [tEndQ, tStartQ];
+        tStartQ = _ref2[0];
+        tEndQ = _ref2[1];
+    }
+    var tSpanP = tEndP - tStartP;
+    var tSpanQ = tEndQ - tStartQ;
+    // We must check at least 10 points to ensure entire curve is coincident, 
+    // otherwise we may simply have found intersection points. We cannot simply 
+    // check the control points for closeness since well seperated control 
+    // points does not necessarily translate into well seperated curves.
+    //let lengthP = sdst(P0,P1) + sdst(P1,P2) + sdst(P2,P3);
+    //let lengthQ = sdst(Q0,Q1) + sdst(Q1,Q2) + sdst(Q2,Q3);
+    // If the overlapping part is smaller than 1/10 (a heuristical value) then
+    // do not consider pieces overlapping.
+    if (tSpanP < 0.1 && tSpanQ < 0.1) {
+        return undefined;
+    }
+    var res = true;
+    //for (let i=1; i<10; i++) {
+    for (var i = 0; i < 10; i++) {
+        var t = tStartP + tSpanP * (i / 10);
+
+        var _calcPointAndNeighbor = calcPointAndNeighbor(P, Q, t),
+            d = _calcPointAndNeighbor.d;
+
+        if (d > δ) {
+            return undefined;
+        }
+    }
+    return { p: [tStartP, tEndP], q: [tStartQ, tEndQ] };
+}
+exports.coincident = coincident;
+function calcPointAndNeighbor(P, Q, t) {
+    // TODO - must also check crossing of normals - for if two curves open
+    // at endpoints and stop essentially at same point.
+    var pp1 = evaluate_1.evaluate(P)(t);
+    //let normalVector = normal(P)(0);
+    var normalVector = normal_1.normal(P)(t);
+    var pp2 = Vector.translate(pp1, normalVector);
+    var ts = line_intersection_1.lineIntersection(Q, [pp1, pp2]);
+    var bestT = undefined;
+    var bestQ = undefined;
+    var bestD = Number.POSITIVE_INFINITY;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = ts[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var _t = _step.value;
+
+            var q = evaluate_1.evaluate(Q)(_t);
+            var d = Vector.distanceBetween(q, pp1);
+            if (d < bestD) {
+                bestT = _t;
+                bestQ = q;
+                bestD = d;
+            }
         }
     } catch (err) {
         _didIteratorError = true;
@@ -6175,16 +1644,94 @@ function getPathStrFromBeziers(beziers) {
         }
     }
 
-    return str;
+    return { t: bestT, p: bestQ, d: bestD };
 }
-var Svg = {
-    getBeziersFromSvgElem: getBeziersFromSvgElem,
-    getPathStrFromBezierLoop: getPathStrFromBezierLoop,
-    getPathStrFromBeziers: getPathStrFromBeziers
-};
-exports.default = Svg;
 
-},{"../geometry/classes/path-curve":8,"./path-data-polyfill/path-data-polyfill":38,"flo-vector2d":56}],40:[function(_dereq_,module,exports){
+
+
+},{"./evaluate":21,"./line-intersection":29,"./normal":30,"flo-vector2d":50}],12:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function deCasteljau(cs, t) {
+    // See https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm
+    function f(t) {
+        if (t === 0) {
+            return [[cs[0], cs[0], cs[0], cs[0]], cs];
+        }
+        if (t === 1) {
+            return [cs, [cs[3], cs[3], cs[3], cs[3]]];
+        }
+        var t_ = 1 - t;
+        // j === 0, ..., n (with n === 3 -> cubic bezier)
+        var b00 = cs[0]; // i === 0 
+        var b10 = cs[1]; // i === 1 
+        var b20 = cs[2]; // i === 2 
+        var b30 = cs[3]; // i === 3 
+        // j === 1
+        var b01 = b00 * t_ + b10 * t; // i === 0
+        var b11 = b10 * t_ + b20 * t; // i === 1
+        var b21 = b20 * t_ + b30 * t; // i === 2
+        // j === 2
+        var b02 = b01 * t_ + b11 * t; // i === 0
+        var b12 = b11 * t_ + b21 * t; // i === 1
+        // j === 3
+        var b03 = b02 * t_ + b12 * t; // i === 0
+        return [[b00, b01, b02, b03], [b03, b12, b21, b30]];
+    }
+    return t === undefined ? f : f(t); // Curry
+}
+exports.deCasteljau = deCasteljau;
+
+
+
+},{}],13:[function(_dereq_,module,exports){
+"use strict";
+//import * as Vector from 'flo-vector2d';
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var draw_elem_1 = _dereq_("./draw-elem/draw-elem");
+
+var BezDebug =
+/**
+ * @param config - configuration settings.
+ * @param fs - some useful functions.
+ * @private
+ */
+function BezDebug(draw, g) {
+    _classCallCheck(this, BezDebug);
+
+    //(this as any).Bezier3 = Bezier3; // Included only for quick debugging from console
+    //(this as any).Vector2d = Vector; // ...
+    this.draw = draw;
+    this.g = g;
+    //-----------------------------------------------
+    // Generated by debug object for later inspection
+    //-----------------------------------------------
+    this.generated = {
+        elems: {
+            beziers: [],
+            fatLine: [],
+            looseBoundingBox: [],
+            tightBoundingBox: [],
+            extreme: [],
+            boundingHull: [],
+            intersection: []
+        }
+    };
+    this.fs = {
+        draw: draw,
+        drawElem: draw_elem_1.drawElemFunctions
+    };
+};
+
+exports.BezDebug = BezDebug;
+
+
+
+},{"./draw-elem/draw-elem":14}],14:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -6192,16 +1739,524 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var flo_poly_1 = _dereq_("flo-poly");
 var flo_vector2d_1 = _dereq_("flo-vector2d");
-var flo_memoize_1 = _dereq_("flo-memoize");
-var flo_gauss_quadrature_1 = _dereq_("flo-gauss-quadrature");
-var flo_graham_scan_1 = _dereq_("flo-graham-scan");
-var DELTA = 1e-10;
-var _flo_vector2d_1$defau = flo_vector2d_1.default,
-    rotate = _flo_vector2d_1$defau.rotatePs,
-    translate = _flo_vector2d_1$defau.translatePs;
+function fatLine(g, fatLine) {
+    var draw = _bez_debug_.fs.draw;
+    var l = fatLine.l,
+        minD = fatLine.minD,
+        maxD = fatLine.maxD;
 
+    var _l = _slicedToArray(l, 2),
+        lp1 = _l[0],
+        lp2 = _l[1];
+
+    var E = 1024;
+    var lv = flo_vector2d_1.fromTo(lp1, lp2);
+    var lvTimes10 = [+E * lv[0], +E * lv[1]];
+    var reverseLvTimes10 = [-E * lv[0], -E * lv[1]];
+    var normal = [-lv[1], lv[0]]; // Rotate by -90 degrees
+    var normMin = flo_vector2d_1.toLength(normal, minD);
+    var normMax = flo_vector2d_1.toLength(normal, maxD);
+    var extLp1 = flo_vector2d_1.translate(lp1, reverseLvTimes10);
+    var extLp2 = flo_vector2d_1.translate(lp2, lvTimes10);
+    var nl11 = flo_vector2d_1.translate(extLp1, normMin);
+    var nl12 = flo_vector2d_1.translate(extLp2, normMin);
+    var nl21 = flo_vector2d_1.translate(extLp1, normMax);
+    var nl22 = flo_vector2d_1.translate(extLp2, normMax);
+    var nl1 = [nl11, nl12];
+    var nl2 = [nl21, nl22];
+    var $line1 = draw.line(g, nl1);
+    var $line2 = draw.line(g, nl2);
+    return [].concat(_toConsumableArray($line1), _toConsumableArray($line2));
+}
+function beziers(g, beziers) {
+    var draw = _bez_debug_.fs.draw;
+    var $bezier1 = draw.bezier(g, beziers[0], 'blue thin5 nofill');
+    var $bezier2 = draw.bezier(g, beziers[1], 'green thin5 nofill');
+    var size = getSize([].concat(_toConsumableArray(beziers[0]), _toConsumableArray(beziers[1]))) / 400;
+    var $dots = [].concat(_toConsumableArray(draw.dot(g, beziers[0][0], size, 'blue')), _toConsumableArray(draw.dot(g, beziers[0][1], size, 'blue')), _toConsumableArray(draw.dot(g, beziers[0][2], size, 'blue')), _toConsumableArray(draw.dot(g, beziers[0][3], size, 'blue')), _toConsumableArray(draw.dot(g, beziers[1][0], size, 'green')), _toConsumableArray(draw.dot(g, beziers[1][1], size, 'green')), _toConsumableArray(draw.dot(g, beziers[1][2], size, 'green')), _toConsumableArray(draw.dot(g, beziers[1][3], size, 'green')));
+    return [].concat(_toConsumableArray($bezier1), _toConsumableArray($bezier2), _toConsumableArray($dots));
+}
+function getSize(ps) {
+    var minX = Number.POSITIVE_INFINITY;
+    var minY = Number.POSITIVE_INFINITY;
+    var maxX = Number.NEGATIVE_INFINITY;
+    var maxY = Number.NEGATIVE_INFINITY;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = ps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var p = _step.value;
+
+            if (p[0] < minX) {
+                minX = p[0];
+            }
+            if (p[1] < minY) {
+                minY = p[1];
+            }
+            if (p[0] > maxX) {
+                maxX = p[0];
+            }
+            if (p[1] > maxY) {
+                maxY = p[1];
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    var width = maxX - minX;
+    var height = maxY - minY;
+    return Math.max(width, height);
+}
+function intersection(g, p) {
+    var $elems = _bez_debug_.fs.draw.crossHair(g, p, 'red thin5 nofill', 0.05);
+    return $elems;
+}
+function extreme(g, extreme) {
+    var $elems = _bez_debug_.fs.draw.crossHair(g, extreme.p, 'red thin10 nofill', 0.05);
+    return $elems;
+}
+function boundingHull(g, hull) {
+    var $polygon = _bez_debug_.fs.draw.polygon(g, hull, 'thin5 black nofill');
+    return $polygon;
+}
+function looseBoundingBox(g, box) {
+    var $box = _bez_debug_.fs.draw.rect(g, box, 'thin5 brown nofill');
+    return $box;
+}
+function tightBoundingBox(g, box) {
+    var $box = _bez_debug_.fs.draw.polygon(g, box, 'thin5 black nofill');
+    return $box;
+}
+var drawElemFunctions = {
+    beziers: beziers,
+    intersection: intersection,
+    extreme: extreme,
+    boundingHull: boundingHull,
+    looseBoundingBox: looseBoundingBox,
+    tightBoundingBox: tightBoundingBox,
+    fatLine: fatLine
+};
+exports.drawElemFunctions = drawElemFunctions;
+
+
+
+},{"flo-vector2d":50}],15:[function(_dereq_,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var FatLine = function FatLine(l, minD, maxD) {
+    _classCallCheck(this, FatLine);
+
+    this.l = l;
+    this.minD = minD;
+    this.maxD = maxD;
+};
+
+exports.FatLine = FatLine;
+
+
+
+},{}],16:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var de_casteljau_1 = _dereq_("./de-casteljau");
+function evalDeCasteljau(ps, t) {
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        x0 = _ps$[0],
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[1], 2),
+        x1 = _ps$2[0],
+        y1 = _ps$2[1],
+        _ps$3 = _slicedToArray(_ps[2], 2),
+        x2 = _ps$3[0],
+        y2 = _ps$3[1],
+        _ps$4 = _slicedToArray(_ps[3], 2),
+        x3 = _ps$4[0],
+        y3 = _ps$4[1];
+
+    var evX = de_casteljau_1.deCasteljau([x0, x1, x2, x3]);
+    var evY = de_casteljau_1.deCasteljau([y0, y1, y2, y3]);
+    function f(t) {
+        if (t === 0) {
+            return [x0, y0];
+        } else if (t === 1) {
+            return [x3, y3];
+        }
+        return [evX(t)[1][0], evY(t)[1][0]];
+    }
+    return t === undefined ? f : f(t);
+}
+exports.evalDeCasteljau = evalDeCasteljau;
+
+
+
+},{"./de-casteljau":12}],17:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var get_dx_1 = _dereq_("./get-dx");
+function evaluateDx(ps, t) {
+    var dPs = get_dx_1.getDx(ps); // Speed optimizing cache
+    var f = flo_poly_1.default.evaluate(dPs);
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateDx = evaluateDx;
+
+
+
+},{"./get-dx":25,"flo-poly":42}],18:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var get_dy_1 = _dereq_("./get-dy");
+function evaluateDy(ps, t) {
+    var dPs = get_dy_1.getDy(ps); // Speed optimizing cache
+    var f = flo_poly_1.default.evaluate(dPs);
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateDy = evaluateDy;
+
+
+
+},{"./get-dy":26,"flo-poly":42}],19:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var get_x_1 = _dereq_("./get-x");
+function evaluateX(ps, t) {
+    var xPs = get_x_1.getX(ps); // Speed optimizing cache
+    var evPs = flo_poly_1.default.evaluate(xPs);
+    function f(t) {
+        if (t === 0) {
+            return ps[0][0];
+        }
+        if (t === 1) {
+            return ps[3][0];
+        }
+        return evPs(t);
+    }
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateX = evaluateX;
+
+
+
+},{"./get-x":27,"flo-poly":42}],20:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var get_y_1 = _dereq_("./get-y");
+function evaluateY(ps, t) {
+    var yPs = get_y_1.getY(ps); // Speed optimizing cache
+    var evPs = flo_poly_1.default.evaluate(yPs);
+    function f(t) {
+        if (t === 0) {
+            return ps[0][1];
+        }
+        if (t === 1) {
+            return ps[3][1];
+        }
+        return evPs(t);
+    }
+    return t === undefined ? f : f(t); // Curry
+}
+exports.evaluateY = evaluateY;
+
+
+
+},{"./get-y":28,"flo-poly":42}],21:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var evaluate_x_1 = _dereq_("./evaluate-x");
+var evaluate_y_1 = _dereq_("./evaluate-y");
+function evaluate(ps, t) {
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        x0 = _ps$[0],
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[3], 2),
+        x3 = _ps$2[0],
+        y3 = _ps$2[1];
+
+    var evX = evaluate_x_1.evaluateX(ps);
+    var evY = evaluate_y_1.evaluateY(ps);
+    function f(t) {
+        if (t === 0) {
+            return [x0, y0];
+        } else if (t === 1) {
+            return [x3, y3];
+        }
+        return [evX(t), evY(t)];
+    }
+    return t === undefined ? f : f(t);
+}
+exports.evaluate = evaluate;
+
+
+
+},{"./evaluate-x":19,"./evaluate-y":20}],22:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var de_casteljau_1 = _dereq_("./de-casteljau");
+/**
+ * Returns a cubic bezier curve that starts at the given curve's t=0 and ends
+ * at the given t parameter. Uses de Casteljau's algorithm.
+ *
+ * A loose bound on the accuracy of the resultant points is given by:
+ * |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
+ * abd η is Number.EPSILON.
+ * @param ps - A cubic bezier curve
+ * @param t - The t parameter where the resultant bezier should end
+ */
+/*
+function from0ToT(ps: number[][], t: number): number[][] {
+    let [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    
+    let s  = 1  - t;
+    let t2 = t  * t;
+    let t3 = t2 * t;
+    let s2 = s  * s;
+    let s3 = s2 * s;
+
+    return [
+        [x0, y0],
+        [t*x1  + s*x0, t*y1 + s*y0],
+        [t2*x2 + 2*s*t*x1 + s2*x0, t2*y2 + 2*s*t*y1 + s2*y0],
+        [t3*x3 + 3*s*t2*x2 + 3*s2*t*x1 + s3*x0,
+         t3*y3 + 3*s*t2*y2 + 3*s2*t*y1 + s3*y0]
+    ];
+}
+*/
+function from0ToT(ps, t) {
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        x0 = _ps$[0],
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[1], 2),
+        x1 = _ps$2[0],
+        y1 = _ps$2[1],
+        _ps$3 = _slicedToArray(_ps[2], 2),
+        x2 = _ps$3[0],
+        y2 = _ps$3[1],
+        _ps$4 = _slicedToArray(_ps[3], 2),
+        x3 = _ps$4[0],
+        y3 = _ps$4[1];
+
+    var xs = [x0, x1, x2, x3];
+    var ys = [y0, y1, y2, y3];
+
+    var _de_casteljau_1$deCas = _slicedToArray(de_casteljau_1.deCasteljau(xs, t)[0], 4),
+        x0_ = _de_casteljau_1$deCas[0],
+        x1_ = _de_casteljau_1$deCas[1],
+        x2_ = _de_casteljau_1$deCas[2],
+        x3_ = _de_casteljau_1$deCas[3];
+
+    var _de_casteljau_1$deCas2 = _slicedToArray(de_casteljau_1.deCasteljau(ys, t)[0], 4),
+        y0_ = _de_casteljau_1$deCas2[0],
+        y1_ = _de_casteljau_1$deCas2[1],
+        y2_ = _de_casteljau_1$deCas2[2],
+        y3_ = _de_casteljau_1$deCas2[3];
+
+    return [[x0_, y0_], [x1_, y1_], [x2_, y2_], [x3_, y3_]];
+}
+exports.from0ToT = from0ToT;
+
+
+
+},{"./de-casteljau":12}],23:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var de_casteljau_1 = _dereq_("./de-casteljau");
+/**
+ * Returns a cubic bezier curve that starts at the given t parameter and
+ * ends at t=1. Uses de Casteljau's algorithm.
+ *
+ * A loose bound on the accuracy of the resultant points is given by:
+ * |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
+ * abd η is Number.EPSILON.
+ * @param ps - A cubic bezier curve
+ * @param t - The t parameter where the resultant bezier should start
+ */
+/*
+function fromTTo1(ps: number[][], t: number): number[][] {
+    let [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    
+    let s  = 1  - t;
+    let t2 = t  * t;
+    let t3 = t2 * t;
+    let s2 = s  * s;
+    let s3 = s2 * s;
+
+    return [
+        [t3*x3 + 3*s*t2*x2 + 3*s2*t*x1 + s3*x0,
+         t3*y3 + 3*s*t2*y2 + 3*s2*t*y1 + s3*y0],
+        [t2*x3 + 2*t*s*x2 + s2*x1, t2*y3 + 2*t*s*y2 + s2*y1],
+        [t*x3 + s*x2, t*y3 + s*y2],
+        [x3, y3]
+    ];
+}
+*/
+function fromTTo1(ps, t) {
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        x0 = _ps$[0],
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[1], 2),
+        x1 = _ps$2[0],
+        y1 = _ps$2[1],
+        _ps$3 = _slicedToArray(_ps[2], 2),
+        x2 = _ps$3[0],
+        y2 = _ps$3[1],
+        _ps$4 = _slicedToArray(_ps[3], 2),
+        x3 = _ps$4[0],
+        y3 = _ps$4[1];
+
+    var xs = [x0, x1, x2, x3];
+    var ys = [y0, y1, y2, y3];
+
+    var _de_casteljau_1$deCas = _slicedToArray(de_casteljau_1.deCasteljau(xs, t)[1], 4),
+        x0_ = _de_casteljau_1$deCas[0],
+        x1_ = _de_casteljau_1$deCas[1],
+        x2_ = _de_casteljau_1$deCas[2],
+        x3_ = _de_casteljau_1$deCas[3];
+
+    var _de_casteljau_1$deCas2 = _slicedToArray(de_casteljau_1.deCasteljau(ys, t)[1], 4),
+        y0_ = _de_casteljau_1$deCas2[0],
+        y1_ = _de_casteljau_1$deCas2[1],
+        y2_ = _de_casteljau_1$deCas2[2],
+        y3_ = _de_casteljau_1$deCas2[3];
+
+    return [[x0_, y0_], [x1_, y1_], [x2_, y2_], [x3_, y3_]];
+}
+exports.fromTTo1 = fromTTo1;
+
+
+
+},{"./de-casteljau":12}],24:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var evaluate_1 = _dereq_("./evaluate");
+var from_0_to_T_1 = _dereq_("./from-0-to-T");
+var from_T_to_1_1 = _dereq_("./from-T-to-1");
+/**
+ * Returns a cubic bezier curve that starts at the given curve and ends at the
+ * given t parameter. Uses de Casteljau's algorithm.
+ *
+ * A loose bound on the accuracy of the resultant points is given by:
+ * |δP| = 2*2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
+ * abd η is Number.EPSILON.
+ * @param ps - A cubic bezier curve
+ * @param t1 - The t parameter where the resultant bezier should start
+ * @param t2 - The t parameter where the resultant bezier should end
+ */
+function fromTo(ps) {
+    return function (t1, t2) {
+        if (t1 === t2) {
+            // Degenerate case
+            var p = evaluate_1.evaluate(ps, t1);
+            return [p, p, p, p];
+        } else if (t1 === 0 && t2 === 1) {
+            return ps;
+        } else if (t1 === 0) {
+            return from_0_to_T_1.from0ToT(ps, t2);
+        } else if (t2 === 1) {
+            return from_T_to_1_1.fromTTo1(ps, t1);
+        }
+        var t = from_T_to_1_1.fromTTo1(ps, t1);
+        return from_0_to_T_1.from0ToT(t, (t2 - t1) / (1 - t1));
+    };
+}
+exports.fromTo = fromTo;
+
+
+
+},{"./evaluate":21,"./from-0-to-T":22,"./from-T-to-1":23}],25:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var flo_memoize_1 = _dereq_("flo-memoize");
+var get_x_1 = _dereq_("./get-x");
+var memoize = flo_memoize_1.default.m1;
+/**
+ * Returns the derivative of the power basis representation of the bezier's
+ * x-coordinates. This function is memoized on its points parameter by object
+ * reference.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ */
+var getDx = memoize(function (ps) {
+  return flo_poly_1.default.differentiate(get_x_1.getX(ps));
+});
+exports.getDx = getDx;
+
+
+
+},{"./get-x":27,"flo-memoize":41,"flo-poly":42}],26:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var flo_memoize_1 = _dereq_("flo-memoize");
+var get_y_1 = _dereq_("./get-y");
+var memoize = flo_memoize_1.default.m1;
+/**
+ * Returns the derivative of the power basis representation of the bezier's
+ * y-coordinates. This function is memoized on its points parameter by object
+ * reference.
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @returns The differentiated power basis polynomial from highest
+ * power to lowest, e.g. at^2 + bt + c is returned as [a,b,c]
+ */
+var getDy = memoize(function (ps) {
+  return flo_poly_1.default.differentiate(get_y_1.getY(ps));
+});
+exports.getDy = getDy;
+
+
+
+},{"./get-y":28,"flo-memoize":41,"flo-poly":42}],27:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_memoize_1 = _dereq_("flo-memoize");
 var memoize = flo_memoize_1.default.m1;
 /**
  * Returns the power basis representation of the bezier's x-coordinates.
@@ -6223,104 +2278,56 @@ var getX = memoize(function (ps) {
 
     return [x3 - 3 * x2 + 3 * x1 - x0, 3 * x2 - 6 * x1 + 3 * x0, 3 * x1 - 3 * x0, x0];
 });
+exports.getX = getX;
+
+
+
+},{"flo-memoize":41}],28:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_memoize_1 = _dereq_("flo-memoize");
+var memoize = flo_memoize_1.default.m1;
 /**
  * Returns the power basis representation of the bezier's y-coordinates.
  * This function is memoized on its points parameter by object reference.
  * @param ps - A bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
  */
 var getY = memoize(function (ps) {
-    var _ps2 = _slicedToArray(ps, 4),
-        _ps2$ = _slicedToArray(_ps2[0], 2),
-        y0 = _ps2$[1],
-        _ps2$2 = _slicedToArray(_ps2[1], 2),
-        y1 = _ps2$2[1],
-        _ps2$3 = _slicedToArray(_ps2[2], 2),
-        y2 = _ps2$3[1],
-        _ps2$4 = _slicedToArray(_ps2[3], 2),
-        y3 = _ps2$4[1];
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[1], 2),
+        y1 = _ps$2[1],
+        _ps$3 = _slicedToArray(_ps[2], 2),
+        y2 = _ps$3[1],
+        _ps$4 = _slicedToArray(_ps[3], 2),
+        y3 = _ps$4[1];
 
     return [y3 - 3 * y2 + 3 * y1 - y0, 3 * y2 - 6 * y1 + 3 * y0, 3 * y1 - 3 * y0, y0];
 });
+exports.getY = getY;
+
+
+
+},{"flo-memoize":41}],29:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var get_y_1 = _dereq_("./get-y");
 /**
- * Returns the derivative of the power basis representation of the bezier's
- * x-coordinates. This function is memoized on its points parameter by object
- * reference.
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * Returns the bezier t values of the intersection between the given cubic
+ * bezier and the given line.
+ * @param ps - The bezier curve
+ * @param l - The line given as a start and end point
  */
-var getDx = memoize(function (ps) {
-    return flo_poly_1.default.differentiate(getX(ps));
-});
-/**
- * Returns the derivative of the power basis representation of the bezier's
- * y-coordinates. This function is memoized on its points parameter by object
- * reference.
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns The differentiated power basis polynomial from highest
- * power to lowest, e.g. at^2 + bt + c is returned as [a,b,c]
- */
-var getDy = memoize(function (ps) {
-    return flo_poly_1.default.differentiate(getY(ps));
-});
-/**
- * Returns the second derivative of the power basis representation of the
- * bezier's x-coordinates. This function is memoized on its points parameter by
- * object reference.
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns The twice differentiated power basis polynomial from
- * highest power to lowest, e.g. at + b is returned as [a,b]
- */
-var getDdx = memoize(function (ps) {
-    return flo_poly_1.default.differentiate(getDx(ps));
-});
-/**
- * Returns the second derivative of the power basis representation of the
- * bezier's y-coordinates. This function is memoized on its points parameter by
- * object reference.
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns The twice differentiated power basis polynomial from
- * highest power to lowest, e.g. at + b is returned as [a,b]
- */
-var getDdy = memoize(function (ps) {
-    return flo_poly_1.default.differentiate(getDy(ps));
-});
-/**
- * Returns the third derivative of the power basis representation of the
- * bezier's x-coordinates. This function is memoized on its points parameter by
- * object reference.
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns The thrice differentiated power basis polynomial (a
- * constant in array from), e.g. a is returned as [a]
- */
-var getDddx = memoize(function (ps) {
-    return flo_poly_1.default.differentiate(getDdx(ps));
-});
-/**
- * Returns the third derivative of the power basis representation of the
- * bezier's y-coordinates. This function is memoized on its points parameter by
- * object reference.
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns The thrice differentiated power basis polynomial (a
- * constant in array from), e.g. a is returned as [a]
- */
-var getDddy = memoize(function (ps) {
-    return flo_poly_1.default.differentiate(getDdy(ps));
-});
-/**
- * Returns the convex hull of a bezier's control points. This hull bounds the
- * bezier curve. This function is memoized.
- *
- * The tolerance at which the cross product of two nearly collinear lines of the
- * hull are considered collinear is 1e-12.
- * @param ps - A bezier curve, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns An ordered array of convex hull points.
- */
-var getBoundingHull = memoize(flo_graham_scan_1.default);
-/**
- * Returns a cubic bezier from the given line with evenly spaced control points.
- * @param l - a 2d line represented by two points
- * @returns Control points of the cubic bezier.
- */
-function fromLine(l) {
+function lineIntersection(ps, l) {
     var _l = _slicedToArray(l, 2),
         _l$ = _slicedToArray(_l[0], 2),
         x0 = _l$[0],
@@ -6329,140 +2336,54 @@ function fromLine(l) {
         x1 = _l$2[0],
         y1 = _l$2[1];
 
-    var xInterval = (x1 - x0) / 3;
-    var yInterval = (y1 - y0) / 3;
-    return [[x0, y0], [x0 + xInterval, y0 + yInterval], [x0 + xInterval * 2, y0 + yInterval * 2], [x1, y1]];
-}
-function evaluate(ps, t) {
-    var _ps3 = _slicedToArray(ps, 4),
-        _ps3$ = _slicedToArray(_ps3[0], 2),
-        x0 = _ps3$[0],
-        y0 = _ps3$[1],
-        _ps3$2 = _slicedToArray(_ps3[3], 2),
-        x3 = _ps3$2[0],
-        y3 = _ps3$2[1];
+    var x = x1 - x0,
+        y = y1 - y0;
 
-    var evX = evaluateX(ps);
-    var evY = evaluateY(ps);
+    if (x === 0 && y === 0) {
+        return [];
+    } // It is not a line, it's a point. 
+    // Move the line and the bezier together so the line's first point is on the
+    // origin.
+    ps = flo_vector2d_1.translatePs([-x0, -y0], ps);
+    // Rotate the bezier and line together so the line is y=0.
+    var len = Math.sqrt(x * x + y * y);
+    var sinθ = y / len;
+    var cosθ = x / len;
+    ps = flo_vector2d_1.rotatePs(-sinθ, cosθ, ps);
+    // Find the intersection t values
+    return flo_poly_1.default.allRoots(get_y_1.getY(ps), 0, 1);
+}
+exports.lineIntersection = lineIntersection;
+
+
+
+},{"./get-y":28,"flo-poly":42,"flo-vector2d":50}],30:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tangent_1 = _dereq_("./tangent");
+function normal(ps, t) {
+    var tanPs = tangent_1.tangent(ps);
     function f(t) {
-        if (t === 0) {
-            return [x0, y0];
-        } else if (t === 1) {
-            return [x3, y3];
-        }
-        return [evX(t), evY(t)];
-    }
-    return t === undefined ? f : f(t);
-}
-/**
- * Returns the given bezier's inflection points.
- **/
-function findBezierInflectionPoints(ps) {
-    var _ps4 = _slicedToArray(ps, 4),
-        _ps4$ = _slicedToArray(_ps4[0], 2),
-        x0 = _ps4$[0],
-        y0 = _ps4$[1],
-        _ps4$2 = _slicedToArray(_ps4[1], 2),
-        x1 = _ps4$2[0],
-        y1 = _ps4$2[1],
-        _ps4$3 = _slicedToArray(_ps4[2], 2),
-        x2 = _ps4$3[0],
-        y2 = _ps4$3[1],
-        _ps4$4 = _slicedToArray(_ps4[3], 2),
-        x3 = _ps4$4[0],
-        y3 = _ps4$4[1];
-    // From http://www.caffeineowl.com/graphics/2d/vectorial/cubic-inflexion.html eq. 4
-
-
-    var ax = x1 - x0;
-    var ay = y1 - y0;
-    var bx = x2 - x1 - ax;
-    var by = y2 - y1 - ay;
-    var cx = x3 - x2 - ax - 2 * bx;
-    var cy = y3 - y2 - ay - 2 * by;
-    // From http://www.caffeineowl.com/graphics/2d/vectorial/cubic-inflexion.html eq. 6:
-    //   infl(t) := ax*by - ay*bx + t*(ax*cy - ay*cx) + t^2*(bx*cy - by*cx);
-    // We find the roots of the quadratic - a,b,c are the quadratic coefficients
-    var a = bx * cy - by * cx;
-    var b = ax * cy - ay * cx;
-    var c = ax * by - ay * bx;
-    var inflectionTimes = flo_poly_1.default.allRoots([a, b, c], 0, 1);
-    var evPs = evaluate(ps);
-    return inflectionTimes.map(evPs);
-}
-function κ(ps, t) {
-    var evDx = evaluateDx(ps);
-    var evDy = evaluateDy(ps);
-    var evDdx = evaluateDdx(ps);
-    var evDdy = evaluateDdy(ps);
-    function f(t) {
-        var dx = evDx(t);
-        var dy = evDy(t);
-        var ddx = evDdx(t);
-        var ddy = evDdy(t);
-        var a = dx * ddy - dy * ddx;
-        var b = Math.sqrt(Math.pow(dx * dx + dy * dy, 3));
-        return a / b;
+        var v = tanPs(t);
+        return [v[1], -v[0]];
     }
     // Curry
     return t === undefined ? f : f(t);
 }
-/**
- * Alias of κ.
- */
-var curvature = κ;
-function κds(ps, t) {
-    var evDx = evaluateDx(ps);
-    var evDy = evaluateDy(ps);
-    var evDdx = evaluateDdx(ps);
-    var evDdy = evaluateDdy(ps);
-    function f(t) {
-        var dx = evDx(t);
-        var dy = evDy(t);
-        var ddx = evDdx(t);
-        var ddy = evDdy(t);
-        var a = dx * ddy - dy * ddx;
-        var b = dx * dx + dy * dy;
-        return a / b;
-    }
-    // Curry
-    return t === undefined ? f : f(t);
-}
-function dκMod(ps, t) {
-    var _ps5 = _slicedToArray(ps, 4),
-        _ps5$ = _slicedToArray(_ps5[0], 2),
-        x0 = _ps5$[0],
-        y0 = _ps5$[1],
-        _ps5$2 = _slicedToArray(_ps5[1], 2),
-        x1 = _ps5$2[0],
-        y1 = _ps5$2[1],
-        _ps5$3 = _slicedToArray(_ps5[2], 2),
-        x2 = _ps5$3[0],
-        y2 = _ps5$3[1],
-        _ps5$4 = _slicedToArray(_ps5[3], 2),
-        x3 = _ps5$4[0],
-        y3 = _ps5$4[1];
+exports.normal = normal;
 
-    function f(t) {
-        var ts = t * t;
-        var omt = 1 - t;
-        var a = ts * x3;
-        var b = ts * y3;
-        var c = 2 * t - 3 * ts;
-        var d = (3 * t - 1) * omt;
-        var e = omt * omt;
-        var f = 3 * (a + c * x2 - d * x1 - e * x0);
-        var g = 3 * (b + c * y2 - d * y1 - e * y0);
-        var h = 6 * (t * y3 - (3 * t - 1) * y2 + (3 * t - 2) * y1 + omt * y0);
-        var i = 6 * (t * x3 - (3 * t - 1) * x2 + (3 * t - 2) * x1 + omt * x0);
-        var j = Math.sqrt(f * f + g * g);
-        return 4 * (f * (y3 - 3 * y2 + 3 * y1 - y0) - g * (x3 - 3 * x2 + 3 * x1 - x0)) * Math.pow(j, 3) - (f * h - b * g) * (2 * h * g + 2 * b * f) * j;
-    }
-    return t === undefined ? f : f(t);
-}
+
+
+},{"./tangent":31}],31:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var evaluate_dx_1 = _dereq_("./evaluate-dx");
+var evaluate_dy_1 = _dereq_("./evaluate-dy");
 function tangent(ps, t) {
-    var evDx = evaluateDx(ps);
-    var evDy = evaluateDy(ps);
+    var evDx = evaluate_dx_1.evaluateDx(ps);
+    var evDy = evaluate_dy_1.evaluateDy(ps);
     function f(t) {
         var dx = evDx(t);
         var dy = evDy(t);
@@ -6472,546 +2393,22 @@ function tangent(ps, t) {
     // Curry
     return t === undefined ? f : f(t);
 }
-function normal(ps, t) {
-    var tanPs = tangent(ps);
-    function f(t) {
-        var v = tanPs(t);
-        return [v[1], -v[0]];
-    }
-    // Curry
-    return t === undefined ? f : f(t);
-}
-/**
- * <p>
- * Categorizes the given cubic bezier curve according to whether it has a loop,
- * a cusp, or zero, one or two inflection points all of which are mutually
- * exclusive.
- * </p>
- * <p>
- * See <a href="http://graphics.pixar.com/people/derose/publications/CubicClassification/paper.pdf">
- * this</a> paper.
- * </p>
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns {string} A value of 'L', 'C', '0', '1', or '2' depending on whether
- * the curve has a loop, a cusp, or zero, one or two inflection points.
- */
-function categorize(ps) {
-    // TODO - finish
-}
-function totalCurvature(ps, interval) {
-    var tanPs = tangent(ps);
-    function f(interval) {
-        return flo_gauss_quadrature_1.default(κds(ps), interval);
-        // TODO
-        /*
-        let [a,b] = interval;
-        let tangentA = tanPs(a);
-        let tangentB = tanPs(b);
-        let sinθ = Vector.cross(tanA, tanB)
-        */
-    }
-    // Curry
-    return interval === undefined ? f : f(interval);
-}
-function totalAbsoluteCurvature(ps, interval) {
-    function f() {
-        var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [0, 1];
-
-        // Numerically integrate the absolute curvature
-        var result = flo_gauss_quadrature_1.default(function (t) {
-            return Math.abs(κds(ps)(t));
-        }, interval);
-        return result;
-    }
-    // Curry
-    return interval === undefined ? f : f(interval);
-}
-function len(interval, ps) {
-    function f(ps) {
-        if (interval[0] === interval[1]) {
-            return 0;
-        }
-
-        var _ps6 = _slicedToArray(ps, 4),
-            _ps6$ = _slicedToArray(_ps6[0], 2),
-            x0 = _ps6$[0],
-            y0 = _ps6$[1],
-            _ps6$2 = _slicedToArray(_ps6[1], 2),
-            x1 = _ps6$2[0],
-            y1 = _ps6$2[1],
-            _ps6$3 = _slicedToArray(_ps6[2], 2),
-            x2 = _ps6$3[0],
-            y2 = _ps6$3[1],
-            _ps6$4 = _slicedToArray(_ps6[3], 2),
-            x3 = _ps6$4[0],
-            y3 = _ps6$4[1];
-        // Keep line below to ensure zero length curve returns zero!
+exports.tangent = tangent;
 
 
-        if (x0 === x1 && x1 === x2 && x2 === x3 && y0 === y1 && y1 === y2 && y2 === y3) {
-            return 0;
-        }
-        var evDs = ds(ps);
-        return flo_gauss_quadrature_1.default(evDs, interval);
-    }
-    // Curry
-    return ps === undefined ? f : f(ps);
-}
-function getTAtLength(ps, s) {
-    var lenAtT = function lenAtT(t) {
-        return len([0, t], ps);
-    };
-    function f(s) {
-        return flo_poly_1.default.brent(function (t) {
-            return lenAtT(t) - s;
-        }, 0, 1);
-    }
-    // Curry
-    return s === undefined ? f : f(s);
-}
-function ds(ps, t) {
-    var evDx = evaluateDx(ps);
-    var evDy = evaluateDy(ps);
-    function f(t) {
-        var dx = evDx(t);
-        var dy = evDy(t);
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-    // Curry
-    return t === undefined ? f : f(t);
-}
-function evaluateX(ps, t) {
-    var xPs = getX(ps); // Speed optimizing cache
-    var evPs = flo_poly_1.default.evaluate(xPs);
-    function f(t) {
-        if (t === 0) {
-            return ps[0][0];
-        }
-        if (t === 1) {
-            return ps[3][0];
-        }
-        return evPs(t);
-    }
-    return t === undefined ? f : f(t); // Curry
-}
-function evaluateY(ps, t) {
-    var yPs = getY(ps); // Speed optimizing cache
-    var evPs = flo_poly_1.default.evaluate(yPs);
-    function f(t) {
-        if (t === 0) {
-            return ps[0][1];
-        }
-        if (t === 1) {
-            return ps[3][1];
-        }
-        return evPs(t);
-    }
-    return t === undefined ? f : f(t); // Curry
-}
-function evaluateDx(ps, t) {
-    var dPs = getDx(ps); // Speed optimizing cache
-    var f = flo_poly_1.default.evaluate(dPs);
-    return t === undefined ? f : f(t); // Curry
-}
-function evaluateDy(ps, t) {
-    var dPs = getDy(ps); // Speed optimizing cache
-    var f = flo_poly_1.default.evaluate(dPs);
-    return t === undefined ? f : f(t); // Curry
-}
-function evaluateDdx(ps, t) {
-    var ddPs = getDdx(ps); // Speed optimizing cache
-    var f = flo_poly_1.default.evaluate(ddPs);
-    return t === undefined ? f : f(t); // Curry
-}
-function evaluateDdy(ps, t) {
-    var ddPs = getDdy(ps); // Speed optimizing cache
-    var f = flo_poly_1.default.evaluate(ddPs);
-    return t === undefined ? f : f(t); // Curry
-}
-function evaluateDddx(ps, t) {
-    var dddPs = getDddx(ps); // Speed optimizing cache
-    var f = flo_poly_1.default.evaluate(dddPs);
-    return t === undefined ? f : f(t); // Curry
-}
-function evaluateDddy(ps, t) {
-    var dddPs = getDddy(ps); // Speed optimizing cache
-    var f = flo_poly_1.default.evaluate(dddPs);
-    return t === undefined ? f : f(t); // Curry
-}
-// TODO - refactor getBounds, getBoundingBox, etc.
-/**
- * Helper function. Returns the bounding box of the normalized (i.e. first point
- * moved to origin and rotated so that last point lies on x-axis) given cubic
- * bezier.
- * @ignore
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @param sinθ - Sine of angle made by line from first bezier point to
- * last with x-axis.
- * @param cosθ - Cosine of angle made by line from first bezier point
- * to last with x-axis.
- * @returns Bounding box in the form [[minX, minY], [maxX,maxY]
- */
-function getNormalizedBoundingBox(ps, sinθ, cosθ) {
-    var vectorToOrigin = flo_vector2d_1.default.transform(ps[0], function (x) {
-        return -x;
-    });
-    var boundingPs = flo_vector2d_1.default.translateThenRotatePs(vectorToOrigin, -sinθ, cosθ, ps);
-    return getBoundingBox(boundingPs);
-}
-/**
- * Returns the tight bounding box of the given cubic bezier.
- * @returns The tight bounding box of the bezier as four ordered
- * points of a rotated rectangle.
- * TODO - test case of baseLength === 0
- */
-var getBoundingBoxTight = memoize(function (ps) {
-    var _ps7 = _slicedToArray(ps, 4),
-        _ps7$ = _slicedToArray(_ps7[0], 2),
-        x0 = _ps7$[0],
-        y0 = _ps7$[1],
-        _ps7$2 = _slicedToArray(_ps7[1], 2),
-        x1 = _ps7$2[0],
-        y1 = _ps7$2[1],
-        _ps7$3 = _slicedToArray(_ps7[2], 2),
-        x2 = _ps7$3[0],
-        y2 = _ps7$3[1],
-        _ps7$4 = _slicedToArray(_ps7[3], 2),
-        x3 = _ps7$4[0],
-        y3 = _ps7$4[1];
 
-    var baseLength = Math.sqrt((x3 - x0) * (x3 - x0) + (y3 - y0) * (y3 - y0));
-    var sinθ = (y3 - y0) / baseLength;
-    var cosθ = (x3 - x0) / baseLength;
-    var box = getNormalizedBoundingBox(ps, sinθ, cosθ);
+},{"./evaluate-dx":17,"./evaluate-dy":18}],32:[function(_dereq_,module,exports){
+"use strict";
 
-    var _box = _slicedToArray(box, 2),
-        _box$ = _slicedToArray(_box[0], 2),
-        p0x = _box$[0],
-        p0y = _box$[1],
-        _box$2 = _slicedToArray(_box[1], 2),
-        p1x = _box$2[0],
-        p1y = _box$2[1];
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-    var axisAlignedBox = [box[0], [p1x, p0y], box[1], [p0x, p1y]];
-    return flo_vector2d_1.default.rotateThenTranslatePs(sinθ, cosθ, ps[0], axisAlignedBox);
-});
-/**
- * Returns the axis-aligned bounding box of a given bezier.
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @returns the axis-aligned bounding box in the form
- * [[minx, miny], [maxx,maxy]
- */
-var getBoundingBox = memoize(function (ps) {
-    return getBounds(ps).box;
-});
-/**
- * Calculates and returns general bezier bounds.
- * @returns {object} The axis-aligned bounding box together with the t values
- * where the bounds on the bezier are reached.
- */
-var getBounds = memoize(function (ps) {
-    // Roots of derivative
-    var roots = [getDx(ps), getDy(ps)].map(function (poly) {
-        return flo_poly_1.default.allRoots(poly, 0, 1);
-    });
-    // Endpoints
-    roots[0].push(0, 1);
-    roots[1].push(0, 1);
-    var minX = Number.POSITIVE_INFINITY;
-    var maxX = Number.NEGATIVE_INFINITY;
-    var minY = Number.POSITIVE_INFINITY;
-    var maxY = Number.NEGATIVE_INFINITY;
-    var tMinX = undefined;
-    var tMinY = undefined;
-    var tMaxX = undefined;
-    var tMaxY = undefined;
-    // Test points
-    for (var i = 0; i < roots[0].length; i++) {
-        var t = roots[0][i];
-        var x = evaluateX(ps, t);
-        if (x < minX) {
-            minX = x;
-            tMinX = t;
-        }
-        if (x > maxX) {
-            maxX = x;
-            tMaxX = t;
-        }
-    }
-    for (var _i = 0; _i < roots[1].length; _i++) {
-        var _t = roots[1][_i];
-        var y = evaluateY(ps, _t);
-        if (y < minY) {
-            minY = y;
-            tMinY = _t;
-        }
-        if (y > maxY) {
-            maxY = y;
-            tMaxY = _t;
-        }
-    }
-    var ts = [[tMinX, tMinY], [tMaxX, tMaxY]];
-    var box = [[minX, minY], [maxX, maxY]];
-    return { ts: ts, box: box };
-});
-/**
- * <p>
- * Returns a cubic bezier curve that starts at the given curve and ends at the
- * given t parameter. Uses de Casteljau's algorithm.
- * </p>
- * <p>
- * A loose bound on the accuracy of the resultant points is given by:
- * |δP| = 2*2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
- * abd η is Number.EPSILON.
- * </p>
- * @param ps - A cubic bezier curve
- * @param t1 - The t parameter where the resultant bezier should start
- * @param t2 - The t parameter where the resultant bezier should end
- * @returns {number[][]}
- */
-function fromTo(ps) {
-    return function (t1, t2) {
-        if (t1 === t2) {
-            // Degenerate case
-            var p = evaluate(ps, t1);
-            return [p, p, p, p];
-        }
-        var t = fromTTo1(ps, t1);
-        return from0ToT(t, (t2 - t1) / (1 - t1));
-    };
-}
-;
-/**
- * <p>
- * Returns a cubic bezier curve that starts at the given curve's t=0 and ends
- * at the given t parameter. Uses de Casteljau's algorithm.
- * </p>
- * <p>
- * A loose bound on the accuracy of the resultant points is given by:
- * |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
- * abd η is Number.EPSILON.
- * </p>
- * @param ps - A cubic bezier curve
- * @param t - The t parameter where the resultant bezier should end
- */
-function from0ToT(ps, t) {
-    var _ps8 = _slicedToArray(ps, 4),
-        _ps8$ = _slicedToArray(_ps8[0], 2),
-        x0 = _ps8$[0],
-        y0 = _ps8$[1],
-        _ps8$2 = _slicedToArray(_ps8[1], 2),
-        x1 = _ps8$2[0],
-        y1 = _ps8$2[1],
-        _ps8$3 = _slicedToArray(_ps8[2], 2),
-        x2 = _ps8$3[0],
-        y2 = _ps8$3[1],
-        _ps8$4 = _slicedToArray(_ps8[3], 2),
-        x3 = _ps8$4[0],
-        y3 = _ps8$4[1];
-
-    var s = 1 - t;
-    var t2 = t * t;
-    var t3 = t2 * t;
-    var s2 = s * s;
-    var s3 = s2 * s;
-    return [[x0, y0], [t * x1 + s * x0, t * y1 + s * y0], [t2 * x2 + 2 * s * t * x1 + s2 * x0, t2 * y2 + 2 * s * t * y1 + s2 * y0], [t3 * x3 + 3 * s * t2 * x2 + 3 * s2 * t * x1 + s3 * x0, t3 * y3 + 3 * s * t2 * y2 + 3 * s2 * t * y1 + s3 * y0]];
-}
-/**
- * <p>
- * Returns a cubic bezier curve that starts at the given t parameter and
- * ends at t=1. Uses de Casteljau's algorithm.
- * </p>
- * <p>
- * A loose bound on the accuracy of the resultant points is given by:
- * |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
- * abd η is Number.EPSILON.
- * </p>
- * @param ps - A cubic bezier curve
- * @param t - The t parameter where the resultant bezier should start
- */
-function fromTTo1(ps, t) {
-    var _ps9 = _slicedToArray(ps, 4),
-        _ps9$ = _slicedToArray(_ps9[0], 2),
-        x0 = _ps9$[0],
-        y0 = _ps9$[1],
-        _ps9$2 = _slicedToArray(_ps9[1], 2),
-        x1 = _ps9$2[0],
-        y1 = _ps9$2[1],
-        _ps9$3 = _slicedToArray(_ps9[2], 2),
-        x2 = _ps9$3[0],
-        y2 = _ps9$3[1],
-        _ps9$4 = _slicedToArray(_ps9[3], 2),
-        x3 = _ps9$4[0],
-        y3 = _ps9$4[1];
-
-    var s = 1 - t;
-    var t2 = t * t;
-    var t3 = t2 * t;
-    var s2 = s * s;
-    var s3 = s2 * s;
-    return [[t3 * x3 + 3 * s * t2 * x2 + 3 * s2 * t * x1 + s3 * x0, t3 * y3 + 3 * s * t2 * y2 + 3 * s2 * t * y1 + s3 * y0], [t2 * x3 + 2 * t * s * x2 + s2 * x1, t2 * y3 + 2 * t * s * y2 + s2 * y1], [t * x3 + s * x2, t * y3 + s * y2], [x3, y3]];
-}
-/**
- * <p>
- * Returns 2 new beziers split at the given t parameter, i.e. for the ranges
- * [0,t] and [t,1]. Uses de Casteljau's algorithm.
- * </p>
- * <p>
- * A loose bound on the accuracy of the resultant points is given by:
- * |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
- * abd η is Number.EPSILON.
- * </p>
- * @param ps - A cubic bezier curve
- * @param t - The t parameter where the curve should be split
- * @returns {number[][]}
- */
-function splitAt(ps, t) {
-    var _ps10 = _slicedToArray(ps, 4),
-        _ps10$ = _slicedToArray(_ps10[0], 2),
-        x0 = _ps10$[0],
-        y0 = _ps10$[1],
-        _ps10$2 = _slicedToArray(_ps10[1], 2),
-        x1 = _ps10$2[0],
-        y1 = _ps10$2[1],
-        _ps10$3 = _slicedToArray(_ps10[2], 2),
-        x2 = _ps10$3[0],
-        y2 = _ps10$3[1],
-        _ps10$4 = _slicedToArray(_ps10[3], 2),
-        x3 = _ps10$4[0],
-        y3 = _ps10$4[1];
-
-    var s = 1 - t;
-    var t2 = t * t;
-    var t3 = t2 * t;
-    var s2 = s * s;
-    var s3 = s2 * s;
-    var ps1 = [[x0, y0], [t * x1 + s * x0, t * y1 + s * y0], [t2 * x2 + 2 * s * t * x1 + s2 * x0, t2 * y2 + 2 * s * t * y1 + s2 * y0], [t3 * x3 + 3 * s * t2 * x2 + 3 * s2 * t * x1 + s3 * x0, t3 * y3 + 3 * s * t2 * y2 + 3 * s2 * t * y1 + s3 * y0]];
-    var ps2 = [ps1[3], [t2 * x3 + 2 * t * s * x2 + s2 * x1, t2 * y3 + 2 * t * s * y2 + s2 * y1], [t * x3 + s * x2, t * y3 + s * y2], [x3, y3]];
-    return [ps1, ps2];
-}
-/**
- * Returns a human readable string representation of the given bezier.
- * @param ps - A bezier curve
- * @returns {string}
- */
-function toString(ps) {
-    var _ps11 = _slicedToArray(ps, 4),
-        _ps11$ = _slicedToArray(_ps11[0], 2),
-        x0 = _ps11$[0],
-        y0 = _ps11$[1],
-        _ps11$2 = _slicedToArray(_ps11[1], 2),
-        x1 = _ps11$2[0],
-        y1 = _ps11$2[1],
-        _ps11$3 = _slicedToArray(_ps11[2], 2),
-        x2 = _ps11$3[0],
-        y2 = _ps11$3[1],
-        _ps11$4 = _slicedToArray(_ps11[3], 2),
-        x3 = _ps11$4[0],
-        y3 = _ps11$4[1];
-
-    return "[[" + x0 + "," + y0 + "],[" + x1 + "," + y1 + "],[" + x2 + "," + y2 + "],[" + x3 + "," + y3 + "]]";
-}
-/**
- * Scales all control points of the given bezier by the given factor.
- * @param ps - A bezier curve
- * @param factor - The scale factor
- * @returns {number[][]}
- */
-function scale(ps, factor) {
-    return ps.map(function (x) {
-        return [x[0] * factor, x[1] * factor];
-    });
-}
-/**
- * Returns the bezier t values of the intersection between the given cubic
- * bezier and the given line.
- * @param ps - The bezier curve
- * @param l - The line given as a start and end point
- * @returns {number[]}
- */
-function lineIntersection(ps, l) {
-    var _l2 = _slicedToArray(l, 2),
-        _l2$ = _slicedToArray(_l2[0], 2),
-        x0 = _l2$[0],
-        y0 = _l2$[1],
-        _l2$2 = _slicedToArray(_l2[1], 2),
-        x1 = _l2$2[0],
-        y1 = _l2$2[1];
-
-    var x = x1 - x0,
-        y = y1 - y0;
-
-    if (x === 0 && y === 0) {
-        return [];
-    }
-    // Move the line and the bezier together so the line's first point is on the
-    // origin.
-    ps = translate([-x0, -y0], ps);
-    // Rotate the bezier and line together so the line is y=0.
-    var len = Math.sqrt(x * x + y * y);
-    var sinθ = y / len;
-    var cosθ = x / len;
-    ps = rotate(-sinθ, cosθ, ps);
-    // Find the intersection t values
-    return flo_poly_1.default.allRoots(getY(ps), 0, 1);
-}
-/**
- * Returns the bezier t values of the intersection between the given cubic
- * bezier and the given horizontal line.
- * @param ps - The bezier curve
- * @param y - The y value of the horizontal line
- */
-function tsAtY(ps, y) {
-    // Translate ps so that y = 0.
-    ps = ps.map(function (p) {
-        return [p[0], p[1] - y];
-    });
-    // Find the intersection t values
-    return flo_poly_1.default.allRoots(getY(ps), 0, 1);
-}
-/**
- * Returns the bezier t values of the intersection between the given cubic
- * bezier and the given vertical line.
- * @param ps - The bezier curve
- * @param y - The y value of the horizontal line
- */
-function tsAtX(ps, x) {
-    // Translate ps so that x = 0.
-    ps = ps.map(function (p) {
-        return [p[0] - x, p[1]];
-    });
-    // Find the intersection t values
-    return flo_poly_1.default.allRoots(getX(ps), 0, 1);
-}
-/**
- * Returns the best least squares quadratic bezier approximation to the given
- * cubic bezier. Note that the two bezier endpoints differ in general.
- * @param ps - A cubic bezier curve.
- * @returns {number[][]}
- */
-function toQuadratic(ps) {
-    var _ps12 = _slicedToArray(ps, 4),
-        _ps12$ = _slicedToArray(_ps12[0], 2),
-        x0 = _ps12$[0],
-        y0 = _ps12$[1],
-        _ps12$2 = _slicedToArray(_ps12[1], 2),
-        x1 = _ps12$2[0],
-        y1 = _ps12$2[1],
-        _ps12$3 = _slicedToArray(_ps12[2], 2),
-        x2 = _ps12$3[0],
-        y2 = _ps12$3[1],
-        _ps12$4 = _slicedToArray(_ps12[3], 2),
-        x3 = _ps12$4[0],
-        y3 = _ps12$4[1];
-
-    return [[19 / 20 * x0 + 3 / 20 * x1 + -3 / 20 * x2 + 1 / 20 * x3, 19 / 20 * y0 + 3 / 20 * y1 + -3 / 20 * y2 + 1 / 20 * y3], [-1 / 4 * x0 + 3 / 4 * x1 + 3 / 4 * x2 + -1 / 4 * x3, -1 / 4 * y0 + 3 / 4 * y1 + 3 / 4 * y2 + -1 / 4 * y3], [1 / 20 * x0 + -3 / 20 * x1 + 3 / 20 * x2 + 19 / 20 * x3, 1 / 20 * y0 + -3 / 20 * y1 + 3 / 20 * y2 + 19 / 20 * y3]];
-}
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Returns the hybrid quadratic version of the given cubic bezier. For a
  * definition of hybrid quadratic bezier curves see <a href="http://scholarsarchive.byu.edu/cgi/viewcontent.cgi?article=2206&context=etd">
  * this paper</a>.
  * @param ps - A cubic bezier curve.
- * @returns {object[]} An array of three quadratic bezier points where the
+ * @returns An array of three quadratic bezier points where the
  * middle point is a 'hybrid' point represented as a line (itself represented
  * by two points (a linear bezier curve)) which can be evaluated at a different
  * t value (call it th). If evaluated at the same t value the result is the same
@@ -7022,735 +2419,76 @@ function toQuadratic(ps) {
  * represented as a quadratic bezier curve.
  */
 function toHybridQuadratic(ps) {
-    var _ps13 = _slicedToArray(ps, 4),
-        _ps13$ = _slicedToArray(_ps13[0], 2),
-        x0 = _ps13$[0],
-        y0 = _ps13$[1],
-        _ps13$2 = _slicedToArray(_ps13[1], 2),
-        x1 = _ps13$2[0],
-        y1 = _ps13$2[1],
-        _ps13$3 = _slicedToArray(_ps13[2], 2),
-        x2 = _ps13$3[0],
-        y2 = _ps13$3[1],
-        _ps13$4 = _slicedToArray(_ps13[3], 2),
-        x3 = _ps13$4[0],
-        y3 = _ps13$4[1];
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        x0 = _ps$[0],
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[1], 2),
+        x1 = _ps$2[0],
+        y1 = _ps$2[1],
+        _ps$3 = _slicedToArray(_ps[2], 2),
+        x2 = _ps$3[0],
+        y2 = _ps$3[1],
+        _ps$4 = _slicedToArray(_ps[3], 2),
+        x3 = _ps$4[0],
+        y3 = _ps$4[1];
 
     return [[x0, y0], [[(3 * x1 - x0) / 2, (3 * y1 - y0) / 2], [(3 * x2 - x3) / 2, (3 * y2 - y3) / 2]], [x3, y3] // evaluated at t
     ];
 }
+exports.toHybridQuadratic = toHybridQuadratic;
+
+
+
+},{}],33:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var get_x_1 = _dereq_("./get-x");
 /**
- * Evaluates the given hybrid quadratic at the given t and th parameters. (see
- * toHybridQuadratic for details).
- * @param hq - A hybrid quadratic
- * @param t - The bezier parameter value
- * @param th - The parameter value for the hybrid quadratic point.
+ * Returns the bezier t values of the intersection between the given cubic
+ * bezier and the given vertical line.
+ * @param ps - The bezier curve
+ * @param y - The y value of the horizontal line
  */
-function evaluateHybridQuadratic(hq, t, th) {
-    var P0 = hq[0];
-    var P1_ = hq[1];
-    var P2 = hq[2];
-    var P1 = evaluateLinear(hq[1], th);
-    return evaluateQuadratic([P0, P1, P2], t);
+function tsAtX(ps, x) {
+  // Translate ps so that x = 0.
+  ps = ps.map(function (p) {
+    return [p[0] - x, p[1]];
+  });
+  // Find the intersection t values
+  return flo_poly_1.default.allRoots(get_x_1.getX(ps), 0, 1);
 }
-/**
- * Evaluates the given linear bezier (line) at a specific t value.
- * @param ps - A linear bezier curve.
- * @param t - The value where the bezier should be evaluated
- */
-function evaluateLinear(ps, t) {
-    var _ps14 = _slicedToArray(ps, 2),
-        _ps14$ = _slicedToArray(_ps14[0], 2),
-        x0 = _ps14$[0],
-        y0 = _ps14$[1],
-        _ps14$2 = _slicedToArray(_ps14[1], 2),
-        x1 = _ps14$2[0],
-        y1 = _ps14$2[1];
+exports.tsAtX = tsAtX;
 
-    var x = x0 * (1 - t) + x1 * t;
-    var y = y0 * (1 - t) + y1 * t;
-    return [x, y];
+
+
+},{"./get-x":27,"flo-poly":42}],34:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var get_y_1 = _dereq_("./get-y");
+/**
+ * Returns the bezier t values of the intersection between the given cubic
+ * bezier and the given horizontal line.
+ * @param ps - The bezier curve
+ * @param y - The y value of the horizontal line
+ */
+function tsAtY(ps, y) {
+  // Translate ps so that y = 0.
+  ps = ps.map(function (p) {
+    return [p[0], p[1] - y];
+  });
+  // Find the intersection t values
+  return flo_poly_1.default.allRoots(get_y_1.getY(ps), 0, 1);
 }
-/**
- * Returns a clone of the given cubic bezier. Use sparingly; this is not in the
- * spirit of functional programming.
- * @param ps - A cubic bezier given by its array of control points
- */
-function clone(ps) {
-    var _ps15 = _slicedToArray(ps, 4),
-        _ps15$ = _slicedToArray(_ps15[0], 2),
-        x0 = _ps15$[0],
-        y0 = _ps15$[1],
-        _ps15$2 = _slicedToArray(_ps15[1], 2),
-        x1 = _ps15$2[0],
-        y1 = _ps15$2[1],
-        _ps15$3 = _slicedToArray(_ps15[2], 2),
-        x2 = _ps15$3[0],
-        y2 = _ps15$3[1],
-        _ps15$4 = _slicedToArray(_ps15[3], 2),
-        x3 = _ps15$4[0],
-        y3 = _ps15$4[1];
-
-    return [[x0, y0], [x1, y1], [x2, y2], [x3, y3]];
-}
-/**
- * Evaluates the given quadratic bezier at a specific t value.
- * @param ps - A quadratic bezier curve.
- * @param t - The value where the bezier should be evaluated
- * @returns {number[]}
- */
-function evaluateQuadratic(ps, t) {
-    var _ps16 = _slicedToArray(ps, 3),
-        _ps16$ = _slicedToArray(_ps16[0], 2),
-        x0 = _ps16$[0],
-        y0 = _ps16$[1],
-        _ps16$2 = _slicedToArray(_ps16[1], 2),
-        x1 = _ps16$2[0],
-        y1 = _ps16$2[1],
-        _ps16$3 = _slicedToArray(_ps16[2], 2),
-        x2 = _ps16$3[0],
-        y2 = _ps16$3[1];
-
-    var x = x0 * Math.pow(1 - t, 2) + x1 * 2 * (1 - t) * t + x2 * Math.pow(t, 2);
-    var y = y0 * Math.pow(1 - t, 2) + y1 * 2 * (1 - t) * t + y2 * Math.pow(t, 2);
-    return [x, y];
-}
-/**
- * Returns the cubic version of the given quadratic bezier curve. Quadratic
- * bezier curves can always be represented by cubics - the converse is false.
- * @param ps - A quadratic bezier curve.
- * @returns {number[][]}
- */
-function toCubic(ps) {
-    var _ps17 = _slicedToArray(ps, 3),
-        _ps17$ = _slicedToArray(_ps17[0], 2),
-        x0 = _ps17$[0],
-        y0 = _ps17$[1],
-        _ps17$2 = _slicedToArray(_ps17[1], 2),
-        x1 = _ps17$2[0],
-        y1 = _ps17$2[1],
-        _ps17$3 = _slicedToArray(_ps17[2], 2),
-        x2 = _ps17$3[0],
-        y2 = _ps17$3[1];
-
-    return [[x0, y0], [1 / 3 * x0 + 2 / 3 * x1, 1 / 3 * y0 + 2 / 3 * y1], [2 / 3 * x1 + 1 / 3 * x2, 2 / 3 * y1 + 1 / 3 * y2], [x2, y2]];
-}
-/**
- * Check if the two given cubic beziers are nearly coincident everywhere and
- * returns the coincident stretch (if any), otherwise returns undefined.
- * @param P - A cubic bezier curve.
- * @param Q - Another cubic bezier curve.
- * @param δ - An indication of how closely the curves should stay to
- * each other before considered coincident.
- * @returns
- */
-function coincident(P, Q) {
-    var δ = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1e-6;
-
-    var _P = _slicedToArray(P, 4),
-        P0 = _P[0],
-        P1 = _P[1],
-        P2 = _P[2],
-        P3 = _P[3];
-
-    var _Q = _slicedToArray(Q, 4),
-        Q0 = _Q[0],
-        Q1 = _Q[1],
-        Q2 = _Q[2],
-        Q3 = _Q[3];
-
-    var _calcPointAndNeighbor = calcPointAndNeighbor(P, Q, 0),
-        pP0 = _calcPointAndNeighbor.pp,
-        tPQ0 = _calcPointAndNeighbor.t,
-        pPQ0 = _calcPointAndNeighbor.p,
-        dPQ0 = _calcPointAndNeighbor.d;
-
-    var _calcPointAndNeighbor2 = calcPointAndNeighbor(P, Q, 1),
-        pP1 = _calcPointAndNeighbor2.pp,
-        tPQ1 = _calcPointAndNeighbor2.t,
-        pPQ1 = _calcPointAndNeighbor2.p,
-        dPQ1 = _calcPointAndNeighbor2.d;
-
-    var _calcPointAndNeighbor3 = calcPointAndNeighbor(Q, P, 0),
-        pQ0 = _calcPointAndNeighbor3.pp,
-        tQP0 = _calcPointAndNeighbor3.t,
-        pQP0 = _calcPointAndNeighbor3.p,
-        dQP0 = _calcPointAndNeighbor3.d;
-
-    var _calcPointAndNeighbor4 = calcPointAndNeighbor(Q, P, 1),
-        pQ1 = _calcPointAndNeighbor4.pp,
-        tQP1 = _calcPointAndNeighbor4.t,
-        pQP1 = _calcPointAndNeighbor4.p,
-        dQP1 = _calcPointAndNeighbor4.d;
-    // Check for start and end points coincident.
+exports.tsAtY = tsAtY;
 
 
-    var tStartQ = 0;
-    var tEndQ = 1;
-    var tStartP = 0;
-    var tEndP = 1;
-    var count = 0;
-    if (dPQ0 <= δ) {
-        tStartQ = tPQ0;
-        count++;
-    }
-    if (dPQ1 <= δ) {
-        tEndQ = tPQ1;
-        count++;
-    }
-    if (dQP0 <= δ) {
-        tStartP = tQP0;
-        count++;
-    }
-    if (dQP1 <= δ) {
-        tEndP = tQP1;
-        count++;
-    }
-    // At least 2 endpoints must be coincident.
-    if (count < 2) {
-        return undefined;
-    }
-    if (tStartP > tEndP) {
-        var _ref = [tEndP, tStartP];
-        tStartP = _ref[0];
-        tEndP = _ref[1];
-    }
-    if (tStartQ > tEndQ) {
-        var _ref2 = [tEndQ, tStartQ];
-        tStartQ = _ref2[0];
-        tEndQ = _ref2[1];
-    }
-    var tSpanP = tEndP - tStartP;
-    var tSpanQ = tEndQ - tStartQ;
-    // We must check at least 8 additional points to ensure entire curve
-    // is coincident, otherwise we may simply have found intersection 
-    // points.
-    // TODO - Change so that we cut the curves to be about equal and check the
-    // other two control points for closeness.
-    var res = true;
-    for (var i = 1; i < 10; i++) {
-        var t = tStartP + tSpanP * (i / 10);
 
-        var _calcPointAndNeighbor5 = calcPointAndNeighbor(P, Q, t),
-            pp = _calcPointAndNeighbor5.pp,
-            tt = _calcPointAndNeighbor5.t,
-            pq = _calcPointAndNeighbor5.p,
-            d = _calcPointAndNeighbor5.d;
-
-        if (d > δ) {
-            return undefined;
-        }
-    }
-    return { p: [tStartP, tEndP], q: [tStartQ, tEndQ] };
-    function calcPointAndNeighbor(P, Q, t) {
-        // TODO - must also check crossing of normals - for if two curves open
-        // at endpoints and stop essentially at same point.
-        var pp1 = evaluate(P)(t);
-        var normalVector = normal(P)(0);
-        var pp2 = flo_vector2d_1.default.translate(pp1, normalVector);
-        var ts = lineIntersection(Q, [pp1, pp2]);
-        var bestT = undefined;
-        var bestP = undefined;
-        var bestD = Number.POSITIVE_INFINITY;
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-            for (var _iterator = ts[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var _t2 = _step.value;
-
-                var p = evaluate(Q)(_t2);
-                var _d = flo_vector2d_1.default.distanceBetween(p, pp1);
-                if (_d < bestD) {
-                    bestT = _t2;
-                    bestP = p;
-                    bestD = _d;
-                }
-            }
-        } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
-                }
-            } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
-                }
-            }
-        }
-
-        return { pp: pp1, t: bestT, p: bestP, d: bestD };
-    }
-}
-/**
- * Robust, extremely accurate and extremely fast (cubically convergent in
- * general with fast iteration steps) algorithm that returns the intersections
- * between two cubic beziers.
- *
- * At stretches where the two curves run extremely close to (or on top of) each
- * other and curve the same direction an interval is returned instead of a
- * point.
- *
- * The algorithm is based on a <a href="http://scholarsarchive.byu.edu/cgi/viewcontent.cgi?article=2206&context=etd">paper</a>
- * that finds the intersection of a fat line and a so-called geometric interval
- * making it faster and more accurate than the standard fat-line intersection
- * algorithm. The algorithm has been modified to prevent run-away recursion
- * by checking for coincident pieces at subdivision steps.
- *
- * @param ps1 - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @param ps2 - Another cubic bezier
- * @param [δ] - An optional tolerance to within which the t parameter
- * should be calculated - defaults to the minimum value of 24*Number.EPSILON or
- * approximately 5e-15. Note that it might not make sense to set this to as
- * large as say 1e-5 since only a single iteration later the maximum accuracy
- * will be attained and not much speed will be gained anyway. Similarly if δ is
- * set to 1e-2 only two iterations will be saved. This is due to the algorithm
- * being cubically convergent (usually converging in about 4 to 8 iterations for
- * typical intersections).
- * @param [Δ] - A tolerance that indicates how closely a stretch of the
- * beziers can run together before being considered coincident. Defaults to the
- * minimum possible value of 1e-6 if not specified.
- * @returns An array that contains the t-value pairs at intersection
- * of the first and second beziers respectively. The array can also contain t
- * range pairs for coincident pieces that can be either used or ignored
- * depending on the application, e.g. the return value might be [[0.1,0.2],
- * [0.3,0.5],[[0.4,0.5],[0.6,0.7]]] that indicates intersection points at t
- * values of t1=0.1 and t2=0.2 for the first and second bezier respectively as
- * well as at t1=0.3 and t2=0.5 and finally indicates the curves to be nearly
- * coincident from t1=0.4 to t1=0.5 for the first bezier and t2=0.6 to t=0.7 for
- * the second bezier.
- */
-function bezier3Intersection(ps1, ps2, δ, Δ) {
-    var dst = flo_vector2d_1.default.distanceBetween;
-    var sdst = flo_vector2d_1.default.squaredDistanceBetween;
-    // The minimum value Δ can be. If it is too small the algorithm may take too
-    // long in cases where the two curves run extremely close to each other for
-    // their entire length and curve the same direction.
-    var ΔMin = 1e-6;
-    // This is an estimate of the relative floating point error during clipping.
-    // A bound is given by |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k
-    // are the control points indexed by k=0,1,2,3 and η is machine epsilon, 
-    // i.e. Number.EPSILON. We quadruple the bound to be sure.
-    var δMin = 24 * Number.EPSILON;
-    // Maximum error - limited to take rounding error into account.
-    if (δ === undefined) {
-        δ = 0;
-    }
-    δ = Math.max(δ, δMin);
-    if (Δ === undefined) {
-        Δ = ΔMin;
-    }
-    Δ = Math.max(Δ, ΔMin);
-    // Intersection t values for both beziers
-    var tss = [];
-    //let iterations = 0;
-    intersection(ps1, ps2, [0, 1], [0, 1], 1);
-    //console.log(iterations);
-    return tss;
-    // Helper function
-    function intersection(Q_, P_, qRange, pRange, idx) {
-        //iterations++;
-        var cidx = idx === 0 ? 1 : 0; // Counter flip-flop index
-        // Move intersection toward the origin to prevent serious floating point 
-        // issues that are introduced specifically by the getLineEquation 
-        // function. This allows us to get a relative error in the final 
-        // result usually in the 10 ULPS or less range.
-
-        var _center = center(P_, Q_);
-
-        var _center2 = _slicedToArray(_center, 2);
-
-        P_ = _center2[0];
-        Q_ = _center2[1];
-
-        var _Q_ = Q_,
-            _Q_2 = _slicedToArray(_Q_, 4),
-            Q0 = _Q_2[0],
-            Q1 = _Q_2[1],
-            Q2 = _Q_2[2],
-            Q3 = _Q_2[3];
-
-        var _P_ = P_,
-            _P_2 = _slicedToArray(_P_, 4),
-            P0 = _P_2[0],
-            P1 = _P_2[1],
-            P2 = _P_2[2],
-            P3 = _P_2[3];
-        // Get the implict line equation for the line from the first to the last
-        // control point of Q. This equation gives the distance between any 
-        // point and the line.
-
-
-        var dQ = getDistanceToLineFunction([Q0, Q3]);
-        // Calculate the distance from the control points of Q to the line 
-        // [Q0,Q3].
-        var dQi = function dQi(i) {
-            return dQ(Q_[i]);
-        };
-        var dQs = [1, 2].map(dQi);
-
-        var _dQs = _slicedToArray(dQs, 2),
-            dQ1 = _dQs[0],
-            dQ2 = _dQs[1];
-        // Calculate the fat line of Q.
-
-
-        var C = dQ1 * dQ2 > 0 ? 3 / 4 : 4 / 9;
-        var dMin = C * Math.min(0, dQ1, dQ2);
-        var dMax = C * Math.max(0, dQ1, dQ2);
-
-        var _geoClip = geoClip(P_, dQ, dMin, dMax),
-            tMin = _geoClip.tMin,
-            tMax = _geoClip.tMax;
-
-        if (tMin === Number.POSITIVE_INFINITY) {
-            return; // No intersection
-        }
-        // The paper calls for a heuristic that if less than 30% will be
-        // clipped, rather split the longest curve and find intersections in the
-        // two halfs seperately.
-        if (tMax - tMin > 0.7) {
-            // Some length measure
-            var pSpan = pRange[1] - pRange[0];
-            var qSpan = qRange[1] - qRange[0];
-            if (coincident(P_, Q_) !== undefined) {
-                return;
-            }
-            // Split the curve in half
-            if (pSpan <= qSpan) {
-                cidx = idx;
-                var _ref3 = [Q_, P_];
-                P_ = _ref3[0];
-                Q_ = _ref3[1];
-                var _ref4 = [qRange, pRange];
-                pRange = _ref4[0];
-                qRange = _ref4[1];
-            }
-            // Update t range.
-            var _span = pRange[1] - pRange[0];
-            // 1st half
-            var tMinA = pRange[0];
-            var tMaxA = tMinA + _span / 2;
-            // 2nd half
-            var tMinB = tMaxA;
-            var tMaxB = pRange[1];
-            var A = fromTo(P_)(0, 0.5);
-            var B = fromTo(P_)(0.5, 1);
-            intersection(A, Q_, [tMinA, tMaxA], qRange, cidx);
-            intersection(B, Q_, [tMinB, tMaxB], qRange, cidx);
-            return;
-        }
-        // Update t range.
-        var span = pRange[1] - pRange[0];
-        var tMin_ = tMin * span + pRange[0];
-        var tMax_ = tMax * span + pRange[0];
-        // Clip
-        P_ = fromTo(P_)(tMin, tMax);
-        if (Math.abs(tMax_ - tMin_) < δ) {
-            var t1 = (tMax_ + tMin_) / 2;
-            var pq = idx === 0 ? [ps1, ps2] : [ps2, ps1];
-            var t2 = calcOtherT(t1, pq[0], pq[1]);
-            if (t2 === undefined) {
-                return undefined;
-            }
-            var ts = idx === 0 ? [t2, t1] : [t1, t2];
-            tss.push(ts);
-            return;
-        }
-        // Swap Q and P and iterate.
-        intersection(P_, Q_, [tMin_, tMax_], qRange, cidx);
-    }
-    function geoClip(P, dQ, dMin, dMax) {
-        var dPi = function dPi(i) {
-            return dQ(P[i]);
-        };
-        var dPs = [0, 1, 2, 3].map(dPi);
-
-        var _dPs = _slicedToArray(dPs, 4),
-            dP0 = _dPs[0],
-            dP1 = _dPs[1],
-            dP2 = _dPs[2],
-            dP3 = _dPs[3];
-
-        var hq = toHybridQuadratic(P);
-        var dH0 = dQ(hq[0]);
-        var dH2 = dQ(hq[2]);
-        var dH10 = dQ(hq[1][0]);
-        var dH11 = dQ(hq[1][1]);
-        var dHmin = Math.min(dH10, dH11);
-        var dHmax = Math.max(dH10, dH11);
-        var DyMin = [dH0 - 2 * dHmin + dH2, -2 * dH0 + 2 * dHmin, dH0];
-        var DyMax = [dH0 - 2 * dHmax + dH2, -2 * dH0 + 2 * dHmax, dH0];
-        var errorBound = 2 * Math.max(flo_poly_1.default.hornerErrorBound(DyMin, 1), flo_poly_1.default.hornerErrorBound(DyMax, 1));
-        dMin = dMin - errorBound;
-        dMax = dMax + errorBound;
-        var DyMinMin = DyMin.slice();
-        DyMinMin[2] = DyMinMin[2] - dMin;
-        var DyMinMax = DyMin.slice();
-        DyMinMax[2] = DyMinMax[2] - dMax;
-        var DyMaxMin = DyMax.slice();
-        DyMaxMin[2] = DyMaxMin[2] - dMin;
-        var DyMaxMax = DyMax.slice();
-        DyMaxMax[2] = DyMaxMax[2] - dMax;
-        var tMin = Number.POSITIVE_INFINITY;
-        var tMax = Number.NEGATIVE_INFINITY;
-        var rootsMinMin = flo_poly_1.default.allRoots(DyMinMin, 0, 1);
-        var rootsMinMax = flo_poly_1.default.allRoots(DyMinMax, 0, 1);
-        var rootsMaxMin = flo_poly_1.default.allRoots(DyMaxMin, 0, 1);
-        var rootsMaxMax = flo_poly_1.default.allRoots(DyMaxMax, 0, 1);
-        tMin = Math.min.apply(Math, _toConsumableArray(rootsMinMin).concat(_toConsumableArray(rootsMinMax), _toConsumableArray(rootsMaxMin), _toConsumableArray(rootsMaxMax)));
-        tMax = Math.max.apply(Math, _toConsumableArray(rootsMinMin).concat(_toConsumableArray(rootsMinMax), _toConsumableArray(rootsMaxMin), _toConsumableArray(rootsMaxMax)));
-        if (dH0 >= dMin && dH0 <= dMax) {
-            tMin = 0;
-        }
-        if (dH2 >= dMin && dH2 <= dMax) {
-            tMax = 1;
-        }
-        if (tMin < 0) {
-            tMin = 0;
-        }
-        if (tMax > 1) {
-            tMax = 1;
-        }
-        return { tMin: tMin, tMax: tMax };
-    }
-    /**
-     * Return the given two beziers but translated such that the shorter (by
-     * some length measure) is closer to the origin.
-     * @private
-     * @param P
-     * @param Q
-     */
-    function center(P, Q) {
-        var _P2 = P,
-            _P3 = _slicedToArray(_P2, 4),
-            P0 = _P3[0],
-            P1 = _P3[1],
-            P2 = _P3[2],
-            P3 = _P3[3];
-
-        var _Q2 = Q,
-            _Q3 = _slicedToArray(_Q2, 4),
-            Q0 = _Q3[0],
-            Q1 = _Q3[1],
-            Q2 = _Q3[2],
-            Q3 = _Q3[3];
-
-        var lengthP = sdst(P0, P1) + sdst(P1, P2) + sdst(P2, P3);
-        var lengthQ = sdst(Q0, Q1) + sdst(Q1, Q2) + sdst(Q2, Q3);
-        var moveX = void 0;
-        var moveY = void 0;
-        if (lengthQ < lengthP) {
-            moveX = (Q0[0] + Q1[0] + Q2[0] + Q3[0]) / 4;
-            moveY = (Q0[1] + Q1[1] + Q2[1] + Q3[1]) / 4;
-        } else {
-            moveX = (P0[0] + P1[0] + P2[0] + P3[0]) / 4;
-            moveY = (P0[1] + P1[1] + P2[1] + P3[1]) / 4;
-        }
-        P = P.map(function (x) {
-            return [x[0] - moveX, x[1] - moveY];
-        });
-        Q = Q.map(function (x) {
-            return [x[0] - moveX, x[1] - moveY];
-        });
-        return [P, Q];
-    }
-    /**
-     * Calculates the t-value of the closest point on Q to P(t).
-     * @ignore
-     * @param {number}
-     * @param Q
-     * @param P
-     */
-    function calcOtherT(t, P, Q) {
-        var pp = evaluate(P)(t);
-
-        var _pp = _slicedToArray(pp, 2),
-            x = _pp[0],
-            y = _pp[1];
-
-        var tqsh = tsAtY(Q, y);
-        var tqsv = tsAtX(Q, x);
-        if (!tqsh.length && !tqsv.length) {
-            return undefined;
-        }
-        var tqs = [].concat(_toConsumableArray(tqsh), _toConsumableArray(tqsv));
-        var bestT = undefined;
-        var bestD = Number.POSITIVE_INFINITY;
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
-
-        try {
-            for (var _iterator2 = tqs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                var tq = _step2.value;
-
-                var pq = evaluate(Q)(tq);
-                var d = sdst(pp, pq);
-                if (d < bestD) {
-                    bestD = d;
-                    bestT = tq;
-                }
-            }
-        } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                    _iterator2.return();
-                }
-            } finally {
-                if (_didIteratorError2) {
-                    throw _iteratorError2;
-                }
-            }
-        }
-
-        return bestT;
-    }
-}
-/**
- * Get the implicit line equation from two 2d points in the form f(x,y) ax + by + c = 0
- * returned as the array [a,b,c].
- * @ignore
- * @param l - A line given by two points, e.g. [[2,0],[3,3]]
- * @returns {number[]}
- */
-function getLineEquation(l) {
-    var _l3 = _slicedToArray(l, 2),
-        _l3$ = _slicedToArray(_l3[0], 2),
-        x1 = _l3$[0],
-        y1 = _l3$[1],
-        _l3$2 = _slicedToArray(_l3[1], 2),
-        x2 = _l3$2[0],
-        y2 = _l3$2[1];
-
-    var a = y1 - y2;
-    var b = x2 - x1;
-    var c = x1 * y2 - x2 * y1;
-    return [a, b, c];
-}
-/**
- * @private
- * @param l
- */
-function getDistanceToLineFunction(l) {
-    var _getLineEquation = getLineEquation(l),
-        _getLineEquation2 = _slicedToArray(_getLineEquation, 3),
-        a = _getLineEquation2[0],
-        b = _getLineEquation2[1],
-        c = _getLineEquation2[2];
-
-    return function (p) {
-        return a * p[0] + b * p[1] + c;
-    };
-}
-/**
- * Get the implicit line equation from two 2d points in the form f(x,y) ax + by + c = 0
- * where a^2 + b^2 = 1 returned as the array [a,b,c].
- * @param l - A line given by two points, e.g. [[2,0],[3,3]]
- * @example
- * getNormalizedLineEquation([[1,0],[5,3]]); //=> [-0.6, 0.8, 0.6]
- */
-function getNormalizedLineEquation(l) {
-    var _l4 = _slicedToArray(l, 2),
-        _l4$ = _slicedToArray(_l4[0], 2),
-        x1 = _l4$[0],
-        y1 = _l4$[1],
-        _l4$2 = _slicedToArray(_l4[1], 2),
-        x2 = _l4$2[0],
-        y2 = _l4$2[1];
-
-    var a = y1 - y2;
-    var b = x2 - x1;
-    var c = x1 * y2 - x2 * y1;
-    var norm = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-    // Normalize it
-    a = a / norm;
-    b = b / norm;
-    c = c / norm;
-    return [a, b, c];
-}
-/**
- * Returns the given points (e.g. bezier) in reverse order.
- * @param ps
- * @returns {number[][]}
- */
-function reverse(ps) {
-    return ps.slice().reverse();
-}
-/**
- * <p>
- * Purely functional cubic bezier library, including robust
- * cubic-cubic bezier intersection.
- * </p>
- * <p>
- * A cubic bezier is represented as an array of points, i.e.
- * [p0, p1, p2, p3] where each point is an ordered pair, e.g.
- * [[0,0],[1,1],[2,1],[3,0]].
- * </p>
- */
-var Bezier3 = {
-    rotate: rotate,
-    getX: getX,
-    getY: getY,
-    getDx: getDx,
-    getDy: getDy,
-    getDdx: getDdx,
-    getDdy: getDdy,
-    getDddx: getDddx,
-    getDddy: getDddy,
-    getBounds: getBounds,
-    bezier3Intersection: bezier3Intersection,
-    lineIntersection: lineIntersection,
-    tsAtX: tsAtX,
-    tsAtY: tsAtY,
-    getBoundingHull: getBoundingHull,
-    fromLine: fromLine,
-    translate: translate,
-    evaluate: evaluate,
-    κ: κ,
-    dκMod: dκMod,
-    curvature: curvature,
-    tangent: tangent,
-    normal: normal,
-    totalCurvature: totalCurvature,
-    totalAbsoluteCurvature: totalAbsoluteCurvature,
-    len: len,
-    getTAtLength: getTAtLength,
-    evaluateX: evaluateX,
-    evaluateY: evaluateY,
-    evaluateDx: evaluateDx,
-    evaluateDy: evaluateDy,
-    evaluateDdx: evaluateDdx,
-    evaluateDdy: evaluateDdy,
-    evaluateDddx: evaluateDddx,
-    evaluateDddy: evaluateDddy,
-    getBoundingBoxTight: getBoundingBoxTight,
-    getBoundingBox: getBoundingBox,
-    fromTo: fromTo,
-    splitAt: splitAt,
-    scale: scale,
-    toCubic: toCubic,
-    toQuadratic: toQuadratic,
-    toHybridQuadratic: toHybridQuadratic,
-    evaluateHybridQuadratic: evaluateHybridQuadratic,
-    evaluateQuadratic: evaluateQuadratic,
-    evaluateLinear: evaluateLinear,
-    coincident: coincident,
-    from0ToT: from0ToT,
-    fromTTo1: fromTTo1,
-    clone: clone,
-    reverse: reverse
-};
-exports.default = Bezier3;
-
-},{"flo-gauss-quadrature":41,"flo-graham-scan":42,"flo-memoize":47,"flo-poly":48,"flo-vector2d":56}],41:[function(_dereq_,module,exports){
+},{"./get-y":28,"flo-poly":42}],35:[function(_dereq_,module,exports){
 "use strict";
 // TODO A future improvement can be to use the Gauss–Kronrod rules
 // to estimate the error and thus choose a number of constants based
@@ -7820,760 +2558,129 @@ var GAUSS_CONSTANTS = {
 };
 exports.default = gaussQuadrature;
 
-},{}],42:[function(_dereq_,module,exports){
-(function (global){
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.FloGrahamScan = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-'use strict';
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var Vector = _dereq_('flo-vector2d');
-
-var DELTA = 1e-10;
-
+},{}],36:[function(_dereq_,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const flo_vector2d_1 = _dereq_("flo-vector2d");
+const DELTA = 1e-10;
 /**
- * Performs a functional stable sort on the given array and 
+ * Performs a functional stable sort on the given array and
  * returns the newly sorted array.
  * @ignore
  */
 function stableSort(arr, f) {
-	var indxArray = [];
-	for (var i = 0; i < arr.length; i++) {
-		indxArray.push(i);
-	}
-
-	indxArray.sort(function (a, b) {
-		var res = f(arr[a], arr[b]);
-
-		if (res !== 0) {
-			return res;
-		}
-
-		return a - b;
-	});
-
-	var sorted = [];
-	for (var _i = 0; _i < arr.length; _i++) {
-		sorted.push(arr[indxArray[_i]]);
-	}
-
-	return sorted;
+    let indxArray = [];
+    for (let i = 0; i < arr.length; i++) {
+        indxArray.push(i);
+    }
+    indxArray.sort(function (a, b) {
+        let res = f(arr[a], arr[b]);
+        if (res !== 0) {
+            return res;
+        }
+        return a - b;
+    });
+    let sorted = [];
+    for (let i = 0; i < arr.length; i++) {
+        sorted.push(arr[indxArray[i]]);
+    }
+    return sorted;
 }
-
 /**
  * In-place swap two elements in the given array.
  * @ignore
  */
 function swap(arr, a, b) {
-	if (a === b) {
-		return;
-	}
-
-	var temp = arr[a];
-	arr[a] = arr[b];
-	arr[b] = temp;
+    if (a === b) {
+        return;
+    }
+    let temp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = temp;
 }
-
 /**
- * @ignore
+ * @private
  */
 function getSmallestIndxYThenX(ps) {
-	var smallest = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
-	var smallestI = void 0;
-	for (var i = 0; i < ps.length; i++) {
-		var y = ps[i][1];
-		if (y < smallest[1] || y === smallest[1] && ps[i][0] < smallest[0]) {
-			smallestI = i;
-			smallest = ps[i];
-		}
-	}
-
-	return smallestI;
+    let smallest = [
+        Number.POSITIVE_INFINITY,
+        Number.POSITIVE_INFINITY
+    ];
+    let smallestI;
+    for (let i = 0; i < ps.length; i++) {
+        let y = ps[i][1];
+        if ((y < smallest[1]) ||
+            (y === smallest[1] && ps[i][0] < smallest[0])) {
+            smallestI = i;
+            smallest = ps[i];
+        }
+    }
+    return smallestI;
 }
-
-/** 
+/**
  * <p>
- * Finds the convex hull of the given set of 2d points using the   
- * Graham Scan algorithm and returns the hull as an array of points. 
+ * Finds the convex hull of the given set of 2d points using the
+ * Graham Scan algorithm and returns the hull as an array of points.
  * </p>
  * <p>
  * See https://en.wikipedia.org/wiki/Graham_scan
  * </p>
- * @param {number[][]} ps_ - A set of points
- * @param {boolean} includeAllBoundaryPoints - Set this to true to if all boundary points
- * should be returned, even redundant ones
- * @param {number} delta - Tolerance at which three points are considered collinear -
+ * @param ps_ - A set of points
+ * @param includeAllBoundaryPoints - Set this to true to if all boundary points
+ * should be returned, even redundant ones - defaults to false
+ * @param delta - Tolerance at which three points are considered collinear -
  * defaults to 1e-10
- * @returns {number[][]}
  */
-function grahamScan(ps_, includeAllBoundaryPoints, delta) {
-
-	delta = delta === undefined ? DELTA : delta;
-
-	function fail(p1, p2, p3) {
-		var res = Vector.ccw(p1, p2, p3, delta);
-		if (includeAllBoundaryPoints) {
-			return res < 0;
-		}
-		return res <= 0;
-	}
-
-	var ps = ps_.slice();
-	var n = ps.length;
-
-	var idx = getSmallestIndxYThenX(ps);
-
-	var _ps$splice = ps.splice(idx, 1),
-	    _ps$splice2 = _slicedToArray(_ps$splice, 1),
-	    p = _ps$splice2[0];
-
-	ps = stableSort(ps, function (a, b) {
-		var res = Vector.cross(Vector.fromTo(p, b), Vector.fromTo(p, a));
-		res = Math.abs(res) < delta ? 0 : res;
-		if (res !== 0) {
-			return res;
-		}
-
-		res = a[1] - b[1];
-		res = Math.abs(res) < delta ? 0 : res;
-		if (res !== 0) {
-			return res;
-		}
-
-		return a[0] - b[0];
-	});
-
-	ps.unshift(p);
-
-	var m = 1;
-	for (var i = 2; i < n; i++) {
-		while (fail(ps[m - 1], ps[m], ps[i])) {
-			if (m > 1) {
-				m -= 1;
-				continue;
-			} else if (i === n - 1) {
-				m -= 1;
-				break;
-			} else {
-				i += 1;
-			}
-		}
-
-		m += 1;
-		swap(ps, m, i);
-	}
-
-	return ps.slice(0, m + 1);
+function grahamScan(ps_, includeAllBoundaryPoints = false, delta = DELTA) {
+    includeAllBoundaryPoints = !!includeAllBoundaryPoints;
+    function fail(p1, p2, p3) {
+        let res = flo_vector2d_1.default.ccw(p1, p2, p3, delta);
+        if (includeAllBoundaryPoints) {
+            return res < 0;
+        }
+        return res <= 0;
+    }
+    let ps = ps_.slice();
+    let n = ps.length;
+    let idx = getSmallestIndxYThenX(ps);
+    let [p] = ps.splice(idx, 1);
+    ps = stableSort(ps, function (a, b) {
+        let res = flo_vector2d_1.default.cross(flo_vector2d_1.default.fromTo(p, b), flo_vector2d_1.default.fromTo(p, a));
+        res = Math.abs(res) < delta ? 0 : res;
+        if (res !== 0) {
+            return res;
+        }
+        res = a[1] - b[1];
+        res = Math.abs(res) < delta ? 0 : res;
+        if (res !== 0) {
+            return res;
+        }
+        return a[0] - b[0];
+    });
+    ps.unshift(p);
+    let m = 1;
+    for (let i = 2; i < n; i++) {
+        while (fail(ps[m - 1], ps[m], ps[i])) {
+            if (m > 1) {
+                m -= 1;
+                continue;
+            }
+            else if (i === n - 1) {
+                m -= 1;
+                break;
+            }
+            else {
+                i += 1;
+            }
+        }
+        m += 1;
+        swap(ps, m, i);
+    }
+    return ps.slice(0, m + 1);
 }
+exports.default = grahamScan;
 
-module.exports = grahamScan;
-
-},{"flo-vector2d":2}],2:[function(_dereq_,module,exports){
-(function (global){
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.FloVector2d = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-'use strict';
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var DELTA = 1e-10;
-
-/*
- * Purely functional 2d vector utilities.
- */
-var Vector = {
-	dot: dot,
-	cross: cross,
-	ccw: ccw,
-	segSegIntersection: segSegIntersection,
-	doesSegSegIntersect: doesSegSegIntersect,
-	squaredDistanceBetween: squaredDistanceBetween,
-	scale: scale,
-	reverse: reverse,
-	toUnitVector: toUnitVector,
-	toLength: toLength,
-	fromTo: fromTo,
-	interpolate: interpolate,
-	mean: mean,
-	distanceBetween: distanceBetween,
-	length: length,
-	lengthSquared: lengthSquared,
-	manhattanDistanceBetween: manhattanDistanceBetween,
-	manhattanLength: manhattanLength,
-	distanceBetweenPointAndLine: distanceBetweenPointAndLine,
-	squaredDistanceBetweenPointAndLineSegment: squaredDistanceBetweenPointAndLineSegment,
-	circumCenter: circumCenter,
-	inCenter: inCenter,
-	centroid: centroid,
-	equal: equal,
-	rotate: rotate,
-	reverseRotate: reverseRotate,
-	rotateBy90Degrees: rotateBy90Degrees,
-	rotateByNeg90Degrees: rotateByNeg90Degrees,
-	transform: transform,
-	getClosestTo: getClosestTo,
-	translatePoints: translatePoints,
-	rotatePoints: rotatePoints,
-	translateThenRotatePoints: translateThenRotatePoints,
-	rotateThenTranslatePoints: rotateThenTranslatePoints
-
-	/** 
-  * Returns the dot (inner) product between two 2-vectors. 
-  * @param {number} a - The first vector
-  * @param {number} b - The second vector
-  * @returns {number}
-  */
-};function dot(a, b) {
-	return a[0] * b[0] + a[1] * b[1];
-}
-
-/** 
- * Returns the cross product signed magnitude between two 2-vectors.
- * @param {number} a - The first vector
- * @param {number} b - The second vector
- * @returns {number}
- */
-function cross(a, b) {
-	return a[0] * b[1] - a[1] * b[0];
-}
-
-/**
- * Three 2d points are a counter-clockwise turn if ccw > 0, 
- * clockwise if ccw < 0, and colinear if ccw = 0 because ccw is a 
- * determinant that gives twice the signed area of the triangle formed 
- * by p1, p2 and p3.
- * @param {number[]} p1 - The first point
- * @param {number[]} p2 - The second point
- * @param {number[]} p3 - The third point
- * @param {number} delta - The tolerance at which the three points are 
- * considered colinear - defaults to 1e-10
- * @returns {number}
- */
-function ccw(p1, p2, p3, delta) {
-	delta = delta === undefined ? DELTA : delta;
-
-	var res = (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
-
-	return Math.abs(res) <= delta ? 0 : res;
-}
-
-/**
- * <p>
- * Finds the point where two 2d line segments intersect.
- * </p>
- * <p>
- * See <a href="http://algs4.cs.princeton.edu/91primitives">Geometric primitves</a>
- * </p> 
- * @param {number[][]} ab - The first line 
- * @param {number[][]} cd - The second line
- * @param {number} delta - The tolerance at which the lines are considered 
- * parallel - defaults to 1e-10
- * @returns {number[]} The point where the two line segments intersect  
- * or undefined if they don't intersect or a line if they intersect at 
- * infinitely many points. 
- */
-function segSegIntersection(ab, cd, delta) {
-	delta = delta === undefined ? DELTA : delta;
-
-	var _ab = _slicedToArray(ab, 2),
-	    a = _ab[0],
-	    b = _ab[1];
-
-	var _cd = _slicedToArray(cd, 2),
-	    c = _cd[0],
-	    d = _cd[1];
-
-	var denom = (b[0] - a[0]) * (d[1] - c[1]) - (b[1] - a[1]) * (d[0] - c[0]);
-	var rNumer = (a[1] - c[1]) * (d[0] - c[0]) - (a[0] - c[0]) * (d[1] - c[1]);
-	var sNumer = (a[1] - c[1]) * (b[0] - a[0]) - (a[0] - c[0]) * (b[1] - a[1]);
-
-	if (Math.abs(denom) <= delta) {
-		// parallel
-		if (Math.abs(rNumer) <= delta) {
-			// colinear
-			// TODO Check if x-projections and y-projections intersect
-			// and return the line of intersection if they do.
-			return undefined;
-		}
-		return undefined;
-	}
-
-	var r = rNumer / denom;
-	var s = sNumer / denom;
-
-	if (0 <= r && r <= 1 && 0 <= s && s <= 1) {
-		return [a[0] + r * (b[0] - a[0]), a[1] + r * (b[1] - a[1])];
-	}
-
-	return undefined;
-}
-
-/**
- * Returns true if the two given 2d line segments intersect, false otherwise.
- * @param {number[][]} a - A line segment
- * @param {number[][]} b - Another line segment
- * @returns {boolean}
- */
-function doesSegSegIntersect(a, b) {
-	if (ccw(a[0], a[1], b[0]) * ccw(a[0], a[1], b[1]) > 0) {
-		return false;
-	}
-	if (ccw(b[0], b[1], a[0]) * ccw(b[0], b[1], a[1]) > 0) {
-		return false;
-	}
-
-	return true;
-}
-
-/** 
- * Returns the squared distance between two 2d points.
- * @param {number[]} p1 - A point
- * @param {number[]} p2 - Another point
- * @returns {number}
- */
-function squaredDistanceBetween(p1, p2) {
-	var x = p2[0] - p1[0];
-	var y = p2[1] - p1[1];
-
-	return x * x + y * y;
-}
-
-/**
- * Returns a scaled version of the given 2-vector.
- * @param {number[]} p - A vector
- * @param {number} factor - A scale factor
- * @returns {number[]}
- */
-function scale(p, factor) {
-	return [p[0] * factor, p[1] * factor];
-}
-
-/**
- * Returns the 2-vector reversed.
- * @param {number[]} p 
- * @returns {number[]}
- */
-function reverse(p) {
-	return [-p[0], -p[1]];
-}
-
-/**
- * Returns the given 2-vector scaled to a length of one.
- * @param {number[]} p
- * @returns {number[]}
- */
-function toUnitVector(p) {
-	var scaleFactor = 1 / length(p);
-
-	return [p[0] * scaleFactor, p[1] * scaleFactor];
-}
-
-/**
- * Returns the given 2-vector scaled to the given length.
- * @param {number[]} p 
- * @param {number} length 
- * @returns {number[]}
- */
-function toLength(p, length) {
-	var scaleFactor = length / length(p);
-
-	return [p[0] * scaleFactor, p[1] * scaleFactor];
-}
-
-/** 
- * Returns the second 2-vector minus the first.
- * @param {number[]} p1 - The first vector
- * @param {number[]} p2 - The second vector
- * @returns {number[]}
- */
-function fromTo(p1, p2) {
-	return [p2[0] - p1[0], p2[1] - p1[1]];
-}
-
-/**
- * Performs linear interpolation between two 2d points and returns the resultant point.
- * @param {number[]} p1 - The first point.
- * @param {number[]} p2 - The second point.
- * @param {number} t - The interpolation fraction (usually in [0,1]).  
- * @returns {number[]}
- */
-function interpolate(p1, p2, t) {
-	return [p1[0] + (p2[0] - p1[0]) * t, p1[1] + (p2[1] - p1[1]) * t];
-}
-
-/**
- * Returns the mean point value of the provided array of two 2d points. 
- * @param {number[][]} ps - The two points
- * @returns {number[]}
- */
-function mean(ps) {
-	var p1 = ps[0];
-	var p2 = ps[1];
-
-	return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
-}
-
-/** 
- * Returns the distance between two 2d points.
- * @param {number[]} p1 - A point.
- * @param {number[]} p2 - Another point.
- * @returns {number}
- */
-function distanceBetween(p1, p2) {
-	return Math.sqrt(squaredDistanceBetween(p1, p2));
-}
-
-/** 
- * Returns the length of the given 2-vector.
- * @param {number[]} p - A vector
- * @returns {number}
- */
-function length(p) {
-	return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
-}
-
-/**
- * Returns the squared length of the given 2-vector.
- * @param {number[]} p - A vector
- * @returns {number}
- */
-function lengthSquared(v) {
-	return v[0] * v[0] + v[1] * v[1];
-}
-
-/** 
- * Returns the Manhattan distance between two 2d points.
- * @param {number[]} p1 - A point.
- * @param {number[]} p2 - Another point.
- * @returns {number}
- */
-function manhattanDistanceBetween(p1, p2) {
-	return Math.abs(p1[0] - p2[0]) + Math.abs(p1[1] - p2[1]);
-}
-
-/** 
- * Returns the Manhattan length of the given 2-vector.
- * @param {number[]} p - A vector
- * @returns {number}
- */
-function manhattanLength(p) {
-	return Math.abs(p[0]) + Math.abs(p[1]);
-}
-
-/**
- * <p>
- * Returns the distance between the given point and line. 
- * </p>
- * <p>
- * See https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points 
- * </p>
- * @param {number[]} p - A point
- * @param {number[][]} l - A line
- * @returns {number}
- */
-function distanceBetweenPointAndLine(p, l) {
-	var x0 = p[0];
-	var y0 = p[1];
-	var x1 = l[0][0];
-	var y1 = l[0][1];
-	var x2 = l[1][0];
-	var y2 = l[1][1];
-
-	var y2_y1 = y2 - y1;
-	var x2_x1 = x2 - x1;
-
-	var numerator = y2_y1 * x0 - x2_x1 * y0 + x2 * y1 - y2 * x1;
-	var denominator = Math.sqrt(y2_y1 * y2_y1 + x2_x1 * x2_x1);
-
-	return Math.abs(numerator / denominator);
-}
-
-/**
- * Return the squared distance between the given point and line segment. 
- * @param {number[]} p - A point
- * @param {number[][]} l - A line
- * @returns {number}
- */
-function squaredDistanceBetweenPointAndLineSegment(p, l) {
-	var v = l[0];
-	var w = l[1];
-
-	var l2 = squaredDistanceBetween(v, w);
-	if (l2 == 0) {
-		return squaredDistanceBetween(p, v);
-	}
-
-	var t = ((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2;
-	t = Math.max(0, Math.min(1, t));
-
-	var d2 = squaredDistanceBetween(p, [v[0] + t * (w[0] - v[0]), v[1] + t * (w[1] - v[1])]);
-
-	return d2;
-}
-
-/**
- * Returns the circumcenter of the given 2d triangle (given as three 2d points).
- * @param {number[][]} triangle 
- * @returns {number[]}
- */
-function circumCenter(triangle) {
-	// See wikipedia
-	var p1 = triangle[0];
-	var p2 = triangle[1];
-	var p3 = triangle[2];
-
-	var Sx = 0.5 * det3([squaredNorm(p1), p1[1], 1], [squaredNorm(p2), p2[1], 1], [squaredNorm(p3), p3[1], 1]);
-
-	var Sy = 0.5 * det3([p1[0], squaredNorm(p1), 1], [p2[0], squaredNorm(p2), 1], [p3[0], squaredNorm(p3), 1]);
-
-	var a = det3([p1[0], p1[1], 1], [p2[0], p2[1], 1], [p3[0], p3[1], 1]);
-
-	var b = det3([p1[0], p1[1], squaredNorm(p1)], [p2[0], p2[1], squaredNorm(p2)], [p3[0], p3[1], squaredNorm(p3)]);
-
-	return [Sx / a, Sy / a];
-}
-
-/** 
- * <p>
- * Returns the incenter of the given triangle.
- * </p>
- * <p>
- * See Wikipedia - https://en.wikipedia.org/wiki/Incenter 
- * </p>
- * @param {number[][]} triangle 
- * @returns {number[]}
- */
-function inCenter(triangle) {
-	var p1 = triangle[0];
-	var p2 = triangle[1];
-	var p3 = triangle[2];
-
-	var l1 = distanceBetween(p2, p3);
-	var l2 = distanceBetween(p1, p3);
-	var l3 = distanceBetween(p1, p2);
-	var lengthSum = l1 + l2 + l3;
-	return [(l1 * p1[0] + l2 * p2[0] + l3 * p3[0]) / lengthSum, (l1 * p1[1] + l2 * p2[1] + l3 * p3[1]) / lengthSum];
-}
-
-/**
- * Returns the centroid of the given polygon, e.g. triangle. The polygon
- * must be simple, i.e. not self-intersecting.
- * @param {number[][]} polygon 
- * @returns {number[]}
- */
-function centroid(polygon) {
-	if (polygon.length === 3) {
-		var p1 = polygon[0];
-		var p2 = polygon[1];
-		var p3 = polygon[2];
-
-		var x = p1[0] + p2[0] + p3[0];
-		var y = p1[1] + p2[1] + p3[1];
-
-		return [x / 3, y / 3];
-	}
-
-	// polygon.length assumed > 3 and assumed to be non-self-intersecting
-	// See wikipedia
-
-	// First calculate the area, A, of the polygon
-	var A = 0;
-	for (var i = 0; i < polygon.length; i++) {
-		var p0 = polygon[i];
-		var _p = i === polygon.length - 1 ? polygon[0] : polygon[i + 1];
-
-		A = A + (p0[0] * _p[1] - _p[0] * p0[1]);
-	}
-	A = A / 2;
-
-	var C = [0, 0];
-	for (var _i = 0; _i < polygon.length; _i++) {
-		var _p2 = polygon[_i];
-		var _p3 = _i === polygon.length - 1 ? polygon[0] : polygon[_i + 1];
-
-		C[0] = C[0] + (_p2[0] + _p3[0]) * (_p2[0] * _p3[1] - _p3[0] * _p2[1]);
-		C[1] = C[1] + (_p2[1] + _p3[1]) * (_p2[0] * _p3[1] - _p3[0] * _p2[1]);
-	}
-
-	return [C[0] / (6 * A), C[1] / (6 * A)];
-}
-
-/**
- * Calculate the determinant of three 3-vectors, i.e. 3x3 matrix
- * @param {number[]} x 
- * @param {number[]} y
- * @param {number[]} z
- * @returns {number}
- */
-function det3(x, y, z) {
-	return x[0] * (y[1] * z[2] - y[2] * z[1]) - x[1] * (y[0] * z[2] - y[2] * z[0]) + x[2] * (y[0] * z[1] - y[1] * z[0]);
-}
-
-/**
- * Returns the result of adding two 2-vectors.
- * @param {number[]} a - A vector
- * @param {number[]} b - Another vector
- * @param {number[]}
- */
-function add(a, b) {
-	return [a[0] + b[0], a[1] + b[1]];
-}
-
-/**
- * Returns true if two 2-vectors are identical, false otherwise.
- * @param {number[]} a
- * @param {number[]} b
- * @returns {boolean}
- */
-function equal(a, b) {
-	return a[0] === b[0] && a[1] === b[1];
-}
-
-/**
- * Returns a rotated version of the given 2-vector given the sine and cosine of the angle.
- * @param {number[]} p 
- * @param {number} sinAngle 
- * @param {number} cosAngle 
- * @returns {number[]}
- */
-function rotate(p, sinAngle, cosAngle) {
-	return [p[0] * cosAngle - p[1] * sinAngle, p[0] * sinAngle + p[1] * cosAngle];
-}
-
-/**
- * Returns a anti-clockwise rotated version of the given 2-vector given the sine and cosine of the angle.
- * @param {number[]} p 
- * @param {number} sinθ
- * @param {number} cosθ
- * @returns {number[]}
- */
-function reverseRotate(p, sinθ, cosθ) {
-	return [+p[0] * cosθ + p[1] * sinθ, -p[0] * sinθ + p[1] * cosθ];
-}
-
-/**
- * Returns a 90 degrees rotated version of the given 2-vector.
- * @param {number[]} p 
- * @returns {number[]}
- */
-function rotateBy90Degrees(p) {
-	return [-p[1], p[0]];
-}
-
-/**
- * Returns a negative 90 degrees rotated version of the given 2-vector.
- * @param {number[]} p 
- * @returns {number[]}
- */
-function rotateByNeg90Degrees(p) {
-	return [p[1], -p[0]];
-}
-
-/**
- * Transforms the given 2-vector by applying the given function to each coordinate.
- * @param {number[]} p 
- * @param {function} f 
- * @returns {*[]}
- */
-function transform(p, f) {
-	return [f(p[0]), f(p[1])];
-}
-
-/**
- * Returns the closest point to the array of 2d points, optionally providing a distance function.
- * @param {number[]} p
- * @param {number[][]} ps
- * @param {function} f - Distance function - if undefined uses squaredDistanceBetween
- */
-function getClosestTo(p, ps, f) {
-	f = f === undefined ? squaredDistanceBetween : f;
-
-	var cp = undefined; // Closest Point
-	var bestd = Number.POSITIVE_INFINITY;
-	for (var i = 0; i < ps.length; i++) {
-		var p_ = ps[i];
-
-		var d = f(p, p_);
-		if (d < bestd) {
-			cp = p_;
-			bestd = d;
-		}
-	}
-
-	return cp;
-}
-
-/**
- * Return the given 2d points translated by the given 2d vector.
- * @param {number[][]} ps 
- * @param {number[]} v 
- * @returns {number[][]}
- */
-function translatePoints(ps, v) {
-	// SLOW!
-	/*return ps.map(function(p) {
- 	//return add(p, v);
- 	return [p[0]+v[0], p[1]+v[1]]; 
- });*/
-
-	// FAST! (at least on V8, BUT WHY?!)
-	var result = [];
-	for (var i = 0; i < ps.length; i++) {
-		result.push([ps[i][0] + v[0], ps[i][1] + v[1]]);
-	}
-
-	return result;
-}
-
-/**
- * Returns the given points rotated by a given angle given as the sine and cosine of the angle.
- * @param {number[][]} ps 
- * @param {number} sinθ 
- * @param {number} cosθ
- * @returns {number[][]}
- */
-function rotatePoints(ps, sinθ, cosθ) {
-	return ps.map(function (p) {
-		return rotate(p, sinθ, cosθ);
-	});
-}
-
-/** 
- * Returns an array of points by applying a translation and then rotation to the given points.
- * @param {number[][]} ps - The input points
- * @param {number[]} t - The translation vector
- * @param {number} sinθ 
- * @param {number} cosθ
- * @returns {number[][]}
- **/
-function translateThenRotatePoints(ps, t, sinθ, cosθ) {
-	return ps.map(function (p) {
-		return rotate(add(p, t), sinθ, cosθ);
-	});
-}
-
-/** 
- * Returns an array of points by applying a rotation and then translation to the given points.
- * @param {number[][]} ps - The input points
- * @param {number[]} t - The translation vector
- * @param {number} sinθ 
- * @param {number} cosθ
- * @returns {number[][]}
- **/
-function rotateThenTranslatePoints(ps, t, sinθ, cosθ) {
-	return ps.map(function (p) {
-		return add(rotate(p, sinθ, cosθ), t);
-	});
-}
-
-module.exports = Vector;
-
-},{}]},{},[1])(1)
-});
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[1])(1)
-});
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"flo-vector2d":56}],43:[function(_dereq_,module,exports){
+},{"flo-vector2d":50}],37:[function(_dereq_,module,exports){
 "use strict";
 /*
  * Concise, Destructive, Left Leaning Red Black Tree implementation.
@@ -9028,7 +3135,7 @@ function fixUp(h) {
 }
 exports.default = LlRbTree;
 
-},{"./src/tree-node":46,"./src/tree-node-color":44,"./src/tree-node-direction":45}],44:[function(_dereq_,module,exports){
+},{"./src/tree-node":40,"./src/tree-node-color":38,"./src/tree-node-direction":39}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9039,7 +3146,7 @@ var TreeNodeColor;
 })(TreeNodeColor || (TreeNodeColor = {}));
 exports.default = TreeNodeColor;
 
-},{}],45:[function(_dereq_,module,exports){
+},{}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9050,7 +3157,7 @@ var TreeNodeDirection;
 })(TreeNodeDirection || (TreeNodeDirection = {}));
 exports.default = TreeNodeDirection;
 
-},{}],46:[function(_dereq_,module,exports){
+},{}],40:[function(_dereq_,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -9076,7 +3183,7 @@ var TreeNode = function TreeNode(data, asArray) {
 
 exports.default = TreeNode;
 
-},{"./tree-node-color":44}],47:[function(_dereq_,module,exports){
+},{"./tree-node-color":38}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9104,7 +3211,7 @@ function m1(f) {
 var Memoize = { m1: m1 };
 exports.default = Memoize;
 
-},{}],48:[function(_dereq_,module,exports){
+},{}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9132,7 +3239,7 @@ var FloPoly = Object.assign({}, core_operators_1.default, root_operators_1.defau
     allRoots: all_roots_recursive_1.default });
 exports.default = FloPoly;
 
-},{"./src/all-roots-recursive":49,"./src/core-operators":50,"./src/error-analysis":51,"./src/from-roots":52,"./src/random":53,"./src/root-bounds":54,"./src/root-operators":55}],49:[function(_dereq_,module,exports){
+},{"./src/all-roots-recursive":43,"./src/core-operators":44,"./src/error-analysis":45,"./src/from-roots":46,"./src/random":47,"./src/root-bounds":48,"./src/root-operators":49}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9296,7 +3403,7 @@ function rootsWithin(p, intervals) {
 }
 exports.default = allRoots;
 
-},{"./core-operators":50,"./root-bounds":54,"./root-operators":55}],50:[function(_dereq_,module,exports){
+},{"./core-operators":44,"./root-bounds":48,"./root-operators":49}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9756,7 +3863,7 @@ var coreOperators = {
 };
 exports.default = coreOperators;
 
-},{}],51:[function(_dereq_,module,exports){
+},{}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9806,7 +3913,7 @@ var errorAnalysis = {
 };
 exports.default = errorAnalysis;
 
-},{"./core-operators":50}],52:[function(_dereq_,module,exports){
+},{"./core-operators":44}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9843,7 +3950,7 @@ function fromRoots(roots) {
 }
 exports.default = fromRoots;
 
-},{"./core-operators":50}],53:[function(_dereq_,module,exports){
+},{"./core-operators":44}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -10042,7 +4149,7 @@ var random = {
 };
 exports.default = random;
 
-},{"./from-roots":52}],54:[function(_dereq_,module,exports){
+},{"./from-roots":46}],48:[function(_dereq_,module,exports){
 "use strict";
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -10204,7 +4311,7 @@ var rootBounds = {
 };
 exports.default = rootBounds;
 
-},{"./core-operators":50}],55:[function(_dereq_,module,exports){
+},{"./core-operators":44}],49:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -10573,14 +4680,10 @@ var rootOperators = {
 };
 exports.default = rootOperators;
 
-},{"./core-operators":50}],56:[function(_dereq_,module,exports){
+},{"./core-operators":44}],50:[function(_dereq_,module,exports){
 "use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var DELTA = 1e-10;
@@ -10628,551 +4731,367 @@ function specialMapCurry(f) {
     }
     return g;
 }
+/**
+ * Returns the dot (inner) product between two 2-vectors.
+ * @param a - The first vector
+ * @param b - The second vector
+ */
+function dot(a, b) {
+    return a[0] * b[0] + a[1] * b[1];
+}
+exports.dot = dot;
+/**
+ * Returns the cross product signed magnitude between two 2-vectors.
+ * @param a - The first vector
+ * @param b - The second vector
+ */
+function cross(a, b) {
+    return a[0] * b[1] - a[1] * b[0];
+}
+exports.cross = cross;
+/**
+ * Three 2d points are a counter-clockwise turn if ccw > 0, clockwise if
+ * ccw < 0, and colinear if ccw = 0 because ccw is a determinant that gives
+ * twice the signed area of the triangle formed by p1, p2 and p3.
+ * @param p1 - The first point
+ * @param p2 - The second point
+ * @param p3 - The third point
+ * @param delta - The tolerance at which the three points are considered
+ * collinear - defaults to 1e-10.
+ */
+function ccw(p1, p2, p3) {
+    var delta = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : DELTA;
 
-var Vector2d = function () {
-    function Vector2d() {
-        _classCallCheck(this, Vector2d);
-    }
+    var res = (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
+    return Math.abs(res) <= delta ? 0 : res;
+}
+exports.ccw = ccw;
+/**
+* <p>
+* Returns the point where two line segments intersect or undefined if they
+* don't intersect or a line if they intersect at infinitely many points.
+* </p>
+* <p>
+* See <a href="http://algs4.cs.princeton.edu/91primitives">Geometric primitves</a>
+* </p>
+* @param ab - The first line
+* @param cd - The second line
+* @param delta - The tolerance at which the lines are considered parallel -
+* defaults to 1e-10.
+*/
+function segSegIntersection(ab, cd) {
+    var delta = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DELTA;
 
-    _createClass(Vector2d, null, [{
-        key: "dot",
+    var _ab = _slicedToArray(ab, 2),
+        a = _ab[0],
+        b = _ab[1];
 
-        /**
-         * Returns the dot (inner) product between two 2-vectors.
-         * @param a - The first vector
-         * @param b - The second vector
-         */
-        value: function dot(a, b) {
-            return a[0] * b[0] + a[1] * b[1];
-        }
-        /**
-         * Returns the cross product signed magnitude between two 2-vectors.
-         * @param a - The first vector
-         * @param b - The second vector
-         */
+    var _cd = _slicedToArray(cd, 2),
+        c = _cd[0],
+        d = _cd[1];
 
-    }, {
-        key: "cross",
-        value: function cross(a, b) {
-            return a[0] * b[1] - a[1] * b[0];
-        }
-        /**
-         * Three 2d points are a counter-clockwise turn if ccw > 0, clockwise if
-         * ccw < 0, and colinear if ccw = 0 because ccw is a determinant that gives
-         * twice the signed area of the triangle formed by p1, p2 and p3.
-         * @param p1 - The first point
-         * @param p2 - The second point
-         * @param p3 - The third point
-         * @param delta - The tolerance at which the three points are considered
-         * collinear - defaults to 1e-10.
-         */
-
-    }, {
-        key: "ccw",
-        value: function ccw(p1, p2, p3) {
-            var delta = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : DELTA;
-
-            var res = (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
-            return Math.abs(res) <= delta ? 0 : res;
-        }
-        /**
-        * <p>
-        * Returns the point where two line segments intersect or undefined if they
-        * don't intersect or a line if they intersect at infinitely many points.
-        * </p>
-        * <p>
-        * See <a href="http://algs4.cs.princeton.edu/91primitives">Geometric primitves</a>
-        * </p>
-        * @param ab - The first line
-        * @param cd - The second line
-        * @param delta - The tolerance at which the lines are considered parallel -
-        * defaults to 1e-10.
-        */
-
-    }, {
-        key: "segSegIntersection",
-        value: function segSegIntersection(ab, cd) {
-            var delta = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DELTA;
-
-            var _ab = _slicedToArray(ab, 2),
-                a = _ab[0],
-                b = _ab[1];
-
-            var _cd = _slicedToArray(cd, 2),
-                c = _cd[0],
-                d = _cd[1];
-
-            var denom = (b[0] - a[0]) * (d[1] - c[1]) - (b[1] - a[1]) * (d[0] - c[0]);
-            var rNumer = (a[1] - c[1]) * (d[0] - c[0]) - (a[0] - c[0]) * (d[1] - c[1]);
-            var sNumer = (a[1] - c[1]) * (b[0] - a[0]) - (a[0] - c[0]) * (b[1] - a[1]);
-            if (Math.abs(denom) <= delta) {
-                // parallel
-                if (Math.abs(rNumer) <= delta) {
-                    // colinear
-                    // TODO Check if x-projections and y-projections intersect
-                    // and return the line of intersection if they do.
-                    return undefined;
-                }
-                return undefined;
-            }
-            var r = rNumer / denom;
-            var s = sNumer / denom;
-            if (0 <= r && r <= 1 && 0 <= s && s <= 1) {
-                return [a[0] + r * (b[0] - a[0]), a[1] + r * (b[1] - a[1])];
-            }
+    var denom = (b[0] - a[0]) * (d[1] - c[1]) - (b[1] - a[1]) * (d[0] - c[0]);
+    var rNumer = (a[1] - c[1]) * (d[0] - c[0]) - (a[0] - c[0]) * (d[1] - c[1]);
+    var sNumer = (a[1] - c[1]) * (b[0] - a[0]) - (a[0] - c[0]) * (b[1] - a[1]);
+    if (Math.abs(denom) <= delta) {
+        // parallel
+        if (Math.abs(rNumer) <= delta) {
+            // colinear
+            // TODO Check if x-projections and y-projections intersect
+            // and return the line of intersection if they do.
             return undefined;
         }
-        /**
-        * Returns true if the two given 2d line segments intersect, false otherwise.
-        * @param a - A line segment
-        * @param b - Another line segment
-        */
+        return undefined;
+    }
+    var r = rNumer / denom;
+    var s = sNumer / denom;
+    if (0 <= r && r <= 1 && 0 <= s && s <= 1) {
+        return [a[0] + r * (b[0] - a[0]), a[1] + r * (b[1] - a[1])];
+    }
+    return undefined;
+}
+exports.segSegIntersection = segSegIntersection;
+/**
+* Returns true if the two given 2d line segments intersect, false otherwise.
+* @param a - A line segment
+* @param b - Another line segment
+*/
+function doesSegSegIntersect(a, b) {
+    if (ccw(a[0], a[1], b[0]) * ccw(a[0], a[1], b[1]) > 0) {
+        return false;
+    } else if (ccw(b[0], b[1], a[0]) * ccw(b[0], b[1], a[1]) > 0) {
+        return false;
+    }
+    return true;
+}
+exports.doesSegSegIntersect = doesSegSegIntersect;
+/**
+* Returns the squared distance between two 2d points.
+* @param p1 - A point
+* @param p2 - Another point
+*/
+function squaredDistanceBetween(p1, p2) {
+    var x = p2[0] - p1[0];
+    var y = p2[1] - p1[1];
+    return x * x + y * y;
+}
+exports.squaredDistanceBetween = squaredDistanceBetween;
+/**
+* Returns a scaled version of the given 2-vector.
+* @param p - A vector
+* @param factor - A scale factor
+*/
+function scale(p, factor) {
+    return [p[0] * factor, p[1] * factor];
+}
+exports.scale = scale;
+/**
+* Returns the given 2-vector reversed.
+* @param p - A vector
+*/
+function reverse(p) {
+    return [-p[0], -p[1]];
+}
+exports.reverse = reverse;
+/**
+* Returns the given 2-vector scaled to a length of one.
+* @param p - A vector
+*/
+function toUnitVector(p) {
+    var scaleFactor = 1 / len(p);
+    return [p[0] * scaleFactor, p[1] * scaleFactor];
+}
+exports.toUnitVector = toUnitVector;
+/**
+* Returns the given 2-vector scaled to the given length.
+* @param p - A vector
+* @param length - The length to scale to
+*/
+function toLength(p, length) {
+    var scaleFactor = length / len(p);
+    return [p[0] * scaleFactor, p[1] * scaleFactor];
+}
+exports.toLength = toLength;
+/**
+* Returns the second 2-vector minus the first.
+* @param p1 - The first vector
+* @param p2 - The second vector
+*/
+function fromTo(p1, p2) {
+    return [p2[0] - p1[0], p2[1] - p1[1]];
+}
+exports.fromTo = fromTo;
+/**
+* Performs linear interpolation between two 2d points and returns the resultant point.
+* @param p1 - The first point.
+* @param p2 - The second point.
+* @param t - The interpolation fraction (often in [0,1]).
+*/
+function interpolate(p1, p2, t) {
+    return [p1[0] + (p2[0] - p1[0]) * t, p1[1] + (p2[1] - p1[1]) * t];
+}
+exports.interpolate = interpolate;
+/**
+* Returns the mean of two 2d points.
+* @param ps - The two points
+*/
+function mean(ps) {
+    var p1 = ps[0];
+    var p2 = ps[1];
+    return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+}
+exports.mean = mean;
+/**
+* Returns the distance between two 2d points.
+* @param p1 - A point.
+* @param p2 - Another point.
+*/
+function distanceBetween(p1, p2) {
+    return Math.sqrt(squaredDistanceBetween(p1, p2));
+}
+exports.distanceBetween = distanceBetween;
+/**
+* Returns the length of the given 2-vector.
+* @param p - A vector
+*/
+function len(p) {
+    return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
+}
+exports.len = len;
+/**
+* Returns the squared length of the given 2-vector.
+* @param p - A vector
+*/
+function lengthSquared(v) {
+    return v[0] * v[0] + v[1] * v[1];
+}
+exports.lengthSquared = lengthSquared;
+/**
+* Returns the Manhattan distance between two 2d points.
+* @param p1 - A point.
+* @param p2 - Another point.
+*/
+function manhattanDistanceBetween(p1, p2) {
+    return Math.abs(p1[0] - p2[0]) + Math.abs(p1[1] - p2[1]);
+}
+exports.manhattanDistanceBetween = manhattanDistanceBetween;
+/**
+* Returns the Manhattan length of the given 2-vector.
+* @param p - A vector
+*/
+function manhattanLength(p) {
+    return Math.abs(p[0]) + Math.abs(p[1]);
+}
+exports.manhattanLength = manhattanLength;
+/**
+* <p>
+* Returns the distance between the given point and line.
+* </p>
+* <p>
+* See <a href="https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points">
+* this Wikipedia article</a>
+* </p>
+* @param p - A point
+* @param l - A line
+*/
+function distanceBetweenPointAndLine(p, l) {
+    var _p = _slicedToArray(p, 2),
+        x0 = _p[0],
+        y0 = _p[1];
 
-    }, {
-        key: "doesSegSegIntersect",
-        value: function doesSegSegIntersect(a, b) {
-            var ccw = Vector2d.ccw;
-            if (ccw(a[0], a[1], b[0]) * ccw(a[0], a[1], b[1]) > 0) {
-                return false;
-            } else if (ccw(b[0], b[1], a[0]) * ccw(b[0], b[1], a[1]) > 0) {
-                return false;
-            }
-            return true;
-        }
-        /**
-        * Returns the squared distance between two 2d points.
-        * @param p1 - A point
-        * @param p2 - Another point
-        */
+    var _l = _slicedToArray(l, 2),
+        _l$ = _slicedToArray(_l[0], 2),
+        x1 = _l$[0],
+        y1 = _l$[1],
+        _l$2 = _slicedToArray(_l[1], 2),
+        x2 = _l$2[0],
+        y2 = _l$2[1];
 
-    }, {
-        key: "squaredDistanceBetween",
-        value: function squaredDistanceBetween(p1, p2) {
-            var x = p2[0] - p1[0];
-            var y = p2[1] - p1[1];
-            return x * x + y * y;
-        }
-        /**
-        * Returns a scaled version of the given 2-vector.
-        * @param p - A vector
-        * @param factor - A scale factor
-        */
-
-    }, {
-        key: "scale",
-        value: function scale(p, factor) {
-            return [p[0] * factor, p[1] * factor];
-        }
-        /**
-        * Returns the given 2-vector reversed.
-        * @param p - A vector
-        */
-
-    }, {
-        key: "reverse",
-        value: function reverse(p) {
-            return [-p[0], -p[1]];
-        }
-        /**
-        * Returns the given 2-vector scaled to a length of one.
-        * @param p - A vector
-        */
-
-    }, {
-        key: "toUnitVector",
-        value: function toUnitVector(p) {
-            var scaleFactor = 1 / Vector2d.len(p);
-            return [p[0] * scaleFactor, p[1] * scaleFactor];
-        }
-        /**
-        * Returns the given 2-vector scaled to the given length.
-        * @param p - A vector
-        * @param length - The length to scale to
-        */
-
-    }, {
-        key: "toLength",
-        value: function toLength(p, len) {
-            var scaleFactor = len / Vector2d.len(p);
-            return [p[0] * scaleFactor, p[1] * scaleFactor];
-        }
-        /**
-        * Returns the second 2-vector minus the first.
-        * @param p1 - The first vector
-        * @param p2 - The second vector
-        */
-
-    }, {
-        key: "fromTo",
-        value: function fromTo(p1, p2) {
-            return [p2[0] - p1[0], p2[1] - p1[1]];
-        }
-        /**
-        * Performs linear interpolation between two 2d points and returns the resultant point.
-        * @param p1 - The first point.
-        * @param p2 - The second point.
-        * @param t - The interpolation fraction (often in [0,1]).
-        */
-
-    }, {
-        key: "interpolate",
-        value: function interpolate(p1, p2, t) {
-            return [p1[0] + (p2[0] - p1[0]) * t, p1[1] + (p2[1] - p1[1]) * t];
-        }
-        /**
-        * Returns the mean of two 2d points.
-        * @param ps - The two points
-        */
-
-    }, {
-        key: "mean",
-        value: function mean(ps) {
-            var p1 = ps[0];
-            var p2 = ps[1];
-            return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
-        }
-        /**
-        * Returns the distance between two 2d points.
-        * @param p1 - A point.
-        * @param p2 - Another point.
-        */
-
-    }, {
-        key: "distanceBetween",
-        value: function distanceBetween(p1, p2) {
-            return Math.sqrt(Vector2d.squaredDistanceBetween(p1, p2));
-        }
-        /**
-        * Returns the length of the given 2-vector.
-        * @param p - A vector
-        */
-
-    }, {
-        key: "len",
-        value: function len(p) {
-            return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
-        }
-        /**
-        * Returns the squared length of the given 2-vector.
-        * @param p - A vector
-        */
-
-    }, {
-        key: "lengthSquared",
-        value: function lengthSquared(v) {
-            return v[0] * v[0] + v[1] * v[1];
-        }
-        /**
-        * Returns the Manhattan distance between two 2d points.
-        * @param p1 - A point.
-        * @param p2 - Another point.
-        */
-
-    }, {
-        key: "manhattanDistanceBetween",
-        value: function manhattanDistanceBetween(p1, p2) {
-            return Math.abs(p1[0] - p2[0]) + Math.abs(p1[1] - p2[1]);
-        }
-        /**
-        * Returns the Manhattan length of the given 2-vector.
-        * @param p - A vector
-        */
-
-    }, {
-        key: "manhattanLength",
-        value: function manhattanLength(p) {
-            return Math.abs(p[0]) + Math.abs(p[1]);
-        }
-        /**
-        * <p>
-        * Returns the distance between the given point and line.
-        * </p>
-        * <p>
-        * See <a href="https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points">
-        * this Wikipedia article</a>
-        * </p>
-        * @param p - A point
-        * @param l - A line
-        */
-
-    }, {
-        key: "distanceBetweenPointAndLine",
-        value: function distanceBetweenPointAndLine(p, l) {
-            var _p = _slicedToArray(p, 2),
-                x0 = _p[0],
-                y0 = _p[1];
-
-            var _l = _slicedToArray(l, 2),
-                _l$ = _slicedToArray(_l[0], 2),
-                x1 = _l$[0],
-                y1 = _l$[1],
-                _l$2 = _slicedToArray(_l[1], 2),
-                x2 = _l$2[0],
-                y2 = _l$2[1];
-
-            var y = y2 - y1;
-            var x = x2 - x1;
-            var a = y * x0 - x * y0 + x2 * y1 - y2 * x1;
-            var b = Math.sqrt(x * x + y * y);
-            return Math.abs(a / b);
-        }
-        /**
-        * Returns the squared distance between the given point and line segment.
-        * @param p - A point
-        * @param l - A line
-        */
-
-    }, {
-        key: "squaredDistanceBetweenPointAndLineSegment",
-        value: function squaredDistanceBetweenPointAndLineSegment(p, l) {
-            var sqDst = Vector2d.squaredDistanceBetween;
-            var v = l[0];
-            var w = l[1];
-            var l2 = sqDst(v, w);
-            if (l2 == 0) {
-                return sqDst(p, v);
-            }
-            var t = ((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2;
-            t = Math.max(0, Math.min(1, t));
-            var d2 = sqDst(p, [v[0] + t * (w[0] - v[0]), v[1] + t * (w[1] - v[1])]);
-            return d2;
-        }
-        /**
-        * Returns the circumcenter of the given 2d triangle.
-        * @param triangle
-        */
-
-    }, {
-        key: "circumCenter",
-        value: function circumCenter(triangle) {
-            // See wikipedia
-            var p1 = triangle[0];
-            var p2 = triangle[1];
-            var p3 = triangle[2];
-            var sqLen = Vector2d.lengthSquared;
-            var Sx = 0.5 * Vector2d.det3([sqLen(p1), p1[1], 1], [sqLen(p2), p2[1], 1], [sqLen(p3), p3[1], 1]);
-            var Sy = 0.5 * Vector2d.det3([p1[0], sqLen(p1), 1], [p2[0], sqLen(p2), 1], [p3[0], sqLen(p3), 1]);
-            var a = Vector2d.det3([p1[0], p1[1], 1], [p2[0], p2[1], 1], [p3[0], p3[1], 1]);
-            var b = Vector2d.det3([p1[0], p1[1], sqLen(p1)], [p2[0], p2[1], sqLen(p2)], [p3[0], p3[1], sqLen(p3)]);
-            return [Sx / a, Sy / a];
-        }
-        /**
-        * <p>
-        * Returns the incenter of the given triangle.
-        * </p>
-        * <p>
-        * See Wikipedia - https://en.wikipedia.org/wiki/Incenter
-        * </p>
-        * @param triangle
-        */
-
-    }, {
-        key: "inCenter",
-        value: function inCenter(triangle) {
-            var dst = Vector2d.distanceBetween;
-            var p1 = triangle[0];
-            var p2 = triangle[1];
-            var p3 = triangle[2];
-            var l1 = dst(p2, p3);
-            var l2 = dst(p1, p3);
-            var l3 = dst(p1, p2);
-            var lengthSum = l1 + l2 + l3;
-            return [(l1 * p1[0] + l2 * p2[0] + l3 * p3[0]) / lengthSum, (l1 * p1[1] + l2 * p2[1] + l3 * p3[1]) / lengthSum];
-        }
-        /**
-        * Returns the centroid of the given polygon, e.g. triangle. The polygon
-        * must be simple, i.e. not self-intersecting.
-        * @param polygon
-        */
-
-    }, {
-        key: "centroid",
-        value: function centroid(polygon) {
-            if (polygon.length === 3) {
-                var p1 = polygon[0];
-                var p2 = polygon[1];
-                var p3 = polygon[2];
-                var x = p1[0] + p2[0] + p3[0];
-                var y = p1[1] + p2[1] + p3[1];
-                return [x / 3, y / 3];
-            }
-            // polygon.length assumed > 3 and assumed to be non-self-intersecting
-            // See wikipedia
-            // First calculate the area, A, of the polygon
-            var A = 0;
-            for (var i = 0; i < polygon.length; i++) {
-                var p0 = polygon[i];
-                var _p2 = i === polygon.length - 1 ? polygon[0] : polygon[i + 1];
-                A = A + (p0[0] * _p2[1] - _p2[0] * p0[1]);
-            }
-            A = A / 2;
-            var C = [0, 0];
-            for (var _i = 0; _i < polygon.length; _i++) {
-                var _p3 = polygon[_i];
-                var _p4 = _i === polygon.length - 1 ? polygon[0] : polygon[_i + 1];
-                C[0] = C[0] + (_p3[0] + _p4[0]) * (_p3[0] * _p4[1] - _p4[0] * _p3[1]);
-                C[1] = C[1] + (_p3[1] + _p4[1]) * (_p3[0] * _p4[1] - _p4[0] * _p3[1]);
-            }
-            return [C[0] / (6 * A), C[1] / (6 * A)];
-        }
-        /**
-        * Calculate the determinant of three 3d vectors, i.e. 3x3 matrix
-        * @ignore
-        * @param x - A 2d vector
-        * @param y - Another 2d vector
-        * @param z - Another 2d vector
-        */
-
-    }, {
-        key: "det3",
-        value: function det3(x, y, z) {
-            return x[0] * (y[1] * z[2] - y[2] * z[1]) - x[1] * (y[0] * z[2] - y[2] * z[0]) + x[2] * (y[0] * z[1] - y[1] * z[0]);
-        }
-    }, {
-        key: "translate",
-        value: function translate(a, b) {
-            function f(b) {
-                return [a[0] + b[0], a[1] + b[1]];
-            }
-            // Curry the function
-            return b === undefined ? f : f(b);
-        }
-    }, {
-        key: "rotate",
-        value: function rotate(sinθ, cosθ, p) {
-            var a = Vector2d.translatePs([1, 2]);
-            function rotateByθ(p) {
-                return [p[0] * cosθ - p[1] * sinθ, p[0] * sinθ + p[1] * cosθ];
-            }
-            // Curry the function
-            return p === undefined ? rotateByθ : rotateByθ(p);
-        }
-        /**
-        * Returns true if two 2-vectors are identical (by value), false otherwise.
-        * @param a - A 2d vector
-        * @param b - Another 2d vector
-        */
-
-    }, {
-        key: "equal",
-        value: function equal(a, b) {
-            return a[0] === b[0] && a[1] === b[1];
-        }
-        /**
-        * Returns a anti-clockwise rotated version of the given 2-vector given the
-        * sine and cosine of the angle.
-        * @param p - A 2d vector
-        * @param sinθ
-        * @param cosθ
-        */
-
-    }, {
-        key: "reverseRotate",
-        value: function reverseRotate(sinθ, cosθ, p) {
-            return [+p[0] * cosθ + p[1] * sinθ, -p[0] * sinθ + p[1] * cosθ];
-        }
-        /**
-        * Returns a 90 degrees rotated version of the given 2-vector.
-        * @param p - A 2d vector
-        */
-
-    }, {
-        key: "rotate90Degrees",
-        value: function rotate90Degrees(p) {
-            return [-p[1], p[0]];
-        }
-        /**
-        * Returns a negative 90 degrees rotated version of the given 2-vector.
-        * @param p - A 2d vector
-        */
-
-    }, {
-        key: "rotateNeg90Degrees",
-        value: function rotateNeg90Degrees(p) {
-            return [p[1], -p[0]];
-        }
-        /**
-        * Transforms the given 2-vector by applying the given function to each
-        * coordinate.
-        * @param p - A 2d vector
-        * @param f - A transformation function
-        */
-
-    }, {
-        key: "transform",
-        value: function transform(p, f) {
-            return [f(p[0]), f(p[1])];
-        }
-        /**
-        * Returns the closest point to the array of 2d points, optionally providing
-        * a distance function.
-        * @param p
-        * @param ps
-        * @param f - Optional distance function - defaults to
-        * Vector2d.squaredDistanceBetween
-        */
-
-    }, {
-        key: "getClosestTo",
-        value: function getClosestTo(p, ps) {
-            var cp = undefined; // Closest Point
-            var bestd = Number.POSITIVE_INFINITY;
-            for (var i = 0; i < ps.length; i++) {
-                var p_ = ps[i];
-                var d = Vector2d.squaredDistanceBetween(p, p_);
-                if (d < bestd) {
-                    cp = p_;
-                    bestd = d;
-                }
-            }
-            return cp;
-        }
-        /**
-        * Returns an array of points by applying a translation and then rotation to
-        * the given points.
-        * @param v - The translation vector
-        * @param sinθ
-        * @param cosθ
-        * @param ps - The input points
-        **/
-
-    }, {
-        key: "translateThenRotatePs",
-        value: function translateThenRotatePs(v, sinθ, cosθ, ps) {
-            var translate = Vector2d.translate(v);
-            return ps.map(function (p) {
-                return Vector2d.rotate(sinθ, cosθ, translate(p));
-            });
-        }
-        /**
-        * Returns an array of points by applying a rotation and then translation to
-        * the given points.
-        * @param sinθ
-        * @param cosθ
-        * @param v - The translation vector
-        * @param ps - The input points
-        **/
-
-    }, {
-        key: "rotateThenTranslatePs",
-        value: function rotateThenTranslatePs(sinθ, cosθ, v, ps) {
-            return ps.map(function (p) {
-                return Vector2d.translate(v, Vector2d.rotate(sinθ, cosθ, p));
-            });
-        }
-    }]);
-
-    return Vector2d;
-}();
+    var y = y2 - y1;
+    var x = x2 - x1;
+    var a = y * x0 - x * y0 + x2 * y1 - y2 * x1;
+    var b = Math.sqrt(x * x + y * y);
+    return Math.abs(a / b);
+}
+exports.distanceBetweenPointAndLine = distanceBetweenPointAndLine;
+/**
+* Returns the squared distance between the given point and line segment.
+* @param p - A point
+* @param l - A line
+*/
+function squaredDistanceBetweenPointAndLineSegment(p, l) {
+    var sqDst = squaredDistanceBetween;
+    var v = l[0];
+    var w = l[1];
+    var l2 = sqDst(v, w);
+    if (l2 == 0) {
+        return sqDst(p, v);
+    }
+    var t = ((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2;
+    t = Math.max(0, Math.min(1, t));
+    var d2 = sqDst(p, [v[0] + t * (w[0] - v[0]), v[1] + t * (w[1] - v[1])]);
+    return d2;
+}
+exports.squaredDistanceBetweenPointAndLineSegment = squaredDistanceBetweenPointAndLineSegment;
+/**
+* Returns the circumcenter of the given 2d triangle.
+* @param triangle
+*/
+function circumCenter(triangle) {
+    // See wikipedia
+    var p1 = triangle[0];
+    var p2 = triangle[1];
+    var p3 = triangle[2];
+    var sqLen = lengthSquared;
+    var Sx = 0.5 * det3([sqLen(p1), p1[1], 1], [sqLen(p2), p2[1], 1], [sqLen(p3), p3[1], 1]);
+    var Sy = 0.5 * det3([p1[0], sqLen(p1), 1], [p2[0], sqLen(p2), 1], [p3[0], sqLen(p3), 1]);
+    var a = det3([p1[0], p1[1], 1], [p2[0], p2[1], 1], [p3[0], p3[1], 1]);
+    var b = det3([p1[0], p1[1], sqLen(p1)], [p2[0], p2[1], sqLen(p2)], [p3[0], p3[1], sqLen(p3)]);
+    return [Sx / a, Sy / a];
+}
+exports.circumCenter = circumCenter;
+/**
+* <p>
+* Returns the incenter of the given triangle.
+* </p>
+* <p>
+* See Wikipedia - https://en.wikipedia.org/wiki/Incenter
+* </p>
+* @param triangle
+*/
+function inCenter(triangle) {
+    var dst = distanceBetween;
+    var p1 = triangle[0];
+    var p2 = triangle[1];
+    var p3 = triangle[2];
+    var l1 = dst(p2, p3);
+    var l2 = dst(p1, p3);
+    var l3 = dst(p1, p2);
+    var lengthSum = l1 + l2 + l3;
+    return [(l1 * p1[0] + l2 * p2[0] + l3 * p3[0]) / lengthSum, (l1 * p1[1] + l2 * p2[1] + l3 * p3[1]) / lengthSum];
+}
+exports.inCenter = inCenter;
+/**
+* Returns the centroid of the given polygon, e.g. triangle. The polygon
+* must be simple, i.e. not self-intersecting.
+* @param polygon
+*/
+function centroid(polygon) {
+    if (polygon.length === 3) {
+        var p1 = polygon[0];
+        var p2 = polygon[1];
+        var p3 = polygon[2];
+        var x = p1[0] + p2[0] + p3[0];
+        var y = p1[1] + p2[1] + p3[1];
+        return [x / 3, y / 3];
+    }
+    // polygon.length assumed > 3 and assumed to be non-self-intersecting
+    // See wikipedia
+    // First calculate the area, A, of the polygon
+    var A = 0;
+    for (var i = 0; i < polygon.length; i++) {
+        var p0 = polygon[i];
+        var _p2 = i === polygon.length - 1 ? polygon[0] : polygon[i + 1];
+        A = A + (p0[0] * _p2[1] - _p2[0] * p0[1]);
+    }
+    A = A / 2;
+    var C = [0, 0];
+    for (var _i = 0; _i < polygon.length; _i++) {
+        var _p3 = polygon[_i];
+        var _p4 = _i === polygon.length - 1 ? polygon[0] : polygon[_i + 1];
+        C[0] = C[0] + (_p3[0] + _p4[0]) * (_p3[0] * _p4[1] - _p4[0] * _p3[1]);
+        C[1] = C[1] + (_p3[1] + _p4[1]) * (_p3[0] * _p4[1] - _p4[0] * _p3[1]);
+    }
+    return [C[0] / (6 * A), C[1] / (6 * A)];
+}
+exports.centroid = centroid;
+/**
+* Calculate the determinant of three 3d vectors, i.e. 3x3 matrix
+* @ignore
+* @param x - A 2d vector
+* @param y - Another 2d vector
+* @param z - Another 2d vector
+*/
+function det3(x, y, z) {
+    return x[0] * (y[1] * z[2] - y[2] * z[1]) - x[1] * (y[0] * z[2] - y[2] * z[0]) + x[2] * (y[0] * z[1] - y[1] * z[0]);
+}
+exports.det3 = det3;
+function translate(a, b) {
+    function f(b) {
+        return [a[0] + b[0], a[1] + b[1]];
+    }
+    // Curry the function
+    return b === undefined ? f : f(b);
+}
+exports.translate = translate;
 /**
 * Return the given 2d points translated by the given 2d vector. This
 * function is curried.
 * @param v
 * @param ps
 */
-
-
-Vector2d.translatePs = mapCurry2(Vector2d.translate);
+var translatePs = mapCurry2(translate);
+exports.translatePs = translatePs;
 /**
 * Return the given 2d points translated by the given 2d vector. This function
 * is curried.
@@ -11180,8 +5099,7439 @@ Vector2d.translatePs = mapCurry2(Vector2d.translate);
 * @param cosθ
 * @param ps
 */
-Vector2d.rotatePs = specialMapCurry(Vector2d.rotate);
-exports.default = Vector2d;
+var rotatePs = specialMapCurry(rotate);
+exports.rotatePs = rotatePs;
+function rotate(sinθ, cosθ, p) {
+    var a = translatePs([1, 2]);
+    function rotateByθ(p) {
+        return [p[0] * cosθ - p[1] * sinθ, p[0] * sinθ + p[1] * cosθ];
+    }
+    // Curry the function
+    return p === undefined ? rotateByθ : rotateByθ(p);
+}
+exports.rotate = rotate;
+/**
+* Returns true if two 2-vectors are identical (by value), false otherwise.
+* @param a - A 2d vector
+* @param b - Another 2d vector
+*/
+function equal(a, b) {
+    return a[0] === b[0] && a[1] === b[1];
+}
+exports.equal = equal;
+/**
+* Returns a anti-clockwise rotated version of the given 2-vector given the
+* sine and cosine of the angle.
+* @param p - A 2d vector
+* @param sinθ
+* @param cosθ
+*/
+function reverseRotate(sinθ, cosθ, p) {
+    return [+p[0] * cosθ + p[1] * sinθ, -p[0] * sinθ + p[1] * cosθ];
+}
+exports.reverseRotate = reverseRotate;
+/**
+* Returns a 90 degrees rotated version of the given 2-vector.
+* @param p - A 2d vector
+*/
+function rotate90Degrees(p) {
+    return [-p[1], p[0]];
+}
+exports.rotate90Degrees = rotate90Degrees;
+/**
+* Returns a negative 90 degrees rotated version of the given 2-vector.
+* @param p - A 2d vector
+*/
+function rotateNeg90Degrees(p) {
+    return [p[1], -p[0]];
+}
+exports.rotateNeg90Degrees = rotateNeg90Degrees;
+/**
+* Transforms the given 2-vector by applying the given function to each
+* coordinate.
+* @param p - A 2d vector
+* @param f - A transformation function
+*/
+function transform(p, f) {
+    return [f(p[0]), f(p[1])];
+}
+exports.transform = transform;
+/**
+* Returns the closest point to the array of 2d points, optionally providing
+* a distance function.
+* @param p
+* @param ps
+* @param f - Optional distance function - defaults to
+* squaredDistanceBetween.
+*/
+function getClosestTo(p, ps) {
+    var closestPoint = undefined;
+    var closestDistance = Number.POSITIVE_INFINITY;
+    for (var i = 0; i < ps.length; i++) {
+        var q = ps[i];
+        var d = squaredDistanceBetween(p, q);
+        if (d < closestDistance) {
+            closestPoint = q;
+            closestDistance = d;
+        }
+    }
+    return closestPoint;
+}
+exports.getClosestTo = getClosestTo;
+/**
+* Returns the closest point to the array of 2d points, optionally providing
+* a distance function.
+* @param p
+* @param ps
+* @param f - Optional distance function - defaults to
+* squaredDistanceBetween.
+*/
+function getObjClosestTo(p, ps, f) {
+    var closestObj = undefined; // Closest Point
+    var closestDistance = Number.POSITIVE_INFINITY;
+    for (var i = 0; i < ps.length; i++) {
+        var o = ps[i];
+        var d = squaredDistanceBetween(p, f(o));
+        if (d < closestDistance) {
+            closestObj = o;
+            closestDistance = d;
+        }
+    }
+    return closestObj;
+}
+exports.getObjClosestTo = getObjClosestTo;
+/**
+* Returns an array of points by applying a translation and then rotation to
+* the given points.
+* @param v - The translation vector
+* @param sinθ
+* @param cosθ
+* @param ps - The input points
+**/
+function translateThenRotatePs(v, sinθ, cosθ, ps) {
+    var f = translate(v);
+    return ps.map(function (p) {
+        return rotate(sinθ, cosθ, f(p));
+    });
+}
+exports.translateThenRotatePs = translateThenRotatePs;
+/**
+* Returns an array of points by applying a rotation and then translation to
+* the given points.
+* @param sinθ
+* @param cosθ
+* @param v - The translation vector
+* @param ps - The input points
+**/
+function rotateThenTranslatePs(sinθ, cosθ, v, ps) {
+    return ps.map(function (p) {
+        return translate(v, rotate(sinθ, cosθ, p));
+    });
+}
+exports.rotateThenTranslatePs = rotateThenTranslatePs;
+;
+//export  Vector2d;
+
+},{}],51:[function(_dereq_,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var BezierPiece =
+/**
+ * @param curve
+ * @param ts The start and end t parameter of the original bezier curve
+ */
+function BezierPiece(curve, ts) {
+    _classCallCheck(this, BezierPiece);
+
+    this.curve = curve;
+    this.ts = ts;
+};
+
+exports.BezierPiece = BezierPiece;
+
+},{}],52:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EVENT_LEFT = 0;
+var EVENT_RIGHT = 1;
+/**
+ * Find and return axis-aligned open boxes that intersect via a sweepline
+ * algorithm.
+ */
+function findBbIntersections(boxes) {
+    // Initialize event queue to equal all box x-axis endpoints.
+    var events = [];
+    for (var i = 0; i < boxes.length; i++) {
+        var box = boxes[i];
+        var smallerSide = box[0][0] < box[1][0] ? 0 : 1;
+        var largerSide = smallerSide === 0 ? 1 : 0;
+        events.push(new Event(0, box, box[smallerSide]));
+        events.push(new Event(1, box, box[largerSide]));
+    }
+    events.sort(Event.compare);
+    var activeBoxes = new Set();
+    var intersections = [];
+    for (var _i = 0; _i < events.length; _i++) {
+        var event = events[_i];
+        var _box = event.box;
+        if (event.type === EVENT_LEFT) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = activeBoxes.values()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var activeBox = _step.value;
+
+                    if (areBoxesIntersecting(_box, activeBox)) {
+                        intersections.push({
+                            box1: _box, box2: activeBox
+                        });
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            activeBoxes.add(_box);
+        } else if (event.type === EVENT_RIGHT) {
+            activeBoxes.delete(event.box);
+        }
+    }
+    return intersections;
+}
+
+var Event = function () {
+    /**
+     * Event class constructor
+     * @param type - 0 -> left side, 1 -> right side
+     * @param box - An axis-aligned 2-box described by 2 points
+     * @param p - A point.
+     */
+    function Event(type, box, p) {
+        _classCallCheck(this, Event);
+
+        this.type = type;
+        this.box = box;
+        this.p = p;
+    }
+    /**
+     * Compare two Events by their x-axis and then by their type. Since it is
+     * open boxes that are compare we must let the right endpoint type come
+     * before the left.
+     * @param a A point (within an object)
+     * @param b A point (within an object)
+     */
+
+
+    _createClass(Event, null, [{
+        key: "compare",
+        value: function compare(a, b) {
+            var res = a.p[0] - b.p[0];
+            if (res !== 0) {
+                return res;
+            }
+            if (a.box === b.box) {
+                return a.type === EVENT_RIGHT ? -1 : +1;
+            }
+            return a.type === EVENT_LEFT ? +1 : -1;
+        }
+    }]);
+
+    return Event;
+}();
+/**
+ * Returns true if the 2 given (open) boxes intersect. At this stage we already
+ * know their x-axis intersect.
+ */
+
+
+function areBoxesIntersecting(a, b) {
+    var _a = _slicedToArray(a, 2),
+        _a$ = _slicedToArray(_a[0], 2),
+        a0 = _a$[1],
+        _a$2 = _slicedToArray(_a[1], 2),
+        a1 = _a$2[1];
+
+    var _b = _slicedToArray(b, 2),
+        _b$ = _slicedToArray(_b[0], 2),
+        b0 = _b$[1],
+        _b$2 = _slicedToArray(_b[1], 2),
+        b1 = _b$2[1];
+
+    if (a0 > a1) {
+        var _ref = [a1, a0];
+        a0 = _ref[0];
+        a1 = _ref[1];
+    }
+    ;
+    if (b0 > b1) {
+        var _ref2 = [b1, b0];
+        b0 = _ref2[0];
+        b1 = _ref2[1];
+    }
+    ;
+    if (a0 === b0) {
+        if (a0 === a1 || b0 === b1) {
+            return false;
+        }
+        return true;
+    }
+    if (a0 < b0) {
+        if (a1 <= b0) {
+            return false;
+        }
+        return true;
+    }
+    if (a0 > b0) {
+        if (b1 <= a0) {
+            return false;
+        }
+        return true;
+    }
+}
+exports.default = findBbIntersections;
+
+},{}],53:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+
+var Circle = function () {
+    /**
+    * @param center
+    * @param radius
+    */
+    function Circle(center, radius) {
+        _classCallCheck(this, Circle);
+
+        this.center = center;
+        this.radius = radius;
+    }
+    /**
+     * Returns a scaled version of the given circle without changing its center.
+     * @param circle
+     * @param s multiplier
+     */
+
+
+    _createClass(Circle, null, [{
+        key: "scale",
+        value: function scale(circle, s) {
+            return new Circle(circle.center, circle.radius * s);
+        }
+        /**
+         * Returns true if the first circle engulfs the second.
+         * @param c1
+         * @param c2
+         */
+
+    }, {
+        key: "engulfsCircle",
+        value: function engulfsCircle(c1, c2) {
+            if (c1.radius <= c2.radius) {
+                return false;
+            }
+            var d = flo_vector2d_1.squaredDistanceBetween(c1.center, c2.center);
+            var dr = c1.radius - c2.radius;
+            var δ = dr * dr;
+            return δ > d;
+        }
+        /**
+         * Returns a human-readable string description of the given circle.
+         * @param circle
+         */
+
+    }, {
+        key: "toString",
+        value: function toString(circle) {
+            return 'c: ' + circle.center + ' r: ' + circle.radius;
+        }
+    }]);
+
+    return Circle;
+}();
+
+exports.Circle = Circle;
+
+},{"flo-vector2d":50}],54:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("./point-on-shape");
+
+var ContactPoint = function () {
+    /**
+     * Representation of a point on a loop (or shape).
+     * @param pointOnShape
+     * @param vertex
+     */
+    function ContactPoint(pointOnShape, circle, order, order2) {
+        _classCallCheck(this, ContactPoint);
+
+        this.pointOnShape = pointOnShape;
+        this.circle = circle;
+        this.order = order;
+        this.order2 = order2;
+    }
+
+    _createClass(ContactPoint, null, [{
+        key: "compare",
+        value: function compare(a, b) {
+            var res = point_on_shape_1.PointOnShape.compare(a.pointOnShape, b.pointOnShape);
+            if (res === undefined) {
+                return undefined;
+            }
+            if (res !== 0) {
+                return res;
+            }
+            res = a.order - b.order;
+            if (res !== 0) {
+                return res;
+            }
+            return a.order2 - b.order2;
+        }
+    }]);
+
+    return ContactPoint;
+}();
+
+exports.ContactPoint = ContactPoint;
+
+},{"./point-on-shape":133}],55:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var contact_point_1 = _dereq_("./contact-point");
+var cp_node_for_debugging_1 = _dereq_("./debug/cp-node-for-debugging");
+var EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
+/**
+ * Representation of a ContactPoint node having various edges, two of which
+ * ('prev' and 'next') enforce a cyclic ordering on the CpNodes.
+ */
+
+var CpNode = function () {
+    /**
+     * @param cp The actual item stored at a node
+     * @param prev The previous contact point on the boundary
+     * @param next The next contact point on the boundary
+     * @param prevOnCircle The previous contact point on the inscribed circle
+     * @param prev The next contact point on the inscribed circle
+     * @param matCurve The actual medial axis curve from this ContactPoint's
+     * circle to the next ContactPoint's circle. It is a bezier curve of order
+     * 1 to 3.
+     * @param isHoleClosing
+     */
+    function CpNode(cp, isHoleClosing, isIntersection) {
+        var prev = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
+        var next = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : undefined;
+        var prevOnCircle = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : undefined;
+        var nextOnCircle = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : undefined;
+        var matCurve = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : undefined;
+
+        _classCallCheck(this, CpNode);
+
+        this.cp = cp;
+        this.isHoleClosing = isHoleClosing;
+        this.isIntersection = isIntersection;
+        this.prev = prev;
+        this.next = next;
+        this.prevOnCircle = prevOnCircle;
+        this.nextOnCircle = nextOnCircle;
+        this.matCurve = matCurve;
+    }
+
+    _createClass(CpNode, [{
+        key: "clone",
+        value: function clone() {
+            // Don't change this function to be recursive, the call stack may 
+            // overflow if there are too many CpNodes.
+            var nodeMap = new Map();
+            var cpNode = this;
+            var newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
+            newCpNode.matCurve = cpNode.matCurve;
+            nodeMap.set(cpNode, newCpNode);
+            var cpStack = [{ cpNode: cpNode, newCpNode: newCpNode }];
+            while (cpStack.length) {
+                var _cpStack$pop = cpStack.pop(),
+                    _cpNode = _cpStack$pop.cpNode,
+                    _newCpNode = _cpStack$pop.newCpNode;
+
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = EDGES[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var edge = _step.value;
+
+                        var node = _cpNode[edge];
+                        var newNode = nodeMap.get(node);
+                        if (!newNode) {
+                            newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);
+                            newNode.matCurve = node.matCurve;
+                            nodeMap.set(node, newNode);
+                            cpStack.push({ cpNode: node, newCpNode: newNode });
+                        }
+                        _newCpNode[edge] = newNode;
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
+            }
+            return newCpNode;
+        }
+        /**
+         * Insert an item into the linked loop after the specified point and returns
+         * the freshly inserted item.
+         * @param cp - Item to insert
+         * @param prev_ - Inserts the new item right after this item if the loop is
+         * not empty, else insert the new item as the only item in the loop.
+         */
+
+    }, {
+        key: "remove",
+        value: function remove(cpTree, cpNode) {
+            var prev = cpNode.prev;
+            var next = cpNode.next;
+            prev.next = next;
+            next.prev = prev;
+            cpTree.remove(cpNode, false);
+        }
+        /**
+         * Return this and the the other CpNodes around the vertex circle in order.
+         */
+
+    }, {
+        key: "getNodes",
+        value: function getNodes() {
+            var startCp = this;
+            var cp = startCp;
+            var cps = [];
+            do {
+                cps.push(cp);
+                cp = cp.nextOnCircle;
+            } while (cp !== startCp);
+            return cps;
+        }
+    }, {
+        key: "isTerminating",
+        value: function isTerminating() {
+            var cp = this;
+            return cp === cp.next.prevOnCircle;
+        }
+    }, {
+        key: "isSharp",
+        value: function isSharp() {
+            var cpNode = this;
+            return cpNode.cp.circle.radius === 0;
+        }
+        /**
+         * Returns true if this ListNode is a one-prong (including
+         * sharp corners).
+         */
+
+    }, {
+        key: "isOneProng",
+        value: function isOneProng() {
+            var cp = this;
+            if (cp.isSharp()) {
+                return true;
+            }
+            if (cp.isThreeProng()) {
+                return false;
+            }
+            var cp2 = cp.nextOnCircle;
+            var p1 = cp.cp.pointOnShape.p;
+            var p2 = cp2.cp.pointOnShape.p;
+            return p1[0] === p2[0] && p1[1] === p2[1];
+        }
+    }, {
+        key: "isThreeProng",
+        value: function isThreeProng() {
+            var cp = this;
+            return cp.getNodes().length === 3;
+        }
+        /**
+         * Advances the node by the given number of steps. This is slow ( O(n) );
+         * use mostly for debugging.
+         * @param node - Node to start counting from
+         * @param n - Number of steps to advance
+         */
+
+    }], [{
+        key: "insert",
+        value: function insert(isHoleClosing, isIntersection, cpTree, cp, prev_) {
+            var cpNode = new CpNode(cp, isHoleClosing, isIntersection);
+            if (typeof _debug_ !== 'undefined') {
+                _debug_.generated.elems.cpNode.push(new cp_node_for_debugging_1.CpNodeForDebugging(_debug_.generated, cpNode));
+            }
+            var prev = void 0;
+            var next = void 0;
+            if (!prev_) {
+                prev = cpNode;
+                next = cpNode;
+            } else {
+                prev = prev_;
+                next = prev.next;
+            }
+            next.prev = cpNode;
+            prev.next = cpNode;
+            cpNode.prev = prev;
+            cpNode.next = next;
+            cpTree.insert(cpNode);
+            return cpNode;
+        }
+    }, {
+        key: "advanceNSteps",
+        value: function advanceNSteps(node, n) {
+            for (var i = 0; i < n; i++) {
+                node = node.next;
+            }
+            return node;
+        }
+    }]);
+
+    return CpNode;
+}();
+
+CpNode.comparator = function (a, b) {
+    return contact_point_1.ContactPoint.compare(a.cp, b.cp);
+};
+exports.CpNode = CpNode;
+
+},{"./contact-point":54,"./debug/cp-node-for-debugging":57}],56:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_memoize_1 = _dereq_("flo-memoize");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var memoize = flo_memoize_1.default.m1;
+
+var Curve = function () {
+    /**
+     * Representation of a curve in a linked loop (of bezier curves).
+     * @param loop The linked loop this node belongs to.
+     * @param ps The bezier points.
+     * @param prev The previous curve.
+     * @param next The next curve.
+     * @param idx The curve's ordered index in the loop.
+     */
+    function Curve(loop, ps, prev, next, idx) {
+        _classCallCheck(this, Curve);
+
+        this.loop = loop;
+        this.ps = ps;
+        this.prev = prev;
+        this.next = next;
+        this.idx = idx;
+    }
+
+    _createClass(Curve, null, [{
+        key: "getCornerAtEnd",
+        value: function getCornerAtEnd(curve) {
+            return _getCornerAtEnd(curve);
+        }
+    }]);
+
+    return Curve;
+}();
+
+exports.Curve = Curve;
+// Angle in degrees
+var DEGREES = {
+    //'0'    : 0.0000,
+    0.25: 0.0050,
+    1: 0.0167,
+    4: 0.0698,
+    16: 0.2756
+};
+var DEGREE_LIMIT = DEGREES[1];
+/**
+ * Gets the cross of the unit tangents of the vector at the end of this
+ * curve and the start of the next curve.
+ */
+var _getCornerAtEnd = memoize(function (curve) {
+    var tans = [flo_bezier3_1.tangent(curve.ps, 1), flo_bezier3_1.tangent(curve.next.ps, 0)];
+    var crossTangents = flo_vector2d_1.cross(tans[0], tans[1]);
+    return {
+        tans: tans,
+        crossTangents: crossTangents,
+        isSharp: crossTangents < 0,
+        isDull: crossTangents > 0,
+        isQuiteSharp: crossTangents < -DEGREE_LIMIT,
+        isQuiteDull: crossTangents > +DEGREE_LIMIT
+    };
+});
+
+},{"flo-bezier3":3,"flo-memoize":41,"flo-vector2d":50}],57:[function(_dereq_,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Class used for debugging only.
+ */
+
+var CpNodeForDebugging = function CpNodeForDebugging(generated, cpNode) {
+    _classCallCheck(this, CpNodeForDebugging);
+
+    this.generated = generated;
+    this.cpNode = cpNode;
+};
+
+exports.CpNodeForDebugging = CpNodeForDebugging;
+
+},{}],58:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Vector = _dereq_("flo-vector2d");
+var Bezier3 = _dereq_("flo-bezier3");
+var Svg = _dereq_("../svg/svg");
+var general_1 = _dereq_("./functions/general");
+var two_prong_1 = _dereq_("./functions/two-prong");
+var three_prong_1 = _dereq_("./functions/three-prong");
+var draw_elem_1 = _dereq_("./functions/draw-elem/draw-elem");
+
+var Generated = function Generated(path, g) {
+    _classCallCheck(this, Generated);
+
+    this.path = path;
+    this.g = g;
+    this.elems = {
+        twoProng_regular: [],
+        twoProng_failed: [],
+        twoProng_notAdded: [],
+        twoProng_deleted: [],
+        twoProng_holeClosing: [],
+        looseBoundingBox: [],
+        tightBoundingBox: [],
+        oneProng: [],
+        oneProngAtDullCorner: [],
+        sharpCorner: [],
+        dullCorner: [],
+        minY: [],
+        threeProng: [],
+        boundingHull: [],
+        mat: [],
+        sat: [],
+        cpNode: [],
+        loop: [],
+        loops: [],
+        maxVertex: [],
+        leaves: [],
+        culls: [],
+        intersection: []
+    };
+    this.timing = {
+        simplify: [0, 0],
+        holeClosers: [0, 0],
+        oneAnd2Prongs: [0, 0],
+        threeProngs: [0, 0],
+        mats: [0, 0],
+        sats: [0, 0]
+    };
+};
+
+exports.Generated = Generated;
+
+var MatDebug = function () {
+    /**
+     * @param fs - some useful functions.
+     */
+    function MatDebug(draw) {
+        _classCallCheck(this, MatDebug);
+
+        /* The current path for which MATs are being found */
+        this.generated = undefined;
+        /* Generated by debug object for later inspection */
+        this.generatedAll = new Map();
+        // These are included only for quick debugging from console
+        this.Bezier3 = Bezier3;
+        this.Vector2d = Vector;
+        this.Svg = Svg;
+        this.directives = {
+            stopAfterHoleClosers: false,
+            stopAfterHoleClosersNum: undefined,
+            stopAfterTwoProngs: false,
+            stopAfterTwoProngsNum: undefined,
+            stopAfterThreeProngs: false
+        };
+        /**
+         * These functions are meant to be used in the console, e.g. in the
+         * console try typing d.fs.twoProng.traceConvergence(0);
+         */
+        this.fs = Object.assign({ draw: draw }, general_1.generalDebugFunctions, { twoProng: two_prong_1.twoProngDebugFunctions, threeProng: three_prong_1.threeProngDebugFunctions, drawElem: draw_elem_1.drawElemFunctions });
+    }
+
+    _createClass(MatDebug, [{
+        key: "createNewGenerated",
+        value: function createNewGenerated(loops, path, g) {
+            this.generated = new Generated(path, g);
+            this.generatedAll.set(loops, this.generated);
+        }
+    }]);
+
+    return MatDebug;
+}();
+
+exports.MatDebug = MatDebug;
+
+},{"../svg/svg":171,"./functions/draw-elem/draw-elem":62,"./functions/general":79,"./functions/three-prong":80,"./functions/two-prong":81,"flo-bezier3":3,"flo-vector2d":50}],59:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function boundingHull(g, hull) {
+    var style = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'thin5 black nofill';
+
+    var $polygon = _debug_.fs.draw.polygon(g, hull, style);
+    return $polygon;
+}
+exports.boundingHull = boundingHull;
+
+},{}],60:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function culls(g, culls) {
+    var $elems = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = culls[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var circle = _step.value;
+
+            var p = circle.center;
+            $elems.push(drawCircle(g, p, 0.4, 'cyan thin5 nofill'));
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return $elems;
+}
+exports.culls = culls;
+function drawCircle(g, center, radiusPercent, classes) {
+    var XMLNS = 'http://www.w3.org/2000/svg';
+    var $circle = document.createElementNS(XMLNS, 'circle');
+    $circle.setAttributeNS(null, "cx", center[0].toString());
+    $circle.setAttributeNS(null, "cy", center[1].toString());
+    $circle.setAttributeNS(null, "r", radiusPercent.toString() + '%');
+    $circle.setAttributeNS(null, "class", classes);
+    g.appendChild($circle);
+    return $circle;
+}
+
+},{}],61:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function drawCirclePercent(g, center, radiusPercent, classes) {
+    var XMLNS = 'http://www.w3.org/2000/svg';
+    var $circle = document.createElementNS(XMLNS, 'circle');
+    $circle.setAttributeNS(null, "cx", center[0].toString());
+    $circle.setAttributeNS(null, "cy", center[1].toString());
+    $circle.setAttributeNS(null, "r", radiusPercent.toString() + '%');
+    $circle.setAttributeNS(null, "class", classes);
+    g.appendChild($circle);
+    return $circle;
+}
+exports.drawCirclePercent = drawCirclePercent;
+
+},{}],62:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var one_prong_1 = _dereq_("./one-prong");
+var two_prong_1 = _dereq_("./two-prong");
+var three_prong_1 = _dereq_("./three-prong");
+var vertex_1 = _dereq_("./vertex");
+var min_y_1 = _dereq_("./min-y");
+var bounding_hull_1 = _dereq_("./bounding-hull");
+var loose_bounding_box_1 = _dereq_("./loose-bounding-box");
+var tight_bounding_box_1 = _dereq_("./tight-bounding-box");
+var sharp_corner_1 = _dereq_("./sharp-corner");
+var dull_corner_1 = _dereq_("./dull-corner");
+var mat_1 = _dereq_("./mat");
+var loop_1 = _dereq_("./loop");
+var loops_1 = _dereq_("./loops");
+var max_vertex_1 = _dereq_("./max-vertex");
+var leaves_1 = _dereq_("./leaves");
+var culls_1 = _dereq_("./culls");
+var intersection_1 = _dereq_("./intersection");
+var one_prong_at_dull_corner_1 = _dereq_("./one-prong-at-dull-corner");
+var drawElemFunctions = {
+    oneProng: one_prong_1.oneProng,
+    oneProngAtDullCorner: one_prong_at_dull_corner_1.oneProngAtDullCorner,
+    twoProng_regular: two_prong_1.twoProng,
+    twoProng_failed: two_prong_1.twoProng,
+    twoProng_notAdded: two_prong_1.twoProng,
+    twoProng_deleted: two_prong_1.twoProng,
+    twoProng_holeClosing: two_prong_1.twoProng,
+    threeProng: three_prong_1.threeProng,
+    minY: min_y_1.minY,
+    boundingHull: bounding_hull_1.boundingHull,
+    looseBoundingBox: loose_bounding_box_1.looseBoundingBox,
+    tightBoundingBox: tight_bounding_box_1.tightBoundingBox,
+    sharpCorner: sharp_corner_1.sharpCorner,
+    dullCorner: dull_corner_1.dullCorner,
+    vertex: vertex_1.vertex,
+    mat: mat_1.mat('mat', true),
+    sat: mat_1.mat('sat', true),
+    loop: loop_1.loop,
+    loops: loops_1.loops,
+    maxVertex: max_vertex_1.maxVertex,
+    leaves: leaves_1.leaves,
+    culls: culls_1.culls,
+    intersection: intersection_1.intersection
+};
+exports.drawElemFunctions = drawElemFunctions;
+
+},{"./bounding-hull":59,"./culls":60,"./dull-corner":63,"./intersection":64,"./leaves":65,"./loop":66,"./loops":67,"./loose-bounding-box":68,"./mat":69,"./max-vertex":70,"./min-y":71,"./one-prong":73,"./one-prong-at-dull-corner":72,"./sharp-corner":74,"./three-prong":75,"./tight-bounding-box":76,"./two-prong":77,"./vertex":78}],63:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function dullCorner(g, pos) {
+    var scaleFactor = 0.1;
+    var $pos = _debug_.fs.draw.dot(g, pos.p, 0.5 * scaleFactor, 'orange');
+    return $pos;
+}
+exports.dullCorner = dullCorner;
+
+},{}],64:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var draw_circle_percent_1 = _dereq_("./draw-circle-percent");
+function intersection(g, x) {
+    return [draw_circle_percent_1.drawCirclePercent(g, x.pos.p, 0.7, 'purple thin2 nofill')];
+}
+exports.intersection = intersection;
+
+},{"./draw-circle-percent":61}],65:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var draw_circle_percent_1 = _dereq_("./draw-circle-percent");
+function leaves(g, leaves) {
+    var $elems = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = leaves[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var cpNode = _step.value;
+
+            var cp = cpNode.cp;
+            var p = cp.circle.center;
+            $elems.push(draw_circle_percent_1.drawCirclePercent(g, p, 0.5, 'pinker thin5 nofill'));
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return $elems;
+}
+exports.leaves = leaves;
+
+},{"./draw-circle-percent":61}],66:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+// TODO - finish
+function loop(g, loop) {
+    /*
+    for (let curve of loop.curves) {
+        _debug_.fs.draw.bezier(g, curve.ps, undefined, 1000);
+    }
+    */
+    return [];
+}
+exports.loop = loop;
+
+},{}],67:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+// TODO - finish
+function loops(g, loops) {
+    return [];
+}
+exports.loops = loops;
+
+},{}],68:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function looseBoundingBox(g, box) {
+    var $box = _debug_.fs.draw.rect(g, box, 'thin5 brown nofill');
+    return $box;
+}
+exports.looseBoundingBox = looseBoundingBox;
+
+},{}],69:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var traverse_edges_1 = _dereq_("../../../mat/traverse-edges");
+function mat(type, smooth) {
+    var classes = type === 'mat' ? 'thin5 purple nofill' : 'thin10 red nofill';
+    return f;
+    function f(g, mat) {
+        var cpNode = mat.cpNode;
+        if (!cpNode) {
+            return undefined;
+        }
+        var draw = _debug_.fs.draw;
+        var $svgs = [];
+        //const DRAW_CLASS_LINE = 'thin20 blue1 nofill';
+        //const DRAW_CLASS_QUAD = 'thin20 blue2 nofill';
+        //const DRAW_CLASS_CUBE = 'thin20 blue3 nofill';
+        traverse_edges_1.traverseEdges(cpNode, function (cpNode) {
+            if (cpNode.isTerminating()) {
+                return;
+            }
+            if (!smooth) {
+                var p1 = cpNode.cp.circle.center;
+                var p2 = cpNode.next.cp.circle.center;
+                $svgs.push.apply($svgs, _toConsumableArray(draw.line(g, [p1, p2], classes)));
+                return;
+            }
+            var bezier = cpNode.matCurve;
+            if (!bezier) {
+                return;
+            }
+            var fs = [,, draw.line, draw.quadBezier, draw.bezier];
+            $svgs.push.apply($svgs, _toConsumableArray(fs[bezier.length](g, bezier, classes)));
+        });
+        return $svgs;
+    }
+}
+exports.mat = mat;
+
+},{"../../../mat/traverse-edges":130}],70:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function maxVertex(g, cpNode) {
+    var draw = _debug_.fs.draw;
+    var circle = cpNode.cp.circle;
+    var $elems = draw.circle(g, circle, 'brown thin10 nofill');
+    return $elems;
+}
+exports.maxVertex = maxVertex;
+
+},{}],71:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+function minY(g, pos) {
+    var p = flo_bezier3_1.evaluate(pos.curve.ps, pos.t);
+    var $elems = _debug_.fs.draw.crossHair(g, p, 'red thin10 nofill');
+    return $elems;
+}
+exports.minY = minY;
+
+},{"flo-bezier3":3}],72:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+function oneProngAtDullCorner(g, pos) {
+    var oCircle = point_on_shape_1.PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
+    var $center = _debug_.fs.draw.dot(g, pos.p, 0.1, 'orange');
+    var $circle = _debug_.fs.draw.dot(g, oCircle.center, 0.25, 'orange');
+    var $pos = _debug_.fs.draw.circle(g, oCircle, 'orange thin10 nofill');
+    return [].concat(_toConsumableArray($center), _toConsumableArray($circle), _toConsumableArray($pos));
+}
+exports.oneProngAtDullCorner = oneProngAtDullCorner;
+
+},{"../../../point-on-shape":133}],73:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+var circle_1 = _dereq_("../../../circle");
+var scaleFactor = 0.5;
+function oneProng(g, pos) {
+    var draw = _debug_.fs.draw;
+    var circle = circle_1.Circle.scale(point_on_shape_1.PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos), 1);
+    var $center = draw.dot(g, pos.p, 0.1 * scaleFactor, 'gray');
+    var $circle = draw.dot(g, circle.center, 0.25 * scaleFactor, 'gray');
+    var $pos = draw.circle(g, circle, 'gray thin10 nofill');
+    return [].concat(_toConsumableArray($center), _toConsumableArray($circle), _toConsumableArray($pos));
+}
+exports.oneProng = oneProng;
+
+},{"../../../circle":53,"../../../point-on-shape":133}],74:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function sharpCorner(g, pos) {
+    var scaleFactor = 0.1;
+    var $pos = _debug_.fs.draw.dot(g, pos.p, 0.6 * scaleFactor, 'green');
+    return $pos;
+}
+exports.sharpCorner = sharpCorner;
+
+},{}],75:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var circle_1 = _dereq_("../../../circle");
+var scaleFactor = 0.3;
+function threeProng(g, threeProng) {
+    var draw = _debug_.fs.draw;
+    var circle = circle_1.Circle.scale(threeProng.circle, 1);
+    var poss = threeProng.poss;
+    var $cp1 = draw.dot(g, poss[0].p, 0.1 * 1 * scaleFactor, 'blue');
+    var $cp2 = draw.dot(g, poss[1].p, 0.1 * 2 * scaleFactor, 'blue');
+    var $cp3 = draw.dot(g, poss[2].p, 0.1 * 3 * scaleFactor, 'blue');
+    var $center = draw.dot(g, circle.center, 0.3 * scaleFactor, 'blue');
+    var $circle = draw.circle(g, circle, 'blue thin2 nofill');
+    return [].concat(_toConsumableArray($center), _toConsumableArray($cp1), _toConsumableArray($cp2), _toConsumableArray($cp3), _toConsumableArray($circle));
+}
+exports.threeProng = threeProng;
+
+},{"../../../circle":53}],76:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function tightBoundingBox(g, box) {
+    var $box = _debug_.fs.draw.polygon(g, box, 'thin5 black nofill');
+    return $box;
+}
+exports.tightBoundingBox = tightBoundingBox;
+
+},{}],77:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_two_prong_type_1 = _dereq_("../../../mat/get-two-prong-type");
+function twoProng(g, twoProng) {
+    //let scaleFactor = width/200;		
+    var scaleFactor = 0.3;
+    var $failedDot = [];
+    var $center = [];
+    var $circle = [];
+    var $cp1 = [];
+    var $cp2 = [];
+    var color = void 0;
+    var thin = void 0;
+    var draw = _debug_.fs.draw;
+    switch (get_two_prong_type_1.getTwoProngType(twoProng)) {
+        case 'twoProng_regular':
+            {
+                color = 'red ';
+                thin = '2';
+                break;
+            }
+        case 'twoProng_failed':
+            {
+                $failedDot = draw.dot(g, twoProng.pos.p, 1 * scaleFactor, 'black');
+                return;
+            }
+        case 'twoProng_notAdded':
+            {
+                color = 'brown ';
+                thin = '10';
+                break;
+            }
+        case 'twoProng_deleted':
+            {
+                color = 'gray ';
+                thin = '2';
+                break;
+            }
+        case 'twoProng_holeClosing':
+            {
+                color = 'cyan ';
+                thin = '10';
+                break;
+            }
+    }
+    if (twoProng.failed) {
+        $failedDot = draw.dot(g, twoProng.pos.p, 1 * scaleFactor, 'black');
+    } else if (!twoProng.failed) {
+        $center = draw.dot(g, twoProng.circle.center, 0.05 * scaleFactor, 'yellow');
+        $circle = draw.circle(g, twoProng.circle, color + 'thin' + thin + ' nofill');
+        $cp1 = draw.dot(g, twoProng.pos.p, 0.035 * scaleFactor, color);
+        $cp2 = draw.dot(g, twoProng.z, 0.07 * scaleFactor, color);
+    }
+    return [].concat(_toConsumableArray($failedDot), _toConsumableArray($center), _toConsumableArray($circle), _toConsumableArray($cp1), _toConsumableArray($cp2));
+}
+exports.twoProng = twoProng;
+
+},{"../../../mat/get-two-prong-type":122}],78:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function vertex(g, cpNode) {
+    var visible = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    var displayDelay = arguments[3];
+
+    var visibleClass = visible ? '' : ' invisible';
+    var circle = cpNode.cp.circle;
+    var draw = _debug_.fs.draw;
+    var THIN = 'thin20';
+    var cps = cpNode.getNodes();
+    console.log(cps);
+    var $svgs = [];
+    var $circle = draw.circle(g, circle, 'red ' + THIN + ' nofill ' + visibleClass, displayDelay);
+    var $crossHair = draw.crossHair(g, circle.center, 'red ' + THIN + ' nofill ' + visibleClass, 3, displayDelay);
+    $svgs = [].concat(_toConsumableArray($circle), _toConsumableArray($crossHair));
+    for (var i = 0; i < cps.length; i++) {
+        var _$svgs, _$svgs2;
+
+        var cp = cps[i];
+        var edgeCircle = cp.next.cp.circle;
+        var _$circle = draw.circle(g, edgeCircle, 'pink ' + THIN + ' nofill ' + visibleClass, displayDelay);
+        var _$crossHair = draw.crossHair(g, edgeCircle.center, 'pink ' + THIN + ' nofill ' + visibleClass, 3, displayDelay);
+        (_$svgs = $svgs).push.apply(_$svgs, _toConsumableArray(_$circle).concat(_toConsumableArray(_$crossHair)));
+        var p1 = circle.center;
+        var p2 = edgeCircle.center;
+        var thin = i === 0 ? 'thin10' : i === 1 ? 'thin20' : 'thin35';
+        var $line = draw.line(g, [p1, p2], 'yellow ' + thin + ' nofill ' + visibleClass, displayDelay);
+        (_$svgs2 = $svgs).push.apply(_$svgs2, _toConsumableArray($line));
+    }
+    return $svgs;
+}
+exports.vertex = vertex;
+
+},{}],79:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+var i = 0;
+/** Name the given object - for debugging purposes only */
+function nameObj(o) {
+    var pre = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
+    o.name = '' + pre + i++;
+}
+/**
+ * Transforms a boundary piece (δ) into a human readable string.
+ * @param cpNodes A boundary piece given by two CpNodes.
+ */
+function δToString(cpNodes) {
+    return cpNodes.map(function (cpNode) {
+        return point_on_shape_1.PointOnShape.toHumanString(cpNode.cp.pointOnShape);
+    });
+}
+/**
+ * Transforms an array of boundary pieces (δs) into a human readable string.
+ * @param cpNodes An array of boundary pieces.
+ */
+function δsToString(cpNodes) {
+    return cpNodes.map(δToString);
+}
+/**
+ * Convert the given points into a human readable string.
+ * @param ps
+ */
+function pointsToStr(ps) {
+    var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3;
+
+    return ps.map(function (p) {
+        return pointToStr(p, decimalPlaces);
+    });
+}
+/**
+ * Converts the given point into a human readable string.
+ * @param p - The point
+ * @param decimalPlaces - number of decimal places
+ */
+function pointToStr(p) {
+    var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3;
+
+    return p[0].toFixed(decimalPlaces) + ', ' + p[1].toFixed(decimalPlaces);
+}
+var generalDebugFunctions = {
+    δToString: δToString,
+    δsToString: δsToString,
+    pointToStr: pointToStr,
+    pointsToStr: pointsToStr,
+    nameObj: nameObj
+};
+exports.generalDebugFunctions = generalDebugFunctions;
+
+},{"../../point-on-shape":133}],80:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var circle_1 = _dereq_("../../circle");
+/**
+ * Draws 3 lines from the given 3-prong center to its 3 contact points.
+ * @param n - The 3-prong's zero-based index.
+ */
+function drawSpokes(n) {
+    var threeProng = _debug_.generated.elems.threeProng[n];
+    var g = threeProng.generated.g;
+    var cc = threeProng.circle.center;
+    var poss = threeProng.poss;
+    _debug_.fs.draw.line(g, [poss[0].p, cc], 'thin5 red');
+    _debug_.fs.draw.line(g, [poss[1].p, cc], 'thin5 red');
+    _debug_.fs.draw.line(g, [poss[2].p, cc], 'thin5 red');
+}
+/**
+ * Shows the circle for each boundary iteration.
+ * @param n_ - The 3-prong's zero-based index. If ommitted, all will be shown.
+ * @param idx - The specific boundary iteration index to view. If ommitted, all
+ * will be shown.
+ */
+function traceConvergence(n_, idx) {
+    var sIndx = void 0;
+    var eIndx = void 0;
+    if (n_ === undefined) {
+        sIndx = 0;
+        eIndx = _debug_.generated.elems.threeProng.length;
+    } else {
+        sIndx = n_;
+        eIndx = n_ + 1;
+    }
+    for (var n = sIndx; n < eIndx; n++) {
+        var forDebugging = _debug_.generated.elems.threeProng[n];
+        var g = forDebugging.generated.g;
+        console.log(forDebugging);
+        var candidateThreeProngs = forDebugging.candidateThreeProngs;
+        //-----------------------------
+        //---- Get start and end index
+        //-----------------------------
+        var startIndx = void 0;
+        var endIndx = void 0;
+        if (n_ === undefined || idx === -1) {
+            startIndx = forDebugging.bestIndx;
+            endIndx = forDebugging.bestIndx + 1;
+        } else {
+            if (idx === undefined) {
+                startIndx = 0;
+                endIndx = candidateThreeProngs.length;
+            } else {
+                startIndx = idx;
+                endIndx = idx + 1;
+            }
+        }
+        //---------------------------------
+        //---- Draw candidate three-prongs
+        //---------------------------------
+        for (var i = startIndx; i < endIndx; i++) {
+            var circle = candidateThreeProngs[i].circle;
+            if (forDebugging.bestIndx === i) {
+                _debug_.fs.draw.dot(g, circle.center, 0.2, 'green');
+                _debug_.fs.draw.circle(g, circle, 'black thin10 nofill');
+            } else {
+                _debug_.fs.draw.dot(g, circle.center, 0.2, 'cyan');
+                _debug_.fs.draw.circle(g, circle, 'cyan thin5 nofill');
+            }
+        }
+    }
+}
+/**
+ * Shows the actual boundary for each iteration.
+ * @param n The 3-prong's zero-based index.
+ * @param idx The specific boundary iteration index to view. If ommitted will
+ * show all.
+ */
+function showBoundary(n, idx) {
+    var debugInfo = _debug_.generated.elems.threeProng[n];
+    var g = debugInfo.generated.g;
+    var candidateThreeProngs = debugInfo.candidateThreeProngs;
+    var startIndx = idx === undefined ? 0 : idx;
+    var endIndx = idx === undefined ? candidateThreeProngs.length : idx;
+    // Draw relevant δs
+    var cpss = debugInfo.cpss;
+    var j = 0;
+    // For each iteration of δ3s (indexed by j)
+    for (var _idx = 1; _idx < cpss.length - 1; _idx++) {
+        if (!(j >= startIndx && j <= endIndx)) {
+            j++;
+            continue;
+        }
+        var δ3s = [cpss[0], cpss[_idx], cpss[cpss.length - 1]];
+        // For each of the 3 δs
+        for (var i = 0; i < 3; i++) {
+            var δ = δ3s[i];
+            var δS = δ[0]; // Delta Start
+            var δE = δ[1]; // Delta End
+            var posS = δS.cp.pointOnShape;
+            var posE = δE.cp.pointOnShape;
+            var pS = posS.p;
+            var pE = posE.p;
+            var r = 1 + i * 0.5;
+            if (flo_vector2d_1.equal(pS, pE)) {
+                _debug_.fs.draw.crossHair(g, pS, 'red thin10 nofill', r);
+            } else {
+                _debug_.fs.draw.crossHair(g, pS, 'green thin10 nofill', r);
+                _debug_.fs.draw.crossHair(g, pE, 'blue thin10 nofill', r);
+            }
+        }
+        j++;
+    }
+}
+/**
+ * @param n The 3-prong's zero-based index.
+ */
+function logδs(n) {
+    var threeProng = _debug_.generated.elems.threeProng[n];
+    console.log(threeProng.cpss);
+}
+/**
+ *
+ * @param p
+ */
+function logNearest(p) {
+    var inclSpokes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    var inclTrace = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    var inclBoundaries = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+    var closestPerLoops = [];
+    _debug_.generatedAll.forEach(function (generated) {
+        var threeProng = flo_vector2d_1.getObjClosestTo(p, generated.elems.threeProng, function (threeProng) {
+            return threeProng.circle.center;
+        });
+        closestPerLoops.push(threeProng);
+    });
+    var threeProng = flo_vector2d_1.getObjClosestTo(p, closestPerLoops, function (threeProng) {
+        return threeProng.circle.center;
+    });
+    var circle = threeProng.circle;
+    var g = threeProng.generated.g;
+    console.log(threeProng);
+    var circle2 = new circle_1.Circle(circle.center, circle.radius || 1);
+    var draw = _debug_.fs.draw;
+    draw.circle(g, circle2, 'green thin10 nofill', 1000);
+    // Boundaries
+    var boundaries = threeProng.boundaries;
+    var boundaryS = boundaries[0];
+    var boundaryE = boundaries[boundaries.length - 1];
+    draw.beziers(g, boundaryS, 'red thin5 nofill');
+    for (var i = 1; i < boundaries.length - 1; i++) {
+        var boundary = boundaries[i];
+        draw.beziers(g, boundary, 'green thin5 nofill');
+    }
+    draw.beziers(g, boundaryE, 'blue thin5 nofill');
+    // Trace
+    var traces = threeProng.traces;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = traces[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var trace = _step.value;
+
+            draw.polyline(g, trace, 'red thin5 nofill');
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+}
+var threeProngDebugFunctions = {
+    drawSpokes: drawSpokes,
+    traceConvergence: traceConvergence,
+    showBoundary: showBoundary,
+    logδs: logδs,
+    logNearest: logNearest
+};
+exports.threeProngDebugFunctions = threeProngDebugFunctions;
+
+},{"../../circle":53,"flo-vector2d":50}],81:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var circle_1 = _dereq_("../../circle");
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+/**
+ *
+ */
+function logδ(n) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'twoProng_regular';
+
+    var δ = _debug_.generated.elems[type][n].δ;
+    console.log(δ);
+}
+/**
+ *
+ */
+function log(n) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'twoProng_regular';
+
+    var twoProng = _debug_.generated.elems[type][n];
+    console.log(twoProng);
+}
+/**
+ *
+ */
+function drawNormal(n) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'twoProng_regular';
+
+    var twoProngs = _debug_.generated.elems[type];
+    // If not specified which, draw all
+    if (n === undefined) {
+        for (var i = 0; i < twoProngs.length; i++) {
+            drawNormal(i);
+        }
+    }
+    var twoProng = twoProngs[n];
+    var g = twoProng.generated.g;
+    if (!twoProng) {
+        return;
+    }
+    _debug_.fs.draw.line(g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue');
+}
+/**
+ *
+ */
+function logδBasic(n) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'twoProng_regular';
+
+    var delta = _debug_.generated.elems[type][n].δ;
+    function f(x) {
+        var pos = x.cp.pointOnShape;
+        return {
+            bez: pos.curve.ps,
+            t: pos.t
+        };
+    }
+    console.log(f(delta[0]));
+    console.log(f(delta[1]));
+}
+/**
+ *
+ */
+function logNearest(p) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'twoProng_regular';
+
+    var closestPerLoops = [];
+    _debug_.generatedAll.forEach(function (generated, loops) {
+        var twoProng = flo_vector2d_1.getObjClosestTo(p, generated.elems[type], function (twoProng) {
+            return twoProng.circle.center;
+        });
+        closestPerLoops.push(twoProng);
+    });
+    var twoProng = flo_vector2d_1.getObjClosestTo(p, closestPerLoops, function (twoProng) {
+        return twoProng.circle.center;
+    });
+    var g = twoProng.generated.g;
+    console.log(twoProng);
+    var circle_ = twoProng.circle;
+    var circle = new circle_1.Circle(circle_.center, circle_.radius || 1);
+    _debug_.fs.draw.circle(g, circle, 'green thin10 nofill', 1000);
+    var n = void 0;
+    for (var i = 0; i < _debug_.generated.elems[type].length; i++) {
+        var twoProng_ = _debug_.generated.elems[type][i];
+        if (twoProng_ === twoProng) {
+            n = i;
+            break;
+        }
+    }
+    if (n !== undefined) {
+        traceConvergence(n, true);
+    }
+}
+/**
+ *
+ * @param n - The 2-prong's zero-based index.
+ * @param range
+ * cascade of convergence)
+ */
+function traceConvergence(n, finalOnly) {
+    var range = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+    var type = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'twoProng_regular';
+
+    if (n === undefined) {
+        return;
+    }
+    var twoProngInfo = _debug_.generated.elems[type][n];
+    var xs = twoProngInfo.xs;
+    var g = twoProngInfo.generated.g;
+    console.log(twoProngInfo);
+    console.log(twoProngInfo.xs.map(function (x) {
+        return {
+            x: x.x,
+            y: x.y,
+            z: x.z,
+            d: x.z ? flo_vector2d_1.squaredDistanceBetween(x.y.p, x.z.p) : 0,
+            t: x.t
+        };
+    }));
+    for (var i = 0; i < xs.length; i++) {
+        if (range && (i < range[0] || i >= range[1])) {
+            continue;
+        }
+        if (finalOnly && i !== xs.length - 1) {
+            continue;
+        }
+        var x = twoProngInfo.xs[i];
+        var circle = new circle_1.Circle(x.x, flo_vector2d_1.distanceBetween(x.x, x.y.p));
+        _debug_.fs.draw.crossHair(g, x.x, 'red thin10 nofill');
+        _debug_.fs.draw.circle(g, circle, 'blue thin10 nofill');
+        if (x.z !== undefined) {
+            _debug_.fs.draw.crossHair(g, x.z.p, 'yellow thin10 nofill', 2);
+        }
+    }
+    twoProngDebugFunctions.drawNormal(n);
+}
+var twoProngDebugFunctions = {
+    logδ: logδ,
+    log: log,
+    drawNormal: drawNormal,
+    logδBasic: logδBasic,
+    traceConvergence: traceConvergence,
+    logNearest: logNearest
+};
+exports.twoProngDebugFunctions = twoProngDebugFunctions;
+
+},{"../../circle":53,"flo-vector2d":50}],82:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../point-on-shape");
+/**
+ * Class used in debugging. A three-prong is a maximally inscribed circle that
+ * touches the shape boundary (tangentially) at 3 points.
+ */
+
+var ThreeProngForDebugging = function () {
+  /**
+   * @param circle The best fit circle found for the 3-prong.
+   * @param poss The best fit 3 points found for the 3-prong.
+   * @param cp3ss The 3 boundary pieces on which the three prong points were
+   * found.
+   * @param cpss The boundary pieces that were used to search the three prong
+   * on.
+   * @param bestIndx
+   * @param candidateThreeProngs An array of 3-prongs, each of which may be a
+   * best fit 3-prong.
+   */
+  function ThreeProngForDebugging() {
+    _classCallCheck(this, ThreeProngForDebugging);
+  }
+
+  _createClass(ThreeProngForDebugging, [{
+    key: "cpsSimple",
+    get: function get() {
+      return this.cpss.map(function (δ) {
+        return [point_on_shape_1.PointOnShape.toHumanString(δ[0].cp.pointOnShape), point_on_shape_1.PointOnShape.toHumanString(δ[1].cp.pointOnShape)];
+      });
+    }
+  }]);
+
+  return ThreeProngForDebugging;
+}();
+
+exports.ThreeProngForDebugging = ThreeProngForDebugging;
+
+},{"../point-on-shape":133}],83:[function(_dereq_,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var TwoProngForDebugging = function TwoProngForDebugging(generated, bezierPieces, pos, δ, z, circle, xs, failed, holeClosing, notAdded, deleted) {
+    _classCallCheck(this, TwoProngForDebugging);
+
+    this.generated = generated;
+    this.bezierPieces = bezierPieces;
+    this.pos = pos;
+    this.δ = δ;
+    this.z = z;
+    this.circle = circle;
+    this.xs = xs;
+    this.failed = failed;
+    this.holeClosing = holeClosing;
+    this.notAdded = notAdded;
+    this.deleted = deleted;
+};
+
+exports.TwoProngForDebugging = TwoProngForDebugging;
+
+},{}],84:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var curve_1 = _dereq_("./curve");
+/**
+ * Represents a two-way linked loop of Curves.
+ */
+
+var Loop = function () {
+    /**
+     * @param items - A pre-ordered array of items to add initially
+     */
+    function Loop() {
+        var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+        _classCallCheck(this, Loop);
+
+        this.items = items;
+        this.curves = [];
+        var loop = this;
+        if (items.length === 0) {
+            return undefined;
+        }
+        var head = void 0;
+        var prev = null;
+        var node = void 0;
+        for (var i = 0; i < items.length; i++) {
+            node = new curve_1.Curve(loop, items[i], prev, null, i);
+            loop.curves.push(node);
+            if (prev) {
+                prev.next = node;
+            }
+            prev = node;
+            if (i === 0) {
+                head = node;
+            }
+        }
+        // Close loop
+        head.prev = node;
+        node.next = head;
+        this.head = head;
+    }
+
+    _createClass(Loop, [{
+        key: "toBeziers",
+        value: function toBeziers() {
+            var beziers = [];
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = this.curves[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var curve = _step.value;
+
+                    beziers.push(curve.ps);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return beziers;
+        }
+    }], [{
+        key: "perturb",
+        value: function perturb(loop, x) {
+            if (!x) {
+                return loop;
+            }
+            var seed = 2311; // Just some value
+            var newItems = [];
+            for (var i = 0; i < loop.items.length; i++) {
+                // This gets us a predictable random number between 0 and 1;
+                var rand1 = flo_poly_1.default.random.flatCoefficients(6, -1, 1, seed);
+                var rs = rand1.p;
+                seed = rand1.seed; // Get next seed.
+                var vs = rs.map(function (r) {
+                    return r * x;
+                });
+                console.log(vs);
+                var ps = loop.items[i];
+
+                var _ps = _slicedToArray(ps, 3),
+                    _ps$ = _slicedToArray(_ps[0], 2),
+                    x0 = _ps$[0],
+                    y0 = _ps$[1],
+                    _ps$2 = _slicedToArray(_ps[1], 2),
+                    x1 = _ps$2[0],
+                    y1 = _ps$2[1],
+                    _ps$3 = _slicedToArray(_ps[2], 2),
+                    x2 = _ps$3[0],
+                    y2 = _ps$3[1];
+
+                var newPs = [[x0 + vs[0], y0 + vs[1]], [x1 + vs[2], y1 + vs[3]], [x2 + vs[4], y2 + vs[5]], [0, 0]];
+                if (i !== 0) {
+                    var _prev = newItems[newItems.length - 1];
+                    _prev[3][0] = newPs[0][0];
+                    _prev[3][1] = newPs[0][1];
+                }
+                newItems.push(newPs);
+            }
+            var last = newItems[newItems.length - 1];
+            last[3][0] = newItems[0][0][0];
+            last[3][1] = newItems[0][0][1];
+            return new Loop(newItems);
+        }
+    }]);
+
+    return Loop;
+}();
+
+exports.Loop = Loop;
+
+},{"./curve":56,"flo-poly":42}],85:[function(_dereq_,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+;
+/**
+ * Represents a complete Medial Axis Transform (MAT).
+ */
+
+var Mat =
+/**
+ * @param cpNode
+ * @param cpTrees
+ */
+function Mat(cpNode, cpTrees) {
+  _classCallCheck(this, Mat);
+
+  this.cpNode = cpNode;
+  this.cpTrees = cpTrees;
+};
+
+exports.Mat = Mat;
+
+},{}],86:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var contact_point_1 = _dereq_("../contact-point");
+var cp_node_1 = _dereq_("../cp-node");
+var get_neighboring_cps_1 = _dereq_("./get-neighboring-cps");
+function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
+    var newCps = poss.map(function (pos, i) {
+        var cpTree = cpTrees.get(pos.curve.loop);
+        var newCp_ = new contact_point_1.ContactPoint(pos, circle, orders[i], 0);
+        var neighboringCp = neighbors ? neighbors[i] : get_neighboring_cps_1.getNeighbouringPoints(cpTree, pos, orders[i], 0);
+        var newCp = cp_node_1.CpNode.insert(false, false, cpTree, newCp_, neighboringCp[0]);
+        return newCp;
+    });
+    var len = poss.length;
+    for (var i = 0; i < len; i++) {
+        var indxPrev = i === 0 ? len - 1 : i - 1;
+        var indxNext = i === len - 1 ? 0 : i + 1;
+        newCps[i].prevOnCircle = newCps[indxPrev];
+        newCps[i].nextOnCircle = newCps[indxNext];
+    }
+}
+exports.addToCpGraph = addToCpGraph;
+
+},{"../contact-point":54,"../cp-node":55,"./get-neighboring-cps":121}],87:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_ll_rb_tree_1 = _dereq_("flo-ll-rb-tree");
+var cp_node_1 = _dereq_("../cp-node");
+var traverse_edges_1 = _dereq_("./traverse-edges");
+function createNewCpTree(cpNode) {
+    var newCpTrees = new Map();
+    traverse_edges_1.traverseEdges(cpNode, function (cpNode) {
+        var loop = cpNode.cp.pointOnShape.curve.loop;
+        var cpTree = newCpTrees.get(loop);
+        if (!cpTree) {
+            cpTree = new flo_ll_rb_tree_1.default(cp_node_1.CpNode.comparator, [], true);
+            newCpTrees.set(loop, cpTree);
+        }
+        cpTree.insert(cpNode);
+    });
+    return newCpTrees;
+}
+exports.createNewCpTree = createNewCpTree;
+
+},{"../cp-node":55,"./traverse-edges":130,"flo-ll-rb-tree":37}],88:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+var add_to_cp_graph_1 = _dereq_("../add-to-cp-graph");
+var is_another_cp_closeby_1 = _dereq_("../is-another-cp-closeby");
+/**
+ * Add a 1-prong to the MAT.
+ * @param cpGraphs
+ * @param pos
+ */
+function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
+    if (point_on_shape_1.PointOnShape.isDullCorner(pos)) {
+        // This is a 1-prong at a dull corner.
+        // TODO IMPORTANT 
+        // Remove this line, uncomment piece below it and implement the 
+        // following strategy to find the 3-prongs: if deltas are conjoined due 
+        // to dull corner, split the conjoinment by inserting successively 
+        // closer (binary division) 2-prongs. If a 2-prong actually fails, 
+        // simply remove the 1-prong at the dull corner. In this way **all** 
+        // terminal points are found, e.g. zoom in on top left leg of ant.
+        // Afterthought: there is a better way - split points by two prongs.
+        //toRemove.push(posNode); // this!
+        if (typeof _debug_ !== 'undefined') {
+            _debug_.generated.elems.oneProngAtDullCorner.push(pos);
+        }
+        return;
+    }
+    var circle = point_on_shape_1.PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
+    //console.log(maxOsculatingCircleRadius)
+    var order = point_on_shape_1.PointOnShape.calcOrder(circle, pos);
+    // Make sure there isn't already a ContactPoint close by - it can cause
+    // floating point stability issues.
+    if (is_another_cp_closeby_1.isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {
+        return;
+    }
+    add_to_cp_graph_1.addToCpGraph(circle, [-0.5, +0.5], cpGraphs, [pos, pos]);
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.generated.elems.oneProng.push(pos);
+    }
+}
+exports.add1Prong = add1Prong;
+
+},{"../../point-on-shape":133,"../add-to-cp-graph":86,"../is-another-cp-closeby":123}],89:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var cp_node_1 = _dereq_("../../cp-node");
+var contact_point_1 = _dereq_("../../contact-point");
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+var is_another_cp_closeby_1 = _dereq_("../is-another-cp-closeby");
+var get_neighboring_cps_1 = _dereq_("../get-neighboring-cps");
+/**
+ * Adds a 2-prong contact circle to the shape.
+ * @param cpGraphs
+ * @param circle Circle containing the 2 contact points
+ * @param posSource The source point on shape
+ * @param posAntipode The found antipodal point on shape
+ * @param holeClosing True if this is a hole-closing 2-prong, false otherwise
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function add2Prong(cpGraphs, circle, posSource, posAntipode, holeClosing, extreme) {
+    var orderSource = point_on_shape_1.PointOnShape.calcOrder(circle, posSource);
+    var orderAntipode = point_on_shape_1.PointOnShape.calcOrder(circle, posAntipode);
+    var t_s = posSource.t;
+    var curve = void 0;
+    if (t_s === 0) {
+        t_s = 1;
+        curve = posSource.curve.prev;
+        posSource = new point_on_shape_1.PointOnShape(curve, t_s);
+    }
+    // Make sure there isn't already a ContactPoint close by - it can cause
+    // floating point stability issues.
+    if (is_another_cp_closeby_1.isAnotherCpCloseby(cpGraphs, posSource, circle, orderSource, 0, extreme, 'red') || is_another_cp_closeby_1.isAnotherCpCloseby(cpGraphs, posAntipode, circle, orderAntipode, 0, extreme, 'red')) {
+        if (typeof _debug_ !== 'undefined') {
+            if (holeClosing) {
+                _debug_.generated.elems['twoProng_holeClosing'].pop();
+            } else {
+                _debug_.generated.elems['twoProng_regular'].pop();
+            }
+        }
+        return;
+    }
+    // Antipode
+    var cpAntipode = new contact_point_1.ContactPoint(posAntipode, circle, orderAntipode, 0);
+    var loopAntipode = posAntipode.curve.loop;
+    var cpTreeAntipode = cpGraphs.get(loopAntipode);
+    var deltaAntipode = get_neighboring_cps_1.getNeighbouringPoints(cpTreeAntipode, posAntipode, orderAntipode, 0);
+    var newCpAntipode = cp_node_1.CpNode.insert(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]);
+    //console.log(cpAntipode.pointOnShape.t);
+    // Source
+    var cpSource = new contact_point_1.ContactPoint(posSource, circle, orderSource, 0);
+    var loopSource = posSource.curve.loop;
+    var cpTreeSource = cpGraphs.get(loopSource);
+    var deltaSource = get_neighboring_cps_1.getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
+    var newCpSource = cp_node_1.CpNode.insert(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
+    //console.log(cpSource.pointOnShape.t);
+    // Connect graph
+    newCpSource.prevOnCircle = newCpAntipode;
+    newCpSource.nextOnCircle = newCpAntipode;
+    newCpAntipode.prevOnCircle = newCpSource;
+    newCpAntipode.nextOnCircle = newCpSource;
+    if (holeClosing) {
+        // Duplicate ContactPoints
+        var cpB2 = new contact_point_1.ContactPoint(posAntipode, circle, cpAntipode.order, +1);
+        var newCpB2Node = cp_node_1.CpNode.insert(true, false, cpTreeAntipode, cpB2, newCpAntipode);
+        var cpB1 = new contact_point_1.ContactPoint(posSource, circle, cpSource.order, -1);
+        var newCpB1Node = cp_node_1.CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
+        // Connect graph
+        newCpB1Node.prevOnCircle = newCpB2Node;
+        newCpB1Node.nextOnCircle = newCpB2Node;
+        newCpB2Node.prevOnCircle = newCpB1Node;
+        newCpB2Node.nextOnCircle = newCpB1Node;
+        newCpAntipode.next = newCpSource;
+        newCpSource.prev = newCpAntipode;
+        newCpB1Node.next = newCpB2Node;
+        newCpB2Node.prev = newCpB1Node;
+    }
+    return newCpSource;
+}
+exports.add2Prong = add2Prong;
+
+},{"../../contact-point":54,"../../cp-node":55,"../../point-on-shape":133,"../get-neighboring-cps":121,"../is-another-cp-closeby":123}],90:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var add_to_cp_graph_1 = _dereq_("../add-to-cp-graph");
+var is_another_cp_closeby_1 = _dereq_("../is-another-cp-closeby");
+/**
+ * Adds a 3-prong MAT circle according to the 3 given (previously calculated)
+ * points on the shape.
+ * @param cpTrees
+ * @param orders
+ * @param threeProng
+ */
+function add3Prong(cpTrees, orders, threeProng) {
+    var circle = threeProng.circle,
+        ps = threeProng.ps,
+        δ3s = threeProng.δ3s;
+    // Keep for possible future debugging.	
+    /*
+    if (typeof _debug_ !== 'undefined') {
+        for (let i=0; i<3; i++) {
+            let cpBef = threeProng.δ3s[i][0].cp;
+            let cpAft = threeProng.δ3s[i][1].cp;
+            //let cmpBef = PointOnShape.compareInclOrder(cpBef.pointOnShape, ps[i], cpBef.order, orders[i]);
+            //let cmpAft = PointOnShape.compareInclOrder(cpAft.pointOnShape, ps[i], cpAft.order, orders[i]);
+              let cmpBef = PointOnShape.compare(cpBef.pointOnShape, ps[i]);
+            let cmpAft = PointOnShape.compare(cpAft.pointOnShape, ps[i]);
+              // len is used by debug functions to reference a particular
+            // three-prong.
+            let len = _debug_.generated.elems.threeProng.length-1;
+            if (cmpBef > 0) {
+                console.log('----------------------------------------');
+                console.log(`3-prong order is wrong (bef) : i: ${i} - cmp: ${cmpBef} - n: ${len}`);
+                console.log(threeProng);
+                console.log(cpBef);
+                console.log(cpAft);
+                console.log(ps[i]);
+            }
+            if (cmpAft < 0) {
+                console.log('----------------------------------------');
+                console.log(`3-prong order is wrong (aft) : i: ${i} - cmp: ${cmpAft} - n: ${len}`);
+                console.log(threeProng);
+                console.log(cpBef);
+                console.log(cpAft);
+                console.log(ps[i]);
+            }
+        }
+    }
+    */
+    // TODO - replace 1000 below with correct value
+
+    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, ps[0], circle, orders[0], 0, 1000, 'blue');
+    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, ps[1], circle, orders[1], 0, 1000, 'blue');
+    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, ps[2], circle, orders[2], 0, 1000, 'blue');
+    add_to_cp_graph_1.addToCpGraph(circle, orders, cpTrees, ps, δ3s);
+    return circle;
+}
+exports.add3Prong = add3Prong;
+
+},{"../add-to-cp-graph":86,"../is-another-cp-closeby":123}],91:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+function addDebugInfo1(loops) {
+    var _generated$elems$loop;
+
+    if (typeof _debug_ === 'undefined') {
+        return;
+    }
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = loops[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var loop = _step.value;
+
+            _debug_.fs.nameObj(loop, 'l|');
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    var generated = _debug_.generated;
+    generated.timing.holeClosers[0] = performance.now();
+    (_generated$elems$loop = generated.elems.loop).push.apply(_generated$elems$loop, _toConsumableArray(loops));
+    generated.elems.loops.push(loops);
+
+    var _loop2 = function _loop2(_loop) {
+        var i = 0;
+        _loop.curves.forEach(function (curve) {
+            var ps = curve.ps;
+            var hull = flo_bezier3_1.getBoundingHull(ps);
+            generated.elems.boundingHull.push(hull);
+            var looseBoundingBox = flo_bezier3_1.getBoundingBox(ps);
+            generated.elems.looseBoundingBox.push(looseBoundingBox);
+            var tightBoundingBox = flo_bezier3_1.getBoundingBoxTight(ps);
+            generated.elems.tightBoundingBox.push(tightBoundingBox);
+            i++;
+        });
+    };
+
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = loops[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var _loop = _step2.value;
+
+            _loop2(_loop);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+}
+exports.addDebugInfo1 = addDebugInfo1;
+function addDebugInfo2(pointOnShapeArrPerLoop) {
+    if (typeof _debug_ === 'undefined') {
+        return;
+    }
+    var generated = _debug_.generated;
+    var timing = generated.timing;
+    var now = performance.now();
+    timing.holeClosers[1] += now - timing.holeClosers[0];
+    timing.oneAnd2Prongs[0] = now;
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
+
+    try {
+        for (var _iterator3 = pointOnShapeArrPerLoop[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var pointsOnShape = _step3.value;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = pointsOnShape[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var pos = _step4.value;
+
+                    if (point_on_shape_1.PointOnShape.isSharpCorner(pos)) {
+                        generated.elems.sharpCorner.push(pos);
+                    } else {
+                        if (point_on_shape_1.PointOnShape.isDullCorner(pos)) {
+                            generated.elems.dullCorner.push(pos);
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                _iterator3.return();
+            }
+        } finally {
+            if (_didIteratorError3) {
+                throw _iteratorError3;
+            }
+        }
+    }
+}
+exports.addDebugInfo2 = addDebugInfo2;
+function addDebugInfo3() {
+    if (typeof _debug_ === 'undefined') {
+        return;
+    }
+    var generated = _debug_.generated;
+    var timing = generated.timing;
+    var now = performance.now();
+    timing.oneAnd2Prongs[1] += now - timing.oneAnd2Prongs[0];
+    timing.threeProngs[0] = now;
+}
+exports.addDebugInfo3 = addDebugInfo3;
+function addDebugInfo4(mat) {
+    if (typeof _debug_ === 'undefined') {
+        return;
+    }
+    var generated = _debug_.generated;
+    var timing = generated.timing;
+    generated.elems.mat.push(mat);
+    timing.threeProngs[1] += performance.now() - timing.threeProngs[0];
+    timing.mats[1] = timing.holeClosers[1] + timing.oneAnd2Prongs[1] + timing.threeProngs[1];
+}
+exports.addDebugInfo4 = addDebugInfo4;
+
+},{"../../point-on-shape":133,"flo-bezier3":3}],92:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_contact_circles_at_interface_1 = _dereq_("../get-contact-circles-at-interface");
+var get_bezier_curvature_extrema_1 = _dereq_("../get-bezier-curvature-extrema");
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+/**
+ * Get useful points on the shape - these incude points of maximum curvature and
+ * points at the bezier-bezier interfaces.
+ * @param loop
+ * @param additionalPointCount
+ */
+function createGetInterestingPointsOnLoop() {
+    var additionalPointCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 3;
+
+    return function (loop) {
+        var allPoints = [];
+        for (var i = 0; i < loop.curves.length; i++) {
+            var curve = loop.curves[i];
+
+            var _get_bezier_curvature = get_bezier_curvature_extrema_1.getBezierCurvatureExtrema(curve),
+                maxCurvaturePoss = _get_bezier_curvature.maxCurvaturePoss,
+                maxNegativeCurvaturePoss = _get_bezier_curvature.maxNegativeCurvaturePoss;
+
+            allPoints.push.apply(allPoints, _toConsumableArray(get_contact_circles_at_interface_1.getContactCirclesAtInterface(curve)).concat(_toConsumableArray(maxCurvaturePoss), _toConsumableArray(maxNegativeCurvaturePoss)));
+            var n = additionalPointCount + 1;
+            for (var _i = 1; _i < n; _i++) {
+                allPoints.push(new point_on_shape_1.PointOnShape(curve, _i / n));
+            }
+        }
+        allPoints.sort(point_on_shape_1.PointOnShape.compare);
+        return allPoints;
+    };
+}
+exports.createGetInterestingPointsOnLoop = createGetInterestingPointsOnLoop;
+
+},{"../../point-on-shape":133,"../get-bezier-curvature-extrema":115,"../get-contact-circles-at-interface":118}],93:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_ll_rb_tree_1 = _dereq_("flo-ll-rb-tree");
+var circle_1 = _dereq_("../../circle");
+var cp_node_1 = _dereq_("../../cp-node");
+var contact_point_1 = _dereq_("../../contact-point");
+/**
+ * Creates the initial ContactPoint loops from the given sharp corners.
+ * @param shape
+ * @param sharpCornerss
+ */
+function createInitialCpGraph(loops, cpTrees, sharpCornerss, xMap) {
+    var cpNode = void 0;
+    for (var k = 0; k < sharpCornerss.length; k++) {
+        var sharpCorners = sharpCornerss[k];
+        var cpTree = new flo_ll_rb_tree_1.default(cp_node_1.CpNode.comparator, [], true);
+        var cpNode1 = undefined;
+        var cpNode2 = undefined;
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = sharpCorners[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var pos = _step.value;
+
+                var ps = pos.curve.next.ps;
+                var x = xMap.get(ps);
+                var isIntersection = !!x;
+                var circle = new circle_1.Circle(pos.p, 0);
+                var cp1 = new contact_point_1.ContactPoint(pos, circle, -1, 0);
+                var cp2 = new contact_point_1.ContactPoint(pos, circle, +1, 0);
+                cpNode1 = cp_node_1.CpNode.insert(false, isIntersection, cpTree, cp1, cpNode2);
+                cpNode2 = cp_node_1.CpNode.insert(false, isIntersection, cpTree, cp2, cpNode1);
+                cpNode1.prevOnCircle = cpNode2;
+                cpNode2.prevOnCircle = cpNode1;
+                cpNode1.nextOnCircle = cpNode2;
+                cpNode2.nextOnCircle = cpNode1;
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+
+        if (!cpNode) {
+            cpNode = cpNode1;
+        }
+        var loop = loops[k];
+        cpTrees.set(loop, cpTree);
+    }
+    return cpNode;
+}
+exports.createInitialCpGraph = createInitialCpGraph;
+
+},{"../../circle":53,"../../contact-point":54,"../../cp-node":55,"flo-ll-rb-tree":37}],94:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var two_prong_for_debugging_1 = _dereq_("../../../debug/two-prong-for-debugging");
+var get_two_prong_type_1 = _dereq_("../../get-two-prong-type");
+function addDebugInfo(bezierPieces, failed, pos, circle, z, δ, xs, holeClosing) {
+    var twoProng = new two_prong_for_debugging_1.TwoProngForDebugging(_debug_.generated, bezierPieces, pos, δ, z ? z.p : undefined, circle, xs, failed, holeClosing, false, false);
+    var twoProngType = get_two_prong_type_1.getTwoProngType(twoProng);
+    _debug_.generated.elems[twoProngType].push(twoProng);
+}
+exports.addDebugInfo = addDebugInfo;
+
+},{"../../../debug/two-prong-for-debugging":83,"../../get-two-prong-type":122}],95:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var get_closest_square_distance_to_rect_1 = _dereq_("../../geometry/get-closest-square-distance-to-rect");
+/**
+ * Cull all bezierPieces not within given radius of a given point.
+ * @param extreme
+ * @param bezierPieces
+ * @param p
+ * @param rSquared
+ */
+function cullBezierPieces(bezierPieces, p, rSquared) {
+    var CULL_THRESHOLD = 5;
+    var TOLERANCE = 1 + 1e-3;
+    if (bezierPieces.length <= CULL_THRESHOLD) {
+        return bezierPieces;
+    }
+    var newPieces = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = bezierPieces[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var bezierPiece = _step.value;
+
+            var ps = bezierPiece.curve.ps;
+            var rect = flo_bezier3_1.getBoundingBox(ps);
+            var bd = get_closest_square_distance_to_rect_1.getClosestSquareDistanceToRect(rect, p);
+            if (bd <= rSquared * TOLERANCE) {
+                newPieces.push(bezierPiece);
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return newPieces;
+}
+exports.cullBezierPieces = cullBezierPieces;
+
+},{"../../geometry/get-closest-square-distance-to-rect":111,"flo-bezier3":3}],96:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var line_line_intersection_1 = _dereq_("../../geometry/line-line-intersection");
+var get_closest_boundary_point_1 = _dereq_("../../get-closest-boundary-point");
+var circle_1 = _dereq_("../../../circle");
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+var add_1_prong_1 = _dereq_("../add-1-prong");
+var add_debug_info_1 = _dereq_("./add-debug-info");
+var cull_bezier_pieces_1 = _dereq_("./cull-bezier-pieces");
+var find_equidistant_point_on_line_1 = _dereq_("./find-equidistant-point-on-line");
+var get_initial_bezier_pieces_1 = _dereq_("./get-initial-bezier-pieces");
+/**
+ * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
+ * the second one is found by the algorithm.
+ *
+ * A 2-prong is defined as a MAT circle that touches the shape at exactly 2
+ * points.
+ *
+ * Before any 2-prongs are added the entire shape is our δΩ (1-prongs do not
+ * reduce the boundary).
+ *
+ * As per the paper by Choi, Choi, Moon and Wee:
+ *   "The starting point of this algorithm is a choice of a circle Br(x)
+ *    centered at an interior point x which contains two boundary portions c and
+ *    d of dΩ as in Fig. 19."
+ * In fact, we (and they) start by fixing one point on the boundary beforehand.
+ * @param loops A shape represented by path loops
+ * @param extreme The extreme coordinate value of the shape
+ * @param squaredDiagonalLength The squared diagonal length of the shape
+ * bounding box.
+ * @param y The source point of the 2-prong to be found
+ * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
+ * @param k The loop array index
+ */
+function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClosing, k) {
+    var MAX_ITERATIONS = 25;
+    var squaredSeperationTolerance = Math.pow(1e-6 * extreme, 2);
+    //const oneProngTolerance = 1+1e-4;
+    var oneProngTolerance = Math.pow(1e-4, 2);
+    var squaredErrorTolerance = 1e-2 * squaredSeperationTolerance;
+    var maxOsculatingCircleRadiusSquared = squaredDiagonalLength;
+    // The boundary piece that should contain the other point of 
+    // the 2-prong circle. (Defined by start and end points).
+
+    var _get_initial_bezier_p = get_initial_bezier_pieces_1.getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y),
+        bezierPieces = _get_initial_bezier_p.bezierPieces,
+        δ = _get_initial_bezier_p.δ;
+    /** The center of the two-prong (successively refined) */
+
+
+    var x = void 0;
+    var p = void 0;
+    var r = void 0;
+    if (isHoleClosing) {
+        p = [y.p[0], y.p[1]];
+        x = [p[0], p[1] - Math.sqrt(maxOsculatingCircleRadiusSquared)];
+        r = maxOsculatingCircleRadiusSquared;
+    } else {
+        p = y.p;
+        x = point_on_shape_1.PointOnShape.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
+        r = flo_vector2d_1.squaredDistanceBetween(p, x);
+    }
+    // The lines below is an optimization.
+    var r_ = reduceRadius(extreme, bezierPieces, p, x);
+    if (r > r_) {
+        x = flo_vector2d_1.interpolate(p, x, Math.sqrt(r_ / r));
+    }
+    var xs = []; // Trace the convergence (for debugging).
+    var z = void 0; // The antipode if the two-prong (successively refined)
+    var i = 0;
+    var done = 0;
+    var failed = false; // The failed flag is set if a 2-prong cannot be found.
+    var bezierPieces_ = bezierPieces;
+    do {
+        i++;
+        var _r = flo_vector2d_1.squaredDistanceBetween(x, y.p);
+        bezierPieces_ = cull_bezier_pieces_1.cullBezierPieces(bezierPieces_, x, _r);
+        z = get_closest_boundary_point_1.getClosestBoundaryPoint(bezierPieces_, x, y.curve, y.t);
+        /*
+        if (z.t === 0 || z.t === 1) {
+            console.log(z, z.t)
+        }
+        */
+        if (z === undefined) {
+            if (typeof _debug_ !== 'undefined') {
+                var elems = _debug_.generated.elems;
+                var elem = isHoleClosing ? elems.twoProng_holeClosing : elems.twoProng_regular;
+                var elemStr = isHoleClosing ? 'hole-closing: ' + elem.length : 'regular: ' + elem.length;
+                console.log('failed: no closest point - ' + elemStr);
+            }
+            failed = true;
+            break;
+        }
+        if (typeof _debug_ !== 'undefined') {
+            xs.push({ x: x, y: y, z: z, t: y.t });
+        }
+        var d = flo_vector2d_1.squaredDistanceBetween(x, z.p);
+        //if (i === 1 && d*oneProngTolerance >= r) {
+        if (i === 1 && _r < d + oneProngTolerance) {
+            // It is a 1-prong.
+            add_1_prong_1.add1Prong(Math.sqrt(maxOsculatingCircleRadiusSquared), cpTrees, y);
+            return undefined;
+        }
+        // TODO - squaredSeperationTolerance should in future be replaced with
+        // a relative error, i.e. distance between y (or z) / length(y (or z)).
+        if (!isHoleClosing && flo_vector2d_1.squaredDistanceBetween(y.p, z.p) <= squaredSeperationTolerance) {
+            if (typeof _debug_ !== 'undefined') {
+                var _elems = _debug_.generated.elems;
+                var _elem = isHoleClosing ? _elems.twoProng_holeClosing : _elems.twoProng_regular;
+                var _elemStr = isHoleClosing ? 'hole-closing: ' + _elem.length : 'regular: ' + _elem.length;
+                /*
+                console.log(
+                    'failed: two-prong radius too small - ' + elemStr
+                );
+                */
+            }
+            failed = true;
+            break;
+        }
+        // Find the point on the line connecting y with x that is  
+        // equidistant from y and z. This will be our next x.
+        var nextX = find_equidistant_point_on_line_1.findEquidistantPointOnLine(x, y.p, z.p);
+        var squaredError = flo_vector2d_1.squaredDistanceBetween(x, nextX);
+        x = nextX;
+        if (squaredError < squaredErrorTolerance) {
+            done++; // Do one more iteration
+        } else if (i === MAX_ITERATIONS) {
+            // Convergence was too slow.
+            failed = true;
+            break; // We're done
+        }
+    } while (done < 1);
+    var circle = void 0;
+    if (z !== undefined) {
+        circle = new circle_1.Circle(x, flo_vector2d_1.distanceBetween(x, z.p));
+    }
+    if (typeof _debug_ !== 'undefined') {
+        xs.push({ x: x, y: y, z: z, t: y.t });
+        add_debug_info_1.addDebugInfo(bezierPieces, failed, y, circle, z, δ, xs, isHoleClosing);
+    }
+    return failed ? undefined : { circle: circle, z: z };
+}
+exports.find2Prong = find2Prong;
+/**
+ * Reduces the circle radius initially as an optimization step.
+ */
+function reduceRadius(extreme, bezierPieces, p, x) {
+    var TOLERANCE = extreme * 1e-3;
+    var prevP = undefined;
+    var minRadius = Number.POSITIVE_INFINITY;
+    for (var i = 0; i < bezierPieces.length; i++) {
+        var bezierPiece = bezierPieces[i];
+        var ps = bezierPiece.curve.ps;
+        var ev = flo_bezier3_1.evaluate(ps);
+        var p1 = ev(bezierPiece.ts[0]);
+        var r1 = Number.POSITIVE_INFINITY;
+        // Prevent evaluating the same points twice
+        if (!prevP || prevP[0] !== p1[0] || prevP[1] !== p1[1]) {
+            var cc1 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1);
+            if (cc1) {
+                r1 = flo_vector2d_1.squaredDistanceBetween(p, cc1);
+            }
+        }
+        var r2 = Number.POSITIVE_INFINITY;
+        var p2 = ev(bezierPiece.ts[1]);
+        var cc2 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p2);
+        if (cc2) {
+            r2 = flo_vector2d_1.squaredDistanceBetween(p, cc2);
+        }
+        prevP = p2;
+        var d = Math.min(r1, r2);
+        if (d < minRadius) {
+            minRadius = d;
+        }
+    }
+    // The extra bit is to account for floating point precision.
+    return minRadius + TOLERANCE;
+}
+/**
+ *
+ * @param p A point on the circle with normal pointing to x towards the center
+ * of the circle.
+ * @param x
+ * @param p1 Another point on the circle.
+ */
+function getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1) {
+    var TOLERANCE = Math.pow(1e-4 * extreme, 2);
+    // Ignore if p and p1 are too close together
+    if (flo_vector2d_1.squaredDistanceBetween(p, p1) < TOLERANCE) {
+        return undefined;
+    }
+    /** The perpindicular bisector between the two given points on the circle */
+    var pb = [(p[0] + p1[0]) / 2, (p[1] + p1[1]) / 2];
+    var tangent = [p1[0] - p[0], p1[1] - p[1]];
+    var normal = [-tangent[1], tangent[0]]; // Rotate by 90 degrees
+    var pb2 = [pb[0] + normal[0], pb[1] + normal[1]];
+    var res = line_line_intersection_1.lineLineIntersection([p, x], [pb, pb2]);
+    if (!res) {
+        return undefined;
+    }
+    var resO = [res[0] - p[0], res[1] - p[1]];
+    var xO = [x[0] - p[0], x[1] - p[1]];
+    if (flo_vector2d_1.dot(resO, xO) < 0) {
+        return undefined;
+    }
+    return res;
+}
+
+},{"../../../circle":53,"../../../point-on-shape":133,"../../geometry/line-line-intersection":113,"../../get-closest-boundary-point":117,"../add-1-prong":88,"./add-debug-info":94,"./cull-bezier-pieces":95,"./find-equidistant-point-on-line":97,"./get-initial-bezier-pieces":98,"flo-bezier3":3,"flo-vector2d":50}],97:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @returns The point on the line from y to x that is equidistant from y and z.
+ */
+function findEquidistantPointOnLine(x, y, z) {
+    // Some basic algebra (not shown) finds the required point.
+    // Swap axes if x and y are more aligned to y-axis than to x-axis.
+    var swapAxes = Math.abs((x[1] - y[1]) / (x[0] - y[0])) > 1;
+    // Cache
+    var x1 = void 0,
+        x2 = void 0,
+        y1 = void 0,
+        y2 = void 0,
+        z1 = void 0,
+        z2 = void 0;
+    if (swapAxes) {
+        x1 = x[1];
+        x2 = x[0];
+        y1 = y[1];
+        y2 = y[0];
+        z1 = z[1];
+        z2 = z[0];
+    } else {
+        x1 = x[0];
+        x2 = x[1];
+        y1 = y[0];
+        y2 = y[1];
+        z1 = z[0];
+        z2 = z[1];
+    }
+    // a <= 1 (due to swapped axes)
+    var a = (x2 - y2) / (x1 - y1);
+    var b = y2 - a * y1;
+    var c = y1 * y1 + y2 * y2 - z1 * z1 - z2 * z2 + 2 * b * (z2 - y2);
+    var d = y1 - z1 + a * (y2 - z2);
+    var t1 = c / (2 * d);
+    var t2 = a * t1 + b;
+    return swapAxes ? [t2, t1] : [t1, t2];
+}
+exports.findEquidistantPointOnLine = findEquidistantPointOnLine;
+
+},{}],98:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_neighboring_cps_1 = _dereq_("../../get-neighboring-cps");
+var get_boundary_piece_beziers_1 = _dereq_("../../get-boundary-piece-beziers");
+var bezier_piece_1 = _dereq_("../../../bezier-piece");
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
+    var bezierPieces = void 0;
+    var δ = void 0;
+    if (isHoleClosing) {
+        bezierPieces = [];
+        for (var k2 = 0; k2 < k; k2++) {
+            var _bezierPieces;
+
+            //let pieces = getBoundaryBeziers(loops[k2]);
+            var pieces = loops[k2].curves.map(function (curve) {
+                return new bezier_piece_1.BezierPiece(curve, [0, 1]);
+            });
+            (_bezierPieces = bezierPieces).push.apply(_bezierPieces, _toConsumableArray(pieces));
+        }
+    } else {
+        var order = point_on_shape_1.PointOnShape.isDullCorner(y) ? y.t === 1 ? -1 : +1 : 0;
+        var loop = loops[k];
+        var cpNode = get_neighboring_cps_1.getNeighbouringPoints(cpTrees.get(loop), y, order, 0)[0];
+        δ = [cpNode, cpNode];
+        if (!cpNode ||
+        // The special case if there is only a single sharp corner or 
+        // terminating 2-prong currently in the MAT. Don't remove!
+        cpNode === cpNode.next.next) {
+            bezierPieces = loop.curves.map(function (curve) {
+                return new bezier_piece_1.BezierPiece(curve, [0, 1]);
+            });
+        } else {
+            bezierPieces = get_boundary_piece_beziers_1.getBoundaryPieceBeziers(δ);
+        }
+    }
+    return { bezierPieces: bezierPieces, δ: δ };
+}
+exports.getInitialBezierPieces = getInitialBezierPieces;
+
+},{"../../../bezier-piece":51,"../../../point-on-shape":133,"../../get-boundary-piece-beziers":116,"../../get-neighboring-cps":121}],99:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var get_closest_points_1 = _dereq_("./get-closest-points");
+/**
+ * Find new x and ps that are a better estimate of the 3-prong circle.
+ * The potential function, V, is defined as the distance to the actual 3 prong
+ * circle center.
+ * @param bezierPiece3s The three boundary pieces, each of which should contain
+ * a point of the 3-prong to be found.
+ * @param x The currently best guess at the center of the 3-prong circle.
+ * @param vectorToZeroV
+ * @param extreme
+ */
+function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
+    var V = flo_vector2d_1.len(vectorToZeroV);
+    var nu = 1;
+    var better = void 0;
+    var newX = void 0;
+    var newPs = void 0;
+    var newV = void 0;
+    var i = 0; // Safeguard
+    do {
+        var shift = flo_vector2d_1.scale(vectorToZeroV, nu);
+        newX = flo_vector2d_1.translate(shift, x);
+        newPs = get_closest_points_1.getClosestPoints(newX, bezierPiece3s);
+        //console.log(newPs.map(pos => '' + pos.p[0] + ' ' + pos.p[1]))
+        // Point of zero V
+        var newCircleCenter = flo_vector2d_1.circumCenter(newPs.map(function (pos) {
+            return pos.p;
+        }));
+        var newVectorToZeroV = flo_vector2d_1.fromTo(newX, newCircleCenter);
+        newV = flo_vector2d_1.len(newVectorToZeroV);
+        better = newV < V;
+        nu = nu / 2;
+        i++;
+    } while (!better && i < 3);
+    return { newX: newX, newV: newV, newPs: newPs };
+}
+exports.calcBetterX = calcBetterX;
+
+},{"./get-closest-points":103,"flo-vector2d":50}],100:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var get_closest_boundary_point_1 = _dereq_("../../get-closest-boundary-point");
+/**
+ * Finds an initial 3-prong circle center point from which to iterate. The point
+ * must be within the shape.
+ * @param δ3s - The three boundary pieces of which we need to find the three
+ * 3-prong points.
+ * @param bezierPiece3s
+ * @param extreme
+ */
+function calcInitial3ProngCenter(δ3s, bezierPiece3s) {
+    var twoProngCircleCenter = δ3s[0][0].cp.circle.center;
+    /*
+    let twoProngCircleCenter =
+        mean([
+            δ3s[0][0].cp.pointOnShape.p,
+            δ3s[2][1].cp.pointOnShape.p
+        ]);
+        */
+    //_debug_.fs.draw.dot(_debug_.generated.g, twoProngCircleCenter, 0.05, 'blue');
+    var pos = get_closest_boundary_point_1.getClosestBoundaryPoint(bezierPiece3s[1], twoProngCircleCenter, undefined, // curve
+    undefined // t
+    );
+    var meanPoints = [δ3s[0][0].cp.pointOnShape.p, pos.p, δ3s[2][1].cp.pointOnShape.p];
+    return flo_vector2d_1.circumCenter(meanPoints);
+}
+exports.calcInitial3ProngCenter = calcInitial3ProngCenter;
+
+},{"../../get-closest-boundary-point":117,"flo-vector2d":50}],101:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var circle_1 = _dereq_("../../../circle");
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+var get_closest_boundary_point_1 = _dereq_("../../get-closest-boundary-point");
+var calc_initial_3_prong_center_1 = _dereq_("./calc-initial-3-prong-center");
+var get_closest_points_1 = _dereq_("./get-closest-points");
+var calc_better_x_1 = _dereq_("./calc-better-x");
+var curve_1 = _dereq_("../../../curve");
+var calcVectorToZeroV_StraightToIt = flo_vector2d_1.fromTo;
+/**
+ * Finds a 3-prong using only the 3 given δs.
+ * @param δs The boundary pieces
+ * @param idx δ identifier
+ * @param bezierPiecess
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
+    var TOLERANCE = extreme * 1e-10;
+    var MAX_ITERATIONS = 10;
+    //k = 0;
+    /*
+    let δ3s = [
+        δs[0],
+        δs[idx],
+        δs[δs.length-1]
+    ];
+    */
+    var δs_ = [δs[0], δs[idx], δs[δs.length - 1]];
+    /*
+    let bezierPiece3s = [
+        bezierPiecess[0],
+        bezierPiecess[idx],
+        bezierPiecess[δs.length-1]
+    ];
+    */
+    var bezierPieces_ = [bezierPiecess[0], bezierPiecess[idx], bezierPiecess[δs.length - 1]];
+    var δ3ss = [[δs_[0], δs_[1], δs_[2]], [δs_[1], δs_[2], δs_[0]], [δs_[2], δs_[0], δs_[1]]];
+    var bezierPiecess_ = [[bezierPieces_[0], bezierPieces_[1], bezierPieces_[2]], [bezierPieces_[1], bezierPieces_[2], bezierPieces_[0]], [bezierPieces_[2], bezierPieces_[0], bezierPieces_[1]]];
+    var δ3s = δ3ss[k];
+    var bezierPiece3s = bezierPiecess_[k];
+    if (δ3s[0][0].isSharp()) {
+        return undefined;
+    }
+    var ps = void 0;
+    var circumCenter_ = void 0;
+    var j = 0; // Safeguard for slow convergence
+    var x = calc_initial_3_prong_center_1.calcInitial3ProngCenter(δ3s, bezierPiece3s);
+    if (typeof _debug_ !== 'undefined') {
+        var threeProngs = _debug_.generated.elems.threeProng;
+        var d = threeProngs[threeProngs.length - 1];
+        var trace = d.traces[d.traces.length - 1];
+        trace.push(x);
+    }
+    var tolerance = Number.POSITIVE_INFINITY;
+    while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
+        j++;
+        ps = get_closest_points_1.getClosestPoints(x, bezierPiece3s);
+        if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
+            // TODO - the code can be cleaned up and sped up a lot if we don't
+            // use this function as is but instead use δs[0] and δs[2] as is
+            // and make δs[1] include all the rest of the beziers around the 
+            // loop. This check, for instance, would be eliminated completely.
+            return undefined;
+        }
+        circumCenter_ = flo_vector2d_1.circumCenter(ps.map(function (x) {
+            return x.p;
+        }));
+        var vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter_);
+        //console.log('' + x[0] + ' ' + x[1])
+        //console.log('' + vectorToZeroV[0] + ' ' + vectorToZeroV[1]);
+        if (!Number.isFinite(vectorToZeroV[0]) || !Number.isFinite(vectorToZeroV[1])) {
+            // TODO - the code can be cleaned up and sped up a lot if we don't
+            // use this function as is but instead use δs[0] and δs[2] as is
+            // and make δs[1] include all the rest of the beziers around the 
+            // loop. This check, for instance, would be eliminated completely.
+            return undefined;
+        }
+        var upds = calc_better_x_1.calcBetterX(bezierPiece3s, x, vectorToZeroV);
+        x = upds.newX;
+        ps = upds.newPs;
+        if (typeof _debug_ !== 'undefined') {
+            var _threeProngs = _debug_.generated.elems.threeProng;
+            var _d = _threeProngs[_threeProngs.length - 1];
+            var _trace = _d.traces[_d.traces.length - 1];
+            _trace.push(x);
+        }
+        var V = flo_vector2d_1.len(vectorToZeroV); // The 'potential'
+        tolerance = Math.abs(V - upds.newV);
+    }
+    //_debug_.fs.draw.dot(_debug_.generated.g, x, 0.05);
+    var radius = (flo_vector2d_1.distanceBetween(x, ps[0].p) + flo_vector2d_1.distanceBetween(x, ps[1].p) + flo_vector2d_1.distanceBetween(x, ps[2].p)) / 3;
+    var circle = new circle_1.Circle(x, radius);
+    //-------------------------------------------------------------------------
+    // Calculate the unit tangent vector at 3-prong circle points - they should 
+    // be very close to tangent to the boundary piece tangents at those points 
+    // (up to sign). Sharp corners are a common special case.
+    //-------------------------------------------------------------------------
+    var totalAngleError = 0;
+    for (var i = 0; i < 3; i++) {
+        var p = ps[i];
+        //----------------------------
+        // Tangent of circle at point
+        //----------------------------
+        var v = flo_vector2d_1.toUnitVector(flo_vector2d_1.fromTo(p.p, x));
+        var v1 = flo_vector2d_1.rotate90Degrees(v);
+        //-----------------------------------
+        // Check if point is on dull crorner
+        //-----------------------------------
+        if (point_on_shape_1.PointOnShape.isDullCorner(p)) {
+            var corner = curve_1.Curve.getCornerAtEnd(p.curve);
+            var tans = corner.tans;
+            var perps = tans.map(flo_vector2d_1.rotate90Degrees);
+            var angleError1 = Math.asin(flo_vector2d_1.cross(perps[0], v));
+            var angleError2 = Math.asin(flo_vector2d_1.cross(v, perps[1]));
+            var angleError = 0;
+            if (angleError1 > 0) {
+                angleError += angleError1;
+            }
+            if (angleError2 > 0) {
+                angleError += angleError2;
+            }
+            totalAngleError += angleError;
+        } else {
+            //---------------------------
+            // Tangent of curve at point
+            //---------------------------
+            var v2 = flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(p.curve.ps, p.t));
+            // Cross is more numerically stable than Vector.dot at angles a
+            // multiple of Math.PI **and** is close to the actual angle value
+            // and can thus just be added to cone method of looking at 
+            // tolerance.
+            // Should be close to zero and is close to the actual angle.
+            var cross_ = Math.abs(Math.asin(flo_vector2d_1.cross(v1, v2)));
+            totalAngleError += cross_;
+        }
+    }
+    //-------------------------------------------------------------------------
+    // Calculate radiusDelta, the difference between the radius and the closest
+    // point to the 3-prong. It should be around 0. If not, this is not a good 
+    // candidate for the 3-prong.
+    //-------------------------------------------------------------------------
+    var closestDs = [];
+    for (var _i = 0; _i < bezierPiecess.length; _i++) {
+        var _p = get_closest_boundary_point_1.getClosestBoundaryPoint(bezierPiecess[_i], x, undefined, undefined);
+        closestDs.push(flo_vector2d_1.distanceBetween(_p.p, x));
+    }
+    var closestD = Math.min.apply(Math, closestDs);
+    var radiusDelta = Math.abs(radius - closestD);
+    // Weights below still need to be optimized.
+    var W1 = 1;
+    var W2 = 1;
+    var error = W1 * radiusDelta + W2 * totalAngleError;
+    return { ps: ps, circle: circle, error: error, δ3s: δ3s };
+}
+exports.find3ProngForDelta3s = find3ProngForDelta3s;
+
+},{"../../../circle":53,"../../../curve":56,"../../../point-on-shape":133,"../../get-closest-boundary-point":117,"./calc-better-x":99,"./calc-initial-3-prong-center":100,"./get-closest-points":103,"flo-bezier3":3,"flo-vector2d":50}],102:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var three_prong_for_debugging_1 = _dereq_("../../../debug/three-prong-for-debugging");
+var find_3_prong_for_delta3s_1 = _dereq_("./find-3-prong-for-delta3s");
+var get_boundary_piece_beziers_1 = _dereq_("../../get-boundary-piece-beziers");
+/**
+ * Find and return a 3-prong from the given boundary piece.
+ * @param δs A boundary piece
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function find3Prong(δs, extreme) {
+    var bezierPiecess = δs.map(get_boundary_piece_beziers_1.getBoundaryPieceBeziers);
+    if (typeof _debug_ !== 'undefined') {
+        var threeProngs = _debug_.generated.elems.threeProng;
+        threeProngs.push(new three_prong_for_debugging_1.ThreeProngForDebugging());
+        var d = threeProngs[threeProngs.length - 1];
+        d.boundaries = [];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = bezierPiecess[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var bezierPieces = _step.value;
+
+                var boundary = [];
+                d.boundaries.push(boundary);
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
+
+                try {
+                    for (var _iterator2 = bezierPieces[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        var bezierPiece = _step2.value;
+
+                        var bezier = flo_bezier3_1.fromTo(bezierPiece.curve.ps)(bezierPiece.ts[0], bezierPiece.ts[1]);
+                        boundary.push(bezier);
+                    }
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                            _iterator2.return();
+                        }
+                    } finally {
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+
+        d.traces = [];
+    }
+    var candidateThreeProngs = [];
+    // The best candidate amongst the different 'permutations' of the given δs.
+    var threeProng = void 0;
+    var bestIndx = undefined;
+    var smallestError = Number.POSITIVE_INFINITY;
+    for (var i = 1; i < δs.length - 1; i++) {
+        for (var k = 0; k < 3; k++) {
+            //let k = 0;
+            if (typeof _debug_ !== 'undefined') {
+                var _threeProngs = _debug_.generated.elems.threeProng;
+                var _d = _threeProngs[_threeProngs.length - 1];
+                var trace = [];
+                _d.traces.push(trace);
+            }
+            var threeProngInfo = find_3_prong_for_delta3s_1.find3ProngForDelta3s(δs, i, k, bezierPiecess, extreme);
+            if (!threeProngInfo) {
+                continue;
+            }
+            var circle = threeProngInfo.circle,
+                ps = threeProngInfo.ps,
+                error = threeProngInfo.error,
+                δ3s = threeProngInfo.δ3s;
+
+            if (typeof _debug_ !== 'undefined') {
+                candidateThreeProngs.push({ circle: circle, ps: ps });
+            }
+            if (error < smallestError) {
+                smallestError = error;
+                bestIndx = i - 1;
+                threeProng = { circle: circle, ps: ps, δ3s: δ3s };
+            }
+        }
+    }
+    //threeProng.δ3s = [δs[0], δs[bestIndx+1], δs[δs.length-1]];
+    if (typeof _debug_ !== 'undefined') {
+        var _threeProngs2 = _debug_.generated.elems.threeProng;
+        var _d2 = _threeProngs2[_threeProngs2.length - 1];
+        _d2.generated = _debug_.generated;
+        _d2.circle = threeProng.circle, _d2.poss = threeProng.ps;
+        _d2.cp3ss = threeProng.δ3s;
+        _d2.cpss = δs;
+        _d2.bestIndx = bestIndx;
+        _d2.candidateThreeProngs = candidateThreeProngs;
+    }
+    return threeProng;
+}
+exports.find3Prong = find3Prong;
+
+},{"../../../debug/three-prong-for-debugging":82,"../../get-boundary-piece-beziers":116,"./find-3-prong-for-delta3s":101,"flo-bezier3":3}],103:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_closest_boundary_point_1 = _dereq_("../../get-closest-boundary-point");
+/**
+ *
+ * @param x
+ * @param bezierPiece3s
+ * @param extreme
+ */
+function getClosestPoints(x, bezierPiece3s) {
+    return bezierPiece3s.map(function (bezierPieces) {
+        return get_closest_boundary_point_1.getClosestBoundaryPoint(bezierPieces, x, undefined, // curve
+        undefined // t
+        );
+    });
+}
+exports.getClosestPoints = getClosestPoints;
+
+},{"../../get-closest-boundary-point":117}],104:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var find_and_add_2_prongs_1 = _dereq_("./find-and-add-2-prongs");
+/**
+ * Add 2 prongs. See comments on the add2Prong function.
+ * @param loops
+ * @param cpGraphs
+ * @param for2Prongss
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function findAndAdd2ProngsOnAllPaths(loops, cpGraphs, for2Prongss, extreme) {
+    var cpNode = void 0;
+    for (var k = 0; k < for2Prongss.length; k++) {
+        var for2Prongs = for2Prongss[k];
+        cpNode = find_and_add_2_prongs_1.findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme);
+    }
+    return cpNode;
+}
+exports.findAndAdd2ProngsOnAllPaths = findAndAdd2ProngsOnAllPaths;
+
+},{"./find-and-add-2-prongs":105}],105:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var svg_1 = _dereq_("../../svg/svg");
+var find_2_prong_1 = _dereq_("./find-2-prong/find-2-prong");
+var add_2_prong_1 = _dereq_("./add-2-prong");
+/**
+ * Find and add two-prongs.
+ * @param loops
+ * @param cpGraphs
+ * @param k
+ * @param for2Prongs
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
+    var len = for2Prongs.length;
+    var index = indexLinear(len); // Keep for possible future use.
+    //let index = indexInterlaced(len);
+    var cpNode_ = void 0;
+    var bounds = svg_1.getShapeBounds(loops);
+    var squaredDiagonalLength = Math.pow(bounds.maxX.p[0] - bounds.minX.p[0], 2) + Math.pow(bounds.maxY.p[1] - bounds.minY.p[1], 2);
+    //console.log(Math.sqrt(squaredDiagonalLength));
+    for (var i = 0; i < len; i++) {
+        var pos = for2Prongs[index[i]];
+        var twoProngInfo = void 0;
+        twoProngInfo = find_2_prong_1.find2Prong(loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k);
+        if (twoProngInfo) {
+            var _twoProngInfo = twoProngInfo,
+                circle = _twoProngInfo.circle,
+                z = _twoProngInfo.z;
+
+            var cpNode = add_2_prong_1.add2Prong(cpGraphs, circle, pos, z, false, extreme);
+            if (!cpNode_ && cpNode) {
+                cpNode_ = cpNode;
+            }
+        }
+    }
+    return cpNode_;
+}
+exports.findAndAdd2Prongs = findAndAdd2Prongs;
+/**
+ * Simple linear array indexing.
+ * @param n
+ */
+function indexLinear(n) {
+    var arr = [];
+    for (var i = 0; i < n; i++) {
+        arr.push(i);
+    }
+    return arr;
+}
+/**
+ * Creates a kind of interlaced index vector.
+ * @param n
+*/
+function indexInterlaced(n) {
+    var source = {};
+    var arr = [];
+    // l is the lowest power of 2 so that 2^l > n
+    var l = Math.pow(2, Math.floor(Math.log2(n)));
+    while (l >= 1) {
+        var k = 0;
+        while (k < n) {
+            if (!source[k]) {
+                arr.push(k);
+                source[k] = true;
+            }
+            k = k + l;
+        }
+        l = l / 2;
+    }
+    return arr;
+}
+
+},{"../../svg/svg":171,"./add-2-prong":89,"./find-2-prong/find-2-prong":96}],106:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+var find_3_prong_1 = _dereq_("./find-3-prong/find-3-prong");
+var add_3_prong_1 = _dereq_("../find-mat/add-3-prong");
+/**
+ * Finds and adds all 3-prongs.
+ * @param cpGraphs
+ * @param cpStart The CpNode to start traversing from.
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function findAndAddAll3Prongs(cpGraphs, cpStart, extreme) {
+    // Don't change this function to be recursive, the call stack may overflow 
+    // if there are too many two-prongs.
+    var visitedEdges = new Map();
+    var edgesToCheck = [{ fromCpNode: undefined, cpStart: cpStart }];
+    while (edgesToCheck.length) {
+        var _edgesToCheck$shift = edgesToCheck.shift(),
+            fromCpNode = _edgesToCheck$shift.fromCpNode,
+            _cpStart = _edgesToCheck$shift.cpStart;
+
+        markEdgeAsTaken(visitedEdges, fromCpNode, _cpStart);
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = _cpStart.getNodes()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var cpNode = _step.value;
+
+                if (!point_on_shape_1.PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
+                    findAndAdd3Prongs(cpGraphs, cpNode, extreme);
+                }
+                if (hasEdgeBeenTaken(visitedEdges, cpNode, cpNode.next)) {
+                    continue; // We already visited this edge
+                }
+                edgesToCheck.push({ fromCpNode: _cpStart, cpStart: cpNode.next });
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+    }
+}
+exports.findAndAddAll3Prongs = findAndAddAll3Prongs;
+/**
+ * Marks the given edge as already taken.
+ */
+function markEdgeAsTaken(visitedEdges, cp1, cp2) {
+    if (cp1 === undefined) {
+        return;
+    }
+    f(cp1, cp2);
+    f(cp2, cp1);
+    function f(cp1, cp2) {
+        var visited = visitedEdges.get(cp1);
+        if (!visited) {
+            visited = new Set();
+            visitedEdges.set(cp1, visited);
+        }
+        visited.add(cp2);
+    }
+}
+function hasEdgeBeenTaken(visitedEdges, cp1, cp2) {
+    var cps = void 0;
+    cps = visitedEdges.get(cp1);
+    var takenForward = cps && cps.has(cp2);
+    cps = visitedEdges.get(cp2);
+    var takenBackwards = cps && cps.has(cp1);
+    return takenForward || takenBackwards;
+}
+/**
+ * Traverses the shape from the given ContactPoint going around contact circles
+ * so that only a piece of the shape is traversed and returns the visited
+ * CpNodes (starting from the given CpNode).
+ * @param cpStart The ContactPoint from where to start the traversal.
+ */
+function traverseShape(cpStart) {
+    var cpNode = cpStart;
+    if (cpNode === cpNode.next.prevOnCircle) {
+        return [cpNode];
+    }
+    var visitedCps = [];
+    do {
+        visitedCps.push(cpNode);
+        var next = cpNode.next.prevOnCircle;
+        cpNode = cpNode === next ? cpNode = cpNode.next.next // Terminal vertex
+        : cpNode = next; // Take last exit
+    } while (cpNode !== cpStart);
+    return visitedCps;
+}
+/**
+ * Starting from some ContactPoint, traverses the shape going around Vertices
+ * and if more than two Vertices have been visited in total then recursively
+ * adds 3-prongs until only one or two Vertices have been visited.
+ *
+ * This process further subdivides the shape.
+ * @param cpGraphs
+ * @param cpStart The ContactPoint from where to start the process.
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function findAndAdd3Prongs(cpGraphs, cpStart, extreme) {
+    var visitedCps = void 0;
+    do {
+        visitedCps = traverseShape(cpStart);
+        if (visitedCps.length > 2) {
+            findAndAdd3Prong(cpGraphs, visitedCps, extreme);
+        }
+    } while (visitedCps.length > 2);
+    return visitedCps;
+}
+/**
+ * Finds and add a 3-prong MAT circle to the given shape.
+ * @param cpGraphs
+ * @param visitedCps
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function findAndAdd3Prong(cpGraphs, visitedCps, extreme) {
+    var δs = [];
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = visitedCps[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var visitedCp = _step2.value;
+
+            δs.push([visitedCp, visitedCp.next]);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    var threeProng = find_3_prong_1.find3Prong(δs, extreme);
+    var orders = [];
+    for (var i = 0; i < 3; i++) {
+        orders.push(point_on_shape_1.PointOnShape.calcOrder(threeProng.circle, threeProng.ps[i]));
+    }
+    var circle = add_3_prong_1.add3Prong(cpGraphs, orders, threeProng);
+    if (typeof _debug_ !== 'undefined') {
+        add3ProngDebugInfo(circle, visitedCps);
+    }
+}
+function add3ProngDebugInfo(circle, visitedCps) {
+    var threeProngs = _debug_.generated.elems.threeProng;
+    var len = threeProngs.length;
+    var data = threeProngs[len - 1];
+    data.visitedCps = visitedCps;
+    data.circle = circle;
+}
+
+},{"../../point-on-shape":133,"../find-mat/add-3-prong":90,"./find-3-prong/find-3-prong":102}],107:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var svg_1 = _dereq_("../../svg/svg");
+var find_2_prong_1 = _dereq_("./find-2-prong/find-2-prong");
+var add_2_prong_1 = _dereq_("./add-2-prong");
+/**
+ * Find and add two-prongs that remove any holes in the shape.
+ * @param loops
+ * @param cpTrees
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ */
+function findAndAddHoleClosing2Prongs(loops, cpTrees, extreme) {
+    var bounds = svg_1.getShapeBounds(loops);
+    var squaredDiagonalLength = Math.pow(bounds.maxX.p[0] - bounds.minX.p[0], 2) + Math.pow(bounds.maxY.p[1] - bounds.minY.p[1], 2);
+    // Find the topmost points on each loop.
+    var minYs = loops.map(svg_1.getMinYPos);
+    for (var k = 1; k < minYs.length; k++) {
+        var posSource = minYs[k];
+        //console.log(posSource.t);
+        //console.log(posSource.p[1]);
+        var holeClosingTwoProng = find_2_prong_1.find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, posSource, true, k);
+        if (!holeClosingTwoProng) {
+            throw 'unable to find hole-closing 2-prong';
+        }
+        if (holeClosingTwoProng) {
+            var circle = holeClosingTwoProng.circle,
+                posAntipode = holeClosingTwoProng.z;
+
+            add_2_prong_1.add2Prong(cpTrees, circle, posSource, posAntipode, true, extreme);
+        }
+    }
+}
+exports.findAndAddHoleClosing2Prongs = findAndAddHoleClosing2Prongs;
+
+},{"../../svg/svg":171,"./add-2-prong":89,"./find-2-prong/find-2-prong":96}],108:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_memoize_1 = _dereq_("flo-memoize");
+var mat_1 = _dereq_("../../mat");
+var get_loop_bounds_1 = _dereq_("../../svg/fs/get-loop-bounds");
+var simplify_paths_1 = _dereq_("../../svg/fs/simplify-paths/simplify-paths");
+var find_and_add_3_prongs_1 = _dereq_("../find-mat/find-and-add-3-prongs");
+var create_initial_cp_graph_1 = _dereq_("../find-mat/create-initial-cp-graph");
+;
+var add_debug_info_1 = _dereq_("../find-mat/add-debug-info");
+var get_potential_2_prongs_1 = _dereq_("../find-mat/get-potential-2-prongs");
+var create_get_interesting_points_on_loop_1 = _dereq_("./create-get-interesting-points-on-loop");
+var get_sharp_corners_1 = _dereq_("../find-mat/get-sharp-corners");
+var get_extreme_1 = _dereq_("../../svg/fs/get-extreme");
+var smoothen_1 = _dereq_("../smoothen/smoothen");
+var find_and_add_2_prongs_on_all_paths_1 = _dereq_("./find-and-add-2-prongs-on-all-paths");
+var find_and_add_hole_closing_2_prongs_1 = _dereq_("./find-and-add-hole-closing-2-prongs");
+var memoize = flo_memoize_1.default.m1;
+/**
+ * Find the MAT from the given Shape.
+ * @param loops An array of (possibly intersecting) Loops representing one or
+ * more closed curves (i.e. shapes)
+ * @param additionalPointCount Additional points per bezier where a MAT circle
+ * will be added. Defaults to 3.
+ */
+
+function findMats(loops) {
+    var additionalPointCount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3;
+
+    if (typeof _debug_ !== 'undefined') {
+        var timing = _debug_.generated.timing;
+        timing.simplify[0] = performance.now();
+    }
+    //let loops_ = loops.map(loop => Loop.perturb(loop, 10))
+
+    var _simplify_paths_1$sim = simplify_paths_1.simplifyPaths(loops),
+        loopss = _simplify_paths_1$sim.loopss,
+        xMap = _simplify_paths_1$sim.xMap;
+
+    if (typeof _debug_ !== 'undefined') {
+        var _timing = _debug_.generated.timing;
+        _timing.simplify[1] += performance.now() - _timing.simplify[0];
+    }
+    var mats = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = loopss[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var _loops = _step.value;
+
+            _loops.sort(ascendingByTopmostPoint);
+            //loops = orient(loops);
+            var mat = findPartialMat(_loops, xMap, additionalPointCount);
+            if (mat) {
+                mats.push(mat);
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return mats;
+}
+exports.findMats = findMats;
+function findPartialMat(loops, xMap) {
+    var additionalPointCount = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 3;
+
+    var extreme = get_extreme_1.getExtreme(loops);
+    add_debug_info_1.addDebugInfo1(loops);
+    // Gets interesting points on the shape, i.e. those that makes sense to use 
+    // for the 2-prong procedure.
+    var f = create_get_interesting_points_on_loop_1.createGetInterestingPointsOnLoop(additionalPointCount);
+    var pointsPerLoop = loops.map(f);
+    var for2ProngsPerLoop = get_potential_2_prongs_1.getPotential2Prongs(pointsPerLoop);
+    var sharpCornersPerLoop = get_sharp_corners_1.getSharpCorners(pointsPerLoop);
+    var cpTrees = new Map();
+    var cpNode = create_initial_cp_graph_1.createInitialCpGraph(loops, cpTrees, sharpCornersPerLoop, xMap);
+    find_and_add_hole_closing_2_prongs_1.findAndAddHoleClosing2Prongs(loops, cpTrees, extreme);
+    if (typeof _debug_ !== 'undefined') {
+        if (_debug_.directives.stopAfterHoleClosers) {
+            return undefined;
+        }
+    }
+    add_debug_info_1.addDebugInfo2(pointsPerLoop);
+    cpNode = find_and_add_2_prongs_on_all_paths_1.findAndAdd2ProngsOnAllPaths(loops, cpTrees, for2ProngsPerLoop, extreme);
+    if (typeof _debug_ !== 'undefined') {
+        if (_debug_.directives.stopAfterTwoProngs) {
+            return undefined;
+        }
+    }
+    add_debug_info_1.addDebugInfo3();
+    if (cpNode === undefined) {
+        return undefined;
+    }
+    find_and_add_3_prongs_1.findAndAddAll3Prongs(cpTrees, cpNode, extreme);
+    if (typeof _debug_ !== 'undefined') {
+        if (_debug_.directives.stopAfterThreeProngs) {
+            return undefined;
+        }
+    }
+    var mat = new mat_1.Mat(cpNode, cpTrees);
+    smoothen_1.smoothen(mat.cpNode);
+    add_debug_info_1.addDebugInfo4(mat);
+    return mat;
+}
+/**
+ *
+ * @param loopA
+ * @param loopB
+ */
+function ascendingByTopmostPoint(loopA, loopB) {
+    var boundsA = get_loop_bounds_1.getLoopBounds(loopA);
+    var boundsB = get_loop_bounds_1.getLoopBounds(loopB);
+    var a = boundsA.minY.p[1];
+    var b = boundsB.minY.p[1];
+    return a - b;
+}
+
+},{"../../mat":85,"../../svg/fs/get-extreme":139,"../../svg/fs/get-loop-bounds":140,"../../svg/fs/simplify-paths/simplify-paths":157,"../find-mat/add-debug-info":91,"../find-mat/create-initial-cp-graph":93,"../find-mat/find-and-add-3-prongs":106,"../find-mat/get-potential-2-prongs":109,"../find-mat/get-sharp-corners":110,"../smoothen/smoothen":125,"./create-get-interesting-points-on-loop":92,"./find-and-add-2-prongs-on-all-paths":104,"./find-and-add-hole-closing-2-prongs":107,"flo-memoize":41}],109:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+function getPotential2Prongs(possPerLoop) {
+    var for2ProngsArray = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = possPerLoop[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var poss = _step.value;
+
+            var for2Prongs = [];
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = poss[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var pos = _step2.value;
+
+                    if (!point_on_shape_1.PointOnShape.isQuiteSharpCorner(pos)) {
+                        for2Prongs.push(pos);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            for2ProngsArray.push(for2Prongs);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return for2ProngsArray;
+}
+exports.getPotential2Prongs = getPotential2Prongs;
+
+},{"../../point-on-shape":133}],110:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+function getSharpCorners(possPerLoop) {
+    var sharpCornersPerLoop = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = possPerLoop[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var poss = _step.value;
+
+            var sharpCorners = [];
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = poss[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var pos = _step2.value;
+
+                    if (point_on_shape_1.PointOnShape.isQuiteSharpCorner(pos)) {
+                        sharpCorners.push(pos);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            sharpCornersPerLoop.push(sharpCorners);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return sharpCornersPerLoop;
+}
+exports.getSharpCorners = getSharpCorners;
+
+},{"../../point-on-shape":133}],111:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+/**
+ *
+ */
+function getClosestSquareDistanceToRect(box, p) {
+    var _box = _slicedToArray(box, 2),
+        _box$ = _slicedToArray(_box[0], 2),
+        x0 = _box$[0],
+        y0 = _box$[1],
+        _box$2 = _slicedToArray(_box[1], 2),
+        x1 = _box$2[0],
+        y1 = _box$2[1];
+
+    var _p = _slicedToArray(p, 2),
+        xp = _p[0],
+        yp = _p[1];
+
+    if (xp < x0) {
+        if (yp < y0) {
+            return flo_vector2d_1.squaredDistanceBetween(box[0], p);
+        } else if (yp > y1) {
+            return flo_vector2d_1.squaredDistanceBetween([x0, y1], p);
+        } else {
+            var d = x0 - xp;
+            return d * d;
+        }
+    } else if (xp > x1) {
+        if (yp < y0) {
+            return flo_vector2d_1.squaredDistanceBetween([x1, y0], p);
+        } else if (yp > y1) {
+            return flo_vector2d_1.squaredDistanceBetween(box[1], p);
+        } else {
+            var _d = xp - x1;
+            return _d * _d;
+        }
+    } else {
+        if (yp < y0) {
+            var _d2 = y0 - yp;
+            return _d2 * _d2;
+        } else if (yp > y1) {
+            var _d3 = yp - y1;
+            return _d3 * _d3;
+        } else {
+            return 0;
+        }
+    }
+}
+exports.getClosestSquareDistanceToRect = getClosestSquareDistanceToRect;
+
+},{"flo-vector2d":50}],112:[function(_dereq_,module,exports){
+"use strict";
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+/**
+ *
+ */
+function getClosestSquaredDistanceToRotatedRect(ps, p) {
+    var ds = [0, 1, 2, 3].map(function (i) {
+        return flo_vector2d_1.squaredDistanceBetweenPointAndLineSegment(p, [ps[i], ps[(i + 1) % 4]]);
+    });
+    var width = flo_vector2d_1.squaredDistanceBetween(ps[0], ps[1]);
+    var height = flo_vector2d_1.squaredDistanceBetween(ps[0], ps[3]);
+    if (ds[0] <= height && ds[2] <= height && ds[1] <= width && ds[3] <= width) {
+        return 0; // Inside rotated rect
+    }
+    return Math.min.apply(Math, _toConsumableArray(ds));
+}
+exports.getClosestSquaredDistanceToRotatedRect = getClosestSquaredDistanceToRotatedRect;
+
+},{"flo-vector2d":50}],113:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Find point where two lines intersect. Returns he point where the two lines
+ * intersect or undefined if they don't intersect or are the same line.
+ * @param l1 - A line
+ * @param l2 - Another line
+ */
+function lineLineIntersection(l1, l2) {
+    var _l = _slicedToArray(l1, 2),
+        _l$ = _slicedToArray(_l[0], 2),
+        p1x = _l$[0],
+        p1y = _l$[1],
+        _l$2 = _slicedToArray(_l[1], 2),
+        p2x = _l$2[0],
+        p2y = _l$2[1];
+
+    var _l2 = _slicedToArray(l2, 2),
+        _l2$ = _slicedToArray(_l2[0], 2),
+        p3x = _l2$[0],
+        p3y = _l2$[1],
+        _l2$2 = _slicedToArray(_l2[1], 2),
+        p4x = _l2$2[0],
+        p4y = _l2$2[1];
+
+    var v1x = p2x - p1x;
+    var v1y = p2y - p1y;
+    var v2x = p4x - p3x;
+    var v2y = p4y - p3y;
+    var cross = v2x * v1y - v2y * v1x;
+    if (cross === 0) {
+        // parallel
+        return undefined;
+    }
+    var b = ((p3y - p1y) * v1x - (p3x - p1x) * v1y) / cross;
+    return [p3x + b * v2x, p3y + b * v2y];
+}
+exports.lineLineIntersection = lineLineIntersection;
+
+},{}],114:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var DELTA = 1e-6;
+/**
+ * Calculates the curvature extrema brackets of the given cubic bezier.
+ * See the paper at http://ac.els-cdn.com/S037704270000529X/1-s2.0-S037704270000529X-main.pdf?_tid=0b25a2cc-ad35-11e5-a728-00000aacb362&acdnat=1451288083_86359fc83af9dec3232c90a6d2e71031
+ * Note that naming conventions is roughly as in the paper above.
+ * @param ps
+ */
+function calcBezierCurvatureExtremaBrackets(ps) {
+    var _ps = _slicedToArray(ps, 4),
+        _ps$ = _slicedToArray(_ps[0], 2),
+        x0 = _ps$[0],
+        y0 = _ps$[1],
+        _ps$2 = _slicedToArray(_ps[1], 2),
+        x1 = _ps$2[0],
+        y1 = _ps$2[1],
+        _ps$3 = _slicedToArray(_ps[2], 2),
+        x2 = _ps$3[0],
+        y2 = _ps$3[1],
+        _ps$4 = _slicedToArray(_ps[3], 2),
+        x3 = _ps$4[0],
+        y3 = _ps$4[1];
+
+    var brackets = [];
+    // Bezier points translated to origin;
+    var P_1x = x1 - x0;
+    var P_1y = y1 - y0;
+    var P_2x = x2 - x0;
+    var P_2y = y2 - y0;
+    var P_3x = x3 - x0;
+    var P_3y = y3 - y0;
+    // Distance to consecutive points
+    var W_0x = P_1x;
+    var W_1x = P_2x - P_1x;
+    var W_2x = P_3x - P_2x;
+    var W_0y = P_1y;
+    var W_1y = P_2y - P_1y;
+    var W_2y = P_3y - P_2y;
+    // Check for degenerate case in which cubic curve becomes quadratic. 
+    if (Math.abs(W_0x - 2 * W_1x + W_2x) < DELTA && Math.abs(W_0y - 2 * W_1y + W_2y) < DELTA) {}
+    // TODO - This case is simpler due to being quadratic - still needs to
+    // be implemented!. 
+
+    // See http://ac.els-cdn.com/S037704270000529X/1-s2.0-S037704270000529X-main.pdf?_tid=0b25a2cc-ad35-11e5-a728-00000aacb362&acdnat=1451288083_86359fc83af9dec3232c90a6d2e71031
+    // Rotate curve so that W0 - 2W1 + W2 = (0, (1/3)a), a != 0
+    var atan_numer = P_3x - 3 * P_2x + 3 * P_1x;
+    var atan_denom = P_3y - 3 * P_2y + 3 * P_1y;
+    var atan_numer_squared = atan_numer * atan_numer;
+    var atan_denom_squared = atan_denom * atan_denom;
+    var rad = Math.sqrt(atan_numer_squared / atan_denom_squared + 1);
+    var cos_theta = 1 / rad;
+    var sin_theta = void 0;
+    if (cos_theta === 0) {
+        sin_theta = 1;
+    } else {
+        sin_theta = atan_numer / (atan_denom * rad);
+    }
+    // Here we skip expensive trig evaluations
+    var R_1x = P_1x * cos_theta - P_1y * sin_theta;
+    var R_1y = P_1x * sin_theta + P_1y * cos_theta;
+    var R_2x = P_2x * cos_theta - P_2y * sin_theta;
+    var R_2y = P_2x * sin_theta + P_2y * cos_theta;
+    var R_3x = P_3x * cos_theta - P_3y * sin_theta;
+    var R_3y = P_3x * sin_theta + P_3y * cos_theta;
+    // Modify W_0x, etc. to be correct for new rotated curve 
+    W_0x = R_1x;
+    W_1x = R_2x - R_1x;
+    W_2x = R_3x - R_2x;
+    W_0y = R_1y;
+    W_1y = R_2y - R_1y;
+    W_2y = R_3y - R_2y;
+    var a = 3 * (W_0y - 2 * W_1y + W_2y);
+    var dif = R_2x - 2 * R_1x; // which = W_1x - W_0x;
+    if (dif === 0) {
+        // Case 1 (special) - W_1x - W_0x === 0
+        // Degenerate to cubic function	
+        if (W_0x !== 0) {
+            // TODO - finish!
+            // TODO - we also still need to check for degenerate cubic (see 
+            // beginning of paper)
+        } else {
+            // We have a straight line x=0!
+            return [];
+        }
+    } else {
+        // Case 2 (usual) - W_1x - W_0x !== 0
+        if (dif < 0) {
+            // Reflect curve accross y-axis to make dif > 0
+            R_1x = -R_1x;
+            R_2x = -R_2x;
+            R_3x = -R_3x;
+            // Modify W_0x, etc. to be correct for new reflected 
+            W_0x = -W_0x;
+            W_1x = -W_1x;
+            W_2x = -W_2x;
+            dif = -dif;
+        }
+        // From the paper:
+        // ---------------
+        // All curves has exactly one of 4 cases:
+        //
+        // 1. It has a single inflection point and exactly 2 curvature maxima 
+        //    (symmetrically positioned about inflection point). This is the 
+        //    case if dif === 0 in above code.
+        // 2. TODO - It has a single cusp - ignored for now!
+        // 3. It has a point of self-intersection - occurs if d < 0 in paper.
+        // 4. It has 2 inflection points, no cusps, no self-intersections.
+        //    It can have either 3 or 5 curvature extrema
+        //    a. The case of 5 curvature extrema is ignored for now - in the 
+        //       paper it is mentioned to even find such a curve is difficult 
+        //       and it seems such curves have very sharp curvature at one point 
+        //       which does not usually occur in an SVG shape. But this case 
+        //       should later be included or we'll miss some points.
+        //    b. There are 3 curvature extrema:
+        //       Extrema occur in the range (-inf, -sqrt(d)), 
+        //       (-sqrt(d), sqrt(d)), (sqrt(d), inf). 
+        //       Since we dont know how to select -inf and inf we will just 
+        //       choose them to be -10 and 11 (remember bezier runs from t=0 to 
+        //       t=1). If Brent's method runs out of the (0,1) interval we stop 
+        //       and use 0 or 1 as the extremum? Remember extrema can also occur 
+        //       at t=0 and t=1!
+        //
+        // TODO - At the moment we only test for case 1 and 4b, but in future 
+        // we must test and eliminate the other cases.
+        var μ = 6 * dif;
+        var λ = 3 * a * W_0x / (μ * μ);
+        var γ1 = 3 * a * W_0y / (μ * μ);
+        var γ2 = 3 * (W_1y - W_0y) / μ;
+        var d = λ * λ - 2 * γ2 * λ + γ1;
+        var b = 2 * (γ2 - λ);
+        var deParamBoundary = deParameterizeBoundary(λ, μ, a);
+        if (d > 0) {
+            var ssigd_ = Math.sqrt(d);
+            // de-reparametize
+            // Note: the sda and sdb here are the inflection points forcase iv! 
+            // there are easier ways to calculate these
+            var sda = -ssigd_;
+            var sdb = ssigd_;
+            brackets = [[Number.NEGATIVE_INFINITY, sda], [sda, sdb], [sdb, Number.POSITIVE_INFINITY]].map(deParamBoundary).map(clipBoundary);
+        } else if (d < 0) {
+            // It is a loop 
+            // Note: The loop intersection may be outside t=[0,1] but curvature 
+            // maxima may still occur inside t=[0,1] of course.
+            // There can be 1 or 3 maxima of curvature.
+            var ξ1_ = 2 * b * b - 8 * d - 3;
+            if (ξ1_ < 0) {
+                brackets = [[0, Math.sqrt(-3 * d)]].map(deParamBoundary).map(clipBoundary);
+            } else {
+                var ξ2_ = Math.sqrt(5 * ξ1_);
+                var ξ1 = (-5 * b - ξ2_) / 10;
+                var ξ2 = (-5 * b + ξ2_) / 10;
+                brackets = [[Number.NEGATIVE_INFINITY, ξ1], [ξ1, Math.min(0, ξ2)], [Math.max(0, ξ2), Math.sqrt(-3 * d)]].map(deParamBoundary).map(clipBoundary);
+            }
+        } else if (d === 0) {
+            // TODO - It is a cusp - still to implement!
+        }
+    }
+    return brackets;
+}
+exports.calcBezierCurvatureExtremaBrackets = calcBezierCurvatureExtremaBrackets;
+/**
+ * Clips to [0,1] or returns undefined if not within [0,1].
+ * @param range
+ */
+function clipBoundary(range) {
+    var _range = _slicedToArray(range, 2),
+        a = _range[0],
+        b = _range[1];
+
+    if (a < 0 && b < 0 || a > 1 && b > 1) {
+        return undefined;
+    }
+    if (a < 0) {
+        a = 0;
+    }
+    if (a > 1) {
+        a = 1;
+    }
+    if (b < 0) {
+        b = 0;
+    }
+    if (b > 1) {
+        b = 1;
+    }
+    return [a, b];
+}
+/**
+ *
+ * @param λ
+ * @param μ
+ * @param a
+ */
+function deParameterize(λ, μ, a) {
+    return function (σ) {
+        return (σ - λ) * (μ / a);
+    };
+}
+/**
+ *
+ * @param λ
+ * @param μ
+ * @param a
+ */
+function deParameterizeBoundary(λ, μ, a) {
+    return function (boundary) {
+        return boundary.map(deParameterize(λ, μ, a));
+    };
+}
+;
+
+},{}],115:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var point_on_shape_1 = _dereq_("../point-on-shape");
+var get_bezier_curvature_extrema_brackets_1 = _dereq_("./get-bezier-curvature-extrema-brackets");
+/**
+ * Finds the osculating circles and inflection points for the given bezier.
+ * @param curve
+ */
+function getBezierCurvatureExtrema(curve) {
+    var maxCurvaturePoss = [];
+    var maxNegativeCurvaturePoss = [];
+    var ps = curve.ps;
+    var brackets = get_bezier_curvature_extrema_brackets_1.calcBezierCurvatureExtremaBrackets(ps);
+    var κPs = flo_bezier3_1.κ(ps); // The curvature function
+    var lenb = brackets.length;
+    for (var k = 0; k < lenb; k++) {
+        var bracket = brackets[k];
+        if (!bracket) {
+            continue;
+        }
+        var root = lookForRoot(ps, bracket);
+        if (!root) {
+            continue;
+        }
+        var κ_ = -κPs(root);
+        // Check if local extrema is a maximum or minimum.
+        var κAtMinsd = -κPs(bracket[0]);
+        var κAtMaxsd = -κPs(bracket[1]);
+        if (κ_ > κAtMinsd && κ_ > κAtMaxsd) {
+            // maximum
+            if (κ_ > 0) {
+                maxCurvaturePoss.push(new point_on_shape_1.PointOnShape(curve, root));
+            }
+            //_debug_.fs.draw.crossHair((new PointOnShape(curve, root).p), 'blue thin2 nofill')
+        } else if (κ_ <= κAtMinsd && κ_ <= κAtMaxsd) {
+            // minimum
+            if (κ_ < 0) {
+                maxNegativeCurvaturePoss.push(new point_on_shape_1.PointOnShape(curve, root));
+                //_debug_.fs.draw.crossHair((new PointOnShape(curve, root).p), 'red thin2 nofill')
+            }
+        }
+    }
+    return { maxCurvaturePoss: maxCurvaturePoss, maxNegativeCurvaturePoss: maxNegativeCurvaturePoss };
+}
+exports.getBezierCurvatureExtrema = getBezierCurvatureExtrema;
+function lookForRoot(ps, _ref) {
+    var _ref2 = _slicedToArray(_ref, 2),
+        minsd = _ref2[0],
+        maxsd = _ref2[1];
+
+    // At this point there can be exactly 0 or 1 roots within 
+    // [minsd, maxsd]
+    var dκMod_ = flo_bezier3_1.dκMod(ps);
+    var c0 = dκMod_(minsd);
+    var c1 = dκMod_(maxsd);
+    if (c0 * c1 >= 0) {
+        return;
+    }
+    // There is exactly one root in the interval.
+    var root = flo_poly_1.default.brent(dκMod_, minsd, maxsd);
+    return root;
+}
+
+},{"../point-on-shape":133,"./get-bezier-curvature-extrema-brackets":114,"flo-bezier3":3,"flo-poly":42}],116:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var bezier_piece_1 = _dereq_("../bezier-piece");
+var point_on_shape_1 = _dereq_("../point-on-shape");
+var contact_point_1 = _dereq_("../contact-point");
+/**
+* Returns the ordered cubic bezier pieces (i.e a bezier with a t range)
+* from the given boundary piece.
+* @param cpNode - An ordered pair that represents the start and end points of
+* the boundary piece
+*/
+function getBoundaryPieceBeziers(cpNode) {
+    var cpThis = cpNode[0];
+    var cpEnd = cpNode[1];
+    var bezierPieces = [];
+    // As opposed to going around the circle and taking the last exit
+    var goStraight = true;
+    do {
+        if (!goStraight) {
+            goStraight = true;
+            cpThis = cpThis.prevOnCircle; // take last exit
+            continue;
+        }
+        goStraight = false;
+        var posThis = cpThis.cp.pointOnShape;
+        var posNext = cpThis.next.cp.pointOnShape;
+        if (posNext.curve === posThis.curve && point_on_shape_1.PointOnShape.isQuiteSharpCorner(posThis) && point_on_shape_1.PointOnShape.isQuiteSharpCorner(posNext)) {
+            // Do nothing
+        } else if (posNext.curve === posThis.curve && contact_point_1.ContactPoint.compare(cpThis.next.cp, cpThis.cp) > 0) {
+            bezierPieces.push(new bezier_piece_1.BezierPiece(posThis.curve, [posThis.t, posNext.t]));
+        } else {
+            bezierPieces.push(new bezier_piece_1.BezierPiece(posThis.curve, [posThis.t, 1]));
+            addSkippedBeziers(bezierPieces, posThis.curve, posNext.curve, posNext.t);
+        }
+        cpThis = cpThis.next;
+    } while (cpThis !== cpEnd);
+    return bezierPieces;
+}
+exports.getBoundaryPieceBeziers = getBoundaryPieceBeziers;
+/**
+ * Adds pieces of skipped beziers
+ */
+function addSkippedBeziers(bezierPieces, curveStart, curveEnd, t1) {
+    var curveThis = curveStart;
+    do {
+        curveThis = curveThis.next;
+        var tEnd = curveThis === curveEnd ? t1 : 1;
+        bezierPieces.push(new bezier_piece_1.BezierPiece(curveThis, [0, tEnd]));
+    } while (curveThis !== curveEnd);
+}
+
+},{"../bezier-piece":51,"../contact-point":54,"../point-on-shape":133}],117:[function(_dereq_,module,exports){
+"use strict";
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var point_on_shape_1 = _dereq_("../point-on-shape");
+var get_closest_squared_distance_to_rotated_rect_1 = _dereq_("./geometry/get-closest-squared-distance-to-rotated-rect");
+var get_closest_square_distance_to_rect_1 = _dereq_("./geometry/get-closest-square-distance-to-rect");
+/**
+ * Returns the closest boundary point to the given point, limited to the given
+ * bezier pieces, including the beziers actually checked after culling.
+ * @param bezierPieces
+ * @param point
+ * @param touchedCurve
+ * @param t
+ * @param extreme
+ */
+function getClosestBoundaryPoint(bezierPieces, point, touchedCurve, t) {
+    bezierPieces = cullBezierPieces(bezierPieces, point);
+    var bestDistance = Number.POSITIVE_INFINITY;
+    var pos = void 0;
+    for (var i = 0; i < bezierPieces.length; i++) {
+        var bezierPiece = bezierPieces[i];
+        var p = closestPointOnBezier(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
+        if (p === undefined) {
+            continue;
+        }
+        var d = flo_vector2d_1.distanceBetween(p.p, point);
+        var curve = bezierPiece.curve;
+        var t_ = p.t;
+        if (d < bestDistance) {
+            if (t_ === 0) {
+                t_ = 1;
+                curve = bezierPiece.curve.prev;
+            }
+            pos = new point_on_shape_1.PointOnShape(curve, t_);
+            bestDistance = d;
+        }
+    }
+    return pos;
+}
+exports.getClosestBoundaryPoint = getClosestBoundaryPoint;
+/**
+ *
+ * @param bezierPieces
+ * @param p
+ * @param extreme
+ */
+function cullBezierPieces(bezierPieces, p) {
+    var CULL_THRESHOLD = 0;
+    if (bezierPieces.length > CULL_THRESHOLD) {
+        var bestSquaredDistance = getBestDistanceSquared(bezierPieces, p);
+        bezierPieces = cullByLooseBoundingBox(bezierPieces, p, bestSquaredDistance);
+        bezierPieces = cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance);
+    }
+    return bezierPieces;
+}
+/**
+ * Finds an initial distance such that the closest point can not be further than
+ * this distance away.
+ */
+function getBestDistanceSquared(bezierPieces, p) {
+    var bestSquaredDistance = Number.POSITIVE_INFINITY;
+    for (var i = 0; i < bezierPieces.length; i++) {
+        var bezierPiece = bezierPieces[i];
+        var ps = bezierPiece.curve.ps;
+        var evPs = flo_bezier3_1.evaluate(ps);
+        var p1 = evPs(bezierPiece.ts[0]);
+        var p2 = evPs(bezierPiece.ts[1]);
+        var d = Math.min(flo_vector2d_1.squaredDistanceBetween(p, p1), flo_vector2d_1.squaredDistanceBetween(p, p2));
+        if (d < bestSquaredDistance) {
+            bestSquaredDistance = d;
+        }
+    }
+    // The extra multiplier is to account for floating point precision.
+    return bestSquaredDistance * 1.01;
+}
+/**
+ * When checking distances, ignore all those with closest possible distance
+ * further than 'bestSquaredDistance', i.e. cull them.
+ * @param bezierPieces
+ * @param p
+ * @param dSquared
+ */
+function cullByLooseBoundingBox(bezierPieces, p, dSquared) {
+    var candidateBezierPieces = [];
+    for (var i = 0; i < bezierPieces.length; i++) {
+        var bezierPiece = bezierPieces[i];
+        var ps = bezierPiece.curve.ps;
+        var boundingBox = flo_bezier3_1.getBoundingBox(ps);
+        var d = get_closest_square_distance_to_rect_1.getClosestSquareDistanceToRect(boundingBox, p);
+        if (d <= dSquared) {
+            candidateBezierPieces.push(bezierPiece);
+        }
+    }
+    return candidateBezierPieces;
+}
+/**
+ * When checking distances, ignore all those with closest possible distance
+ * further than 'bestSquaredDistance', i.e. cull them.
+ * @param bezierPieces
+ * @param p
+ * @param bestSquaredDistance
+ */
+function cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance) {
+    var candidateBezierPieces = [];
+    for (var i = 0; i < bezierPieces.length; i++) {
+        var bezierPiece = bezierPieces[i];
+        var ps = bezierPiece.curve.ps;
+        var tightBoundingBox = flo_bezier3_1.getBoundingBoxTight(ps);
+        var d = get_closest_squared_distance_to_rotated_rect_1.getClosestSquaredDistanceToRotatedRect(tightBoundingBox, p);
+        if (d <= bestSquaredDistance) {
+            candidateBezierPieces.push(bezierPiece);
+        }
+    }
+    return candidateBezierPieces;
+}
+/**
+ *
+ * @param curve The bezier
+ * @param p The point from which to check
+ * @param tRange The allowed t range
+ * @param touchedCurve The bezier on which p is located
+ * @param t The t value of the bezier that locates p
+ */
+function closestPointOnBezier(curve, p) {
+    var tRange = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 1];
+    var touchedCurve = arguments[3];
+    var t = arguments[4];
+
+    // TODO The site at http://jazzros.blogspot.ca/2011/03/projecting-point-on-bezier-curve.html
+    // may hint at requiring much fewer assignments?
+    var _curve$ps = _slicedToArray(curve.ps, 4),
+        _curve$ps$ = _slicedToArray(_curve$ps[0], 2),
+        x0 = _curve$ps$[0],
+        y0 = _curve$ps$[1],
+        _curve$ps$2 = _slicedToArray(_curve$ps[1], 2),
+        x1 = _curve$ps$2[0],
+        y1 = _curve$ps$2[1],
+        _curve$ps$3 = _slicedToArray(_curve$ps[2], 2),
+        x2 = _curve$ps$3[0],
+        y2 = _curve$ps$3[1],
+        _curve$ps$4 = _slicedToArray(_curve$ps[3], 2),
+        x3 = _curve$ps$4[0],
+        y3 = _curve$ps$4[1];
+
+    var _p = _slicedToArray(p, 2),
+        xp = _p[0],
+        yp = _p[1];
+
+    var xx0 = x0 - xp;
+    var xx1 = x1 - xp;
+    var xx2 = x2 - xp;
+    var xx3 = x3 - xp;
+    var yy0 = y0 - yp;
+    var yy1 = y1 - yp;
+    var yy2 = y2 - yp;
+    var yy3 = y3 - yp;
+    var x00 = xx0 * xx0;
+    var x01 = 6 * xx0 * xx1;
+    var x02 = 6 * xx0 * xx2;
+    var x03 = 2 * xx0 * xx3;
+    var x11 = 9 * xx1 * xx1;
+    var x12 = 18 * xx1 * xx2;
+    var x13 = 6 * xx1 * xx3;
+    var x22 = 9 * xx2 * xx2;
+    var x23 = 6 * xx2 * xx3;
+    var x33 = xx3 * xx3;
+    var y00 = yy0 * yy0;
+    var y01 = 6 * yy0 * yy1;
+    var y02 = 6 * yy0 * yy2;
+    var y03 = 2 * yy0 * yy3;
+    var y11 = 9 * yy1 * yy1;
+    var y12 = 18 * yy1 * yy2;
+    var y13 = 6 * yy1 * yy3;
+    var y22 = 9 * yy2 * yy2;
+    var y23 = 6 * yy2 * yy3;
+    var y33 = yy3 * yy3;
+    var t5 = 6 * (x33 - x23 + x13 - x03 + x22 - x12 + x02 + x11 - x01 + x00 + (y33 - y23 + y13 - y03 + y22 - y12 + y02 + y11 - y01 + y00));
+    var t4 = 5 * (x23 - 2 * x13 + 3 * x03 - 2 * x22 + 3 * x12 - 4 * x02 - 4 * x11 + 5 * x01 - 6 * x00 + (y23 - 2 * y13 + 3 * y03 - 2 * y22 + 3 * y12 - 4 * y02 - 4 * y11 + 5 * y01 - 6 * y00));
+    var t3 = 4 * (x13 - 3 * x03 + x22 - 3 * x12 + 6 * x02 + 6 * x11 - 10 * x01 + 15 * x00 + (y13 - 3 * y03 + y22 - 3 * y12 + 6 * y02 + 6 * y11 - 10 * y01 + 15 * y00));
+    var t2 = 3 * (x03 + x12 - 4 * x02 - 4 * x11 + 10 * x01 - 20 * x00 + (y03 + y12 - 4 * y02 - 4 * y11 + 10 * y01 - 20 * y00));
+    var t1 = 2 * (x02 + x11 - 5 * x01 + 15 * x00 + (y02 + y11 - 5 * y01 + 15 * y00));
+    var t0 = x01 - 6 * x00 + (y01 - 6 * y00);
+    var poly = [t5, t4, t3, t2, t1, t0];
+    if (curve === touchedCurve) {
+        poly = flo_poly_1.default.deflate(poly, t);
+    }
+    var roots = flo_poly_1.default.allRoots(poly, tRange[0], tRange[1]);
+    // Also test the endpoints
+    var push0 = true;
+    var push1 = true;
+    if (t === 1 && curve === touchedCurve.next || curve === touchedCurve && t === 0) {
+        push0 = false;
+    }
+    if (t === 0 && curve === touchedCurve.prev || curve === touchedCurve && t === 1) {
+        push1 = false;
+    }
+    if (tRange[0] === 0) {
+        if (push0) {
+            roots.push(tRange[0]);
+        }
+    } else if (tRange[0] === 1) {
+        if (push1) {
+            roots.push(tRange[0]);
+        }
+    } else {
+        roots.push(tRange[0]);
+    }
+    if (tRange[1] === 0) {
+        if (push0) {
+            roots.push(tRange[1]);
+        }
+    } else if (tRange[1] === 1) {
+        if (push1) {
+            roots.push(tRange[1]);
+        }
+    } else {
+        roots.push(tRange[1]);
+    }
+    var ev = flo_bezier3_1.evaluate(curve.ps);
+    var ps = roots.map(function (root) {
+        return { p: ev(root), t: root };
+    });
+    return flo_vector2d_1.getObjClosestTo(p, ps, function (p) {
+        return p.p;
+    });
+}
+exports.closestPointOnBezier = closestPointOnBezier;
+
+},{"../point-on-shape":133,"./geometry/get-closest-square-distance-to-rect":111,"./geometry/get-closest-squared-distance-to-rotated-rect":112,"flo-bezier3":3,"flo-poly":42,"flo-vector2d":50}],118:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var curve_1 = _dereq_("../curve");
+var point_on_shape_1 = _dereq_("../point-on-shape");
+function getContactCirclesAtInterface(curve) {
+    var _curve_1$Curve$getCor = curve_1.Curve.getCornerAtEnd(curve),
+        isQuiteSharp = _curve_1$Curve$getCor.isQuiteSharp,
+        isDull = _curve_1$Curve$getCor.isDull,
+        isQuiteDull = _curve_1$Curve$getCor.isQuiteDull;
+
+    if (isQuiteSharp) {
+        return [new point_on_shape_1.PointOnShape(curve, 1)];
+    } else if (isQuiteDull) {
+        return [new point_on_shape_1.PointOnShape(curve, 1), new point_on_shape_1.PointOnShape(curve.next, 0)];
+    } else if (isDull) {}
+    return [];
+}
+exports.getContactCirclesAtInterface = getContactCirclesAtInterface;
+
+},{"../curve":56,"../point-on-shape":133}],119:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function getLargestVertex(cpNodes) {
+    return cpNodes.reduce(function (maxCpNode, cpNode) {
+        return maxCpNode.cp.circle.radius >= cpNode.cp.circle.radius ? maxCpNode : cpNode;
+    }, cpNodes[0]);
+}
+exports.getLargestVertex = getLargestVertex;
+
+},{}],120:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var traverse_edges_1 = _dereq_("./traverse-edges");
+function getLeaves(cpNode) {
+    var leaves = [];
+    traverse_edges_1.traverseEdges(cpNode, f, true);
+    function f(cp, isLeaf) {
+        if (isLeaf) {
+            leaves.push(cp);
+        }
+    }
+    return leaves;
+}
+exports.getLeaves = getLeaves;
+
+},{"./traverse-edges":130}],121:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var cp_node_1 = _dereq_("../cp-node");
+var contact_point_1 = _dereq_("../contact-point");
+/**
+ * Returns the boundary piece that starts at the immediate previous point on the
+ * shape and ends at the immediate next point.
+ * @param cpTree
+ * @param pos
+ * @param order
+ * @param order2
+ */
+function getNeighbouringPoints(cpTree, pos, order, order2) {
+    var cps = cpTree.findBounds(new cp_node_1.CpNode(new contact_point_1.ContactPoint(pos, undefined, order, order2), false, false));
+    if (!cps[0] && !cps[1]) {
+        // The tree is still empty
+        return [undefined, undefined];
+    }
+    if (!cps[0] || !cps[1]) {
+        // Smaller than all -> cptree.min() === cps[1].data OR
+        // Larger  than all -> cptree.max() === cps[0].data
+        return [cpTree.max(cpTree.root), cpTree.min(cpTree.root)];
+    }
+    return [cps[0].data, cps[1].data];
+}
+exports.getNeighbouringPoints = getNeighbouringPoints;
+
+},{"../contact-point":54,"../cp-node":55}],122:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function getTwoProngType(e) {
+    if (e.failed) {
+        return 'twoProng_failed';
+    }
+    if (e.notAdded) {
+        return 'twoProng_notAdded';
+    }
+    if (e.deleted) {
+        return 'twoProng_deleted';
+    }
+    if (e.holeClosing) {
+        return 'twoProng_holeClosing';
+    }
+    return 'twoProng_regular';
+}
+exports.getTwoProngType = getTwoProngType;
+
+},{}],123:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var get_neighboring_cps_1 = _dereq_("./get-neighboring-cps");
+//const ANGLE_THRESHOLD = Math.cos(3 * (Math.PI / 180)); // 3 degrees
+var ANGLE_THRESHOLD = 0.9986295347545738; // === Math.cos(3  degrees)
+//const ANGLE_THRESHOLD = 0.9848077530122080; // === Math.cos(10 degrees)
+//const ANGLE_THRESHOLD = 0.9998476951563913; // === Math.cos(1 degrees)
+//const ANGLE_THRESHOLD = 0.9999984769132877; // === Math.cos(0.1 degrees)   
+//const ANGLE_THRESHOLD = 0.9999999847691291  // === Math.cos(0.01 degrees)   
+/**
+ * Returns true if another CpNode is close to the given implied (via pos, order
+ * and order2) CpNode.
+ * @param cpTrees
+ * @param pos
+ * @param circle
+ * @param order
+ * @param order2
+ * @param extreme The maximum coordinate value used to calculate floating point
+ * tolerances.
+ * @param color Used for debugging only
+ */
+function isAnotherCpCloseby(cpTrees, pos, circle, order, order2, extreme, color) {
+    var DISTANCE_THRESHOLD = extreme * 1e-4;
+    //const DISTANCE_THRESHOLD = extreme * 1e-3; 
+    //const DISTANCE_THRESHOLD = extreme * 1e-1; 
+    var cpTree = cpTrees.get(pos.curve.loop);
+    var cpNodes = get_neighboring_cps_1.getNeighbouringPoints(cpTree, pos, order, order2);
+    if (!cpNodes[0]) {
+        return false;
+    }
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = cpNodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var cpNode = _step.value;
+
+            var pos2 = cpNode.cp.pointOnShape;
+            var p1 = pos.p;
+            var p2 = pos2.p;
+            if (flo_vector2d_1.distanceBetween(p1, p2) > DISTANCE_THRESHOLD) {
+                continue;
+            }
+            var v1 = flo_vector2d_1.toUnitVector(flo_vector2d_1.fromTo(cpNode.cp.pointOnShape.p, cpNode.cp.circle.center));
+            var v2 = flo_vector2d_1.toUnitVector(flo_vector2d_1.fromTo(p1, circle.center));
+            var cosTheta = flo_vector2d_1.dot(v1, v2);
+            if (cosTheta > ANGLE_THRESHOLD) {
+                //console.log(`%c${cosTheta}`, `color: ${color}`);
+                return true;
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return false;
+}
+exports.isAnotherCpCloseby = isAnotherCpCloseby;
+
+},{"./get-neighboring-cps":121,"flo-vector2d":50}],124:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+/**
+ * Returns a line segment of unit length starting in the given Vertex center and
+ * pointing in the direction of the medial axis (viewed as a rooted tree).
+ * @param cpNode
+ */
+function getEdgeDirection(cpNode) {
+    var circleCenter = cpNode.cp.circle.center;
+    var cp1 = cpNode;
+    var cp2 = cpNode.nextOnCircle;
+    var pos1 = cp1.cp.pointOnShape;
+    var pos2 = cp2.cp.pointOnShape;
+    var p1 = pos1.p;
+    var p2 = pos2.p;
+    var vDir = void 0;
+    if (!point_on_shape_1.PointOnShape.isSharpCorner(pos1)) {
+        if (p1[0] === p2[0] && p1[1] === p2[1]) {
+            vDir = flo_vector2d_1.fromTo(p1, circleCenter); // A 1-prong
+        } else {
+            vDir = flo_vector2d_1.rotate90Degrees(flo_vector2d_1.fromTo(p1, p2)); // not a 1-prong.
+        }
+    } else {
+        var curve1 = void 0;
+        var curve2 = void 0;
+        // TODO - test if pos1.t can ever be 0 - it is terminating
+        if (pos1.t === 0) {
+            curve1 = pos1.curve;
+            curve2 = pos1.curve.prev;
+        } else if (pos1.t === 1) {
+            curve1 = pos1.curve.next;
+            curve2 = pos1.curve;
+        }
+        var tan1 = flo_bezier3_1.tangent(curve1.ps)(0);
+        var tan2 = flo_vector2d_1.reverse(flo_bezier3_1.tangent(curve2.ps)(1));
+        var x = flo_vector2d_1.dot(tan1, tan2);
+        // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
+        // recall the half angle formulas. Then the rotation matrix, R, can 
+        // be calculated.
+        var cosθ = Math.sqrt((1 + x) / 2);
+        var sinθ = Math.sqrt((1 - x) / 2);
+        vDir = flo_vector2d_1.rotate(sinθ, cosθ, tan2);
+    }
+    var v = flo_vector2d_1.translate(flo_vector2d_1.toUnitVector(vDir), circleCenter);
+    return [circleCenter, v];
+}
+exports.getEdgeDirection = getEdgeDirection;
+
+},{"../../point-on-shape":133,"flo-bezier3":3,"flo-vector2d":50}],125:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var line_line_intersection_1 = _dereq_("../geometry/line-line-intersection");
+var traverse_edges_1 = _dereq_("../traverse-edges");
+var get_edge_direction_1 = _dereq_("./get-edge-direction");
+var TOLERANCE_ADD_2PRONG = 0.01;
+var TOLERANCE_USE_LINE = 0.0001; // else cubic
+/**
+ * Smoothens the given MAT by fitting consecutive mat lines with either lines or
+ * quadratic or cubic beziers.
+ */
+function smoothen(cpNode) {
+    traverse_edges_1.traverseEdges(cpNode, f);
+    function f(cpNode) {
+        var fromCc = cpNode.cp.circle.center;
+        var fromL = get_edge_direction_1.getEdgeDirection(cpNode);
+        var toCc = cpNode.next.cp.circle.center;
+        var toL = get_edge_direction_1.getEdgeDirection(cpNode.next.prevOnCircle);
+        var mid = line_line_intersection_1.lineLineIntersection(fromL, toL);
+        var c = flo_vector2d_1.fromTo(fromCc, toCc);
+        var twisted = void 0;
+        if (!mid) {
+            twisted = true;
+        } else {
+            var a = flo_vector2d_1.fromTo(fromCc, mid);
+            var b = flo_vector2d_1.fromTo(toCc, mid);
+            twisted = flo_vector2d_1.dot(a, c) < 0 || flo_vector2d_1.dot(b, c) > 0;
+        }
+        if (!twisted) {
+            cpNode.matCurve = [fromCc, mid, toCc];
+            cpNode.next.prevOnCircle.matCurve = [toCc, mid, fromCc];
+            return;
+        }
+        var r = flo_vector2d_1.rotate90Degrees(c);
+        var w1 = flo_vector2d_1.fromTo(fromL[0], fromL[1]); // This is a unit vector
+        var w2 = flo_vector2d_1.fromTo(toL[0], toL[1]); // This is a unit vector
+        var d1 = Math.abs(flo_vector2d_1.cross(c, w1)) / (3 * 3);
+        var d2 = Math.abs(flo_vector2d_1.cross(c, w2)) / (3 * 3);
+        if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
+            // TODO - not within tolerance - must add additional 2-prong
+            cpNode.matCurve = [fromCc, toCc];
+            cpNode.next.prevOnCircle.matCurve = [toCc, fromCc];
+            return;
+        }
+        if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {
+            // approximate with cubic bezier
+            var m1 = flo_vector2d_1.interpolate(fromCc, toCc, 1 / 3);
+            var m2 = flo_vector2d_1.interpolate(fromCc, toCc, 2 / 3);
+            var v1 = flo_vector2d_1.translate(r, m1);
+            var v2 = flo_vector2d_1.translate(r, m2);
+            var l1 = [m1, v1];
+            var l2 = [m2, v2];
+            var mid1 = line_line_intersection_1.lineLineIntersection(fromL, l1);
+            var mid2 = line_line_intersection_1.lineLineIntersection(toL, l2);
+            cpNode.matCurve = [fromCc, mid1, mid2, toCc];
+            cpNode.next.prevOnCircle.matCurve = [toCc, mid2, mid1, fromCc];
+            return;
+        }
+        // Within tolerance - approximate with a straight line.
+        cpNode.matCurve = [fromCc, toCc];
+        cpNode.next.prevOnCircle.matCurve = [toCc, fromCc];
+    }
+}
+exports.smoothen = smoothen;
+
+},{"../geometry/line-line-intersection":113,"../traverse-edges":130,"./get-edge-direction":124,"flo-vector2d":50}],126:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function addDebugInfo(sat) {
+    if (typeof _debug_ === 'undefined') {
+        return;
+    }
+    var generated = _debug_.generated;
+    generated.elems.sat.push(sat);
+    var timing = generated.timing;
+    timing.sats[1] += performance.now() - timing.sats[0];
+}
+exports.addDebugInfo = addDebugInfo;
+
+},{}],127:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_leaves_1 = _dereq_("../get-leaves");
+/**
+ * Cull all edges not part of a cycle in the MAT planar graph.
+ * @param cpStart The start CpNode which must reprsesent the maximal 3-prong
+ * vertex.
+ */
+function cullNonCycles(cpStart) {
+    var cpNodeKept = cpStart;
+    var leaves = get_leaves_1.getLeaves(cpStart);
+    while (leaves.length) {
+        var leaf = leaves.pop();
+        // Preserve topology - keep cycles.
+        if (leaf.isHoleClosing || leaf.isIntersection) {
+            continue;
+        }
+        var cpNode = leaf.next; // Turn around
+        while (true) {
+            cpNode = cpNode.next;
+            var cut = false;
+            var cp1 = cpNode.prevOnCircle;
+            if (cpNode.isThreeProng()) {
+                var cp2 = cp1.prevOnCircle;
+                if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
+                    cut = true; // We are at the max disk - cut whole edge
+                } else if (cpNode.next === cp2) {
+                    cpNode = cp2;
+                } else if (cp2.next !== cp1) {
+                    cut = true; // Cut whole edge
+                }
+            } else if (cpNode.isTerminating() && !cpNode.isIntersection) {
+                cpNodeKept = cpNode;
+                return undefined;
+            }
+            if (cut) {
+                cp1.next = cpNode;
+                cpNode.prev = cp1;
+                cpNodeKept = cpNode;
+                break;
+            }
+        }
+    }
+    return cpNodeKept;
+}
+exports.cullNonCycles = cullNonCycles;
+
+},{"../get-leaves":120}],128:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_leaves_1 = _dereq_("../get-leaves");
+/**
+ * Returns the set of Vertices passing the following test: walk the MAT tree and
+ * keep all Vertices not in the current cull set and any Vertices that have a
+ * non-culled node further down the line toward the tree leaves.
+ * @param culls The CpNodes (referred to by circles) that should be culled.
+ * @param cpStart The start CpNode which must reprsesent the maximal vertex.
+ */
+function cull(culls, cpStart) {
+    var leaves = get_leaves_1.getLeaves(cpStart);
+    while (leaves.length) {
+        var leaf = leaves.pop();
+        // Preserve topology.
+        if (leaf.isHoleClosing || leaf.isIntersection) {
+            continue;
+        }
+        if (!culls.has(leaf.cp.circle)) {
+            continue;
+        }
+        var cpNode = leaf.next; // Turn around
+        while (true) {
+            cpNode = cpNode.next;
+            var cut = false;
+            var cp1 = cpNode.prevOnCircle;
+            if (!culls.has(cpNode.cp.circle)) {
+                cut = true;
+            } else if (cpNode.isThreeProng()) {
+                var cp2 = cp1.prevOnCircle;
+                if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
+                    cut = true; // We are at the max disk - cut whole edge
+                } else if (cpNode.next === cp2) {
+                    cpNode = cp2;
+                } else if (cp2.next !== cp1) {
+                    cut = true; // Cut whole edge
+                }
+            }
+            if (cut) {
+                cp1.next = cpNode;
+                cpNode.prev = cp1;
+                break;
+            }
+        }
+    }
+}
+exports.cull = cull;
+
+},{"../get-leaves":120}],129:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var mat_1 = _dereq_("../../mat");
+var traverse_edges_1 = _dereq_("../traverse-edges");
+var traverse_vertices_1 = _dereq_("../traverse-vertices");
+var smoothen_1 = _dereq_("../smoothen/smoothen");
+var get_largest_vertex_1 = _dereq_("../get-largest-vertex");
+var cull_1 = _dereq_("./cull");
+var create_new_cp_tree_1 = _dereq_("../create-new-cp-tree");
+var add_debug_info_1 = _dereq_("./add-debug-info");
+var get_leaves_1 = _dereq_("../get-leaves");
+/**
+ * Apply an enhanced version of the Scale Axis Transform (SAT) to the MAT.
+ * @param mat - The Medial Axis Transform (MAT) on which to apply the SAT.
+ * @param s - The scale factor >= 1 (e.g. 1.3)
+ */
+function toScaleAxis(mat, s) {
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.generated.timing.sats[0] = performance.now();
+        var leaves = get_leaves_1.getLeaves(mat.cpNode);
+        _debug_.generated.elems.leaves.push(leaves);
+    }
+    /** The largest vertex (as measured by its inscribed disk) */
+    var cpNode = get_largest_vertex_1.getLargestVertex(traverse_vertices_1.traverseVertices(mat.cpNode.clone()));
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.generated.elems.maxVertex.push(cpNode);
+    }
+    /**
+     * All vertices that are set to be culled initially. This may change to
+     * preserve topology.
+     */
+    var culls = new Set();
+    var rMap = new Map();
+    traverse_edges_1.traverseEdges(cpNode, function (cpNode) {
+        /** The occulating radius stored with this vertex. */
+        var R = rMap.get(cpNode) || s * cpNode.cp.circle.radius;
+        var cpNode_ = cpNode.next;
+        //let c  = cpNode .cp.circle.center;
+        //let c_ = cpNode_.cp.circle.center;
+        /** Distance between this vertex and the next. */
+        //let l = distanceBetween(c, c_); // Almost always precise enough
+        var l = flo_bezier3_1.len([0, 1], cpNode.matCurve);
+        var r_ = s * cpNode_.cp.circle.radius;
+        if (R - l > r_) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = cpNode_.getNodes()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var _cpNode = _step.value;
+
+                    rMap.set(_cpNode, R - l); // Update occulating radii
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            culls.add(cpNode_.cp.circle);
+        }
+    });
+    cull_1.cull(culls, cpNode);
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.generated.elems.culls.push(Array.from(culls));
+    }
+    smoothen_1.smoothen(cpNode);
+    var sat = new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
+    add_debug_info_1.addDebugInfo(sat);
+    return sat;
+}
+exports.toScaleAxis = toScaleAxis;
+
+},{"../../mat":85,"../create-new-cp-tree":87,"../get-largest-vertex":119,"../get-leaves":120,"../smoothen/smoothen":125,"../traverse-edges":130,"../traverse-vertices":131,"./add-debug-info":126,"./cull":128,"flo-bezier3":3}],130:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Traverses all edges (depth first) of a MAT starting at the given vertex (
+ * represented by a CpNode). The traversal always progresses towards the leave
+ * nodes.
+ * @param cpNode The CpNode representing the start vertex
+ * @param f A callback function for each CpNode representing the vertex at the
+ * start of an edge.
+ * @param inclLeaves If truthy then include the leaves, otherwise don't.
+ */
+function traverseEdges(cpNode, f) {
+    var inclLeaves = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+    var cps = cpNode.getNodes();
+    while (cps.length) {
+        var cp = cps.pop();
+        while (!cp.isTerminating()) {
+            f(cp, false);
+            cp = cp.next;
+            if (cp.isThreeProng()) {
+                cps.push(cp.nextOnCircle);
+            }
+        }
+        if (inclLeaves) {
+            f(cp, true);
+        }
+    }
+}
+exports.traverseEdges = traverseEdges;
+
+},{}],131:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Traverses the MAT tree and finds and returns the first CpNode (representing
+ * a vertex) as an array with one element (or all) with a specified property
+ * defined by the given predicate function. Returns [] if no CpNode with the
+ * specified property has been found.
+ * @param cpNode any CpNode of the MAT tree
+ * @param f A function that should return true if the CpNode passes the criteria
+ * necessary to be returned or falsy otherwise.
+ * @param returnFirst If true, returns as soon as the first CpNode passing
+ * f(cpNode) was found as [CpNode]. False by default.
+ */
+function traverseVertices(cpNode) {
+    var f = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function (cpNode) {
+        return true;
+    };
+    var returnFirst = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+    var cpNodes = [];
+    if (f(cpNode)) {
+        cpNodes.push(cpNode);
+        if (returnFirst) {
+            return cpNodes;
+        }
+    }
+    ;
+    var cps = cpNode.getNodes();
+    while (cps.length) {
+        var _cpNode = cps.pop();
+        while (!_cpNode.isTerminating()) {
+            _cpNode = _cpNode.next;
+            if (f(_cpNode)) {
+                cpNodes.push(_cpNode);
+                if (returnFirst) {
+                    return cpNodes;
+                }
+            }
+            ;
+            if (_cpNode.isThreeProng()) {
+                cps.push(_cpNode.nextOnCircle);
+            }
+        }
+    }
+    return cpNodes;
+}
+exports.traverseVertices = traverseVertices;
+
+},{}],132:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var mat_1 = _dereq_("../mat");
+var smoothen_1 = _dereq_("./smoothen/smoothen");
+var create_new_cp_tree_1 = _dereq_("./create-new-cp-tree");
+var cull_non_cycles_1 = _dereq_("./to-scale-axis/cull-non-cycles");
+/**
+ * Trims the given Medial Axis Transform so that only cycles remain. Similar to
+ * toScaleAxis(mat, Number.POSITIVE_INFINITY).
+ * @param mat The MAT to trim.
+ */
+function trimMat(mat) {
+    var cpNode = cull_non_cycles_1.cullNonCycles(mat.cpNode.clone());
+    if (!cpNode) {
+        return undefined;
+    }
+    smoothen_1.smoothen(cpNode);
+    var mat_ = new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
+    /*
+    if (typeof _debug_ !== 'undefined') {
+        let generated = _debug_.generated;
+        generated.elems.sat.push(mat_);
+    }
+    */
+    return mat_;
+}
+exports.trimMat = trimMat;
+
+},{"../mat":85,"./create-new-cp-tree":87,"./smoothen/smoothen":125,"./to-scale-axis/cull-non-cycles":127}],133:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var flo_memoize_1 = _dereq_("flo-memoize");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var curve_1 = _dereq_("./curve");
+var circle_1 = _dereq_("./circle");
+var memoize = flo_memoize_1.default.m1;
+
+var PointOnShape = function () {
+    /**
+     * @param curve
+     * @param t - The bezier parameter value
+     */
+    function PointOnShape(curve, t) {
+        _classCallCheck(this, PointOnShape);
+
+        // Cache
+        this.p_ = undefined;
+        this.curve = curve;
+        this.t = t;
+    }
+
+    _createClass(PointOnShape, [{
+        key: "p",
+        get: function get() {
+            return this.p_ === undefined ? this.p_ = flo_bezier3_1.evaluate(this.curve.ps, this.t) : this.p_;
+        }
+    }], [{
+        key: "getOsculatingCircle",
+        value: function getOsculatingCircle(maxOsculatingCircleRadius, pos) {
+            if (PointOnShape.isSharpCorner(pos)) {
+                return new circle_1.Circle(pos.p, 0);
+            }
+            var radius = PointOnShape.calcOsculatingCircleRadius(pos);
+            if (radius < 0) {
+                radius = Number.POSITIVE_INFINITY;
+            }
+            radius = Math.min(radius, maxOsculatingCircleRadius);
+            var ps = pos.curve.ps;
+            var t = pos.t;
+            var normal_ = flo_bezier3_1.normal(ps, t);
+            var p = flo_bezier3_1.evaluate(ps, t);
+            var circleCenter = [p[0] + normal_[0] * radius, p[1] + normal_[1] * radius];
+            return new circle_1.Circle(circleCenter, radius);
+        }
+        /**
+         * Calculates the order (to distinguish between points lying on top of each
+         * other) of the contact point if it is a dull corner.
+         * @param pos
+         */
+
+    }, {
+        key: "calcOrder",
+        value: function calcOrder(circle, pos) {
+            if (!PointOnShape.isDullCorner(pos)) {
+                return 0;
+            }
+            //let corner = Curve.getCornerAtEnd(pos.curve);
+            var corner = PointOnShape.getCorner(pos);
+            var n = flo_vector2d_1.rotateNeg90Degrees(corner.tans[0]);
+            var v = flo_vector2d_1.toUnitVector(flo_vector2d_1.fromTo(pos.p, circle.center));
+            /*
+            console.log('------------------------------');
+            console.log('circle.center: ', circle.center);
+            console.log('pos.p: ', pos.p);
+            console.log('corner: ', corner);
+            console.log('tans[0]: ', corner.tans[0]);
+            console.log('n: ', n);
+            console.log('v: ', v);
+            console.log('-dot(n, v): ', -dot(n, v));
+            */
+            return -flo_vector2d_1.dot(n, v);
+        }
+    }]);
+
+    return PointOnShape;
+}();
+/**
+ * Calculates the osculating circle of the bezier at a
+ * specific t. If it is found to have negative or nearly zero radius
+ * it is clipped to have positive radius so it can point into the shape.
+ * @param ps
+ * @param t
+ */
+
+
+PointOnShape.calcOsculatingCircleRadius = memoize(function (pos) {
+    var ps = pos.curve.ps;
+    var t = pos.t;
+    var κ = -flo_bezier3_1.κ(ps, t);
+    // κ > 0 => bending inwards
+    return 1 / κ;
+});
+PointOnShape.compare = function (a, b) {
+    if (a === undefined || b === undefined) {
+        return undefined;
+    }
+    var res = void 0;
+    res = a.curve.idx - b.curve.idx;
+    if (res !== 0) {
+        return res;
+    }
+    res = a.t - b.t;
+    return res;
+};
+/**
+ * Ignores order2 (used in hole-closing two-prongs only)
+ */
+PointOnShape.compareInclOrder = function (a, b, aOrder, bOrder) {
+    var res = PointOnShape.compare(a, b);
+    if (res === undefined) {
+        return undefined;
+    }
+    if (res !== 0) {
+        return res;
+    }
+    res = aOrder - bOrder;
+    //if (res !== 0) { return res; }
+    //return a.order2 - b.order2;
+    return res;
+};
+PointOnShape.getCorner = memoize(function (pos) {
+    if (pos.t !== 0 && pos.t !== 1) {
+        return undefined;
+    }
+    return curve_1.Curve.getCornerAtEnd(pos.t === 1 ? pos.curve : pos.curve.prev);
+});
+PointOnShape.isSharpCorner = memoize(function (pos) {
+    var corner = PointOnShape.getCorner(pos);
+    return corner && corner.isSharp;
+});
+PointOnShape.isDullCorner = memoize(function (pos) {
+    var corner = PointOnShape.getCorner(pos);
+    return corner && corner.isDull;
+});
+PointOnShape.isQuiteSharpCorner = memoize(function (pos) {
+    var corner = PointOnShape.getCorner(pos);
+    return corner && corner.isQuiteSharp;
+});
+PointOnShape.isQuiteDullCorner = memoize(function (pos) {
+    var corner = PointOnShape.getCorner(pos);
+    return corner && corner.isQuiteDull;
+});
+/**
+ * Returns a human-readable string of the given PointOnShape.
+ * For debugging only.
+ */
+PointOnShape.toHumanString = function (pos) {
+    return '' + pos.p[0] + ', ' + pos.p[1] + ' | bz: ' + pos.curve.idx + ' | t: ' + pos.t;
+};
+exports.PointOnShape = PointOnShape;
+
+},{"./circle":53,"./curve":56,"flo-bezier3":3,"flo-memoize":41,"flo-vector2d":50}],134:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Returns an SVG string representation of the given loop.
+ * @param loop
+ * @param decimalPlaces
+ */
+function beziersToSvgPathStr(beziers) {
+    var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
+
+    var D = decimalPlaces;
+    var str = '';
+    for (var i = 0; i < beziers.length; i++) {
+        var ps = beziers[i];
+        if (i === 0) {
+            str = 'M ' + ps[0][0].toFixed(D) + ' ' + ps[0][1].toFixed(D) + '\n';
+        }
+        str += 'C ' + ps[1][0].toFixed(D) + ' ' + ps[1][1].toFixed(D) + ' ' + ps[2][0].toFixed(D) + ' ' + ps[2][1].toFixed(D) + ' ' + ps[3][0].toFixed(D) + ' ' + ps[3][1].toFixed(D) + ' ' + '\n';
+    }
+    return str + ' z' + '\n';
+}
+exports.beziersToSvgPathStr = beziersToSvgPathStr;
+
+},{}],135:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var C = 0.55191502449;
+function circleToCubicBeziers() {
+    var center = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [0, 0];
+    var radius = arguments[1];
+    var clockwise = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+    var x = center[0];
+    var y = center[1];
+    var r = radius;
+    var c = r * C;
+    var pss = [[[x, y + r], [x + c, y + r], [x + r, y + c], [x + r, y]], [[x + r, y], [x + r, y - c], [x + c, y - r], [x, y - r]], [[x, y - r], [x - c, y - r], [x - r, y - c], [x - r, y]], [[x - r, y], [x - r, y + c], [x - c, y + r], [x, y + r]]];
+    if (!clockwise) {
+        return pss;
+    }
+    return pss.map(function (ps) {
+        return ps.slice().reverse();
+    }).slice().reverse();
+}
+exports.circleToCubicBeziers = circleToCubicBeziers;
+
+},{}],136:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+/**
+ * Possibly changes the curve into one that is as close to the original as
+ * possible but does not have pathological properties (i.e. does not have near
+ * infinitely sharp corners, etc) or if that is not possible remove the curve in
+ * some circumstances (e.g. if it is of extreme short length, etc.).
+ * @param ps Cubic bezier curve points.
+ */
+function dePathologify(ps_, max) {
+    // TODO 
+    // We check if any of the ps are coincident and thus
+    // that the bezier is degenerate in some sense. If that is the
+    // case we apply a heuristic to get a new similar bezier by 
+    // respacing the points. This entire function is very 
+    // convoluted.
+    // We should investigate a better mathematical solution.
+    // Currently if the bezier degenerates more or less into a point
+    // we make the next bezier start at the previous bezier's end
+    // point else we adjust the bezier to be less pathological.
+    var delta = max / 1e4;
+    var ds = [[0, flo_vector2d_1.manhattanDistanceBetween(ps_[0], ps_[1]), flo_vector2d_1.manhattanDistanceBetween(ps_[0], ps_[2]), flo_vector2d_1.manhattanDistanceBetween(ps_[0], ps_[3])], [flo_vector2d_1.manhattanDistanceBetween(ps_[1], ps_[0]), 0, flo_vector2d_1.manhattanDistanceBetween(ps_[1], ps_[2]), flo_vector2d_1.manhattanDistanceBetween(ps_[1], ps_[3])], [flo_vector2d_1.manhattanDistanceBetween(ps_[2], ps_[0]), flo_vector2d_1.manhattanDistanceBetween(ps_[2], ps_[1]), 0, flo_vector2d_1.manhattanDistanceBetween(ps_[2], ps_[3])], [flo_vector2d_1.manhattanDistanceBetween(ps_[3], ps_[0]), flo_vector2d_1.manhattanDistanceBetween(ps_[3], ps_[1]), flo_vector2d_1.manhattanDistanceBetween(ps_[3], ps_[2]), 0]];
+    var ps = ps_;
+    var SHIFT = 0.02;
+    // Check if first or last 3 points are coincident
+    if (ds[0][1] < delta && ds[1][2] < delta || ds[1][2] < delta && ds[2][3] < delta) {
+        ps = [ps_[0], flo_vector2d_1.interpolate(ps_[0], ps_[3], 1 / 3), flo_vector2d_1.interpolate(ps_[0], ps_[3], 2 / 3), ps_[3]];
+    }
+    // Check if first 2 points are coincident
+    if (ds[0][1] < delta) {
+        ps[1] = flo_vector2d_1.interpolate(ps_[0], ps_[2], SHIFT);
+    }
+    // Check if last 2 points are coincident
+    if (ds[2][3] < delta) {
+        ps[2] = flo_vector2d_1.interpolate(ps_[1], ps_[3], 1 - SHIFT);
+    }
+    // Check if middle 2 points are coincident
+    if (ds[1][2] < delta) {
+        ps[1] = flo_vector2d_1.interpolate(ps_[0], ps_[1], 1 - SHIFT);
+        ps[2] = flo_vector2d_1.interpolate(ps_[2], ps_[3], SHIFT);
+    }
+    return ps;
+}
+exports.dePathologify = dePathologify;
+
+},{"flo-vector2d":50}],137:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var push_bezier_1 = _dereq_("../fs/push-bezier");
+var path_state_1 = _dereq_("../path-state");
+var z_1 = _dereq_("../path-segment/z");
+var c_1 = _dereq_("../path-segment/c");
+var s_1 = _dereq_("../path-segment/s");
+var l_1 = _dereq_("../path-segment/l");
+var h_1 = _dereq_("../path-segment/h");
+var v_1 = _dereq_("../path-segment/v");
+var q_1 = _dereq_("../path-segment/q");
+var t_1 = _dereq_("../path-segment/t");
+var a_1 = _dereq_("../path-segment/a");
+var pathFs = { a: a_1.a, c: c_1.c, h: h_1.h, l: l_1.l, q: q_1.q, s: s_1.s, t: t_1.t, v: v_1.v, z: z_1.z };
+/**
+ * Get the cubic beziers from the given SVG DOM element. If a path
+ * data tag is not "C", i.e. if it is not an absolute cubic bezier
+ * coordinate then it is converted into one.
+ * @param elem - An SVG element
+ * @returns aaa
+ */
+function getBeziersFromRawPaths(paths) {
+    if (paths.length === 0) {
+        return []; // A shape is not described   
+    }
+    if (paths[0].type.toLowerCase() !== 'm') {
+        throw new Error('Invalid SVG - every new path must start with an M or m.');
+    }
+    var s = new path_state_1.PathState();
+    var beziersArrays = [];
+    var beziers = [];
+    var max = Number.NEGATIVE_INFINITY;
+    for (var i = 0; i < paths.length; i++) {
+        var path = paths[i];
+        for (var j = 0; j < path.values.length; j++) {
+            var v = path.values[j];
+            if (max < v) {
+                max = v;
+            }
+        }
+    }
+    var type = undefined;
+    var prevType = void 0;
+    for (var _i = 0; _i < paths.length; _i++) {
+        prevType = type;
+        var pathSeg = paths[_i];
+        type = pathSeg.type.toLowerCase();
+        s.vals = pathSeg.values;
+        /*
+        if (pathSeg.values[0] === 109.637) {
+            console.log('109')
+        }
+        */
+        if (pathSeg.type === pathSeg.type.toLowerCase()) {
+            if (type === 'v') {
+                s.vals[0] += s.p[1];
+            } else if (type === 'a') {
+                s.vals[5] += s.p[0];
+                s.vals[6] += s.p[1];
+            } else {
+                for (var _i2 = 0; _i2 < s.vals.length; _i2++) {
+                    s.vals[_i2] += s.p[_i2 % 2];
+                }
+            }
+        }
+        if (type === 'm') {
+            if (beziers.length) {
+                // This is a subpath, close as if the previous command was a 
+                // Z or z.
+                if (prevType !== 'z') {
+                    push_bezier_1.pushBezier(beziers, z_1.z(s), s, max);
+                }
+                // Start new path
+                beziersArrays.push(beziers);
+                beziers = [];
+            }
+            s.initialPoint = s.p = s.vals;
+            continue;
+        }
+        var f = pathFs[type];
+        if (!f) {
+            throw new Error('Invalid SVG - command not recognized.');
+        }
+        var ps = f(s);
+        s.p = ps[3]; // Update current point
+        push_bezier_1.pushBezier(beziers, ps, s, max);
+    }
+    if (beziers.length) {
+        //beziersArrays.push(beziers);
+        // This is a subpath, close as if the previous command was a 
+        // Z or z.
+        if (prevType !== 'z') {
+            push_bezier_1.pushBezier(beziers, z_1.z(s), s, max);
+        }
+        // Start new path
+        beziersArrays.push(beziers);
+    }
+    return beziersArrays;
+}
+exports.getBeziersFromRawPaths = getBeziersFromRawPaths;
+
+},{"../fs/push-bezier":147,"../path-segment/a":161,"../path-segment/c":162,"../path-segment/h":163,"../path-segment/l":164,"../path-segment/q":165,"../path-segment/s":166,"../path-segment/t":167,"../path-segment/v":168,"../path-segment/z":169,"../path-state":170}],138:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Bezier3 = _dereq_("flo-bezier3");
+var Vector = _dereq_("flo-vector2d");
+/**
+ * Get the angle between the given bezier endpoint and the
+ * startpoint of the next bezier.
+ * @param curve
+ */
+function getCurvatureAtInterface(curve) {
+    var ts = [1, 0];
+    var pss = [curve.ps, curve.next.ps];
+    var tans = [Bezier3.tangent(pss[0])(1), Bezier3.tangent(pss[0])(0)];
+    // The integral of a kind of Dirac Delta function.
+    var cosθ = Vector.dot(tans[0], tans[1]);
+    var sinθ = Vector.cross(tans[0], tans[1]);
+    var θ = acos(cosθ);
+    var result = sinθ >= 0 ? θ : -θ;
+    return result;
+}
+exports.getCurvatureAtInterface = getCurvatureAtInterface;
+/**
+ * Floating-point 'safer' version of acos. If x is larger than 1 (or smaller
+ * than -1), still returns 0 (or Math.PI) instead of NAN.
+ * @param x
+ * @example
+ * 		acos(1);  //=> 0
+ *      acos(2);  //=> 0
+ */
+function acos(x) {
+    if (x > 1) {
+        return 0;
+    } else if (x < -1) {
+        return Math.PI;
+    }
+    return Math.acos(x);
+}
+
+},{"flo-bezier3":3,"flo-vector2d":50}],139:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_shape_bounds_1 = _dereq_("./get-shape-bounds");
+/**
+ * Returns the max extreme point coordinate value for the given shape. This is
+ * used for floating point tolerance calculations.
+ * @param loops
+ */
+function getExtreme(loops) {
+  var bounds = get_shape_bounds_1.getShapeBounds(loops);
+  return Math.max(Math.abs(bounds.minX.p[0]), Math.abs(bounds.minY.p[1]), Math.abs(bounds.maxX.p[0]), Math.abs(bounds.maxY.p[1]));
+}
+exports.getExtreme = getExtreme;
+
+},{"./get-shape-bounds":144}],140:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_memoize_1 = _dereq_("flo-memoize");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var point_on_shape_1 = _dereq_("../../point-on-shape");
+var memoize = flo_memoize_1.default.m1;
+
+var INF = Number.POSITIVE_INFINITY;
+var getLoopBounds = memoize(function (loop) {
+    var extremes = [[{ bezier: undefined, t: undefined, val: INF }, { bezier: undefined, t: undefined, val: INF }], [{ bezier: undefined, t: undefined, val: -INF }, { bezier: undefined, t: undefined, val: -INF }]];
+    loop.curves.forEach(function (curve) {
+        var ps = curve.ps;
+        var bounds = flo_bezier3_1.getBounds(ps);
+        for (var i = 0; i < 2; i++) {
+            for (var j = 0; j < 2; j++) {
+                var v = bounds.box[i][j];
+                var m = i === 0 ? -1 : 1; // min or max?
+                var x = extremes[i][j].val;
+                if (m * v > m * x || v === x && bounds.ts[i][j] > extremes[i][j].t) {
+                    extremes[i][j] = {
+                        bezier: curve,
+                        t: bounds.ts[i][j],
+                        val: v
+                    };
+                }
+            }
+        }
+    });
+    return {
+        minX: new point_on_shape_1.PointOnShape(extremes[0][0].bezier, extremes[0][0].t),
+        minY: new point_on_shape_1.PointOnShape(extremes[0][1].bezier, extremes[0][1].t),
+        maxX: new point_on_shape_1.PointOnShape(extremes[1][0].bezier, extremes[1][0].t),
+        maxY: new point_on_shape_1.PointOnShape(extremes[1][1].bezier, extremes[1][1].t)
+    };
+});
+exports.getLoopBounds = getLoopBounds;
+
+},{"../../point-on-shape":133,"flo-bezier3":3,"flo-memoize":41}],141:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_loop_bounds_1 = _dereq_("./get-loop-bounds");
+/**
+ * Get topmost PointOnShape the given loop.
+ */
+function getMinYPos(loop) {
+    var pos = get_loop_bounds_1.getLoopBounds(loop).minY;
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.generated.elems.minY.push(pos);
+    }
+    return pos;
+}
+exports.getMinYPos = getMinYPos;
+
+},{"./get-loop-bounds":140}],142:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_beziers_from_raw_paths_1 = _dereq_("./get-beziers-from-raw-paths");
+var loop_1 = _dereq_("../../loop");
+var parse_path_data_string_1 = _dereq_("../path-data-polyfill/parse-path-data-string");
+function getPathsFromStr(str) {
+    var bezierLoops = get_beziers_from_raw_paths_1.getBeziersFromRawPaths(parse_path_data_string_1.parsePathDataString(str));
+    //---- For debugging ----//
+    // TODO
+    //console.log(paths);
+    /*
+    let pathsStr = '';
+    for (let i=0; i<bezierLoops.length; i++) {
+        let bezierLoop = bezierLoops[i];
+          pathsStr += beziersToSvgPathStr(bezierLoop) + '\n';
+    }
+    console.log(pathsStr);
+    */
+    //-----------------------//
+    return bezierLoops.map(function (path) {
+        return new loop_1.Loop(path);
+    });
+}
+exports.getPathsFromStr = getPathsFromStr;
+
+},{"../../loop":84,"../path-data-polyfill/parse-path-data-string":159,"./get-beziers-from-raw-paths":137}],143:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_paths_from_str_1 = _dereq_("./get-paths-from-str");
+function getPathsFromSvgPathElem(elem) {
+    return get_paths_from_str_1.getPathsFromStr(elem.getAttribute("d"));
+}
+exports.getPathsFromSvgPathElem = getPathsFromSvgPathElem;
+
+},{"./get-paths-from-str":142}],144:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_memoize_1 = _dereq_("flo-memoize");
+var get_loop_bounds_1 = _dereq_("./get-loop-bounds");
+var memoize = flo_memoize_1.default.m1;
+
+var getShapeBounds = memoize(function (loops) {
+    var minX_ = Number.POSITIVE_INFINITY;
+    var maxX_ = Number.NEGATIVE_INFINITY;
+    var minY_ = Number.POSITIVE_INFINITY;
+    var maxY_ = Number.NEGATIVE_INFINITY;
+    var minX = void 0;
+    var maxX = void 0;
+    var minY = void 0;
+    var maxY = void 0;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = loops[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var loop = _step.value;
+
+            var bounds = get_loop_bounds_1.getLoopBounds(loop);
+            if (bounds.minX.p[0] < minX_) {
+                minX = bounds.minX;
+                minX_ = bounds.minX.p[0];
+            }
+            if (bounds.maxX.p[0] > maxX_) {
+                maxX = bounds.maxX;
+                maxX_ = bounds.maxX.p[0];
+            }
+            if (bounds.minY.p[1] < minY_) {
+                minY = bounds.minY;
+                minY_ = bounds.minY.p[1];
+            }
+            if (bounds.maxY.p[1] > maxY_) {
+                maxY = bounds.maxY;
+                maxY_ = bounds.maxY.p[1];
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+});
+exports.getShapeBounds = getShapeBounds;
+var getShapesBounds = memoize(function (loopss) {
+    var minX_ = Number.POSITIVE_INFINITY;
+    var maxX_ = Number.NEGATIVE_INFINITY;
+    var minY_ = Number.POSITIVE_INFINITY;
+    var maxY_ = Number.NEGATIVE_INFINITY;
+    var minX = void 0;
+    var maxX = void 0;
+    var minY = void 0;
+    var maxY = void 0;
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = loopss[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var loops = _step2.value;
+
+            var bounds = getShapeBounds(loops);
+            if (bounds.minX.p[0] < minX_) {
+                minX = bounds.minX;
+                minX_ = bounds.minX.p[0];
+            }
+            if (bounds.maxX.p[0] > maxX_) {
+                maxX = bounds.maxX;
+                maxX_ = bounds.maxX.p[0];
+            }
+            if (bounds.minY.p[1] < minY_) {
+                minY = bounds.minY;
+                minY_ = bounds.minY.p[1];
+            }
+            if (bounds.maxY.p[1] > maxY_) {
+                maxY = bounds.maxY;
+                maxY_ = bounds.maxY.p[1];
+            }
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+});
+exports.getShapesBounds = getShapesBounds;
+
+},{"./get-loop-bounds":140,"flo-memoize":41}],145:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+var DELTA = 1e-6;
+/**
+ * Returns true if distance between consecutive points are all less than
+ * some delta, false otherwise.
+ * @private
+ * @param ps - an array of points
+ * @param delta - a tolerance - defaults to 1e-6;
+ */
+function isAlmostZeroLength(ps) {
+    var delta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DELTA;
+
+    for (var i = 1; i < ps.length; i++) {
+        var p1 = ps[i - 1];
+        var p2 = ps[i];
+        if (flo_vector2d_1.manhattanDistanceBetween(p1, p2) > delta) {
+            return false;
+        }
+    }
+    return true;
+}
+exports.isAlmostZeroLength = isAlmostZeroLength;
+
+},{"flo-vector2d":50}],146:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Bezier3 = _dereq_("flo-bezier3");
+var flo_memoize_1 = _dereq_("flo-memoize");
+var Vector = _dereq_("flo-vector2d");
+var get_loop_bounds_1 = _dereq_("./get-loop-bounds");
+var memoize = flo_memoize_1.default.m1;
+/**
+ * Returns true if the given beizer loop is positively orientated, false
+ * otherwise. Careful! Checks leftmost part of loop so twisted complex paths
+ * may give an ambiguous orientation.
+ */
+
+var isPathPositivelyOrientated = memoize(function (bezierLoop) {
+    var extreme = get_loop_bounds_1.getLoopBounds(bezierLoop).minX;
+    var t = extreme.t;
+    var curve = void 0;
+    if (t === 0) {
+        curve = extreme.curve.prev;
+        t = 1;
+    } else {
+        curve = extreme.curve;
+    }
+    var ps = curve.ps;
+    var tan = Bezier3.tangent(ps)(t);
+    if (t !== 1) {
+        // Not a sharp corner
+        return tan[1] < 0;
+    }
+    var psNext = curve.next.ps;
+    var tanNext = Bezier3.tangent(psNext)(0);
+    if (tan[1] * tanNext[1] > 0) {
+        // Both tangents points up or both points down.
+        return tan[1] < 0;
+    }
+    // One tangent points up and the other down.
+    var c = Vector.cross(tan, tanNext);
+    return c > 0;
+    // We don't check for the very special case where the cross === 0. 
+});
+exports.isPathPositivelyOrientated = isPathPositivelyOrientated;
+
+},{"./get-loop-bounds":140,"flo-bezier3":3,"flo-memoize":41,"flo-vector2d":50}],147:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var de_pathologify_1 = _dereq_("./de-pathologify");
+var is_almost_zero_length_1 = _dereq_("./is-almost-zero-length");
+// TODO - 1e4 is arbitrary
+var RESOLUTION = 1e4;
+/**
+ *
+ * @param beziers The array of path curves
+ * @param ps_ The bezier
+ * @param state The current path state
+ */
+function pushBezier(beziers, ps_, s, max) {
+    /*
+    if ( isAlmostZeroLength(ps_, max/RESOLUTION) ) {
+    if ( isAlmostZeroLength(ps_, 0) ) {
+    return;
+    }
+    //console.log(ps_);
+    }
+    beziers.push(ps_);
+    */
+    if (is_almost_zero_length_1.isAlmostZeroLength(ps_, max / RESOLUTION)) {
+        var len = beziers.length;
+        if (len === 0) {
+            s.initialPoint = ps_[3];
+        } else {
+            var prevPs = beziers[len - 1];
+            prevPs[3] = ps_[3];
+        }
+        return;
+    }
+    var ps = de_pathologify_1.dePathologify(ps_, max);
+    beziers.push(ps);
+}
+exports.pushBezier = pushBezier;
+
+},{"./de-pathologify":136,"./is-almost-zero-length":145}],148:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var get_next_x_1 = _dereq_("./get-next-x");
+function completeLoop(intersections, takenXs, xStack, loopTree, x) {
+    var beziers = [];
+    var reversed = loopTree.windingNum === 0 && loopTree.orientation === -1 || loopTree.windingNum !== 0 && loopTree.orientation === +1;
+    var pos = reversed ? x.pos : x.opposite.pos;
+    var startBez = pos.curve;
+    var startT = pos.t;
+    var curBez = startBez;
+    var curT = startT;
+    var fromX = x.isDummy ? undefined : reversed ? x.opposite : x;
+    var wasOnX = true;
+    while (true) {
+        var xs = intersections.get(curBez);
+        var x_ = xs ? get_next_x_1.getNextX(xs, curT, !reversed, wasOnX) : undefined;
+        // Add a bezier to the component loop.
+        if (x_) {
+            // We are at an intersection
+            wasOnX = true;
+            if (curT !== x_.pos.t) {
+                var ps = reversed ? flo_bezier3_1.reverse(flo_bezier3_1.fromTo(curBez.ps)(x_.pos.t, curT)) : flo_bezier3_1.fromTo(curBez.ps)(curT, x_.pos.t);
+                beziers.push(ps);
+                addXOutPs(reversed, fromX, ps);
+                fromX = x_;
+            }
+            // Move onto next bezier
+            curBez = x_.opposite.pos.curve; // Switch to other path's bezier
+            curT = x_.opposite.pos.t; // ...
+            var _x_ = reversed ? x_.opposite : x_;
+            _x_.loopTree = loopTree;
+            if (!takenXs.has(_x_.opposite)) {
+                xStack.push(_x_.opposite);
+            }
+            takenXs.add(_x_); // Mark this intersection as taken
+        } else {
+            wasOnX = false;
+            var t = reversed ? 0 : 1;
+            if (curT !== t) {
+                var _ps = reversed ? flo_bezier3_1.reverse(flo_bezier3_1.fromTo(curBez.ps)(0, curT)) : flo_bezier3_1.fromTo(curBez.ps)(curT, 1);
+                beziers.push(_ps);
+                addXOutPs(reversed, fromX, _ps);
+                fromX = undefined;
+            }
+            // Move onto next bezier on current path
+            curBez = reversed ? curBez.prev : curBez.next;
+            curT = reversed ? 1 : 0;
+        }
+        if (curBez === startBez && curT === startT) {
+            break;
+        }
+    }
+    return beziers;
+}
+exports.completeLoop = completeLoop;
+function addXOutPs(reversed, fromX, ps) {
+    if (fromX && !fromX.isDummy) {
+        var x = reversed ? fromX : fromX.opposite;
+        x.outPs = ps;
+        fromX = undefined;
+        //_debug_.fs.draw.bezier(_debug_.generated.g, ps, 'red thin10 nofill');
+    }
+}
+
+},{"./get-next-x":153,"flo-bezier3":3}],149:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var loop_1 = _dereq_("../../../loop");
+var complete_loop_1 = _dereq_("./complete-loop");
+var get_initial_x_1 = _dereq_("./get-initial-x");
+var get_loop_metrics_1 = _dereq_("./get-loop-metrics");
+/**
+ *
+ * @param intersections
+ * @param loopsTaken
+ * @param loop
+ * @param parent
+ */
+function completePath(intersections, loopsTaken, parent, loop) {
+    // Each loop generated by xs in xStack will give rise to one componentLoop. 
+    // The initial intersection in the stack is a dummy.
+    /** Intersection stack */
+    var initialX = get_initial_x_1.getInitialX(intersections, parent, loop);
+    var curve = initialX.pos.curve;
+    var xs = intersections.get(curve) || [];
+    if (xs.length === 0) {
+        intersections.set(curve, xs);
+    }
+    xs.push(initialX);
+    var xStack = [initialX];
+    var takenXs = new Set(); // Taken intersections
+    while (xStack.length) {
+        var x = xStack.pop();
+        loopsTaken.add(x.pos.curve.loop);
+        if (takenXs.has(x)) {
+            continue;
+        }
+        var loopTree = get_loop_metrics_1.getLoopMetrics(x);
+        loopTree.beziers = complete_loop_1.completeLoop(intersections, takenXs, xStack, loopTree, x);
+        loopTree.loop = new loop_1.Loop(loopTree.beziers);
+    }
+}
+exports.completePath = completePath;
+
+},{"../../../loop":84,"./complete-loop":148,"./get-initial-x":150,"./get-loop-metrics":152}],150:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+var is_path_positively_oriented_1 = _dereq_("../../fs/is-path-positively-oriented");
+var get_loop_bounds_1 = _dereq_("../get-loop-bounds");
+var x_1 = _dereq_("../../../x");
+/**
+ * Get initial intersection which is really a dummy intersection.
+ * @param loop
+ * @param parent
+ */
+function getInitialX(intersections, parent, loop) {
+    var dummyLoop = {
+        parent: parent,
+        children: new Set(),
+        beziers: [],
+        loop: undefined,
+        orientation: is_path_positively_oriented_1.isPathPositivelyOrientated(loop) ? -1 : +1,
+        windingNum: parent.windingNum
+    };
+    var pos = get_loop_bounds_1.getLoopBounds(loop).minX;
+    var xs = intersections.get(pos.curve);
+    // If no intersections on this curve, just start at 0
+    if (!xs) {
+        pos = new point_on_shape_1.PointOnShape(pos.curve, 0);
+    }
+    var x = new x_1.X(pos, true, undefined, // will be set just below
+    dummyLoop);
+    x.opposite = x;
+    return x;
+}
+exports.getInitialX = getInitialX;
+
+},{"../../../point-on-shape":133,"../../../x":172,"../../fs/is-path-positively-oriented":146,"../get-loop-bounds":140}],151:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var x_1 = _dereq_("../../../x");
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+var pair_set_1 = _dereq_("./pair-set");
+var find_bb_intersections_1 = _dereq_("../../../bounding-box/find-bb-intersections");
+// TODO - DELTA is somewhat arbitrary
+var DELTA = 1e-10;
+/**
+ * Find and return all intersections on all given loops.
+ * @param loops
+ */
+function getIntersections(loops) {
+    // intersection <=> X
+    var _getBoxInfos = getBoxInfos(loops),
+        boxes = _getBoxInfos.boxes,
+        boxInfoMap = _getBoxInfos.boxInfoMap;
+
+    var boxIntersections = find_bb_intersections_1.default(boxes);
+    // Check curve intersection amongst possibilities
+    /** A map from each curve to its intersectings */
+    var xMap = new Map();
+    var checkedPairs = new Map();
+    for (var i = 0; i < boxIntersections.length; i++) {
+        var _boxIntersections$i = boxIntersections[i],
+            box1 = _boxIntersections$i.box1,
+            box2 = _boxIntersections$i.box2;
+
+        var curves = [boxInfoMap.get(box1).curve, boxInfoMap.get(box2).curve];
+        if (pair_set_1.pairSet_has(checkedPairs, curves)) {
+            continue;
+        }
+        pair_set_1.pairSet_add(checkedPairs, curves);
+        var pss = curves.map(function (curve) {
+            return curve.ps;
+        });
+        var tPairs = flo_bezier3_1.bezier3Intersection(pss[0], pss[1]);
+        if (!tPairs.length) {
+            continue;
+        }
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = tPairs[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var tPair = _step.value;
+
+                var curves_ = confirmIntersection(checkedPairs, curves, tPair);
+                if (curves_ === undefined) {
+                    continue;
+                }
+                var xs = [];
+                var _arr = [0, 1];
+                for (var _i = 0; _i < _arr.length; _i++) {
+                    var j = _arr[_i];
+                    var curve = curves_[j];
+                    var x = new x_1.X(new point_on_shape_1.PointOnShape(curve, tPair[j]));
+                    // Get intersections stored at this curve
+                    var curveXs = xMap.get(curve) || [];
+                    if (!curveXs.length) {
+                        xMap.set(curve, curveXs);
+                    }
+                    // Add an intersection to this curve
+                    curveXs.push(x);
+                    xs.push(x);
+                }
+                xs[0].opposite = xs[1];
+                xs[1].opposite = xs[0];
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+    }
+    return xMap;
+}
+exports.getIntersections = getIntersections;
+/**
+ *
+ */
+function confirmIntersection(checkedPairs, curves, tPair) {
+    var curves_ = curves.slice();
+    // TODO - the below check is temporary - there is a better way
+    // TODO - eliminate the fact that intersections are found twice
+    if ((Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1] - 1) < DELTA || Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]) < DELTA || Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1]) < DELTA || Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1] - 1) < DELTA) && (curves_[0].next === curves_[1] || curves_[1].next === curves_[0])) {
+        return undefined;
+    }
+    if (Math.abs(tPair[0] - 1) < DELTA) {
+        // If the intersection occurs at the end, move it to the start
+        // so we don't have a very small bezier piece left.
+        curves_[0] = curves_[0].next;
+        tPair[0] = 0;
+        // Recheck
+        if (pair_set_1.pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
+            return undefined;
+        }
+    }
+    if (Math.abs(tPair[1] - 1) < DELTA) {
+        // If the intersection occurs at the end, move it to the start
+        // so we don't have a very small bezier piece left.
+        curves_[1] = curves_[1].next;
+        tPair[1] = 0;
+        // Recheck
+        if (pair_set_1.pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
+            return undefined;
+        }
+    }
+    return curves_;
+}
+/**
+ * Returns an array of lines of the bounding hulls of the Loop beziers' control
+ * points including a map that maps each line to its hull, path and curve.
+ * @param loops An array of Loops
+ */
+function getBoxInfos(loops) {
+    /** Map that maps a line segment to some info. */
+    var boxInfoMap = new Map();
+    var boxes = [];
+    // Get lines making up the hulls of the paths
+
+    var _loop = function _loop(loop) {
+        loop.curves.forEach(function (curve) {
+            var box = flo_bezier3_1.getBoundingBox(curve.ps);
+            boxes.push(box);
+            boxInfoMap.set(box, { box: box, loop: loop, curve: curve });
+        });
+    };
+
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = loops[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var loop = _step2.value;
+
+            _loop(loop);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    return { boxes: boxes, boxInfoMap: boxInfoMap };
+}
+
+},{"../../../bounding-box/find-bb-intersections":52,"../../../point-on-shape":133,"../../../x":172,"./pair-set":156,"flo-bezier3":3}],152:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var flo_vector2d_1 = _dereq_("flo-vector2d");
+/**
+ *
+ * @param x The intersection
+ */
+function getLoopMetrics(x) {
+    var oppositeLoopTree = x.opposite.loopTree;
+    var oppositeOrientation = oppositeLoopTree.orientation;
+    var oppositeWindingNum = oppositeLoopTree.windingNum;
+    // Left or right turning? - The current X
+    var oldInBez = x.opposite.pos.curve.ps;
+    var oldOutBez = x.pos.curve.ps;
+    var orientation = void 0;
+    var windingNum = void 0;
+    var parent = void 0;
+    if (oldInBez !== oldOutBez) {
+        var tanIn = flo_bezier3_1.tangent(oldInBez, x.opposite.pos.t);
+        var tanOut = flo_bezier3_1.tangent(oldOutBez, x.pos.t);
+        // TODO - if cross product is close to 0 check second derivatives (the 
+        // same can be done at cusps in the mat code). E.g. a figure eight with 
+        // coinciding bezier stretches may cause floating point instability.
+        var isLeft = flo_vector2d_1.cross(tanIn, tanOut) > 0;
+        var isTwist = isLeft && oppositeOrientation === +1 || !isLeft && oppositeOrientation === -1;
+        var windingNumberInc = isTwist ? -2 * oppositeOrientation : oppositeOrientation;
+        orientation = isTwist ? -1 * oppositeOrientation : +1 * oppositeOrientation;
+        windingNum = oppositeWindingNum + windingNumberInc;
+        parent = isTwist ? oppositeLoopTree.parent : oppositeLoopTree;
+    } else {
+        // This is the first loop's start - it's a special case
+        orientation = oppositeOrientation === +1 ? -1 : +1;
+        windingNum = oppositeWindingNum + orientation;
+        parent = oppositeLoopTree.parent;
+    }
+    var iLoopTree = {
+        parent: parent,
+        children: new Set(),
+        beziers: undefined,
+        loop: undefined,
+        orientation: orientation,
+        windingNum: windingNum
+    };
+    parent.children.add(iLoopTree);
+    return iLoopTree;
+}
+exports.getLoopMetrics = getLoopMetrics;
+
+},{"flo-bezier3":3,"flo-vector2d":50}],153:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ *
+ * @param xs An array of intersections on the curve
+ * @param curT The current t value
+ * @param forwards If true go forwards else go backwards
+ */
+function getNextX(xs, curT, forwards, wasOnX) {
+    var bestX = undefined;
+    var bestT = Number.POSITIVE_INFINITY;
+    for (var i = 0; i < xs.length; i++) {
+        var x = xs[i];
+        var t = x.pos.t;
+        var deltaT = forwards ? t - curT : curT - t;
+        if ((deltaT > 0 || deltaT === 0 && !wasOnX) && deltaT < bestT) {
+            bestX = x;
+            bestT = deltaT;
+        }
+    }
+    return bestX;
+}
+exports.getNextX = getNextX;
+/**
+ *
+ * @param xs An array of intersections on the curve
+ * @param t The current t value
+ */
+function getThisX(xs, t) {
+    for (var i = 0; i < xs.length; i++) {
+        var x = xs[i];
+        if (x.pos.t - t === 0) {
+            return x;
+        }
+    }
+}
+exports.getThisX = getThisX;
+
+},{}],154:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var is_loop_in_loop_1 = _dereq_("./is-loop-in-loop");
+/**
+ *
+ * @param root
+ * @param loop
+ */
+function getTightestContainingLoop(root, loop) {
+    var containingLoop = undefined;
+    var stack = [root];
+    while (stack.length) {
+        var loopTree = stack.pop();
+        f(loopTree);
+    }
+    //console.log(containingLoop)
+    return containingLoop;
+    function f(parent) {
+        if (parent === root || is_loop_in_loop_1.isLoopInLoop([loop, parent.loop])) {
+            containingLoop = parent;
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = parent.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var child = _step.value;
+
+                    stack.push(child);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }
+}
+exports.getTightestContainingLoop = getTightestContainingLoop;
+
+},{"./is-loop-in-loop":155}],155:[function(_dereq_,module,exports){
+"use strict";
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var flo_poly_1 = _dereq_("flo-poly");
+var flo_bezier3_1 = _dereq_("flo-bezier3");
+var point_on_shape_1 = _dereq_("../../../point-on-shape");
+var get_loop_bounds_1 = _dereq_("../get-loop-bounds");
+var DELTA = 1e-6;
+/**
+ * Returns true if the first loop is contained wholly within the second. At this
+ * stage we already know the loop is either wholly contained inside the loop
+ * or is wholly outside.
+ * @param loops
+ */
+function isLoopInLoop(loops) {
+    var i = 0;
+    var seed = 1231; // Just some value
+    do {
+        i++;
+        // This gets us a predictable random number between 0 and 1;
+        var rand1 = flo_poly_1.default.random.flatCoefficients(1, 0, 1, seed);
+        var t = rand1.p[0];
+        seed = rand1.seed; // Get next seed.
+        // This gets us a predictable random number roughly between 0 and the 
+        // number of curves in the loop.
+        var curveCount = loops[0].curves.length;
+        var rand2 = flo_poly_1.default.random.flatCoefficients(1, 0, curveCount, seed);
+        var idx = Math.floor(rand2.p[0]);
+        seed = rand2.seed; // Get next seed.
+        var ps = loops[0].curves[idx].ps;
+        var p = flo_bezier3_1.evaluate(ps, t);
+        var res = f(loops, p);
+        if (res !== undefined) {
+            return res;
+        }
+    } while (i < 10);
+    return undefined; // There's no chance we'll get up to this point.
+    function f(loops, p) {
+        if (isLoopNotInLoop(loops)) {
+            return false;
+        }
+        //let g = _debug_.generated.g;
+        //let bounds = getShapeBounds(loops);
+        //_debug_.fs.draw.dot(g, p, (bounds.maxX.p[0] - bounds.minX.p[0]) * 0.002, 'blue');
+        var intersections = getAxisAlignedRayLoopIntersections(loops[1], p, 'left');
+        //console.log(intersections, intersections.length % 2 !== 0);
+        if (intersections) {
+            return intersections.length % 2 !== 0;
+        }
+    }
+}
+exports.isLoopInLoop = isLoopInLoop;
+/**
+ * Returns true if the first loop is not wholly within the second. The converse
+ * is not necessarily true. It is assumed the loops don't intersect.
+ * @param loops
+ */
+function isLoopNotInLoop(loops) {
+    var loopBoundss = loops.map(get_loop_bounds_1.getLoopBounds);
+    var boundss = loopBoundss.map(function (loopBound) {
+        return {
+            minX: loopBound.minX.p[0],
+            maxX: loopBound.maxX.p[0],
+            minY: loopBound.minY.p[1],
+            maxY: loopBound.maxY.p[1]
+        };
+    });
+    return boundss[0].minX < boundss[1].minX || boundss[0].maxX > boundss[1].maxX || boundss[0].minY < boundss[1].minY || boundss[0].maxY > boundss[1].maxY;
+}
+//enum Dir { LEFT, RIGHT, UP, DOWN }
+/**
+ *
+ * @param p The point where the horizontal ray starts
+ * @param toLeft The ray to the left of this point (else right)
+ * @param loop A loop of curves
+ */
+function getAxisAlignedRayLoopIntersections(loop, p, dir) {
+    var _p = _slicedToArray(p, 2),
+        x = _p[0],
+        y = _p[1];
+
+    var curves = loop.curves;
+    var possAll = [];
+
+    var _loop = function _loop(i) {
+        var curve = curves[i];
+        var ps = curve.ps;
+        //------------------------------------------------------/
+        //---- Check if ray intersects bezier bounding box -----/
+        //------------------------------------------------------/
+
+        var _flo_bezier3_1$getBou = flo_bezier3_1.getBoundingBox(ps),
+            _flo_bezier3_1$getBou2 = _slicedToArray(_flo_bezier3_1$getBou, 2),
+            _flo_bezier3_1$getBou3 = _slicedToArray(_flo_bezier3_1$getBou2[0], 2),
+            minX = _flo_bezier3_1$getBou3[0],
+            minY = _flo_bezier3_1$getBou3[1],
+            _flo_bezier3_1$getBou4 = _slicedToArray(_flo_bezier3_1$getBou2[1], 2),
+            maxX = _flo_bezier3_1$getBou4[0],
+            maxY = _flo_bezier3_1$getBou4[1];
+
+        var notIntersecting = (dir === 'left' || dir === 'right') && (minY > y || maxY < y) || (dir === 'up' || dir === 'down') && (minX > x || maxX < x);
+        notIntersecting = notIntersecting || dir === 'left' && minX > x || dir === 'right' && maxX < x || dir === 'down' && minY > y || dir === 'up' && maxY < y;
+        if (notIntersecting) {
+            return "continue";
+        } // No intersection with bezier
+        //------------------------------------------------------/
+        //----------- Get intersection ts on bezier ------------/
+        //------------------------------------------------------/
+        // Get the bezier's x-coordinate power representation.
+        var ts = [];
+        var f = void 0;
+        var offset = void 0;
+        var axis = void 0;
+        var dirIsDecreasing = dir === 'left' || dir === 'up';
+        if (dir === 'left' || dir === 'right') {
+            f = flo_bezier3_1.getY;
+            offset = [0, -y];
+            axis = 0;
+        } else {
+            f = flo_bezier3_1.getX;
+            offset = [-x, 0];
+            axis = 1;
+        }
+        var translatedPs = flo_bezier3_1.translate(offset, ps);
+        var poly = f(translatedPs);
+        var ev = flo_bezier3_1.evaluate(translatedPs);
+        var ts_ = flo_poly_1.default.allRoots(poly, 0 - DELTA, 1 + DELTA);
+        for (var _i = 0; _i < ts_.length; _i++) {
+            var t = ts_[_i];
+            if (Math.abs(t) < DELTA || Math.abs(t - 1) < DELTA) {
+                // We don't know the exact number of intersections due to
+                // floating point arithmetic. 
+                return {
+                    v: undefined
+                };
+            }
+            var p_ = ev(t);
+            if (dirIsDecreasing && p[axis] >= p_[axis] || !dirIsDecreasing && p[axis] <= p_[axis]) {
+                ts.push(t);
+            }
+        }
+        //------------------------------------------------------/
+        //----- Check if line is tangent to intersections ------/
+        //------------------------------------------------------/
+        // We only care if there were 1 or 3 intersections.
+        if (ts.length === 1 || ts.length === 3) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = ts[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var _t = _step.value;
+
+                    var tan = flo_bezier3_1.tangent(ps, _t);
+                    if ((dir === 'left' || dir === 'right') && Math.abs(tan[1]) < DELTA || (dir === 'down' || dir === 'up') && Math.abs(tan[0]) < DELTA) {
+                        // We don't know the exact number of intersections due to
+                        // floating point arithmetic
+                        return {
+                            v: undefined
+                        };
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+        possAll.push.apply(possAll, _toConsumableArray(ts.map(function (t) {
+            return new point_on_shape_1.PointOnShape(curve, t);
+        })));
+    };
+
+    for (var i = 0; i < curves.length; i++) {
+        var _ret = _loop(i);
+
+        switch (_ret) {
+            case "continue":
+                continue;
+
+            default:
+                if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
+        }
+    }
+    return possAll;
+}
+
+},{"../../../point-on-shape":133,"../get-loop-bounds":140,"flo-bezier3":3,"flo-poly":42}],156:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Adds an unordered pair of values to the set (given as a special map)
+ * @param map The map representing the pairs.
+ * @param vs The pair to add.
+ */
+function pairSet_add(map, vs) {
+    if (pairSet_has(map, vs)) {
+        return;
+    }
+    f(vs[0], vs[1]);
+    f(vs[1], vs[0]);
+    function f(v1, v2) {
+        var set = map.get(v1);
+        if (!set) {
+            set = new Set();
+            map.set(v1, set);
+        }
+        set.add(v2);
+    }
+}
+exports.pairSet_add = pairSet_add;
+/**
+ * Returns true if the unordered pair is in the set of pairs (represented by a
+ * map).
+ * @param map The map representing the pairs.
+ * @param vs The pair to check.
+ */
+function pairSet_has(map, vs) {
+    var set = void 0;
+    set = map.get(vs[0]);
+    var has1 = set && set.has(vs[1]);
+    set = map.get(vs[1]);
+    var has2 = set && set.has(vs[0]);
+    return has1 || has2;
+}
+exports.pairSet_has = pairSet_has;
+/**
+ * Returns the unordered pairs as an array.
+ * @param map The map representing the pairs.
+ */
+function pairSet_asArray(map) {
+    var items = [];
+    var map_ = new Map();
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = map[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var m = _step.value;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = m[1][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var s = _step2.value;
+
+                    var vs = [m[0], s];
+                    if (!pairSet_has(map_, vs)) {
+                        items.push(vs);
+                        pairSet_add(map_, vs);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return items;
+}
+exports.pairSet_asArray = pairSet_asArray;
+
+},{}],157:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var loop_1 = _dereq_("../../../loop");
+var get_loop_bounds_1 = _dereq_("../get-loop-bounds");
+var get_intersections_1 = _dereq_("./get-intersections");
+var complete_path_1 = _dereq_("./complete-path");
+var get_tightest_containing_loop_1 = _dereq_("./get-tightest-containing-loop");
+/**
+ * Uses the algorithm of Lavanya Subramaniam (PARTITION OF A NON-SIMPLE POLYGON
+ * INTO SIMPLE POLYGONS) but modified to use cubic bezier curves (as opposed to
+ * polygons) and to additionally take care of paths with multiple subpaths, i.e.
+ * such as disjoint nested paths.
+ * @param loops An array of possibly intersecting paths
+ */
+function simplifyPaths(loops) {
+    /*
+    let s = '';
+    for (let loop of loops) {
+        s = s + '\n\n' + beziersToSvgPathStr(loop.curves.map(c => c.ps), 5)
+    }
+    console.log(s);
+    */
+    /** A map from each curve to an array of intersections on that curve. */
+    var intersections = get_intersections_1.getIntersections(loops);
+    var loopsTaken = new Set();
+    var root = {
+        parent: undefined,
+        children: new Set(),
+        beziers: undefined,
+        loop: undefined,
+        orientation: undefined,
+        windingNum: 0
+    };
+    loops.sort(ascendingByTopmostPoint);
+    if (typeof _debug_ !== 'undefined') {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = loops[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var loop = _step.value;
+
+                _debug_.fs.nameObj(loop);
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+    }
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = loops[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var _loop = _step2.value;
+
+            // TODO - handle special case of 1 curve - mayve just delete lines below
+            if (_loop.curves.length <= 1) {
+                continue;
+            }
+            if (loopsTaken.has(_loop)) {
+                continue;
+            }
+            loopsTaken.add(_loop);
+            var parent = get_tightest_containing_loop_1.getTightestContainingLoop(root, _loop);
+            complete_path_1.completePath(intersections, loopsTaken, parent, _loop);
+        }
+        // Take the forest of trees, create a new root making it a tree and snip
+        // branches such that each branch determines a new set of loops each 
+        // representing an individual independent shape that possess its own Medial
+        // Axis Transform (still to be determined).
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    var loopTrees = splitLoopTrees(root);
+    var iLoopSets = loopTrees.map(getLoopsFromTree);
+    var loopss = iLoopSets.map(function (loopSet) {
+        return loopSet.map(ILoopToLoop);
+    });
+    /*
+    let str = '';
+    for (let simplePaths of loopss) {
+        //console.log(str)
+        for (let loop of simplePaths) {
+            str = str + '\n\n' + beziersToSvgPathStr(
+                loop.curves.map(c => c.ps),
+                5
+            )
+        }
+        //console.log(str)
+        //console.log('-----------------');
+    }
+    console.log(str)
+    */
+    var xMap = new Map();
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
+
+    try {
+        for (var _iterator3 = intersections[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var intersection = _step3.value;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = intersection[1][Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var x = _step4.value;
+
+                    if (x.isDummy) {
+                        continue;
+                    }
+                    xMap.set(x.outPs, { ps: x.opposite.outPs });
+                    if (typeof _debug_ !== 'undefined') {
+                        _debug_.generated.elems.intersection.push(x);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                _iterator3.return();
+            }
+        } finally {
+            if (_didIteratorError3) {
+                throw _iteratorError3;
+            }
+        }
+    }
+
+    return { loopss: loopss, xMap: xMap };
+}
+exports.simplifyPaths = simplifyPaths;
+/**
+ *
+ * @param iLoop
+ */
+function ILoopToLoop(iLoop) {
+    return new loop_1.Loop(iLoop.beziers);
+}
+function splitLoopTrees(root) {
+    var iLoopTrees = [];
+    var nodeStack = [root];
+    while (nodeStack.length) {
+        var parent = nodeStack.pop();
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
+
+        try {
+            for (var _iterator5 = parent.children[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                var child = _step5.value;
+
+                if (parent.windingNum === 0) {
+                    iLoopTrees.push(child);
+                }
+                nodeStack.push(child);
+            }
+        } catch (err) {
+            _didIteratorError5 = true;
+            _iteratorError5 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                    _iterator5.return();
+                }
+            } finally {
+                if (_didIteratorError5) {
+                    throw _iteratorError5;
+                }
+            }
+        }
+
+        if (parent.windingNum === 0) {
+            parent.children = new Set(); // Make it a leaf
+        }
+    }
+    return iLoopTrees;
+}
+/**
+ * Returns an array of LoopTrees from the given LoopTree where each returned
+ * LoopTree is one of the nodes of the tree. Nodes with winding number > 1 are
+ * not returned.
+ * @param root
+ */
+function getLoopsFromTree(root) {
+    var loopTrees = [];
+    var stack = [root];
+    while (stack.length) {
+        var node = stack.pop();
+        f(node);
+    }
+    return loopTrees;
+    function f(parent) {
+        if (Math.abs(parent.windingNum) <= 1) {
+            loopTrees.push(parent);
+        }
+        var _iteratorNormalCompletion6 = true;
+        var _didIteratorError6 = false;
+        var _iteratorError6 = undefined;
+
+        try {
+            for (var _iterator6 = parent.children[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                var child = _step6.value;
+
+                stack.push(child);
+            }
+        } catch (err) {
+            _didIteratorError6 = true;
+            _iteratorError6 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                    _iterator6.return();
+                }
+            } finally {
+                if (_didIteratorError6) {
+                    throw _iteratorError6;
+                }
+            }
+        }
+    }
+}
+/**
+ *
+ * @param loopA
+ * @param loopB
+ */
+function ascendingByTopmostPoint(loopA, loopB) {
+    var boundsA = get_loop_bounds_1.getLoopBounds(loopA);
+    var boundsB = get_loop_bounds_1.getLoopBounds(loopB);
+    var a = boundsA.minY.p[1];
+    var b = boundsB.minY.p[1];
+    return a - b;
+}
+
+},{"../../../loop":84,"../get-loop-bounds":140,"./complete-path":149,"./get-intersections":151,"./get-tightest-containing-loop":154}],158:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+// Parse a number from an SVG path. This very closely follows genericParseNumber(...) from
+// Source/core/svg/SVGParserUtilities.cpp.
+// Spec: http://www.w3.org/TR/SVG11/single-page.html#paths-PathDataBNF
+function parseNumber(source) {
+    var exponent = 0;
+    var integer = 0;
+    var frac = 1;
+    var decimal = 0;
+    var sign = 1;
+    var expsign = 1;
+    var startIndex = source._currentIndex;
+    source._skipOptionalSpaces();
+    // Read the sign.
+    if (source._currentIndex < source._endIndex && source._string[source._currentIndex] === "+") {
+        source._currentIndex += 1;
+    } else if (source._currentIndex < source._endIndex && source._string[source._currentIndex] === "-") {
+        source._currentIndex += 1;
+        sign = -1;
+    }
+    if (source._currentIndex === source._endIndex || (source._string[source._currentIndex] < "0" || source._string[source._currentIndex] > "9") && source._string[source._currentIndex] !== ".") {
+        // The first character of a number must be one of [0-9+-.].
+        return null;
+    }
+    // Read the integer part, build right-to-left.
+    var startIntPartIndex = source._currentIndex;
+    while (source._currentIndex < source._endIndex && source._string[source._currentIndex] >= "0" && source._string[source._currentIndex] <= "9") {
+        source._currentIndex += 1; // Advance to first non-digit.
+    }
+    if (source._currentIndex !== startIntPartIndex) {
+        var scanIntPartIndex = source._currentIndex - 1;
+        var multiplier = 1;
+        while (scanIntPartIndex >= startIntPartIndex) {
+            integer += multiplier * (Number(source._string[scanIntPartIndex]) - 0);
+            scanIntPartIndex -= 1;
+            multiplier *= 10;
+        }
+    }
+    // Read the decimals.
+    if (source._currentIndex < source._endIndex && source._string[source._currentIndex] === ".") {
+        source._currentIndex += 1;
+        // There must be a least one digit following the .
+        if (source._currentIndex >= source._endIndex || source._string[source._currentIndex] < "0" || source._string[source._currentIndex] > "9") {
+            return null;
+        }
+        while (source._currentIndex < source._endIndex && source._string[source._currentIndex] >= "0" && source._string[source._currentIndex] <= "9") {
+            frac *= 10;
+            decimal += Number(source._string.charAt(source._currentIndex)) / frac;
+            source._currentIndex += 1;
+        }
+    }
+    // Read the exponent part.
+    if (source._currentIndex !== startIndex && source._currentIndex + 1 < source._endIndex && (source._string[source._currentIndex] === "e" || source._string[source._currentIndex] === "E") && source._string[source._currentIndex + 1] !== "x" && source._string[source._currentIndex + 1] !== "m") {
+        source._currentIndex += 1;
+        // Read the sign of the exponent.
+        if (source._string[source._currentIndex] === "+") {
+            source._currentIndex += 1;
+        } else if (source._string[source._currentIndex] === "-") {
+            source._currentIndex += 1;
+            expsign = -1;
+        }
+        // There must be an exponent.
+        if (source._currentIndex >= source._endIndex || source._string[source._currentIndex] < "0" || source._string[source._currentIndex] > "9") {
+            return null;
+        }
+        while (source._currentIndex < source._endIndex && source._string[source._currentIndex] >= "0" && source._string[source._currentIndex] <= "9") {
+            exponent *= 10;
+            exponent += Number(source._string[source._currentIndex]);
+            source._currentIndex += 1;
+        }
+    }
+    var number = integer + decimal;
+    number *= sign;
+    if (exponent) {
+        number *= Math.pow(10, expsign * exponent);
+    }
+    if (startIndex === source._currentIndex) {
+        return null;
+    }
+    source._skipOptionalSpacesOrDelimiter();
+    return number;
+}
+exports.parseNumber = parseNumber;
+
+},{}],159:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var source_1 = _dereq_("./source");
+function parsePathDataString(string) {
+    if (!string.length) return [];
+    var source = new source_1.Source(string);
+    var pathData = [];
+    if (!source.initialCommandIsMoveTo()) {
+        return [];
+    }
+    while (source.hasMoreData()) {
+        var pathSeg = source.parseSegment();
+        if (pathSeg === null) {
+            break;
+        } else {
+            pathData.push(pathSeg);
+        }
+    }
+    return pathData;
+}
+exports.parsePathDataString = parsePathDataString;
+
+},{"./source":160}],160:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var parse_number_1 = _dereq_("./parse-number");
+var COMMAND_MAP = {
+    "Z": "Z", "M": "M", "L": "L", "C": "C", "Q": "Q", "A": "A", "H": "H", "V": "V", "S": "S", "T": "T",
+    "z": "Z", "m": "m", "l": "l", "c": "c", "q": "q", "a": "a", "h": "h", "v": "v", "s": "s", "t": "t"
+};
+
+var Source = function () {
+    function Source(string) {
+        _classCallCheck(this, Source);
+
+        this._string = string;
+        this._currentIndex = 0;
+        this._endIndex = this._string.length;
+        this._prevCommand = null;
+        this._skipOptionalSpaces();
+    }
+
+    _createClass(Source, [{
+        key: "parseSegment",
+        value: function parseSegment() {
+            var char = this._string[this._currentIndex];
+            var command = COMMAND_MAP[char] ? COMMAND_MAP[char] : null;
+            if (command === null) {
+                // Possibly an implicit command. Not allowed if this is the first command.
+                if (this._prevCommand === null) {
+                    return null;
+                }
+                // Check for remaining coordinates in the current command.
+                if ((char === "+" || char === "-" || char === "." || char >= "0" && char <= "9") && this._prevCommand !== "Z") {
+                    if (this._prevCommand === "M") {
+                        command = "L";
+                    } else if (this._prevCommand === "m") {
+                        command = "l";
+                    } else {
+                        command = this._prevCommand;
+                    }
+                } else {
+                    command = null;
+                }
+                if (command === null) {
+                    return null;
+                }
+            } else {
+                this._currentIndex += 1;
+            }
+            this._prevCommand = command;
+            var values = null;
+            var cmd = command.toUpperCase();
+            if (cmd === "H" || cmd === "V") {
+                values = [parse_number_1.parseNumber(this)];
+            } else if (cmd === "M" || cmd === "L" || cmd === "T") {
+                values = [parse_number_1.parseNumber(this), parse_number_1.parseNumber(this)];
+            } else if (cmd === "S" || cmd === "Q") {
+                values = [parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this)];
+            } else if (cmd === "C") {
+                values = [parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this)];
+            } else if (cmd === "A") {
+                values = [parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this), this._parseArcFlag(), this._parseArcFlag(), parse_number_1.parseNumber(this), parse_number_1.parseNumber(this)];
+            } else if (cmd === "Z") {
+                this._skipOptionalSpaces();
+                values = [];
+            }
+            if (values === null || values.indexOf(null) >= 0) {
+                // Unknown command or known command with invalid values
+                return null;
+            } else {
+                return { type: command, values: values };
+            }
+        }
+    }, {
+        key: "hasMoreData",
+        value: function hasMoreData() {
+            return this._currentIndex < this._endIndex;
+        }
+    }, {
+        key: "peekSegmentType",
+        value: function peekSegmentType() {
+            var char = this._string[this._currentIndex];
+            return COMMAND_MAP[char] ? COMMAND_MAP[char] : null;
+        }
+    }, {
+        key: "initialCommandIsMoveTo",
+        value: function initialCommandIsMoveTo() {
+            // If the path is empty it is still valid, so return true.
+            if (!this.hasMoreData()) {
+                return true;
+            }
+            var command = this.peekSegmentType();
+            // Path must start with moveTo.
+            return command === "M" || command === "m";
+        }
+    }, {
+        key: "_isCurrentSpace",
+        value: function _isCurrentSpace() {
+            var char = this._string[this._currentIndex];
+            return char <= " " && (char === " " || char === "\n" || char === "\t" || char === "\r" || char === "\f");
+        }
+    }, {
+        key: "_skipOptionalSpaces",
+        value: function _skipOptionalSpaces() {
+            while (this._currentIndex < this._endIndex && this._isCurrentSpace()) {
+                this._currentIndex += 1;
+            }
+            return this._currentIndex < this._endIndex;
+        }
+    }, {
+        key: "_skipOptionalSpacesOrDelimiter",
+        value: function _skipOptionalSpacesOrDelimiter() {
+            if (this._currentIndex < this._endIndex && !this._isCurrentSpace() && this._string[this._currentIndex] !== ",") {
+                return false;
+            }
+            if (this._skipOptionalSpaces()) {
+                if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === ",") {
+                    this._currentIndex += 1;
+                    this._skipOptionalSpaces();
+                }
+            }
+            return this._currentIndex < this._endIndex;
+        }
+    }, {
+        key: "_parseArcFlag",
+        value: function _parseArcFlag() {
+            if (this._currentIndex >= this._endIndex) {
+                return null;
+            }
+            var flag = null;
+            var flagChar = this._string[this._currentIndex];
+            this._currentIndex += 1;
+            if (flagChar === "0") {
+                flag = 0;
+            } else if (flagChar === "1") {
+                flag = 1;
+            } else {
+                return null;
+            }
+            this._skipOptionalSpacesOrDelimiter();
+            return flag;
+        }
+    }]);
+
+    return Source;
+}();
+
+exports.Source = Source;
+
+},{"./parse-number":158}],161:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * A and a: (from www.w3.org)
+ *
+ * params: rx ry x-axis-rotation large-arc-flag sweep-flag x y
+ *
+ * Draws an elliptical arc from the current point to (x, y). The size and
+ * orientation of the ellipse are defined by two radii (rx, ry) and an
+ * x-axis-rotation, which indicates how the ellipse as a whole is rotated
+ * relative to the current coordinate system. The center (cx, cy) of the ellipse
+ * is calculated automatically to satisfy the constraints imposed by the other
+ * parameters. large-arc-flag and sweep-flag contribute to the automatic
+ * calculations and help determine how the arc is drawn.
+ */
+function a(s) {
+  // TODO - not implemented yet (or not necessary)
+  s.prev2ndCubicControlPoint = undefined;
+  s.prev2ndQuadraticControlPoint = undefined;
+  // Update current point
+  //x0 = ? ps[3][0]; 
+  //y0 = ? ps[3][1];
+  return undefined;
+}
+exports.a = a;
+
+},{}],162:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * C and c: (from www.w3.org)
+ *
+ * params: x1 y1 x2 y2 x y
+ *
+ * Draws a cubic Bézier curve from the current point to (x,y)
+ * using (x1,y1) as the control point at the beginning of the
+ * curve and (x2,y2) as the control point at the end of the
+ * curve. C (uppercase) indicates that absolute coordinates
+ * will follow; c (lowercase) indicates that relative
+ * coordinates will follow. Multiple sets of coordinates may
+ * be specified to draw a polybézier. At the end of the
+ * command, the new current point becomes the final (x,y)
+ * coordinate pair used in the polybézier.
+ */
+function c(s) {
+    var ps = [s.p, [s.vals[0], s.vals[1]], [s.vals[2], s.vals[3]], [s.vals[4], s.vals[5]]];
+    s.prev2ndCubicControlPoint = ps[2];
+    s.prev2ndQuadraticControlPoint = undefined;
+    return ps;
+}
+exports.c = c;
+
+},{}],163:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * H and h: (from www.w3.org)
+ *
+ * params: x
+ *
+ * Draws a horizontal line from the current point (cpx, cpy) to (x, cpy). H
+ * (uppercase) indicates that absolute coordinates will follow; h (lowercase)
+ * indicates that relative coordinates will follow. Multiple x values can be
+ * provided (although usually this doesn't make sense). At the end of the
+ * command, the new current point becomes (x, cpy) for the final value of x.
+ */
+function h(s) {
+    var xInterval = (s.vals[0] - s.p[0]) / 3;
+    var ps = [s.p, [s.p[0] + xInterval * 1, s.p[1]], [s.p[0] + xInterval * 2, s.p[1]], [s.p[0] + xInterval * 3, s.p[1]]];
+    s.prev2ndCubicControlPoint = undefined;
+    s.prev2ndQuadraticControlPoint = undefined;
+    return ps;
+}
+exports.h = h;
+
+},{}],164:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * L and l: (from www.w3.org)
+ *
+ * params: x y
+ *
+ * Draw a line from the current point to the given (x,y) coordinate which
+ * becomes the new current point. L (uppercase) indicates that absolute
+ * coordinates will follow; l (lowercase) indicates that relative coordinates
+ * will follow. A number of coordinates pairs may be specified to draw a
+ * polyline. At the end of the command, the new current point is set to the
+ * final set of coordinates provided.
+ */
+function l(s) {
+    var xInterval = (s.vals[0] - s.p[0]) / 3;
+    var yInterval = (s.vals[1] - s.p[1]) / 3;
+    var ps = [s.p, [s.p[0] + xInterval * 1, s.p[1] + yInterval * 1], [s.p[0] + xInterval * 2, s.p[1] + yInterval * 2], [s.p[0] + xInterval * 3, s.p[1] + yInterval * 3]];
+    s.prev2ndCubicControlPoint = undefined;
+    s.prev2ndQuadraticControlPoint = undefined;
+    return ps;
+}
+exports.l = l;
+
+},{}],165:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Q and q: (from www.w3.org)
+ *
+ * params: x1 y1 x y
+ *
+ * Draws a quadratic Bézier curve from the current point to (x,y) using (x1,y1)
+ * as the control point. Q (uppercase) indicates that absolute coordinates will
+ * follow; q (lowercase) indicates that relative coordinates will follow.
+ * Multiple sets of coordinates may be specified to draw a polybézier. At the
+ * end of the command, the new current point becomes the final (x,y) coordinate
+ * pair used in the polybézier.
+ */
+function q(s) {
+    //---------------------------------------------------
+    // Convert quadratic to cubic
+    // see https://stackoverflow.com/questions/3162645/convert-a-quadratic-bezier-to-a-cubic/3162732#3162732
+    //---------------------------------------------------
+    var QP0 = s.p;
+    var QP1 = [s.vals[0], s.vals[1]];
+    var QP2 = [s.vals[2], s.vals[3]];
+    // Endpoints stay the same
+    var CP0 = QP0;
+    var CP3 = QP2;
+    // CP1 = QP0 + 2/3 *(QP1-QP0)
+    var CP1 = [QP0[0] + 2 / 3 * (QP1[0] - QP0[0]), QP0[1] + 2 / 3 * (QP1[1] - QP0[1])];
+    // CP2 = QP2 + 2/3 *(QP1-QP2)
+    var CP2 = [QP2[0] + 2 / 3 * (QP1[0] - QP2[0]), QP2[1] + 2 / 3 * (QP1[1] - QP2[1])];
+    var ps = [CP0, CP1, CP2, CP3];
+    s.prev2ndCubicControlPoint = undefined;
+    s.prev2ndQuadraticControlPoint = QP1;
+    return ps;
+}
+exports.q = q;
+
+},{}],166:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * S and s: (from www.w3.org)
+ *
+ * params: x2 y2 x y
+ *
+ * Draws a cubic Bézier curve from the current point to (x,y). The first control
+ * point is assumed to be the reflection of the second control point on the
+ * previous command relative to the current point. (If there is no previous
+ * command or if the previous command was not an C, c, S or s, assume the first
+ * control point is coincident with the current point.) (x2,y2) is the second
+ * control point (i.e., the control point at the end of the curve). S
+ * (uppercase) indicates that absolute coordinates will follow; s (lowercase)
+ * indicates that relative coordinates will follow. Multiple sets of coordinates
+ * may be specified to draw a polybézier. At the end of the command, the new
+ * current point becomes the final (x,y) coordinate pair used in the polybézier.
+ */
+function s(s) {
+    var p = [undefined, undefined];
+    if (s.prev2ndCubicControlPoint) {
+        p[0] = s.p[0] - s.prev2ndCubicControlPoint[0] + s.p[0];
+        p[1] = s.p[1] - s.prev2ndCubicControlPoint[1] + s.p[1];
+    } else {
+        p = s.p;
+    }
+    var ps = [s.p, p, [s.vals[0], s.vals[1]], [s.vals[2], s.vals[3]]];
+    s.prev2ndCubicControlPoint = ps[2];
+    s.prev2ndQuadraticControlPoint = undefined;
+    return ps;
+}
+exports.s = s;
+
+},{}],167:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * T and t: (from www.w3.org)
+ *
+ * params: x y
+ *
+ * Draws a quadratic Bézier curve from the current point to (x,y). The control
+ * point is assumed to be the reflection of the control point on the previous
+ * command relative to the current point. (If there is no previous command or if
+ * the previous command was not a Q, q, T or t, assume the control point is
+ * coincident with the current point.) T (uppercase) indicates that absolute
+ * coordinates will follow; t (lowercase) indicates that relative coordinates
+ * will follow. At the end of the command, the new current point becomes the
+ * final (x,y) coordinate pair used in the polybézier.
+ */
+function t(s) {
+    var p = [undefined, undefined];
+    if (s.prev2ndQuadraticControlPoint) {
+        p[0] = s.p[0] - s.prev2ndQuadraticControlPoint[0] + s.p[0];
+        p[1] = s.p[1] - s.prev2ndQuadraticControlPoint[1] + s.p[1];
+    } else {
+        p = s.p;
+    }
+    //---------------------------------------------------
+    // Convert quadratic to cubic
+    // see https://stackoverflow.com/questions/3162645/convert-a-quadratic-bezier-to-a-cubic/3162732#3162732
+    //---------------------------------------------------
+    var QP0 = s.p;
+    var QP1 = p;
+    var QP2 = [s.vals[0], s.vals[1]];
+    // CP1 = QP0 + 2/3 *(QP1-QP0)
+    var CP1 = [QP0[0] + 2 / 3 * (QP1[0] - QP0[0]), QP0[1] + 2 / 3 * (QP1[1] - QP0[1])];
+    // CP2 = QP2 + 2/3 *(QP1-QP2)
+    var CP2 = [QP2[0] + 2 / 3 * (QP1[0] - QP2[0]), QP2[1] + 2 / 3 * (QP1[1] - QP2[1])];
+    var ps = [QP0, CP1, CP2, QP2];
+    s.prev2ndCubicControlPoint = undefined;
+    s.prev2ndQuadraticControlPoint = QP1;
+    return ps;
+}
+exports.t = t;
+
+},{}],168:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * V and v: (from www.w3.org)
+ *
+ * params: y
+ *
+ * Draws a vertical line from the current point (cpx, cpy) to (cpx, y). V
+ * (uppercase) indicates that absolute coordinates will follow; v (lowercase)
+ * indicates that relative coordinates will follow. Multiple y values can be
+ * provided (although usually this doesn't make sense). At the end of the
+ * command, the new current point becomes (cpx, y) for the final value of y.
+ */
+function v(s) {
+    var yInterval = (s.vals[0] - s.p[1]) / 3;
+    var ps = [s.p, [s.p[0], s.p[1] + yInterval * 1], [s.p[0], s.p[1] + yInterval * 2], [s.p[0], s.p[1] + yInterval * 3]];
+    s.prev2ndCubicControlPoint = undefined;
+    s.prev2ndQuadraticControlPoint = undefined;
+    return ps;
+}
+exports.v = v;
+
+},{}],169:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Z and z: (from www.w3.org)
+ *
+ * params: (none)
+ *
+ * Close the current subpath by drawing a straight line from the current point
+ * to current subpath's initial point. Since the Z and z commands take no
+ * parameters, they have an identical effect.
+ */
+function z(s) {
+    var xInterval = (s.initialPoint[0] - s.p[0]) / 3;
+    var yInterval = (s.initialPoint[1] - s.p[1]) / 3;
+    var ps = [s.p, [s.p[0] + xInterval, s.p[1] + yInterval], [s.p[0] + xInterval * 2, s.p[1] + yInterval * 2], [s.p[0] + xInterval * 3, s.p[1] + yInterval * 3]];
+    s.prev2ndCubicControlPoint = undefined;
+    s.prev2ndQuadraticControlPoint = undefined;
+    return ps;
+}
+exports.z = z;
+
+},{}],170:[function(_dereq_,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var PathState = function PathState() {
+    _classCallCheck(this, PathState);
+
+    this.initialPoint = undefined;
+    // Used in conjunction with "S" and "s"
+    this.prev2ndCubicControlPoint = undefined;
+    this.prev2ndQuadraticControlPoint = undefined;
+    this.p = [0, 0];
+};
+
+exports.PathState = PathState;
+
+},{}],171:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_min_y_pos_1 = _dereq_("./fs/get-min-y-pos");
+exports.getMinYPos = get_min_y_pos_1.getMinYPos;
+var get_paths_from_svg_path_elem_1 = _dereq_("./fs/get-paths-from-svg-path-elem");
+exports.getPathsFromSvgPathElem = get_paths_from_svg_path_elem_1.getPathsFromSvgPathElem;
+var get_paths_from_str_1 = _dereq_("./fs/get-paths-from-str");
+exports.getPathsFromStr = get_paths_from_str_1.getPathsFromStr;
+var get_loop_bounds_1 = _dereq_("./fs/get-loop-bounds");
+exports.getLoopBounds = get_loop_bounds_1.getLoopBounds;
+var is_path_positively_oriented_1 = _dereq_("./fs/is-path-positively-oriented");
+exports.isPathPositivelyOrientated = is_path_positively_oriented_1.isPathPositivelyOrientated;
+var get_curvature_at_interface_1 = _dereq_("./fs/get-curvature-at-interface");
+exports.getCurvatureAtInterface = get_curvature_at_interface_1.getCurvatureAtInterface;
+var simplify_paths_1 = _dereq_("./fs/simplify-paths/simplify-paths");
+exports.simplifyPaths = simplify_paths_1.simplifyPaths;
+var circle_to_cubic_beziers_1 = _dereq_("./fs/circle-to-cubic-beziers");
+exports.circleToCubicBeziers = circle_to_cubic_beziers_1.circleToCubicBeziers;
+var beziers_to_svg_path_str_1 = _dereq_("./fs/beziers-to-svg-path-str");
+exports.beziersToSvgPathStr = beziers_to_svg_path_str_1.beziersToSvgPathStr;
+var get_shape_bounds_1 = _dereq_("./fs/get-shape-bounds");
+exports.getShapeBounds = get_shape_bounds_1.getShapeBounds;
+exports.getShapesBounds = get_shape_bounds_1.getShapesBounds;
+
+},{"./fs/beziers-to-svg-path-str":134,"./fs/circle-to-cubic-beziers":135,"./fs/get-curvature-at-interface":138,"./fs/get-loop-bounds":140,"./fs/get-min-y-pos":141,"./fs/get-paths-from-str":142,"./fs/get-paths-from-svg-path-elem":143,"./fs/get-shape-bounds":144,"./fs/is-path-positively-oriented":146,"./fs/simplify-paths/simplify-paths":157}],172:[function(_dereq_,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Representation of one side of an intersection. The opposite side is at
+ * X.opposite.
+ */
+
+var X = function X(
+/**
+ * The PointOnShape on the curve of the intersection. This side of the
+ * intersection is represented by the incoming part of this curve.
+ */
+pos) {
+  var isDummy = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  var
+  /** The opposite side of the intersection */
+  opposite = arguments[2];
+  var loopTree = arguments[3];
+  var
+  //public inPs?     : number[][],
+  outPs = arguments[4];
+
+  _classCallCheck(this, X);
+
+  this.pos = pos;
+  this.isDummy = isDummy;
+  this.opposite = opposite;
+  this.loopTree = loopTree;
+  this.outPs = outPs;
+};
+
+exports.X = X;
 
 },{}]},{},[1])(1)
 });
