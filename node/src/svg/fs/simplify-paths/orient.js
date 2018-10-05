@@ -23,16 +23,8 @@ exports.orient = orient;
  * one.
  */
 function orientLoop(loop, positive) {
-    let orientation = is_path_positively_oriented_1.isPathPositivelyOrientated(loop);
-    if (positive === orientation) {
-        return loop;
-    }
-    else {
-        return reverse_orientation_1.reverseOrientation(loop);
-    }
-    /*
-    return positive === orientation
+    console.log('reversing?: ' + (positive !== is_path_positively_oriented_1.isPathPositivelyOrientated(loop)));
+    return positive === is_path_positively_oriented_1.isPathPositivelyOrientated(loop)
         ? loop
-        : reverseOrientation(loop);
-    */
+        : reverse_orientation_1.reverseOrientation(loop);
 }

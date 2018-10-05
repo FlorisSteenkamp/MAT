@@ -6,11 +6,11 @@ declare class Curve {
     next: Curve;
     readonly idx: number;
     /**
-     * Representation of a linked loop vertex (i.e. a bezier) within a linked loop.
+     * Representation of a curve in a linked loop (of bezier curves).
      * @param loop The linked loop this node belongs to.
-     * @param ps The actual item stored at a node.
-     * @param prev The previous item.
-     * @param next The next item.
+     * @param ps The bezier points.
+     * @param prev The previous curve.
+     * @param next The next curve.
      * @param idx The curve's ordered index in the loop.
      */
     constructor(loop: Loop, ps: number[][], prev: Curve, next: Curve, idx: number);

@@ -17,6 +17,10 @@ type DebugElemType = ElemType_TwoProng
     | 'sat'
     | 'loop'
     | 'loops'
+    | 'maxVertex'
+    | 'leaves'
+    | 'culls'
+    | 'intersection'
 
 
 export { DebugElemType }

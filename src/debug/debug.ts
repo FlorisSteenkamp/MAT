@@ -6,6 +6,8 @@ import * as Svg from '../svg/svg';
 import { CpNode       } from '../cp-node';
 import { PointOnShape } from '../point-on-shape';
 import { Loop         } from '../loop';
+import { Mat          } from '../mat';
+import { X            } from '../x';
 
 import { generalDebugFunctions     } from './functions/general';
 import { IGeneralDebugFunctions    } from './functions/general'; 
@@ -19,6 +21,8 @@ import { TwoProngForDebugging      } from './two-prong-for-debugging';
 import { ThreeProngForDebugging    } from './three-prong-for-debugging';
 import { DebugElemType             } from './debug-elem-types';
 import { CpNodeForDebugging        } from './cp-node-for-debugging';
+import { Circle } from '../circle';
+
 
 
 export type GeneratedElemTypes = {
@@ -41,11 +45,15 @@ export interface GeneratedElems extends GeneratedElemTypes {
     dullCorner           : PointOnShape[],
     minY                 : PointOnShape[],
     boundingHull         : number[][][],
-    mat                  : CpNode[],
-    sat                  : CpNode[],
+    mat                  : Mat[],
+    sat                  : Mat[],
     cpNode               : CpNodeForDebugging[],
     loop                 : Loop[],
     loops                : Loop[][],
+    maxVertex            : CpNode[],
+    leaves               : CpNode[][],
+    culls                : Circle[][],
+    intersection         : X[],    
 }
 
 
@@ -93,6 +101,10 @@ export class Generated implements IGenerated {
             cpNode               : [],
             loop                 : [],
             loops                : [],
+            maxVertex            : [],
+            leaves               : [],
+            culls                : [],
+            intersection         : [],
         };
 
         this.timing = {

@@ -1,12 +1,15 @@
-import { Curve } from '../../../curve';
-import { IXInfo } from './i-x-info';
+import { X } from '../../../x';
 /**
  *
- * @param intersections A mapping of intersections to curves
- * @param curBez The current curve
- * @param curT The current t on the current curve
- * @param endBez The end of the loop
- * @param endT The end t of the loop
+ * @param xs An array of intersections on the curve
+ * @param curT The current t value
+ * @param forwards If true go forwards else go backwards
  */
-declare function getNextX(xInfos: IXInfo[], curBez: Curve, curT: number, endBez: Curve, endT: number): number;
-export { getNextX };
+declare function getNextX(xs: X[], curT: number, forwards: boolean, wasOnX: boolean): X;
+/**
+ *
+ * @param xs An array of intersections on the curve
+ * @param t The current t value
+ */
+declare function getThisX(xs: X[], t: number): X;
+export { getNextX, getThisX };

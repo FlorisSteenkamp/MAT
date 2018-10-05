@@ -30,6 +30,7 @@ function smoothen(cpNode) {
         }
         if (!twisted) {
             cpNode.matCurve = [fromCc, mid, toCc];
+            cpNode.next.prevOnCircle.matCurve = [toCc, mid, fromCc];
             return;
         }
         let r = flo_vector2d_1.rotate90Degrees(c);
@@ -40,6 +41,7 @@ function smoothen(cpNode) {
         if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
             // TODO - not within tolerance - must add additional 2-prong
             cpNode.matCurve = [fromCc, toCc];
+            cpNode.next.prevOnCircle.matCurve = [toCc, fromCc];
             return;
         }
         if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {
@@ -53,10 +55,12 @@ function smoothen(cpNode) {
             let mid1 = line_line_intersection_1.lineLineIntersection(fromL, l1);
             let mid2 = line_line_intersection_1.lineLineIntersection(toL, l2);
             cpNode.matCurve = [fromCc, mid1, mid2, toCc];
+            cpNode.next.prevOnCircle.matCurve = [toCc, mid2, mid1, fromCc];
             return;
         }
         // Within tolerance - approximate with a straight line.
         cpNode.matCurve = [fromCc, toCc];
+        cpNode.next.prevOnCircle.matCurve = [toCc, fromCc];
     }
 }
 exports.smoothen = smoothen;

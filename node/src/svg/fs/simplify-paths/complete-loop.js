@@ -2,60 +2,71 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 const get_next_x_1 = require("./get-next-x");
-/**
- * Make a complete loop thus finding one componentLoop
- * @param intersections
- * @param takenXs
- * @param xStack
- * @param loop
- * @param xInfo
- */
-function completeLoop(intersections, takenXs, xStack, loop, xInfo) {
+function completeLoop(intersections, takenXs, xStack, loopTree, x) {
     let beziers = [];
-    let curBez = xInfo.opposite.pos.curve;
-    let curT = xInfo.opposite.pos.t;
-    let endBez = xInfo.pos.curve;
-    let endT = xInfo.pos.t;
-    if (curT === 1) {
-        curBez = curBez.next;
-        curT = 0;
-    }
-    let done = false;
-    let i = 0;
-    while (!done) {
-        i++;
-        let xInfos = intersections.get(curBez) || [];
-        let xIdx = get_next_x_1.getNextX(xInfos, curBez, curT, endBez, endT);
-        //---- Add a bezier to component loop
-        if (xIdx !== undefined) {
+    let reversed = (loopTree.windingNum === 0 && loopTree.orientation === -1) ||
+        (loopTree.windingNum !== 0 && loopTree.orientation === +1);
+    let pos = reversed ? x.pos : x.opposite.pos;
+    let startBez = pos.curve;
+    let startT = pos.t;
+    let curBez = startBez;
+    let curT = startT;
+    let fromX = x.isDummy
+        ? undefined
+        : reversed ? x.opposite : x;
+    let wasOnX = true;
+    while (true) {
+        let xs = intersections.get(curBez);
+        let x_ = xs ? get_next_x_1.getNextX(xs, curT, !reversed, wasOnX) : undefined;
+        // Add a bezier to the component loop.
+        if (x_) {
             // We are at an intersection
-            let xInfo = xInfos[xIdx];
-            let endT = xInfo.pos.t;
-            beziers.push(flo_bezier3_1.fromTo(curBez.ps)(curT, endT));
-            xInfo.loopTree = loop;
-            if (!takenXs.has(xInfo.opposite)) {
-                xStack.push(xInfo.opposite);
+            wasOnX = true;
+            if (curT !== x_.pos.t) {
+                let ps = reversed
+                    ? flo_bezier3_1.reverse(flo_bezier3_1.fromTo(curBez.ps)(x_.pos.t, curT))
+                    : flo_bezier3_1.fromTo(curBez.ps)(curT, x_.pos.t);
+                beziers.push(ps);
+                addXOutPs(reversed, fromX, ps);
+                fromX = x_;
             }
-            takenXs.add(xInfo); // Mark this intersection as taken
             // Move onto next bezier
-            curBez = xInfo.opposite.pos.curve; // Switch to other path's bezier
-            curT = xInfo.opposite.pos.t; // ...
+            curBez = x_.opposite.pos.curve; // Switch to other path's bezier
+            curT = x_.opposite.pos.t; // ...
+            let _x_ = reversed ? x_.opposite : x_;
+            _x_.loopTree = loopTree;
+            if (!takenXs.has(_x_.opposite)) {
+                xStack.push(_x_.opposite);
+            }
+            takenXs.add(_x_); // Mark this intersection as taken
         }
         else {
-            // For the final bezier, don't go beyond end point
-            let maxT = 1;
-            if (curBez === endBez && curT <= endT && i > 1) {
-                maxT = endT;
-                done = true;
+            wasOnX = false;
+            let t = reversed ? 0 : 1;
+            if (curT !== t) {
+                let ps = reversed
+                    ? flo_bezier3_1.reverse(flo_bezier3_1.fromTo(curBez.ps)(0, curT))
+                    : flo_bezier3_1.fromTo(curBez.ps)(curT, 1);
+                beziers.push(ps);
+                addXOutPs(reversed, fromX, ps);
+                fromX = undefined;
             }
-            if (curT !== maxT) {
-                beziers.push(flo_bezier3_1.fromTo(curBez.ps)(curT, maxT));
-            }
-            // Move onto next bezier
-            curBez = curBez.next; // Stay on current path
-            curT = 0; // ...
+            // Move onto next bezier on current path
+            curBez = reversed ? curBez.prev : curBez.next;
+            curT = reversed ? 1 : 0;
+        }
+        if (curBez === startBez && curT === startT) {
+            break;
         }
     }
     return beziers;
 }
 exports.completeLoop = completeLoop;
+function addXOutPs(reversed, fromX, ps) {
+    if (fromX && !fromX.isDummy) {
+        let x = reversed ? fromX : fromX.opposite;
+        x.outPs = ps;
+        fromX = undefined;
+        //_debug_.fs.draw.bezier(_debug_.generated.g, ps, 'red thin10 nofill');
+    }
+}

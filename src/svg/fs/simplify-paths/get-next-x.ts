@@ -1,43 +1,53 @@
 
-import { Curve } from '../../../curve';
-
-import { IXInfo } from './i-x-info';
+import { X } from '../../../x';
 
 
 /**
  * 
- * @param intersections A mapping of intersections to curves
- * @param curBez The current curve
- * @param curT The current t on the current curve
- * @param endBez The end of the loop
- * @param endT The end t of the loop
+ * @param xs An array of intersections on the curve
+ * @param curT The current t value
+ * @param forwards If true go forwards else go backwards
  */
 function getNextX(
-        xInfos: IXInfo[],
-        curBez: Curve, curT: number,
-        endBez: Curve, endT: number) {
+        xs: X[], 
+        curT: number,
+        forwards: boolean,
+        wasOnX: boolean) {
 
-    let xIdx = undefined;
+    let bestX = undefined;
     let bestT = Number.POSITIVE_INFINITY;
-    for (let i=0; i<xInfos.length; i++) {
-        let XInfo = xInfos[i];
-        let t = XInfo.pos.t;
+    for (let i=0; i<xs.length; i++) {
+        let x = xs[i];
+        let t = x.pos.t;
 
-        // For the final bezier, don't go beyond end point
-        let maxT = 1;
-        if (curBez === endBez && curT < endT) {
-            maxT = endT;
-        }
+        let deltaT = forwards 
+            ? t - curT
+            : curT - t;
 
-        let deltaT = t - curT;
-        if (deltaT > 0 && deltaT < bestT && t < maxT) {
-            xIdx = i;
+        if ((deltaT > 0 || (deltaT === 0 && !wasOnX)) && deltaT < bestT) {
+            bestX = x;
             bestT = deltaT;
         }
     }
 
-    return xIdx;
+    return bestX;
 }
 
 
-export { getNextX }
+/**
+ * 
+ * @param xs An array of intersections on the curve
+ * @param t The current t value
+ */
+function getThisX(xs: X[], t: number) {
+    for (let i=0; i<xs.length; i++) {
+        let x = xs[i];
+
+        if (x.pos.t - t === 0) {
+            return x;
+        }
+    }
+}
+
+
+export { getNextX, getThisX }

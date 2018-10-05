@@ -50,7 +50,6 @@ import { getInitialBezierPieces } from './get-initial-bezier-pieces';
  * @param k The loop array index
  */
 
- //let ii = 0;
 function find2Prong(
 		loops: Loop[],
 		extreme: number,
@@ -132,7 +131,6 @@ function find2Prong(
 				console.log(
 					'failed: no closest point - ' + elemStr
 				);
-				//console.log(ii)
 			}
 			failed = true;
 			break;
@@ -161,10 +159,11 @@ function find2Prong(
 				let elemStr = isHoleClosing
 					? 'hole-closing: ' + elem.length
 					: 'regular: ' + elem.length;
+				/*
 				console.log(
 					'failed: two-prong radius too small - ' + elemStr
 				);
-				//console.log(ii);
+				*/
 			}
 			failed = true;
 			break;

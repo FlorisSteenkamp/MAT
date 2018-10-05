@@ -6,19 +6,14 @@ const flo_vector2d_1 = require("flo-vector2d");
 let memoize = flo_memoize_1.default.m1;
 class Curve {
     /**
-     * Representation of a linked loop vertex (i.e. a bezier) within a linked loop.
+     * Representation of a curve in a linked loop (of bezier curves).
      * @param loop The linked loop this node belongs to.
-     * @param ps The actual item stored at a node.
-     * @param prev The previous item.
-     * @param next The next item.
+     * @param ps The bezier points.
+     * @param prev The previous curve.
+     * @param next The next curve.
      * @param idx The curve's ordered index in the loop.
      */
     constructor(loop, ps, prev, next, idx) {
-        this.loop = loop;
-        this.ps = ps;
-        this.prev = prev;
-        this.next = next;
-        this.idx = idx;
         this.loop = loop;
         this.ps = ps;
         this.prev = prev;

@@ -11,6 +11,7 @@ export declare type Edges = {
 export declare class CpNode implements Edges {
     readonly cp: ContactPoint;
     isHoleClosing: boolean;
+    isIntersection: boolean;
     prev: CpNode;
     next: CpNode;
     prevOnCircle: CpNode;
@@ -27,7 +28,7 @@ export declare class CpNode implements Edges {
      * 1 to 3.
      * @param isHoleClosing
      */
-    constructor(cp: ContactPoint, isHoleClosing: boolean, prev?: CpNode, next?: CpNode, prevOnCircle?: CpNode, nextOnCircle?: CpNode, matCurve?: number[][]);
+    constructor(cp: ContactPoint, isHoleClosing: boolean, isIntersection: boolean, prev?: CpNode, next?: CpNode, prevOnCircle?: CpNode, nextOnCircle?: CpNode, matCurve?: number[][]);
     static comparator: (a: CpNode, b: CpNode) => number;
     clone(): CpNode;
     /**
@@ -37,12 +38,12 @@ export declare class CpNode implements Edges {
      * @param prev_ - Inserts the new item right after this item if the loop is
      * not empty, else insert the new item as the only item in the loop.
      */
-    static insert(isHoleClosing: boolean, cpTree: LlRbTree<CpNode>, cp: ContactPoint, prev_: CpNode): CpNode;
+    static insert(isHoleClosing: boolean, isIntersection: boolean, cpTree: LlRbTree<CpNode>, cp: ContactPoint, prev_: CpNode): CpNode;
     remove(cpTree: LlRbTree<CpNode>, cpNode: CpNode): void;
     /**
-     * Return this amd the the other CpNodes around the vertex circle in order.
+     * Return this and the the other CpNodes around the vertex circle in order.
      */
-    getCps(): CpNode[];
+    getNodes(): CpNode[];
     isTerminating(): boolean;
     isSharp(): boolean;
     /**

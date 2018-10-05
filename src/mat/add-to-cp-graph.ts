@@ -28,6 +28,7 @@ function addToCpGraph(
 
         let newCp = CpNode.insert(
                 false,
+                false,
                 cpTree,
                 newCp_,
                 neighboringCp[0]

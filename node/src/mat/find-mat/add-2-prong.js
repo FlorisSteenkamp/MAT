@@ -44,14 +44,14 @@ function add2Prong(cpGraphs, circle, posSource, posAntipode, holeClosing, extrem
     let loopAntipode = posAntipode.curve.loop;
     let cpTreeAntipode = cpGraphs.get(loopAntipode);
     let deltaAntipode = get_neighboring_cps_1.getNeighbouringPoints(cpTreeAntipode, posAntipode, orderAntipode, 0);
-    let newCpAntipode = cp_node_1.CpNode.insert(holeClosing, cpTreeAntipode, cpAntipode, deltaAntipode[0]);
+    let newCpAntipode = cp_node_1.CpNode.insert(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]);
     //console.log(cpAntipode.pointOnShape.t);
     // Source
     let cpSource = new contact_point_1.ContactPoint(posSource, circle, orderSource, 0);
     let loopSource = posSource.curve.loop;
     let cpTreeSource = cpGraphs.get(loopSource);
     let deltaSource = get_neighboring_cps_1.getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
-    let newCpSource = cp_node_1.CpNode.insert(holeClosing, cpTreeSource, cpSource, deltaSource[0]);
+    let newCpSource = cp_node_1.CpNode.insert(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
     //console.log(cpSource.pointOnShape.t);
     // Connect graph
     newCpSource.prevOnCircle = newCpAntipode;
@@ -61,13 +61,9 @@ function add2Prong(cpGraphs, circle, posSource, posAntipode, holeClosing, extrem
     if (holeClosing) {
         // Duplicate ContactPoints
         let cpB2 = new contact_point_1.ContactPoint(posAntipode, circle, cpAntipode.order, +1);
-        let newCpB2Node = cp_node_1.CpNode.insert(true, cpTreeAntipode, cpB2, newCpAntipode);
-        //cpAntipode.order2 = -1;
-        //console.log(newCpB2Node.cp.pointOnShape.t);
+        let newCpB2Node = cp_node_1.CpNode.insert(true, false, cpTreeAntipode, cpB2, newCpAntipode);
         let cpB1 = new contact_point_1.ContactPoint(posSource, circle, cpSource.order, -1);
-        let newCpB1Node = cp_node_1.CpNode.insert(true, cpTreeSource, cpB1, newCpSource.prev);
-        //cpSource.order2 = +1;
-        //console.log(newCpB1Node.cp.pointOnShape.t);
+        let newCpB1Node = cp_node_1.CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
         // Connect graph
         newCpB1Node.prevOnCircle = newCpB2Node;
         newCpB1Node.nextOnCircle = newCpB2Node;

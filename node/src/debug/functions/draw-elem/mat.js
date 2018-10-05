@@ -6,7 +6,8 @@ function mat(type, smooth) {
         ? 'thin5 purple nofill'
         : 'thin10 red nofill';
     return f;
-    function f(g, cpNode) {
+    function f(g, mat) {
+        let cpNode = mat.cpNode;
         if (!cpNode) {
             return undefined;
         }

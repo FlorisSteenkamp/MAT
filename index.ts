@@ -7,17 +7,16 @@ import { PointOnShape } from './src/point-on-shape';
 import { Circle       } from './src/circle';
 import { ContactPoint } from './src/contact-point';
 import { BezierPiece  } from './src/bezier-piece';
+import { X            } from './src/x';
 
 import { smoothen        } from './src/mat/smoothen/smoothen';
-import { findMat         } from './src/mat/find-mat/find-mat';
+import { findMats        } from './src/mat/find-mat/find-mats';
 import { trimMat 	     } from './src/mat/trim-mat';
 import { toScaleAxis     } from './src/mat/to-scale-axis/to-scale-axis';
-import { toEnhancedScaleAxis } from './src/mat/to-scale-axis/to-enhanced-scale-axis';
-import { toSpectrumScaleAxis } from './src/mat/to-scale-axis/to-spectrum-scale-axis';
 
 import { getBranches     } from './src/mat/get-branches';
 import { traverseEdges   } from './src/mat/traverse-edges';
-import { getVerticesAsArray } from './src/mat/get-vertices-as-array';
+import { traverseVertices } from './src/mat/traverse-vertices';
 
 import { MatDebug } from './src/debug/debug';
 import { getPathsFromStr } from './src/svg/svg';
@@ -48,13 +47,11 @@ export {
 	ContactPoint,
 	BezierPiece,
 
-	findMat,
+	findMats,
 	toScaleAxis,
-	toEnhancedScaleAxis,
-	toSpectrumScaleAxis,
 	trimMat,
 	smoothen,
-	getVerticesAsArray,
+	traverseVertices,
 	getBranches,
 	traverseEdges,
 
@@ -70,6 +67,8 @@ export {
 	ITiming,
 
 	getClosestBoundaryPoint, 
-	closestPointOnBezier 
+	closestPointOnBezier,
+
+	X
 }
 

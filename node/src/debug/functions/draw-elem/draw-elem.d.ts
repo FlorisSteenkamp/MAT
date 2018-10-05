@@ -1,9 +1,11 @@
 import { PointOnShape } from '../../../point-on-shape';
 import { CpNode } from '../../../cp-node';
 import { Loop } from '../../../loop';
+import { Circle } from '../../../circle';
 import { TwoProngForDebugging } from '../../two-prong-for-debugging';
 import { ThreeProngForDebugging } from '../../three-prong-for-debugging';
 import { DebugElemType } from '../../debug-elem-types';
+import { X } from '../../../x';
 export declare type TDrawElemFunctions = {
     [T in DebugElemType]: (g: SVGGElement, elem: any) => SVGElement[];
 };
@@ -25,6 +27,10 @@ export interface IDrawElemFunctions extends TDrawElemFunctions {
     vertex: (g: SVGGElement, node: CpNode, visible: boolean, displayDelay: number) => SVGElement[];
     loop: (g: SVGGElement, loop: Loop) => SVGElement[];
     loops: (g: SVGGElement, loops: Loop[]) => SVGElement[];
+    maxVertex: (g: SVGGElement, cpNode: CpNode) => SVGElement[];
+    leaves: (g: SVGGElement, leaves: CpNode[]) => SVGElement[];
+    culls: (g: SVGGElement, culls: Circle[]) => SVGElement[];
+    intersection: (g: SVGGElement, x: X) => SVGElement[];
 }
 declare let drawElemFunctions: IDrawElemFunctions;
 export { drawElemFunctions };

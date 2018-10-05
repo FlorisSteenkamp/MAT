@@ -2,30 +2,30 @@
 import { tangent } from 'flo-bezier3';
 import { cross } from 'flo-vector2d';
 
-import { IXInfo } from './i-x-info';
+import { X } from '../../../x';
 import { ILoopTree } from './i-loop-tree';
 
 
 /**
  * 
- * @param xInfo The intersection
+ * @param x The intersection
  */
-function getLoopMetrics(xInfo: IXInfo) {
-    let oppositeLoop = xInfo.opposite.loopTree;
-    let oppositeOrientation = oppositeLoop.orientation
-    let oppositeWindingNum  = oppositeLoop.windingNum;            
+function getLoopMetrics(x: X) {
+    let oppositeLoopTree = x.opposite.loopTree;
+    let oppositeOrientation = oppositeLoopTree.orientation
+    let oppositeWindingNum  = oppositeLoopTree.windingNum;            
     
     // Left or right turning? - The current X
-    let oldInBez  = xInfo.opposite.pos.curve.ps;
-    let oldOutBez = xInfo.         pos.curve.ps;    
+    let oldInBez  = x.opposite.pos.curve.ps;
+    let oldOutBez = x.         pos.curve.ps;    
 
     let orientation: number;
     let windingNum: number;
 
     let parent: ILoopTree;
     if (oldInBez !== oldOutBez) {
-        let tanIn  = tangent(oldInBez,  xInfo.opposite.pos.t);
-        let tanOut = tangent(oldOutBez, xInfo.         pos.t);
+        let tanIn  = tangent(oldInBez,  x.opposite.pos.t);
+        let tanOut = tangent(oldOutBez, x.         pos.t);
     
         // TODO - if cross product is close to 0 check second derivatives (the 
         // same can be done at cusps in the mat code). E.g. a figure eight with 
@@ -43,13 +43,13 @@ function getLoopMetrics(xInfo: IXInfo) {
             : +1 * oppositeOrientation;
         windingNum = oppositeWindingNum + windingNumberInc;
 
-        parent = isTwist ? oppositeLoop.parent : oppositeLoop;
+        parent = isTwist ? oppositeLoopTree.parent : oppositeLoopTree;
     } else {
         // This is the first loop's start - it's a special case
         orientation = oppositeOrientation === +1 ? -1 : +1
         windingNum = oppositeWindingNum + orientation;
 
-        parent = oppositeLoop.parent;
+        parent = oppositeLoopTree.parent;
     }
 
     let iLoopTree: ILoopTree = { 
@@ -63,7 +63,7 @@ function getLoopMetrics(xInfo: IXInfo) {
 
     parent.children.add(iLoopTree);
 
-    return iLoopTree
+    return iLoopTree;
 }
 
 

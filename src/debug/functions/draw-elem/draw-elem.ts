@@ -2,6 +2,7 @@
 import { PointOnShape } from '../../../point-on-shape';
 import { CpNode       } from '../../../cp-node';
 import { Loop         } from '../../../loop';
+import { Circle       } from '../../../circle';
 
 import { TwoProngForDebugging   } from '../../two-prong-for-debugging';
 import { ThreeProngForDebugging } from '../../three-prong-for-debugging';
@@ -18,9 +19,14 @@ import { tightBoundingBox } from './tight-bounding-box';
 import { sharpCorner      } from './sharp-corner';
 import { dullCorner       } from './dull-corner';
 import { mat              } from './mat';
-import { oneProngAtDullCorner } from './one-prong-at-dull-corner';
 import { loop             } from './loop';
 import { loops            } from './loops';
+import { maxVertex        } from './max-vertex';
+import { leaves           } from './leaves';
+import { culls            } from './culls';
+import { intersection     } from './intersection';
+import { oneProngAtDullCorner } from './one-prong-at-dull-corner';
+import { X                } from '../../../x';
 
 
 export type TDrawElemFunctions = {
@@ -45,6 +51,10 @@ export interface IDrawElemFunctions extends TDrawElemFunctions {
 	vertex               : (g: SVGGElement, node: CpNode, visible: boolean, displayDelay: number) => SVGElement[],
 	loop                 : (g: SVGGElement, loop: Loop) => SVGElement[],
 	loops                : (g: SVGGElement, loops: Loop[]) => SVGElement[],
+	maxVertex            : (g: SVGGElement, cpNode: CpNode) => SVGElement[],
+	leaves               : (g: SVGGElement, leaves: CpNode[]) => SVGElement[],
+	culls                : (g: SVGGElement, culls: Circle[]) => SVGElement[],
+	intersection         : (g: SVGGElement, x: X) => SVGElement[],
 }
 
 
@@ -67,7 +77,11 @@ let drawElemFunctions: IDrawElemFunctions = {
 	mat: mat('mat', true),
 	sat: mat('sat', true),
 	loop,
-	loops
+	loops,
+	maxVertex,
+	leaves,
+	culls,
+	intersection
 }
 
 

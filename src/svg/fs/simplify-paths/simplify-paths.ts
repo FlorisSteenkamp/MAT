@@ -12,7 +12,6 @@ import { ILoopTree } from './i-loop-tree';
 import { getIntersections } from './get-intersections';
 import { completePath     } from './complete-path';
 import { getTightestContainingLoop } from './get-tightest-containing-loop';
-import { beziersToSvgPathStr } from '../beziers-to-svg-path-str';
 
 
 /**
@@ -23,15 +22,15 @@ import { beziersToSvgPathStr } from '../beziers-to-svg-path-str';
  * @param loops An array of possibly intersecting paths
  */
 function simplifyPaths(loops: Loop[]) {
+    /*
     let s = '';
     for (let loop of loops) {
         s = s + '\n\n' + beziersToSvgPathStr(loop.curves.map(c => c.ps), 5)
     }
-    //console.log(s)
+    console.log(s);
+    */
 
-    //---------- TEMP FOR TESTING --------------//
-    //return [orient(paths)];
-    //---------- TEMP FOR TESTING --------------//
+    /** A map from each curve to an array of intersections on that curve. */
     let intersections = getIntersections(loops);
 
     let loopsTaken: Set<Loop> = new Set();
@@ -54,7 +53,7 @@ function simplifyPaths(loops: Loop[]) {
     }
 
     for (let loop of loops) {
-        // TODO - handle special case of 1 curve
+        // TODO - handle special case of 1 curve - mayve just delete lines below
         if (loop.curves.length <= 1) {
             continue;
         }
@@ -78,18 +77,15 @@ function simplifyPaths(loops: Loop[]) {
     // Axis Transform (still to be determined).
 
     let loopTrees = splitLoopTrees(root);
-    //console.log(loopTrees);
     let iLoopSets = loopTrees.map(getLoopsFromTree);
-    //console.log(iLoopSets);
     
-    let simplePathss = iLoopSets.map(
+    let loopss = iLoopSets.map(
         loopSet => loopSet.map(ILoopToLoop)
     );
 
-    //console.log(simplePathss)
-
+    /*
     let str = '';
-    for (let simplePaths of simplePathss) {
+    for (let simplePaths of loopss) {
         //console.log(str)
         for (let loop of simplePaths) {
             str = str + '\n\n' + beziersToSvgPathStr(
@@ -100,9 +96,24 @@ function simplifyPaths(loops: Loop[]) {
         //console.log(str)
         //console.log('-----------------');
     }
-    //console.log(str)
+    console.log(str)
+    */
 
-    return simplePathss;
+    let xMap: Map<number[][],{ ps: number[][] }> = new Map();
+
+    for (let intersection of intersections) {
+        for (let x of intersection[1]) {
+            if (x.isDummy) { continue; }
+
+            xMap.set(x.outPs, { ps: x.opposite.outPs })
+
+            if (typeof _debug_ !== 'undefined') {
+                _debug_.generated.elems.intersection.push(x);
+            }
+        }
+    }
+
+    return { loopss, xMap };
 }
 
 

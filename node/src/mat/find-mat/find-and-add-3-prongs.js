@@ -18,7 +18,7 @@ function findAndAddAll3Prongs(cpGraphs, cpStart, extreme) {
     while (edgesToCheck.length) {
         let { fromCpNode, cpStart } = edgesToCheck.shift();
         markEdgeAsTaken(visitedEdges, fromCpNode, cpStart);
-        for (let cpNode of cpStart.getCps()) {
+        for (let cpNode of cpStart.getNodes()) {
             if (!point_on_shape_1.PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
                 findAndAdd3Prongs(cpGraphs, cpNode, extreme);
             }

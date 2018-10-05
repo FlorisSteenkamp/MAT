@@ -6,5 +6,10 @@ import { Loop } from '../../../loop';
  * such as disjoint nested paths.
  * @param loops An array of possibly intersecting paths
  */
-declare function simplifyPaths(loops: Loop[]): Loop[][];
+declare function simplifyPaths(loops: Loop[]): {
+    loopss: Loop[][];
+    xMap: Map<number[][], {
+        ps: number[][];
+    }>;
+};
 export { simplifyPaths };

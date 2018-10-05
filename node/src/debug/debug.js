@@ -31,6 +31,10 @@ class Generated {
             cpNode: [],
             loop: [],
             loops: [],
+            maxVertex: [],
+            leaves: [],
+            culls: [],
+            intersection: [],
         };
         this.timing = {
             simplify: [0, 0],

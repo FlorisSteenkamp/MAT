@@ -38,13 +38,14 @@ export class CpNode implements Edges {
 	 * @param isHoleClosing
 	 */
     constructor(
-			public readonly cp   : ContactPoint,
-			public isHoleClosing : boolean,
-			public prev          : CpNode = undefined,
-			public next          : CpNode = undefined,
-			public prevOnCircle  : CpNode = undefined,
-			public nextOnCircle  : CpNode = undefined,
-			public matCurve      : number[][] = undefined) {
+			public readonly cp    : ContactPoint,
+			public isHoleClosing  : boolean,
+			public isIntersection : boolean,
+			public prev           : CpNode = undefined,
+			public next           : CpNode = undefined,
+			public prevOnCircle   : CpNode = undefined,
+			public nextOnCircle   : CpNode = undefined,
+			public matCurve       : number[][] = undefined) {
 	}
 
 
@@ -60,7 +61,7 @@ export class CpNode implements Edges {
 		let nodeMap: Map<CpNode, CpNode> = new Map();
 
 		let cpNode = this as CpNode;
-		let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing);
+		let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
 		newCpNode.matCurve = cpNode.matCurve;
 
 		nodeMap.set(cpNode, newCpNode);
@@ -73,7 +74,7 @@ export class CpNode implements Edges {
 				let node = cpNode[edge];
 				let newNode = nodeMap.get(node);
 				if (!newNode) {	
-					newNode = new CpNode(node.cp, node.isHoleClosing);
+					newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);
 					newNode.matCurve = node.matCurve;
 					nodeMap.set(node, newNode);
 					cpStack.push({cpNode: node, newCpNode: newNode });
@@ -95,11 +96,12 @@ export class CpNode implements Edges {
 	 */
 	public static insert(
 			isHoleClosing: boolean,
+			isIntersection: boolean,
 			cpTree: LlRbTree<CpNode>, 
 			cp: ContactPoint, 
 			prev_: CpNode) {
 	
-		let cpNode = new CpNode(cp, isHoleClosing);
+		let cpNode = new CpNode(cp, isHoleClosing, isIntersection);
 		if (typeof _debug_ !== 'undefined') {
 			_debug_.generated.elems.cpNode.push(
 				new CpNodeForDebugging(
@@ -144,9 +146,9 @@ export class CpNode implements Edges {
 	
 
 	/**
-	 * Return this amd the the other CpNodes around the vertex circle in order.
+	 * Return this and the the other CpNodes around the vertex circle in order.
 	 */
-	public getCps() {
+	public getNodes() {
 		let startCp = this as CpNode;
 		let cp = startCp;
 		
@@ -159,7 +161,7 @@ export class CpNode implements Edges {
 		return cps;
 	}
 
-
+	
 	public isTerminating() {
 		let cp = this;
 
@@ -201,7 +203,7 @@ export class CpNode implements Edges {
 	public isThreeProng() {
 		let cp = this;
 
-		return cp.getCps().length === 3;
+		return cp.getNodes().length === 3;
 	}
 
 	/**

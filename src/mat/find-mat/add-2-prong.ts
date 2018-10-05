@@ -13,7 +13,6 @@ import { PointOnShape } from '../../point-on-shape';
 
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 import { getNeighbouringPoints } from '../get-neighboring-cps';
-import { getTwoProngType } from '../get-two-prong-type';
 
 
 /**
@@ -70,6 +69,7 @@ function add2Prong(
 	);
 	let newCpAntipode = CpNode.insert(
 		holeClosing,
+		false,
 		cpTreeAntipode,
 		cpAntipode, 
 		deltaAntipode[0]
@@ -85,6 +85,7 @@ function add2Prong(
 	);
 	let newCpSource = CpNode.insert(
 		holeClosing,
+		false,
 		cpTreeSource,
 		cpSource, 
 		deltaSource[0]
@@ -104,14 +105,10 @@ function add2Prong(
 	if (holeClosing) { 
 		// Duplicate ContactPoints
 		let cpB2 = new ContactPoint(posAntipode, circle, cpAntipode.order, +1);
-		let newCpB2Node = CpNode.insert(true, cpTreeAntipode, cpB2, newCpAntipode);
-		//cpAntipode.order2 = -1;
-		//console.log(newCpB2Node.cp.pointOnShape.t);
+		let newCpB2Node = CpNode.insert(true, false, cpTreeAntipode, cpB2, newCpAntipode);
 		
 		let cpB1 = new ContactPoint(posSource, circle, cpSource.order, -1);
-		let newCpB1Node = CpNode.insert(true, cpTreeSource, cpB1, newCpSource.prev);
-		//cpSource.order2 = +1;
-		//console.log(newCpB1Node.cp.pointOnShape.t);
+		let newCpB1Node = CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
 		
 		// Connect graph
 		newCpB1Node.prevOnCircle = newCpB2Node;

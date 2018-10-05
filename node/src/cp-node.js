@@ -19,9 +19,10 @@ class CpNode {
      * 1 to 3.
      * @param isHoleClosing
      */
-    constructor(cp, isHoleClosing, prev = undefined, next = undefined, prevOnCircle = undefined, nextOnCircle = undefined, matCurve = undefined) {
+    constructor(cp, isHoleClosing, isIntersection, prev = undefined, next = undefined, prevOnCircle = undefined, nextOnCircle = undefined, matCurve = undefined) {
         this.cp = cp;
         this.isHoleClosing = isHoleClosing;
+        this.isIntersection = isIntersection;
         this.prev = prev;
         this.next = next;
         this.prevOnCircle = prevOnCircle;
@@ -33,7 +34,7 @@ class CpNode {
         // overflow if there are too many CpNodes.
         let nodeMap = new Map();
         let cpNode = this;
-        let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing);
+        let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
         newCpNode.matCurve = cpNode.matCurve;
         nodeMap.set(cpNode, newCpNode);
         let cpStack = [{ cpNode, newCpNode }];
@@ -43,7 +44,7 @@ class CpNode {
                 let node = cpNode[edge];
                 let newNode = nodeMap.get(node);
                 if (!newNode) {
-                    newNode = new CpNode(node.cp, node.isHoleClosing);
+                    newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);
                     newNode.matCurve = node.matCurve;
                     nodeMap.set(node, newNode);
                     cpStack.push({ cpNode: node, newCpNode: newNode });
@@ -60,8 +61,8 @@ class CpNode {
      * @param prev_ - Inserts the new item right after this item if the loop is
      * not empty, else insert the new item as the only item in the loop.
      */
-    static insert(isHoleClosing, cpTree, cp, prev_) {
-        let cpNode = new CpNode(cp, isHoleClosing);
+    static insert(isHoleClosing, isIntersection, cpTree, cp, prev_) {
+        let cpNode = new CpNode(cp, isHoleClosing, isIntersection);
         if (typeof _debug_ !== 'undefined') {
             _debug_.generated.elems.cpNode.push(new cp_node_for_debugging_1.CpNodeForDebugging(_debug_.generated, cpNode));
         }
@@ -90,9 +91,9 @@ class CpNode {
         cpTree.remove(cpNode, false);
     }
     /**
-     * Return this amd the the other CpNodes around the vertex circle in order.
+     * Return this and the the other CpNodes around the vertex circle in order.
      */
-    getCps() {
+    getNodes() {
         let startCp = this;
         let cp = startCp;
         let cps = [];
@@ -129,7 +130,7 @@ class CpNode {
     }
     isThreeProng() {
         let cp = this;
-        return cp.getCps().length === 3;
+        return cp.getNodes().length === 3;
     }
     /**
      * Advances the node by the given number of steps. This is slow ( O(n) );

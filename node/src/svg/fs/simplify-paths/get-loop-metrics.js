@@ -4,21 +4,21 @@ const flo_bezier3_1 = require("flo-bezier3");
 const flo_vector2d_1 = require("flo-vector2d");
 /**
  *
- * @param xInfo The intersection
+ * @param x The intersection
  */
-function getLoopMetrics(xInfo) {
-    let oppositeLoop = xInfo.opposite.loopTree;
-    let oppositeOrientation = oppositeLoop.orientation;
-    let oppositeWindingNum = oppositeLoop.windingNum;
+function getLoopMetrics(x) {
+    let oppositeLoopTree = x.opposite.loopTree;
+    let oppositeOrientation = oppositeLoopTree.orientation;
+    let oppositeWindingNum = oppositeLoopTree.windingNum;
     // Left or right turning? - The current X
-    let oldInBez = xInfo.opposite.pos.curve.ps;
-    let oldOutBez = xInfo.pos.curve.ps;
+    let oldInBez = x.opposite.pos.curve.ps;
+    let oldOutBez = x.pos.curve.ps;
     let orientation;
     let windingNum;
     let parent;
     if (oldInBez !== oldOutBez) {
-        let tanIn = flo_bezier3_1.tangent(oldInBez, xInfo.opposite.pos.t);
-        let tanOut = flo_bezier3_1.tangent(oldOutBez, xInfo.pos.t);
+        let tanIn = flo_bezier3_1.tangent(oldInBez, x.opposite.pos.t);
+        let tanOut = flo_bezier3_1.tangent(oldOutBez, x.pos.t);
         // TODO - if cross product is close to 0 check second derivatives (the 
         // same can be done at cusps in the mat code). E.g. a figure eight with 
         // coinciding bezier stretches may cause floating point instability.
@@ -32,13 +32,13 @@ function getLoopMetrics(xInfo) {
             ? -1 * oppositeOrientation
             : +1 * oppositeOrientation;
         windingNum = oppositeWindingNum + windingNumberInc;
-        parent = isTwist ? oppositeLoop.parent : oppositeLoop;
+        parent = isTwist ? oppositeLoopTree.parent : oppositeLoopTree;
     }
     else {
         // This is the first loop's start - it's a special case
         orientation = oppositeOrientation === +1 ? -1 : +1;
         windingNum = oppositeWindingNum + orientation;
-        parent = oppositeLoop.parent;
+        parent = oppositeLoopTree.parent;
     }
     let iLoopTree = {
         parent,

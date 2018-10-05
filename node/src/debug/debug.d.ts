@@ -2,6 +2,8 @@ import * as Bezier3 from 'flo-bezier3';
 import { CpNode } from '../cp-node';
 import { PointOnShape } from '../point-on-shape';
 import { Loop } from '../loop';
+import { Mat } from '../mat';
+import { X } from '../x';
 import { IGeneralDebugFunctions } from './functions/general';
 import { ITwoProngDebugFunctions } from './functions/two-prong';
 import { IThreeProngDebugFunctions } from './functions/three-prong';
@@ -10,6 +12,7 @@ import { TwoProngForDebugging } from './two-prong-for-debugging';
 import { ThreeProngForDebugging } from './three-prong-for-debugging';
 import { DebugElemType } from './debug-elem-types';
 import { CpNodeForDebugging } from './cp-node-for-debugging';
+import { Circle } from '../circle';
 export declare type GeneratedElemTypes = {
     [T in DebugElemType]: any;
 };
@@ -28,11 +31,15 @@ export interface GeneratedElems extends GeneratedElemTypes {
     dullCorner: PointOnShape[];
     minY: PointOnShape[];
     boundingHull: number[][][];
-    mat: CpNode[];
-    sat: CpNode[];
+    mat: Mat[];
+    sat: Mat[];
     cpNode: CpNodeForDebugging[];
     loop: Loop[];
     loops: Loop[][];
+    maxVertex: CpNode[];
+    leaves: CpNode[][];
+    culls: Circle[][];
+    intersection: X[];
 }
 export interface ITiming {
     simplify: number[];

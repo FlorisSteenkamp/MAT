@@ -21,7 +21,7 @@ function getNeighbouringPoints(
         order2: number) {
 
     let cps = cpTree.findBounds(
-        new CpNode(new ContactPoint(pos, undefined, order, order2), false)
+        new CpNode(new ContactPoint(pos, undefined, order, order2), false, false)
     );
 
     if (!cps[0] && !cps[1]) { 

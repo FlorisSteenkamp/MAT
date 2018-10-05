@@ -62,13 +62,13 @@ function addDebugInfo3() {
     timing.threeProngs[0] = now;
 }
 exports.addDebugInfo3 = addDebugInfo3;
-function addDebugInfo4(cpNode) {
+function addDebugInfo4(mat) {
     if (typeof _debug_ === 'undefined') {
         return;
     }
     let generated = _debug_.generated;
     let timing = generated.timing;
-    generated.elems.mat.push(cpNode);
+    generated.elems.mat.push(mat);
     timing.threeProngs[1] += performance.now() - timing.threeProngs[0];
     timing.mats[1] =
         timing.holeClosers[1] +

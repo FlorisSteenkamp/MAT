@@ -5,7 +5,7 @@ function vertex(g, cpNode, visible = true, displayDelay) {
     let circle = cpNode.cp.circle;
     let draw = _debug_.fs.draw;
     const THIN = 'thin20';
-    let cps = cpNode.getCps();
+    let cps = cpNode.getNodes();
     console.log(cps);
     let $svgs = [];
     let $circle = draw.circle(g, circle, 'red ' + THIN + ' nofill ' + visibleClass, displayDelay);

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
+const x_1 = require("../../../x");
 const point_on_shape_1 = require("../../../point-on-shape");
 const pair_set_1 = require("./pair-set");
 const find_bb_intersections_1 = require("../../../bounding-box/find-bb-intersections");
@@ -11,41 +12,18 @@ const DELTA = 1e-10;
  * @param loops
  */
 function getIntersections(loops) {
+    // intersection <=> X
     let { boxes, boxInfoMap } = getBoxInfos(loops);
-    let boxIntersections = getBoxIntersections(boxes, boxInfoMap);
-    //console.log(boxIntersections.length);
+    let boxIntersections = find_bb_intersections_1.default(boxes);
     // Check curve intersection amongst possibilities
-    /** A map from bezier nodes to all its intersecting beziers */
-    let intersections = new Map();
+    /** A map from each curve to its intersectings */
+    let xMap = new Map();
     let checkedPairs = new Map();
-    //console.log(boxIntersections.length);
     for (let i = 0; i < boxIntersections.length; i++) {
-        let boxIntersection = boxIntersections[i];
-        //console.log(boxIntersection)
-        /*
-        if (boxIntersection.box1[0][0] === boxIntersection.box2[0][0] &&
-            boxIntersection.box1[0][1] === boxIntersection.box2[0][1] &&
-            //boxIntersection.box1[1][0] === boxIntersection.box2[1][0] &&
-            boxIntersection.box1[1][1] === boxIntersection.box2[1][1]) {
-            console.log(boxIntersection)
-        }
-        */
-        //if (i === 5) {
-        /*
-        _debug_.fs.draw.rect(
-            _debug_.generated.g,
-            boxIntersection.box1, 'nofill thin2 blue'
-        );
-        _debug_.fs.draw.rect(
-            _debug_.generated.g,
-            boxIntersection.box2, 'nofill thin2 blue'
-        );
-            */
-        //console.log(boxIntersection);
-        //}
+        let { box1, box2 } = boxIntersections[i];
         let curves = [
-            boxInfoMap.get(boxIntersection.box1).curve,
-            boxInfoMap.get(boxIntersection.box2).curve,
+            boxInfoMap.get(box1).curve,
+            boxInfoMap.get(box2).curve,
         ];
         if (pair_set_1.pairSet_has(checkedPairs, curves)) {
             continue;
@@ -53,76 +31,70 @@ function getIntersections(loops) {
         pair_set_1.pairSet_add(checkedPairs, curves);
         let pss = curves.map(curve => curve.ps);
         let tPairs = flo_bezier3_1.bezier3Intersection(pss[0], pss[1]);
-        /*
-        console.log('-------');
-        console.log(tPairs.toString());
-        console.log(pss[0].toString());
-        console.log(pss[1].toString());
-        console.log('-------');
-        */
+        if (!tPairs.length) {
+            continue;
+        }
         for (let tPair of tPairs) {
-            // TODO - the below check is temporary - there is a better way
-            // TODO - eliminate the fact that intersections are found twice
-            if (((Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1] - 1) < DELTA) ||
-                (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]) < DELTA) ||
-                (Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1]) < DELTA) ||
-                (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1] - 1) < DELTA)) &&
-                (curves[0].next === curves[1] || curves[1].next === curves[0])) {
+            let curves_ = confirmIntersection(checkedPairs, curves, tPair);
+            if (curves_ === undefined) {
                 continue;
             }
-            if (Math.abs(tPair[0] - 1) < DELTA) {
-                // If the intersection occurs at the end, move it to the start
-                // so we don't have a very small bezier piece left.
-                curves[0] = curves[0].next;
-                tPair[0] = 0;
-                // Recheck
-                if (pair_set_1.pairSet_has(checkedPairs, [curves[0], curves[1]])) {
-                    continue;
+            let xs = [];
+            for (let j of [0, 1]) {
+                let curve = curves_[j];
+                let x = new x_1.X(new point_on_shape_1.PointOnShape(curve, tPair[j]));
+                // Get intersections stored at this curve
+                let curveXs = xMap.get(curve) || [];
+                if (!curveXs.length) {
+                    xMap.set(curve, curveXs);
                 }
+                // Add an intersection to this curve
+                curveXs.push(x);
+                xs.push(x);
             }
-            if (Math.abs(tPair[1] - 1) < DELTA) {
-                // If the intersection occurs at the end, move it to the start
-                // so we don't have a very small bezier piece left.
-                curves[1] = curves[1].next;
-                tPair[1] = 0;
-                // Recheck
-                if (pair_set_1.pairSet_has(checkedPairs, [curves[0], curves[1]])) {
-                    continue;
-                }
-            }
-            let pos1 = new point_on_shape_1.PointOnShape(curves[0], tPair[0]);
-            let pos2 = new point_on_shape_1.PointOnShape(curves[1], tPair[1]);
-            //_debug_.fs.draw.crossHair(_debug_.generated.g, pos1.p, 'blue nofill thin10', 0.1);
-            //_debug_.fs.draw.crossHair(_debug_.generated.g, pos2.p, 'blue nofill thin10', 0.1);
-            //console.log(tPair[0], tPair[1], pss);
-            //console.log(curves);
-            let xInfos = [];
-            xInfos.push({
-                loop: curves[0].loop,
-                pos: pos1,
-                opposite: undefined,
-                loopTree: undefined,
-            });
-            xInfos.push({
-                loop: curves[1].loop,
-                pos: pos2,
-                opposite: xInfos[0],
-                loopTree: undefined,
-            });
-            xInfos[0].opposite = xInfos[1];
-            for (let j = 0; j < 2; j++) {
-                let intersectingCurves = intersections.get(curves[j]);
-                if (!intersectingCurves) {
-                    intersectingCurves = [];
-                    intersections.set(curves[j], intersectingCurves);
-                }
-                intersectingCurves.push(xInfos[j]);
-            }
+            xs[0].opposite = xs[1];
+            xs[1].opposite = xs[0];
         }
     }
-    return intersections;
+    return xMap;
 }
 exports.getIntersections = getIntersections;
+/**
+ *
+ */
+function confirmIntersection(checkedPairs, curves, tPair) {
+    let curves_ = curves.slice();
+    // TODO - the below check is temporary - there is a better way
+    // TODO - eliminate the fact that intersections are found twice
+    if (((Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1] - 1) < DELTA) ||
+        (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1]) < DELTA) ||
+        (Math.abs(tPair[0]) < DELTA && Math.abs(tPair[1]) < DELTA) ||
+        (Math.abs(tPair[0] - 1) < DELTA && Math.abs(tPair[1] - 1) < DELTA)) &&
+        (curves_[0].next === curves_[1] || curves_[1].next === curves_[0])) {
+        return undefined;
+    }
+    if (Math.abs(tPair[0] - 1) < DELTA) {
+        // If the intersection occurs at the end, move it to the start
+        // so we don't have a very small bezier piece left.
+        curves_[0] = curves_[0].next;
+        tPair[0] = 0;
+        // Recheck
+        if (pair_set_1.pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
+            return undefined;
+        }
+    }
+    if (Math.abs(tPair[1] - 1) < DELTA) {
+        // If the intersection occurs at the end, move it to the start
+        // so we don't have a very small bezier piece left.
+        curves_[1] = curves_[1].next;
+        tPair[1] = 0;
+        // Recheck
+        if (pair_set_1.pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
+            return undefined;
+        }
+    }
+    return curves_;
+}
 /**
  * Returns an array of lines of the bounding hulls of the Loop beziers' control
  * points including a map that maps each line to its hull, path and curve.
@@ -141,9 +113,4 @@ function getBoxInfos(loops) {
         });
     }
     return { boxes, boxInfoMap };
-}
-function getBoxIntersections(boxes, boxInfoMap) {
-    // Get possible intersections between curves
-    let boxIntersections = find_bb_intersections_1.default(boxes);
-    return boxIntersections;
 }

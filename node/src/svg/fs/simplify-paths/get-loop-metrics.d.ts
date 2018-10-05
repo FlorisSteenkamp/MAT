@@ -1,8 +1,8 @@
-import { IXInfo } from './i-x-info';
+import { X } from '../../../x';
 import { ILoopTree } from './i-loop-tree';
 /**
  *
- * @param xInfo The intersection
+ * @param x The intersection
  */
-declare function getLoopMetrics(xInfo: IXInfo): ILoopTree;
+declare function getLoopMetrics(x: X): ILoopTree;
 export { getLoopMetrics };

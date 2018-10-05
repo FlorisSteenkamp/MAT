@@ -1,11 +1,11 @@
 
-import { Loop       } from '../../loop';
+import LlRbTree from 'flo-ll-rb-tree';
 
+import { Loop         } from '../../loop';
 import { Circle       } from '../../circle';
 import { CpNode       } from '../../cp-node';
 import { PointOnShape } from '../../point-on-shape';
 import { ContactPoint } from '../../contact-point';
-import LlRbTree from 'flo-ll-rb-tree';
 
 
 /**
@@ -16,7 +16,8 @@ import LlRbTree from 'flo-ll-rb-tree';
 function createInitialCpGraph(
         loops: Loop[], 
         cpTrees: Map<Loop, LlRbTree<CpNode>>,
-        sharpCornerss: PointOnShape[][]) {
+        sharpCornerss: PointOnShape[][],
+        xMap: Map<number[][],{ ps: number[][] }>) {
 
     let cpNode;
 
@@ -25,25 +26,29 @@ function createInitialCpGraph(
 
         let cpTree = new LlRbTree(CpNode.comparator, [], true);
         
-        let cp1_ = undefined;
-        let cp2_ = undefined;
+        let cpNode1 = undefined;
+        let cpNode2 = undefined;
         for (let pos of sharpCorners) {
+            let ps = pos.curve.next.ps;
+            let x = xMap.get(ps);
+            let isIntersection = !!x;
+            
             let circle = new Circle(pos.p, 0);
 
             let cp1 = new ContactPoint(pos, circle, -1, 0);
             let cp2 = new ContactPoint(pos, circle, +1, 0);
 
-            cp1_ = CpNode.insert(false, cpTree, cp1, cp2_);
-            cp2_ = CpNode.insert(false, cpTree, cp2, cp1_);
+            cpNode1 = CpNode.insert(false, isIntersection, cpTree, cp1, cpNode2);
+            cpNode2 = CpNode.insert(false, isIntersection, cpTree, cp2, cpNode1);
             
-            cp1_.prevOnCircle = cp2_; 
-            cp2_.prevOnCircle = cp1_; 
+            cpNode1.prevOnCircle = cpNode2; 
+            cpNode2.prevOnCircle = cpNode1; 
 
-            cp1_.nextOnCircle = cp2_; 
-            cp2_.nextOnCircle = cp1_; 
+            cpNode1.nextOnCircle = cpNode2; 
+            cpNode2.nextOnCircle = cpNode1; 
         }
 
-        if (!cpNode) { cpNode = cp1_; }
+        if (!cpNode) { cpNode = cpNode1; }
 
         let loop = loops[k];
         cpTrees.set(loop, cpTree);

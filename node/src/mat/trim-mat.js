@@ -1,53 +1,27 @@
 "use strict";
-// TODO - not finished
-// Can this maybe be done by toEnhancedScaleAxis(Number.POSITIVE_INFINITY)?
 Object.defineProperty(exports, "__esModule", { value: true });
+const mat_1 = require("../mat");
+const smoothen_1 = require("./smoothen/smoothen");
+const create_new_cp_tree_1 = require("./create-new-cp-tree");
+const cull_non_cycles_1 = require("./to-scale-axis/cull-non-cycles");
 /**
- * Trims the given Medial Axis Transform so that only loops remain.
- *
+ * Trims the given Medial Axis Transform so that only cycles remain. Similar to
+ * toScaleAxis(mat, Number.POSITIVE_INFINITY).
  * @param mat The MAT to trim.
  */
-function trimMat() {
+function trimMat(mat) {
+    let cpNode = cull_non_cycles_1.cullNonCycles(mat.cpNode.clone());
+    if (!cpNode) {
+        return undefined;
+    }
+    smoothen_1.smoothen(cpNode);
+    let mat_ = new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
     /*
-
-    return f(mat);
-    
-    function f(vertex: Vertex, priorVertex?: Vertex) {
-        
-        let newNode = new Vertex(vertex.circle, vertex.cps);
-        
-        let edges = vertex.getEdges();
-        for (let edge of edges) {
-            if (edge.toVertex === priorVertex) {
-                // Don't go back in tracks.
-                continue;
-            }
-
-            let followEdge = true;
-            let cps = edge.toVertex.cps;
-            if (cps.length === 1) {
-                // Don't follow edges leading to a dead end.
-                followEdge = false;
-            } else if (cps.length === 2) {
-                // Don't follow edges not part of a loop.
-                if (cps[0].loop.indx === cps[1].loop.indx) {
-                    followEdge = false;
-                }
-            } else if (cps.length === 3) {
-                // Don't follow edges not part of a loop.
-                if (cps[0].loop.indx === cps[1].loop.indx &&
-                    cps[1].loop.indx === cps[2].loop.indx) {
-                    followEdge = false;
-                }
-            }
-
-            if (followEdge) {
-                f(edge.toVertex, vertex);
-            }
-        }
-        
-        return newNode;
+    if (typeof _debug_ !== 'undefined') {
+        let generated = _debug_.generated;
+        generated.elems.sat.push(mat_);
     }
     */
+    return mat_;
 }
 exports.trimMat = trimMat;

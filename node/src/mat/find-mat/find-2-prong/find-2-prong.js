@@ -34,7 +34,6 @@ const get_initial_bezier_pieces_1 = require("./get-initial-bezier-pieces");
  * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
  * @param k The loop array index
  */
-//let ii = 0;
 function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClosing, k) {
     const MAX_ITERATIONS = 25;
     const squaredSeperationTolerance = Math.pow((1e-6 * extreme), 2);
@@ -90,7 +89,6 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
                     ? 'hole-closing: ' + elem.length
                     : 'regular: ' + elem.length;
                 console.log('failed: no closest point - ' + elemStr);
-                //console.log(ii)
             }
             failed = true;
             break;
@@ -116,8 +114,11 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
                 let elemStr = isHoleClosing
                     ? 'hole-closing: ' + elem.length
                     : 'regular: ' + elem.length;
-                console.log('failed: two-prong radius too small - ' + elemStr);
-                //console.log(ii);
+                /*
+                console.log(
+                    'failed: two-prong radius too small - ' + elemStr
+                );
+                */
             }
             failed = true;
             break;

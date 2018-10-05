@@ -11,9 +11,13 @@ const tight_bounding_box_1 = require("./tight-bounding-box");
 const sharp_corner_1 = require("./sharp-corner");
 const dull_corner_1 = require("./dull-corner");
 const mat_1 = require("./mat");
-const one_prong_at_dull_corner_1 = require("./one-prong-at-dull-corner");
 const loop_1 = require("./loop");
 const loops_1 = require("./loops");
+const max_vertex_1 = require("./max-vertex");
+const leaves_1 = require("./leaves");
+const culls_1 = require("./culls");
+const intersection_1 = require("./intersection");
+const one_prong_at_dull_corner_1 = require("./one-prong-at-dull-corner");
 let drawElemFunctions = {
     oneProng: one_prong_1.oneProng,
     oneProngAtDullCorner: one_prong_at_dull_corner_1.oneProngAtDullCorner,
@@ -33,6 +37,10 @@ let drawElemFunctions = {
     mat: mat_1.mat('mat', true),
     sat: mat_1.mat('sat', true),
     loop: loop_1.loop,
-    loops: loops_1.loops
+    loops: loops_1.loops,
+    maxVertex: max_vertex_1.maxVertex,
+    leaves: leaves_1.leaves,
+    culls: culls_1.culls,
+    intersection: intersection_1.intersection
 };
 exports.drawElemFunctions = drawElemFunctions;

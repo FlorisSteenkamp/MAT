@@ -1,3 +1,3 @@
-import { CpNode } from "../../../cp-node";
-declare function mat(type: 'mat' | 'sat', smooth: boolean): (g: SVGGElement, cpNode: CpNode) => SVGElement[];
+import { Mat } from '../../../mat';
+declare function mat(type: 'mat' | 'sat', smooth: boolean): (g: SVGGElement, mat: Mat) => SVGElement[];
 export { mat };

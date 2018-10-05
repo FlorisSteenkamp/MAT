@@ -1,6 +1,6 @@
 import { Curve } from '../../../curve';
 import { Loop } from '../../../loop';
-import { IXInfo } from './i-x-info';
+import { X } from '../../../x';
 import { ILoopTree } from './i-loop-tree';
 /**
  *
@@ -9,5 +9,5 @@ import { ILoopTree } from './i-loop-tree';
  * @param loop
  * @param parent
  */
-declare function completePath(intersections: Map<Curve, IXInfo[]>, loopsTaken: Set<Loop>, parent: ILoopTree, loop: Loop): void;
+declare function completePath(intersections: Map<Curve, X[]>, loopsTaken: Set<Loop>, parent: ILoopTree, loop: Loop): void;
 export { completePath };

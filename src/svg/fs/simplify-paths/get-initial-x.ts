@@ -7,7 +7,7 @@ import { isPathPositivelyOrientated } from '../../fs/is-path-positively-oriented
 import { getLoopBounds } from '../get-loop-bounds';
 
 import { ILoopTree  } from "./i-loop-tree";
-import { IXInfo } from './i-x-info';
+import { X } from '../../../x';
 
 
 /**
@@ -16,7 +16,7 @@ import { IXInfo } from './i-x-info';
  * @param parent 
  */
 function getInitialX(
-        intersections : Map<Curve, IXInfo[]>, 
+        intersections : Map<Curve, X[]>, 
         parent: ILoopTree, 
         loop: Loop) {
 
@@ -30,18 +30,18 @@ function getInitialX(
     }
 
     let pos = getLoopBounds(loop).minX;
-    let curve = intersections.get(pos.curve);
-    if (!curve) {
-        pos = new PointOnShape(pos.curve, 0);
-    }
 
-    let x: IXInfo = {
-        loop,
+    let xs = intersections.get(pos.curve);
+    
+    // If no intersections on this curve, just start at 0
+    if (!xs) { pos = new PointOnShape(pos.curve, 0); } 
+
+    let x = new X(
         pos,
-        opposite : undefined, // will be set just below
-        loopTree: dummyLoop,
-    };
-
+        true,
+        undefined, // will be set just below
+        dummyLoop,
+    );
     x.opposite = x;
 
     return x;

@@ -34,8 +34,7 @@ function findBbIntersections(boxes: number[][][]) {
    			for (let activeBox of activeBoxes.values()) {
    				if (areBoxesIntersecting(box, activeBox)) { 
                     intersections.push({
-                        box1: box, box2: 
-                        activeBox
+                        box1: box, box2: activeBox
                     });
    				}
    			}

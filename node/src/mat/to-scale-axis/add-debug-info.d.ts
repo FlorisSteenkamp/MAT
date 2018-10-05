@@ -1,3 +1,3 @@
-import { CpNode } from '../../cp-node';
-declare function addDebugInfo(cpNode: CpNode): void;
+import { Mat } from '../../mat';
+declare function addDebugInfo(sat: Mat): void;
 export { addDebugInfo };

@@ -10,7 +10,7 @@ function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
         let neighboringCp = neighbors
             ? neighbors[i]
             : get_neighboring_cps_1.getNeighbouringPoints(cpTree, pos, orders[i], 0);
-        let newCp = cp_node_1.CpNode.insert(false, cpTree, newCp_, neighboringCp[0]);
+        let newCp = cp_node_1.CpNode.insert(false, false, cpTree, newCp_, neighboringCp[0]);
         return newCp;
     });
     let len = poss.length;

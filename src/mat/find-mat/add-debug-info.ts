@@ -10,7 +10,7 @@ import {
 import { Loop         } from '../../loop';
 import { PointOnShape } from '../../point-on-shape';
 import { Curve        } from '../../curve';
-import { CpNode       } from '../../cp-node';
+import { Mat          } from '../../mat';
 
 
 function addDebugInfo1(loops: Loop[]) {
@@ -81,13 +81,13 @@ function addDebugInfo3() {
 }
 
 
-function addDebugInfo4(cpNode: CpNode) {
+function addDebugInfo4(mat: Mat) {
     if (typeof _debug_ === 'undefined') { return; }
 
     let generated = _debug_.generated;
     let timing = generated.timing;
 
-    generated.elems.mat.push(cpNode);
+    generated.elems.mat.push(mat);
 
     timing.threeProngs[1] += performance.now() - timing.threeProngs[0];
     timing.mats[1] = 

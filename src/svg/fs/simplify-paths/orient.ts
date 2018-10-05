@@ -31,19 +31,11 @@ function orient(loops: Loop[]) {
  * one.
  */
 function orientLoop(loop: Loop, positive: boolean) {
-	let orientation = isPathPositivelyOrientated(loop);
+	console.log('reversing?: ' + (positive !== isPathPositivelyOrientated(loop)));
 
-	if (positive === orientation) {
-		return loop;
-	} else {
-		return reverseOrientation(loop);
-	}
-	
-	/*
-	return positive === orientation
-		? loop
+	return positive === isPathPositivelyOrientated(loop)
+		? loop 
 		: reverseOrientation(loop);
-	*/
 }
 
 

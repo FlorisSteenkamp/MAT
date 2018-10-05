@@ -5,20 +5,24 @@ import { CpNode } from '../../cp-node';
 
 
 /**
- * Returns the set Vertices passing the following test: walk the MAT tree and 
+ * Returns the set of Vertices passing the following test: walk the MAT tree and 
  * keep all Vertices not in the current cull set and any Vertices that have a 
  * non-culled node further down the line toward the tree leaves.
- * @param cullls
- * @param cpNode
+ * @param culls The CpNodes (referred to by circles) that should be culled.
+ * @param cpStart The start CpNode which must reprsesent the maximal vertex.
  */
 function cull(
         culls: Set<Circle>, 
-        cpNode: CpNode) {
+        cpStart: CpNode) {
 
-    let leaves = getLeaves(cpNode);
+    let leaves = getLeaves(cpStart);
+    
 
     while (leaves.length) {
         let leaf = leaves.pop();
+
+        // Preserve topology.
+        if (leaf.isHoleClosing || leaf.isIntersection) { continue; }
 
         if (!culls.has(leaf.cp.circle)) {
             continue;
@@ -26,45 +30,29 @@ function cull(
 
         let cpNode = leaf.next; // Turn around
 
-        let done = false;
-        while (!done) {
+        while (true) {
             cpNode = cpNode.next;
+            let cut = false;
+            let cp1 = cpNode.prevOnCircle;
 
-            if (cpNode.isThreeProng()) {
-                let cp1 = cpNode.prevOnCircle;
-
-                cp1.next = cpNode;
-                cpNode.prev  = cp1;
-                
+            if (!culls.has(cpNode.cp.circle)) {
+                cut = true;
+            } else if (cpNode.isThreeProng()) {
                 let cp2 = cp1.prevOnCircle;
-                if (cp2.next === cp1) {
-                    cp2.next = cpNode;
-                    cpNode.prev = cp2;
 
-                    // Change 3-prong into a 2-prong since 1 point is redundant.
-                    cp2.nextOnCircle = cpNode;
-                    cpNode.prevOnCircle = cp2;
-
-                    leaves.push(cp2);
+                if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
+                    cut = true; // We are at the max disk - cut whole edge
                 } else if (cpNode.next === cp2) {
-                    cp1.next = cp2;
-                    cp2.prev = cp1;
-
-                    // Change 3-prong into a 2-prong since 1 point is redundant.
-                    cp1.nextOnCircle = cp2;
-                    cp2.prevOnCircle = cp1;
-
-                    leaves.push(cp1);
+                    cpNode = cp2;
+                } else if (cp2.next !== cp1) {
+                    cut = true; // Cut whole edge
                 }
+            } 
 
-                done = true;
-            } else if (!culls.has(cpNode.cp.circle)) {
-                let cp1 = cpNode.prevOnCircle;
-
+            if (cut) {
                 cp1.next = cpNode;
-                cpNode.prev  = cp1;
-                
-                done = true;
+                cpNode.prev = cp1;
+                break;
             }
         }
     }

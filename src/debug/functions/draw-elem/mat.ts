@@ -4,7 +4,10 @@ declare let _debug_: MatDebug;
 import { MatDebug } from '../../debug';
 
 import { CpNode } from "../../../cp-node";
+import { Mat    } from '../../../mat';
+
 import { traverseEdges } from "../../../mat/traverse-edges";
+
 
 
 function mat(type: 'mat' | 'sat', smooth: boolean) {
@@ -16,7 +19,9 @@ function mat(type: 'mat' | 'sat', smooth: boolean) {
     return f;
 
 
-    function f(g: SVGGElement, cpNode: CpNode) {
+    function f(g: SVGGElement, mat: Mat) {
+        let cpNode = mat.cpNode;
+        
         if (!cpNode) { return undefined; }
 
         let draw = _debug_.fs.draw;
