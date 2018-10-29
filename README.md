@@ -51,7 +51,7 @@ code clearer but plain JavaScript can also be used.
 
 The live, interactive code can be viewed in this [StackBlitz project](https://stackblitz.com/edit/typescript-yucdon).
 
-The code can also be found under 'basic-ts' in the [examples on GitHub](https://github.com/FlorisSteenkamp/mat-examples). Only
+The code can also be found under 'draw-mat-ts' in the [examples on GitHub](https://github.com/FlorisSteenkamp/mat-examples). Only
 the .css and .ts files are reproduced here.
 
 **style.css**
@@ -343,7 +343,7 @@ let FloMat = require("flo-mat");
 ```
 or if you only want to require specific functionality:
 ```javascript
-let { findMats } = require('../../node/index.js');
+let { findMats } = require('flo-mat');
 ```
 
 ## TypeScript
