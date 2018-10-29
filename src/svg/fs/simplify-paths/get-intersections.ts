@@ -8,10 +8,10 @@ import { bezier3Intersection, getBoundingBox } from 'flo-bezier3';
 import { Loop } from '../../../loop';
 import { Curve } from '../../../curve';
 
-import { X } from '../../../x';
+import { X } from '../../../x/x';
 import { PointOnShape } from '../../../point-on-shape';
 import { pairSet_add, pairSet_has, pairSet_asArray } from './pair-set';
-import findBbIntersections from '../../../bounding-box/find-bb-intersections';
+import { findBbIntersections } from '../../../bounding-box/find-bb-intersections';
 
 // TODO - DELTA is somewhat arbitrary
 const DELTA = 1e-10;

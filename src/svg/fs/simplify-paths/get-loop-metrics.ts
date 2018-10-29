@@ -2,7 +2,7 @@
 import { tangent } from 'flo-bezier3';
 import { cross } from 'flo-vector2d';
 
-import { X } from '../../../x';
+import { X } from '../../../x/x';
 import { ILoopTree } from './i-loop-tree';
 
 

@@ -2,13 +2,20 @@
 import { PointOnShape } from './point-on-shape';
 import { Circle       } from './circle';
 
-
+/**
+ * Represents a point on the shape boundary for which MAT data has been
+ * calculated.  
+ */
 class ContactPoint {
 
 	/**
-	 * Representation of a point on a loop (or shape). 
-	 * @param pointOnShape 
-	 * @param vertex 
+	 * @param pointOnShape Identifies the point on the shape boundary.
+	 * @param circle The maximal disk circle touching this point.
+	 * @param order Internally used to order two points lying at the same planar 
+	 * point.
+	 * @param order2
+	 * Internally used to order two points lying at the same planar 
+	 * point.
 	 */
 	constructor(
 			readonly pointOnShape: PointOnShape, 
@@ -18,6 +25,14 @@ class ContactPoint {
 	}
 
 
+	/**
+	 * Primarily for internal use.
+	 * 
+	 * Compares the two contact points according to their order along the shape
+	 * boundary. Returns > 0 if a > b, < 0 if a < b or 0 if a === b.
+	 * @param a The first contact point.
+	 * @param b The second contact point.
+	 */
 	static compare(a: ContactPoint, b: ContactPoint) {
 		let res = PointOnShape.compare(a.pointOnShape, b.pointOnShape);
 

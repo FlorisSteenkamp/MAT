@@ -6,7 +6,7 @@ import { MatDebug } from '../../debug';
 import { CpNode } from "../../../cp-node";
 import { Mat    } from '../../../mat';
 
-import { traverseEdges } from "../../../mat/traverse-edges";
+import { traverseEdges } from "../../../traverse-edges";
 
 
 
@@ -44,7 +44,7 @@ function mat(type: 'mat' | 'sat', smooth: boolean) {
                 return;
             } 
 
-            let bezier = cpNode.matCurve;
+            let bezier = cpNode.matCurveToNextVertex;
 
             if (!bezier) { return; }
             

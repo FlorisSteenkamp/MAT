@@ -19,11 +19,11 @@ import { ElemType_TwoProng } from '../../mat/elem-type-two-prong';
 interface ITwoProngDebugFunctions {
 	logδ       : (n: number, type?: ElemType_TwoProng) => void,
 	log        : (n: number, type?: ElemType_TwoProng) => void,
-	drawNormal : (n: number) => void,
+	drawNormal : (n: number, showDelay?: number) => void,
 	logδBasic  : (n: number) => void,
-	logNearest : (p: number[]) => void,
-	traceConvergence: (n: number, finalOnly?: boolean, range?: number[], 
-		type?: ElemType_TwoProng) => void,
+	logNearest : (p: number[], showDelay?: number) => void,
+	traceConvergence: (n: number, finalOnly?: boolean, showDelay?: number,
+		range?: number[], type?: ElemType_TwoProng) => void,
 }
 
 
@@ -49,7 +49,11 @@ function log(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 /**
  * 
  */
-function drawNormal(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
+function drawNormal(
+		n: number, 
+		showDelay = 1000, 
+		type: ElemType_TwoProng = 'twoProng_regular') {
+
 	let twoProngs = _debug_.generated.elems[type];
 	
 	// If not specified which, draw all
@@ -65,14 +69,19 @@ function drawNormal(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 	
 	if (!twoProng) { return; }
 	
-	_debug_.fs.draw.line(g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue');
+	_debug_.fs.draw.line(
+		g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue', showDelay
+	);
 }
 
 
 /**
  * 
  */
-function logδBasic(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
+function logδBasic(
+		n: number, 
+		type: ElemType_TwoProng = 'twoProng_regular') {
+
 	let delta = _debug_.generated.elems[type][n].δ;
 
 	function f(x: CpNode) {
@@ -91,7 +100,7 @@ function logδBasic(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 /**
  * 
  */
-function logNearest(p: number[], type: ElemType_TwoProng = 'twoProng_regular') {
+function logNearest(p: number[], showDelay = 1000, type: ElemType_TwoProng = 'twoProng_regular') {
 	let closestPerLoops: TwoProngForDebugging[] = [];
 	_debug_.generatedAll.forEach(function(generated, loops) {
 		let twoProng = getObjClosestTo<TwoProngForDebugging>(
@@ -108,17 +117,7 @@ function logNearest(p: number[], type: ElemType_TwoProng = 'twoProng_regular') {
 	);
 
 
-	let g = twoProng.generated.g;
-
 	console.log(twoProng);
-	let circle_ = twoProng.circle;
-	
-	let circle = new Circle(
-			circle_.center,
-			circle_.radius || 1
-	);
-	_debug_.fs.draw.circle(g, circle, 'green thin10 nofill', 1000);
-	
 	
 	let n;
 	for (let i=0; i<_debug_.generated.elems[type].length; i++) {
@@ -129,7 +128,7 @@ function logNearest(p: number[], type: ElemType_TwoProng = 'twoProng_regular') {
 		}
 	}
 	
-	if (n !== undefined) { traceConvergence(n, true); }
+	if (n !== undefined) { traceConvergence(n, true, showDelay); }
 }
 
 
@@ -142,6 +141,7 @@ function logNearest(p: number[], type: ElemType_TwoProng = 'twoProng_regular') {
 function traceConvergence(
 		n         : number, 
 		finalOnly : boolean,
+		showDelay = 1000,
 		range     : number[] = undefined, 
 		type      : ElemType_TwoProng = 'twoProng_regular') {
 
@@ -174,14 +174,16 @@ function traceConvergence(
 		let x = twoProngInfo.xs[i];
 
 		let circle = new Circle(x.x, distanceBetween(x.x, x.y.p));
-		_debug_.fs.draw.crossHair(g, x.x, 'red thin10 nofill');
-		_debug_.fs.draw.circle(g, circle, 'blue thin10 nofill');
+		_debug_.fs.draw.crossHair(g, x.x, 'red thin10 nofill', undefined, showDelay);
+		_debug_.fs.draw.circle(g, circle, 'blue thin10 nofill', showDelay);
 		if (x.z !== undefined) {
-			_debug_.fs.draw.crossHair(g, x.z.p, 'yellow thin10 nofill', 2);
+			_debug_.fs.draw.crossHair(
+				g, x.z.p, 'yellow thin10 nofill', 2, showDelay
+			);
 		}
 	}
 
-	twoProngDebugFunctions.drawNormal(n);
+	twoProngDebugFunctions.drawNormal(n, showDelay);
 }
 
 

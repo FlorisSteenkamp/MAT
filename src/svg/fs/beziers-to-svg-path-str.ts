@@ -1,13 +1,16 @@
 
-import { Loop } from "../../loop";
-
-
 /**
- * Returns an SVG string representation of the given loop.
- * @param loop 
- * @param decimalPlaces 
+ * Returns an SVG path string representation of the given cubic bezier loop.
+ * @param beziers An array of cubic bezier curves each given as an array of 
+ * control points.
+ * @param decimalPlaces The number of decimal places in the returned path 
+ * string.
+ * @doc _
  */
-function beziersToSvgPathStr(beziers: number[][][], decimalPlaces: number = 10): string {
+function beziersToSvgPathStr(
+        beziers: number[][][], 
+        decimalPlaces: number = 10) {
+
     const D = decimalPlaces;
 
     let str = '';

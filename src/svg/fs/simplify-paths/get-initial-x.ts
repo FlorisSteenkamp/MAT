@@ -7,7 +7,7 @@ import { isPathPositivelyOrientated } from '../../fs/is-path-positively-oriented
 import { getLoopBounds } from '../get-loop-bounds';
 
 import { ILoopTree  } from "./i-loop-tree";
-import { X } from '../../../x';
+import { X } from '../../../x/x';
 
 
 /**

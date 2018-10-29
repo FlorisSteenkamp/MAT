@@ -3,7 +3,8 @@ import LlRbTree from 'flo-ll-rb-tree';
 
 import { Loop } from "../../loop";
 import { CpNode } from '../../cp-node';
-import { getShapeBounds, getMinYPos } from '../../svg/svg';
+import { getShapeBounds } from '../../svg/fs/get-shape-bounds';
+import { getMinYPos } from '../../svg/fs/get-min-y-pos'
 import { find2Prong } from './find-2-prong/find-2-prong';
 import { add2Prong } from './add-2-prong';
 
@@ -42,8 +43,9 @@ function findAndAddHoleClosing2Prongs(
         }
 
         if (holeClosingTwoProng) {
-            let { circle, z: posAntipode } = holeClosingTwoProng;
-            add2Prong(cpTrees, circle, posSource, posAntipode, true, extreme);
+            // TODO important - handle case of n-prong, i.e. more than one antipode
+            let { circle, zs: posAntipodes } = holeClosingTwoProng;
+            add2Prong(cpTrees, circle, posSource, posAntipodes, true, extreme);
         }
     }	
 }

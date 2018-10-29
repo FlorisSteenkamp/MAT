@@ -1,13 +1,11 @@
 
-import Memoize from 'flo-memoize';
-
+import { memoize } from 'flo-memoize';
 import { getBounds } from 'flo-bezier3';
 
 import { Loop         } from '../../loop';
 import { Curve        } from '../../curve';
 import { PointOnShape } from '../../point-on-shape';
 
-let { m1: memoize } = Memoize;
 
 const INF = Number.POSITIVE_INFINITY;
 

@@ -39,9 +39,12 @@ function isAnotherCpCloseby(
         extreme: number,
         color: string): boolean {
 
-    const DISTANCE_THRESHOLD = extreme * 1e-4; 
     //const DISTANCE_THRESHOLD = extreme * 1e-3; 
-    //const DISTANCE_THRESHOLD = extreme * 1e-1; 
+    //const DISTANCE_THRESHOLD = extreme * 1e-1;             
+    //const DISTANCE_THRESHOLD = extreme * 1e-4; - was this
+    const DISTANCE_THRESHOLD = extreme * 1e-12;
+    // It seems this can be zero else the ordering should be correct
+    //const DISTANCE_THRESHOLD = 0;
 
     let cpTree = cpTrees.get(pos.curve.loop);
     let cpNodes = getNeighbouringPoints(cpTree, pos, order, order2);
@@ -67,7 +70,7 @@ function isAnotherCpCloseby(
         let cosTheta = dot(v1,v2);
                             
         if (cosTheta > ANGLE_THRESHOLD) {
-            //console.log(`%c${cosTheta}`, `color: ${color}`);
+            //console.log(`%c${cosTheta} - ${distanceBetween(p1,p2)}`, `color: ${color}`);
             return true;
         }
     }

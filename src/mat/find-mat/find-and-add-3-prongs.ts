@@ -38,7 +38,7 @@ function findAndAddAll3Prongs(
 
 		markEdgeAsTaken(visitedEdges, fromCpNode, cpStart);
 		
-		for (let cpNode of cpStart.getNodes()) {
+		for (let cpNode of cpStart.getCpNodesOnCircle()) {
 
 			if (!PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
 				findAndAdd3Prongs(cpGraphs, cpNode, extreme);

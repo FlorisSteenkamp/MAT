@@ -16,11 +16,10 @@ export interface IThreeProngDebugFunctions {
 	showBoundary     : (n: number, indx: number) => void,
 	logδs            : (n: number) => void,
 	logNearest       : (
-			p: number[], 
-			inclSpokes?: boolean,
-			inclTrace?: boolean,
-			inclBoundaries?: boolean
-	) => void
+			showSpokes?     : boolean,
+			showTrace?      : boolean,
+			showBoundaries? : boolean
+	) => (p: number[], showDelay?: number) => void
 }
 
 
@@ -176,58 +175,68 @@ function logδs(n: number): void {
  * @param p
  */
 function logNearest(
-		p: number[],
-		inclSpokes: boolean = true,
-		inclTrace: boolean = true,
-		inclBoundaries: boolean = true) {
+		showSpokes = true,
+		showTrace = true,
+		showBoundaries = true) {
 
-	let closestPerLoops: ThreeProngForDebugging[] = [];
-	_debug_.generatedAll.forEach(function(generated) {
+	return function(p: number[], showDelay = 1000) {
+		let closestPerLoops: ThreeProngForDebugging[] = [];
+		_debug_.generatedAll.forEach(function(generated) {
+			let threeProng = getObjClosestTo<ThreeProngForDebugging>(
+				p, 
+				generated.elems.threeProng, 
+				threeProng => threeProng.circle.center
+			);
+			closestPerLoops.push(threeProng)
+		});
 		let threeProng = getObjClosestTo<ThreeProngForDebugging>(
 			p, 
-			generated.elems.threeProng, 
+			closestPerLoops, 
 			threeProng => threeProng.circle.center
 		);
-		closestPerLoops.push(threeProng)
-	});
-	let threeProng = getObjClosestTo<ThreeProngForDebugging>(
-		p, 
-		closestPerLoops, 
-		threeProng => threeProng.circle.center
-	);
 
 
-	let circle = threeProng.circle;
-	let g = threeProng.generated.g;
-	
-	console.log(threeProng);
+		let circle = threeProng.circle;
+		let g = threeProng.generated.g;
+		
+		console.log(threeProng);
 
-	let circle2 = new Circle(
-			circle.center,
-			circle.radius || 1
-	);
+		let circle2 = new Circle(
+				circle.center,
+				circle.radius || 1
+		);
 
-	let draw = _debug_.fs.draw;
+		let draw = _debug_.fs.draw;
 
-	draw.circle(g, circle2, 'green thin10 nofill', 1000);
+		draw.circle(g, circle2, 'blue thin10 nofill', showDelay);
+		draw.crossHair(g, circle.center, 'red thin2 nofill', 2, showDelay);
+
+		if (showSpokes) {
+			draw.line(g, [threeProng.poss[0].p, circle.center], 'blue thin5 nofill', showDelay);
+			draw.line(g, [threeProng.poss[1].p, circle.center], 'blue thin5 nofill', showDelay);
+			draw.line(g, [threeProng.poss[2].p, circle.center], 'blue thin5 nofill', showDelay);
+		}
 
 
-	// Boundaries
-	let boundaries = threeProng.boundaries;
-	let boundaryS = boundaries[0];
-	let boundaryE = boundaries[boundaries.length-1];
+		if (showBoundaries) {
+			let boundaries = threeProng.boundaries;
+			let boundaryS = boundaries[0];
+			let boundaryE = boundaries[boundaries.length-1];
 
-	draw.beziers(g, boundaryS, 'red thin5 nofill');
-	for (let i=1; i<boundaries.length-1; i++) {
-		let boundary = boundaries[i];
-		draw.beziers(g, boundary, 'green thin5 nofill');
-	}
-	draw.beziers(g, boundaryE, 'blue thin5 nofill');
+			draw.beziers(g, boundaryS, 'red thin5 nofill', showDelay);
+			for (let i=1; i<boundaries.length-1; i++) {
+				let boundary = boundaries[i];
+				draw.beziers(g, boundary, 'green thin5 nofill', showDelay);
+			}
+			draw.beziers(g, boundaryE, 'blue thin5 nofill', showDelay);
+		}
 
-	// Trace
-	let traces = threeProng.traces;
-	for (let trace of traces) {
-		draw.polyline(g, trace, 'red thin5 nofill')
+		if (showTrace) {
+			let traces = threeProng.traces;
+			for (let trace of traces) {
+				draw.polyline(g, trace, 'red thin5 nofill', showDelay)
+			}
+		}
 	}
 }
 

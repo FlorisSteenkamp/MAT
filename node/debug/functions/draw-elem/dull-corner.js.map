@@ -1,0 +1,1 @@
+{"version":3,"file":"dull-corner.js","sourceRoot":"","sources":["../../../../src/debug/functions/draw-elem/dull-corner.ts"],"names":[],"mappings":";;AAQA,oBAAoB,CAAc,EAAE,GAAiB;IACpD,MAAM,WAAW,GAAG,GAAG,CAAC;IAExB,IAAI,IAAI,GAAG,OAAO,CAAC,EAAE,CAAC,IAAI,CAAC,GAAG,CAAC,CAAC,EAAE,GAAG,CAAC,CAAC,EAAE,GAAG,GAAC,WAAW,EAAE,QAAQ,CAAC,CAAC;IAEpE,MAAM,CAAC,IAAI,CAAC;AACb,CAAC;AAGQ,gCAAU"}

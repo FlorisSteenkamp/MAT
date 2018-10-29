@@ -1,12 +1,10 @@
 
-import Memoize from 'flo-memoize';
+import { memoize } from 'flo-memoize';
 
 import { Loop } from '../../loop';
 import { PointOnShape } from '../../point-on-shape';
 
 import { getLoopBounds } from './get-loop-bounds';
-
-let { m1: memoize } = Memoize;
 
 
 let getShapeBounds = memoize(function(loops: Loop[]) {

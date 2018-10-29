@@ -14,12 +14,14 @@ import { Circle       } from '../../../circle';
 import { BezierPiece  } from '../../../bezier-piece';
 import { PointOnShape } from '../../../point-on-shape';
 
-import { getClosestBoundaryPoint } from '../../get-closest-boundary-point';
+import { getClosestBoundaryPoint } from 
+    '../../closest-boundary-point/get-closest-boundary-point';
 
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center';
 import { getClosestPoints } from './get-closest-points';
 import { calcBetterX      } from './calc-better-x';
 import { Curve } from '../../../curve';
+
 
 const calcVectorToZeroV_StraightToIt = fromTo;
 
@@ -176,7 +178,7 @@ function find3ProngForDelta3s(
         //-----------------------------------
         if (PointOnShape.isDullCorner(p)) {
             let corner = Curve.getCornerAtEnd(p.curve);
-            let tans = corner.tans;
+            let tans = corner.tangents;
             let perps = tans.map( rotate90Degrees );
                 
             let angleError1 = Math.asin( cross( perps[0], v ) );
@@ -216,7 +218,7 @@ function find3ProngForDelta3s(
             bezierPiecess[i], x, undefined, undefined
         );
         
-        closestDs.push( distanceBetween(p.p, x) );
+        closestDs.push( distanceBetween(p.pos.p, x) );
     }
     let closestD = Math.min(...closestDs);
     let radiusDelta = Math.abs(radius - closestD);

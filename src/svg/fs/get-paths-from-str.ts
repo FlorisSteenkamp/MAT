@@ -1,30 +1,20 @@
 
 import { getBeziersFromRawPaths } from './get-beziers-from-raw-paths';
-import { Loop } from '../../loop';
 import { parsePathDataString } from '../path-data-polyfill/parse-path-data-string';
-import { beziersToSvgPathStr } from './beziers-to-svg-path-str';
 
 
+/**
+ * Returns an array of loops with each loop consisting of an array of beziers
+ * and each bezier in turn consisting of an array of control points from the
+ * given SVG path string. An array of loops are returned (as opposed to a single
+ * loop) since an SVG path may have sub-paths.
+ * @param str The SVG path string, e.g. 'M1 1 C 5 1 5 2 4 2 C 3 3 1 3 1 1 z'
+ * @doc _
+ */
 function getPathsFromStr(str: string) {
-    let bezierLoops = getBeziersFromRawPaths(
+    return getBeziersFromRawPaths(
         parsePathDataString(str)
     );
-    
-    //---- For debugging ----//
-    // TODO
-    //console.log(paths);
-    /*
-    let pathsStr = '';
-    for (let i=0; i<bezierLoops.length; i++) {
-        let bezierLoop = bezierLoops[i];
-
-        pathsStr += beziersToSvgPathStr(bezierLoop) + '\n';
-    }
-    console.log(pathsStr);
-    */
-    //-----------------------//
-
-    return bezierLoops.map( path => new Loop(path) );
 }
 
 

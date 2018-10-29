@@ -14,7 +14,7 @@ function vertex(g: SVGGElement, cpNode: CpNode, visible: boolean = true, display
 	let draw = _debug_.fs.draw;
 	const THIN = 'thin20';
 
-	let cps = cpNode.getNodes();
+	let cps = cpNode.getCpNodesOnCircle();
 	console.log(cps)
 
 	let $svgs: SVGElement[] = [];

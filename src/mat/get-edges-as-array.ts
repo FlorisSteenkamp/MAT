@@ -1,7 +1,7 @@
 
 import { CpNode } from '../cp-node';
 
-import { traverseEdges } from './traverse-edges';
+import { traverseEdges } from '../traverse-edges';
 
 
 function getEdgesAsArray(cpNode: CpNode) {	
@@ -9,8 +9,7 @@ function getEdgesAsArray(cpNode: CpNode) {
 	
 	traverseEdges(
 		cpNode, 
-		function(cpNode) { cpNodes.push(cpNode) },
-		true
+		function(cpNode) { cpNodes.push(cpNode) }
 	);
 	
 	return cpNodes;

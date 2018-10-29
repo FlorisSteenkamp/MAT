@@ -26,7 +26,7 @@ import { leaves           } from './leaves';
 import { culls            } from './culls';
 import { intersection     } from './intersection';
 import { oneProngAtDullCorner } from './one-prong-at-dull-corner';
-import { X                } from '../../../x';
+import { X                } from '../../../x/x';
 
 
 export type TDrawElemFunctions = {

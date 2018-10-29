@@ -22,14 +22,6 @@ import { getTightestContainingLoop } from './get-tightest-containing-loop';
  * @param loops An array of possibly intersecting paths
  */
 function simplifyPaths(loops: Loop[]) {
-    /*
-    let s = '';
-    for (let loop of loops) {
-        s = s + '\n\n' + beziersToSvgPathStr(loop.curves.map(c => c.ps), 5)
-    }
-    console.log(s);
-    */
-
     /** A map from each curve to an array of intersections on that curve. */
     let intersections = getIntersections(loops);
 
@@ -80,7 +72,7 @@ function simplifyPaths(loops: Loop[]) {
     let iLoopSets = loopTrees.map(getLoopsFromTree);
     
     let loopss = iLoopSets.map(
-        loopSet => loopSet.map(ILoopToLoop)
+        loopSet => loopSet.map(iLoop => Loop.fromCubicBeziers(iLoop.beziers))
     );
 
     /*
@@ -114,15 +106,6 @@ function simplifyPaths(loops: Loop[]) {
     }
 
     return { loopss, xMap };
-}
-
-
-/**
- * 
- * @param iLoop 
- */
-function ILoopToLoop(iLoop: ILoopTree) {
-    return new Loop(iLoop.beziers);
 }
 
 

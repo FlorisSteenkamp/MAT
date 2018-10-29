@@ -1,5 +1,5 @@
 
-import { X } from '../../../x';
+import { X } from '../../../x/x';
 
 
 /**

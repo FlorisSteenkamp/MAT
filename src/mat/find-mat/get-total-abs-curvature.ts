@@ -2,7 +2,7 @@
 import { Loop } from '../../loop';
 
 import { totalAbsoluteCurvature } from 'flo-bezier3';
-import { getCurvatureAtInterface } from '../../svg/svg';
+import { getCurvatureAtInterface } from '../../svg/fs/get-curvature-at-interface';
 import { getTotalBy } from './get-total-by';
 
 

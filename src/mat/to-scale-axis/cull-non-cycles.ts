@@ -28,10 +28,12 @@ function cullNonCycles(cpStart: CpNode) {
             let cut = false;
             let cp1 = cpNode.prevOnCircle;
 
-            if (cpNode.isThreeProng()) {
-                let cp2 = cp1.prevOnCircle;
+            if (cpNode.getProngCount() > 2) {
+                //let cp2 = cp1.prevOnCircle;
+                let cp2 = cpNode.nextOnCircle;
 
-                if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
+                //if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
+                if (CpNode.isOnSameCircle(cpNode, cpStart)) {
                     cut = true; // We are at the max disk - cut whole edge
                 } else if (cpNode.next === cp2) {
                     cpNode = cp2;

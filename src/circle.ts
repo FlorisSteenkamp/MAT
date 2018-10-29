@@ -1,13 +1,16 @@
 
-import { squaredDistanceBetween} from 'flo-vector2d';
+import { squaredDistanceBetween } from 'flo-vector2d';
 
 
+/**
+ * Canonical circle representation.
+ */
 class Circle {
 
     /** 
-    * @param center
-    * @param radius
-    */
+     * @param center The center.
+     * @param radius The radius.
+     */
     constructor(
         public readonly center: number[], 
         public readonly radius: number) {

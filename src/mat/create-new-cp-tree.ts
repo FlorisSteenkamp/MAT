@@ -4,13 +4,21 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { CpNode } from '../cp-node';
 import { Loop   } from '../loop';
 
-import { traverseEdges } from './traverse-edges';
+import { traverseEdges } from '../traverse-edges';
 
 
 function createNewCpTree(cpNode: CpNode) {
 	let newCpTrees: Map<Loop,LlRbTree<CpNode>> = new Map();
 
-	traverseEdges(cpNode, function(cpNode) {
+	let cps = cpNode.getAllOnLoop();
+
+	cps.forEach(f);
+
+	// TODO - (done) This function is broken! We must simply go around the shape with 
+	// cpNode.next.next... instead of using traverseEdges. 
+	//traverseEdges(cpNode, f, true);
+
+	function f(cpNode: CpNode) {
 		let loop = cpNode.cp.pointOnShape.curve.loop;
 		let cpTree = newCpTrees.get(loop);
 		if (!cpTree) { 
@@ -18,7 +26,7 @@ function createNewCpTree(cpNode: CpNode) {
 			newCpTrees.set(loop, cpTree);
 		}
 		cpTree.insert(cpNode);
-	});
+	}
 
 	return newCpTrees;
 }

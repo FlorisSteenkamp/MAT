@@ -9,7 +9,15 @@ import { CpNode       } from '../cp-node';
 
 import { getNeighbouringPoints } from './get-neighboring-cps';
 
-
+/**
+ * 
+ * @param circle 
+ * @param orders 
+ * @param cpTrees 
+ * @param poss 
+ * @param neighbors 
+ * @private
+ */
 function addToCpGraph(
         circle  : Circle, 
         orders  : number[],

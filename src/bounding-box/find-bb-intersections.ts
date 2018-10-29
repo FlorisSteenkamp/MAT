@@ -15,11 +15,11 @@ function findBbIntersections(boxes: number[][][]) {
         let box = boxes[i];
         let smallerSide = box[0][0] < box[1][0] ? 0 : 1;
         let largerSide = smallerSide === 0 ? 1 : 0;
-		events.push(new Event(0, box, box[smallerSide]));
-		events.push(new Event(1, box, box[largerSide]));
+		events.push(new Event_(0, box, box[smallerSide]));
+		events.push(new Event_(1, box, box[largerSide]));
 	}
 
-	events.sort(Event.compare);
+	events.sort(Event_.compare);
 	
 	let activeBoxes = new Set<number[][]>();
 	
@@ -49,7 +49,7 @@ function findBbIntersections(boxes: number[][][]) {
 }
 
 
-class Event {
+class Event_ {
 
     /**
      * Event class constructor
@@ -71,7 +71,7 @@ class Event {
      * @param a A point (within an object)
      * @param b A point (within an object)
      */
-    static compare(a: Event, b: Event) {
+    static compare(a: Event_, b: Event_) {
         let res = a.p[0] - b.p[0];
 
         if (res !== 0) { return res; }
@@ -117,4 +117,4 @@ function areBoxesIntersecting(
 }
 
 
-export default findBbIntersections;
+export { findBbIntersections }

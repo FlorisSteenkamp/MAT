@@ -29,22 +29,6 @@ function twoProng(g: SVGGElement, twoProng: TwoProngForDebugging) {
 			thin = '2';
 			break;
 		}
-		case 'twoProng_failed': {
-			$failedDot = draw.dot(
-				g, twoProng.pos.p, 1*scaleFactor, 'black'
-			);
-			return;
-		}
-		case 'twoProng_notAdded': {
-			color = 'brown ';
-			thin = '10';
-			break;
-		}
-		case 'twoProng_deleted': {
-			color = 'gray ';
-			thin = '2';
-			break;
-		}		
 		case 'twoProng_holeClosing': {
 			color = 'cyan ';
 			thin = '10';

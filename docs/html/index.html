@@ -1,0 +1,511 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>FloMat</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">FloMat</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> FloMat</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="medial-and-scale-axis-transform-library-svg-focused">Medial (and Scale) Axis Transform library - SVG focused</h1>
+				<p>A pure JavaScript (source in TypeScript) Medial (and Scale) Axis Transform (MAT/SAT) library.</p>
+				<p><strong><a href="https://mat-demo.appspot.com">Demo</a></strong></p>
+				<p><strong><a href="https://stackblitz.com/edit/typescript-74qxdf">Full simple 140 Lines of Code live StackBlitz project</a></strong></p>
+				<p><strong><a href="https://github.com/FlorisSteenkamp/mat-examples">More examples</a></strong></p>
+				<p><strong><a href="https://mat-demo.appspot.com/docs/index.html">Documentation</a></strong>, but also see installation instructions below.</p>
+				<h2 id="introduction">Introduction</h2>
+				<p>The <a href="https://en.wikipedia.org/wiki/Medial_axis">MAT</a> is an analytical form of skeletonization of a shape. It is perfectly suited to SVG. Described by many scholars as <em>the most important image transform</em>, it has endless use cases, e.g.:</p>
+				<ul>
+					<li><strong>Morphing</strong></li>
+					<li><strong>Shape thinning and fattening</strong></li>
+					<li><strong>Shape classification</strong></li>
+					<li><strong>Shape simplification</strong></li>
+					<li><strong>Image compression</strong></li>
+					<li><strong>Shape Triangulation</strong></li>
+				</ul>
+				<p>The <a href="http://www.balintmiklos.com/scale-axis/theory_socg_2009.html">SAT</a> is similar to the MAT (and indeed uses it as input) but is often <em>more practical</em> as it removes insignifacant MAT branches based on the <em>local image scale</em>. The culling severity of branches is controlled by a parameter called <em>s</em>.</p>
+				<p>In the image below, the gray silhouette is the original SVG shape and the blue curves represents the SAT. The SAT (and MAT) is internally represented as a tree data structure with branches being quadratic beziers.</p>
+				<p><img src="https://raw.github.com/FlorisSteenkamp/MAT/master/github%20assets/two-hole.png" alt="Alt text"></p>
+				<p>FloMat is a MAT/SAT library for planar shapes composed of a closed sequence of linear, quadratic and
+					cubic bezier curves (such as in SVG). The shape need not be simple, can contain holes and may
+				include multiple &#39;loops&#39;.</p>
+				<p>For those who are interested, the implementation of the MAT is based on a paper by Hyeong In Choi, Sung Woo Choi, Hwan Pyo Moon and
+					Nam-Sook Wee that can be freely downloaded
+					<a href="https://pdfs.semanticscholar.org/70ae/5b583303af0b4d60d356d08f8ed84e1babbc.pdf">here</a>.
+				It also gives some valuable insight into the nature of the MAT.</p>
+				<p>For a less mathematical explanation of the algorithm see
+				<a href="https://stackoverflow.com/questions/29921826/how-do-i-calculate-the-medial-axis-for-a-2d-vector-shape">this Stack Overflow answer</a>.</p>
+				<p>The implementation of the SAT is similar to the original ideas that can be found in
+					<a href="http://www.balintmiklos.com/scale-axis/scale_axis_transform_socg_2009.pdf">this paper</a>
+					but it has been improved to preserve topology at any scale &gt;= 1. It also guarantees that
+				the SAT is a subset of the MAT.</p>
+				<h1 id="code-example">Code example</h1>
+				<p>Note that the example code given here is in TypeScript since the types make the
+				code clearer but plain JavaScript can also be used. </p>
+				<p>The live, interactive code can be viewed in this <a href="https://stackblitz.com/edit/typescript-74qxdf">StackBlitz project</a>.</p>
+				<p>The code can also be found under &#39;basic-ts&#39; in the <a href="https://github.com/FlorisSteenkamp/mat-examples">examples on GitHub</a>. Only
+				the .css and .ts files are reproduced here.</p>
+				<p><strong>style.css</strong></p>
+				<pre><code class="lang-css"><span class="hljs-selector-tag">h1</span>, <span class="hljs-selector-tag">h2</span> {
+  <span class="hljs-attribute">font-family</span>: Lato;
+}
+
+<span class="hljs-selector-class">.shape-path</span> {
+    <span class="hljs-attribute">fill</span>: lightgray;
+    <span class="hljs-attribute">stroke</span>: darkgray;
+    <span class="hljs-attribute">stroke-width</span>: <span class="hljs-number">0.1%</span>;
+}
+
+<span class="hljs-selector-class">.mat</span> {
+    <span class="hljs-attribute">fill</span>: none;
+    <span class="hljs-attribute">stroke</span>: deeppink;
+    <span class="hljs-attribute">stroke-width</span>: <span class="hljs-number">0.1%</span>;
+}
+
+<span class="hljs-selector-class">.sat</span> {
+    <span class="hljs-attribute">fill</span>: none;
+    <span class="hljs-attribute">stroke</span>: blue;
+    <span class="hljs-attribute">stroke-width</span>: <span class="hljs-number">0.2%</span>;
+}
+</code></pre>
+				<p><strong>index.ts</strong></p>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> <span class="hljs-string">'./style.css'</span>; <span class="hljs-comment">// Import stylesheets</span>
+
+<span class="hljs-keyword">import</span> { findMats, Svg, Mat, traverseEdges, toScaleAxis } <span class="hljs-keyword">from</span> <span class="hljs-string">'flo-mat'</span>;
+
+<span class="hljs-keyword">const</span> NS = <span class="hljs-string">'http://www.w3.org/2000/svg'</span>; <span class="hljs-comment">// Svg namespace</span>
+
+<span class="hljs-comment">/**
+ * Creates and returns an SVG DOM element.
+ * @param id The dom id to assign to the SVG element, e.g. 1 -&gt; 'svg-1'
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createSvg</span>(<span class="hljs-params">id: <span class="hljs-built_in">number</span></span>) </span>{
+    <span class="hljs-keyword">let</span> $e = <span class="hljs-built_in">document</span>.createElementNS(NS, <span class="hljs-string">'svg'</span>);
+    $e.setAttributeNS(<span class="hljs-literal">null</span>, <span class="hljs-string">'id'</span>, <span class="hljs-string">'svg'</span> + id);
+    $e.setAttributeNS(<span class="hljs-literal">null</span>, <span class="hljs-string">'style'</span>, <span class="hljs-string">'width: 100%; display: inline-block'</span>);
+    $e.setAttributeNS(<span class="hljs-literal">null</span>, <span class="hljs-string">'viewBox'</span>, <span class="hljs-string">'75 4 557 502'</span>);
+
+    <span class="hljs-keyword">return</span> $e;
+}
+
+<span class="hljs-comment">/**
+ * Returns an SVG path string of a line.
+ * @param ps The line endpoints.
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getLinePathStr</span>(<span class="hljs-params">ps: <span class="hljs-built_in">number</span>[][]</span>) </span>{
+    <span class="hljs-keyword">let</span> [[x0,y0],[x1,y1]] = ps;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`M<span class="hljs-subst">${x0}</span> <span class="hljs-subst">${y0}</span> L<span class="hljs-subst">${x1}</span> <span class="hljs-subst">${y1}</span>`</span>;
+}
+
+<span class="hljs-comment">/**
+ * Returns an SVG path string of a quadratic bezier curve.
+ * @param ps The quadratic bezier control points.
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getQuadBezierPathStr</span>(<span class="hljs-params">ps: <span class="hljs-built_in">number</span>[][]</span>) </span>{
+    <span class="hljs-keyword">let</span> [[x0,y0],[x1,y1],[x2,y2]] = ps;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`M<span class="hljs-subst">${x0}</span> <span class="hljs-subst">${y0}</span> Q<span class="hljs-subst">${x1}</span> <span class="hljs-subst">${y1}</span> <span class="hljs-subst">${x2}</span> <span class="hljs-subst">${y2}</span>`</span>;
+}
+
+<span class="hljs-comment">/**
+ * Returns an SVG path string of a cubic bezier curve.
+ * @param ps The cubic bezier control points.
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCubicBezierPathStr</span>(<span class="hljs-params">ps: <span class="hljs-built_in">number</span>[][]</span>) </span>{
+    <span class="hljs-keyword">let</span> [[x0,y0],[x1,y1],[x2,y2],[x3,y3]] = ps;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`M<span class="hljs-subst">${x0}</span> <span class="hljs-subst">${y0}</span> C<span class="hljs-subst">${x1}</span> <span class="hljs-subst">${y1}</span> <span class="hljs-subst">${x2}</span> <span class="hljs-subst">${y2}</span> <span class="hljs-subst">${x3}</span> <span class="hljs-subst">${y3}</span>`</span>;
+}
+
+
+<span class="hljs-comment">/**
+ * The SVG path string representing our shape.
+ */</span>
+<span class="hljs-keyword">const</span> svgPathStr = <span class="hljs-string">`
+        M 144 251
+        C 145 169 110 82 227 59 
+        C 344 36 429 -46 505 96 
+        C 581 238 696 407 554 435 
+        C 412 463 191 532 197 442 
+        C 203 352 213 363 276 346 
+        C 339 329 563 318 437 242 
+        C 311 166 302 181 297 314 
+        C 292 447 160 585 151 419 
+        C 142 253 87.12 312.78 86 314 
+        C 87.16 312.74 142.8632 252.2348 144 251 
+        z
+`</span>;
+
+
+<span class="hljs-comment">/**
+ * Adds a path to the given SVG element and give it a shape-path class.
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setSvgShapePath</span>(<span class="hljs-params">
+        $svg: SVGSVGElement, 
+        pathStr: <span class="hljs-built_in">string</span></span>) </span>{
+
+    <span class="hljs-keyword">let</span> $path = <span class="hljs-built_in">document</span>.createElementNS(NS, <span class="hljs-string">'path'</span>); <span class="hljs-comment">// Create SVG path elem.</span>
+    $path.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'shape-path'</span>); 
+    $svg.appendChild($path); <span class="hljs-comment">// Add the path element to the SVG.</span>
+    <span class="hljs-built_in">document</span>.body.appendChild($svg); <span class="hljs-comment">// Add the SVG to the document body.</span>
+    $path.setAttribute(<span class="hljs-string">'d'</span>, svgPathStr); 
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">main</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// Create and add and SVG element to our HTML page.</span>
+    <span class="hljs-keyword">let</span> $svg = createSvg(<span class="hljs-number">1</span>); <span class="hljs-comment">// Create SVG element.</span>
+
+    setSvgShapePath($svg, svgPathStr);
+
+    <span class="hljs-comment">// Get loops (representing the shape) from some SVG path.</span>
+    <span class="hljs-keyword">let</span> bezierLoops = Svg.getPathsFromStr(svgPathStr);
+
+    <span class="hljs-comment">// We could also just give an array of linear, quadratic or cubic beziers as </span>
+    <span class="hljs-comment">// below (all lines in this case). Note that in the below case there is only</span>
+    <span class="hljs-comment">// one array of beziers (forming a single loop shape).</span>
+    <span class="hljs-comment">/*
+    bezierLoops = [
+        [
+            [[50.000, 95.000],[92.797, 63.905]], 
+            [[92.797, 63.905],[76.450, 13.594]],
+            [[76.450, 13.594],[23.549, 13.594]],
+            [[23.549, 13.594],[7.202,  63.90]],
+            [[7.202,  63.900],[50.000, 95.000]]
+        ]
+    ];
+    */</span>
+
+    <span class="hljs-comment">// Get MATs from the loops.</span>
+    <span class="hljs-keyword">let</span> mats = findMats(bezierLoops, <span class="hljs-number">3</span>);
+
+    <span class="hljs-comment">// Draw the MATs.</span>
+    drawMats(mats, $svg, <span class="hljs-string">'mat'</span>);
+
+    <span class="hljs-comment">// Get the SAT (at scale 1.5) of the MATs (of which there is only 1)</span>
+    <span class="hljs-keyword">let</span> sats = mats.map(<span class="hljs-function"><span class="hljs-params">mat</span> =&gt;</span> toScaleAxis(mat, <span class="hljs-number">1.5</span>));
+
+    drawMats(sats, $svg, <span class="hljs-string">'sat'</span>);
+}
+
+
+<span class="hljs-comment">/**
+ * Returns a function that draws an array of MAT curves on an SVG element.
+ * @param mats An array of MATs to draw.
+ * @param svg The SVG element on which to draw.
+ * @param type The type of MAT to draw. This simply affects the class on the 
+ * path element.
+  */</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">drawMats</span>(<span class="hljs-params">
+        mats: Mat[],
+        svg: SVGSVGElement,
+        <span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span> <span class="hljs-comment">/* 'mat' | 'sat' */</span></span>) </span>{
+
+    mats.forEach(f);
+
+    <span class="hljs-comment">/**
+     * Draws a MAT curve on an SVG element.
+     */</span>
+     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">mat: Mat</span>) </span>{
+        <span class="hljs-keyword">let</span> cpNode = mat.cpNode;
+
+        <span class="hljs-keyword">if</span> (!cpNode) { <span class="hljs-keyword">return</span>; }
+
+        <span class="hljs-keyword">let</span> fs = [,,getLinePathStr, getQuadBezierPathStr, getCubicBezierPathStr];
+
+        traverseEdges(cpNode, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cpNode</span>) </span>{
+            <span class="hljs-keyword">if</span> (cpNode.isTerminating()) { <span class="hljs-keyword">return</span>; }
+            <span class="hljs-keyword">let</span> bezier = cpNode.matCurve;
+            <span class="hljs-keyword">if</span> (!bezier) { <span class="hljs-keyword">return</span>; }
+
+            <span class="hljs-keyword">let</span> $path = <span class="hljs-built_in">document</span>.createElementNS(NS, <span class="hljs-string">'path'</span>);
+            $path.setAttributeNS(
+                <span class="hljs-literal">null</span>, 
+                <span class="hljs-string">"d"</span>, 
+                fs[bezier.length](bezier)
+            );
+            $path.setAttributeNS(<span class="hljs-literal">null</span>, <span class="hljs-string">"class"</span>, <span class="hljs-keyword">type</span>);
+
+            svg.appendChild($path);
+        });
+    }
+}
+
+
+main();
+</code></pre>
+				<p>The first part of the code is just concerned with importing stuff. Then there is a function
+					for programatically creating an SVG HTML element. The next three functions, <code>getLinePathStr</code>,
+					<code>getQuadBezierPathStr</code> and <code>getCubicBezierPathStr</code> will be used for creating the paths that will
+					represent the Medial Axis on our SVG. Following that is the SVG path string of our shape and
+				a function, <code>setSvgShapePath</code>, to add the path to the SVG.</p>
+				<p>The next function, <code>main</code>, is the entry point of our example. The first two lines creates the
+				SVG and sets the path. The third line:</p>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">let</span> bezierLoops = Svg.getPathsFromStr(svgPathStr);
+</code></pre>
+				<p>extracts the path data into an array that is suitable to be comsumed by <code>findMats</code>,
+					the function from the library that will do the number crunching and return an array
+					of Medial Axis Transforms. The array, <code>bezierLoops</code> is of type <code>number[][][][]</code>.
+					It is an array of &#39;loops&#39;. Each &#39;loop&#39; (of which there is only one in our case) is a sequence of
+					bezier curves such that the starting point of the first bezier corresponds to the end point of
+					the last. Each bezier in the loop is represented by its (2, 3 or 4) control points which has type
+					signature <code>number[][]</code> hence the type <code>number[][][][]</code> for <code>bezierLoops</code>.
+					For example, the cubic bezier with control points at (1,1), (5,1), (5,2) and (4,2) is represented as
+					an array of points <code>[[1,1],[5,1],[5,2],[4,2]]</code>. A loop consisting of just 2 beziers can
+					be encoded as say <code>[ [[1,1],[5,1],[5,2],[4,2]], [4,2],[3,3],[1,3],[1,1] ]</code> and finally
+					we can make an array of loops from this (containing just 1 element) as follows:
+				<code>[[ [[1,1],[5,1],[5,2],[4,2]], [4,2],[3,3],[1,3],[1,1] ]]</code>. </p>
+				<p>The reason for being able to provide an array of loops is because a shape might consist of
+					an outer loop with one or more inner loops representing holes. This is also reflected
+					in the fact that SVG paths can have sub-paths. In such a case the inner
+					loops must have opposite orientation than the outer envelope loop. The rule used to indicate which
+					loops form holes and which are part of the shape is the default SVG
+					<a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-rule">non-zero</a>
+					fill rule. Loops may also intersect each other,
+					in the process possibly creating more than one disjoint shape. In the above example a single
+				intersecting loop creates a shape with a hole.</p>
+				<p>This brings us to the heart of the example, the <code>findMats</code> function.</p>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">let</span> mats = findMats(bezierLoops, <span class="hljs-number">3</span>);
+</code></pre>
+				<p>The function extracts the Medial Axis Transforms
+					of all shapes created by the the array of input bezier loops.
+					It takes an additional parameter indicating the number of points
+					on each bezier for which a MAT vertex &#39;point&#39; should be calculated. A
+					value of 3 is the default and is a reasonable compromise between
+					speed and accuracy. A value of 15 would give highly accurate
+				results.</p>
+				<p>In the special case of a single non-intersecting closed loop
+					the returned MAT array will be of length 1. Let us look at it
+				in more detail.</p>
+				<p>The returned MAT is essentially a tree data structure. Even if
+					the shape contains holes it is a tree since
+					the graph is snipped at so-called hole-closing maximal disks to form a tree.
+				(It is still possible though to traverse the MAT as a non-tree graph if required).</p>
+				<p>As in the example code above, we can traverse the tree to
+					draw the Medial Axis (MA). This is done by utilizing the <code>traverseEdges</code> function. (Note that
+					the MA is the MAT but without the maximal disk radius, etc. information encoded on
+					it). This is accomplished by the <code>drawMats</code> function. The inner function, <code>f</code>,
+				draws a single MA. </p>
+				<p>First we select a tree node as the root of
+					the MAT tree. One such node is given to us via <code>mat.cpNode</code>.
+					The tree can now be traversed from this node outwards to the tree
+					leaves just like in any other tree traversal. Each node, which is
+					a class of type <code>CpNode</code> (for Contact Point Node), has several
+					properties (see the docs). For our current purposes
+				we only need the <code>matCurve</code> property.</p>
+				<p><code>matCurve</code> is a bezier curve (as defined previously with
+					type <code>number[][]</code>) of order 1, 2 or 3 forming a part of
+				the MA. In the example code we draw this curve on our orignal SVG.</p>
+				<p>The <code>main</code> function concludes by finding the Scale Axis Transform of our found
+				MAT and then drawing it on top of the MAT with a different css class (blue).</p>
+				<h1 id="installation">Installation</h1>
+				<p>Whether your target is Node or the browser the library can be installed via <a href="https://www.npmjs.com/">npm</a>.
+				(For the browser you can also download the <a href="https://raw.githubusercontent.com/FlorisSteenkamp/MAT/master/browser/index.min.js">minified .js</a> file - see below)</p>
+				<p>So whatever your target, at the the command line:</p>
+				<pre><code class="lang-cli">npm install flo-mat --save
+</code></pre>
+				<h2 id="node-with-javascript-or-the-browser-with-webpack-or-similar-">Node with JavaScript (or the browser (with <a href="https://webpack.js.org/">webpack</a>) or similar)</h2>
+				<p>In your project</p>
+				<pre><code class="lang-javascript"><span class="hljs-keyword">let</span> FloMat = <span class="hljs-built_in">require</span>(<span class="hljs-string">"flo-mat"</span>);
+</code></pre>
+				<p>or if you only want to require specific functionality:</p>
+				<pre><code class="lang-javascript"><span class="hljs-keyword">let</span> { findMats } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../../node/index.js'</span>);
+</code></pre>
+				<h2 id="typescript">TypeScript</h2>
+				<p>In your project</p>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> FloMat <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;
+</code></pre>
+				<p>or for specific functionalities:</p>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> { findMats } <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;
+</code></pre>
+				<h2 id="browser-using-global-var-">Browser (using global var)</h2>
+				<p>After the npm installation simply include the script in your project:</p>
+				<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'node_modules/flo-mat/browser/index.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+				<p>A new global object will available called <code>FloMat</code> representing the library. </p>
+				<h1 id="usage">Usage</h1>
+				<p>Please see the documentation for the primary functions and classes:
+					<a href="https://mat-demo.appspot.com/docs/modules/_find_mats_.html">findMats</a>, <a href="https://mat-demo.appspot.com/docs/modules/_to_scale_axis_.html">toScaleAxis</a> and
+				<a href="https://mat-demo.appspot.com/docs/classes/_cp_node_.cpnode.html">CpNode</a>.</p>
+				<h1 id="documentation">Documentation</h1>
+				<p>For documentation and code examples please see the
+				<a href="https://mat-demo.appspot.com/docs/index.html">documentation</a></p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_bezier_piece_.html">"bezier-<wbr>piece"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_circle_.html">"circle"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_contact_point_.html">"contact-<wbr>point"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_corner_.html">"corner"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_cp_node_.html">"cp-<wbr>node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_curve_.html">"curve"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_find_mats_.html">"find-<wbr>mats"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_index_.html">"index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_loop_.html">"loop"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_mat_.html">"mat"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_point_on_shape_.html">"point-<wbr>on-<wbr>shape"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_to_scale_axis_.html">"to-<wbr>scale-<wbr>axis"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_traverse_edges_.html">"traverse-<wbr>edges"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_traverse_vertices_.html">"traverse-<wbr>vertices"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

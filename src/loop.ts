@@ -2,35 +2,46 @@
 import Poly from 'flo-poly';
 
 import { Curve } from './curve';
+import { quadraticToCubic } from './svg/fs/quadratic-to-cubic';
+import { linearToCubic } from './svg/fs/linear-to-cubic';
 	
 
 /**
- * Represents a two-way linked loop of Curves. 
+ * Represents a two-way linked loop of [[Curve]]s - mostly used internally to 
+ * conveniently represent shape boundaries.
  */
 class Loop {
-    readonly curves : Curve[];
-    readonly head   : Curve;
+    /**
+     * The curves that represent the shape boundary as an array.
+     */
+    readonly curves: Curve[];
+    /**
+     * A handle on the linked loop.
+     */
+    readonly head: Curve;
 
 
     /**
-     * @param items - A pre-ordered array of items to add initially
+     * @param beziers - A pre-ordered array of bezier curves to add initially.
      */
-    constructor(public items: number[][][] = []) {
+    constructor(
+            public beziers: number[][][] = []) {
+
         this.curves = [];
 
         let loop = this;
 
-        if (items.length === 0) { return undefined; }
+        if (beziers.length === 0) { return undefined; }
         
         let head: Curve;
         let prev: Curve = null;
         let node: Curve;
         
-        for (let i=0; i<items.length; i++) {
+        for (let i=0; i<beziers.length; i++) {
 
             node = new Curve(
                 loop,
-                items[i],
+                beziers[i],
                 prev,
 				null,
 				i
@@ -52,6 +63,9 @@ class Loop {
     }
 
 
+    /**
+     * Returns the loop as an array of beziers.
+     */
     public toBeziers() {
         let beziers: number[][][] = [];
         for (let curve of this.curves) {
@@ -61,7 +75,43 @@ class Loop {
         return beziers;
     }
 
+    
+    /**
+     * Creates and returns a [[Loop]] from the given array of cubic beziers.
+     * @param beziers An array of cubic beziers.
+     */
+    static fromCubicBeziers(beziers: number[][][] = []) {
+        return new Loop(beziers);
+    }
 
+
+    /**
+     * Creates and returns a [[Loop]] from the given array of beziers.
+     * @param beziers An array of bezier curves (linear, quadratic or cubic).
+     */
+    static fromBeziers(items: number[][][] = []) {
+        let items_ = [];
+        for (let i=0; i<items.length; i++) {
+            let item = items[i];
+            if (item.length === 4) {
+                items_.push(item);
+            } else if (item.length === 3) {
+                items_.push(quadraticToCubic(item));
+            } else if (item.length === 2) {
+                items_.push(linearToCubic(item));
+            }
+        }
+
+        return new Loop(items_);
+    }
+
+
+    /**
+     * Perturbs the loop. Not used.
+     * @param loop 
+     * @param x 
+     * @private
+     */
     static perturb(loop: Loop, x: number) {
         if (!x) { return loop; }
 
@@ -69,7 +119,7 @@ class Loop {
 
         let newItems: number[][][] = [];
 
-        for (let i=0; i<loop.items.length; i++) {
+        for (let i=0; i<loop.beziers.length; i++) {
 
             // This gets us a predictable random number between 0 and 1;
             let rand1 = Poly.random.flatCoefficients(6, -1, 1, seed);
@@ -79,7 +129,7 @@ class Loop {
             let vs = rs.map(r => r*x);
             console.log(vs)
 
-            let ps = loop.items[i];
+            let ps = loop.beziers[i];
 
             let [[x0,y0], [x1,y1], [x2,y2]] = ps;
 

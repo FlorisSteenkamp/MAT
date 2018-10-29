@@ -1,41 +1,50 @@
 
 import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
-import Memoize from 'flo-memoize';
+import { memoize } from 'flo-memoize';
 import { normal, evaluate, κ as curvature }   from 'flo-bezier3';
 
-import { getLoopBounds } from './svg/svg';
-
+import { Corner } from './corner'
 import { Curve  } from './curve'
 import { Circle } from './circle';
 
-let memoize = Memoize.m1;
-
-
+/**
+ * Represents a point on the shape boundary for which MAT vertex information 
+ * has not *necessarily* been calculated.
+ */
 class PointOnShape {
-    /*readonly*/ curve : Curve; 	
-	/*readonly*/ t     : number;	
+
+    /** 
+     * @param curve	The [[Curve]] on the shape boundary this points belong to.
+     * @param t The bezier parameter value on the curve to identify the point
+     * coordinates.
+     */	
+    constructor(
+            public curve: Curve, 
+            public t: number) {
+    }	
+
 
     // Cache
     private p_ : number[] = undefined;
+    /**
+     * The planar point coordinates of this [[PointOnShape]].
+     */
     get p() {
         return this.p_ === undefined
             ? this.p_ = evaluate(this.curve.ps, this.t)
             : this.p_;
     }
-
-
-    /** 
-     * @param curve	
-     * @param t - The bezier parameter value
-     */	
-    constructor(curve: Curve, t: number) {
-        this.curve = curve;
-        this.t = t;
-    }	
     
     
+    /**
+     * Returns the osculating circle at this point of the curve.
+     * @param maxOsculatingCircleRadius If not Number.POSITIVE_INFINITY then the
+     * circle radius will be limited to this value.
+     * @param pos The [[PointOnShape]] identifying the point.
+     */
     public static getOsculatingCircle(
-            maxOsculatingCircleRadius: number, pos: PointOnShape) {
+            maxOsculatingCircleRadius: number, 
+            pos: PointOnShape) {
 
         if (PointOnShape.isSharpCorner(pos)) {
             return new Circle(pos.p, 0);
@@ -64,11 +73,12 @@ class PointOnShape {
 
 
     /**
-     * Calculates the osculating circle of the bezier at a 
+     * Calculates and returns the osculating circle radius of the bezier at a 
      * specific t. If it is found to have negative or nearly zero radius
      * it is clipped to have positive radius so it can point into the shape.
      * @param ps
      * @param t
+     * @private
      */
     public static calcOsculatingCircleRadius = memoize(function(pos: PointOnShape) {
 
@@ -83,6 +93,13 @@ class PointOnShape {
     });
 
 
+    /**
+     * Compares two [[PointOnShape]]s according to their cyclic ordering imposed
+     * by their relative positions on the shape boundary. 
+     * @param a The first [[PointOnShape]].
+     * @param b The second [[PointOnShape]].
+     * @private
+     */
     public static compare = function(a: PointOnShape, b: PointOnShape) {
         if (a === undefined || b === undefined) {
             return undefined;
@@ -101,6 +118,7 @@ class PointOnShape {
 
     /**
      * Ignores order2 (used in hole-closing two-prongs only)
+     * @private
      */
     public static compareInclOrder = function(
             a: PointOnShape, 
@@ -115,14 +133,14 @@ class PointOnShape {
 		if (res !== 0) { return res; }
 
 		res = aOrder - bOrder;
-		//if (res !== 0) { return res; }
-
-        //return a.order2 - b.order2;
         
         return res;
     }
 
 
+    /**
+     * @private
+     */
     public static getCorner = memoize(function(pos: PointOnShape) {
         if (pos.t !== 0 && pos.t !== 1) { return undefined; }
 
@@ -132,24 +150,36 @@ class PointOnShape {
     });
 
 
+    /**
+     * @private
+     */
     public static isSharpCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
         return corner && corner.isSharp;
     });
 
 
+    /**
+     * @private
+     */
     public static isDullCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
         return corner && corner.isDull;
     });
 
 
+    /**
+     * @private
+     */
     public static isQuiteSharpCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
         return corner && corner.isQuiteSharp;
     });
 
 
+    /**
+     * @private
+     */
     public static isQuiteDullCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
         return corner && corner.isQuiteDull;
@@ -160,6 +190,7 @@ class PointOnShape {
      * Calculates the order (to distinguish between points lying on top of each 
      * other) of the contact point if it is a dull corner.
      * @param pos
+     * @private
      */
     public static calcOrder(
             circle : Circle, 
@@ -167,29 +198,19 @@ class PointOnShape {
         
         if (!PointOnShape.isDullCorner(pos)) { return 0; }
 
-        //let corner = Curve.getCornerAtEnd(pos.curve);
         let corner = PointOnShape.getCorner(pos);
 
-        let n = rotateNeg90Degrees(corner.tans[0]);
+        let n = rotateNeg90Degrees(corner.tangents[0]);
         let v = toUnitVector( fromTo(pos.p, circle.center) );
-        /*
-        console.log('------------------------------');
-        console.log('circle.center: ', circle.center);
-        console.log('pos.p: ', pos.p);
-        console.log('corner: ', corner);
-        console.log('tans[0]: ', corner.tans[0]);
-        console.log('n: ', n);
-        console.log('v: ', v);
-        console.log('-dot(n, v): ', -dot(n, v));
-        */
 
         return -dot(n, v);
     }
 
 
     /**
-     * Returns a human-readable string of the given PointOnShape. 
+     * Returns a human-readable string of the given [[PointOnShape]]. 
      * For debugging only.
+     * @private
      */
     public static toHumanString = function(pos: PointOnShape) {
         return '' + pos.p[0] + ', ' + pos.p[1] + 

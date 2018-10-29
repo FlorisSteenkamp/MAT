@@ -10,7 +10,8 @@ import {
 import { evaluate } from 'flo-bezier3';
 
 import { lineLineIntersection } from '../../geometry/line-line-intersection';
-import { getClosestBoundaryPoint } from '../../get-closest-boundary-point';
+import { getClosestBoundaryPoint } from 
+    '../../closest-boundary-point/get-closest-boundary-point';
 
 import { CpNode       } from '../../../cp-node';
 import { Loop         } from '../../../loop';
@@ -24,6 +25,7 @@ import { TXForDebugging   } from './x-for-debugging';
 import { cullBezierPieces } from './cull-bezier-pieces';
 import { findEquidistantPointOnLine } from './find-equidistant-point-on-line';
 import { getInitialBezierPieces } from './get-initial-bezier-pieces';
+import { getCloseBoundaryPoints } from '../../closest-boundary-point/get-close-boundary-points';
 
 
 /**
@@ -94,17 +96,23 @@ function find2Prong(
 
 	
 	let xs: TXForDebugging[] = []; // Trace the convergence (for debugging).
-	let z; // The antipode if the two-prong (successively refined)
+	let z: { pos: PointOnShape; d: number }; // The antipode if the two-prong (successively refined)
 	let i = 0;
 	let done = 0;
 	let failed = false; // The failed flag is set if a 2-prong cannot be found.
 	let bezierPieces_ = bezierPieces;
+	let prevX: number[] = undefined;
 	do {
 		i++
 
 		let r = squaredDistanceBetween(x, y.p);
 
 		bezierPieces_ = cullBezierPieces(bezierPieces_, x, r);
+
+		//for (let bp of bezierPieces_) { 
+			//_debug_.fs.draw.bezierPiece(_debug_.generated.g, bp.curve.ps, bp.ts, undefined, 0)
+			//console.log(bezierPieces_.length)
+		//}
 	
 		z = getClosestBoundaryPoint(
 			bezierPieces_,
@@ -112,12 +120,6 @@ function find2Prong(
 			y.curve, 
 			y.t
 		);
-
-		/*
-		if (z.t === 0 || z.t === 1) {
-			console.log(z, z.t)
-		}
-		*/
 
 		if (z === undefined) {
 			if (typeof _debug_ !== 'undefined') {
@@ -137,10 +139,10 @@ function find2Prong(
 		}
 		
 		if (typeof _debug_ !== 'undefined') { 
-			xs.push({ x, y, z, t: y.t });	
+			xs.push({ x, y, z: z.pos, t: y.t });	
 		}
 		
-		let d = squaredDistanceBetween(x, z.p);
+		let d = squaredDistanceBetween(x, z.pos.p);
 		//if (i === 1 && d*oneProngTolerance >= r) {
 		if (i === 1 && r < d+oneProngTolerance) {
 			// It is a 1-prong.
@@ -150,7 +152,7 @@ function find2Prong(
 		
 		// TODO - squaredSeperationTolerance should in future be replaced with
 		// a relative error, i.e. distance between y (or z) / length(y (or z)).
-		if (!isHoleClosing && squaredDistanceBetween(y.p, z.p) <= squaredSeperationTolerance) {
+		if (!isHoleClosing && squaredDistanceBetween(y.p, z.pos.p) <= squaredSeperationTolerance) {
 			if (typeof _debug_ !== 'undefined') {
 				let elems = _debug_.generated.elems;
 				let elem = isHoleClosing 
@@ -169,16 +171,20 @@ function find2Prong(
 			break;
 		} 
 
-		
+		// TODO - Accuracy optimization: tolerance should not be between x and 
+		// nextX, but rather (distance from x to y) - (distance from x to z)
+
 		// Find the point on the line connecting y with x that is  
 		// equidistant from y and z. This will be our next x.
-		let nextX = findEquidistantPointOnLine(x, y.p, z.p);
+		let nextX = findEquidistantPointOnLine(x, y.p, z.pos.p);
 		
 		let squaredError = squaredDistanceBetween(x, nextX);
 		
+		prevX = x;
 		x = nextX;
 
 		if (squaredError < squaredErrorTolerance) {
+			//console.log(Math.sqrt(squaredError));
 			done++; // Do one more iteration
 		} else if (i === MAX_ITERATIONS) {
 			// Convergence was too slow.
@@ -187,17 +193,39 @@ function find2Prong(
 		}
 	} while (done < 1);
 
-	let circle: Circle;
-	if (z !== undefined) {
-		circle = new Circle(x, distanceBetween(x, z.p));
+	// TODO - Optimization: only do this if second closest point is within the
+	// tolerance which can be checked in getClosestBoundaryPoint algorithm
+	let zs: { pos: PointOnShape; d: number; }[] = [];
+	if (!failed) {
+		zs = getCloseBoundaryPoints(
+			bezierPieces_, 
+			x,
+			y.curve, 
+			y.t,
+			distanceBetween(x, z.pos.p)
+		);
+
+		if (!zs.length) { 
+			//console.log(zs);
+			// Numerical issue
+			zs.push(z);
+		}
+
+		//zs = [z];
 	}
 
-	if (typeof _debug_ !== 'undefined') { 
-		xs.push({ x, y, z, t: y.t });
-		addDebugInfo(bezierPieces, failed, y, circle, z, δ, xs, isHoleClosing);
+	let circle: Circle;
+	if (z !== undefined) {
+		circle = new Circle(x, distanceBetween(x, z.pos.p));
+	}
+
+	if (typeof _debug_ !== 'undefined' && !failed) { 
+		xs.push({ x, y, z: z.pos, t: y.t });
+		addDebugInfo(bezierPieces, failed, y, circle, z.pos, δ, xs, isHoleClosing);
 	}
 	
-	return failed ? undefined : { circle, z };
+	return failed ? undefined : { circle, zs };
+	//return failed ? undefined : { circle, z: z.pos };
 }
 
 

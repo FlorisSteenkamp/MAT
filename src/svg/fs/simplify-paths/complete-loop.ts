@@ -6,7 +6,7 @@ import { MatDebug } from '../../../debug/debug';
 import { fromTo, reverse } from 'flo-bezier3';
 
 import { Curve } from '../../../curve';
-import { X     } from '../../../x';
+import { X     } from '../../../x/x';
 
 import { ILoopTree  } from './i-loop-tree';
 import { getNextX } from './get-next-x';

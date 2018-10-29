@@ -1,6 +1,6 @@
 
 import { drawCirclePercent } from './draw-circle-percent';
-import { X } from '../../../x';
+import { X } from '../../../x/x';
 
 
 function intersection(g: SVGGElement, x: X) {	

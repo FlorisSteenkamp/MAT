@@ -20,7 +20,7 @@ function reverseOrientation(loop: Loop) {
         beziers.push(curve);
     }
 
-    return new Loop(beziers);
+    return Loop.fromCubicBeziers(beziers);
 }
 
 

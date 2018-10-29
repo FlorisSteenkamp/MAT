@@ -23,7 +23,8 @@ class TwoProngForDebugging {
             public failed: boolean, 
             public holeClosing: boolean,
             public notAdded: boolean,
-            public deleted: boolean) {
+            public deleted: boolean,
+            public cpNode: CpNode = undefined) {
     }
 }
 

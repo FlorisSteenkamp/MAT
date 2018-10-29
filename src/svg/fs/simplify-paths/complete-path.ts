@@ -2,7 +2,7 @@
 import { Curve } from '../../../curve';
 import { Loop  } from '../../../loop';
 
-import { X } from '../../../x';
+import { X } from '../../../x/x';
 import { ILoopTree } from './i-loop-tree';
 
 import { completeLoop   } from './complete-loop';
@@ -48,7 +48,7 @@ function completePath(
             loopTree, 
             x
         );
-        loopTree.loop = new Loop(loopTree.beziers);
+        loopTree.loop = Loop.fromCubicBeziers(loopTree.beziers);
     }
 }
 

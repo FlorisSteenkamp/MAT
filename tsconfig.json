@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "charset": "utf8",
         "alwaysStrict": true,
         "module": "commonjs",
         "noImplicitAny": true,
@@ -7,13 +8,34 @@
         "target": "es2015",
         "declaration": true,
         "noEmitOnError": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "outDir": "node"
     },
     "include": [
-        "index.ts",
         "src/**/*"
     ],
     "exclude": [
         "node_modules"
-    ]
+    ],
+    "typedocOptions": {
+        "mode": "modules",
+        "includeDeclarations": false,
+        "excludeExternals": true,
+        "exclude": [
+            //"**/*..ts",
+            "**/node_modules/**/*",
+            "**/src/debug/**/*",
+            "**/src/mat/**/*",
+            "**/src/svg/**/*",
+            "**/src/x/**/*",
+            "**/src/bounding-box/**/*",
+        ],
+        "module"   : "commonjs",
+        "target"   : "es2015",
+        "name"     : "FloMat",
+        //"json"     : "docs/docs.json",
+        "out"      : "docs/html",
+        "includes" : "./src/docs",
+        "theme"    : "./docs/theme",
+    }
 }

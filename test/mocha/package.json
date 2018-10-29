@@ -1,0 +1,14 @@
+{
+  "name": "flo-mat-test",
+  "description": "Medial / Scale Axis Transform (MAT/SAT) Library.",
+  "version": "0.0.1",
+  "author": {
+    "name": "Floris Steenkamp"
+  },
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "flo-mat": "^0.1.4"
+  },
+  "devDependencies": {}
+}

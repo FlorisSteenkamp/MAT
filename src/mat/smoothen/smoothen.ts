@@ -6,7 +6,7 @@ import {
 import { CpNode } from '../../cp-node';
 
 import { lineLineIntersection } from '../geometry/line-line-intersection';
-import { traverseEdges } from '../traverse-edges';
+import { traverseEdges } from '../../traverse-edges';
 
 import { getEdgeDirection } from './get-edge-direction';
 
@@ -44,8 +44,8 @@ function smoothen(cpNode: CpNode) {
 		}
 		 
 		if (!twisted) {
-			cpNode.matCurve = [fromCc, mid, toCc];
-			cpNode.next.prevOnCircle.matCurve = [toCc, mid, fromCc];
+			cpNode.matCurveToNextVertex = [fromCc, mid, toCc];
+			cpNode.next.prevOnCircle.matCurveToNextVertex = [toCc, mid, fromCc];
 			return;
 		} 
 			
@@ -58,8 +58,8 @@ function smoothen(cpNode: CpNode) {
 		
 		if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
 			// TODO - not within tolerance - must add additional 2-prong
-			cpNode.matCurve = [fromCc, toCc];
-			cpNode.next.prevOnCircle.matCurve = [toCc, fromCc];
+			cpNode.matCurveToNextVertex = [fromCc, toCc];
+			cpNode.next.prevOnCircle.matCurveToNextVertex = [toCc, fromCc];
 			return;
 		} 
 		
@@ -74,14 +74,14 @@ function smoothen(cpNode: CpNode) {
 			let mid1 = lineLineIntersection(fromL, l1);
 			let mid2 = lineLineIntersection(toL,   l2);
 
-			cpNode.matCurve = [fromCc, mid1, mid2, toCc];
-			cpNode.next.prevOnCircle.matCurve = [toCc, mid2, mid1, fromCc];
+			cpNode.matCurveToNextVertex = [fromCc, mid1, mid2, toCc];
+			cpNode.next.prevOnCircle.matCurveToNextVertex = [toCc, mid2, mid1, fromCc];
 			return;
 		} 
 
 		// Within tolerance - approximate with a straight line.
-		cpNode.matCurve = [fromCc, toCc];
-		cpNode.next.prevOnCircle.matCurve = [toCc, fromCc];
+		cpNode.matCurveToNextVertex = [fromCc, toCc];
+		cpNode.next.prevOnCircle.matCurveToNextVertex = [toCc, fromCc];
 	}
 }
 
