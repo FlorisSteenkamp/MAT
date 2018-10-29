@@ -12,16 +12,16 @@ declare class X {
     pos: PointOnShape;
     isDummy: boolean;
     /** The opposite side of the intersection */
-    opposite: X;
-    loopTree: ILoopTree;
-    outPs: number[][];
+    opposite?: X;
+    loopTree?: ILoopTree;
+    outPs?: number[][];
     constructor(
-        /**
-         * The PointOnShape on the curve of the intersection. This side of the
-         * intersection is represented by the incoming part of this curve.
-         */
-        pos: PointOnShape, isDummy?: boolean, 
-        /** The opposite side of the intersection */
-        opposite?: X, loopTree?: ILoopTree, outPs?: number[][]);
+    /**
+     * The PointOnShape on the curve of the intersection. This side of the
+     * intersection is represented by the incoming part of this curve.
+     */
+    pos: PointOnShape, isDummy?: boolean, 
+    /** The opposite side of the intersection */
+    opposite?: X, loopTree?: ILoopTree, outPs?: number[][]);
 }
 export { X };

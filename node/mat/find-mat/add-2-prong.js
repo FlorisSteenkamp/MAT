@@ -16,8 +16,8 @@ const get_neighboring_cps_1 = require("../get-neighboring-cps");
  * tolerances.
  */
 function add2Prong(cpGraphs, circle, posSource, 
-    //posAntipode   : PointOnShape, 
-    posAntipodes, holeClosing, extreme) {
+//posAntipode   : PointOnShape, 
+posAntipodes, holeClosing, extreme) {
     let orderSource = point_on_shape_1.PointOnShape.calcOrder(circle, posSource);
     let orderAntipodes = posAntipodes.map(posAntipode => point_on_shape_1.PointOnShape.calcOrder(circle, posAntipode.pos));
     let t_s = posSource.t;

@@ -39,7 +39,7 @@ function calcBezierCurvatureExtremaBrackets(ps) {
     let rad = Math.sqrt((atan_numer_squared / atan_denom_squared) + 1);
     let cos_theta = 1 / rad;
     let sin_theta;
-    if (cos_theta === 0) {
+    if (cos_theta === 0) { // edge case
         sin_theta = 1;
     }
     else {

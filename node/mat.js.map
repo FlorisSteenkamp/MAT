@@ -1,1 +1,1 @@
-{"version":3,"file":"mat.js","sourceRoot":"","sources":["../src/mat.ts"],"names":[],"mappings":";;AAOA;;;;;;;GAOG;AACH;IAEI;;;;;OAKG;IACH,YACe,MAAc,EACd,OAAoC;QADpC,WAAM,GAAN,MAAM,CAAQ;QACd,YAAO,GAAP,OAAO,CAA6B;IACnD,CAAC;CACJ;AAGQ,kBAAG"}
+{"version":3,"file":"mat.js","sourceRoot":"","sources":["../src/mat.ts"],"names":[],"mappings":";;AAOA;;;;;;;GAOG;AACH,MAAM,GAAG;IAEL;;;;;OAKG;IACH,YACe,MAAc,EACd,OAAoC;QADpC,WAAM,GAAN,MAAM,CAAQ;QACd,YAAO,GAAP,OAAO,CAA6B;IACnD,CAAC;CACJ;AAGQ,kBAAG"}

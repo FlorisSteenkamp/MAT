@@ -17,6 +17,7 @@ module.exports = {
     resolve: {
         extensions: [ '.tsx', '.ts', '.js', '.d.ts' ],
         // The aliases below should not be used in production - rather, the correct node modules should be referenced.
+        /*
         alias: {
             'flo-graham-scan$':         path.resolve(__dirname, projectRoot + 'grahamscan/index.ts'),
             'flo-bezier3$':             path.resolve(__dirname, projectRoot + 'bezier/index.ts'),
@@ -28,6 +29,7 @@ module.exports = {
             'flo-poly$':                path.resolve(__dirname, projectRoot + 'poly/index.ts'),
             'flo-vector2d$':            path.resolve(__dirname, projectRoot + 'vector/index.ts'),
         }
+        */
     },
     output: {
         filename: 'index.min.js',
