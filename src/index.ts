@@ -29,8 +29,8 @@ import { getClosestBoundaryPoint } from
 
 import { closestPointOnBezier } from
 	'./mat/closest-boundary-point/closest-point-on-bezier';
-import { getPathsFromStr } from './svg/fs/get-paths-from-str';	
-import { beziersToSvgPathStr } from './svg/fs/beziers-to-svg-path-str';
+import { getPathsFromStr } from './get-paths-from-str';	
+import { beziersToSvgPathStr } from './beziers-to-svg-path-str';
 import { getShapeBounds, getShapesBounds } from './svg/fs/get-shape-bounds';
 
 

@@ -65,7 +65,8 @@
 				<h1 id="medial-and-scale-axis-transform-library-svg-focused">Medial (and Scale) Axis Transform library - SVG focused</h1>
 				<p>A pure JavaScript (source in TypeScript) Medial (and Scale) Axis Transform (MAT/SAT) library.</p>
 				<p><strong><a href="https://mat-demo.appspot.com">Demo</a></strong></p>
-				<p><strong><a href="https://stackblitz.com/edit/typescript-74qxdf">Full simple 140 Lines of Code live StackBlitz project</a></strong></p>
+				<p><strong><a href="https://stackblitz.com/edit/typescript-yucdon">Full simple 140 Lines of Code live StackBlitz project</a></strong></p>
+				<p><strong><a href="https://github.com/FlorisSteenkamp/MAT">GitHub</a></strong></p>
 				<p><strong><a href="https://github.com/FlorisSteenkamp/mat-examples">More examples</a></strong></p>
 				<p><strong><a href="https://mat-demo.appspot.com/docs/index.html">Documentation</a></strong>, but also see installation instructions below.</p>
 				<h2 id="introduction">Introduction</h2>
@@ -97,7 +98,7 @@
 				<h1 id="code-example">Code example</h1>
 				<p>Note that the example code given here is in TypeScript since the types make the
 				code clearer but plain JavaScript can also be used. </p>
-				<p>The live, interactive code can be viewed in this <a href="https://stackblitz.com/edit/typescript-74qxdf">StackBlitz project</a>.</p>
+				<p>The live, interactive code can be viewed in this <a href="https://stackblitz.com/edit/typescript-yucdon">StackBlitz project</a>.</p>
 				<p>The code can also be found under &#39;basic-ts&#39; in the <a href="https://github.com/FlorisSteenkamp/mat-examples">examples on GitHub</a>. Only
 				the .css and .ts files are reproduced here.</p>
 				<p><strong>style.css</strong></p>
@@ -126,7 +127,7 @@
 				<p><strong>index.ts</strong></p>
 				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> <span class="hljs-string">'./style.css'</span>; <span class="hljs-comment">// Import stylesheets</span>
 
-<span class="hljs-keyword">import</span> { findMats, Svg, Mat, traverseEdges, toScaleAxis } <span class="hljs-keyword">from</span> <span class="hljs-string">'flo-mat'</span>;
+<span class="hljs-keyword">import</span> { findMats, getPathsFromStr, Mat, traverseEdges, toScaleAxis } <span class="hljs-keyword">from</span> <span class="hljs-string">'flo-mat'</span>;
 
 <span class="hljs-keyword">const</span> NS = <span class="hljs-string">'http://www.w3.org/2000/svg'</span>; <span class="hljs-comment">// Svg namespace</span>
 
@@ -212,7 +213,7 @@
     setSvgShapePath($svg, svgPathStr);
 
     <span class="hljs-comment">// Get loops (representing the shape) from some SVG path.</span>
-    <span class="hljs-keyword">let</span> bezierLoops = Svg.getPathsFromStr(svgPathStr);
+    <span class="hljs-keyword">let</span> bezierLoops = getPathsFromStr(svgPathStr);
 
     <span class="hljs-comment">// We could also just give an array of linear, quadratic or cubic beziers as </span>
     <span class="hljs-comment">// below (all lines in this case). Note that in the below case there is only</span>
@@ -268,7 +269,7 @@
 
         traverseEdges(cpNode, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cpNode</span>) </span>{
             <span class="hljs-keyword">if</span> (cpNode.isTerminating()) { <span class="hljs-keyword">return</span>; }
-            <span class="hljs-keyword">let</span> bezier = cpNode.matCurve;
+            <span class="hljs-keyword">let</span> bezier = cpNode.matCurveToNextVertex;
             <span class="hljs-keyword">if</span> (!bezier) { <span class="hljs-keyword">return</span>; }
 
             <span class="hljs-keyword">let</span> $path = <span class="hljs-built_in">document</span>.createElementNS(NS, <span class="hljs-string">'path'</span>);
@@ -294,7 +295,7 @@ main();
 				a function, <code>setSvgShapePath</code>, to add the path to the SVG.</p>
 				<p>The next function, <code>main</code>, is the entry point of our example. The first two lines creates the
 				SVG and sets the path. The third line:</p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">let</span> bezierLoops = Svg.getPathsFromStr(svgPathStr);
+				<pre><code class="lang-typescript"><span class="hljs-keyword">let</span> bezierLoops = getPathsFromStr(svgPathStr);
 </code></pre>
 				<p>extracts the path data into an array that is suitable to be comsumed by <code>findMats</code>,
 					the function from the library that will do the number crunching and return an array
@@ -345,8 +346,8 @@ main();
 					leaves just like in any other tree traversal. Each node, which is
 					a class of type <code>CpNode</code> (for Contact Point Node), has several
 					properties (see the docs). For our current purposes
-				we only need the <code>matCurve</code> property.</p>
-				<p><code>matCurve</code> is a bezier curve (as defined previously with
+				we only need the <code>matCurveToNextVertex</code> property.</p>
+				<p><code>matCurveToNextVertex</code> is a bezier curve (as defined previously with
 					type <code>number[][]</code>) of order 1, 2 or 3 forming a part of
 				the MA. In the example code we draw this curve on our orignal SVG.</p>
 				<p>The <code>main</code> function concludes by finding the Scale Axis Transform of our found
@@ -395,6 +396,9 @@ main();
 						<a href="modules/_bezier_piece_.html">"bezier-<wbr>piece"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_beziers_to_svg_path_str_.html">"beziers-<wbr>to-<wbr>svg-<wbr>path-<wbr>str"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_circle_.html">"circle"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -411,6 +415,9 @@ main();
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_find_mats_.html">"find-<wbr>mats"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_get_paths_from_str_.html">"get-<wbr>paths-<wbr>from-<wbr>str"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_index_.html">"index"</a>

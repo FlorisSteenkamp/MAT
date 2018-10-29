@@ -1,6 +1,4 @@
 
-import { beziersToSvgPathStr } from "./beziers-to-svg-path-str";
-
 const C = 0.55191502449;
 
 

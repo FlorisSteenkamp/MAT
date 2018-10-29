@@ -1,6 +1,6 @@
 
-import { getBeziersFromRawPaths } from './get-beziers-from-raw-paths';
-import { parsePathDataString } from '../path-data-polyfill/parse-path-data-string';
+import { getBeziersFromRawPaths } from './svg/fs/get-beziers-from-raw-paths';
+import { parsePathDataString } from './svg/path-data-polyfill/parse-path-data-string';
 
 
 /**
@@ -9,7 +9,6 @@ import { parsePathDataString } from '../path-data-polyfill/parse-path-data-strin
  * given SVG path string. An array of loops are returned (as opposed to a single
  * loop) since an SVG path may have sub-paths.
  * @param str The SVG path string, e.g. 'M1 1 C 5 1 5 2 4 2 C 3 3 1 3 1 1 z'
- * @doc _
  */
 function getPathsFromStr(str: string) {
     return getBeziersFromRawPaths(

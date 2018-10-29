@@ -3,7 +3,9 @@ A pure JavaScript (source in TypeScript) Medial (and Scale) Axis Transform (MAT/
 
 **[Demo](https://mat-demo.appspot.com)**
 
-**[Full simple 140 Lines of Code live StackBlitz project](https://stackblitz.com/edit/typescript-74qxdf)**
+**[Full simple 140 Lines of Code live StackBlitz project](https://stackblitz.com/edit/typescript-yucdon)**
+
+**[GitHub](https://github.com/FlorisSteenkamp/MAT)**
 
 **[More examples](https://github.com/FlorisSteenkamp/mat-examples)**
 
@@ -47,7 +49,7 @@ the SAT is a subset of the MAT.
 Note that the example code given here is in TypeScript since the types make the 
 code clearer but plain JavaScript can also be used. 
 
-The live, interactive code can be viewed in this [StackBlitz project](https://stackblitz.com/edit/typescript-74qxdf).
+The live, interactive code can be viewed in this [StackBlitz project](https://stackblitz.com/edit/typescript-yucdon).
 
 The code can also be found under 'basic-ts' in the [examples on GitHub](https://github.com/FlorisSteenkamp/mat-examples). Only
 the .css and .ts files are reproduced here.
@@ -83,7 +85,7 @@ h1, h2 {
 ```typescript
 import './style.css'; // Import stylesheets
 
-import { findMats, Svg, Mat, traverseEdges, toScaleAxis } from 'flo-mat';
+import { findMats, getPathsFromStr, Mat, traverseEdges, toScaleAxis } from 'flo-mat';
 
 const NS = 'http://www.w3.org/2000/svg'; // Svg namespace
 
@@ -169,7 +171,7 @@ function main() {
     setSvgShapePath($svg, svgPathStr);
 
     // Get loops (representing the shape) from some SVG path.
-    let bezierLoops = Svg.getPathsFromStr(svgPathStr);
+    let bezierLoops = getPathsFromStr(svgPathStr);
       
     // We could also just give an array of linear, quadratic or cubic beziers as 
     // below (all lines in this case). Note that in the below case there is only
@@ -225,7 +227,7 @@ function drawMats(
 
         traverseEdges(cpNode, function(cpNode) {
             if (cpNode.isTerminating()) { return; }
-            let bezier = cpNode.matCurve;
+            let bezier = cpNode.matCurveToNextVertex;
             if (!bezier) { return; }
 
             let $path = document.createElementNS(NS, 'path');
@@ -255,7 +257,7 @@ The next function, `main`, is the entry point of our example. The first two line
 SVG and sets the path. The third line:
 
 ```typescript
-let bezierLoops = Svg.getPathsFromStr(svgPathStr);
+let bezierLoops = getPathsFromStr(svgPathStr);
 ```
 extracts the path data into an array that is suitable to be comsumed by `findMats`,
 the function from the library that will do the number crunching and return an array
@@ -314,9 +316,9 @@ The tree can now be traversed from this node outwards to the tree
 leaves just like in any other tree traversal. Each node, which is
 a class of type `CpNode` (for Contact Point Node), has several
 properties (see the docs). For our current purposes 
-we only need the `matCurve` property.
+we only need the `matCurveToNextVertex` property.
 
-`matCurve` is a bezier curve (as defined previously with
+`matCurveToNextVertex` is a bezier curve (as defined previously with
 type `number[][]`) of order 1, 2 or 3 forming a part of 
 the MA. In the example code we draw this curve on our orignal SVG.
 

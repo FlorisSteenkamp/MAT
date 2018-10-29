@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const get_beziers_from_raw_paths_1 = require("./get-beziers-from-raw-paths");
-const parse_path_data_string_1 = require("../path-data-polyfill/parse-path-data-string");
+const get_beziers_from_raw_paths_1 = require("./svg/fs/get-beziers-from-raw-paths");
+const parse_path_data_string_1 = require("./svg/path-data-polyfill/parse-path-data-string");
 /**
  * Returns an array of loops with each loop consisting of an array of beziers
  * and each bezier in turn consisting of an array of control points from the

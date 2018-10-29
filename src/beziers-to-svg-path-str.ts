@@ -5,7 +5,6 @@
  * control points.
  * @param decimalPlaces The number of decimal places in the returned path 
  * string.
- * @doc _
  */
 function beziersToSvgPathStr(
         beziers: number[][][], 

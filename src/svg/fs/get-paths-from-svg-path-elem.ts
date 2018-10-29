@@ -1,7 +1,7 @@
 
 import { Loop } from '../../loop';
 
-import { getPathsFromStr } from './get-paths-from-str';
+import { getPathsFromStr } from '../../get-paths-from-str';
 
 
 function getPathsFromSvgPathElem(elem: SVGPathElement) {
