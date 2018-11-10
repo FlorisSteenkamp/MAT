@@ -1,5 +1,5 @@
 
-/** @private */
+/** @hidden */
 declare var _debug_: MatDebug; 
 
 import { MatDebug } from './debug/debug';
@@ -67,7 +67,7 @@ function findMats(bezierLoops: number[][][][], additionalPointCount = 3) {
  * @param loops 
  * @param xMap 
  * @param additionalPointCount 
- * @private
+ * @hidden
  */
 function findPartialMat(
 		loops: Loop[], 
@@ -135,7 +135,7 @@ function findPartialMat(
  * 
  * @param loopA 
  * @param loopB 
- * @private
+ * @hidden
  */
 function ascendingByTopmostPoint(loopA: Loop, loopB: Loop) {
     let boundsA = getLoopBounds(loopA);

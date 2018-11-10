@@ -1,5 +1,5 @@
 
-/** @private */
+/** @hidden */
 declare var _debug_: MatDebug; 
 
 import { MatDebug } from './debug/debug';
@@ -9,14 +9,14 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { ContactPoint } from './contact-point';
 import { CpNodeForDebugging } from './debug/cp-node-for-debugging';
 
-/** @private */
+/** @hidden */
 type Edge =
     | 'prev'
 	| 'next'
 	| 'prevOnCircle'
 	| 'nextOnCircle';
 
-/** @private */
+/** @hidden */
 const EDGES: Edge[] = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
 
 

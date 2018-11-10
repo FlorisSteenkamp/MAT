@@ -110,7 +110,7 @@ class Loop {
      * Perturbs the loop. Not used.
      * @param loop 
      * @param x 
-     * @private
+     * @hidden
      */
     static perturb(loop: Loop, x: number) {
         if (!x) { return loop; }

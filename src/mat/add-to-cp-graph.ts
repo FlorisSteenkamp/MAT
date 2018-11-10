@@ -16,7 +16,7 @@ import { getNeighbouringPoints } from './get-neighboring-cps';
  * @param cpTrees 
  * @param poss 
  * @param neighbors 
- * @private
+ * @hidden
  */
 function addToCpGraph(
         circle  : Circle, 

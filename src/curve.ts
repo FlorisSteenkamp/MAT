@@ -48,7 +48,7 @@ class Curve {
 
 /** 
  * Angle in degrees to radians.
- * @private
+ * @hidden
  */
 const DEGREES = {
 	//'0'    : 0.0000,
@@ -59,14 +59,14 @@ const DEGREES = {
 };
 
 
-/** @private */
+/** @hidden */
 const DEGREE_LIMIT = DEGREES[1]; 
 
 
 /**
  * Returns information about the corner created at the end of this curve 
  * (at t === 1) and the start of the next curve (at t === 0).
- * @private
+ * @hidden
  */
 let getCornerAtEnd = memoize(function(curve: Curve) {
 

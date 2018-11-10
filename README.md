@@ -15,7 +15,7 @@ A pure JavaScript (source in TypeScript) Medial (and Scale) Axis Transform (MAT/
 
 The [MAT](https://en.wikipedia.org/wiki/Medial_axis) is an analytical form of skeletonization of a shape. It is perfectly suited to SVG. Described by many scholars as *the most important image transform*, it has endless use cases, e.g.:
 * **Morphing**
-* **Shape thinning and fattening**
+* **Shape thinning and fattening** ⭐⭐ NEW ⭐⭐ [StackBlitz demo](https://stackblitz.com/edit/typescript-xuruhe?file=index.ts)
 * **Shape classification**
 * **Shape simplification**
 * **Image compression**

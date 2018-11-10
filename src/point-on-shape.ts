@@ -78,7 +78,7 @@ class PointOnShape {
      * it is clipped to have positive radius so it can point into the shape.
      * @param ps
      * @param t
-     * @private
+     * @hidden
      */
     public static calcOsculatingCircleRadius = memoize(function(pos: PointOnShape) {
 
@@ -98,7 +98,7 @@ class PointOnShape {
      * by their relative positions on the shape boundary. 
      * @param a The first [[PointOnShape]].
      * @param b The second [[PointOnShape]].
-     * @private
+     * @hidden
      */
     public static compare = function(a: PointOnShape, b: PointOnShape) {
         if (a === undefined || b === undefined) {
@@ -118,7 +118,7 @@ class PointOnShape {
 
     /**
      * Ignores order2 (used in hole-closing two-prongs only)
-     * @private
+     * @hidden
      */
     public static compareInclOrder = function(
             a: PointOnShape, 
@@ -139,7 +139,7 @@ class PointOnShape {
 
 
     /**
-     * @private
+     * @hidden
      */
     public static getCorner = memoize(function(pos: PointOnShape) {
         if (pos.t !== 0 && pos.t !== 1) { return undefined; }
@@ -151,7 +151,7 @@ class PointOnShape {
 
 
     /**
-     * @private
+     * @hidden
      */
     public static isSharpCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
@@ -160,7 +160,7 @@ class PointOnShape {
 
 
     /**
-     * @private
+     * @hidden
      */
     public static isDullCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
@@ -169,7 +169,7 @@ class PointOnShape {
 
 
     /**
-     * @private
+     * @hidden
      */
     public static isQuiteSharpCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
@@ -178,7 +178,7 @@ class PointOnShape {
 
 
     /**
-     * @private
+     * @hidden
      */
     public static isQuiteDullCorner = memoize(function(pos: PointOnShape) {
         let corner = PointOnShape.getCorner(pos);
@@ -190,7 +190,7 @@ class PointOnShape {
      * Calculates the order (to distinguish between points lying on top of each 
      * other) of the contact point if it is a dull corner.
      * @param pos
-     * @private
+     * @hidden
      */
     public static calcOrder(
             circle : Circle, 
@@ -210,7 +210,7 @@ class PointOnShape {
     /**
      * Returns a human-readable string of the given [[PointOnShape]]. 
      * For debugging only.
-     * @private
+     * @hidden
      */
     public static toHumanString = function(pos: PointOnShape) {
         return '' + pos.p[0] + ', ' + pos.p[1] + 

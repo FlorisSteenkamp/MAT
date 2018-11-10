@@ -1,5 +1,5 @@
 
-/** @private */
+/** @hidden */
 declare var _debug_: MatDebug;
 
 import { MatDebug } from './debug/debug';

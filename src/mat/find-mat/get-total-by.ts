@@ -5,7 +5,7 @@ import { Loop } from '../../loop';
 
 /**
  * Helper function.
- * @private
+ * @hidden
  * @param f
  */
 function getTotalBy(f: (curve: Curve) => number) {

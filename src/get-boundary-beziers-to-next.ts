@@ -50,7 +50,7 @@ function getBoundaryBeziersToNext(cpNode: CpNode) {
 
 /**
  * Adds pieces of skipped beziers.
- * @private
+ * @hidden
  */
 function addSkippedBeziers(
         beziers    : number[][][], 
