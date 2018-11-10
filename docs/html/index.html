@@ -102,7 +102,7 @@
 				<p>The code can also be found under &#39;draw-mat-ts&#39; in the <a href="https://github.com/FlorisSteenkamp/mat-examples">examples on GitHub</a>. Only
 				the .css and .ts files are reproduced here.</p>
 				<p><strong>style.css</strong></p>
-				<pre><code class="lang-css"><span class="hljs-selector-tag">h1</span>, <span class="hljs-selector-tag">h2</span> {
+				<pre><code class="language-css"><span class="hljs-selector-tag">h1</span>, <span class="hljs-selector-tag">h2</span> {
   <span class="hljs-attribute">font-family</span>: Lato;
 }
 
@@ -122,10 +122,9 @@
     <span class="hljs-attribute">fill</span>: none;
     <span class="hljs-attribute">stroke</span>: blue;
     <span class="hljs-attribute">stroke-width</span>: <span class="hljs-number">0.2%</span>;
-}
-</code></pre>
+}</code></pre>
 				<p><strong>index.ts</strong></p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> <span class="hljs-string">'./style.css'</span>; <span class="hljs-comment">// Import stylesheets</span>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> <span class="hljs-string">'./style.css'</span>; <span class="hljs-comment">// Import stylesheets</span>
 
 <span class="hljs-keyword">import</span> { findMats, getPathsFromStr, Mat, traverseEdges, toScaleAxis } <span class="hljs-keyword">from</span> <span class="hljs-string">'flo-mat'</span>;
 
@@ -286,8 +285,7 @@
 }
 
 
-main();
-</code></pre>
+main();</code></pre>
 				<p>The first part of the code is just concerned with importing stuff. Then there is a function
 					for programatically creating an SVG HTML element. The next three functions, <code>getLinePathStr</code>,
 					<code>getQuadBezierPathStr</code> and <code>getCubicBezierPathStr</code> will be used for creating the paths that will
@@ -295,8 +293,7 @@ main();
 				a function, <code>setSvgShapePath</code>, to add the path to the SVG.</p>
 				<p>The next function, <code>main</code>, is the entry point of our example. The first two lines creates the
 				SVG and sets the path. The third line:</p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">let</span> bezierLoops = getPathsFromStr(svgPathStr);
-</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">let</span> bezierLoops = getPathsFromStr(svgPathStr);</code></pre>
 				<p>extracts the path data into an array that is suitable to be comsumed by <code>findMats</code>,
 					the function from the library that will do the number crunching and return an array
 					of Medial Axis Transforms. The array, <code>bezierLoops</code> is of type <code>number[][][][]</code>.
@@ -319,8 +316,7 @@ main();
 					in the process possibly creating more than one disjoint shape. In the above example a single
 				intersecting loop creates a shape with a hole.</p>
 				<p>This brings us to the heart of the example, the <code>findMats</code> function.</p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">let</span> mats = findMats(bezierLoops, <span class="hljs-number">3</span>);
-</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">let</span> mats = findMats(bezierLoops, <span class="hljs-number">3</span>);</code></pre>
 				<p>The function extracts the Medial Axis Transforms
 					of all shapes created by the the array of input bezier loops.
 					It takes an additional parameter indicating the number of points
@@ -356,26 +352,20 @@ main();
 				<p>Whether your target is Node or the browser the library can be installed via <a href="https://www.npmjs.com/">npm</a>.
 				(For the browser you can also download the <a href="https://raw.githubusercontent.com/FlorisSteenkamp/MAT/master/browser/index.min.js">minified .js</a> file - see below)</p>
 				<p>So whatever your target, at the the command line:</p>
-				<pre><code class="lang-cli">npm install flo-mat --save
-</code></pre>
+				<pre><code class="language-cli">npm install flo-mat --save</code></pre>
 				<h2 id="node-with-javascript-or-the-browser-with-webpack-or-similar-">Node with JavaScript (or the browser (with <a href="https://webpack.js.org/">webpack</a>) or similar)</h2>
 				<p>In your project</p>
-				<pre><code class="lang-javascript"><span class="hljs-keyword">let</span> FloMat = <span class="hljs-built_in">require</span>(<span class="hljs-string">"flo-mat"</span>);
-</code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">let</span> FloMat = <span class="hljs-built_in">require</span>(<span class="hljs-string">"flo-mat"</span>);</code></pre>
 				<p>or if you only want to require specific functionality:</p>
-				<pre><code class="lang-javascript"><span class="hljs-keyword">let</span> { findMats } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'flo-mat'</span>);
-</code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">let</span> { findMats } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'flo-mat'</span>);</code></pre>
 				<h2 id="typescript">TypeScript</h2>
 				<p>In your project</p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> FloMat <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;
-</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> FloMat <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;</code></pre>
 				<p>or for specific functionalities:</p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> { findMats } <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;
-</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { findMats } <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;</code></pre>
 				<h2 id="browser-using-global-var-">Browser (using global var)</h2>
 				<p>After the npm installation simply include the script in your project:</p>
-				<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'node_modules/flo-mat/browser/index.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-</code></pre>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'node_modules/flo-mat/browser/index.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre>
 				<p>A new global object will available called <code>FloMat</code> representing the library. </p>
 				<h1 id="usage">Usage</h1>
 				<p>Please see the documentation for the primary functions and classes:
@@ -415,6 +405,9 @@ main();
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_find_mats_.html">"find-<wbr>mats"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_get_boundary_beziers_to_next_.html">"get-<wbr>boundary-<wbr>beziers-<wbr>to-<wbr>next"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_get_paths_from_str_.html">"get-<wbr>paths-<wbr>from-<wbr>str"</a>

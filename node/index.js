@@ -41,4 +41,6 @@ exports.beziersToSvgPathStr = beziers_to_svg_path_str_1.beziersToSvgPathStr;
 const get_shape_bounds_1 = require("./svg/fs/get-shape-bounds");
 exports.getShapeBounds = get_shape_bounds_1.getShapeBounds;
 exports.getShapesBounds = get_shape_bounds_1.getShapesBounds;
+const get_boundary_beziers_to_next_1 = require("./get-boundary-beziers-to-next");
+exports.getBoundaryBeziersToNext = get_boundary_beziers_to_next_1.getBoundaryBeziersToNext;
 //# sourceMappingURL=index.js.map

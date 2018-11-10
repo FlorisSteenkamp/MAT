@@ -10,7 +10,6 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
     if (isHoleClosing) {
         bezierPieces = [];
         for (let k2 = 0; k2 < k; k2++) {
-            //let pieces = getBoundaryBeziers(loops[k2]);
             let pieces = loops[k2].curves
                 .map(curve => new bezier_piece_1.BezierPiece(curve, [0, 1]));
             bezierPieces.push(...pieces);

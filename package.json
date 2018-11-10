@@ -52,7 +52,7 @@
   },
   "scripts": {
     "clean": "rimraf browser && rimraf node",
-    "build": "npm run clean && tsc && webpack",
+    "build": "npm run clean && tsc && webpack && typedoc",
     "test-mocha": "mocha ./test/mocha",
     "test-node": "start http://localhost:3000/ && node ./test/test-node/test.js",
     "test-var": "start ./test/test-var/test.html",

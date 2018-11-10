@@ -33,6 +33,8 @@ import { getPathsFromStr } from './get-paths-from-str';
 import { beziersToSvgPathStr } from './beziers-to-svg-path-str';
 import { getShapeBounds, getShapesBounds } from './svg/fs/get-shape-bounds';
 
+import { getBoundaryBeziersToNext } from './get-boundary-beziers-to-next';
+
 
 export { 
 	// Data structures
@@ -51,6 +53,7 @@ export {
 	trimMat,
 	traverseVertices,
 	traverseEdges,
+	getBoundaryBeziersToNext,
 
 	// SVG functions
 	beziersToSvgPathStr,

@@ -89,7 +89,7 @@ class CpNode {
     get children() {
         let cp = this.next;
         if (this.isTerminating()) {
-            return [];
+            return [cp];
         }
         let children = [cp];
         let cp_ = cp;

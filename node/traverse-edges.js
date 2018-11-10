@@ -14,6 +14,9 @@ function traverseEdges(cpNode, f) {
     while (cps.length) {
         let cp = cps.pop();
         f(cp);
+        if (cp.isTerminating()) {
+            continue;
+        }
         cps.push(...cp.children);
     }
 }

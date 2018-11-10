@@ -117,7 +117,7 @@ class CpNode {
 	 */
 	get children() {
 		let cp = this.next;
-		if (this.isTerminating()) { return []; }
+		if (this.isTerminating()) { return [cp]; }
 		let children = [cp];
 
 		let cp_ = cp;

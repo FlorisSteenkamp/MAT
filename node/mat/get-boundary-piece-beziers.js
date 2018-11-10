@@ -6,12 +6,12 @@ const contact_point_1 = require("../contact-point");
 /**
 * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)
 * from the given boundary piece.
-* @param cpNode - An ordered pair that represents the start and end points of
+* @param cpNodes - An ordered pair that represents the start and end points of
 * the boundary piece
 */
-function getBoundaryPieceBeziers(cpNode) {
-    let cpThis = cpNode[0];
-    let cpEnd = cpNode[1];
+function getBoundaryPieceBeziers(cpNodes) {
+    let cpThis = cpNodes[0];
+    let cpEnd = cpNodes[1];
     let bezierPieces = [];
     // As opposed to going around the circle and taking the last exit
     let goStraight = true;
