@@ -1,4 +1,4 @@
-import { CpNode } from '../../cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 /**
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).

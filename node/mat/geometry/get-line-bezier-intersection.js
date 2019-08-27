@@ -18,7 +18,7 @@ function getLineBezierIntersection(line, ps, tRange) {
     let sinθ = -p[1] / lineLength;
     let cosθ = p[0] / lineLength;
     let newPs = flo_vector2d_1.translateThenRotatePs(t, sinθ, cosθ, ps);
-    let roots = flo_poly_1.default.allRoots(flo_bezier3_1.getY(newPs), 0, 1);
+    let roots = flo_poly_1.allRoots(flo_bezier3_1.getY(newPs), 0, 1);
     let ev = flo_bezier3_1.evaluate(ps);
     return roots.map(t => ({ p: ev(t), t }));
 }

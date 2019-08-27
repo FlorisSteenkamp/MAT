@@ -6,19 +6,19 @@ import { MatDebug } from './debug/debug';
 
 import { length } from 'flo-bezier3';
 
-import { distanceBetween } from 'flo-vector2d';
-
-import { CpNode } from './cp-node';
+import { CpNode } from './cp-node/cp-node';
 import { Circle } from './circle';
 import { Mat    } from './mat';
 import { traverseEdges    } from './traverse-edges';
 import { traverseVertices } from './traverse-vertices';
-import { smoothen         } from './mat/smoothen/smoothen';
 import { getLargestVertex } from './mat/get-largest-vertex';
 import { createNewCpTree  } from './mat/create-new-cp-tree';
 import { getLeaves        } from './mat/get-leaves';
 import { cull             } from './mat/to-scale-axis/cull';
 import { addDebugInfo     } from './mat/to-scale-axis/add-debug-info';
+import { clone } from './cp-node/clone';
+import { getCurveToNext } from './mat/smoothen/smoothen';
+import { simplifyMat } from './mat/simplify-mat';
 
 
 /*
@@ -70,11 +70,8 @@ function toScaleAxis(
 	/** The largest vertex (as measured by its inscribed disk) */
 	let cpNodes: CpNode[] = [];
 	traverseVertices(
-		mat.cpNode.clone(), 
-		cpNode => {
-			cpNodes.push(cpNode);
-			//_debug_.fs.draw.crossHair(_debug_.generated.g, cpNode.cp.circle.center)
-		}
+		clone(mat.cpNode), 
+		cpNode => { cpNodes.push(cpNode); }
 	);
 
 	let cpNode = getLargestVertex(cpNodes);
@@ -103,7 +100,8 @@ function toScaleAxis(
 		//let c_ = cpNode_.cp.circle.center;
 		/** Distance between this vertex and the next. */
 		//let l = distanceBetween(c, c_); // Almost always precise enough
-		let l = len(cpNode.matCurveToNextVertex);
+		//let l = len(cpNode.matCurveToNextVertex);
+		let l = len(getCurveToNext(cpNode));
 
 		let r = cpNode_.cp.circle.radius;
 		//let s_ = 1 + (s-1)*(rMax/r);
@@ -123,8 +121,6 @@ function toScaleAxis(
 		_debug_.generated.elems.culls.push(Array.from(culls));
 	}
 	 
-	smoothen(cpNode);
-
 	let sat = new Mat(cpNode, createNewCpTree(cpNode));
 
 	addDebugInfo(sat);

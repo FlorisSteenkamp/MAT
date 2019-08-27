@@ -5,7 +5,7 @@ import { MatDebug } from '../../../debug/debug';
 
 import { PointOnShape } from "../../../point-on-shape";
 import { Circle       } from "../../../circle";
-import { CpNode       } from "../../../cp-node";
+import { CpNode       } from "../../../cp-node/cp-node";
 import { BezierPiece  } from '../../../bezier-piece';
 
 import { TwoProngForDebugging } from "../../../debug/two-prong-for-debugging";

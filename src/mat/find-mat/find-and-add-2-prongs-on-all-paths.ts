@@ -1,8 +1,8 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
 
-import { Loop } from "../../loop";
-import { CpNode } from '../../cp-node';
+import { Loop } from "../../loop/loop";
+import { CpNode } from '../../cp-node/cp-node';
 import { PointOnShape } from '../../point-on-shape';
 import { findAndAdd2Prongs } from './find-and-add-2-prongs';
 
@@ -22,6 +22,8 @@ function findAndAdd2ProngsOnAllPaths(
         extreme: number) {
 
     let cpNode;
+
+    //console.log(loops);
 
     for (let k=0; k<for2Prongss.length; k++) {
         let for2Prongs = for2Prongss[k];	

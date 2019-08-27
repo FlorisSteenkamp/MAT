@@ -21,10 +21,13 @@ const ANGLE_THRESHOLD = 0.9986295347545738; // === Math.cos(3  degrees)
  * @param color Used for debugging only
  */
 function isAnotherCpCloseby(cpTrees, pos, circle, order, order2, extreme, color) {
-    //const DISTANCE_THRESHOLD = extreme * 1e-3; 
-    //const DISTANCE_THRESHOLD = extreme * 1e-1;             
+    //console.log(extreme)
+    //const DISTANCE_THRESHOLD = extreme * 1e-1; 
+    //const DISTANCE_THRESHOLD = extreme * 1e-1;
+    const DISTANCE_THRESHOLD = extreme * 1e-4;
     //const DISTANCE_THRESHOLD = extreme * 1e-4; - was this
-    const DISTANCE_THRESHOLD = extreme * 1e-12;
+    //const DISTANCE_THRESHOLD = extreme * 1e-6;
+    //const DISTANCE_THRESHOLD = extreme * 1e-12;
     // It seems this can be zero else the ordering should be correct
     //const DISTANCE_THRESHOLD = 0;
     let cpTree = cpTrees.get(pos.curve.loop);

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Helper function.
- * @private
+ * @hidden
  * @param f
  */
 function getTotalBy(f) {

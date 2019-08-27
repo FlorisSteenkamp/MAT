@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const loop_1 = require("../../../loop");
+const loop_1 = require("../../../loop/loop");
 const complete_loop_1 = require("./complete-loop");
 const get_initial_x_1 = require("./get-initial-x");
 const get_loop_metrics_1 = require("./get-loop-metrics");

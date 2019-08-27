@@ -3,7 +3,7 @@ declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../../debug/debug';
 
-import { Loop } from '../../../loop';
+import { Loop } from '../../../loop/loop';
 
 import { getLoopBounds } from '../get-loop-bounds';
 
@@ -44,8 +44,9 @@ function simplifyPaths(loops: Loop[]) {
         }
     }
 
+    //console.log(loops)
     for (let loop of loops) {
-        // TODO - handle special case of 1 curve - mayve just delete lines below
+        // TODO - handle special case of 1 curve - maybe just delete lines below
         if (loop.curves.length <= 1) {
             continue;
         }
@@ -75,22 +76,6 @@ function simplifyPaths(loops: Loop[]) {
         loopSet => loopSet.map(iLoop => Loop.fromCubicBeziers(iLoop.beziers))
     );
 
-    /*
-    let str = '';
-    for (let simplePaths of loopss) {
-        //console.log(str)
-        for (let loop of simplePaths) {
-            str = str + '\n\n' + beziersToSvgPathStr(
-                loop.curves.map(c => c.ps),
-                5
-            )
-        }
-        //console.log(str)
-        //console.log('-----------------');
-    }
-    console.log(str)
-    */
-
     let xMap: Map<number[][],{ ps: number[][] }> = new Map();
 
     for (let intersection of intersections) {
@@ -98,10 +83,6 @@ function simplifyPaths(loops: Loop[]) {
             if (x.isDummy) { continue; }
 
             xMap.set(x.outPs, { ps: x.opposite.outPs })
-
-            if (typeof _debug_ !== 'undefined') {
-                _debug_.generated.elems.intersection.push(x);
-            }
         }
     }
 
@@ -150,6 +131,7 @@ function getLoopsFromTree(root: ILoopTree) {
     return loopTrees;
     
     function f(parent: ILoopTree) {
+        //console.log(parent.windingNum);
         if (Math.abs(parent.windingNum) <= 1) { 
             loopTrees.push(parent);
         }
@@ -162,9 +144,12 @@ function getLoopsFromTree(root: ILoopTree) {
 
 
 /**
- * 
+ * Returns < 0 if loopA's topmost point is higher (i.e. smaller) than that of
+ * loopB. Using this function in a sort will sort from highest topmost point 
+ * loops to lowest.
  * @param loopA 
  * @param loopB 
+ * @hidden
  */
 function ascendingByTopmostPoint(loopA: Loop, loopB: Loop) {
     let boundsA = getLoopBounds(loopA);
@@ -177,4 +162,4 @@ function ascendingByTopmostPoint(loopA: Loop, loopB: Loop) {
 }
 
 
-export { simplifyPaths }
+export { simplifyPaths, ascendingByTopmostPoint }

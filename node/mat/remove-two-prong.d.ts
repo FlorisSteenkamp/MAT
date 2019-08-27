@@ -1,4 +1,3 @@
-import { CpNode } from '../cp-node';
 /**
  * Removes the 2-prong connected to the given ContactPoint.
  *
@@ -6,5 +5,4 @@ import { CpNode } from '../cp-node';
  * other causing the algorithm to fail.
  * @param cpNode
  */
-declare function removeTwoProng(cpNode: CpNode): void;
-export { removeTwoProng };
+export {};

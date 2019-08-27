@@ -1,5 +1,5 @@
 
-import Poly from 'flo-poly';
+import { allRoots } from 'flo-poly';
 
 import { getObjClosestTo } from 'flo-vector2d';
 
@@ -13,7 +13,7 @@ import { evaluate } from "flo-bezier3";
  * @param tRange The allowed t range
  * @param touchedCurve The bezier on which p is located
  * @param t The t value of the bezier that locates p
- */
+ *//*
 function closestPointOnBezier(
         ps: number[][], 
         p: number[], 
@@ -71,27 +71,10 @@ function closestPointOnBezier(
 
     let poly = [t5,t4,t3,t2,t1,t0];
 
-    let roots = Poly.allRoots(poly, tRange[0], tRange[1]); 
+    let roots = allRoots(poly, tRange[0], tRange[1]); 
 
-    // Also test the endpoints
-    let push0 = true;
-    let push1 = true;
-
-    if (tRange[0] === 0) {
-        if (push0) { roots.push(tRange[0]); }
-    } else if (tRange[0] === 1) {
-        if (push1) { roots.push(tRange[0]); }
-    } else {
-        roots.push(tRange[0]);
-    }
-
-    if (tRange[1] === 0) {
-        if (push0) { roots.push(tRange[1]); }
-    } else if (tRange[1] === 1) {
-        if (push1) { roots.push(tRange[1]); }
-    } else {
-        roots.push(tRange[1]);
-    }
+    roots.push(tRange[0]);
+    roots.push(tRange[1]);
 
     let ev = evaluate(ps);
     let ps_ = roots.map(
@@ -103,4 +86,4 @@ function closestPointOnBezier(
 }
 
 
-export { closestPointOnBezier }
+export { closestPointOnBezier }*/

@@ -21,26 +21,11 @@ const calcVectorToZeroV_StraightToIt = flo_vector2d_1.fromTo;
 function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     const TOLERANCE = extreme * 1e-10;
     const MAX_ITERATIONS = 10;
-    //k = 0;
-    /*
-    let δ3s = [
-        δs[0],
-        δs[idx],
-        δs[δs.length-1]
-    ];
-    */
     let δs_ = [
         δs[0],
         δs[idx],
         δs[δs.length - 1]
     ];
-    /*
-    let bezierPiece3s = [
-        bezierPiecess[0],
-        bezierPiecess[idx],
-        bezierPiecess[δs.length-1]
-    ];
-    */
     let bezierPieces_ = [
         bezierPiecess[0],
         bezierPiecess[idx],
@@ -64,6 +49,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     let ps;
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
+    //console.log(bezierPieces_)
     let x = calc_initial_3_prong_center_1.calcInitial3ProngCenter(δ3s, bezierPiece3s);
     if (typeof _debug_ !== 'undefined') {
         let threeProngs = _debug_.generated.elems.threeProng;

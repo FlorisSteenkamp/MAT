@@ -3,8 +3,8 @@ declare var _debug_: MatDebug;
 
 import { MatDebug }   from '../../debug/debug';
 
-import { CpNode       } from '../../cp-node';
-import { Loop         } from '../../loop';
+import { CpNode       } from '../../cp-node/cp-node';
+import { Loop         } from '../../loop/loop';
 import { Circle       } from '../../circle';
 import { PointOnShape } from '../../point-on-shape';
 

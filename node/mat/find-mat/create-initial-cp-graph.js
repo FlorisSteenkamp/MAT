@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_ll_rb_tree_1 = require("flo-ll-rb-tree");
 const circle_1 = require("../../circle");
-const cp_node_1 = require("../../cp-node");
+const cp_node_1 = require("../../cp-node/cp-node");
 const contact_point_1 = require("../../contact-point");
 /**
  * Creates the initial ContactPoint loops from the given sharp corners.

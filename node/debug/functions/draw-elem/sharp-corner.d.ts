@@ -1,3 +1,3 @@
-import { PointOnShape } from '../../../point-on-shape';
-declare function sharpCorner(g: SVGGElement, pos: PointOnShape): SVGElement[];
+import { Curve } from '../../../curve';
+declare function sharpCorner(g: SVGGElement, curve: Curve): SVGCircleElement[];
 export { sharpCorner };

@@ -1,4 +1,4 @@
-import { Loop } from '../../../loop';
+import { Loop } from '../../../loop/loop';
 /**
  * Uses the algorithm of Lavanya Subramaniam (PARTITION OF A NON-SIMPLE POLYGON
  * INTO SIMPLE POLYGONS) but modified to use cubic bezier curves (as opposed to
@@ -12,4 +12,13 @@ declare function simplifyPaths(loops: Loop[]): {
         ps: number[][];
     }>;
 };
-export { simplifyPaths };
+/**
+ * Returns < 0 if loopA's topmost point is higher (i.e. smaller) than that of
+ * loopB. Using this function in a sort will sort from highest topmost point
+ * loops to lowest.
+ * @param loopA
+ * @param loopB
+ * @hidden
+ */
+declare function ascendingByTopmostPoint(loopA: Loop, loopB: Loop): number;
+export { simplifyPaths, ascendingByTopmostPoint };

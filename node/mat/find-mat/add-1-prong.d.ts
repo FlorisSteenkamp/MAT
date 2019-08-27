@@ -1,7 +1,7 @@
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
-import { CpNode } from '../../cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 /**
  * Add a 1-prong to the MAT.
  * @param cpGraphs

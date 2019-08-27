@@ -1,12 +1,6 @@
 .nyc_output
 .npm-debug.log
-.coveralls.yml
-coverage
 node_modules
 c.bat
-cc.bat
-graveyard
+papers
 
-paper
-referenced papers
-temp

@@ -1,5 +1,5 @@
 
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 
 import { getPathsFromStr } from '../../get-paths-from-str';
 

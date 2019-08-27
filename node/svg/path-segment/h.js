@@ -12,12 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * command, the new current point becomes (x, cpy) for the final value of x.
  */
 function h(s) {
+    /*
     let xInterval = (s.vals[0] - s.p[0]) / 3;
     let ps = [
         s.p,
-        [s.p[0] + xInterval * 1, s.p[1]],
-        [s.p[0] + xInterval * 2, s.p[1]],
-        [s.p[0] + xInterval * 3, s.p[1]]
+        [s.p[0] + xInterval*1, s.p[1]],
+        [s.p[0] + xInterval*2, s.p[1]],
+        [s.p[0] + xInterval*3, s.p[1]]
+    ];
+    */
+    let ps = [
+        s.p, [s.vals[0], s.p[1]]
     ];
     s.prev2ndCubicControlPoint = undefined;
     s.prev2ndQuadraticControlPoint = undefined;

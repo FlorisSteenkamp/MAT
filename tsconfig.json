@@ -1,10 +1,14 @@
 {
     "compilerOptions": {
         "charset": "utf8",
-        "alwaysStrict": true,
-        "module": "commonjs",
-        "noImplicitAny": true,
+        "noImplicitAny": true, 
         "noImplicitThis": true,
+        "alwaysStrict": true,
+        "strictBindCallApply": true,
+        //"strictNullChecks": true,
+        "strictFunctionTypes": true,
+        //"strictPropertyInitialization": true,
+        "module": "commonjs",
         "target": "es2015",
         "declaration": true,
         "noEmitOnError": true,
@@ -12,7 +16,7 @@
         "outDir": "node"
     },
     "include": [
-        "src/**/*"
+        "src/**/*.ts"
     ],
     "exclude": [
         "node_modules"

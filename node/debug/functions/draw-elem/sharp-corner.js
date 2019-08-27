@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function sharpCorner(g, pos) {
-    const scaleFactor = 0.1;
-    let $pos = _debug_.fs.draw.dot(g, pos.p, 0.6 * scaleFactor, 'green');
+const flo_draw_1 = require("flo-draw");
+function sharpCorner(g, curve) {
+    const scaleFactor = 1;
+    let p = curve.ps[3];
+    let $pos = flo_draw_1.drawFs.dot(g, p, 0.6 * scaleFactor, 'green');
     return $pos;
 }
 exports.sharpCorner = sharpCorner;

@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const flo_memoize_1 = require("flo-memoize");
 const flo_bezier3_1 = require("flo-bezier3");
 const point_on_shape_1 = require("../../point-on-shape");
 const INF = Number.POSITIVE_INFINITY;
-let getLoopBounds = flo_memoize_1.memoize(function (loop) {
+let getLoopBounds = /*memoize*/ (function (loop) {
     let extremes = [
         [
             { bezier: undefined, t: undefined, val: INF },

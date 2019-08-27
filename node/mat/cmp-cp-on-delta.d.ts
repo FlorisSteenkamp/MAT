@@ -1,4 +1,4 @@
-import { CpNode } from '..//cp-node';
+import { CpNode } from '../cp-node/cp-node';
 import { ContactPoint } from '../contact-point';
 /**
  * Note: For debugging only

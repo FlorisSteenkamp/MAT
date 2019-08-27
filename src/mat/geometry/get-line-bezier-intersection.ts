@@ -1,5 +1,5 @@
 
-import Poly from 'flo-poly';
+import { allRoots } from 'flo-poly';
 
 import { len, translateThenRotatePs } from 'flo-vector2d';
 import { getY, evaluate } from 'flo-bezier3';
@@ -26,7 +26,7 @@ function getLineBezierIntersection(
 
     let newPs = translateThenRotatePs(t, sinθ, cosθ, ps);
 
-    let roots = Poly.allRoots(getY(newPs), 0, 1);
+    let roots = allRoots(getY(newPs), 0, 1);
 
     let ev = evaluate(ps);
     return roots.map( t => ({ p: ev(t), t }) );

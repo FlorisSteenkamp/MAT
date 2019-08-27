@@ -1,40 +1,41 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const traverse_edges_1 = require("../../../traverse-edges");
-function mat(type, smooth) {
+const flo_draw_1 = require("flo-draw");
+const smoothen_1 = require("../../../mat/smoothen/smoothen");
+function drawMat(type) {
     let classes = type === 'mat'
         ? 'thin5 purple nofill'
         : 'thin10 red nofill';
-    return f;
-    function f(g, mat) {
+    return (g, mat) => {
         let cpNode = mat.cpNode;
         if (!cpNode) {
             return undefined;
         }
-        let draw = _debug_.fs.draw;
+        // TODO - remove - testing
+        /*while (!cpNode.isTerminating()) {
+            cpNode = cpNode.next;
+        }*/
+        /*
+        drawFs.dot(g, cpNode.cp.pointOnShape.p, 1)
+        drawFs.dot(g, cpNode.cp.circle.center, 2)
+        */
         let $svgs = [];
-        //const DRAW_CLASS_LINE = 'thin20 blue1 nofill';
-        //const DRAW_CLASS_QUAD = 'thin20 blue2 nofill';
-        //const DRAW_CLASS_CUBE = 'thin20 blue3 nofill';
-        traverse_edges_1.traverseEdges(cpNode, function (cpNode) {
+        let i = 0;
+        traverse_edges_1.traverseEdges(cpNode, cpNode => {
             if (cpNode.isTerminating()) {
                 return;
             }
-            if (!smooth) {
-                let p1 = cpNode.cp.circle.center;
-                let p2 = cpNode.next.cp.circle.center;
-                $svgs.push(...draw.line(g, [p1, p2], classes));
-                return;
-            }
-            let bezier = cpNode.matCurveToNextVertex;
+            //let bezier = cpNode.matCurveToNextVertex;
+            let bezier = smoothen_1.getCurveToNext(cpNode);
             if (!bezier) {
                 return;
             }
-            let fs = [, , draw.line, draw.quadBezier, draw.bezier];
-            $svgs.push(...fs[bezier.length](g, bezier, classes));
+            i++;
+            $svgs.push(...flo_draw_1.drawFs.bezier(g, bezier, classes /*, i*100*/));
         });
         return $svgs;
-    }
+    };
 }
-exports.mat = mat;
+exports.drawMat = drawMat;
 //# sourceMappingURL=mat.js.map

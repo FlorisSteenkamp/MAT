@@ -1,4 +1,4 @@
-import { CpNode } from './cp-node';
+import { CpNode } from './cp-node/cp-node';
 /**
  * Returns the ordered cubic bezier curves from this CpNode to the next CpNode
  * on the boundary.

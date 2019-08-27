@@ -154,12 +154,12 @@ function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) 
             let boundaries = threeProng.boundaries;
             let boundaryS = boundaries[0];
             let boundaryE = boundaries[boundaries.length - 1];
-            draw.beziers(g, boundaryS, 'red thin5 nofill', showDelay);
+            draw.beziers(g, boundaryS, 'red thin20 nofill', showDelay);
             for (let i = 1; i < boundaries.length - 1; i++) {
                 let boundary = boundaries[i];
-                draw.beziers(g, boundary, 'green thin5 nofill', showDelay);
+                draw.beziers(g, boundary, 'green thin20 nofill', showDelay);
             }
-            draw.beziers(g, boundaryE, 'blue thin5 nofill', showDelay);
+            draw.beziers(g, boundaryE, 'blue thin20 nofill', showDelay);
         }
         if (showTrace) {
             let traces = threeProng.traces;

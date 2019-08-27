@@ -7,7 +7,7 @@ import {
 	getBoundingHull, getBoundingBox, getBoundingBoxTight
 } from 'flo-bezier3';
 
-import { Loop         } from '../../loop';
+import { Loop         } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
 import { Curve        } from '../../curve';
 import { Mat          } from '../../mat';
@@ -40,6 +40,21 @@ function addDebugInfo1(loops: Loop[]) {
 
             let tightBoundingBox = getBoundingBoxTight(ps);
             generated.elems.tightBoundingBox.push(tightBoundingBox);
+
+            /*
+            if (PointOnShape.isSharpCorner(pos)) {
+                generated.elems.sharpCorner.push(pos);
+            } else if (PointOnShape.isDullCorner(pos)) {
+                generated.elems.dullCorner.push(pos);
+            }
+            */
+            let corner = Curve.getCornerAtEnd(curve);
+            if (corner.isSharp) {
+                generated.elems.sharpCorner.push(curve);
+            } else if (corner.isDull) {
+                generated.elems.dullCorner.push(curve);
+            }
+
             i++;
         });
     }
@@ -55,17 +70,17 @@ function addDebugInfo2(pointOnShapeArrPerLoop: PointOnShape[][]) {
     timing.holeClosers[1] += now - timing.holeClosers[0];
     timing.oneAnd2Prongs[0] = now;
 
+    /*
     for (let pointsOnShape of pointOnShapeArrPerLoop) {
         for (let pos of pointsOnShape) {
             if (PointOnShape.isSharpCorner(pos)) {
                 generated.elems.sharpCorner.push(pos);
-            } else {
-                if (PointOnShape.isDullCorner(pos)) {
-                    generated.elems.dullCorner.push(pos);
-                }
+            } else if (PointOnShape.isDullCorner(pos)) {
+                generated.elems.dullCorner.push(pos);
             }
         }
     }
+    */
 }
 
 

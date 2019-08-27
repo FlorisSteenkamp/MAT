@@ -3,10 +3,9 @@ declare var _debug_: MatDebug;
 
 import { MatDebug }   from '../../debug/debug';
 
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 
 import { getLoopBounds } from './get-loop-bounds';
-import { PointOnShape } from '../../point-on-shape';
 
 
 /**

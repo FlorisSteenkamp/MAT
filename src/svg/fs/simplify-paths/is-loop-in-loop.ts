@@ -3,13 +3,14 @@ declare var _debug_: MatDebug;
 
 import { MatDebug }   from '../../../debug/debug';
 
-import Poly from 'flo-poly';
+import { flatCoefficients, allRoots } from 'flo-poly';
+import * as a from 'flo-bezier3';
 
 import { 
     getBoundingBox, getX, getY, tangent, evaluate, translate, rotate
 } from 'flo-bezier3';
 
-import { Loop         } from "../../../loop";
+import { Loop         } from "../../../loop/loop";
 import { PointOnShape } from '../../../point-on-shape';
 
 import { getLoopBounds } from "../get-loop-bounds";
@@ -40,14 +41,14 @@ function isLoopInLoop(loops: Loop[]) {
         i++;
 
         // This gets us a predictable random number between 0 and 1;
-        let rand1 = Poly.random.flatCoefficients(1, 0, 1, seed);
+        let rand1 = flatCoefficients(1, 0, 1, seed);
         let t = rand1.p[0];
         seed = rand1.seed; // Get next seed.
         
         // This gets us a predictable random number roughly between 0 and the 
         // number of curves in the loop.
         let curveCount = loops[0].curves.length;
-        let rand2 = Poly.random.flatCoefficients(1, 0, curveCount, seed);
+        let rand2 = flatCoefficients(1, 0, curveCount, seed);
         
         let idx = Math.floor(rand2.p[0]);
         seed = rand2.seed; // Get next seed.
@@ -163,7 +164,7 @@ function getAxisAlignedRayLoopIntersections(
         let translatedPs = translate(offset, ps);
         let poly = f(translatedPs); 
         let ev = evaluate(translatedPs);
-        let ts_ = Poly.allRoots(poly,0-DELTA,1+DELTA);
+        let ts_ = allRoots(poly,0-DELTA,1+DELTA);
         
         for (let i=0; i<ts_.length; i++) {
             let t = ts_[i];

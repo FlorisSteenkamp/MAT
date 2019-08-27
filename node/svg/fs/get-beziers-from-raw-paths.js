@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const push_bezier_1 = require("../fs/push-bezier");
 const path_state_1 = require("../path-state");
 const z_1 = require("../path-segment/z");
 const c_1 = require("../path-segment/c");
@@ -11,13 +10,30 @@ const v_1 = require("../path-segment/v");
 const q_1 = require("../path-segment/q");
 const t_1 = require("../path-segment/t");
 const a_1 = require("../path-segment/a");
-const pathFs = { a: a_1.a, c: c_1.c, h: h_1.h, l: l_1.l, q: q_1.q, s: s_1.s, t: t_1.t, v: v_1.v, z: z_1.z };
+const pathFs = {
+    a: a_1.a,
+    c: // elliptical arc
+    c_1.c,
+    h: // cubic bezier
+    h_1.h,
+    l: // horizontal line
+    l_1.l,
+    q: // line
+    q_1.q,
+    s: // quadratic bezier
+    s_1.s,
+    t: // cubic bezier (smooth)
+    t_1.t,
+    v: // quadratic bezier (smooth)
+    v_1.v,
+    z: // vertical line
+    z_1.z // close path
+};
 /**
- * Get the cubic beziers from the given SVG DOM element. If a path
- * data tag is not "C", i.e. if it is not an absolute cubic bezier
+ * Returns order 1, 2 and 3 beziers from the given SVG DOM element. If a path
+ * data tag is not "C, Q or L, etc", i.e. if it is not an absolute bezier
  * coordinate then it is converted into one.
- * @param elem - An SVG element
- * @returns aaa
+ * @param paths An SVG element
  */
 function getBeziersFromRawPaths(paths) {
     if (paths.length === 0) {
@@ -29,29 +45,13 @@ function getBeziersFromRawPaths(paths) {
     let s = new path_state_1.PathState();
     let beziersArrays = [];
     let beziers = [];
-    let max = Number.NEGATIVE_INFINITY;
-    for (let i = 0; i < paths.length; i++) {
-        let path = paths[i];
-        for (let j = 0; j < path.values.length; j++) {
-            let v = path.values[j];
-            if (max < v) {
-                max = v;
-            }
-        }
-    }
-    let type = undefined;
     let prevType;
     for (let i = 0; i < paths.length; i++) {
-        prevType = type;
         let pathSeg = paths[i];
-        type = pathSeg.type.toLowerCase();
+        let type = pathSeg.type.toLowerCase();
         s.vals = pathSeg.values;
-        /*
-        if (pathSeg.values[0] === 109.637) {
-            console.log('109')
-        }
-        */
-        if (pathSeg.type === pathSeg.type.toLowerCase()) {
+        // If pathSeg was lowercase, it is relative - make absolute
+        if (pathSeg.type === type) {
             if (type === 'v') {
                 s.vals[0] += s.p[1];
             }
@@ -70,13 +70,14 @@ function getBeziersFromRawPaths(paths) {
                 // This is a subpath, close as if the previous command was a 
                 // Z or z.
                 if (prevType !== 'z') {
-                    push_bezier_1.pushBezier(beziers, z_1.z(s), s, max);
+                    beziers.push(z_1.z(s));
                 }
                 // Start new path
                 beziersArrays.push(beziers);
                 beziers = [];
             }
             s.initialPoint = s.p = s.vals;
+            prevType = type;
             continue;
         }
         let f = pathFs[type];
@@ -84,15 +85,14 @@ function getBeziersFromRawPaths(paths) {
             throw new Error('Invalid SVG - command not recognized.');
         }
         let ps = f(s);
-        s.p = ps[3]; // Update current point
-        push_bezier_1.pushBezier(beziers, ps, s, max);
+        s.p = ps[ps.length - 1]; // Update current point
+        beziers.push(ps);
+        prevType = type;
     }
     if (beziers.length) {
-        //beziersArrays.push(beziers);
-        // This is a subpath, close as if the previous command was a 
-        // Z or z.
+        // This is a subpath, close as if the previous command was a Z or z.
         if (prevType !== 'z') {
-            push_bezier_1.pushBezier(beziers, z_1.z(s), s, max);
+            beziers.push(z_1.z(s));
         }
         // Start new path
         beziersArrays.push(beziers);

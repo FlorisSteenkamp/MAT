@@ -6,22 +6,22 @@ import { MatDebug } from './debug/debug';
 
 import LlRbTree from 'flo-ll-rb-tree';
 
-import { CpNode } from './cp-node';
-import { Loop   } from './loop';
-import { Mat    } from './mat';
+import { CpNode } from './cp-node/cp-node';
+import { Loop } from './loop/loop';
+import { Mat } from './mat';
 
-import { getLoopBounds } from './svg/fs/get-loop-bounds';
-import { simplifyPaths } from './svg/fs/simplify-paths/simplify-paths';
+import { simplifyPaths, ascendingByTopmostPoint } from './svg/fs/simplify-paths/simplify-paths';
 import { getExtreme } from './svg/fs/get-extreme';
 import { findAndAddAll3Prongs } from './mat/find-mat/find-and-add-3-prongs';
 import { createInitialCpGraph } from './mat/find-mat/create-initial-cp-graph';;
 import { addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './mat/find-mat/add-debug-info';
 import { getPotential2Prongs } from './mat/find-mat/get-potential-2-prongs';
 import { getSharpCorners } from './mat/find-mat/get-sharp-corners';
-import { smoothen } from './mat/smoothen/smoothen';
 import { findAndAdd2ProngsOnAllPaths } from './mat/find-mat/find-and-add-2-prongs-on-all-paths';
 import { createGetInterestingPointsOnLoop } from './mat/find-mat/create-get-interesting-points-on-loop';
 import { findAndAddHoleClosing2Prongs } from './mat/find-mat/find-and-add-hole-closing-2-prongs';
+import { getLoopArea } from './get-loop-area';
+import { normalizeLoops } from './loop/normalize/normalize-loop';
 
 
 /**
@@ -36,16 +36,48 @@ import { findAndAddHoleClosing2Prongs } from './mat/find-mat/find-and-add-hole-c
  * @param additionalPointCount Additional points per bezier where a MAT circle
  * will be added. Defaults to 3.
  */
-function findMats(bezierLoops: number[][][][], additionalPointCount = 3) {	
+//function findMats(bezierLoops: number[][][][], additionalPointCount = 3) {
+function findMats(
+		bezierLoops: number[][][][], 
+		additionalPointCount = 1) {
+
 	if (typeof _debug_ !== 'undefined') {
 		let timing = _debug_.generated.timing;
 		timing.simplify[0] = performance.now();
 	}
 
-	//let loops_ = loops.map(loop => Loop.perturb(loop, 10))
-	let loops = bezierLoops.map(beziers => Loop.fromBeziers(beziers));
+	//loops_.map(loop => console.log(beziersToSvgPathStr(loop.beziers, 3)));
+
+	// We use 14 here since (14+3)*3 = 51 < 53 (signifcand length). In other
+	// words if we change a bezier point coordinate to power basis we add
+	// three more significant figures at most (due to multiplication by 6) to
+	// get a bit length of 17 so we can multiply 3 coordinates together without
+	// any round-off error.
+	//let loops = loops_.map(loop => normalizeLoop(loop, max, 13));
+	let loops = normalizeLoops(bezierLoops, 14);
+
+	//console.log(loops)
+	
+	//loops.map(loop => loop.beziers.map(ps => console.log(ps)))
+	//loops.map(loop => console.log(beziersToSvgPathStr(loop.beziers, 0)));
 
 	let { loopss, xMap } = simplifyPaths(loops);
+
+	// TODO - below breaks woodland creatures
+	/////
+	for (let i=0; i<loopss.length; i++) {
+		let loops = loopss[i].filter(loopHasNonNegligibleArea(0.000000000001))
+		loopss[i] = loops;
+	}
+	loopss = loopss.filter(loops => loops.length);
+	/////
+
+	//console.log(loopss)
+
+	// Ren-normalize after intersections
+	// Uncommenting the below unconnects SATs!
+	//loopss = loopss.map(loops => loops.map(loop => normalizeLoop(loop, max)));
+	//console.log(loopss);
 
 	if (typeof _debug_ !== 'undefined') {
 		let timing = _debug_.generated.timing;
@@ -62,10 +94,21 @@ function findMats(bezierLoops: number[][][][], additionalPointCount = 3) {
 	return mats;
 }
 
+
+function loopHasNonNegligibleArea(minArea: number) {
+	return (loop: Loop) => {
+		let area = getLoopArea(loop);
+		//console.log(area);
+		return Math.abs(area) > minArea;
+	}
+}
+
+
 /**
- * 
- * @param loops 
- * @param xMap 
+ * Find the MAT of the given loops.
+ * @param loops The loops (that as a precondition must be ordered from highest 
+ * (i.e. smallest y-value) topmost point loops to lowest)
+ * @param xMap Intersection point map.
  * @param additionalPointCount 
  * @hidden
  */
@@ -80,8 +123,9 @@ function findPartialMat(
 		
 	// Gets interesting points on the shape, i.e. those that makes sense to use 
 	// for the 2-prong procedure.
-	let f = createGetInterestingPointsOnLoop(additionalPointCount);
-	let pointsPerLoop = loops.map(f);
+	let pointsPerLoop = loops.map(
+		createGetInterestingPointsOnLoop(additionalPointCount)
+	);
 
 	let for2ProngsPerLoop = getPotential2Prongs(pointsPerLoop);
 	let sharpCornersPerLoop = getSharpCorners(pointsPerLoop);
@@ -103,13 +147,15 @@ function findPartialMat(
 		loops, cpTrees, for2ProngsPerLoop, extreme
 	);
 
+	//console.log(cpNode)
+
+	addDebugInfo3();
+
 	if (typeof _debug_ !== 'undefined') {
 		if (_debug_.directives.stopAfterTwoProngs) {
 			return undefined;
 		}
 	}
-
-	addDebugInfo3();
 	
 	if (cpNode === undefined) { return undefined; }
 	
@@ -123,28 +169,9 @@ function findPartialMat(
 
 	let mat = new Mat(cpNode, cpTrees);
 
-	smoothen(mat.cpNode);
-
 	addDebugInfo4(mat);
 	
 	return mat;
-}
-
-
-/**
- * 
- * @param loopA 
- * @param loopB 
- * @hidden
- */
-function ascendingByTopmostPoint(loopA: Loop, loopB: Loop) {
-    let boundsA = getLoopBounds(loopA);
-    let boundsB = getLoopBounds(loopB);
-
-    let a = boundsA.minY.p[1];
-    let b = boundsB.minY.p[1];
-
-    return a-b;
 }
 
 

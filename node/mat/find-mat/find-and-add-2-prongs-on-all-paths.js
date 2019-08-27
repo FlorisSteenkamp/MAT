@@ -11,6 +11,7 @@ const find_and_add_2_prongs_1 = require("./find-and-add-2-prongs");
  */
 function findAndAdd2ProngsOnAllPaths(loops, cpGraphs, for2Prongss, extreme) {
     let cpNode;
+    //console.log(loops);
     for (let k = 0; k < for2Prongss.length; k++) {
         let for2Prongs = for2Prongss[k];
         cpNode = find_and_add_2_prongs_1.findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme);

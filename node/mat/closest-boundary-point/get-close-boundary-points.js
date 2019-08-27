@@ -13,7 +13,10 @@ const closest_points_on_curve_1 = require("./closest-points-on-curve");
  * @param t
  * @param extreme
  */
-function getCloseBoundaryPoints(bezierPieces, point, touchedCurve, t, distance) {
+function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
+    let touchedCurve = y.curve;
+    let t = y.t;
+    let p_ = y.p;
     bezierPieces = cull_bezier_pieces_1.cullBezierPieces(bezierPieces, point);
     // TODO - integrate with is-another-cp-closeby - we MUST check angle too!
     let DISTANCE_TOLERANCE = 1e-9;
@@ -45,10 +48,10 @@ function getCloseBoundaryPoints(bezierPieces, point, touchedCurve, t, distance) 
         let indexesToCheck = [];
         for (let i = 0; i < posInfos.length; i++) {
             let pi = posInfos[i];
-            // Only check if they are close to the edges.
-            if (pi.pos.t < 1e-2 || 1 - pi.pos.t < 1e-2) {
-                indexesToCheck.push(i);
-            }
+            // Only check if they are close to the edges. Why??
+            //if (pi.pos.t < 1e-2 || 1-pi.pos.t < 1e-2) {
+            indexesToCheck.push(i);
+            //}
         }
         let indexesToRemove = [];
         for (let i = 0; i < indexesToCheck.length; i++) {
@@ -58,13 +61,27 @@ function getCloseBoundaryPoints(bezierPieces, point, touchedCurve, t, distance) 
                 }
                 let p1 = posInfos[indexesToCheck[i]].pos.p;
                 let p2 = posInfos[indexesToCheck[j]].pos.p;
-                if (Math.abs(p1[0] - p2[0]) < 1e-6 && Math.abs(p1[1] - p2[1]) < 1e-6) {
+                // Below checks for source point too - similar to 
+                // isAnotherCpCloseBy
+                let p3 = p_;
+                if ((Math.abs(p1[0] - p2[0]) < 1e-6 &&
+                    Math.abs(p1[1] - p2[1]) < 1e-6) ||
+                    (Math.abs(p1[0] - p3[0]) < 1e-6 &&
+                        Math.abs(p1[1] - p3[1]) < 1e-6)) {
+                    //console.log(i);
                     indexesToRemove.push(indexesToCheck[i]);
                 }
             }
         }
-        for (let i = indexesToRemove.length - 1; i >= 0; i--)
+        for (let i = indexesToRemove.length - 1; i >= 0; i--) {
             posInfos.splice(indexesToRemove[i], 1);
+        }
+        /*
+        if (posInfos.length > 1) {
+            console.log(p_);
+            console.log(posInfos.map(pi => pi.d), posInfos.map(pi => pi.pos.p), posInfos.map(pi => pi.pos.t))
+            console.log('-------');
+        }*/
     }
     return posInfos;
 }

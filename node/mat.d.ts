@@ -1,6 +1,6 @@
 import LlRbTree from "flo-ll-rb-tree";
-import { CpNode } from "./cp-node";
-import { Loop } from './loop';
+import { CpNode } from "./cp-node/cp-node";
+import { Loop } from './loop/loop';
 /**
  * Represents a complete Medial Axis Transform (MAT).
  *

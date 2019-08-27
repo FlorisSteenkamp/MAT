@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
-const loop_1 = require("../../loop");
+const loop_1 = require("../../loop/loop");
 /**
  * Returns a completely reversed loop of the given bezier loop.
  * @param loop

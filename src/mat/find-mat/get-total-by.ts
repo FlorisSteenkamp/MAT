@@ -1,6 +1,6 @@
 
 import { Curve } from '../../curve';
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 
 
 /**

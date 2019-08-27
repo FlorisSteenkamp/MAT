@@ -1,14 +1,8 @@
 
-declare var _debug_: MatDebug;
-
-import { MatDebug } from '../debug/debug';
-
 import { Mat } from '../mat';
-
-import { smoothen         } from './smoothen/smoothen';
-
-import { createNewCpTree      } from './create-new-cp-tree';
-import { cullNonCycles        } from './to-scale-axis/cull-non-cycles';
+import { createNewCpTree } from './create-new-cp-tree';
+import { cullNonCycles } from './to-scale-axis/cull-non-cycles';
+import { clone } from '../cp-node/clone';
 
 
 /**
@@ -17,11 +11,9 @@ import { cullNonCycles        } from './to-scale-axis/cull-non-cycles';
  * @param mat The MAT to trim.
  */
 function trimMat(mat: Mat) {
-	let cpNode = cullNonCycles(mat.cpNode.clone());
+	let cpNode = cullNonCycles(clone(mat.cpNode));
 
     if (!cpNode) { return undefined; }
-
-    smoothen(cpNode);
 
     let mat_ = new Mat(cpNode, createNewCpTree(cpNode));
     

@@ -1,7 +1,6 @@
-import { Loop } from '../../loop';
-import { PointOnShape } from '../../point-on-shape';
+import { Loop } from '../../loop/loop';
 /**
  * Get topmost PointOnShape the given loop.
  */
-declare function getMinYPos(loop: Loop): PointOnShape;
+declare function getMinYPos(loop: Loop): import("../../point-on-shape").PointOnShape;
 export { getMinYPos };

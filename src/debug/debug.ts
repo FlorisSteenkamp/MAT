@@ -2,9 +2,9 @@
 import * as Vector from 'flo-vector2d';
 import * as Bezier3 from 'flo-bezier3';
 
-import { CpNode       } from '../cp-node';
+import { CpNode       } from '../cp-node/cp-node';
 import { PointOnShape } from '../point-on-shape';
-import { Loop         } from '../loop';
+import { Loop         } from '../loop/loop';
 import { Mat          } from '../mat';
 import { X            } from '../x/x';
 
@@ -14,22 +14,27 @@ import { twoProngDebugFunctions    } from './functions/two-prong';
 import { ITwoProngDebugFunctions   } from './functions/two-prong';
 import { threeProngDebugFunctions  } from './functions/three-prong';
 import { IThreeProngDebugFunctions } from './functions/three-prong';
-import { drawElemFunctions         } from './functions/draw-elem/draw-elem';
-import { IDrawElemFunctions        } from './functions/draw-elem/draw-elem';
+import { drawElemFunctions, TDrawElemFunctions         } from './functions/draw-elem/draw-elem';
+//import { IDrawElemFunctions        } from './functions/draw-elem/draw-elem';
 import { TwoProngForDebugging      } from './two-prong-for-debugging';
 import { ThreeProngForDebugging    } from './three-prong-for-debugging';
-import { DebugElemType             } from './debug-elem-types';
+//import { DebugElemType             } from './debug-elem-types';
 import { CpNodeForDebugging        } from './cp-node-for-debugging';
 import { Circle } from '../circle';
+import { Curve } from '../curve';
+import { IDebugElems } from './debug-elem-types';
+import { drawFs } from 'flo-draw';
 
-
-
+/*
 export type GeneratedElemTypes = {
 	[T in DebugElemType]: any;
 }
+*/
 
+type GeneratedElems = { [T in keyof IDebugElems]: IDebugElems[T][] };
 
-export interface GeneratedElems extends GeneratedElemTypes {
+/*
+interface GeneratedElems extends GeneratedElemTypes {
     twoProng_regular     : TwoProngForDebugging[],
     twoProng_failed      : TwoProngForDebugging[],
     twoProng_notAdded    : TwoProngForDebugging[],
@@ -40,8 +45,10 @@ export interface GeneratedElems extends GeneratedElemTypes {
     oneProng             : PointOnShape[],
     oneProngAtDullCorner : PointOnShape[],
     threeProng           : ThreeProngForDebugging[],
-    sharpCorner          : PointOnShape[],
-    dullCorner           : PointOnShape[],
+    //sharpCorner          : PointOnShape[],
+    //dullCorner           : PointOnShape[],
+    sharpCorner          : Curve[],
+    dullCorner           : Curve[],
     minY                 : PointOnShape[],
     boundingHull         : number[][][],
     mat                  : Mat[],
@@ -54,7 +61,7 @@ export interface GeneratedElems extends GeneratedElemTypes {
     culls                : Circle[][],
     intersection         : X[],    
 }
-
+*/
 
 export interface ITiming {
     simplify      : number[];
@@ -92,6 +99,7 @@ export class Generated implements IGenerated {
             oneProngAtDullCorner : [],
             sharpCorner          : [],
             dullCorner           : [],
+            vertex               : [],
             minY                 : [],
             threeProng           : [],
             boundingHull         : [],
@@ -122,7 +130,7 @@ export interface IDebugFunctions extends IGeneralDebugFunctions {
     draw       : Bezier3.IDrawFunctions,
     twoProng   : ITwoProngDebugFunctions,
     threeProng : IThreeProngDebugFunctions,
-    drawElem   : IDrawElemFunctions,
+    drawElem   : TDrawElemFunctions,
 }
 
 
@@ -148,7 +156,7 @@ class MatDebug {
     /**
      * @param fs - some useful functions.  
      */
-    constructor(draw: Bezier3.IDrawFunctions) {
+    constructor() {
 
         // These are included only for quick debugging from console
         (this as any).Bezier3  = Bezier3; 
@@ -167,7 +175,7 @@ class MatDebug {
          * console try typing d.fs.twoProng.traceConvergence(0);
          */
         this.fs = { 
-            draw,
+            draw: drawFs,
             ...generalDebugFunctions,
             twoProng   : twoProngDebugFunctions,
             threeProng : threeProngDebugFunctions, 
@@ -187,4 +195,4 @@ class MatDebug {
 }
 
 
-export { MatDebug }
+export { MatDebug, GeneratedElems }

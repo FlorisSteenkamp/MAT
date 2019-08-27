@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mat_1 = require("./mat");
 exports.Mat = mat_1.Mat;
-const loop_1 = require("./loop");
+const loop_1 = require("./loop/loop");
 exports.Loop = loop_1.Loop;
 const curve_1 = require("./curve");
 exports.Curve = curve_1.Curve;
-const cp_node_1 = require("./cp-node");
+const cp_node_1 = require("./cp-node/cp-node");
 exports.CpNode = cp_node_1.CpNode;
 const point_on_shape_1 = require("./point-on-shape");
 exports.PointOnShape = point_on_shape_1.PointOnShape;
@@ -24,16 +24,23 @@ const to_scale_axis_1 = require("./to-scale-axis");
 exports.toScaleAxis = to_scale_axis_1.toScaleAxis;
 const traverse_edges_1 = require("./traverse-edges");
 exports.traverseEdges = traverse_edges_1.traverseEdges;
+const get_branches_1 = require("./get-branches");
+exports.getBranches = get_branches_1.getBranches;
 const traverse_vertices_1 = require("./traverse-vertices");
 exports.traverseVertices = traverse_vertices_1.traverseVertices;
 const debug_1 = require("./debug/debug");
 exports.MatDebug = debug_1.MatDebug;
+const branch_1 = require("./debug/functions/draw-elem/branch");
+exports.drawBranch = branch_1.drawBranch;
+const mat_2 = require("./debug/functions/draw-elem/mat");
+exports.drawMat = mat_2.drawMat;
 const cp_node_for_debugging_1 = require("./debug/cp-node-for-debugging");
 exports.CpNodeForDebugging = cp_node_for_debugging_1.CpNodeForDebugging;
 const get_closest_boundary_point_1 = require("./mat/closest-boundary-point/get-closest-boundary-point");
 exports.getClosestBoundaryPoint = get_closest_boundary_point_1.getClosestBoundaryPoint;
-const closest_point_on_bezier_1 = require("./mat/closest-boundary-point/closest-point-on-bezier");
-exports.closestPointOnBezier = closest_point_on_bezier_1.closestPointOnBezier;
+/*
+import { closestPointOnBezier } from
+'./mat/closest-boundary-point/closest-point-on-bezier';*/
 const get_paths_from_str_1 = require("./get-paths-from-str");
 exports.getPathsFromStr = get_paths_from_str_1.getPathsFromStr;
 const beziers_to_svg_path_str_1 = require("./beziers-to-svg-path-str");
@@ -43,4 +50,16 @@ exports.getShapeBounds = get_shape_bounds_1.getShapeBounds;
 exports.getShapesBounds = get_shape_bounds_1.getShapesBounds;
 const get_boundary_beziers_to_next_1 = require("./get-boundary-beziers-to-next");
 exports.getBoundaryBeziersToNext = get_boundary_beziers_to_next_1.getBoundaryBeziersToNext;
+const get_boundary_bezier_parts_to_next_1 = require("./get-boundary-bezier-parts-to-next");
+exports.getBoundaryBezierPartsToNext = get_boundary_bezier_parts_to_next_1.getBoundaryBezierPartsToNext;
+const get_boundary_piece_beziers_1 = require("./mat/get-boundary-piece-beziers");
+exports.getBoundaryPieceBeziers = get_boundary_piece_beziers_1.getBoundaryPieceBeziers;
+const simplify_mat_1 = require("./mat/simplify-mat");
+exports.simplifyMat = simplify_mat_1.simplifyMat;
+//import { maxDs, hausdorffDistance } from './hausdorff-distance/hausdorff-distance';
+const draw_elem_1 = require("./debug/functions/draw-elem/draw-elem");
+exports.drawElemFunctions = draw_elem_1.drawElemFunctions;
+const smoothen_1 = require("./mat/smoothen/smoothen");
+exports.getCurveToNext = smoothen_1.getCurveToNext;
+exports.getCurveBetween = smoothen_1.getCurveBetween;
 //# sourceMappingURL=index.js.map

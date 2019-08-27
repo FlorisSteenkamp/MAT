@@ -1,2 +1,2 @@
-declare function looseBoundingBox(g: SVGGElement, box: number[][]): SVGElement[];
+declare function looseBoundingBox(g: SVGGElement, box: number[][]): SVGRectElement[];
 export { looseBoundingBox };

@@ -16,6 +16,7 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
         }
     }
     else {
+        //aaa y.curve
         let order = point_on_shape_1.PointOnShape.isDullCorner(y)
             ? y.t === 1 ? -1 : +1
             : 0;

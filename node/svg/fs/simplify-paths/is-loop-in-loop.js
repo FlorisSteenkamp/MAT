@@ -17,13 +17,13 @@ function isLoopInLoop(loops) {
     do {
         i++;
         // This gets us a predictable random number between 0 and 1;
-        let rand1 = flo_poly_1.default.random.flatCoefficients(1, 0, 1, seed);
+        let rand1 = flo_poly_1.flatCoefficients(1, 0, 1, seed);
         let t = rand1.p[0];
         seed = rand1.seed; // Get next seed.
         // This gets us a predictable random number roughly between 0 and the 
         // number of curves in the loop.
         let curveCount = loops[0].curves.length;
-        let rand2 = flo_poly_1.default.random.flatCoefficients(1, 0, curveCount, seed);
+        let rand2 = flo_poly_1.flatCoefficients(1, 0, curveCount, seed);
         let idx = Math.floor(rand2.p[0]);
         seed = rand2.seed; // Get next seed.
         let ps = loops[0].curves[idx].ps;
@@ -117,7 +117,7 @@ function getAxisAlignedRayLoopIntersections(loop, p, dir) {
         let translatedPs = flo_bezier3_1.translate(offset, ps);
         let poly = f(translatedPs);
         let ev = flo_bezier3_1.evaluate(translatedPs);
-        let ts_ = flo_poly_1.default.allRoots(poly, 0 - DELTA, 1 + DELTA);
+        let ts_ = flo_poly_1.allRoots(poly, 0 - DELTA, 1 + DELTA);
         for (let i = 0; i < ts_.length; i++) {
             let t = ts_[i];
             if (Math.abs(t) < DELTA || Math.abs(t - 1) < DELTA) {

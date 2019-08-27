@@ -1,5 +1,5 @@
 import { Circle } from '../../circle';
-import { CpNode } from '../../cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 /**
  * Returns the set of Vertices passing the following test: walk the MAT tree and
  * keep all Vertices not in the current cull set and any Vertices that have a

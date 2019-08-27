@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const flo_draw_1 = require("flo-draw");
 function looseBoundingBox(g, box) {
-    let $box = _debug_.fs.draw.rect(g, box, 'thin5 brown nofill');
+    let $box = flo_draw_1.drawFs.rect(g, box, 'thin5 brown nofill');
     return $box;
 }
 exports.looseBoundingBox = looseBoundingBox;

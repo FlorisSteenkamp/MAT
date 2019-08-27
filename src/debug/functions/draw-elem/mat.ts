@@ -1,56 +1,44 @@
 
-declare let _debug_: MatDebug; 
-
-import { MatDebug } from '../../debug';
-
-import { CpNode } from "../../../cp-node";
 import { Mat    } from '../../../mat';
-
 import { traverseEdges } from "../../../traverse-edges";
+import { drawFs } from 'flo-draw';
+import { getCurveToNext } from '../../../mat/smoothen/smoothen';
 
 
-
-function mat(type: 'mat' | 'sat', smooth: boolean) {
+function drawMat(type: 'mat' | 'sat') {
 
     let classes: string = type === 'mat'
         ? 'thin5 purple nofill'
         : 'thin10 red nofill';
 
-    return f;
-
-
-    function f(g: SVGGElement, mat: Mat) {
+    return (g: SVGGElement, mat: Mat) => {
         let cpNode = mat.cpNode;
         
         if (!cpNode) { return undefined; }
 
-        let draw = _debug_.fs.draw;
-        
+        // TODO - remove - testing
+        /*while (!cpNode.isTerminating()) {
+            cpNode = cpNode.next;
+        }*/
+        /*
+        drawFs.dot(g, cpNode.cp.pointOnShape.p, 1)
+        drawFs.dot(g, cpNode.cp.circle.center, 2)
+        */
+
         let $svgs: SVGElement[] = [];
+        let i = 0;
 
-        //const DRAW_CLASS_LINE = 'thin20 blue1 nofill';
-        //const DRAW_CLASS_QUAD = 'thin20 blue2 nofill';
-        //const DRAW_CLASS_CUBE = 'thin20 blue3 nofill';
-
-        traverseEdges(cpNode, function(cpNode) {
+        traverseEdges(cpNode, cpNode => {
             if (cpNode.isTerminating()) { return; }
     
-            if (!smooth) {
-                let p1 = cpNode     .cp.circle.center;
-                let p2 = cpNode.next.cp.circle.center;
-
-                $svgs.push( ...draw.line(g, [p1, p2], classes) );
-
-                return;
-            } 
-
-            let bezier = cpNode.matCurveToNextVertex;
-
+            //let bezier = cpNode.matCurveToNextVertex;
+            let bezier = getCurveToNext(cpNode);
+            
             if (!bezier) { return; }
+
+            i++;
             
-            let fs = [,,draw.line, draw.quadBezier, draw.bezier];
-            
-            $svgs.push( ...fs[bezier.length](g, bezier, classes) );
+            $svgs.push( ...drawFs.bezier(g, bezier, classes/*, i*100*/));
         });
         
         return $svgs;
@@ -58,4 +46,4 @@ function mat(type: 'mat' | 'sat', smooth: boolean) {
 }
 
 
-export { mat }
+export { drawMat }

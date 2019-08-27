@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const loop_1 = require("../../../loop");
+const loop_1 = require("../../../loop/loop");
 const get_loop_bounds_1 = require("../get-loop-bounds");
 const get_intersections_1 = require("./get-intersections");
 const complete_path_1 = require("./complete-path");
@@ -30,8 +30,9 @@ function simplifyPaths(loops) {
             _debug_.fs.nameObj(loop);
         }
     }
+    //console.log(loops)
     for (let loop of loops) {
-        // TODO - handle special case of 1 curve - mayve just delete lines below
+        // TODO - handle special case of 1 curve - maybe just delete lines below
         if (loop.curves.length <= 1) {
             continue;
         }
@@ -49,21 +50,6 @@ function simplifyPaths(loops) {
     let loopTrees = splitLoopTrees(root);
     let iLoopSets = loopTrees.map(getLoopsFromTree);
     let loopss = iLoopSets.map(loopSet => loopSet.map(iLoop => loop_1.Loop.fromCubicBeziers(iLoop.beziers)));
-    /*
-    let str = '';
-    for (let simplePaths of loopss) {
-        //console.log(str)
-        for (let loop of simplePaths) {
-            str = str + '\n\n' + beziersToSvgPathStr(
-                loop.curves.map(c => c.ps),
-                5
-            )
-        }
-        //console.log(str)
-        //console.log('-----------------');
-    }
-    console.log(str)
-    */
     let xMap = new Map();
     for (let intersection of intersections) {
         for (let x of intersection[1]) {
@@ -71,9 +57,6 @@ function simplifyPaths(loops) {
                 continue;
             }
             xMap.set(x.outPs, { ps: x.opposite.outPs });
-            if (typeof _debug_ !== 'undefined') {
-                _debug_.generated.elems.intersection.push(x);
-            }
         }
     }
     return { loopss, xMap };
@@ -111,6 +94,7 @@ function getLoopsFromTree(root) {
     }
     return loopTrees;
     function f(parent) {
+        //console.log(parent.windingNum);
         if (Math.abs(parent.windingNum) <= 1) {
             loopTrees.push(parent);
         }
@@ -120,9 +104,12 @@ function getLoopsFromTree(root) {
     }
 }
 /**
- *
+ * Returns < 0 if loopA's topmost point is higher (i.e. smaller) than that of
+ * loopB. Using this function in a sort will sort from highest topmost point
+ * loops to lowest.
  * @param loopA
  * @param loopB
+ * @hidden
  */
 function ascendingByTopmostPoint(loopA, loopB) {
     let boundsA = get_loop_bounds_1.getLoopBounds(loopA);
@@ -131,4 +118,5 @@ function ascendingByTopmostPoint(loopA, loopB) {
     let b = boundsB.minY.p[1];
     return a - b;
 }
+exports.ascendingByTopmostPoint = ascendingByTopmostPoint;
 //# sourceMappingURL=simplify-paths.js.map

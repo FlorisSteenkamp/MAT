@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
-const point_on_shape_1 = require("../../point-on-shape");
+const curve_1 = require("../../curve");
 function addDebugInfo1(loops) {
     if (typeof _debug_ === 'undefined') {
         return;
@@ -23,6 +23,20 @@ function addDebugInfo1(loops) {
             generated.elems.looseBoundingBox.push(looseBoundingBox);
             let tightBoundingBox = flo_bezier3_1.getBoundingBoxTight(ps);
             generated.elems.tightBoundingBox.push(tightBoundingBox);
+            /*
+            if (PointOnShape.isSharpCorner(pos)) {
+                generated.elems.sharpCorner.push(pos);
+            } else if (PointOnShape.isDullCorner(pos)) {
+                generated.elems.dullCorner.push(pos);
+            }
+            */
+            let corner = curve_1.Curve.getCornerAtEnd(curve);
+            if (corner.isSharp) {
+                generated.elems.sharpCorner.push(curve);
+            }
+            else if (corner.isDull) {
+                generated.elems.dullCorner.push(curve);
+            }
             i++;
         });
     }
@@ -37,18 +51,17 @@ function addDebugInfo2(pointOnShapeArrPerLoop) {
     let now = performance.now();
     timing.holeClosers[1] += now - timing.holeClosers[0];
     timing.oneAnd2Prongs[0] = now;
+    /*
     for (let pointsOnShape of pointOnShapeArrPerLoop) {
         for (let pos of pointsOnShape) {
-            if (point_on_shape_1.PointOnShape.isSharpCorner(pos)) {
+            if (PointOnShape.isSharpCorner(pos)) {
                 generated.elems.sharpCorner.push(pos);
-            }
-            else {
-                if (point_on_shape_1.PointOnShape.isDullCorner(pos)) {
-                    generated.elems.dullCorner.push(pos);
-                }
+            } else if (PointOnShape.isDullCorner(pos)) {
+                generated.elems.dullCorner.push(pos);
             }
         }
     }
+    */
 }
 exports.addDebugInfo2 = addDebugInfo2;
 function addDebugInfo3() {

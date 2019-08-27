@@ -58,9 +58,12 @@ class PointOnShape {
      * Calculates the order (to distinguish between points lying on top of each
      * other) of the contact point if it is a dull corner.
      * @param pos
-     * @private
+     * @hidden
      */
     static calcOrder(circle, pos) {
+        if (!PointOnShape.isCorner(pos)) {
+            return 0;
+        }
         if (!PointOnShape.isDullCorner(pos)) {
             return 0;
         }
@@ -76,7 +79,7 @@ class PointOnShape {
  * it is clipped to have positive radius so it can point into the shape.
  * @param ps
  * @param t
- * @private
+ * @hidden
  */
 PointOnShape.calcOsculatingCircleRadius = flo_memoize_1.memoize(function (pos) {
     let ps = pos.curve.ps;
@@ -90,7 +93,7 @@ PointOnShape.calcOsculatingCircleRadius = flo_memoize_1.memoize(function (pos) {
  * by their relative positions on the shape boundary.
  * @param a The first [[PointOnShape]].
  * @param b The second [[PointOnShape]].
- * @private
+ * @hidden
  */
 PointOnShape.compare = function (a, b) {
     if (a === undefined || b === undefined) {
@@ -106,7 +109,7 @@ PointOnShape.compare = function (a, b) {
 };
 /**
  * Ignores order2 (used in hole-closing two-prongs only)
- * @private
+ * @hidden
  */
 PointOnShape.compareInclOrder = function (a, b, aOrder, bOrder) {
     let res = PointOnShape.compare(a, b);
@@ -120,46 +123,61 @@ PointOnShape.compareInclOrder = function (a, b, aOrder, bOrder) {
     return res;
 };
 /**
- * @private
+ * @hidden
  */
-PointOnShape.getCorner = flo_memoize_1.memoize(function (pos) {
-    if (pos.t !== 0 && pos.t !== 1) {
-        return undefined;
-    }
-    return curve_1.Curve.getCornerAtEnd(pos.t === 1 ? pos.curve : pos.curve.prev);
-});
+PointOnShape.isCorner = function (pos) {
+    return (pos.t === 0 || pos.t === 1);
+};
 /**
- * @private
+ * @hidden
+ */
+PointOnShape.getCorner = function (pos) {
+    return curve_1.Curve.getCornerAtEnd(pos.t === 1 ? pos.curve : pos.curve.prev);
+};
+/**
+ * @hidden
  */
 PointOnShape.isSharpCorner = flo_memoize_1.memoize(function (pos) {
+    if (!PointOnShape.isCorner(pos)) {
+        return false;
+    }
     let corner = PointOnShape.getCorner(pos);
-    return corner && corner.isSharp;
+    return corner.isSharp;
 });
 /**
- * @private
+ * @hidden
  */
 PointOnShape.isDullCorner = flo_memoize_1.memoize(function (pos) {
+    if (!PointOnShape.isCorner(pos)) {
+        return false;
+    }
     let corner = PointOnShape.getCorner(pos);
-    return corner && corner.isDull;
+    return corner.isDull;
 });
 /**
- * @private
+ * @hidden
  */
 PointOnShape.isQuiteSharpCorner = flo_memoize_1.memoize(function (pos) {
+    if (!PointOnShape.isCorner(pos)) {
+        return false;
+    }
     let corner = PointOnShape.getCorner(pos);
-    return corner && corner.isQuiteSharp;
+    return corner.isQuiteSharp;
 });
 /**
- * @private
+ * @hidden
  */
 PointOnShape.isQuiteDullCorner = flo_memoize_1.memoize(function (pos) {
+    if (!PointOnShape.isCorner(pos)) {
+        return false;
+    }
     let corner = PointOnShape.getCorner(pos);
-    return corner && corner.isQuiteDull;
+    return corner.isQuiteDull;
 });
 /**
  * Returns a human-readable string of the given [[PointOnShape]].
  * For debugging only.
- * @private
+ * @hidden
  */
 PointOnShape.toHumanString = function (pos) {
     return '' + pos.p[0] + ', ' + pos.p[1] +

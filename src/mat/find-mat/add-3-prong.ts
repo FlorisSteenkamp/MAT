@@ -5,8 +5,8 @@ import { MatDebug }   from '../../debug/debug';
 
 import LlRbTree from 'flo-ll-rb-tree';
 
-import { CpNode       } from '../../cp-node';
-import { Loop         } from '../../loop';
+import { CpNode       } from '../../cp-node/cp-node';
+import { Loop         } from '../../loop/loop';
 import { Circle       } from '../../circle';
 import { PointOnShape } from '../../point-on-shape';
 
@@ -30,7 +30,7 @@ function add3Prong(
 			δ3s: CpNode[][]
 		}) {
 	
-	let { circle, ps, δ3s } = threeProng;
+	let { circle, ps: poss, δ3s } = threeProng;
 
 	// Keep for possible future debugging.	
 	/*
@@ -68,11 +68,11 @@ function add3Prong(
 	*/
 
 	// TODO - replace 1000 below with correct value
-	isAnotherCpCloseby(cpTrees, ps[0], circle, orders[0], 0, 1000, 'blue');
-	isAnotherCpCloseby(cpTrees, ps[1], circle, orders[1], 0, 1000, 'blue');
-	isAnotherCpCloseby(cpTrees, ps[2], circle, orders[2], 0, 1000, 'blue');
+	isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
+	isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
+	isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
 
-	addToCpGraph(circle, orders, cpTrees, ps, δ3s); 
+	addToCpGraph(circle, orders, cpTrees, poss, δ3s); 
 
 	return circle;
 }

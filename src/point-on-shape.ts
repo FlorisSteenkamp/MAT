@@ -3,7 +3,6 @@ import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
 import { normal, evaluate, κ as curvature }   from 'flo-bezier3';
 
-import { Corner } from './corner'
 import { Curve  } from './curve'
 import { Circle } from './circle';
 
@@ -141,21 +140,29 @@ class PointOnShape {
     /**
      * @hidden
      */
-    public static getCorner = memoize(function(pos: PointOnShape) {
-        if (pos.t !== 0 && pos.t !== 1) { return undefined; }
+    public static isCorner = function(pos: PointOnShape) {
+        return (pos.t === 0 || pos.t === 1);
+    }
 
+
+    /**
+     * @hidden
+     */
+    public static getCorner = function(pos: PointOnShape) {
         return Curve.getCornerAtEnd(
             pos.t === 1 ? pos.curve : pos.curve.prev
         );
-    });
+    }
 
 
     /**
      * @hidden
      */
     public static isSharpCorner = memoize(function(pos: PointOnShape) {
+        if (!PointOnShape.isCorner(pos)) { return false; }
+
         let corner = PointOnShape.getCorner(pos);
-        return corner && corner.isSharp;
+        return corner.isSharp;
     });
 
 
@@ -163,8 +170,10 @@ class PointOnShape {
      * @hidden
      */
     public static isDullCorner = memoize(function(pos: PointOnShape) {
+        if (!PointOnShape.isCorner(pos)) { return false; }
+
         let corner = PointOnShape.getCorner(pos);
-        return corner && corner.isDull;
+        return corner.isDull;
     });
 
 
@@ -172,8 +181,10 @@ class PointOnShape {
      * @hidden
      */
     public static isQuiteSharpCorner = memoize(function(pos: PointOnShape) {
+        if (!PointOnShape.isCorner(pos)) { return false; }
+
         let corner = PointOnShape.getCorner(pos);
-        return corner && corner.isQuiteSharp;
+        return corner.isQuiteSharp;
     });
 
 
@@ -181,8 +192,10 @@ class PointOnShape {
      * @hidden
      */
     public static isQuiteDullCorner = memoize(function(pos: PointOnShape) {
+        if (!PointOnShape.isCorner(pos)) { return false; }
+
         let corner = PointOnShape.getCorner(pos);
-        return corner && corner.isQuiteDull;
+        return corner.isQuiteDull;
     });
 
 
@@ -196,7 +209,11 @@ class PointOnShape {
             circle : Circle, 
             pos    : PointOnShape): number {
         
-        if (!PointOnShape.isDullCorner(pos)) { return 0; }
+        if (!PointOnShape.isCorner(pos)) { return 0; }
+        
+        if (!PointOnShape.isDullCorner(pos)) { 
+            return 0; 
+        }
 
         let corner = PointOnShape.getCorner(pos);
 

@@ -18,8 +18,11 @@ const leaves_1 = require("./leaves");
 const culls_1 = require("./culls");
 const intersection_1 = require("./intersection");
 const one_prong_at_dull_corner_1 = require("./one-prong-at-dull-corner");
+function notImplementedYet(g, elem) {
+    return []; // TODO - implement relevant drawing function
+}
 let drawElemFunctions = {
-    oneProng: one_prong_1.oneProng,
+    oneProng: one_prong_1.drawOneProng,
     oneProngAtDullCorner: one_prong_at_dull_corner_1.oneProngAtDullCorner,
     twoProng_regular: two_prong_1.twoProng,
     twoProng_failed: two_prong_1.twoProng,
@@ -34,14 +37,15 @@ let drawElemFunctions = {
     sharpCorner: sharp_corner_1.sharpCorner,
     dullCorner: dull_corner_1.dullCorner,
     vertex: vertex_1.vertex,
-    mat: mat_1.mat('mat', true),
-    sat: mat_1.mat('sat', true),
+    mat: mat_1.drawMat('mat'),
+    sat: mat_1.drawMat('sat'),
     loop: loop_1.loop,
     loops: loops_1.loops,
     maxVertex: max_vertex_1.maxVertex,
     leaves: leaves_1.leaves,
     culls: culls_1.culls,
-    intersection: intersection_1.intersection
+    intersection: intersection_1.intersection,
+    cpNode: notImplementedYet
 };
 exports.drawElemFunctions = drawElemFunctions;
 //# sourceMappingURL=draw-elem.js.map

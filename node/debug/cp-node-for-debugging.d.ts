@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node';
+import { CpNode } from '../cp-node/cp-node';
 import { Generated } from './debug';
 /**
  * Class used for debugging only.

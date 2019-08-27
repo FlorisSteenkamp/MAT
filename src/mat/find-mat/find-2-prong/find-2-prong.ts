@@ -13,8 +13,8 @@ import { lineLineIntersection } from '../../geometry/line-line-intersection';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
 
-import { CpNode       } from '../../../cp-node';
-import { Loop         } from '../../../loop';
+import { CpNode       } from '../../../cp-node/cp-node';
+import { Loop         } from '../../../loop/loop';
 import { Circle       } from '../../../circle';
 import { PointOnShape } from '../../../point-on-shape';
 import { BezierPiece  } from '../../../bezier-piece';
@@ -101,7 +101,6 @@ function find2Prong(
 	let done = 0;
 	let failed = false; // The failed flag is set if a 2-prong cannot be found.
 	let bezierPieces_ = bezierPieces;
-	let prevX: number[] = undefined;
 	do {
 		i++
 
@@ -109,15 +108,10 @@ function find2Prong(
 
 		bezierPieces_ = cullBezierPieces(bezierPieces_, x, r);
 
-		//for (let bp of bezierPieces_) { 
-			//_debug_.fs.draw.bezierPiece(_debug_.generated.g, bp.curve.ps, bp.ts, undefined, 0)
-			//console.log(bezierPieces_.length)
-		//}
-	
 		z = getClosestBoundaryPoint(
 			bezierPieces_,
 			x,
-			y.curve, 
+			y.curve,
 			y.t
 		);
 
@@ -180,7 +174,6 @@ function find2Prong(
 		
 		let squaredError = squaredDistanceBetween(x, nextX);
 		
-		prevX = x;
 		x = nextX;
 
 		if (squaredError < squaredErrorTolerance) {
@@ -200,10 +193,12 @@ function find2Prong(
 		zs = getCloseBoundaryPoints(
 			bezierPieces_, 
 			x,
-			y.curve, 
-			y.t,
+			y,
 			distanceBetween(x, z.pos.p)
 		);
+
+		//if (point[0] === 228 && point[1] === -308) {
+		//if (zs.length > 1) { console.log(zs); }
 
 		if (!zs.length) { 
 			//console.log(zs);

@@ -1,8 +1,8 @@
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from '../loop';
+import { Loop } from '../loop/loop';
 import { Circle } from '../circle';
 import { PointOnShape } from '../point-on-shape';
-import { CpNode } from '../cp-node';
+import { CpNode } from '../cp-node/cp-node';
 /**
  *
  * @param circle
@@ -10,7 +10,7 @@ import { CpNode } from '../cp-node';
  * @param cpTrees
  * @param poss
  * @param neighbors
- * @private
+ * @hidden
  */
-declare function addToCpGraph(circle: Circle, orders: number[], cpTrees: Map<Loop, LlRbTree<CpNode>>, poss?: PointOnShape[], neighbors?: CpNode[][]): void;
+declare function addToCpGraph(circle: Circle, orders: number[], cpTrees: Map<Loop, LlRbTree<CpNode>>, poss: PointOnShape[], neighbors?: CpNode[][]): void;
 export { addToCpGraph };

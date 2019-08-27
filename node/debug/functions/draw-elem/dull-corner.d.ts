@@ -1,3 +1,3 @@
-import { PointOnShape } from '../../../point-on-shape';
-declare function dullCorner(g: SVGGElement, pos: PointOnShape): SVGElement[];
+import { Curve } from '../../../curve';
+declare function dullCorner(g: SVGGElement, curve: Curve): SVGCircleElement[];
 export { dullCorner };

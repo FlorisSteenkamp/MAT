@@ -1,4 +1,3 @@
-import { Corner } from './corner';
 import { Curve } from './curve';
 import { Circle } from './circle';
 /**
@@ -32,7 +31,7 @@ declare class PointOnShape {
      * it is clipped to have positive radius so it can point into the shape.
      * @param ps
      * @param t
-     * @private
+     * @hidden
      */
     static calcOsculatingCircleRadius: (a: PointOnShape) => number;
     /**
@@ -40,45 +39,49 @@ declare class PointOnShape {
      * by their relative positions on the shape boundary.
      * @param a The first [[PointOnShape]].
      * @param b The second [[PointOnShape]].
-     * @private
+     * @hidden
      */
     static compare: (a: PointOnShape, b: PointOnShape) => number;
     /**
      * Ignores order2 (used in hole-closing two-prongs only)
-     * @private
+     * @hidden
      */
     static compareInclOrder: (a: PointOnShape, b: PointOnShape, aOrder: number, bOrder: number) => number;
     /**
-     * @private
+     * @hidden
      */
-    static getCorner: (a: PointOnShape) => Corner;
+    static isCorner: (pos: PointOnShape) => boolean;
     /**
-     * @private
+     * @hidden
+     */
+    static getCorner: (pos: PointOnShape) => import("./corner").Corner;
+    /**
+     * @hidden
      */
     static isSharpCorner: (a: PointOnShape) => boolean;
     /**
-     * @private
+     * @hidden
      */
     static isDullCorner: (a: PointOnShape) => boolean;
     /**
-     * @private
+     * @hidden
      */
     static isQuiteSharpCorner: (a: PointOnShape) => boolean;
     /**
-     * @private
+     * @hidden
      */
     static isQuiteDullCorner: (a: PointOnShape) => boolean;
     /**
      * Calculates the order (to distinguish between points lying on top of each
      * other) of the contact point if it is a dull corner.
      * @param pos
-     * @private
+     * @hidden
      */
     static calcOrder(circle: Circle, pos: PointOnShape): number;
     /**
      * Returns a human-readable string of the given [[PointOnShape]].
      * For debugging only.
-     * @private
+     * @hidden
      */
     static toHumanString: (pos: PointOnShape) => string;
 }

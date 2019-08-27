@@ -1,5 +1,5 @@
-import { CpNode } from '../../cp-node';
-import { Loop } from '../../loop';
+import { CpNode } from '../../cp-node/cp-node';
+import { Loop } from '../../loop/loop';
 import LlRbTree from 'flo-ll-rb-tree';
 /**
  * Finds and adds all 3-prongs.

@@ -1,7 +1,7 @@
 
 import { Circle } from '../../circle';
 import { getLeaves } from '../get-leaves';
-import { CpNode } from '../../cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 
 
 /**

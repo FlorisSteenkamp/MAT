@@ -4,12 +4,13 @@ const flo_bezier3_1 = require("flo-bezier3");
 const mat_1 = require("./mat");
 const traverse_edges_1 = require("./traverse-edges");
 const traverse_vertices_1 = require("./traverse-vertices");
-const smoothen_1 = require("./mat/smoothen/smoothen");
 const get_largest_vertex_1 = require("./mat/get-largest-vertex");
 const create_new_cp_tree_1 = require("./mat/create-new-cp-tree");
 const get_leaves_1 = require("./mat/get-leaves");
 const cull_1 = require("./mat/to-scale-axis/cull");
 const add_debug_info_1 = require("./mat/to-scale-axis/add-debug-info");
+const clone_1 = require("./cp-node/clone");
+const smoothen_1 = require("./mat/smoothen/smoothen");
 /*
 function inverseScale(cpNode: CpNode, s: number) {
     let rMax = cpNode.cp.circle.radius;
@@ -47,10 +48,7 @@ function toScaleAxis(mat, s, f = linearScale) {
     }
     /** The largest vertex (as measured by its inscribed disk) */
     let cpNodes = [];
-    traverse_vertices_1.traverseVertices(mat.cpNode.clone(), cpNode => {
-        cpNodes.push(cpNode);
-        //_debug_.fs.draw.crossHair(_debug_.generated.g, cpNode.cp.circle.center)
-    });
+    traverse_vertices_1.traverseVertices(clone_1.clone(mat.cpNode), cpNode => { cpNodes.push(cpNode); });
     let cpNode = get_largest_vertex_1.getLargestVertex(cpNodes);
     let f_ = f(cpNode, s);
     if (typeof _debug_ !== 'undefined') {
@@ -71,7 +69,8 @@ function toScaleAxis(mat, s, f = linearScale) {
         //let c_ = cpNode_.cp.circle.center;
         /** Distance between this vertex and the next. */
         //let l = distanceBetween(c, c_); // Almost always precise enough
-        let l = len(cpNode.matCurveToNextVertex);
+        //let l = len(cpNode.matCurveToNextVertex);
+        let l = len(smoothen_1.getCurveToNext(cpNode));
         let r = cpNode_.cp.circle.radius;
         //let s_ = 1 + (s-1)*(rMax/r);
         //let r_ = s * r;
@@ -87,7 +86,6 @@ function toScaleAxis(mat, s, f = linearScale) {
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.culls.push(Array.from(culls));
     }
-    smoothen_1.smoothen(cpNode);
     let sat = new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
     add_debug_info_1.addDebugInfo(sat);
     return sat;

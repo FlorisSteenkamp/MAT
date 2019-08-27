@@ -1,4 +1,4 @@
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
 import { Mat } from '../../mat';
 declare function addDebugInfo1(loops: Loop[]): void;

@@ -24,7 +24,7 @@ function q(s: PathState) {
     let QP1 = [s.vals[0], s.vals[1]];
     let QP2 = [s.vals[2], s.vals[3]];
     
-    
+    /*
     // Endpoints stay the same
     let CP0 = QP0;
     let CP3 = QP2;
@@ -41,9 +41,12 @@ function q(s: PathState) {
     ];
     
     let ps = [CP0, CP1, CP2, CP3];
+    */
     
     s.prev2ndCubicControlPoint = undefined;
     s.prev2ndQuadraticControlPoint = QP1;
+
+    let ps = [QP0, QP1, QP2];
     
     return ps;
 }

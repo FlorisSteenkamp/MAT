@@ -76,130 +76,42 @@
 								<li class="tsd-kind-class tsd-parent-kind-external-module tsd-is-not-exported"><a href="../classes/_curve_.curve.html" class="tsd-kind-icon">Curve</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-private tsd-is-private-protected tsd-is-not-exported">
-							<h3>Variables</h3>
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported"><a href="_curve_.html#degree_limit" class="tsd-kind-icon">DEGREE_<wbr>LIMIT</a></li>
-								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported"><a href="_curve_.html#getcorneratend" class="tsd-kind-icon">get<wbr>Corner<wbr>AtEnd</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section tsd-is-private tsd-is-private-protected tsd-is-not-exported">
-							<h3>Object literals</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported"><a href="_curve_.html#degrees" class="tsd-kind-icon">DEGREES</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_curve_.html#getcorner" class="tsd-kind-icon">get<wbr>Corner</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected tsd-is-not-exported">
-				<h2>Variables</h2>
-				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported">
-					<a name="degree_limit" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagConst">Const</span> DEGREE_<wbr>LIMIT</h3>
-					<div class="tsd-signature tsd-kind-icon">DEGREE_<wbr>LIMIT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;DEGREES[1]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/a5245e4/src/curve.ts#L63">curve.ts:63</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported">
-					<a name="getcorneratend" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagLet">Let</span> get<wbr>Corner<wbr>AtEnd</h3>
-					<div class="tsd-signature tsd-kind-icon">get<wbr>Corner<wbr>AtEnd<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span><span class="tsd-signature-symbol"> =&nbsp;memoize(function(curve: Curve) {let tangents &#x3D; [tangent(curve.ps,      1),tangent(curve.next.ps, 0)];let crossTangents &#x3D; cross(tangents[0], tangents[1]);return new Corner(tangents,crossTangents,crossTangents &lt; 0,crossTangents &gt; 0,crossTangents &lt; -DEGREE_LIMIT,crossTangents &gt; +DEGREE_LIMIT);})</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/a5245e4/src/curve.ts#L71">curve.ts:71</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Returns information about the corner created at the end of this curve
-							(at t === 1) and the start of the next curve (at t === 0).</p>
-						</div>
-					</div>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter-siganture">
-								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">U</span></li>
+			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="getcorner" class="tsd-anchor"></a>
+					<h3>get<wbr>Corner</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Corner<span class="tsd-signature-symbol">(</span>psE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span>, psS<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_corner_.corner.html" class="tsd-signature-type">Corner</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43b4d00/src/curve.ts#L67">curve.ts:67</a></li>
 								</ul>
-								<ul class="tsd-descriptions">
-									<li class="tsd-description">
-										<h4 class="tsd-parameters-title">Parameters</h4>
-										<ul class="tsd-parameters">
-											<li>
-												<h5>a: <span class="tsd-signature-type">T</span></h5>
-											</li>
-										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">U</span></h4>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</div>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected tsd-is-not-exported">
-				<h2>Object literals</h2>
-				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported">
-					<a name="degrees" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagConst">Const</span> DEGREES</h3>
-					<div class="tsd-signature tsd-kind-icon">DEGREES<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/a5245e4/src/curve.ts#L53">curve.ts:53</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Angle in degrees to radians.</p>
-						</div>
-					</div>
-					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="degrees.0_25" class="tsd-anchor"></a>
-						<h3>0.25</h3>
-						<div class="tsd-signature tsd-kind-icon">0.25<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0.005</span></div>
-						<aside class="tsd-sources">
-							<ul>
-								<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/a5245e4/src/curve.ts#L55">curve.ts:55</a></li>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>psE: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>psS: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
 							</ul>
-						</aside>
-					</section>
-					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="degrees.1" class="tsd-anchor"></a>
-						<h3>1</h3>
-						<div class="tsd-signature tsd-kind-icon">1<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0.0167</span></div>
-						<aside class="tsd-sources">
-							<ul>
-								<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/a5245e4/src/curve.ts#L56">curve.ts:56</a></li>
-							</ul>
-						</aside>
-					</section>
-					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="degrees.16" class="tsd-anchor"></a>
-						<h3>16</h3>
-						<div class="tsd-signature tsd-kind-icon">16<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0.2756</span></div>
-						<aside class="tsd-sources">
-							<ul>
-								<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/a5245e4/src/curve.ts#L58">curve.ts:58</a></li>
-							</ul>
-						</aside>
-					</section>
-					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="degrees.4" class="tsd-anchor"></a>
-						<h3>4</h3>
-						<div class="tsd-signature tsd-kind-icon">4<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0.0698</span></div>
-						<aside class="tsd-sources">
-							<ul>
-								<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/a5245e4/src/curve.ts#L57">curve.ts:57</a></li>
-							</ul>
-						</aside>
-					</section>
+							<h4 class="tsd-returns-title">Returns <a href="../classes/_corner_.corner.html" class="tsd-signature-type">Corner</a></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -209,56 +121,8 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_bezier_piece_.html">"bezier-<wbr>piece"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_beziers_to_svg_path_str_.html">"beziers-<wbr>to-<wbr>svg-<wbr>path-<wbr>str"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_circle_.html">"circle"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_contact_point_.html">"contact-<wbr>point"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_corner_.html">"corner"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_cp_node_.html">"cp-<wbr>node"</a>
-					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="_curve_.html">"curve"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_find_mats_.html">"find-<wbr>mats"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_get_boundary_beziers_to_next_.html">"get-<wbr>boundary-<wbr>beziers-<wbr>to-<wbr>next"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_get_paths_from_str_.html">"get-<wbr>paths-<wbr>from-<wbr>str"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_index_.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_loop_.html">"loop"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_mat_.html">"mat"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_point_on_shape_.html">"point-<wbr>on-<wbr>shape"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_to_scale_axis_.html">"to-<wbr>scale-<wbr>axis"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_traverse_edges_.html">"traverse-<wbr>edges"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_traverse_vertices_.html">"traverse-<wbr>vertices"</a>
 					</li>
 				</ul>
 			</nav>
@@ -267,14 +131,8 @@
 					<li class=" tsd-kind-class tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../classes/_curve_.curve.html" class="tsd-kind-icon">Curve</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported">
-						<a href="_curve_.html#degree_limit" class="tsd-kind-icon">DEGREE_<wbr>LIMIT</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported">
-						<a href="_curve_.html#getcorneratend" class="tsd-kind-icon">get<wbr>Corner<wbr>AtEnd</a>
-					</li>
-					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-private tsd-is-not-exported">
-						<a href="_curve_.html#degrees" class="tsd-kind-icon">DEGREES</a>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_curve_.html#getcorner" class="tsd-kind-icon">get<wbr>Corner</a>
 					</li>
 				</ul>
 			</nav>

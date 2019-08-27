@@ -1,7 +1,7 @@
 /**
  * Returns true if distance between consecutive points are all less than
  * some delta, false otherwise.
- * @private
+ * @hidden
  * @param ps - an array of points
  * @param delta - a tolerance - defaults to 1e-6;
  */

@@ -1,9 +1,9 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
 
-import { Loop         } from '../../loop';
+import { Loop         } from '../../loop/loop';
 import { Circle       } from '../../circle';
-import { CpNode       } from '../../cp-node';
+import { CpNode       } from '../../cp-node/cp-node';
 import { PointOnShape } from '../../point-on-shape';
 import { ContactPoint } from '../../contact-point';
 

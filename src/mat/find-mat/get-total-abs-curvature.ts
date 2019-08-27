@@ -1,5 +1,5 @@
 
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 
 import { totalAbsoluteCurvature } from 'flo-bezier3';
 import { getCurvatureAtInterface } from '../../svg/fs/get-curvature-at-interface';

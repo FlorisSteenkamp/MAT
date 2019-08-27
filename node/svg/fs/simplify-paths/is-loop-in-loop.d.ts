@@ -1,4 +1,4 @@
-import { Loop } from "../../../loop";
+import { Loop } from "../../../loop/loop";
 /**
  * Returns true if the first loop is contained wholly within the second. At this
  * stage we already know the loop is either wholly contained inside the loop

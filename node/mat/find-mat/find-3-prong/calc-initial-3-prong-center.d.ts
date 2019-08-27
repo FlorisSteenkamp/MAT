@@ -1,4 +1,4 @@
-import { CpNode } from '../../../cp-node';
+import { CpNode } from '../../../cp-node/cp-node';
 import { BezierPiece } from '../../../bezier-piece';
 /**
  * Finds an initial 3-prong circle center point from which to iterate. The point

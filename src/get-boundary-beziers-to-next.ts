@@ -1,5 +1,5 @@
 
-import { CpNode } from './cp-node';
+import { CpNode } from './cp-node/cp-node';
 import { Curve  } from './curve';
 import { fromTo, fromTTo1, from0ToT } from 'flo-bezier3';
 

@@ -5,7 +5,7 @@ declare var _debug_: MatDebug;
 
 import { MatDebug } from '../debug/debug';
 
-import { CpNode } from '../cp-node';
+import { CpNode } from '../cp-node/cp-node';
 
 import { ContactPoint } from "../contact-point";
 import { TwoProngForDebugging } from '../debug/two-prong-for-debugging';
@@ -19,9 +19,9 @@ import { TwoProngForDebugging } from '../debug/two-prong-for-debugging';
  * other causing the algorithm to fail.
  * @param cpNode
  */
+/*
 function removeTwoProng(cpNode: CpNode) {
-    /*
-    let cp = _cp_.cp;
+    let cp = cpNode.cp;
     let vertex = cp.vertex;
     let cps = vertex.cps;
 
@@ -35,8 +35,8 @@ function removeTwoProng(cpNode: CpNode) {
     for (let cp_ of cps) {
         cp_.cpGraph.remove(cp_);
     }
-    */
 }
+*/
 
 /*
 function alter2ProngInDebugArray(vertex: Vertex) {
@@ -62,4 +62,4 @@ function alter2ProngInDebugArray(vertex: Vertex) {
 */
 
 
-export { removeTwoProng }
+export { /*removeTwoProng*/ }

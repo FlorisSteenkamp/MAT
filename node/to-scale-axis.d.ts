@@ -1,4 +1,4 @@
-import { CpNode } from './cp-node';
+import { CpNode } from './cp-node/cp-node';
 import { Mat } from './mat';
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to

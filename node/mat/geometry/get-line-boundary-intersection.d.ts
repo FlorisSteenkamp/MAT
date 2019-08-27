@@ -1,4 +1,4 @@
-import { CpNode } from '../..//cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 /**
  * Get intersection between line and boundary piece.
  * @param line A line described by two points

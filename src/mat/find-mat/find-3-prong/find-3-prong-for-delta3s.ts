@@ -8,7 +8,7 @@ import {
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
 
-import { CpNode     } from '../../../cp-node';
+import { CpNode     } from '../../../cp-node/cp-node';
 
 import { Circle       } from '../../../circle';
 import { BezierPiece  } from '../../../bezier-piece';
@@ -44,29 +44,13 @@ function find3ProngForDelta3s(
     const TOLERANCE = extreme * 1e-10;
     const MAX_ITERATIONS = 10;
 
-    //k = 0;
-    /*
-    let δ3s = [
-        δs[0], 
-        δs[idx], 
-        δs[δs.length-1]
-    ];
-    */
     let δs_ = [
         δs[0], 
         δs[idx], 
         δs[δs.length-1]
     ];
 
-    /*
-    let bezierPiece3s = [
-        bezierPiecess[0], 
-        bezierPiecess[idx], 
-        bezierPiecess[δs.length-1]
-    ];
-    */
-
-   let bezierPieces_ = [
+    let bezierPieces_ = [
         bezierPiecess[0], 
         bezierPiecess[idx], 
         bezierPiecess[δs.length-1]
@@ -94,6 +78,7 @@ function find3ProngForDelta3s(
     let ps: PointOnShape[];
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
+    //console.log(bezierPieces_)
     let x = calcInitial3ProngCenter(δ3s, bezierPiece3s);
 
     if (typeof _debug_ !== 'undefined') { 

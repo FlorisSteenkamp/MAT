@@ -35,7 +35,9 @@ function getBoundaryPieceBeziers(cpNodes) {
         }
         else {
             bezierPieces.push(new bezier_piece_1.BezierPiece(posThis.curve, [posThis.t, 1]));
-            addSkippedBeziers(bezierPieces, posThis.curve, posNext.curve, posNext.t);
+            if (cpThis.cp.pointOnShape.curve.loop === cpThis.next.cp.pointOnShape.curve.loop) {
+                addSkippedBeziers(bezierPieces, posThis.curve, posNext.curve, posNext.t);
+            }
         }
         cpThis = cpThis.next;
     } while (cpThis !== cpEnd);

@@ -1,0 +1,965 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>CpNode | FloMat</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">FloMat</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/_cp_node_cp_node_.html">&quot;cp-node/cp-node&quot;</a>
+				</li>
+				<li>
+					<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>
+				</li>
+			</ul>
+			<h1>Class CpNode</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The primary class of the library.</p>
+					</div>
+					<p>Since the MAT is a full representation of the shape boundary an instance of
+						this class contains both the information of a boundary point and a medial
+						axis point (and edge to the next point(s)). It also contains edges to other
+						<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s which allows for traversal of the MAT and thus implictly
+					represents the entire MAT.</p>
+					<p>To get the maximal disk circle (of which the center is on the medial axis)
+					use <a href="_cp_node_cp_node_.cpnode.html#cp">cp</a>.circle.</p>
+					<p>To get the boundary point, use <a href="_cp_node_cp_node_.cpnode.html#cp">cp</a>.pointOnShape.</p>
+					<p>The edge, <a href="_cp_node_cp_node_.cpnode.html#next">next</a> (resp. <a href="_cp_node_cp_node_.cpnode.html#prev">prev</a>) allows one to move anti-clockwise (resp.
+						clockwise) on the shape boundary to the next <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>. This also imposes a
+					direction of traversal of the MAT edges and vertices.</p>
+					<p>The edge <a href="_cp_node_cp_node_.cpnode.html#nextoncircle">nextOnCircle</a> (resp. <a href="_cp_node_cp_node_.cpnode.html#prevoncircle">prevOnCircle</a>) allows one to go
+						anti-clockwise (resp. clockwise) around the maximal disks implied by
+						the CpNode to the next maximal disk contact point. This is equivalent to
+					following other branches on the MAT.</p>
+					<p>Each <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> has a property, [[matCurveToNextVertex]], which is a bezier
+						curve from the maximal disk of this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> to the next <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>&#39;s
+					maximal disk and thus directly represents a piece of the medial axis.</p>
+					<p>The getter, [[children]], returns the children of this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> when
+						seen as a MAT edge. Only children in a &#39;forward&#39; direction are returned. These
+						include all edges except the &#39;backward&#39; edge given by <a href="_cp_node_cp_node_.cpnode.html#prevoncircle">prevOnCircle</a>. For
+						<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s having a maximal disk with 2 contact points (a 2-prong, the usual
+						case) the children will be the single edge <a href="_cp_node_cp_node_.cpnode.html#next">next</a>. For a 3-prong this will
+						be the edgese <a href="_cp_node_cp_node_.cpnode.html#next">next</a> and <a href="_cp_node_cp_node_.cpnode.html#nextoncircle">nextOnCircle</a>, etc. [[children]] allows one to
+						easily traverse the MAT tree - see e.g. the implementation of
+					<a href="../modules/_traverse_edges_.html#traverseedges">traverseEdges</a>.</p>
+					<p><a href="_cp_node_cp_node_.cpnode.html#vertexchildren">vertexChildren</a> is similar to [[children]] but returns the child nodes of
+						the tree when <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> is seen as a MAT vertex point (as opposed to edge).
+						In this way the dual graph of the tree can easily be traversed - see e.g.
+						<a href="../modules/_traverse_vertices_.html#traversevertices">traverseVertices</a>. Generally, however, traversing the edges is preferred
+						as it returns the entire Medial Axis (by utilizing [[matCurveToNextVertex]]
+					on each returned edge).</p>
+					<p>It may be worth mentioning that by traversing from the CpNode by following
+						<a href="_cp_node_cp_node_.cpnode.html#next">next</a> repeatedly until one is back at the same CpNode allows one
+						to &#39;go around&#39; the shape and at the same time traverse the MAT twice in
+					different directions.</p>
+				</div>
+			</section>
+			<!--
+    <section class="tsd-panel tsd-hierarchy">
+        <h3>Hierarchy</h3>
+        <ul class="tsd-hierarchy">
+        <li>
+                <span class="target">CpNode</span>
+
+        </li>
+</ul>
+
+    </section>
+-->
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#cp" class="tsd-kind-icon">cp</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#isholeclosing" class="tsd-kind-icon">is<wbr>Hole<wbr>Closing</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#isintersection" class="tsd-kind-icon">is<wbr>Intersection</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#next" class="tsd-kind-icon">next</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#nextoncircle" class="tsd-kind-icon">next<wbr>OnCircle</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#prev" class="tsd-kind-icon">prev</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#prevoncircle" class="tsd-kind-icon">prev<wbr>OnCircle</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#remove" class="tsd-kind-icon">remove</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#vertexchildren" class="tsd-kind-icon">vertex<wbr>Children</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#getallonloop" class="tsd-kind-icon">get<wbr>All<wbr>OnLoop</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#getchildren" class="tsd-kind-icon">get<wbr>Children</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#getcpnodesoncircle" class="tsd-kind-icon">get<wbr>CpNodes<wbr>OnCircle</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#getfirstexit" class="tsd-kind-icon">get<wbr>First<wbr>Exit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#getprongcount" class="tsd-kind-icon">get<wbr>Prong<wbr>Count</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#getrealprongcount" class="tsd-kind-icon">get<wbr>Real<wbr>Prong<wbr>Count</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#isfullyterminating" class="tsd-kind-icon">is<wbr>Fully<wbr>Terminating</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#isoneprong" class="tsd-kind-icon">is<wbr>One<wbr>Prong</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#issharp" class="tsd-kind-icon">is<wbr>Sharp</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#isterminating" class="tsd-kind-icon">is<wbr>Terminating</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#comparator" class="tsd-kind-icon">comparator</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#insert" class="tsd-kind-icon">insert</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported"><a href="_cp_node_cp_node_.cpnode.html#isonsamecircle" class="tsd-kind-icon">is<wbr>OnSame<wbr>Circle</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-not-exported">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>CpNode<span class="tsd-signature-symbol">(</span>cp<span class="tsd-signature-symbol">: </span><a href="_contact_point_.contactpoint.html" class="tsd-signature-type">ContactPoint</a>, isHoleClosing<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, isIntersection<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, prev<span class="tsd-signature-symbol">?: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, next<span class="tsd-signature-symbol">?: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, prevOnCircle<span class="tsd-signature-symbol">?: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, nextOnCircle<span class="tsd-signature-symbol">?: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:63</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Primarily for internal use.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cp: <a href="_contact_point_.contactpoint.html" class="tsd-signature-type">ContactPoint</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The shape boundary contact point, i.e. a <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> without its
+											edges.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5>isHoleClosing: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>If true, this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> belongs to a hole-closing
+											maximal disk.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5>isIntersection: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> prev: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol"> =&nbsp;undefined</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The previous (going clockwise around the boundary) contact
+											point (<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>).</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> next: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol"> =&nbsp;undefined</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The next (going ant-clockwise around the boundary)
+											contact (<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>).</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> prevOnCircle: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol"> =&nbsp;undefined</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The previous <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> (going clockwise around
+											the inscribed circle defined by the maximal disk).</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> nextOnCircle: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol"> =&nbsp;undefined</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The next <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> (going anti-clockwise around
+											the inscribed circle defined by the maximal disk).</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="cp" class="tsd-anchor"></a>
+					<h3>cp</h3>
+					<div class="tsd-signature tsd-kind-icon">cp<span class="tsd-signature-symbol">:</span> <a href="_contact_point_.contactpoint.html" class="tsd-signature-type">ContactPoint</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:84</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The shape boundary contact point, i.e. a <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> without its
+							edges.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="isholeclosing" class="tsd-anchor"></a>
+					<h3>is<wbr>Hole<wbr>Closing</h3>
+					<div class="tsd-signature tsd-kind-icon">is<wbr>Hole<wbr>Closing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:85</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> belongs to a hole-closing
+							maximal disk.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="isintersection" class="tsd-anchor"></a>
+					<h3>is<wbr>Intersection</h3>
+					<div class="tsd-signature tsd-kind-icon">is<wbr>Intersection<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:86</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="next" class="tsd-anchor"></a>
+					<h3>next</h3>
+					<div class="tsd-signature tsd-kind-icon">next<span class="tsd-signature-symbol">:</span> <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:88</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The next (going ant-clockwise around the boundary)
+							contact (<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>).</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="nextoncircle" class="tsd-anchor"></a>
+					<h3>next<wbr>OnCircle</h3>
+					<div class="tsd-signature tsd-kind-icon">next<wbr>OnCircle<span class="tsd-signature-symbol">:</span> <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:90</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The next <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> (going anti-clockwise around
+							the inscribed circle defined by the maximal disk).</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="prev" class="tsd-anchor"></a>
+					<h3>prev</h3>
+					<div class="tsd-signature tsd-kind-icon">prev<span class="tsd-signature-symbol">:</span> <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:87</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The previous (going clockwise around the boundary) contact
+							point (<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>).</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="prevoncircle" class="tsd-anchor"></a>
+					<h3>prev<wbr>OnCircle</h3>
+					<div class="tsd-signature tsd-kind-icon">prev<wbr>OnCircle<span class="tsd-signature-symbol">:</span> <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:89</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The previous <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> (going clockwise around
+							the inscribed circle defined by the maximal disk).</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+					<a name="remove" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> remove</h3>
+					<div class="tsd-signature tsd-kind-icon">remove<span class="tsd-signature-symbol">:</span> <a href="../modules/_cp_node_remove_.html#removecpnode" class="tsd-signature-type">removeCpNode</a><span class="tsd-signature-symbol"> =&nbsp;removeCpNode</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in cp-node/cp-node.ts:124</li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-not-exported">
+					<a name="vertexchildren" class="tsd-anchor"></a>
+					<h3>vertex<wbr>Children</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> vertexChildren<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:135</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Similar to [[children]] but returns the child nodes of the tree when
+										<a href="_cp_node_cp_node_.cpnode.html">CpNode</a> is seen as a MAT vertex point (as opposed to edge). In this
+										way the dual graph of the tree can easily be traversed - see e.g.
+										<a href="../modules/_traverse_vertices_.html#traversevertices">traverseVertices</a>. Generally, however, traversing the edges is
+										preferred as it returns the entire Medial Axis (by utilizing
+									[[matCurveToNextVertex]] on each returned edge).</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="getallonloop" class="tsd-anchor"></a>
+					<h3>get<wbr>All<wbr>OnLoop</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>All<wbr>OnLoop<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:155</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns all <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s on the MAT that this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> is part of
+									starting from the current one and going anti-clockwise around the shape.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="getchildren" class="tsd-anchor"></a>
+					<h3>get<wbr>Children</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Children<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:111</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the children of this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> when seen as a MAT edge. Only
+										children in a &#39;forward&#39; direction are returned. These include all edges
+										except the &#39;backward&#39; edge given by <a href="_cp_node_cp_node_.cpnode.html#prevoncircle">prevOnCircle</a>, even terminating
+									edges.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="getcpnodesoncircle" class="tsd-anchor"></a>
+					<h3>get<wbr>CpNodes<wbr>OnCircle</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>CpNodes<wbr>OnCircle<span class="tsd-signature-symbol">(</span>exclThis<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:229</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return this (except if exclThis is truthy) and the the other CpNodes
+									around the maximal disk vertex circle in an anti-clockwise order.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> exclThis: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;false</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>If true the returned array does not include this
+										<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="getfirstexit" class="tsd-anchor"></a>
+					<h3>get<wbr>First<wbr>Exit</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>First<wbr>Exit<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:294</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the first <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> (from this one by successively applying
+									.nextOnCircle) that exits the circle.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="getprongcount" class="tsd-anchor"></a>
+					<h3>get<wbr>Prong<wbr>Count</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Prong<wbr>Count<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:355</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the number of contact points on the maximal disk circle implied
+									by this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+								</div>
+								<p>Note, however, that even one-prongs and sharp corners will return 2 (see
+									<a href="_cp_node_cp_node_.cpnode.html#isterminating">isTerminating</a> for more details); if this is not desired use
+								<a href="_cp_node_cp_node_.cpnode.html#getrealprongcount">getRealProngCount</a> instead which will return 1 in these cases.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="getrealprongcount" class="tsd-anchor"></a>
+					<h3>get<wbr>Real<wbr>Prong<wbr>Count</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Real<wbr>Prong<wbr>Count<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:376</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the number of contact points (up to planar coordinates) on the
+									maximal disk circle implied by this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+								</div>
+								<p>See also <a href="_cp_node_cp_node_.cpnode.html#getprongcount">getProngCount</a>.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="isfullyterminating" class="tsd-anchor"></a>
+					<h3>is<wbr>Fully<wbr>Terminating</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Fully<wbr>Terminating<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:282</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Like isTerminating() but only returns true if all cpNodes on the circle
+									(except this.prevOnCircle) is terminating.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="isoneprong" class="tsd-anchor"></a>
+					<h3>is<wbr>One<wbr>Prong</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>One<wbr>Prong<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:331</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>&#39;s maximal disk has only one contact point
+										on the shape boundary (up to planar coordinates). These includes sharp
+									corners.</p>
+								</div>
+								<p>Note, however, that two <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s are stored for each such point to
+								preserve symmetry - see <a href="_cp_node_cp_node_.cpnode.html#isterminating">isTerminating</a> for more details.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="issharp" class="tsd-anchor"></a>
+					<h3>is<wbr>Sharp</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Sharp<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:318</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> represents a sharp corner, i.e. the
+									limiting case of a two-prong having zero radius.</p>
+								</div>
+								<p>Note that two <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s are stored for each sharp corner, one being
+								terminating and one not. See <a href="_cp_node_cp_node_.cpnode.html#isterminating">isTerminating</a> for more details.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="isterminating" class="tsd-anchor"></a>
+					<h3>is<wbr>Terminating</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Terminating<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:273</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if this <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> is terminating, i.e. implies a leaf MAT
+									vertex.</p>
+								</div>
+								<p>This is always the case for sharp corners and maximal disks with
+									a single contact point. Note, however, that even in these cases there are
+									two contact points stored (sitting &#39;on top&#39; of each other) for the
+									maximal disk. It can be seen as a limiting case of a two-prong where the
+									distance between two of the contact points tend to zero. One point
+									(represented by a <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> of course) will be terminating with the
+									other point being its <a href="_cp_node_cp_node_.cpnode.html#next">next</a>, whereas the other point will <em>not</em> be
+								terminating and &#39;points&#39; back into the shape.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+					<a name="comparator" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> comparator</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">comparator<span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, b<span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:101</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Primarily for internal use.</p>
+								</div>
+								<p>Compares the order of two <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s. The order is cyclic and depends
+								on a <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>&#39;s relative position along the shape boundary.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>a: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
+								</li>
+								<li>
+									<h5>b: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+					<a name="insert" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> insert</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">insert<span class="tsd-signature-symbol">(</span>isHoleClosing<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, isIntersection<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, cpTree<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span>, cp<span class="tsd-signature-symbol">: </span><a href="_contact_point_.contactpoint.html" class="tsd-signature-type">ContactPoint</a>, prev_<span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:183</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Primarily for internal use.</p>
+								</div>
+								<p>Insert a <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> into the MAT tree graph after the specified point
+								and returns the freshly inserted <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>isHoleClosing: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>True if this is a hole closing contact point.</p>
+									</div>
+								</li>
+								<li>
+									<h5>isIntersection: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>True if this is a contact point at a shape boundary
+										intersection point.</p>
+									</div>
+								</li>
+								<li>
+									<h5>cpTree: <span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tree graph holding the [[CpNodes]] of the MAT.</p>
+									</div>
+								</li>
+								<li>
+									<h5>cp: <a href="_contact_point_.contactpoint.html" class="tsd-signature-type">ContactPoint</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p><a href="_contact_point_.contactpoint.html">ContactPoint</a> defining the <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+									</div>
+								</li>
+								<li>
+									<h5>prev_: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Inserts the new <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> right after this item if the
+											loop is not empty, else insert the new <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> as the only item in the
+										loop.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+					<a name="isonsamecircle" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> is<wbr>OnSame<wbr>Circle</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>OnSame<wbr>Circle<span class="tsd-signature-symbol">(</span>cpNode1<span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, cpNode2<span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in cp-node/cp-node.ts:253</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if the 2 given <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s are on the same maximal disk
+									circle.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cpNode1: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+									</div>
+								</li>
+								<li>
+									<h5>cpNode2: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Another <a href="_cp_node_cp_node_.cpnode.html">CpNode</a></p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/_cp_node_cp_node_.html">"cp-<wbr>node/cp-<wbr>node"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_cp_node_cp_node_.cpnode.html" class="tsd-kind-icon">Cp<wbr>Node</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#cp" class="tsd-kind-icon">cp</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#isholeclosing" class="tsd-kind-icon">is<wbr>Hole<wbr>Closing</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#isintersection" class="tsd-kind-icon">is<wbr>Intersection</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#next" class="tsd-kind-icon">next</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#nextoncircle" class="tsd-kind-icon">next<wbr>OnCircle</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#prev" class="tsd-kind-icon">prev</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#prevoncircle" class="tsd-kind-icon">prev<wbr>OnCircle</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#remove" class="tsd-kind-icon">remove</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#vertexchildren" class="tsd-kind-icon">vertex<wbr>Children</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#getallonloop" class="tsd-kind-icon">get<wbr>All<wbr>OnLoop</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#getchildren" class="tsd-kind-icon">get<wbr>Children</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#getcpnodesoncircle" class="tsd-kind-icon">get<wbr>CpNodes<wbr>OnCircle</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#getfirstexit" class="tsd-kind-icon">get<wbr>First<wbr>Exit</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#getprongcount" class="tsd-kind-icon">get<wbr>Prong<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#getrealprongcount" class="tsd-kind-icon">get<wbr>Real<wbr>Prong<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#isfullyterminating" class="tsd-kind-icon">is<wbr>Fully<wbr>Terminating</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#isoneprong" class="tsd-kind-icon">is<wbr>One<wbr>Prong</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#issharp" class="tsd-kind-icon">is<wbr>Sharp</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#isterminating" class="tsd-kind-icon">is<wbr>Terminating</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#comparator" class="tsd-kind-icon">comparator</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#insert" class="tsd-kind-icon">insert</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-not-exported">
+								<a href="_cp_node_cp_node_.cpnode.html#isonsamecircle" class="tsd-kind-icon">is<wbr>OnSame<wbr>Circle</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

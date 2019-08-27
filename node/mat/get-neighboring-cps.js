@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const cp_node_1 = require("../cp-node");
+const cp_node_1 = require("../cp-node/cp-node");
 const contact_point_1 = require("../contact-point");
 /**
  * Returns the boundary piece that starts at the immediate previous point on the

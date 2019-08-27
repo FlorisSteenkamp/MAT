@@ -1,2 +1,2 @@
-declare function tightBoundingBox(g: SVGGElement, box: number[][]): SVGElement[];
+declare function tightBoundingBox(g: SVGGElement, box: number[][]): SVGPathElement[];
 export { tightBoundingBox };

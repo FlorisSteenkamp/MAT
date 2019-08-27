@@ -19,7 +19,17 @@ function traverseVertices(cpNode, f) {
         .forEach(f_);
     function f_(cpNode) {
         let cps = [cpNode];
+        let i = 0;
         while (cps.length) {
+            i++;
+            /*
+            if (i > 5000) {
+                //debugger;
+                //throw new Error('maxed')
+                console.log('maxed')
+                break;
+            }
+            */
             let cp = cps.pop();
             f(cp);
             cps.push(...cp.vertexChildren);

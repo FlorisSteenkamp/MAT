@@ -18,7 +18,7 @@ function getInitialX(intersections, parent, loop) {
         orientation: is_path_positively_oriented_1.isPathPositivelyOrientated(loop) ? -1 : +1,
         windingNum: parent.windingNum
     };
-    let pos = get_loop_bounds_1.getLoopBounds(loop).minX;
+    let pos = get_loop_bounds_1.getLoopBounds(loop).minY;
     let xs = intersections.get(pos.curve);
     // If no intersections on this curve, just start at 0
     if (!xs) {

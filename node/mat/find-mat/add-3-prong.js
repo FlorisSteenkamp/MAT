@@ -10,7 +10,7 @@ const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
  * @param threeProng
  */
 function add3Prong(cpTrees, orders, threeProng) {
-    let { circle, ps, δ3s } = threeProng;
+    let { circle, ps: poss, δ3s } = threeProng;
     // Keep for possible future debugging.	
     /*
     if (typeof _debug_ !== 'undefined') {
@@ -46,10 +46,10 @@ function add3Prong(cpTrees, orders, threeProng) {
     }
     */
     // TODO - replace 1000 below with correct value
-    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, ps[0], circle, orders[0], 0, 1000, 'blue');
-    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, ps[1], circle, orders[1], 0, 1000, 'blue');
-    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, ps[2], circle, orders[2], 0, 1000, 'blue');
-    add_to_cp_graph_1.addToCpGraph(circle, orders, cpTrees, ps, δ3s);
+    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
+    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
+    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
+    add_to_cp_graph_1.addToCpGraph(circle, orders, cpTrees, poss, δ3s);
     return circle;
 }
 exports.add3Prong = add3Prong;

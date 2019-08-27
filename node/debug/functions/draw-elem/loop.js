@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function loop(g, loop) {
     /*
     for (let curve of loop.curves) {
-        _debug_.fs.draw.bezier(g, curve.ps, undefined, 1000);
+        drawFs.bezier(g, curve.ps, undefined, 1000);
     }
     */
     return [];

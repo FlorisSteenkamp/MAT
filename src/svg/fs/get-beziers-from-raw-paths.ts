@@ -1,5 +1,4 @@
 
-import { pushBezier } from '../fs/push-bezier';
 import { PathState  } from '../path-state';
 
 import { z } from '../path-segment/z';
@@ -13,16 +12,24 @@ import { t } from '../path-segment/t';
 import { a } from '../path-segment/a';
 
 
-const pathFs: { [index:string] : (s: PathState) => number[][] } = 
-		{ a, c, h, l, q, s, t, v, z };
+const pathFs: { [index:string] : (s: PathState) => number[][] } = { 
+	a, // elliptical arc
+	c, // cubic bezier
+	h, // horizontal line
+	l, // line
+	q, // quadratic bezier
+	s, // cubic bezier (smooth)
+	t, // quadratic bezier (smooth)
+	v, // vertical line
+	z  // close path
+};
 		
 
 /**
- * Get the cubic beziers from the given SVG DOM element. If a path
- * data tag is not "C", i.e. if it is not an absolute cubic bezier
+ * Returns order 1, 2 and 3 beziers from the given SVG DOM element. If a path
+ * data tag is not "C, Q or L, etc", i.e. if it is not an absolute bezier
  * coordinate then it is converted into one.
- * @param elem - An SVG element
- * @returns aaa
+ * @param paths An SVG element
  */
 function getBeziersFromRawPaths(paths: { type: string, values: number[] }[]) {
 
@@ -36,41 +43,20 @@ function getBeziersFromRawPaths(paths: { type: string, values: number[] }[]) {
 		); 
 	}
 
-
 	let s = new PathState();
-
 
 	let beziersArrays: number[][][][] = [];
 	let beziers: number[][][] = [];
 
-
-	let max = Number.NEGATIVE_INFINITY;
+	let prevType: string;
 	for (let i=0; i<paths.length; i++) {
-		let path = paths[i];
-		for (let j=0; j<path.values.length; j++) {
-			let v = path.values[j];
-			if (max < v) { max = v; }
-		}
-	}
-
-
-	let type: string = undefined;
-	let prevType;
-	for (let i=0; i<paths.length; i++) {
-		prevType = type;
-
 		let pathSeg = paths[i];
 		
-		type = pathSeg.type.toLowerCase();
+		let type = pathSeg.type.toLowerCase();
 		s.vals = pathSeg.values;
 
-		/*
-		if (pathSeg.values[0] === 109.637) {
-			console.log('109')
-		}
-		*/
-
-		if (pathSeg.type === pathSeg.type.toLowerCase()) {
+		// If pathSeg was lowercase, it is relative - make absolute
+		if (pathSeg.type === type) {
 			if (type === 'v') {
 				s.vals[0] += s.p[1];
 			} else if (type === 'a') {
@@ -88,7 +74,7 @@ function getBeziersFromRawPaths(paths: { type: string, values: number[] }[]) {
 				// This is a subpath, close as if the previous command was a 
 				// Z or z.
 				if (prevType !== 'z') {
-					pushBezier(beziers, z(s), s, max); 
+					beziers.push(z(s));
 				}
 
 				// Start new path
@@ -97,6 +83,7 @@ function getBeziersFromRawPaths(paths: { type: string, values: number[] }[]) {
 			}
 
 			s.initialPoint = s.p = s.vals;
+			prevType = type;
 			continue;
 		}
 
@@ -106,19 +93,18 @@ function getBeziersFromRawPaths(paths: { type: string, values: number[] }[]) {
 
 		let ps = f(s);
 
-		s.p = ps[3]; // Update current point
+		s.p = ps[ps.length-1]; // Update current point
 
-		pushBezier(beziers, ps, s, max); 
+		beziers.push(ps);
+
+		prevType = type;
 	}
 
 
 	if (beziers.length) {
-		//beziersArrays.push(beziers);
-
-		// This is a subpath, close as if the previous command was a 
-		// Z or z.
+		// This is a subpath, close as if the previous command was a Z or z.
 		if (prevType !== 'z') {
-			pushBezier(beziers, z(s), s, max); 
+			beziers.push(z(s));
 		}
 
 		// Start new path

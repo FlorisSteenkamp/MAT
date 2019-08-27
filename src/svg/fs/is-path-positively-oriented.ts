@@ -3,8 +3,8 @@ import { tangent } from 'flo-bezier3';
 import { cross } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
 
-import { Loop } from '../../loop';
-import { Curve } from '../../curve';
+import { Loop } from '../../loop/loop';
+import { Curve, getCorner } from '../../curve';
 
 import { getLoopBounds } from './get-loop-bounds';
 
@@ -14,8 +14,8 @@ import { getLoopBounds } from './get-loop-bounds';
  * otherwise. Careful! Checks leftmost part of loop so twisted complex paths
  * may give an ambiguous orientation.
  */
-let isPathPositivelyOrientated = memoize(function(bezierLoop: Loop) {
-    let extreme = getLoopBounds(bezierLoop).minX;
+let isPathPositivelyOrientated = memoize(function(loop: Loop) {
+    let extreme = getLoopBounds(loop).minY;
 
     let t = extreme.t;
     let curve: Curve;
@@ -33,23 +33,20 @@ let isPathPositivelyOrientated = memoize(function(bezierLoop: Loop) {
 
     if (t !== 1) {
         // Not a sharp corner
-        return tan[1] < 0;
+        return tan[0] > 0;
     }
 
     let psNext = curve.next.ps;	
     let tanNext = tangent(psNext)(0);
 
-    if (tan[1] * tanNext[1] > 0) {
-        // Both tangents points up or both points down.
-        return tan[1] < 0;
+    if (tan[0] * tanNext[0] > 0) {
+        // Both tangents points left or both points right.
+        return tan[0] > 0;
     }
 
-    // One tangent points up and the other down.
-    let c = cross(tan, tanNext);
+    let corner = getCorner(ps, psNext);
 
-    return c > 0;
-
-    // We don't check for the very special case where the cross === 0. 
+    return corner.isDull;
 });
 
 

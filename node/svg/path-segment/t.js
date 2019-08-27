@@ -30,19 +30,23 @@ function t(s) {
     let QP0 = s.p;
     let QP1 = p;
     let QP2 = [s.vals[0], s.vals[1]];
+    /*
     // CP1 = QP0 + 2/3 *(QP1-QP0)
     let CP1 = [
-        QP0[0] + (2 / 3) * (QP1[0] - QP0[0]),
-        QP0[1] + (2 / 3) * (QP1[1] - QP0[1])
+        QP0[0] + (2/3)*(QP1[0]-QP0[0]),
+        QP0[1] + (2/3)*(QP1[1]-QP0[1])
     ];
     // CP2 = QP2 + 2/3 *(QP1-QP2)
     let CP2 = [
-        QP2[0] + (2 / 3) * (QP1[0] - QP2[0]),
-        QP2[1] + (2 / 3) * (QP1[1] - QP2[1])
+        QP2[0] + (2/3)*(QP1[0]-QP2[0]),
+        QP2[1] + (2/3)*(QP1[1]-QP2[1])
     ];
+    
     let ps = [QP0, CP1, CP2, QP2];
+    */
     s.prev2ndCubicControlPoint = undefined;
     s.prev2ndQuadraticControlPoint = QP1;
+    let ps = [QP0, QP1, QP2];
     return ps;
 }
 exports.t = t;

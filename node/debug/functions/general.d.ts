@@ -1,4 +1,4 @@
-import { CpNode } from '../../cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 export interface IGeneralDebugFunctions {
     nameObj: (obj: any, pre?: string) => void;
     δToString: (cpNodes: CpNode[]) => string[];

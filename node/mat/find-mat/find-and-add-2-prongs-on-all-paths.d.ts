@@ -1,6 +1,6 @@
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop";
-import { CpNode } from '../../cp-node';
+import { Loop } from "../../loop/loop";
+import { CpNode } from '../../cp-node/cp-node';
 import { PointOnShape } from '../../point-on-shape';
 /**
  * Add 2 prongs. See comments on the add2Prong function.

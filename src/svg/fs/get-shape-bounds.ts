@@ -1,9 +1,7 @@
 
 import { memoize } from 'flo-memoize';
 
-import { Loop } from '../../loop';
-import { PointOnShape } from '../../point-on-shape';
-
+import { Loop } from '../../loop/loop';
 import { getLoopBounds } from './get-loop-bounds';
 
 

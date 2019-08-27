@@ -1,4 +1,4 @@
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
 /**
  * Get useful points on the shape - these incude points of maximum curvature and

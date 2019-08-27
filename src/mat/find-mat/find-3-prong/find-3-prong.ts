@@ -5,7 +5,7 @@ import { MatDebug } from '../../../debug/debug';
 
 import { fromTo } from 'flo-bezier3';
 
-import { CpNode       } from '../../../cp-node';
+import { CpNode       } from '../../../cp-node/cp-node';
 import { Circle       } from '../../../circle';
 import { PointOnShape } from '../../../point-on-shape';
 import { ThreeProngForDebugging } from '../../../debug/three-prong-for-debugging';

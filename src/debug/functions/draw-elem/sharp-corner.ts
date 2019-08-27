@@ -1,15 +1,13 @@
 
-declare let _debug_: MatDebug; 
-
-import { MatDebug } from '../../debug';
-
-import { PointOnShape } from '../../../point-on-shape';
+import { Curve } from '../../../curve';
+import { drawFs } from 'flo-draw';
 
 
-function sharpCorner(g: SVGGElement, pos: PointOnShape) {
-	const scaleFactor = 0.1;
+function sharpCorner(g: SVGGElement, curve: Curve) {
+	const scaleFactor = 1;
 		
-	let $pos = _debug_.fs.draw.dot(g, pos.p, 0.6*scaleFactor, 'green');
+	let p = curve.ps[3];
+	let $pos = drawFs.dot(g, p, 0.6*scaleFactor, 'green');
 		
 	return $pos;
 }

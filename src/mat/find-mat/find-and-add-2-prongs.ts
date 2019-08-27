@@ -5,8 +5,8 @@ import { MatDebug } from '../../debug/debug';
 
 import LlRbTree from 'flo-ll-rb-tree';
 
-import { Loop } from "../../loop";
-import { CpNode } from '../../cp-node';
+import { Loop } from "../../loop/loop";
+import { CpNode } from '../../cp-node/cp-node';
 import { PointOnShape } from '../../point-on-shape';
 import { getShapeBounds } from '../../svg/fs/get-shape-bounds';
 import { Circle } from '../../circle';
@@ -31,8 +31,8 @@ function findAndAdd2Prongs(
         extreme: number) {
 
     let len = for2Prongs.length;
-    let index = indexLinear(len); // Keep for possible future use.
-    //let index = indexInterlaced(len);
+    let index = indexLinear(len); 
+    //let index = indexInterlaced(len); // Keep for possible future use.
     let cpNode_;
 
     let bounds = getShapeBounds(loops);
@@ -40,20 +40,16 @@ function findAndAdd2Prongs(
         (bounds.maxX.p[0] - bounds.minX.p[0])**2 +
         (bounds.maxY.p[1] - bounds.minY.p[1])**2;
 
-    //console.log(Math.sqrt(squaredDiagonalLength));
-
     for (let i=0; i<len; i++) {
         let pos = for2Prongs[index[i]];
 
-        //let twoProngInfo: { circle: Circle,	z: PointOnShape };
-        /*if (i === 15) {
-            console.log('stop')
-        }*/
-
         let twoProngInfo: { circle: Circle,	zs: { pos: PointOnShape, d: number }[] };
+
         twoProngInfo = find2Prong(
             loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k
         );
+
+        //console.log(twoProngInfo.circle.radius)
 
         if (twoProngInfo) {
             let { circle, zs } = twoProngInfo;

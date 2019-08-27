@@ -1,4 +1,4 @@
-import { Loop } from "../../../loop";
+import { Loop } from "../../../loop/loop";
 import { ILoopTree } from "./i-loop-tree";
 /**
  *

@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const curve_1 = require("../curve");
 const point_on_shape_1 = require("../point-on-shape");
 function getContactCirclesAtInterface(curve) {
-    let { isQuiteSharp, isDull, isQuiteDull } = curve_1.Curve.getCornerAtEnd(curve);
+    let { isQuiteSharp, isQuiteDull } = curve_1.Curve.getCornerAtEnd(curve);
+    //return [];
     if (isQuiteSharp) {
         return [new point_on_shape_1.PointOnShape(curve, 1)];
     }
@@ -12,8 +13,6 @@ function getContactCirclesAtInterface(curve) {
             new point_on_shape_1.PointOnShape(curve, 1),
             new point_on_shape_1.PointOnShape(curve.next, 0)
         ];
-    }
-    else if (isDull) {
     }
     return [];
 }

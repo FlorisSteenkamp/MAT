@@ -1,6 +1,6 @@
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
-declare let getLoopBounds: (a: Loop) => {
+declare let getLoopBounds: (loop: Loop) => {
     minX: PointOnShape;
     minY: PointOnShape;
     maxX: PointOnShape;

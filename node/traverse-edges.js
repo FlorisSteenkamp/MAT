@@ -17,7 +17,7 @@ function traverseEdges(cpNode, f) {
         if (cp.isTerminating()) {
             continue;
         }
-        cps.push(...cp.children);
+        cps.push(...cp.getChildren());
     }
 }
 exports.traverseEdges = traverseEdges;

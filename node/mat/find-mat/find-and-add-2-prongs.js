@@ -14,21 +14,17 @@ const add_2_prong_1 = require("./add-2-prong");
  */
 function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
     let len = for2Prongs.length;
-    let index = indexLinear(len); // Keep for possible future use.
-    //let index = indexInterlaced(len);
+    let index = indexLinear(len);
+    //let index = indexInterlaced(len); // Keep for possible future use.
     let cpNode_;
     let bounds = get_shape_bounds_1.getShapeBounds(loops);
     let squaredDiagonalLength = Math.pow((bounds.maxX.p[0] - bounds.minX.p[0]), 2) +
         Math.pow((bounds.maxY.p[1] - bounds.minY.p[1]), 2);
-    //console.log(Math.sqrt(squaredDiagonalLength));
     for (let i = 0; i < len; i++) {
         let pos = for2Prongs[index[i]];
-        //let twoProngInfo: { circle: Circle,	z: PointOnShape };
-        /*if (i === 15) {
-            console.log('stop')
-        }*/
         let twoProngInfo;
         twoProngInfo = find_2_prong_1.find2Prong(loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k);
+        //console.log(twoProngInfo.circle.radius)
         if (twoProngInfo) {
             let { circle, zs } = twoProngInfo;
             let cpNode = add_2_prong_1.add2Prong(cpGraphs, circle, pos, zs, false, extreme);

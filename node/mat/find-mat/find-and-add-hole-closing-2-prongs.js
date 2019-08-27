@@ -6,7 +6,8 @@ const find_2_prong_1 = require("./find-2-prong/find-2-prong");
 const add_2_prong_1 = require("./add-2-prong");
 /**
  * Find and add two-prongs that remove any holes in the shape.
- * @param loops
+ * @param loops The loops (that as a precondition must be ordered from
+ * highest (i.e. smallest y-value) topmost point loops to lowest)
  * @param cpTrees
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.
@@ -17,19 +18,21 @@ function findAndAddHoleClosing2Prongs(loops, cpTrees, extreme) {
         Math.pow((bounds.maxY.p[1] - bounds.minY.p[1]), 2);
     // Find the topmost points on each loop.
     let minYs = loops.map(get_min_y_pos_1.getMinYPos);
+    // We start at 1 since 0 is the outer (root) loop
     for (let k = 1; k < minYs.length; k++) {
         let posSource = minYs[k];
-        //console.log(posSource.t);
-        //console.log(posSource.p[1]);
         let holeClosingTwoProng = find_2_prong_1.find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, posSource, true, k);
         if (!holeClosingTwoProng) {
-            throw 'unable to find hole-closing 2-prong';
+            throw new Error(`Unable to find hole-closing 2-prong`);
         }
-        if (holeClosingTwoProng) {
-            // TODO important - handle case of n-prong, i.e. more than one antipode
-            let { circle, zs: posAntipodes } = holeClosingTwoProng;
-            add_2_prong_1.add2Prong(cpTrees, circle, posSource, posAntipodes, true, extreme);
-        }
+        // TODO important - handle case of n-prong, i.e. more than one antipode
+        // - currently we only handle case of single antipode (the general case)
+        let { circle, zs: posAntipodes } = holeClosingTwoProng;
+        //let posAntipode = posAntipodes[0];
+        //let parent = posSource.curve.loop;
+        //let child = posAntipode.pos.curve.loop;
+        //parent.children.push(child);
+        add_2_prong_1.add2Prong(cpTrees, circle, posSource, [posAntipodes[0]], true, extreme);
     }
 }
 exports.findAndAddHoleClosing2Prongs = findAndAddHoleClosing2Prongs;

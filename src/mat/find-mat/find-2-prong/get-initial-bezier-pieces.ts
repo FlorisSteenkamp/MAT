@@ -5,8 +5,8 @@ import { getNeighbouringPoints   } from '../../get-neighboring-cps';
 import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers';
 
 import { BezierPiece  } from '../../../bezier-piece';
-import { Loop         } from '../../../loop';
-import { CpNode       } from '../../../cp-node';
+import { Loop         } from '../../../loop/loop';
+import { CpNode       } from '../../../cp-node/cp-node';
 import { PointOnShape } from '../../../point-on-shape';
 
 
@@ -28,6 +28,8 @@ function getInitialBezierPieces(
             bezierPieces.push(...pieces);
         }
     } else {
+        //aaa y.curve
+
         let order = PointOnShape.isDullCorner(y)
                 ? y.t === 1 ? -1 : +1
                 : 0;

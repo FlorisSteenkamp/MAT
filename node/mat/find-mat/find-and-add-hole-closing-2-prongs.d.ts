@@ -1,9 +1,10 @@
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop";
-import { CpNode } from '../../cp-node';
+import { Loop } from "../../loop/loop";
+import { CpNode } from '../../cp-node/cp-node';
 /**
  * Find and add two-prongs that remove any holes in the shape.
- * @param loops
+ * @param loops The loops (that as a precondition must be ordered from
+ * highest (i.e. smallest y-value) topmost point loops to lowest)
  * @param cpTrees
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.

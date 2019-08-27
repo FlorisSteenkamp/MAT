@@ -1,5 +1,5 @@
 
-import { CpNode } from './cp-node';
+import { CpNode } from './cp-node/cp-node';
 
 
 /**
@@ -20,8 +20,9 @@ function traverseEdges(
 	while (cps.length) {
 		let cp = cps.pop();
 		f(cp);
+
 		if (cp.isTerminating()) { continue; }
-		cps.push(...cp.children);
+		cps.push(...cp.getChildren());
 	}
 }
 

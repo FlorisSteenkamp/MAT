@@ -85,7 +85,7 @@ class Source {
             return null;
         }
         else {
-            return { type: command, values: values };
+            return { type: command, values };
         }
     }
     hasMoreData() {

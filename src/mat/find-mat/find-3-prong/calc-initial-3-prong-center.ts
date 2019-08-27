@@ -5,7 +5,7 @@ import { MatDebug } from '../../../debug/debug';
 
 import { mean, circumCenter } from 'flo-vector2d';
 
-import { CpNode      } from '../../../cp-node';
+import { CpNode      } from '../../../cp-node/cp-node';
 import { BezierPiece } from '../../../bezier-piece';
 
 import { getClosestBoundaryPoint } from 
@@ -25,15 +25,6 @@ function calcInitial3ProngCenter(
         bezierPiece3s: BezierPiece[][]) {
 
     let twoProngCircleCenter = δ3s[0][0].cp.circle.center;
-    /*
-    let twoProngCircleCenter = 
-        mean([
-            δ3s[0][0].cp.pointOnShape.p, 
-            δ3s[2][1].cp.pointOnShape.p
-        ]); 
-        */
-
-    //_debug_.fs.draw.dot(_debug_.generated.g, twoProngCircleCenter, 0.05, 'blue');
 
     let posInfo = getClosestBoundaryPoint(
             bezierPiece3s[1],

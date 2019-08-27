@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const flo_draw_1 = require("flo-draw");
 function tightBoundingBox(g, box) {
-    let $box = _debug_.fs.draw.polygon(g, box, 'thin5 black nofill');
+    let $box = flo_draw_1.drawFs.polygon(g, box, 'thin5 black nofill');
     return $box;
 }
 exports.tightBoundingBox = tightBoundingBox;

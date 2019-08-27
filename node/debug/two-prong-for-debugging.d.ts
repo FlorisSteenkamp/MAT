@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node';
+import { CpNode } from '../cp-node/cp-node';
 import { PointOnShape } from '../point-on-shape';
 import { Circle } from '../circle';
 import { BezierPiece } from '../bezier-piece';

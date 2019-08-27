@@ -1,15 +1,15 @@
 
-import { Loop } from '../../../loop';
+//import { Loop } from '../../../loop';
 
-import { reverseOrientation } from "../../fs/reverse-orientation";
-import { isPathPositivelyOrientated } from '../../fs/is-path-positively-oriented';
+//import { reverseOrientation } from "../../fs/reverse-orientation";
+//import { isPathPositivelyOrientated } from '../../fs/is-path-positively-oriented';
 
 
 /**
  * Destructively orient the bezier loops so that the outermost loop is
  * positively oriented (i.e. counter-clockwise) and the rest negatively 
  * oriented.
- */
+ *//*
 function orient(loops: Loop[]) {	
 	let newLoops = [];
 
@@ -21,7 +21,7 @@ function orient(loops: Loop[]) {
 	}
 
 	return newLoops;
-}
+}*/
 
 
 /**
@@ -29,14 +29,14 @@ function orient(loops: Loop[]) {
  * @param loop The loop
  * @param positive If true, returns a positively oriented loop, else a negative 
  * one.
- */
+ *//*
 function orientLoop(loop: Loop, positive: boolean) {
 	console.log('reversing?: ' + (positive !== isPathPositivelyOrientated(loop)));
 
 	return positive === isPathPositivelyOrientated(loop)
 		? loop 
 		: reverseOrientation(loop);
-}
+}*/
 
 
-export { orient }
+export { /*orient*/ }

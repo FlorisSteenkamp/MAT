@@ -1,14 +1,14 @@
 
 import { PointOnShape } from '../../../point-on-shape';
-import { CpNode       } from '../../../cp-node';
-import { Loop         } from '../../../loop';
+import { CpNode       } from '../../../cp-node/cp-node';
+import { Loop         } from '../../../loop/loop';
 import { Circle       } from '../../../circle';
-
+import { X            } from '../../../x/x';
+import { Curve        } from '../../../curve';
 import { TwoProngForDebugging   } from '../../two-prong-for-debugging';
 import { ThreeProngForDebugging } from '../../three-prong-for-debugging';
-import { DebugElemType         } from '../../debug-elem-types';
-
-import { oneProng         } from './one-prong';
+import { /*DebugElemType,*/ IDebugElems } from '../../debug-elem-types';
+import { drawOneProng     } from './one-prong';
 import { twoProng         } from './two-prong';
 import { threeProng       } from './three-prong';
 import { vertex           } from './vertex';
@@ -18,7 +18,7 @@ import { looseBoundingBox } from './loose-bounding-box';
 import { tightBoundingBox } from './tight-bounding-box';
 import { sharpCorner      } from './sharp-corner';
 import { dullCorner       } from './dull-corner';
-import { mat              } from './mat';
+import { drawMat          } from './mat';
 import { loop             } from './loop';
 import { loops            } from './loops';
 import { maxVertex        } from './max-vertex';
@@ -26,41 +26,21 @@ import { leaves           } from './leaves';
 import { culls            } from './culls';
 import { intersection     } from './intersection';
 import { oneProngAtDullCorner } from './one-prong-at-dull-corner';
-import { X                } from '../../../x/x';
 
 
-export type TDrawElemFunctions = {
-	[T in DebugElemType]: (g: SVGGElement, elem: any) => SVGElement[];
-}
+type TDrawElemFunctions = 
+	{ [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T]) => SVGElement[] };
 
-export interface IDrawElemFunctions extends TDrawElemFunctions {
-	oneProng             : (g: SVGGElement, pos: PointOnShape) => SVGElement[],
-	oneProngAtDullCorner : (g: SVGGElement, pos: PointOnShape) => SVGElement[],
-	twoProng_regular     : (g: SVGGElement, twoProng: TwoProngForDebugging) => SVGElement[],
-	twoProng_failed      : (g: SVGGElement, twoProng: TwoProngForDebugging) => SVGElement[],
-	twoProng_notAdded    : (g: SVGGElement, twoProng: TwoProngForDebugging) => SVGElement[],
-	twoProng_deleted     : (g: SVGGElement, twoProng: TwoProngForDebugging) => SVGElement[],
-	twoProng_holeClosing : (g: SVGGElement, twoProng: TwoProngForDebugging) => SVGElement[],
-	threeProng           : (g: SVGGElement, threeProng: ThreeProngForDebugging) => SVGElement[],
-	minY                 : (g: SVGGElement, pos: PointOnShape) => SVGElement[],
-	looseBoundingBox     : (g: SVGGElement, box: number[][]) => SVGElement[],
-	tightBoundingBox     : (g: SVGGElement, box: number[][]) => SVGElement[],
-	boundingHull         : (g: SVGGElement, hull: number[][], style?: string) => SVGElement[],
-	sharpCorner          : (g: SVGGElement, pos: PointOnShape) => SVGElement[],
-	dullCorner           : (g: SVGGElement, pos: PointOnShape) => SVGElement[],
-	vertex               : (g: SVGGElement, node: CpNode, visible: boolean, displayDelay: number) => SVGElement[],
-	loop                 : (g: SVGGElement, loop: Loop) => SVGElement[],
-	loops                : (g: SVGGElement, loops: Loop[]) => SVGElement[],
-	maxVertex            : (g: SVGGElement, cpNode: CpNode) => SVGElement[],
-	leaves               : (g: SVGGElement, leaves: CpNode[]) => SVGElement[],
-	culls                : (g: SVGGElement, culls: Circle[]) => SVGElement[],
-	intersection         : (g: SVGGElement, x: X) => SVGElement[],
+
+function notImplementedYet<T extends IDebugElems[keyof IDebugElems]> (g: SVGElement, elem: T) {
+	return [] as SVGElement[]; // TODO - implement relevant drawing function
 }
 
 
-let drawElemFunctions: IDrawElemFunctions = {
-	oneProng,
+let drawElemFunctions: TDrawElemFunctions = {
+	oneProng: drawOneProng,
 	oneProngAtDullCorner,
+	
 	twoProng_regular: twoProng,
 	twoProng_failed: twoProng,
 	twoProng_notAdded: twoProng,
@@ -74,15 +54,16 @@ let drawElemFunctions: IDrawElemFunctions = {
 	sharpCorner,
 	dullCorner,
 	vertex,
-	mat: mat('mat', true),
-	sat: mat('sat', true),
+	mat: drawMat('mat'),
+	sat: drawMat('sat'),
 	loop,
 	loops,
 	maxVertex,
 	leaves,
 	culls,
-	intersection
+	intersection,
+	cpNode: notImplementedYet
 }
 
 
-export { drawElemFunctions }
+export { drawElemFunctions, TDrawElemFunctions }

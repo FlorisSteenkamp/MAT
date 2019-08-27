@@ -3,7 +3,7 @@ declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../debug/debug';
 
-import { CpNode } from '../../cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 import { Mat    } from '../../mat';
 
 

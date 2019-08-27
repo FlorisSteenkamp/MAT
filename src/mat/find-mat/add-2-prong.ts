@@ -5,8 +5,10 @@ import { MatDebug } from '../../debug/debug';
 
 import LlRbTree from 'flo-ll-rb-tree';
 
-import { Loop         } from '../../loop';
-import { CpNode       } from '../../cp-node';
+import { exponent } from 'flo-numerical';
+
+import { Loop         } from '../../loop/loop';
+import { CpNode       } from '../../cp-node/cp-node';
 import { Circle       } from '../../circle';
 import { ContactPoint } from '../../contact-point';
 import { PointOnShape } from '../../point-on-shape';
@@ -35,9 +37,24 @@ function add2Prong(
 		holeClosing   : boolean,
 		extreme       : number) {
 
+	//console.log(circle.center[0], circle.center[1])
+	/*
+	if (posAntipodes.length > 1) {
+		console.log('>1')
+	}
+	*/
+	/*
+	if (circle.center[0] === 241 && circle.center[1] === -342.0764118857498) {
+		return;
+	}
+	*/
+
 	let orderSource   = PointOnShape.calcOrder(circle, posSource);
 	let orderAntipodes = posAntipodes.map(
-		posAntipode => PointOnShape.calcOrder(circle, posAntipode.pos)
+		posAntipode => {
+			//console.log(circle.center)
+			return PointOnShape.calcOrder(circle, posAntipode.pos);
+		}
 	);
 
 	let t_s = posSource.t;
@@ -137,7 +154,13 @@ function add2Prong(
 		let cpNodes = newCpAntipodes.slice();
 		cpNodes.push(newCpSource);
 
-		cpNodes.sort(CpNode.comparator);
+
+		// This sometimes didn't work as it compares only according to it's own
+		// loop.
+		//cpNodes.sort(CpNode.comparator);
+
+		// Order points according to their angle with the x-axis
+		cpNodes.sort(byAngle(circle));
 
 		for (let i=0; i<cpNodes.length; i++) {
 			let iNext = (i+1 === cpNodes.length) ? 0 : i+1;
@@ -194,4 +217,64 @@ function add2Prong(
 }
 
 
-export { add2Prong };
+function scale(n: number, exp: number) {
+    return n * (2**-(exp+1));
+}
+
+
+function getSize(x: number, y: number) {
+	// Get size of a
+	if (x > 0) {
+		if (x > 0.5) {
+			return y; // ~ -0.7 -> 0.7, i.e. -(sqrt(2)/2) -> +(sqrt(2)/2) 
+		} else {
+			if (y < 0) {
+				return x - 2; // ~ -2.0 -> -1.3
+			} else {
+				return -x + 2; // ~ 1.3 -> 2.0
+			}
+		}
+	} else {
+		if (x < -0.5) {
+			return -y + 4; // ~ 3.3 -> 4.7
+		} else {
+			if (y < 0) {
+				return x + 6; // ~ 5.3 -> 6.0
+			} else {
+				return -x + 2; // ~ 2 -> 2.7
+			}
+		}
+	}
+}
+
+
+function byAngle(circle: Circle) {
+	let c = circle.center;
+	let r = circle.radius;
+
+	let exp = exponent(r);
+
+	return function(_a: CpNode, _b: CpNode) {
+		let a = _a.cp.pointOnShape.p;
+		let b = _b.cp.pointOnShape.p;
+
+		// Move onto origin
+		a = [a[0]-c[0], a[1]-c[1]];
+		b = [b[0]-c[0], b[1]-c[1]];
+
+		// Scale
+		let ax = scale(a[0], exp);
+		let ay = scale(a[1], exp);
+		let bx = scale(b[0], exp);
+		let by = scale(b[1], exp);
+
+		// Get 'size'
+		let sa = getSize(ax, ay);
+		let sb = getSize(bx, by);
+
+		return sb - sa;
+	}
+}
+
+
+export { add2Prong }

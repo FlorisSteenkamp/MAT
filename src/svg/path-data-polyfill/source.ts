@@ -93,7 +93,7 @@ class Source {
             // Unknown command or known command with invalid values
             return null;
         } else {
-            return {type: command, values: values};
+            return { type: command, values };
         }          
     }
 

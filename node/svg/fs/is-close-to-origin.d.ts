@@ -1,7 +1,7 @@
 /**
  * Returns true if the given point is close to the origin (by Manhattan
  * distance), fale otherwise.
- * @private
+ * @hidden
  * @param p - a point
  * @param delta - a tolerance - defaults to 1e-6;
  */

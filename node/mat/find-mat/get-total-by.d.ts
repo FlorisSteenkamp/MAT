@@ -1,8 +1,8 @@
 import { Curve } from '../../curve';
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 /**
  * Helper function.
- * @private
+ * @hidden
  * @param f
  */
 declare function getTotalBy(f: (curve: Curve) => number): (loop: Loop) => number;

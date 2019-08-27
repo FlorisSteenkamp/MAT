@@ -70,15 +70,10 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     let done = 0;
     let failed = false; // The failed flag is set if a 2-prong cannot be found.
     let bezierPieces_ = bezierPieces;
-    let prevX = undefined;
     do {
         i++;
         let r = flo_vector2d_1.squaredDistanceBetween(x, y.p);
         bezierPieces_ = cull_bezier_pieces_1.cullBezierPieces(bezierPieces_, x, r);
-        //for (let bp of bezierPieces_) { 
-        //_debug_.fs.draw.bezierPiece(_debug_.generated.g, bp.curve.ps, bp.ts, undefined, 0)
-        //console.log(bezierPieces_.length)
-        //}
         z = get_closest_boundary_point_1.getClosestBoundaryPoint(bezierPieces_, x, y.curve, y.t);
         if (z === undefined) {
             if (typeof _debug_ !== 'undefined') {
@@ -130,7 +125,6 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         // equidistant from y and z. This will be our next x.
         let nextX = find_equidistant_point_on_line_1.findEquidistantPointOnLine(x, y.p, z.pos.p);
         let squaredError = flo_vector2d_1.squaredDistanceBetween(x, nextX);
-        prevX = x;
         x = nextX;
         if (squaredError < squaredErrorTolerance) {
             //console.log(Math.sqrt(squaredError));
@@ -146,7 +140,9 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     // tolerance which can be checked in getClosestBoundaryPoint algorithm
     let zs = [];
     if (!failed) {
-        zs = get_close_boundary_points_1.getCloseBoundaryPoints(bezierPieces_, x, y.curve, y.t, flo_vector2d_1.distanceBetween(x, z.pos.p));
+        zs = get_close_boundary_points_1.getCloseBoundaryPoints(bezierPieces_, x, y, flo_vector2d_1.distanceBetween(x, z.pos.p));
+        //if (point[0] === 228 && point[1] === -308) {
+        //if (zs.length > 1) { console.log(zs); }
         if (!zs.length) {
             //console.log(zs);
             // Numerical issue

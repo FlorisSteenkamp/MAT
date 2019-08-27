@@ -1,5 +1,5 @@
 
-import { CpNode } from '../..//cp-node';
+import { CpNode } from '../../cp-node/cp-node';
 
 import { getBoundaryPieceBeziers } from '../get-boundary-piece-beziers';
 import { getLineBezierIntersection } from './get-line-bezier-intersection';

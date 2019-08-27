@@ -1,7 +1,5 @@
 
-declare let _debug_: MatDebug; 
-
-import { MatDebug } from '../../debug';
+import { drawFs } from 'flo-draw';
 
 
 function boundingHull(
@@ -9,7 +7,7 @@ function boundingHull(
         hull: number[][], 
         style: string = 'thin5 black nofill') {
             
-	let $polygon = _debug_.fs.draw.polygon(g, hull, style);
+	let $polygon = drawFs.polygon(g, hull, style);
 
 	return $polygon;
 }

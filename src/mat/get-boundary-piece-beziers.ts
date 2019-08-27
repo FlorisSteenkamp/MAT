@@ -1,5 +1,5 @@
 
-import { CpNode } from '../cp-node';
+import { CpNode } from '../cp-node/cp-node';
 import { Curve         } from '../curve';
 
 import { BezierPiece  } from '../bezier-piece';
@@ -13,7 +13,7 @@ import { ContactPoint } from '../contact-point';
 * @param cpNodes - An ordered pair that represents the start and end points of 
 * the boundary piece
 */
-function getBoundaryPieceBeziers(cpNodes: CpNode[]) {
+function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
     let cpThis = cpNodes[0]; 
     let cpEnd  = cpNodes[1];
     
@@ -49,12 +49,14 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]) {
                 new BezierPiece(posThis.curve, [posThis.t, 1])
             );
             
-            addSkippedBeziers(
-                    bezierPieces, 
-                    posThis.curve, 
-                    posNext.curve,
-                    posNext.t
-            );
+            if (cpThis.cp.pointOnShape.curve.loop === cpThis.next.cp.pointOnShape.curve.loop) {
+                addSkippedBeziers(
+                        bezierPieces, 
+                        posThis.curve, 
+                        posNext.curve,
+                        posNext.t
+                );
+            }
         }				
         
         cpThis = cpThis.next;

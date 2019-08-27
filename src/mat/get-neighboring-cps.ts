@@ -2,7 +2,7 @@
 import LlRbTree from 'flo-ll-rb-tree';
 
 import { PointOnShape } from '../point-on-shape';
-import { CpNode       } from '../cp-node';
+import { CpNode       } from '../cp-node/cp-node';
 import { ContactPoint } from '../contact-point';
 
 

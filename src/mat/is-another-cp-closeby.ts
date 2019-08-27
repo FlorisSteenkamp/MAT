@@ -3,8 +3,8 @@ import LlRbTree from "flo-ll-rb-tree";
 
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
 
-import { Loop         } from "../loop";
-import { CpNode       } from "../cp-node";
+import { Loop         } from "../loop/loop";
+import { CpNode       } from "../cp-node/cp-node";
 import { PointOnShape } from "../point-on-shape";
 import { Circle       } from "../circle";
 
@@ -39,10 +39,13 @@ function isAnotherCpCloseby(
         extreme: number,
         color: string): boolean {
 
-    //const DISTANCE_THRESHOLD = extreme * 1e-3; 
-    //const DISTANCE_THRESHOLD = extreme * 1e-1;             
+    //console.log(extreme)
+    //const DISTANCE_THRESHOLD = extreme * 1e-1; 
+    //const DISTANCE_THRESHOLD = extreme * 1e-1;
+    const DISTANCE_THRESHOLD = extreme * 1e-4;
     //const DISTANCE_THRESHOLD = extreme * 1e-4; - was this
-    const DISTANCE_THRESHOLD = extreme * 1e-12;
+    //const DISTANCE_THRESHOLD = extreme * 1e-6;
+    //const DISTANCE_THRESHOLD = extreme * 1e-12;
     // It seems this can be zero else the ordering should be correct
     //const DISTANCE_THRESHOLD = 0;
 

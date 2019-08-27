@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node';
+import { CpNode } from '../cp-node/cp-node';
 import { BezierPiece } from '../bezier-piece';
 /**
 * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)

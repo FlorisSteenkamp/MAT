@@ -1,5 +1,5 @@
 
-import { CpNode } from '../cp-node';
+import { CpNode } from '../cp-node/cp-node';
 
 
 function getLargestThreeProng(cpNodes: CpNode[]) {

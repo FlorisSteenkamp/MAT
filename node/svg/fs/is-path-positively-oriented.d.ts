@@ -1,4 +1,4 @@
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 /**
  * Returns true if the given beizer loop is positively orientated, false
  * otherwise. Careful! Checks leftmost part of loop so twisted complex paths

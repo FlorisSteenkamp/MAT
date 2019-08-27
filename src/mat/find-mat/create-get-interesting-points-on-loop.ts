@@ -1,8 +1,8 @@
 
 import { getContactCirclesAtInterface } from '../get-contact-circles-at-interface';
-import { getBezierCurvatureExtrema } from '../get-bezier-curvature-extrema';
+import { getCurvatureExtrema, splitByMaxCurvature, splitByCurvatureAndLength, splitByMaxCurveLength } from 'flo-bezier3';
 
-import { Loop } from '../../loop';
+import { Loop } from '../../loop/loop';
 
 import { PointOnShape } from '../../point-on-shape';
 
@@ -22,19 +22,26 @@ function createGetInterestingPointsOnLoop(additionalPointCount = 3) {
         for (let i=0; i<loop.curves.length; i++) {
             let curve = loop.curves[i];
 
-            let { maxCurvaturePoss, maxNegativeCurvaturePoss } = 
-                getBezierCurvatureExtrema(curve);
+            let { maxCurvatureTs, maxNegativeCurvatureTs } = 
+                getCurvatureExtrema(curve.ps);
+            let maxCurvatures = maxCurvatureTs.map(t => new PointOnShape(curve, t));
+            let maxNegativeCurvatures = maxNegativeCurvatureTs.map(t => new PointOnShape(curve, t));
 
             allPoints.push(
                 ...getContactCirclesAtInterface(curve), 
-                ...maxCurvaturePoss,
-                ...maxNegativeCurvaturePoss
+                ...maxCurvatures,
+                ...maxNegativeCurvatures
             );
 
-            let n = additionalPointCount+1;
+            //let ts = splitByMaxCurveLength(curve.ps, 50);
+            //let ts = splitByMaxCurvature(curve.ps, 1.01);
+            let ts = splitByCurvatureAndLength(curve.ps, 1.001, 10);
+            if (ts.length === 2) {
+                ts = [0, 0.5, 1];
+            }
 
-            for (let i=1; i<n; i++) {
-                allPoints.push( new PointOnShape(curve, i/n) );
+            for (let i=1; i<ts.length-1; i++) {
+                allPoints.push( new PointOnShape(curve, ts[i]) );
             }
         }
 

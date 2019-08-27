@@ -1,6 +1,6 @@
 
 import { Curve } from '../../../curve';
-import { Loop  } from '../../../loop';
+import { Loop  } from '../../../loop/loop';
 
 import { X } from '../../../x/x';
 import { ILoopTree } from './i-loop-tree';

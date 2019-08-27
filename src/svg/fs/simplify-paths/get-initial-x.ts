@@ -1,5 +1,5 @@
 
-import { Loop         } from '../../../loop';
+import { Loop         } from '../../../loop/loop';
 import { Curve        } from '../../../curve';
 import { PointOnShape } from '../../../point-on-shape';
 
@@ -29,7 +29,7 @@ function getInitialX(
         windingNum: parent.windingNum
     }
 
-    let pos = getLoopBounds(loop).minX;
+    let pos = getLoopBounds(loop).minY;
 
     let xs = intersections.get(pos.curve);
     
