@@ -85,7 +85,7 @@ function normalizeLoops(
 
         if (!pairs.length) { break; }
 
-        console.log(pairs);
+        //console.log(pairs);
         for (let pair of pairs) {
             //console.log(pair);
 

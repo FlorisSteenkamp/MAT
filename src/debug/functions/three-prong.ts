@@ -180,20 +180,25 @@ function logNearest(
 		showBoundaries = true) {
 
 	return function(p: number[], showDelay = 1000) {
-		let closestPerLoops: ThreeProngForDebugging[] = [];
-		_debug_.generatedAll.forEach(function(generated) {
-			let threeProng = getObjClosestTo<ThreeProngForDebugging>(
-				p, 
-				generated.elems.threeProng, 
-				threeProng => threeProng.circle.center
-			);
-			closestPerLoops.push(threeProng)
-		});
+		//let closestPerLoops: ThreeProngForDebugging[] = [];
+		//_debug_.generatedAll.forEach(function(generated) {
+		let generated = _debug_.generated;
+
+		let threeProng = getObjClosestTo<ThreeProngForDebugging>(
+			p, 
+			generated.elems.threeProng, 
+			threeProng => threeProng.circle.center
+		);
+		//closestPerLoops.push(threeProng)
+
+		//});
+		/*
 		let threeProng = getObjClosestTo<ThreeProngForDebugging>(
 			p, 
 			closestPerLoops, 
 			threeProng => threeProng.circle.center
 		);
+		*/
 
 
 		let circle = threeProng.circle;

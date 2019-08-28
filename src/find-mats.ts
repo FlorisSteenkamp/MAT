@@ -63,21 +63,13 @@ function findMats(
 
 	let { loopss, xMap } = simplifyPaths(loops);
 
-	// TODO - below breaks woodland creatures
-	/////
+	//console.log(loopss[0][0].beziers)
+
 	for (let i=0; i<loopss.length; i++) {
-		let loops = loopss[i].filter(loopHasNonNegligibleArea(0.000000000001))
+		let loops = loopss[i].filter(loopHasNonNegligibleArea(0.1))
 		loopss[i] = loops;
 	}
 	loopss = loopss.filter(loops => loops.length);
-	/////
-
-	//console.log(loopss)
-
-	// Ren-normalize after intersections
-	// Uncommenting the below unconnects SATs!
-	//loopss = loopss.map(loops => loops.map(loop => normalizeLoop(loop, max)));
-	//console.log(loopss);
 
 	if (typeof _debug_ !== 'undefined') {
 		let timing = _debug_.generated.timing;

@@ -39,46 +39,5 @@ interface IDebugElems {
     cpNode: CpNodeForDebugging;
 }
 
-/*
-type DebugElemType = ElemType_TwoProng 
-    | 'oneProng'  
-    | 'minY'  
-    | 'looseBoundingBox' 
-    | 'tightBoundingBox' 
-    | 'sharpCorner' 
-    | 'dullCorner' 
-    | 'oneProng' 
-    | 'oneProngAtDullCorner' 
-    | 'threeProng' 
-    | 'boundingHull' 
-    | 'mat' 
-    | 'sat'
-    | 'loop'
-    | 'loops'
-    | 'maxVertex'
-    | 'leaves'
-    | 'culls'
-    | 'intersection'
-*/
 
-export { /*DebugElemType,*/ IDebugElems }
-
-/* TODO - remove - was checking something :)
-type T_A = { a: number; }
-type T_B = { b: number; }
-type T_C = { c: number; }
-
-interface IA {
-    a: T_A;
-    b: T_B;
-    c: T_C;
-}
-
-type IB = { [T in keyof IA]: (p: IA[T]) => number }
-
-let b: IB = {
-    a: (a: T_A) => 3,
-    b: (b: T_B) => 3,
-    c: (c: T_C) => 3,
-}
-*/
+export { IDebugElems }
