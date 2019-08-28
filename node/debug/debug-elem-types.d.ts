@@ -34,4 +34,4 @@ interface IDebugElems {
     intersection: X;
     cpNode: CpNodeForDebugging;
 }
-export { /*DebugElemType,*/ IDebugElems };
+export { IDebugElems };

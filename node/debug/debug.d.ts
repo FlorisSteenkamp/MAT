@@ -1,4 +1,4 @@
-import * as Bezier3 from 'flo-bezier3';
+import { IDrawFunctions } from 'flo-bezier3';
 import { IGeneralDebugFunctions } from './functions/general';
 import { ITwoProngDebugFunctions } from './functions/two-prong';
 import { IThreeProngDebugFunctions } from './functions/three-prong';
@@ -27,7 +27,7 @@ export declare class Generated implements IGenerated {
     constructor(path: SVGPathElement, g: SVGGElement);
 }
 export interface IDebugFunctions extends IGeneralDebugFunctions {
-    draw: Bezier3.IDrawFunctions;
+    draw: IDrawFunctions;
     twoProng: ITwoProngDebugFunctions;
     threeProng: IThreeProngDebugFunctions;
     drawElem: TDrawElemFunctions;
@@ -41,13 +41,12 @@ export interface IDirectives {
 }
 declare class MatDebug {
     generated: Generated;
-    generatedAll: Map<number[][][][], Generated>;
     fs: IDebugFunctions;
     directives: IDirectives;
     /**
      * @param fs - some useful functions.
      */
     constructor();
-    createNewGenerated(bezierLoops: number[][][][], path: SVGPathElement, g: SVGGElement): void;
+    createNewGenerated(path: SVGPathElement, g: SVGGElement): void;
 }
 export { MatDebug, GeneratedElems };

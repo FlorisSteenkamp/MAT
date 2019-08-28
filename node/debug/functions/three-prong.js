@@ -132,12 +132,19 @@ function logδs(n) {
  */
 function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) {
     return function (p, showDelay = 1000) {
-        let closestPerLoops = [];
-        _debug_.generatedAll.forEach(function (generated) {
-            let threeProng = flo_vector2d_1.getObjClosestTo(p, generated.elems.threeProng, threeProng => threeProng.circle.center);
-            closestPerLoops.push(threeProng);
-        });
-        let threeProng = flo_vector2d_1.getObjClosestTo(p, closestPerLoops, threeProng => threeProng.circle.center);
+        //let closestPerLoops: ThreeProngForDebugging[] = [];
+        //_debug_.generatedAll.forEach(function(generated) {
+        let generated = _debug_.generated;
+        let threeProng = flo_vector2d_1.getObjClosestTo(p, generated.elems.threeProng, threeProng => threeProng.circle.center);
+        //closestPerLoops.push(threeProng)
+        //});
+        /*
+        let threeProng = getObjClosestTo<ThreeProngForDebugging>(
+            p,
+            closestPerLoops,
+            threeProng => threeProng.circle.center
+        );
+        */
         let circle = threeProng.circle;
         let g = threeProng.generated.g;
         console.log(threeProng);

@@ -63,7 +63,7 @@ function normalizeLoops(bezierLoops, maxBitLength) {
         if (!pairs.length) {
             break;
         }
-        console.log(pairs);
+        //console.log(pairs);
         for (let pair of pairs) {
             //console.log(pair);
             // Randomly choose one of the 2 beziers

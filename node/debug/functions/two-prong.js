@@ -54,11 +54,18 @@ function logδBasic(n, type = 'twoProng_regular') {
  */
 function logNearest(p, showDelay = 1000, type = 'twoProng_regular') {
     let closestPerLoops = [];
-    _debug_.generatedAll.forEach(function (generated, loops) {
-        let twoProng = flo_vector2d_1.getObjClosestTo(p, generated.elems[type], twoProng => twoProng.circle.center);
-        closestPerLoops.push(twoProng);
-    });
-    let twoProng = flo_vector2d_1.getObjClosestTo(p, closestPerLoops, twoProng => twoProng.circle.center);
+    //_debug_.generatedAll.forEach(function(generated, loops) {
+    let generated = _debug_.generated;
+    let twoProng = flo_vector2d_1.getObjClosestTo(p, generated.elems[type], twoProng => twoProng.circle.center);
+    closestPerLoops.push(twoProng);
+    //});
+    /*
+    let twoProng = getObjClosestTo<TwoProngForDebugging>(
+        p,
+        closestPerLoops,
+        twoProng => twoProng.circle.center
+    );
+    */
     console.log(twoProng);
     let n;
     for (let i = 0; i < _debug_.generated.elems[type].length; i++) {

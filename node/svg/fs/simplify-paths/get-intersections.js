@@ -97,6 +97,7 @@ function getIntersections(loops) {
         }
     }
     */
+    //console.log(xMap)
     return xMap;
 }
 exports.getIntersections = getIntersections;
@@ -114,17 +115,25 @@ function confirmIntersection(checkedPairs, curves, tPair) {
         (curves_[0].next === curves_[1] || curves_[1].next === curves_[0])) {
         return undefined;
     }
+    if (Math.abs(tPair[0]) < DELTA) {
+        // If the intersection occurs near the start, move it to the start
+        // so we don't have a very small bezier piece left.
+        tPair[0] = 0;
+    }
+    if (Math.abs(tPair[1]) < DELTA) {
+        // If the intersection occurs near the start, move it to the start
+        // so we don't have a very small bezier piece left.
+        tPair[1] = 0;
+    }
     if (Math.abs(tPair[0] - 1) < DELTA) {
-        /*
         // If the intersection occurs at the end, move it to the start
         // so we don't have a very small bezier piece left.
         curves_[0] = curves_[0].next;
         tPair[0] = 0;
-
         // Recheck
-        if (pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
+        if (pair_set_1.pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
             return undefined;
-        }*/
+        }
         // Above seems wrong, there will already be an intersection at the
         // start so no need to move it.
         return undefined;
@@ -132,15 +141,12 @@ function confirmIntersection(checkedPairs, curves, tPair) {
     if (Math.abs(tPair[1] - 1) < DELTA) {
         // If the intersection occurs at the end, move it to the start
         // so we don't have a very small bezier piece left.
-        /*
         curves_[1] = curves_[1].next;
         tPair[1] = 0;
-
         // Recheck
-        if (pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
+        if (pair_set_1.pairSet_has(checkedPairs, [curves_[0], curves_[1]])) {
             return undefined;
         }
-        */
         // Above seems wrong, there will already be an intersection at the
         // start so no need to move it.
         return undefined;
