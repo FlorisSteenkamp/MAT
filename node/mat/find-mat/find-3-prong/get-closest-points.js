@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-closest-boundary-point");
 /**
- *
+ * @hidden
  * @param x
  * @param bezierPiece3s
  * @param extreme

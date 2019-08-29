@@ -13,7 +13,6 @@ function clone(cpNode) {
     // overflow if there are too many CpNodes.
     let nodeMap = new Map();
     let newCpNode = new cp_node_1.CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
-    //newCpNode.matCurveToNextVertex = cpNode.matCurveToNextVertex;
     nodeMap.set(cpNode, newCpNode);
     let cpStack = [{ cpNode, newCpNode }];
     while (cpStack.length) {
@@ -23,7 +22,6 @@ function clone(cpNode) {
             let newNode = nodeMap.get(node);
             if (!newNode) {
                 newNode = new cp_node_1.CpNode(node.cp, node.isHoleClosing, node.isIntersection);
-                //newNode.matCurveToNextVertex = node.matCurveToNextVertex;
                 nodeMap.set(node, newNode);
                 cpStack.push({ cpNode: node, newCpNode: newNode });
             }

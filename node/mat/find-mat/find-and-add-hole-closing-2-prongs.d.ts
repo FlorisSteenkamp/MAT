@@ -2,6 +2,7 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { Loop } from "../../loop/loop";
 import { CpNode } from '../../cp-node/cp-node';
 /**
+ * @hidden
  * Find and add two-prongs that remove any holes in the shape.
  * @param loops The loops (that as a precondition must be ordered from
  * highest (i.e. smallest y-value) topmost point loops to lowest)

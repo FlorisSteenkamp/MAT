@@ -1,4 +1,5 @@
 /**
+ * @hidden
  * Get an array of corresponding cubic bezier curve parameters for given arc
  * curve paramters.
  */

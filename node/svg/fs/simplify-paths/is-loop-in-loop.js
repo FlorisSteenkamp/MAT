@@ -4,8 +4,11 @@ const flo_poly_1 = require("flo-poly");
 const flo_bezier3_1 = require("flo-bezier3");
 const point_on_shape_1 = require("../../../point-on-shape");
 const get_loop_bounds_1 = require("../get-loop-bounds");
+/** @hidden */
+// TODO - remove delta
 const DELTA = 1e-6;
 /**
+ * @hidden
  * Returns true if the first loop is contained wholly within the second. At this
  * stage we already know the loop is either wholly contained inside the loop
  * or is wholly outside.
@@ -50,6 +53,7 @@ function isLoopInLoop(loops) {
 }
 exports.isLoopInLoop = isLoopInLoop;
 /**
+ * @hidden
  * Returns true if the first loop is not wholly within the second. The converse
  * is not necessarily true. It is assumed the loops don't intersect.
  * @param loops
@@ -69,9 +73,8 @@ function isLoopNotInLoop(loops) {
         boundss[0].minY < boundss[1].minY ||
         boundss[0].maxY > boundss[1].maxY);
 }
-//enum Dir { LEFT, RIGHT, UP, DOWN }
 /**
- *
+ * @hidden
  * @param p The point where the horizontal ray starts
  * @param toLeft The ray to the left of this point (else right)
  * @param loop A loop of curves

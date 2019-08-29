@@ -4,7 +4,7 @@ const contact_point_1 = require("../contact-point");
 const cp_node_1 = require("../cp-node/cp-node");
 const get_neighboring_cps_1 = require("./get-neighboring-cps");
 /**
- *
+ * @hidden
  * @param circle
  * @param orders
  * @param cpTrees

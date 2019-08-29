@@ -3,10 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_poly_1 = require("flo-poly");
 const flo_vector2d_1 = require("flo-vector2d");
 const flo_bezier3_1 = require("flo-bezier3");
+/** @hidden */
+// TODO - remove delta
 let DELTA = 1e-11;
 /**
- *
- * @param curve The bezier
+ * @hidden
+ * @param curve The curve
  * @param p The point from which to check
  * @param tRange The allowed t range
  * @param touchedCurve The bezier on which p is located

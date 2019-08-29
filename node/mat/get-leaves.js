@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/** @hidden */
 function getLeaves(cpNode) {
     let leaves = [];
     let cps = cpNode.getAllOnLoop();
@@ -8,15 +9,6 @@ function getLeaves(cpNode) {
             leaves.push(cp);
         }
     });
-    /*
-    traverseEdges(cpNode, f, true);
-
-    function f(cp: CpNode, isLeaf: boolean) {
-        if (isLeaf) {
-            leaves.push(cp);
-        }
-    }
-    */
     return leaves;
 }
 exports.getLeaves = getLeaves;

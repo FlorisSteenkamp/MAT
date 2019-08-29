@@ -5,6 +5,7 @@ const point_on_shape_1 = require("../../point-on-shape");
 const cull_bezier_pieces_1 = require("./cull-bezier-pieces");
 const closest_points_on_curve_1 = require("./closest-points-on-curve");
 /**
+ * @hidden
  * Returns the closest boundary point to the given point, limited to the given
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces
@@ -24,7 +25,7 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
     for (let i = 0; i < bezierPieces.length; i++) {
         let bezierPiece = bezierPieces[i];
         // TOOD - important - should be able to return multiple points
-        let ps = closest_points_on_curve_1.closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t, distance, DISTANCE_TOLERANCE);
+        let ps = closest_points_on_curve_1.closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
         //if (ps === undefined) { continue; }
         for (let j = 0; j < ps.length; j++) {
             let p = ps[j];
@@ -68,7 +69,6 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
                     Math.abs(p1[1] - p2[1]) < 1e-6) ||
                     (Math.abs(p1[0] - p3[0]) < 1e-6 &&
                         Math.abs(p1[1] - p3[1]) < 1e-6)) {
-                    //console.log(i);
                     indexesToRemove.push(indexesToCheck[i]);
                 }
             }
@@ -76,12 +76,6 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
         for (let i = indexesToRemove.length - 1; i >= 0; i--) {
             posInfos.splice(indexesToRemove[i], 1);
         }
-        /*
-        if (posInfos.length > 1) {
-            console.log(p_);
-            console.log(posInfos.map(pi => pi.d), posInfos.map(pi => pi.pos.p), posInfos.map(pi => pi.pos.t))
-            console.log('-------');
-        }*/
     }
     return posInfos;
 }

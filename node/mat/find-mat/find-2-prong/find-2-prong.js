@@ -13,6 +13,7 @@ const find_equidistant_point_on_line_1 = require("./find-equidistant-point-on-li
 const get_initial_bezier_pieces_1 = require("./get-initial-bezier-pieces");
 const get_close_boundary_points_1 = require("../../closest-boundary-point/get-close-boundary-points");
 /**
+ * @hidden
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
  *
@@ -38,7 +39,7 @@ const get_close_boundary_points_1 = require("../../closest-boundary-point/get-cl
 function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClosing, k) {
     const MAX_ITERATIONS = 25;
     const squaredSeperationTolerance = Math.pow((1e-6 * extreme), 2);
-    //const oneProngTolerance = 1+1e-4;
+    // TODO - base deltas on theory or remove
     const oneProngTolerance = Math.pow((1e-4), 2);
     const squaredErrorTolerance = 1e-2 * squaredSeperationTolerance;
     const maxOsculatingCircleRadiusSquared = squaredDiagonalLength;
@@ -103,14 +104,14 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         // a relative error, i.e. distance between y (or z) / length(y (or z)).
         if (!isHoleClosing && flo_vector2d_1.squaredDistanceBetween(y.p, z.pos.p) <= squaredSeperationTolerance) {
             if (typeof _debug_ !== 'undefined') {
+                /*
                 let elems = _debug_.generated.elems;
                 let elem = isHoleClosing
                     ? elems.twoProng_holeClosing
-                    : elems.twoProng_regular;
+                    : elems.twoProng_regular
                 let elemStr = isHoleClosing
                     ? 'hole-closing: ' + elem.length
                     : 'regular: ' + elem.length;
-                /*
                 console.log(
                     'failed: two-prong radius too small - ' + elemStr
                 );
@@ -127,7 +128,6 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         let squaredError = flo_vector2d_1.squaredDistanceBetween(x, nextX);
         x = nextX;
         if (squaredError < squaredErrorTolerance) {
-            //console.log(Math.sqrt(squaredError));
             done++; // Do one more iteration
         }
         else if (i === MAX_ITERATIONS) {
@@ -141,14 +141,10 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     let zs = [];
     if (!failed) {
         zs = get_close_boundary_points_1.getCloseBoundaryPoints(bezierPieces_, x, y, flo_vector2d_1.distanceBetween(x, z.pos.p));
-        //if (point[0] === 228 && point[1] === -308) {
-        //if (zs.length > 1) { console.log(zs); }
         if (!zs.length) {
-            //console.log(zs);
-            // Numerical issue
+            // TODO - Numerical issue - fix
             zs.push(z);
         }
-        //zs = [z];
     }
     let circle;
     if (z !== undefined) {
@@ -159,10 +155,10 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         add_debug_info_1.addDebugInfo(bezierPieces, failed, y, circle, z.pos, δ, xs, isHoleClosing);
     }
     return failed ? undefined : { circle, zs };
-    //return failed ? undefined : { circle, z: z.pos };
 }
 exports.find2Prong = find2Prong;
 /**
+ * @hidden
  * Reduces the circle radius initially as an optimization step.
  */
 function reduceRadius(extreme, bezierPieces, p, x) {
@@ -195,16 +191,18 @@ function reduceRadius(extreme, bezierPieces, p, x) {
         }
     }
     // The extra bit is to account for floating point precision.
+    // TODO - base delta on theory
     return minRadius + TOLERANCE;
 }
 /**
- *
+ * @hidden
  * @param p A point on the circle with normal pointing to x towards the center
  * of the circle.
  * @param x
  * @param p1 Another point on the circle.
  */
 function getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1) {
+    // TODO - remove delta
     let TOLERANCE = Math.pow((1e-4 * extreme), 2);
     // Ignore if p and p1 are too close together
     if (flo_vector2d_1.squaredDistanceBetween(p, p1) < TOLERANCE) {

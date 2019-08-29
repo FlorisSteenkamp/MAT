@@ -1,13 +1,13 @@
 import { X } from '../../../x/x';
 /**
- *
+ * @hidden
  * @param xs An array of intersections on the curve
  * @param curT The current t value
  * @param forwards If true go forwards else go backwards
  */
 declare function getNextX(xs: X[], curT: number, forwards: boolean, wasOnX: boolean): X;
 /**
- *
+ * @hidden
  * @param xs An array of intersections on the curve
  * @param t The current t value
  */

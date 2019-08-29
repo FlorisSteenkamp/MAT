@@ -1,3 +1,4 @@
+/** @hidden */
 declare class PathState {
     initialPoint: number[];
     p: number[];

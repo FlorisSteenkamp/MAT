@@ -1,6 +1,7 @@
 import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
-declare let getLoopBounds: (loop: Loop) => {
+/** @hidden */
+declare let getLoopBounds: (a: Loop) => {
     minX: PointOnShape;
     minY: PointOnShape;
     maxX: PointOnShape;

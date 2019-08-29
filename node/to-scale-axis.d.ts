@@ -1,4 +1,3 @@
-import { CpNode } from './cp-node/cp-node';
 import { Mat } from './mat';
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
@@ -12,5 +11,5 @@ import { Mat } from './mat';
  * @param mat The Medial Axis Transform ([[Mat]]) on which to apply the SAT.
  * @param s The scale factor >= 1 (e.g. 1.3)
  */
-declare function toScaleAxis(mat: Mat, s: number, f?: (cpNode: CpNode, s: number) => (r: number) => number): Mat;
+declare function toScaleAxis(mat: Mat, s: number, f?: (s: number) => (r: number) => number): Mat;
 export { toScaleAxis };

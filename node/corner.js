@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * @hidden
  * Represents a corner on the shape boundary, i.e. a point where two bezier
  * curves meet. This class is typically used internally only.
  */

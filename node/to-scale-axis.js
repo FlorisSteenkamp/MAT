@@ -10,23 +10,13 @@ const get_leaves_1 = require("./mat/get-leaves");
 const cull_1 = require("./mat/to-scale-axis/cull");
 const add_debug_info_1 = require("./mat/to-scale-axis/add-debug-info");
 const clone_1 = require("./cp-node/clone");
-const smoothen_1 = require("./mat/smoothen/smoothen");
-/*
-function inverseScale(cpNode: CpNode, s: number) {
-    let rMax = cpNode.cp.circle.radius;
-
-    return function(r: number) {
-        let s_ = 1 + (s-1)*((rMax+0.1)/(r+0.1));
-        //console.log(s,s_,r)
-        return s_*r;
-    }
-}
-*/
-function linearScale(cpNode, s) {
+const get_curve_to_next_1 = require("./get-curve/get-curve-to-next");
+function linearScale(s) {
     return function (r) {
         return s * r;
     };
 }
+/** @hidden */
 let len = flo_bezier3_1.length([0, 1]);
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
@@ -50,7 +40,7 @@ function toScaleAxis(mat, s, f = linearScale) {
     let cpNodes = [];
     traverse_vertices_1.traverseVertices(clone_1.clone(mat.cpNode), cpNode => { cpNodes.push(cpNode); });
     let cpNode = get_largest_vertex_1.getLargestVertex(cpNodes);
-    let f_ = f(cpNode, s);
+    let f_ = f(s);
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.maxVertex.push(cpNode);
     }
@@ -63,17 +53,9 @@ function toScaleAxis(mat, s, f = linearScale) {
     traverse_edges_1.traverseEdges(cpNode, function (cpNode) {
         /** The occulating radius stored with this vertex. */
         let R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
-        //let R = rMap.get(cpNode) || s * rThis;
         let cpNode_ = cpNode.next;
-        //let c  = cpNode .cp.circle.center;
-        //let c_ = cpNode_.cp.circle.center;
-        /** Distance between this vertex and the next. */
-        //let l = distanceBetween(c, c_); // Almost always precise enough
-        //let l = len(cpNode.matCurveToNextVertex);
-        let l = len(smoothen_1.getCurveToNext(cpNode));
+        let l = len(get_curve_to_next_1.getCurveToNext(cpNode));
         let r = cpNode_.cp.circle.radius;
-        //let s_ = 1 + (s-1)*(rMax/r);
-        //let r_ = s * r;
         let r_ = f_(r);
         if (R - l > r_) {
             for (let cpNode of cpNode_.getCpNodesOnCircle()) {

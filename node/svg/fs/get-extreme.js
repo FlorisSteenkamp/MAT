@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const get_shape_bounds_1 = require("./get-shape-bounds");
 /**
+ * @hidden
  * Returns the max extreme point coordinate value for the given shape. This is
  * used for floating point tolerance calculations.
  * @param loops

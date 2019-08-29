@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 const are_boxes_intersecting_1 = require("../../sweep-line/are-boxes-intersecting");
+/** @hidden */
 function inSameKFamliyAndMaybeIntersecting(ps1, ps2) {
     let bbPs1 = flo_bezier3_1.getBoundingBox(ps1);
     let bbPs2 = flo_bezier3_1.getBoundingBox(ps2);

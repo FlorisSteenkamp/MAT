@@ -5,6 +5,7 @@ const circle_1 = require("../../circle");
 const cp_node_1 = require("../../cp-node/cp-node");
 const contact_point_1 = require("../../contact-point");
 /**
+ * @hidden
  * Creates the initial ContactPoint loops from the given sharp corners.
  * @param shape
  * @param sharpCornerss

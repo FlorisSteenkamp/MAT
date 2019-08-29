@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_draw_1 = require("flo-draw");
+/** @hidden */
 function maxVertex(g, cpNode) {
     let circle = cpNode.cp.circle;
     let $elems = flo_draw_1.drawFs.circle(g, circle, 'brown thin10 nofill');

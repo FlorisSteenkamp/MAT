@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
+/**
+ * @hidden
  * V and v: (from www.w3.org)
  *
  * params: y
@@ -12,12 +13,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * command, the new current point becomes (cpx, y) for the final value of y.
  */
 function v(s) {
-    let yInterval = (s.vals[0] - s.p[1]) / 3;
     let ps = [
         s.p,
-        [s.p[0], s.p[1] + yInterval * 1],
-        [s.p[0], s.p[1] + yInterval * 2],
-        [s.p[0], s.p[1] + yInterval * 3]
+        [s.p[0], s.vals[0]]
     ];
     s.prev2ndCubicControlPoint = undefined;
     s.prev2ndQuadraticControlPoint = undefined;

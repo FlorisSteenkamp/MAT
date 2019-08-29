@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const source_1 = require("./source");
+/**
+ * @hidden
+ * @param string
+ */
 function parsePathDataString(string) {
     if (!string.length)
         return [];

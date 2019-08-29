@@ -3,21 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const circle_1 = require("../../circle");
 const flo_vector2d_1 = require("flo-vector2d");
 /**
- *
+ * @hidden
  */
 function logδ(n, type = 'twoProng_regular') {
     let δ = _debug_.generated.elems[type][n].δ;
     console.log(δ);
 }
 /**
- *
+ * @hidden
  */
 function log(n, type = 'twoProng_regular') {
     let twoProng = _debug_.generated.elems[type][n];
     console.log(twoProng);
 }
 /**
- *
+ * @hidden
  */
 function drawNormal(n, showDelay = 1000, type = 'twoProng_regular') {
     let twoProngs = _debug_.generated.elems[type];
@@ -35,7 +35,7 @@ function drawNormal(n, showDelay = 1000, type = 'twoProng_regular') {
     _debug_.fs.draw.line(g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue', showDelay);
 }
 /**
- *
+ * @hidden
  */
 function logδBasic(n, type = 'twoProng_regular') {
     let delta = _debug_.generated.elems[type][n].δ;
@@ -50,22 +50,13 @@ function logδBasic(n, type = 'twoProng_regular') {
     console.log(f(delta[1]));
 }
 /**
- *
+ * @hidden
  */
 function logNearest(p, showDelay = 1000, type = 'twoProng_regular') {
     let closestPerLoops = [];
-    //_debug_.generatedAll.forEach(function(generated, loops) {
     let generated = _debug_.generated;
     let twoProng = flo_vector2d_1.getObjClosestTo(p, generated.elems[type], twoProng => twoProng.circle.center);
     closestPerLoops.push(twoProng);
-    //});
-    /*
-    let twoProng = getObjClosestTo<TwoProngForDebugging>(
-        p,
-        closestPerLoops,
-        twoProng => twoProng.circle.center
-    );
-    */
     console.log(twoProng);
     let n;
     for (let i = 0; i < _debug_.generated.elems[type].length; i++) {
@@ -80,10 +71,9 @@ function logNearest(p, showDelay = 1000, type = 'twoProng_regular') {
     }
 }
 /**
- *
+ * @hidden
  * @param n - The 2-prong's zero-based index.
  * @param range
- * cascade of convergence)
  */
 function traceConvergence(n, finalOnly, showDelay = 1000, range = undefined, type = 'twoProng_regular') {
     if (n === undefined) {
@@ -117,6 +107,7 @@ function traceConvergence(n, finalOnly, showDelay = 1000, range = undefined, typ
     }
     twoProngDebugFunctions.drawNormal(n, showDelay);
 }
+/** @hidden */
 let twoProngDebugFunctions = {
     logδ,
     log,

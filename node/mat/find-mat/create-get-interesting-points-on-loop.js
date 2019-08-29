@@ -4,6 +4,7 @@ const get_contact_circles_at_interface_1 = require("../get-contact-circles-at-in
 const flo_bezier3_1 = require("flo-bezier3");
 const point_on_shape_1 = require("../../point-on-shape");
 /**
+ * @hidden
  * Get useful points on the shape - these incude points of maximum curvature and
  * points at the bezier-bezier interfaces.
  * @param loop
@@ -18,8 +19,6 @@ function createGetInterestingPointsOnLoop(additionalPointCount = 3) {
             let maxCurvatures = maxCurvatureTs.map(t => new point_on_shape_1.PointOnShape(curve, t));
             let maxNegativeCurvatures = maxNegativeCurvatureTs.map(t => new point_on_shape_1.PointOnShape(curve, t));
             allPoints.push(...get_contact_circles_at_interface_1.getContactCirclesAtInterface(curve), ...maxCurvatures, ...maxNegativeCurvatures);
-            //let ts = splitByMaxCurveLength(curve.ps, 50);
-            //let ts = splitByMaxCurvature(curve.ps, 1.01);
             let ts = flo_bezier3_1.splitByCurvatureAndLength(curve.ps, 1.001, 10);
             if (ts.length === 2) {
                 ts = [0, 0.5, 1];

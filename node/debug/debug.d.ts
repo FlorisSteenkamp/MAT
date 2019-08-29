@@ -4,9 +4,11 @@ import { ITwoProngDebugFunctions } from './functions/two-prong';
 import { IThreeProngDebugFunctions } from './functions/three-prong';
 import { TDrawElemFunctions } from './functions/draw-elem/draw-elem';
 import { IDebugElems } from './debug-elem-types';
+/** @hidden */
 declare type GeneratedElems = {
     [T in keyof IDebugElems]: IDebugElems[T][];
 };
+/** @hidden */
 export interface ITiming {
     simplify: number[];
     holeClosers: number[];
@@ -15,10 +17,12 @@ export interface ITiming {
     mats: number[];
     sats: number[];
 }
+/** @hidden */
 export interface IGenerated {
     elems: GeneratedElems;
     timing: ITiming;
 }
+/** @hidden */
 export declare class Generated implements IGenerated {
     path: SVGPathElement;
     g: SVGGElement;
@@ -26,12 +30,14 @@ export declare class Generated implements IGenerated {
     timing: ITiming;
     constructor(path: SVGPathElement, g: SVGGElement);
 }
+/** @hidden */
 export interface IDebugFunctions extends IGeneralDebugFunctions {
     draw: IDrawFunctions;
     twoProng: ITwoProngDebugFunctions;
     threeProng: IThreeProngDebugFunctions;
     drawElem: TDrawElemFunctions;
 }
+/** @hidden */
 export interface IDirectives {
     stopAfterHoleClosers: boolean;
     stopAfterHoleClosersNum: number;
@@ -39,6 +45,7 @@ export interface IDirectives {
     stopAfterTwoProngsNum: number;
     stopAfterThreeProngs: boolean;
 }
+/** @hidden */
 declare class MatDebug {
     generated: Generated;
     fs: IDebugFunctions;

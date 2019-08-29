@@ -3,14 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_poly_1 = require("flo-poly");
 const flo_bezier3_1 = require("flo-bezier3");
 /**
- *
- * @param curve The bezier
+ * @hidden
+ * @param curve The curve
  * @param p The point from which to check
  * @param tRange The allowed t range
  * @param touchedCurve The bezier on which p is located
  * @param t The t value of the bezier that locates p
  */
-function closestPointsOnCurve(curve, p, tRange = [0, 1], touchedCurve, t, distance, distanceTolerance) {
+function closestPointsOnCurve(curve, p, tRange = [0, 1], touchedCurve, t) {
     let poly = flo_bezier3_1.getTangentPolyFromPoint(curve.ps, p);
     if (curve === touchedCurve) {
         poly = flo_poly_1.deflate(poly, t);
@@ -54,6 +54,8 @@ function closestPointsOnCurve(curve, p, tRange = [0, 1], touchedCurve, t, distan
         roots.push(tRange[1]);
     }
     // This is to take care of a numerical issue.
+    // TODO - remove delta of 1e-10 below and use adaptive infinite precision
+    // floating point arithmetic.
     let roots_ = [];
     for (let i = 0; i < roots.length; i++) {
         let root = roots[i];

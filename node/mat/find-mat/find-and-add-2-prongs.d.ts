@@ -3,6 +3,7 @@ import { Loop } from "../../loop/loop";
 import { CpNode } from '../../cp-node/cp-node';
 import { PointOnShape } from '../../point-on-shape';
 /**
+ * @hidden
  * Find and add two-prongs.
  * @param loops
  * @param cpGraphs

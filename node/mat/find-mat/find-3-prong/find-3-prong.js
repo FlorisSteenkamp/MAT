@@ -5,6 +5,7 @@ const three_prong_for_debugging_1 = require("../../../debug/three-prong-for-debu
 const find_3_prong_for_delta3s_1 = require("./find-3-prong-for-delta3s");
 const get_boundary_piece_beziers_1 = require("../../get-boundary-piece-beziers");
 /**
+ * @hidden
  * Find and return a 3-prong from the given boundary piece.
  * @param δs A boundary piece
  * @param extreme The maximum coordinate value used to calculate floating point
@@ -34,7 +35,6 @@ function find3Prong(δs, extreme) {
     let smallestError = Number.POSITIVE_INFINITY;
     for (let i = 1; i < δs.length - 1; i++) {
         for (let k = 0; k < 3; k++) {
-            //let k = 0;
             if (typeof _debug_ !== 'undefined') {
                 let threeProngs = _debug_.generated.elems.threeProng;
                 let d = threeProngs[threeProngs.length - 1];

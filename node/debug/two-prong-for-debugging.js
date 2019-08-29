@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/** @hidden */
 class TwoProngForDebugging {
     constructor(generated, bezierPieces, pos, δ, z, circle, xs, failed, holeClosing, notAdded, deleted, cpNode = undefined) {
         this.generated = generated;

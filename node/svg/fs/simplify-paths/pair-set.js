@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * @hidden
  * Adds an unordered pair of values to the set (given as a special map)
  * @param map The map representing the pairs.
  * @param vs The pair to add.
@@ -22,6 +23,7 @@ function pairSet_add(map, vs) {
 }
 exports.pairSet_add = pairSet_add;
 /**
+ * @hidden
  * Returns true if the unordered pair is in the set of pairs (represented by a
  * map).
  * @param map The map representing the pairs.
@@ -37,6 +39,7 @@ function pairSet_has(map, vs) {
 }
 exports.pairSet_has = pairSet_has;
 /**
+ * @hidden
  * Returns the unordered pairs as an array.
  * @param map The map representing the pairs.
  */

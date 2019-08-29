@@ -3,6 +3,7 @@ import { PointOnShape } from '../point-on-shape';
 import { Circle } from '../circle';
 import { BezierPiece } from '../bezier-piece';
 import { Generated } from './debug';
+/** @hidden */
 declare class TwoProngForDebugging {
     generated: Generated;
     bezierPieces: BezierPiece[];

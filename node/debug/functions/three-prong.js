@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 const circle_1 = require("../../circle");
 /**
+ * @hidden
  * Draws 3 lines from the given 3-prong center to its 3 contact points.
  * @param n - The 3-prong's zero-based index.
  */
@@ -16,6 +17,7 @@ function drawSpokes(n) {
     _debug_.fs.draw.line(g, [poss[2].p, cc], 'thin5 red');
 }
 /**
+ * @hidden
  * Shows the circle for each boundary iteration.
  * @param n_ - The 3-prong's zero-based index. If ommitted, all will be shown.
  * @param idx - The specific boundary iteration index to view. If ommitted, all
@@ -73,6 +75,7 @@ function traceConvergence(n_, idx) {
     }
 }
 /**
+ * @hidden
  * Shows the actual boundary for each iteration.
  * @param n The 3-prong's zero-based index.
  * @param idx The specific boundary iteration index to view. If ommitted will
@@ -120,6 +123,7 @@ function showBoundary(n, idx) {
     }
 }
 /**
+ * @hidden
  * @param n The 3-prong's zero-based index.
  */
 function logδs(n) {
@@ -127,24 +131,13 @@ function logδs(n) {
     console.log(threeProng.cpss);
 }
 /**
- *
+ * @hidden
  * @param p
  */
 function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) {
     return function (p, showDelay = 1000) {
-        //let closestPerLoops: ThreeProngForDebugging[] = [];
-        //_debug_.generatedAll.forEach(function(generated) {
         let generated = _debug_.generated;
         let threeProng = flo_vector2d_1.getObjClosestTo(p, generated.elems.threeProng, threeProng => threeProng.circle.center);
-        //closestPerLoops.push(threeProng)
-        //});
-        /*
-        let threeProng = getObjClosestTo<ThreeProngForDebugging>(
-            p,
-            closestPerLoops,
-            threeProng => threeProng.circle.center
-        );
-        */
         let circle = threeProng.circle;
         let g = threeProng.generated.g;
         console.log(threeProng);
@@ -176,6 +169,7 @@ function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) 
         }
     };
 }
+/** @hidden */
 let threeProngDebugFunctions = {
     drawSpokes,
     traceConvergence,

@@ -1,6 +1,7 @@
 import { CpNode } from '../cp-node/cp-node';
 import { Generated } from './debug';
 /**
+ * @hidden
  * Class used for debugging only.
  */
 declare class CpNodeForDebugging {

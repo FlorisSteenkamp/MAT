@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 /**
- * Returns the ordered cubic bezier curves from this CpNode to the next CpNode
+ * Returns the ordered bezier curves from this CpNode to the next CpNode
  * on the boundary.
  * @param cpNode
  */

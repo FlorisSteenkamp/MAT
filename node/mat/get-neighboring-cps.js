@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cp_node_1 = require("../cp-node/cp-node");
 const contact_point_1 = require("../contact-point");
 /**
+ * @hidden
  * Returns the boundary piece that starts at the immediate previous point on the
  * shape and ends at the immediate next point.
  * @param cpTree

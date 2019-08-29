@@ -18,9 +18,11 @@ const leaves_1 = require("./leaves");
 const culls_1 = require("./culls");
 const intersection_1 = require("./intersection");
 const one_prong_at_dull_corner_1 = require("./one-prong-at-dull-corner");
+/** @hidden */
 function notImplementedYet(g, elem) {
     return []; // TODO - implement relevant drawing function
 }
+/** @hidden */
 let drawElemFunctions = {
     oneProng: one_prong_1.drawOneProng,
     oneProngAtDullCorner: one_prong_at_dull_corner_1.oneProngAtDullCorner,

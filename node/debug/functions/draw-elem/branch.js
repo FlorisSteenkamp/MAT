@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_draw_1 = require("flo-draw");
-const smoothen_1 = require("../../../mat/smoothen/smoothen");
+const get_curve_to_next_1 = require("../../../get-curve/get-curve-to-next");
+/** @hidden */
 function drawBranch(g, branch, delay) {
     let classes = 'thin5 purple nofill';
     let $svgs = [];
@@ -11,7 +12,7 @@ function drawBranch(g, branch, delay) {
             continue;
         }
         //let bezier = cpNode.matCurveToNextVertex;
-        let bezier = smoothen_1.getCurveToNext(cpNode);
+        let bezier = get_curve_to_next_1.getCurveToNext(cpNode);
         if (!bezier) {
             continue;
         }

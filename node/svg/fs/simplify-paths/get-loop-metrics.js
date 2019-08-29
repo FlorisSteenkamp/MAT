@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 const flo_vector2d_1 = require("flo-vector2d");
 /**
- *
+ * @hidden
  * @param x The intersection
  */
 function getLoopMetrics(x) {

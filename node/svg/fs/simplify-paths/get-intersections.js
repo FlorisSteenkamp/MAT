@@ -7,6 +7,7 @@ const pair_set_1 = require("./pair-set");
 const sweep_line_1 = require("../../../sweep-line/sweep-line");
 const are_boxes_intersecting_1 = require("../../../sweep-line/are-boxes-intersecting");
 // TODO - DELTA is somewhat arbitrary
+/** @hidden */
 const DELTA = 1e-10;
 /**
  * Find and return all intersections on all given loops.
@@ -102,7 +103,10 @@ function getIntersections(loops) {
 }
 exports.getIntersections = getIntersections;
 /**
- *
+ * @hidden
+ * @param checkedPairs
+ * @param curves
+ * @param tPair
  */
 function confirmIntersection(checkedPairs, curves, tPair) {
     let curves_ = curves.slice();
@@ -154,6 +158,7 @@ function confirmIntersection(checkedPairs, curves, tPair) {
     return curves_;
 }
 /**
+ * @hidden
  * Returns an array of lines of the bounding hulls of the Loop beziers' control
  * points including a map that maps each line to its hull, path and curve.
  * @param loops An array of Loops

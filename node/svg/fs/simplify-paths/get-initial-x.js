@@ -5,6 +5,7 @@ const is_path_positively_oriented_1 = require("../../fs/is-path-positively-orien
 const get_loop_bounds_1 = require("../get-loop-bounds");
 const x_1 = require("../../../x/x");
 /**
+ * @hidden
  * Get initial intersection which is really a dummy intersection.
  * @param loop
  * @param parent

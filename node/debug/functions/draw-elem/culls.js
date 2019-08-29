@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/** @hidden */
 function culls(g, culls) {
     let $elems = [];
     for (let circle of culls) {
@@ -9,6 +10,7 @@ function culls(g, culls) {
     return $elems;
 }
 exports.culls = culls;
+/** @hidden */
 function drawCircle(g, center, radiusPercent, classes) {
     const XMLNS = 'http://www.w3.org/2000/svg';
     let $circle = document.createElementNS(XMLNS, 'circle');

@@ -4,6 +4,7 @@ const flo_bezier3_1 = require("flo-bezier3");
 const are_all_points_different_1 = require("./are-all-points-different");
 const flo_vector2d_1 = require("flo-vector2d");
 /**
+ * @hidden
  * Returns the same bezier if its points are well-spaced, e.g. all points not
  * coincident, etc., else fix it, if possible, and return the fixed bezier,
  * else return undefined.

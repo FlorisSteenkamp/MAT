@@ -15,12 +15,6 @@ function trimMat(mat) {
         return undefined;
     }
     let mat_ = new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
-    /*
-    if (typeof _debug_ !== 'undefined') {
-        let generated = _debug_.generated;
-        generated.elems.sat.push(mat_);
-    }
-    */
     return mat_;
 }
 exports.trimMat = trimMat;

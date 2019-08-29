@@ -1,6 +1,6 @@
 import { BezierPiece } from "../../bezier-piece";
 /**
- *
+ * @hidden
  * @param bezierPieces
  * @param p
  * @param extreme

@@ -1,8 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/** @hidden */
 const EVENT_LEFT = 0;
+/** @hidden */
 const EVENT_RIGHT = 1;
 /**
+ * @hidden
  * Generalized sweepline algorithm.
  *
  * Typically used to turn O(n^2) algorithms into roughly O(n logn) algorithms.
@@ -54,6 +57,7 @@ function sweepLine(items, getLeftmost, getRightmost, predicate) {
 }
 exports.sweepLine = sweepLine;
 /**
+ * @hidden
  * Compare two Events by their x-axis and then by their type. Since it is
  * open boxes that are compared we must let the right endpoint type come
  * before the left.

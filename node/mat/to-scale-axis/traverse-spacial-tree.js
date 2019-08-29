@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * @hidden
  * Traverses the spacial tree and calls the given callback function for each
  * MAT circle in the tree and iteravely for each subtree.
  * @param tree The spacial tree to traverse

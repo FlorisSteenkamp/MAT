@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * @hidden
  * Get an array of corresponding cubic bezier curve parameters for given arc
  * curve paramters.
  */
@@ -118,11 +119,21 @@ function arcToCubicCurves(x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag
     }
 }
 exports.arcToCubicCurves = arcToCubicCurves;
+/**
+ * @hidden
+ * @param x
+ * @param y
+ * @param angleRad
+ */
 function rotate(x, y, angleRad) {
     let X = x * Math.cos(angleRad) - y * Math.sin(angleRad);
     let Y = x * Math.sin(angleRad) + y * Math.cos(angleRad);
     return { x: X, y: Y };
 }
+/**
+ * @hidden
+ * @param degrees
+ */
 function degToRad(degrees) {
     return (Math.PI * degrees) / 180;
 }

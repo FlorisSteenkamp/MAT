@@ -38,28 +38,24 @@ const cp_node_for_debugging_1 = require("./debug/cp-node-for-debugging");
 exports.CpNodeForDebugging = cp_node_for_debugging_1.CpNodeForDebugging;
 const get_closest_boundary_point_1 = require("./mat/closest-boundary-point/get-closest-boundary-point");
 exports.getClosestBoundaryPoint = get_closest_boundary_point_1.getClosestBoundaryPoint;
-/*
-import { closestPointOnBezier } from
-'./mat/closest-boundary-point/closest-point-on-bezier';*/
 const get_paths_from_str_1 = require("./get-paths-from-str");
 exports.getPathsFromStr = get_paths_from_str_1.getPathsFromStr;
 const beziers_to_svg_path_str_1 = require("./beziers-to-svg-path-str");
 exports.beziersToSvgPathStr = beziers_to_svg_path_str_1.beziersToSvgPathStr;
 const get_shape_bounds_1 = require("./svg/fs/get-shape-bounds");
 exports.getShapeBounds = get_shape_bounds_1.getShapeBounds;
-exports.getShapesBounds = get_shape_bounds_1.getShapesBounds;
 const get_boundary_beziers_to_next_1 = require("./get-boundary-beziers-to-next");
 exports.getBoundaryBeziersToNext = get_boundary_beziers_to_next_1.getBoundaryBeziersToNext;
 const get_boundary_bezier_parts_to_next_1 = require("./get-boundary-bezier-parts-to-next");
 exports.getBoundaryBezierPartsToNext = get_boundary_bezier_parts_to_next_1.getBoundaryBezierPartsToNext;
 const get_boundary_piece_beziers_1 = require("./mat/get-boundary-piece-beziers");
 exports.getBoundaryPieceBeziers = get_boundary_piece_beziers_1.getBoundaryPieceBeziers;
-const simplify_mat_1 = require("./mat/simplify-mat");
+const simplify_mat_1 = require("./simplify-mat");
 exports.simplifyMat = simplify_mat_1.simplifyMat;
-//import { maxDs, hausdorffDistance } from './hausdorff-distance/hausdorff-distance';
 const draw_elem_1 = require("./debug/functions/draw-elem/draw-elem");
 exports.drawElemFunctions = draw_elem_1.drawElemFunctions;
-const smoothen_1 = require("./mat/smoothen/smoothen");
-exports.getCurveToNext = smoothen_1.getCurveToNext;
-exports.getCurveBetween = smoothen_1.getCurveBetween;
+const get_curve_to_next_1 = require("./get-curve/get-curve-to-next");
+exports.getCurveToNext = get_curve_to_next_1.getCurveToNext;
+const get_curve_between_1 = require("./get-curve/get-curve-between");
+exports.getCurveBetween = get_curve_between_1.getCurveBetween;
 //# sourceMappingURL=index.js.map

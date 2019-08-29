@@ -2,6 +2,7 @@ import { Curve } from '../../curve';
 import { PointOnShape } from '../../point-on-shape';
 import { BezierPiece } from '../../bezier-piece';
 /**
+ * @hidden
  * Returns the closest boundary point to the given point, limited to the given
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces

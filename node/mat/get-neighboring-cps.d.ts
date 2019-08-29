@@ -2,6 +2,7 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { PointOnShape } from '../point-on-shape';
 import { CpNode } from '../cp-node/cp-node';
 /**
+ * @hidden
  * Returns the boundary piece that starts at the immediate previous point on the
  * shape and ends at the immediate next point.
  * @param cpTree

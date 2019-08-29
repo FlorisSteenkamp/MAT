@@ -1,3 +1,4 @@
+/** @hidden */
 declare class Source {
     _string: string;
     _currentIndex: number;

@@ -1,6 +1,5 @@
-import { Loop } from '../../loop/loop';
 /**
- *
+ * @hidden
  */
-declare let getTotalAbsoluteCurvature: (loop: Loop) => number;
+declare let getTotalAbsoluteCurvature: (loop: import("../../loop/loop").Loop) => number;
 export { getTotalAbsoluteCurvature };

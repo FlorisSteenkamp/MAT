@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const get_loop_bounds_1 = require("./get-loop-bounds");
 /**
+ * @hidden
  * Get topmost PointOnShape the given loop.
  */
 function getMinYPos(loop) {

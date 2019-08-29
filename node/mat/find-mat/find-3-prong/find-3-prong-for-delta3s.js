@@ -9,8 +9,10 @@ const calc_initial_3_prong_center_1 = require("./calc-initial-3-prong-center");
 const get_closest_points_1 = require("./get-closest-points");
 const calc_better_x_1 = require("./calc-better-x");
 const curve_1 = require("../../../curve");
+/** @hidden */
 const calcVectorToZeroV_StraightToIt = flo_vector2d_1.fromTo;
 /**
+ * @hidden
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
@@ -49,7 +51,6 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     let ps;
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
-    //console.log(bezierPieces_)
     let x = calc_initial_3_prong_center_1.calcInitial3ProngCenter(δ3s, bezierPiece3s);
     if (typeof _debug_ !== 'undefined') {
         let threeProngs = _debug_.generated.elems.threeProng;
@@ -70,8 +71,6 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
         }
         circumCenter_ = flo_vector2d_1.circumCenter(ps.map(x => x.p));
         let vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter_);
-        //console.log('' + x[0] + ' ' + x[1])
-        //console.log('' + vectorToZeroV[0] + ' ' + vectorToZeroV[1]);
         if (!Number.isFinite(vectorToZeroV[0]) || !Number.isFinite(vectorToZeroV[1])) {
             // TODO - the code can be cleaned up and sped up a lot if we don't
             // use this function as is but instead use δs[0] and δs[2] as is
@@ -91,7 +90,6 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
         let V = flo_vector2d_1.len(vectorToZeroV); // The 'potential'
         tolerance = Math.abs(V - upds.newV);
     }
-    //_debug_.fs.draw.dot(_debug_.generated.g, x, 0.05);
     let radius = (flo_vector2d_1.distanceBetween(x, ps[0].p) +
         flo_vector2d_1.distanceBetween(x, ps[1].p) +
         flo_vector2d_1.distanceBetween(x, ps[2].p)) / 3;

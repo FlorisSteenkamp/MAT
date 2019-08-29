@@ -1,5 +1,6 @@
 import { BezierPiece } from "../../../bezier-piece";
 /**
+ * @hidden
  * Cull all bezierPieces not within given radius of a given point.
  * @param extreme
  * @param bezierPieces

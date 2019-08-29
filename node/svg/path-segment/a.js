@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
+/**
+ * @hidden
  * A and a: (from www.w3.org)
  *
  * params: rx ry x-axis-rotation large-arc-flag sweep-flag x y

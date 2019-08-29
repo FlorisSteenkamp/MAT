@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-closest-boundary-point");
 /**
+ * @hidden
  * Finds an initial 3-prong circle center point from which to iterate. The point
  * must be within the shape.
  * @param δ3s - The three boundary pieces of which we need to find the three

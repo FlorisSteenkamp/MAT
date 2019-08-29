@@ -4,6 +4,7 @@ const get_shape_bounds_1 = require("../../svg/fs/get-shape-bounds");
 const find_2_prong_1 = require("./find-2-prong/find-2-prong");
 const add_2_prong_1 = require("./add-2-prong");
 /**
+ * @hidden
  * Find and add two-prongs.
  * @param loops
  * @param cpGraphs
@@ -24,7 +25,6 @@ function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
         let pos = for2Prongs[index[i]];
         let twoProngInfo;
         twoProngInfo = find_2_prong_1.find2Prong(loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k);
-        //console.log(twoProngInfo.circle.radius)
         if (twoProngInfo) {
             let { circle, zs } = twoProngInfo;
             let cpNode = add_2_prong_1.add2Prong(cpGraphs, circle, pos, zs, false, extreme);
@@ -32,9 +32,7 @@ function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
             if (!cpNode_ && cpNode) {
                 cpNode_ = cpNode;
             }
-        } /* else {
-            console.log('aaaaaaaaa')
-        }*/
+        }
         if (typeof _debug_ !== 'undefined') {
             if (i + 1 === _debug_.directives.stopAfterTwoProngsNum) {
                 return undefined;
@@ -45,6 +43,7 @@ function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
 }
 exports.findAndAdd2Prongs = findAndAdd2Prongs;
 /**
+ * @hidden
  * Simple linear array indexing.
  * @param n
  */
@@ -56,6 +55,7 @@ function indexLinear(n) {
     return arr;
 }
 /**
+ * @hidden
  * Creates a kind of interlaced index vector.
  * @param n
 */

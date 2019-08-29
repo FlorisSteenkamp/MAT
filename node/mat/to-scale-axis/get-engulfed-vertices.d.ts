@@ -1,6 +1,7 @@
 import { Circle } from '../../circle';
 import { TTree } from './t-tree';
 /**
+ * @hidden
  * Returns a map of engulfed MAT nodes determined to be engulfed by the given
  * test node and scale factor and starting from the given spacial tree node.
  * @param s The scale factor

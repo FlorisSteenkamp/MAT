@@ -1,7 +1,7 @@
 import { Curve } from "../../curve";
 /**
- *
- * @param curve The bezier
+ * @hidden
+ * @param curve The curve
  * @param p The point from which to check
  * @param tRange The allowed t range
  * @param touchedCurve The bezier on which p is located

@@ -1,5 +1,6 @@
 import { BezierPiece } from "../../bezier-piece";
 /**
+ * @hidden
  * When checking distances, ignore all those with closest possible distance
  * further than 'bestSquaredDistance', i.e. cull them.
  * @param bezierPieces

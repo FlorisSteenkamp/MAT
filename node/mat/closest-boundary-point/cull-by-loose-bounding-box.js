@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 const get_closest_square_distance_to_rect_1 = require("../geometry/get-closest-square-distance-to-rect");
 /**
+ * @hidden
  * When checking distances, ignore all those with closest possible distance
  * further than 'bestSquaredDistance', i.e. cull them.
  * @param bezierPieces

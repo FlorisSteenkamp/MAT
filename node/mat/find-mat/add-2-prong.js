@@ -7,6 +7,7 @@ const point_on_shape_1 = require("../../point-on-shape");
 const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
 const get_neighboring_cps_1 = require("../get-neighboring-cps");
 /**
+ * @hidden
  * Adds a 2-prong contact circle to the shape.
  * @param cpGraphs
  * @param circle Circle containing the 2 contact points
@@ -19,17 +20,6 @@ const get_neighboring_cps_1 = require("../get-neighboring-cps");
 function add2Prong(cpGraphs, circle, posSource, 
 //posAntipode   : PointOnShape, 
 posAntipodes, holeClosing, extreme) {
-    //console.log(circle.center[0], circle.center[1])
-    /*
-    if (posAntipodes.length > 1) {
-        console.log('>1')
-    }
-    */
-    /*
-    if (circle.center[0] === 241 && circle.center[1] === -342.0764118857498) {
-        return;
-    }
-    */
     let orderSource = point_on_shape_1.PointOnShape.calcOrder(circle, posSource);
     let orderAntipodes = posAntipodes.map(posAntipode => {
         //console.log(circle.center)
@@ -85,14 +75,12 @@ posAntipodes, holeClosing, extreme) {
         deltaAntipodes.push(deltaAntipode);
         newCpAntipodes.push(cp_node_1.CpNode.insert(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]));
     }
-    //console.log(cpAntipode.pointOnShape.t);
     // Source
     let cpSource = new contact_point_1.ContactPoint(posSource, circle, orderSource, 0);
     let loopSource = posSource.curve.loop;
     let cpTreeSource = cpGraphs.get(loopSource);
     let deltaSource = get_neighboring_cps_1.getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
     let newCpSource = cp_node_1.CpNode.insert(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
-    //console.log(cpSource.pointOnShape.t);
     // Connect graph
     if (newCpAntipodes.length === 1) {
         newCpSource.prevOnCircle = newCpAntipodes[0];
@@ -103,9 +91,6 @@ posAntipodes, holeClosing, extreme) {
     else {
         let cpNodes = newCpAntipodes.slice();
         cpNodes.push(newCpSource);
-        // This sometimes didn't work as it compares only according to it's own
-        // loop.
-        //cpNodes.sort(CpNode.comparator);
         // Order points according to their angle with the x-axis
         cpNodes.sort(byAngle(circle));
         for (let i = 0; i < cpNodes.length; i++) {
@@ -152,9 +137,11 @@ posAntipodes, holeClosing, extreme) {
     return newCpSource;
 }
 exports.add2Prong = add2Prong;
+/** @hidden */
 function scale(n, exp) {
     return n * (Math.pow(2, -(exp + 1)));
 }
+/** @hidden */
 function getSize(x, y) {
     // Get size of a
     if (x > 0) {
@@ -184,6 +171,7 @@ function getSize(x, y) {
         }
     }
 }
+/** @hidden */
 function byAngle(circle) {
     let c = circle.center;
     let r = circle.radius;

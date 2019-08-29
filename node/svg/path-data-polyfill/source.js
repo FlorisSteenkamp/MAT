@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const parse_number_1 = require("./parse-number");
+/** @hidden */
 const COMMAND_MAP = {
     "Z": "Z", "M": "M", "L": "L", "C": "C", "Q": "Q", "A": "A", "H": "H", "V": "V", "S": "S", "T": "T",
     "z": "Z", "m": "m", "l": "l", "c": "c", "q": "q", "a": "a", "h": "h", "v": "v", "s": "s", "t": "t"
 };
+/** @hidden */
 class Source {
     constructor(string) {
         this._string = string;

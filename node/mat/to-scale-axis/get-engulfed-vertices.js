@@ -2,9 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const circle_1 = require("../../circle");
 const calc_groups_1 = require("./calc-groups");
+/** @hidden */
 const width = 1620; // TODO change to actual shape coordinates
+/** @hidden */
 const height = 1560; // ...
 /**
+ * @hidden
  * Returns a map of engulfed MAT nodes determined to be engulfed by the given
  * test node and scale factor and starting from the given spacial tree node.
  * @param s The scale factor

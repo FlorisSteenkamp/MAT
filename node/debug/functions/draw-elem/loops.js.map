@@ -1,1 +1,1 @@
-{"version":3,"file":"loops.js","sourceRoot":"","sources":["../../../../src/debug/functions/draw-elem/loops.ts"],"names":[],"mappings":";;AAIA,gBAAgB;AAChB,SAAS,KAAK,CAAC,CAAc,EAAE,KAAa;IACxC,OAAO,EAAE,CAAC;AACd,CAAC;AAGQ,sBAAK"}
+{"version":3,"file":"loops.js","sourceRoot":"","sources":["../../../../src/debug/functions/draw-elem/loops.ts"],"names":[],"mappings":";;AAIA,gBAAgB;AAChB,cAAc;AACd,SAAS,KAAK,CAAC,CAAc,EAAE,KAAa;IACxC,OAAO,EAAE,CAAC;AACd,CAAC;AAGQ,sBAAK"}

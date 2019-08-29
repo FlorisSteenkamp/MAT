@@ -1,6 +1,7 @@
 import { CpNode } from '../cp-node/cp-node';
 import { ContactPoint } from '../contact-point';
 /**
+ * @hidden
  * Note: For debugging only
  * Checks the position of the ContactPoint (cp) on the boundary piece.
  * Returns < 0 if the cp is not on δ, > 0 if it is on the boundary piece

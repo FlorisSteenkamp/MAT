@@ -7,6 +7,7 @@ const two_prong_1 = require("./functions/two-prong");
 const three_prong_1 = require("./functions/three-prong");
 const draw_elem_1 = require("./functions/draw-elem/draw-elem");
 const flo_draw_1 = require("flo-draw");
+/** @hidden */
 class Generated {
     constructor(path, g) {
         this.path = path;
@@ -48,6 +49,7 @@ class Generated {
     }
 }
 exports.Generated = Generated;
+/** @hidden */
 class MatDebug {
     /**
      * @param fs - some useful functions.

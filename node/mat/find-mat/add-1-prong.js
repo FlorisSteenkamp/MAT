@@ -4,6 +4,7 @@ const point_on_shape_1 = require("../../point-on-shape");
 const add_to_cp_graph_1 = require("../add-to-cp-graph");
 const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
 /**
+ * @hidden
  * Add a 1-prong to the MAT.
  * @param cpGraphs
  * @param pos
@@ -26,7 +27,6 @@ function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
         return;
     }
     let circle = point_on_shape_1.PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
-    //console.log(maxOsculatingCircleRadius)
     let order = point_on_shape_1.PointOnShape.calcOrder(circle, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.

@@ -8,6 +8,7 @@ import { Loop } from "../loop/loop";
 import { Circle } from "../circle";
 import { X } from "../x/x";
 import { CpNodeForDebugging } from "./cp-node-for-debugging";
+/** @hidden */
 interface IDebugElems {
     oneProng: PointOnShape;
     oneProngAtDullCorner: PointOnShape;

@@ -3,7 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const calc_groups_1 = require("./calc-groups");
 // DEPTH_LIMIT can be anything from 1 to 16, but from 2 to 6 seem to be the 
 // fastest.
+/** @hidden */
 const DEPTH_LIMIT = 6;
+/**
+ * @hidden
+ * @param s
+ * @param tree
+ * @param coordinate
+ * @param limits
+ * @param circle
+ * @param depth
+ */
 function addToTree(s, tree, coordinate, limits, circle, depth) {
     let { groups, newLimits } = calc_groups_1.calcGroups(s, coordinate, limits, circle);
     // Create new edge if it does not exist yet.

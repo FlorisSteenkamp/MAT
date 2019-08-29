@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * @hidden
  * Spacially divide into 5 special groups as follows:
  *
  *   *******||*******|*******|*******|*******||*******

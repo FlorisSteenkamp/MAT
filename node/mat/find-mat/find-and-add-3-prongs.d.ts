@@ -1,7 +1,8 @@
+import LlRbTree from 'flo-ll-rb-tree';
 import { CpNode } from '../../cp-node/cp-node';
 import { Loop } from '../../loop/loop';
-import LlRbTree from 'flo-ll-rb-tree';
 /**
+ * @hidden
  * Finds and adds all 3-prongs.
  * @param cpGraphs
  * @param cpStart The CpNode to start traversing from.

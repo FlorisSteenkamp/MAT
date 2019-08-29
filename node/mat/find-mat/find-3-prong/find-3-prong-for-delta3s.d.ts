@@ -3,6 +3,7 @@ import { Circle } from '../../../circle';
 import { BezierPiece } from '../../../bezier-piece';
 import { PointOnShape } from '../../../point-on-shape';
 /**
+ * @hidden
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier

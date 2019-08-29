@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * @hidden
  * Returns true if all points in the given array are different, false otherwise.
  * @param ps An array of points.
  */

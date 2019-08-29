@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_draw_1 = require("flo-draw");
+/** @hidden */
 function sharpCorner(g, curve) {
     const scaleFactor = 1;
     let p = curve.ps[curve.ps.length - 1];

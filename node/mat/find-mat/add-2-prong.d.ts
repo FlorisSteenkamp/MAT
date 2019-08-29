@@ -4,6 +4,7 @@ import { CpNode } from '../../cp-node/cp-node';
 import { Circle } from '../../circle';
 import { PointOnShape } from '../../point-on-shape';
 /**
+ * @hidden
  * Adds a 2-prong contact circle to the shape.
  * @param cpGraphs
  * @param circle Circle containing the 2 contact points

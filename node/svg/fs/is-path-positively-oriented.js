@@ -5,6 +5,7 @@ const flo_memoize_1 = require("flo-memoize");
 const curve_1 = require("../../curve");
 const get_loop_bounds_1 = require("./get-loop-bounds");
 /**
+ * @hidden
  * Returns true if the given beizer loop is positively orientated, false
  * otherwise. Careful! Checks leftmost part of loop so twisted complex paths
  * may give an ambiguous orientation.

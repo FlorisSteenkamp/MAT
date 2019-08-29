@@ -4,7 +4,7 @@ const get_best_distance_squared_1 = require("./get-best-distance-squared");
 const cull_by_loose_bounding_box_1 = require("./cull-by-loose-bounding-box");
 const cull_by_tight_boundary_box_1 = require("./cull-by-tight-boundary-box");
 /**
- *
+ * @hidden
  * @param bezierPieces
  * @param p
  * @param extreme

@@ -1,6 +1,7 @@
 import { PointOnShape } from '../../../point-on-shape';
 import { BezierPiece } from '../../../bezier-piece';
 /**
+ * @hidden
  * Find new x and ps that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong
  * circle center.

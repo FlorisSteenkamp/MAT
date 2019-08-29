@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const point_on_shape_1 = require("../../point-on-shape");
+/** @hidden */
 function getPotential2Prongs(possPerLoop) {
     let for2ProngsArray = [];
     for (let poss of possPerLoop) {

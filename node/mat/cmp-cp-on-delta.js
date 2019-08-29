@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const contact_point_1 = require("../contact-point");
 /**
+ * @hidden
  * Note: For debugging only
  * Checks the position of the ContactPoint (cp) on the boundary piece.
  * Returns < 0 if the cp is not on δ, > 0 if it is on the boundary piece

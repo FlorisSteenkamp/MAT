@@ -72,10 +72,10 @@ declare class PointOnShape {
      */
     static isQuiteDullCorner: (a: PointOnShape) => boolean;
     /**
+     * @hidden
      * Calculates the order (to distinguish between points lying on top of each
      * other) of the contact point if it is a dull corner.
      * @param pos
-     * @hidden
      */
     static calcOrder(circle: Circle, pos: PointOnShape): number;
     /**

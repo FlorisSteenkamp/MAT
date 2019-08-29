@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const get_leaves_1 = require("../get-leaves");
 const cp_node_1 = require("../../cp-node/cp-node");
 /**
+ * @hidden
  * Returns the set of Vertices passing the following test: walk the MAT tree and
  * keep all Vertices not in the current cull set and any Vertices that have a
  * non-culled node further down the line toward the tree leaves.

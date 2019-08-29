@@ -4,6 +4,7 @@ import { Loop } from '../../../loop/loop';
 import { Circle } from '../../../circle';
 import { PointOnShape } from '../../../point-on-shape';
 /**
+ * @hidden
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
  *

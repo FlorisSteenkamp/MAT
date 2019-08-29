@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const add_to_tree_1 = require("./add-to-tree");
+/** @hidden */
 const width = 1620; // TODO change to actual shape coordinates
+/** @hidden */
 const height = 1560; // ...
 /**
- *
+ * @hidden
  * @param s
  * @param circles
  */

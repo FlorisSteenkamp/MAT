@@ -5,6 +5,7 @@ const get_min_y_pos_1 = require("../../svg/fs/get-min-y-pos");
 const find_2_prong_1 = require("./find-2-prong/find-2-prong");
 const add_2_prong_1 = require("./add-2-prong");
 /**
+ * @hidden
  * Find and add two-prongs that remove any holes in the shape.
  * @param loops The loops (that as a precondition must be ordered from
  * highest (i.e. smallest y-value) topmost point loops to lowest)
@@ -28,10 +29,6 @@ function findAndAddHoleClosing2Prongs(loops, cpTrees, extreme) {
         // TODO important - handle case of n-prong, i.e. more than one antipode
         // - currently we only handle case of single antipode (the general case)
         let { circle, zs: posAntipodes } = holeClosingTwoProng;
-        //let posAntipode = posAntipodes[0];
-        //let parent = posSource.curve.loop;
-        //let child = posAntipode.pos.curve.loop;
-        //parent.children.push(child);
         add_2_prong_1.add2Prong(cpTrees, circle, posSource, [posAntipodes[0]], true, extreme);
     }
 }

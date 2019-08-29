@@ -12,7 +12,7 @@ const get_sharp_corners_1 = require("./mat/find-mat/get-sharp-corners");
 const find_and_add_2_prongs_on_all_paths_1 = require("./mat/find-mat/find-and-add-2-prongs-on-all-paths");
 const create_get_interesting_points_on_loop_1 = require("./mat/find-mat/create-get-interesting-points-on-loop");
 const find_and_add_hole_closing_2_prongs_1 = require("./mat/find-mat/find-and-add-hole-closing-2-prongs");
-const get_loop_area_1 = require("./get-loop-area");
+const get_loop_area_1 = require("./loop/get-loop-area");
 const normalize_loop_1 = require("./loop/normalize/normalize-loop");
 /**
  * Find the Medial Axis Transforms (MATs) from the given array of bezier loops
@@ -26,13 +26,11 @@ const normalize_loop_1 = require("./loop/normalize/normalize-loop");
  * @param additionalPointCount Additional points per bezier where a MAT circle
  * will be added. Defaults to 3.
  */
-//function findMats(bezierLoops: number[][][][], additionalPointCount = 3) {
 function findMats(bezierLoops, additionalPointCount = 1) {
     if (typeof _debug_ !== 'undefined') {
         let timing = _debug_.generated.timing;
         timing.simplify[0] = performance.now();
     }
-    //loops_.map(loop => console.log(beziersToSvgPathStr(loop.beziers, 3)));
     // We use 14 here since (14+3)*3 = 51 < 53 (signifcand length). In other
     // words if we change a bezier point coordinate to power basis we add
     // three more significant figures at most (due to multiplication by 6) to
@@ -40,11 +38,7 @@ function findMats(bezierLoops, additionalPointCount = 1) {
     // any round-off error.
     //let loops = loops_.map(loop => normalizeLoop(loop, max, 13));
     let loops = normalize_loop_1.normalizeLoops(bezierLoops, 14);
-    //console.log(loops)
-    //loops.map(loop => loop.beziers.map(ps => console.log(ps)))
-    //loops.map(loop => console.log(beziersToSvgPathStr(loop.beziers, 0)));
     let { loopss, xMap } = simplify_paths_1.simplifyPaths(loops);
-    //console.log(loopss[0][0].beziers)
     for (let i = 0; i < loopss.length; i++) {
         let loops = loopss[i].filter(loopHasNonNegligibleArea(0.1));
         loopss[i] = loops;
@@ -65,6 +59,10 @@ function findMats(bezierLoops, additionalPointCount = 1) {
     return mats;
 }
 exports.findMats = findMats;
+/**
+ * @hidden
+ * @param minArea
+ */
 function loopHasNonNegligibleArea(minArea) {
     return (loop) => {
         let area = get_loop_area_1.getLoopArea(loop);
@@ -73,12 +71,12 @@ function loopHasNonNegligibleArea(minArea) {
     };
 }
 /**
+ * @hidden
  * Find the MAT of the given loops.
  * @param loops The loops (that as a precondition must be ordered from highest
  * (i.e. smallest y-value) topmost point loops to lowest)
  * @param xMap Intersection point map.
  * @param additionalPointCount
- * @hidden
  */
 function findPartialMat(loops, xMap, additionalPointCount = 3) {
     let extreme = get_extreme_1.getExtreme(loops);
@@ -98,7 +96,6 @@ function findPartialMat(loops, xMap, additionalPointCount = 3) {
     }
     add_debug_info_1.addDebugInfo2(pointsPerLoop);
     cpNode = find_and_add_2_prongs_on_all_paths_1.findAndAdd2ProngsOnAllPaths(loops, cpTrees, for2ProngsPerLoop, extreme);
-    //console.log(cpNode)
     add_debug_info_1.addDebugInfo3();
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterTwoProngs) {

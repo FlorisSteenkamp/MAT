@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const get_leaves_1 = require("../get-leaves");
 const cp_node_1 = require("../../cp-node/cp-node");
 /**
+ * @hidden
  * Cull all edges not part of a cycle in the MAT planar graph.
  * @param cpStart The start CpNode which must reprsesent the maximal 3-prong
  * vertex.

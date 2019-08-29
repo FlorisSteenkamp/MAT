@@ -4,7 +4,7 @@ import { Circle } from '../circle';
 import { PointOnShape } from '../point-on-shape';
 import { CpNode } from '../cp-node/cp-node';
 /**
- *
+ * @hidden
  * @param circle
  * @param orders
  * @param cpTrees

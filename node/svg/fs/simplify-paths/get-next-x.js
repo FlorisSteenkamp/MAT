@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- *
+ * @hidden
  * @param xs An array of intersections on the curve
  * @param curT The current t value
  * @param forwards If true go forwards else go backwards
@@ -24,7 +24,7 @@ function getNextX(xs, curT, forwards, wasOnX) {
 }
 exports.getNextX = getNextX;
 /**
- *
+ * @hidden
  * @param xs An array of intersections on the curve
  * @param t The current t value
  */

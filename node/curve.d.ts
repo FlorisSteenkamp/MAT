@@ -25,6 +25,7 @@ declare class Curve {
      */
     constructor(loop: Loop, ps: number[][], prev: Curve, next: Curve, idx: number);
     /**
+     * @hidden
      * Returns information about the corner created at the end of this curve
      * (at t === 1) and the start of the next curve (at t === 0).
      * @param curve The relevant [[Curve]].
@@ -32,6 +33,7 @@ declare class Curve {
     static getCornerAtEnd(curve: Curve): Corner;
 }
 /**
+ * @hidden
  * Returns a new corner with properties.
  *
  * PRECONDITION: The beziers has control points with max bit-length of 26 and

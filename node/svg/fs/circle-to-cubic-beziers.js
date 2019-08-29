@@ -1,6 +1,9 @@
 "use strict";
+// TODO - move to another library
 Object.defineProperty(exports, "__esModule", { value: true });
+/** @hidden */
 const C = 0.55191502449;
+/** @hidden */
 function circleToCubicBeziers(center = [0, 0], radius, clockwise = false) {
     let x = center[0];
     let y = center[1];

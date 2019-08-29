@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const circle_1 = require("../../../circle");
 const flo_draw_1 = require("flo-draw");
+/** @hidden */
 const scaleFactor = 0.3;
+/** @hidden */
 function threeProng(g, threeProng) {
     let circle = circle_1.Circle.scale(threeProng.circle, 1);
     let poss = threeProng.poss;

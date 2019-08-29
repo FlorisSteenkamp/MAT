@@ -1,5 +1,6 @@
 import { PathState } from '../path-state';
 /**
+ * @hidden
  * Z and z: (from www.w3.org)
  *
  * params: (none)

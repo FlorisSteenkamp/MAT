@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const point_on_shape_1 = require("../../../point-on-shape");
 const circle_1 = require("../../../circle");
 const flo_draw_1 = require("flo-draw");
+/** @hidden */
 const scaleFactor = 0.5;
+/** @hidden */
 function drawOneProng(g, pos) {
     let circle = circle_1.Circle.scale(point_on_shape_1.PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos), 1);
     let $center = flo_draw_1.drawFs.dot(g, pos.p, 0.1 * scaleFactor, 'gray');

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const add_to_cp_graph_1 = require("../add-to-cp-graph");
 const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
 /**
+ * @hidden
  * Adds a 3-prong MAT circle according to the 3 given (previously calculated)
  * points on the shape.
  * @param cpTrees

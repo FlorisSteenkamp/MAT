@@ -55,10 +55,10 @@ class PointOnShape {
         return new circle_1.Circle(circleCenter, radius);
     }
     /**
+     * @hidden
      * Calculates the order (to distinguish between points lying on top of each
      * other) of the contact point if it is a dull corner.
      * @param pos
-     * @hidden
      */
     static calcOrder(circle, pos) {
         if (!PointOnShape.isCorner(pos)) {

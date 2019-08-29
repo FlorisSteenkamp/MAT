@@ -1,5 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @hidden
+ * @param sat
+ */
 function addDebugInfo(sat) {
     if (typeof _debug_ === 'undefined') {
         return;

@@ -5,7 +5,7 @@ const complete_loop_1 = require("./complete-loop");
 const get_initial_x_1 = require("./get-initial-x");
 const get_loop_metrics_1 = require("./get-loop-metrics");
 /**
- *
+ * @hidden
  * @param intersections
  * @param loopsTaken
  * @param loop
@@ -32,7 +32,7 @@ function completePath(intersections, loopsTaken, parent, loop) {
         }
         let loopTree = get_loop_metrics_1.getLoopMetrics(x);
         loopTree.beziers = complete_loop_1.completeLoop(intersections, takenXs, xStack, loopTree, x);
-        loopTree.loop = loop_1.Loop.fromCubicBeziers(loopTree.beziers);
+        loopTree.loop = new loop_1.Loop(loopTree.beziers);
     }
 }
 exports.completePath = completePath;

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const arc_to_cubic_curves_1 = require("./arc-to-cubic-curves");
 /**
+ * @hidden
  * Takes path data that consists only from absolute commands and returns path
  * data that consists only from "M", "L", "C" and "Z" commands.
  */

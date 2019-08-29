@@ -1,5 +1,6 @@
 import { PathState } from '../path-state';
 /**
+ * @hidden
  * H and h: (from www.w3.org)
  *
  * params: x

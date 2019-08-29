@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 const flo_vector2d_1 = require("flo-vector2d");
 /**
+ * @hidden
  * Finds an initial distance such that the closest point can not be further than
  * this distance away.
  */
@@ -20,6 +21,7 @@ function getBestDistanceSquared(bezierPieces, p) {
         }
     }
     // The extra multiplier is to account for floating point precision.
+    // TODO - remove delta (or base it on theory)
     return bestSquaredDistance * 1.01;
 }
 exports.getBestDistanceSquared = getBestDistanceSquared;

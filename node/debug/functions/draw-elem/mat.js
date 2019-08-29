@@ -2,7 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const traverse_edges_1 = require("../../../traverse-edges");
 const flo_draw_1 = require("flo-draw");
-const smoothen_1 = require("../../../mat/smoothen/smoothen");
+const get_curve_to_next_1 = require("../../../get-curve/get-curve-to-next");
+/** @hidden */
 function drawMat(type) {
     let classes = type === 'mat'
         ? 'thin5 purple nofill'
@@ -12,14 +13,6 @@ function drawMat(type) {
         if (!cpNode) {
             return undefined;
         }
-        // TODO - remove - testing
-        /*while (!cpNode.isTerminating()) {
-            cpNode = cpNode.next;
-        }*/
-        /*
-        drawFs.dot(g, cpNode.cp.pointOnShape.p, 1)
-        drawFs.dot(g, cpNode.cp.circle.center, 2)
-        */
         let $svgs = [];
         let i = 0;
         traverse_edges_1.traverseEdges(cpNode, cpNode => {
@@ -27,7 +20,7 @@ function drawMat(type) {
                 return;
             }
             //let bezier = cpNode.matCurveToNextVertex;
-            let bezier = smoothen_1.getCurveToNext(cpNode);
+            let bezier = get_curve_to_next_1.getCurveToNext(cpNode);
             if (!bezier) {
                 return;
             }

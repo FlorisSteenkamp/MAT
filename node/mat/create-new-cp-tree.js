@@ -2,6 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_ll_rb_tree_1 = require("flo-ll-rb-tree");
 const cp_node_1 = require("../cp-node/cp-node");
+/**
+ * @hidden
+ * @param cpNode
+ */
 function createNewCpTree(cpNode) {
     let newCpTrees = new Map();
     let cps = cpNode.getAllOnLoop();

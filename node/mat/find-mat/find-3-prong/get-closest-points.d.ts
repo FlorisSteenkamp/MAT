@@ -1,7 +1,7 @@
 import { PointOnShape } from '../../../point-on-shape';
 import { BezierPiece } from '../../../bezier-piece';
 /**
- *
+ * @hidden
  * @param x
  * @param bezierPiece3s
  * @param extreme

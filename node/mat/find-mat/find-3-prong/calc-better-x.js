@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 const get_closest_points_1 = require("./get-closest-points");
 /**
+ * @hidden
  * Find new x and ps that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong
  * circle center.
@@ -24,7 +25,6 @@ function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
         let shift = flo_vector2d_1.scale(vectorToZeroV, nu);
         newX = flo_vector2d_1.translate(shift, x);
         newPs = get_closest_points_1.getClosestPoints(newX, bezierPiece3s);
-        //console.log(newPs.map(pos => '' + pos.p[0] + ' ' + pos.p[1]))
         // Point of zero V
         let newCircleCenter = flo_vector2d_1.circumCenter(newPs.map(pos => pos.p));
         let newVectorToZeroV = flo_vector2d_1.fromTo(newX, newCircleCenter);

@@ -5,6 +5,7 @@ const point_on_shape_1 = require("../../point-on-shape");
 const cull_bezier_pieces_1 = require("./cull-bezier-pieces");
 const closest_point_on_curve_1 = require("./closest-point-on-curve");
 /**
+ * @hidden
  * Returns the closest boundary point to the given point, limited to the given
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces

@@ -3,6 +3,7 @@ import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
 import { CpNode } from '../../cp-node/cp-node';
 /**
+ * @hidden
  * Add a 1-prong to the MAT.
  * @param cpGraphs
  * @param pos

@@ -4,6 +4,7 @@ const get_neighboring_cps_1 = require("../../get-neighboring-cps");
 const get_boundary_piece_beziers_1 = require("../../get-boundary-piece-beziers");
 const bezier_piece_1 = require("../../../bezier-piece");
 const point_on_shape_1 = require("../../../point-on-shape");
+/** @hidden */
 function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
     let bezierPieces;
     let δ;
@@ -16,7 +17,6 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
         }
     }
     else {
-        //aaa y.curve
         let order = point_on_shape_1.PointOnShape.isDullCorner(y)
             ? y.t === 1 ? -1 : +1
             : 0;

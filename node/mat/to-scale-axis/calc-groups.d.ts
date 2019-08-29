@@ -1,5 +1,6 @@
 import { Circle } from '../../circle';
 /**
+ * @hidden
  * Spacially divide into 5 special groups as follows:
  *
  *   *******||*******|*******|*******|*******||*******

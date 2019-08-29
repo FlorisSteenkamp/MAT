@@ -4,6 +4,7 @@ import { Loop } from '../../loop/loop';
 import { Circle } from '../../circle';
 import { PointOnShape } from '../../point-on-shape';
 /**
+ * @hidden
  * Adds a 3-prong MAT circle according to the 3 given (previously calculated)
  * points on the shape.
  * @param cpTrees

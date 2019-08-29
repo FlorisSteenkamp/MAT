@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // TODO - finish
+/** @hidden */
 function loop(g, loop) {
     /*
     for (let curve of loop.curves) {

@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
-const Vector = require("flo-vector2d");
-const smoothen_1 = require("./mat/smoothen/smoothen");
+const flo_vector2d_1 = require("flo-vector2d");
+const get_curve_to_next_1 = require("./get-curve/get-curve-to-next");
+/** @hidden */
 const defaultTolerance = 1; // 1 degree
 /**
  * Traverses all edges (depth first) of the given MAT tree starting at the given
@@ -51,10 +52,10 @@ function getBranches(cpNode, tolerance = defaultTolerance) {
             cps.push(...children);
             continue;
         }
-        let backPointingTan = flo_bezier3_1.tangent(smoothen_1.getCurveToNext(cp.next.prevOnCircle), 0);
-        let forwardPointingTan = flo_bezier3_1.tangent(smoothen_1.getCurveToNext(children[0]), 0);
-        let cross = Vector.cross(backPointingTan, forwardPointingTan);
-        let angle = Math.abs(Math.asin(cross) * (180 / Math.PI));
+        let backPointingTan = flo_bezier3_1.tangent(get_curve_to_next_1.getCurveToNext(cp.next.prevOnCircle), 0);
+        let forwardPointingTan = flo_bezier3_1.tangent(get_curve_to_next_1.getCurveToNext(children[0]), 0);
+        let cross_ = flo_vector2d_1.cross(backPointingTan, forwardPointingTan);
+        let angle = Math.abs(Math.asin(cross_) * (180 / Math.PI));
         if (angle > tolerance) {
             branches.push(branchCpNodes);
             branchCpNodes = [];

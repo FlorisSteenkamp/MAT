@@ -14,32 +14,8 @@ declare class Loop {
      */
     readonly head: Curve;
     /**
-     * @param beziers - A pre-ordered array of bezier curves to add initially.
-     * @param children - Child loops connected via hole closers
+     * @param beziers A pre-ordered array of bezier curves to add initially.
      */
     constructor(beziers?: number[][][]);
-    /**
-     * Returns the loop as an array of beziers.
-     */
-    toBeziers(): number[][][];
-    /**
-     * Creates and returns a [[Loop]] from the given array of cubic beziers.
-     * @param beziers An array of cubic beziers.
-     */
-    static fromCubicBeziers(beziers?: number[][][]): Loop;
-    /**
-     * Perturbs the loop. Not used.
-     * @param loop
-     * @param x
-     * @hidden
-     */
-    static perturb(loop: Loop, x: number): Loop;
-    /**
-     * reduceSignificands of the loop. Not used.
-     * @param loop
-     * @param x
-     * @hidden
-     */
-    static toGrid(loop: Loop, max: number, significantFigures: number): Loop;
 }
 export { Loop };

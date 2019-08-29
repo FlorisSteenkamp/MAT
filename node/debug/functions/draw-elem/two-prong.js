@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const get_two_prong_type_1 = require("../../../mat/get-two-prong-type");
 const flo_draw_1 = require("flo-draw");
+/** @hidden */
 function twoProng(g, twoProng) {
-    //let scaleFactor = width/200;		
     let scaleFactor = 0.3;
     let $failedDot = [];
     let $center = [];

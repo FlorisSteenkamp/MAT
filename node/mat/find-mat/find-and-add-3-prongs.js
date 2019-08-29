@@ -4,6 +4,7 @@ const point_on_shape_1 = require("../../point-on-shape");
 const find_3_prong_1 = require("./find-3-prong/find-3-prong");
 const add_3_prong_1 = require("../find-mat/add-3-prong");
 /**
+ * @hidden
  * Finds and adds all 3-prongs.
  * @param cpGraphs
  * @param cpStart The CpNode to start traversing from.
@@ -31,6 +32,7 @@ function findAndAddAll3Prongs(cpGraphs, cpStart, extreme) {
 }
 exports.findAndAddAll3Prongs = findAndAddAll3Prongs;
 /**
+ * @hidden
  * Marks the given edge as already taken.
  */
 function markEdgeAsTaken(visitedEdges, cp1, cp2) {
@@ -48,6 +50,7 @@ function markEdgeAsTaken(visitedEdges, cp1, cp2) {
         visited.add(cp2);
     }
 }
+/** @hidden */
 function hasEdgeBeenTaken(visitedEdges, cp1, cp2) {
     let cps;
     cps = visitedEdges.get(cp1);
@@ -57,6 +60,7 @@ function hasEdgeBeenTaken(visitedEdges, cp1, cp2) {
     return takenForward || takenBackwards;
 }
 /**
+ * @hidden
  * Traverses the shape from the given ContactPoint going around contact circles
  * so that only a piece of the shape is traversed and returns the visited
  * CpNodes (starting from the given CpNode).
@@ -78,6 +82,7 @@ function traverseShape(cpStart) {
     return visitedCps;
 }
 /**
+ * @hidden
  * Starting from some ContactPoint, traverses the shape going around Vertices
  * and if more than two Vertices have been visited in total then recursively
  * adds 3-prongs until only one or two Vertices have been visited.
@@ -99,6 +104,7 @@ function findAndAdd3Prongs(cpGraphs, cpStart, extreme) {
     return visitedCps;
 }
 /**
+ * @hidden
  * Finds and add a 3-prong MAT circle to the given shape.
  * @param cpGraphs
  * @param visitedCps
@@ -120,6 +126,7 @@ function findAndAdd3Prong(cpGraphs, visitedCps, extreme) {
         add3ProngDebugInfo(circle, visitedCps);
     }
 }
+/** @hidden */
 function add3ProngDebugInfo(circle, visitedCps) {
     let threeProngs = _debug_.generated.elems.threeProng;
     let len = threeProngs.length;

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 const get_next_x_1 = require("./get-next-x");
+/** @hidden */
 function completeLoop(intersections, takenXs, xStack, loopTree, x) {
     let beziers = [];
     let reversed = (loopTree.windingNum === 0 && loopTree.orientation === -1) ||
@@ -62,6 +63,7 @@ function completeLoop(intersections, takenXs, xStack, loopTree, x) {
     return beziers;
 }
 exports.completeLoop = completeLoop;
+/** @hidden */
 function addXOutPs(reversed, fromX, ps) {
     if (fromX && !fromX.isDummy) {
         let x = reversed ? fromX : fromX.opposite;

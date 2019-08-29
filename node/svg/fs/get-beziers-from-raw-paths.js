@@ -10,6 +10,7 @@ const v_1 = require("../path-segment/v");
 const q_1 = require("../path-segment/q");
 const t_1 = require("../path-segment/t");
 const a_1 = require("../path-segment/a");
+/** @hidden */
 const pathFs = {
     a: a_1.a,
     c: // elliptical arc
@@ -30,6 +31,7 @@ const pathFs = {
     z_1.z // close path
 };
 /**
+ * @hidden
  * Returns order 1, 2 and 3 beziers from the given SVG DOM element. If a path
  * data tag is not "C, Q or L, etc", i.e. if it is not an absolute bezier
  * coordinate then it is converted into one.

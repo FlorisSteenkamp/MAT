@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
 const curve_1 = require("../../curve");
+/** @hidden */
 function addDebugInfo1(loops) {
     if (typeof _debug_ === 'undefined') {
         return;
@@ -23,13 +24,6 @@ function addDebugInfo1(loops) {
             generated.elems.looseBoundingBox.push(looseBoundingBox);
             let tightBoundingBox = flo_bezier3_1.getBoundingBoxTight(ps);
             generated.elems.tightBoundingBox.push(tightBoundingBox);
-            /*
-            if (PointOnShape.isSharpCorner(pos)) {
-                generated.elems.sharpCorner.push(pos);
-            } else if (PointOnShape.isDullCorner(pos)) {
-                generated.elems.dullCorner.push(pos);
-            }
-            */
             let corner = curve_1.Curve.getCornerAtEnd(curve);
             if (corner.isSharp) {
                 generated.elems.sharpCorner.push(curve);
@@ -42,6 +36,7 @@ function addDebugInfo1(loops) {
     }
 }
 exports.addDebugInfo1 = addDebugInfo1;
+/** @hidden */
 function addDebugInfo2(pointOnShapeArrPerLoop) {
     if (typeof _debug_ === 'undefined') {
         return;

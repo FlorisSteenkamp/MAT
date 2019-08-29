@@ -7,6 +7,7 @@ const flo_bezier3_1 = require("flo-bezier3");
 const sweep_line_1 = require("../../sweep-line/sweep-line");
 const in_same_k_family_and_maybe_intersecting_1 = require("./in-same-k-family-and-maybe-intersecting");
 /**
+ * @hidden
  * Returns loops that is the result of putting the given loops in general
  * position (loosely speaking). The modifications to the input loop should be
  * such that no discernable visual changes occur.
@@ -22,11 +23,11 @@ const in_same_k_family_and_maybe_intersecting_1 = require("./in-same-k-family-an
  * (non-strict) increasing (or decreasing) function of its parameter)
  * * TODO - All curves are y-monotone (i.e. the y-coordinate of any bezier curve is a
  * (non-strict) increasing (or decreasing) function of its parameter)
- * * TODO - No two bezier curves are in the same K-family (i.e. the same curve when the
+ * * No two bezier curves are in the same K-family (i.e. the same curve when the
  * parameter can vary in [-inf, +inf]) unless they are non-intersecting.
  * * TODO - no bezier cusps
  * * TODO - no bezier self-intersections (including single bezier closed loops)
- * * TODO !!IMPORTANT!! No self-intersections at infinitely many points, i.e.
+ * * No self-intersections at infinitely many points, i.e.
  * where the curve goes back on itself.
  *
  * This gives us some good guarantees for the rest of the algorithm. In
@@ -98,6 +99,7 @@ function normalizeLoops(bezierLoops, maxBitLength) {
 }
 exports.normalizeLoops = normalizeLoops;
 /**
+ * @hidden
  * Returns a new point by moving the previous point in a predictably random
  * direction
  * @param p A point
@@ -123,10 +125,12 @@ function movePointInRandomDirection(p, seed_, gridSpacing) {
     }
     return { p: p_, seed };
 }
+/** @hidden */
 function replacePoint(ps, p, idx) {
     return ps.map((p_, i) => i === idx ? p : p_);
 }
 /**
+ * @hidden
  * Returns a random number from 0 to upTo
  * @param v A number in [0,1)
  */
@@ -136,30 +140,32 @@ function randomInt(seed, upTo) {
     return { v, seed };
 }
 /**
+ * @hidden
  * Some seed value for the simple random number generator.
- * @ignore
  */
 const SEED = 123456789;
 /**
+ * @hidden
  * The range for the simple random number generator, i.e. the generated
  * numbers will be in [0,RANGE].
- * @ignore
  */
 const RANGE = 4294967296;
 /**
+ * @hidden
  * Returns a quasi-random number to be used as the next input to this function.
  * See https://stackoverflow.com/a/3062783
- * @private
  * @param seed
  */
 function predictiveRandom(seed = SEED) {
     const a = 134775813;
     return (a * seed + 1) % RANGE;
 }
+/** @hidden */
 function getLeftmost(ps) {
     let bounds = flo_bezier3_1.getBounds(ps);
     return bounds.box[0][0];
 }
+/** @hidden */
 function getRightmost(ps) {
     let bounds = flo_bezier3_1.getBounds(ps);
     return bounds.box[1][0];

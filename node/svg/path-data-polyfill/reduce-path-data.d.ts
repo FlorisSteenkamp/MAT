@@ -1,4 +1,5 @@
 /**
+ * @hidden
  * Takes path data that consists only from absolute commands and returns path
  * data that consists only from "M", "L", "C" and "Z" commands.
  */

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * @hidden
  * S and s: (from www.w3.org)
  *
  * params: x2 y2 x y

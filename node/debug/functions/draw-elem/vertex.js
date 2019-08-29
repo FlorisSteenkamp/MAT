@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_draw_1 = require("flo-draw");
+/** @hidden */
 function vertex(g, cpNode, visible = true, displayDelay) {
     let visibleClass = visible ? '' : ' invisible';
     let circle = cpNode.cp.circle;

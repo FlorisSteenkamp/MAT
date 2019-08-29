@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/** @hidden */
 function getTwoProngType(e) {
     if (e.holeClosing) {
         return 'twoProng_holeClosing';

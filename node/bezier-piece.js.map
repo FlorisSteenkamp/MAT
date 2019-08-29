@@ -1,1 +1,1 @@
-{"version":3,"file":"bezier-piece.js","sourceRoot":"","sources":["../src/bezier-piece.ts"],"names":[],"mappings":";;AAGA;;GAEG;AACH,MAAM,WAAW;IACb;;;OAGG;IACH,YACe,KAAY,EACZ,EAAY;QADZ,UAAK,GAAL,KAAK,CAAO;QACZ,OAAE,GAAF,EAAE,CAAU;IAC3B,CAAC;CACJ;AAGQ,kCAAW"}
+{"version":3,"file":"bezier-piece.js","sourceRoot":"","sources":["../src/bezier-piece.ts"],"names":[],"mappings":";;AAIA;;GAEG;AACH,MAAM,WAAW;IACb;;;OAGG;IACH,YACe,KAAY,EACZ,EAAY;QADZ,UAAK,GAAL,KAAK,CAAO;QACZ,OAAE,GAAF,EAAE,CAAU;IAC3B,CAAC;CACJ;AAGQ,kCAAW"}

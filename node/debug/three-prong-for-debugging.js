@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const point_on_shape_1 = require("../point-on-shape");
 /**
+ * @hidden
  * Class used in debugging. A three-prong is a maximally inscribed circle that
  * touches the shape boundary (tangentially) at 3 points.
  */

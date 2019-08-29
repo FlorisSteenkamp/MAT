@@ -4,6 +4,7 @@ import { CpNode } from "../cp-node/cp-node";
 import { PointOnShape } from "../point-on-shape";
 import { Circle } from "../circle";
 /**
+ * @hidden
  * Returns true if another CpNode is close to the given implied (via pos, order
  * and order2) CpNode.
  * @param cpTrees

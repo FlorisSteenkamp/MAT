@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 /**
- *
+ * @hidden
  */
 function getClosestSquareDistanceToRect(box, p) {
     let [[x0, y0], [x1, y1]] = box;

@@ -1,4 +1,5 @@
 /**
+ * @hidden
  * Returns the grid-aligned loop derived from the given input loop.
  *
  * Also ensures that:

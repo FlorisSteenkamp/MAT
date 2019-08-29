@@ -3,6 +3,7 @@ import { Loop } from '../../loop/loop';
 import { CpNode } from '../../cp-node/cp-node';
 import { PointOnShape } from '../../point-on-shape';
 /**
+ * @hidden
  * Creates the initial ContactPoint loops from the given sharp corners.
  * @param shape
  * @param sharpCornerss
