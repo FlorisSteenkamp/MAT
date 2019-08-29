@@ -7,12 +7,15 @@ import { lineLineIntersection } from '../mat/geometry/line-line-intersection';
 import { getEdgeDirection } from './get-edge-direction';
 
 
+/** @hidden */
 const TOLERANCE_ADD_2PRONG = 0.01;
+/** @hidden */
 const TOLERANCE_USE_LINE = 0.0001; // else cubic
 
 
 /**
- * 
+ * Returns the bezier curve from the maximal disk of one [[CpNode]] to another
+ * [[CpNode]]'s maximal disk.
  * @param cpNodeFrom 
  * @param cpNodeTo 
  */

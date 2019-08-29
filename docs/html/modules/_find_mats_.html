@@ -85,13 +85,13 @@
 					<a name="findmats" class="tsd-anchor"></a>
 					<h3>find<wbr>Mats</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">find<wbr>Mats<span class="tsd-signature-symbol">(</span>bezierLoops<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span>, additionalPointCount<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_mat_.mat.html" class="tsd-signature-type">Mat</a><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">find<wbr>Mats<span class="tsd-signature-symbol">(</span>bezierLoops<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span>, maxFlatness<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, maxLength<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_mat_.mat.html" class="tsd-signature-type">Mat</a><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43cdda7/src/find-mats.ts#L36">find-mats.ts:36</a></li>
+									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/c4e0bc1/src/find-mats.ts#L43">find-mats.ts:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -114,10 +114,22 @@
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> additionalPointCount: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;1</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> maxFlatness: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;1.01</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Additional points per bezier where a MAT circle
-										will be added. Defaults to 3.</p>
+										<p>The maximum value the flatness of a curve can have before
+											an additional MAT point is added in between. Defaults to 1.01. (Flatness is
+											measured as the total distance between control points of a curve divided by
+											the length of the curve. The value cannot be lower than 1.001 and must be
+										less than 2.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> maxLength: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;10</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The maximum length a curve can have before an additional MAT
+											point is added in between. Together with maxFlatness it represents a
+											tolerance for the accuracy of the MAT. Defaults to 10. The value cannot be
+										lower than 1 or higher than 1000.</p>
 									</div>
 								</li>
 							</ul>

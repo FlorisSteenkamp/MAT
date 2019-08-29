@@ -1,6 +1,6 @@
 import LlRbTree from 'flo-ll-rb-tree';
-import { ContactPoint } from './src/contact-point';
-import { removeCpNode } from './src/cp-node/remove';
+import { ContactPoint } from './contact-point';
+import { removeCpNode } from './cp-node/remove';
 /**
  * The primary class of the library.
  *
@@ -75,6 +75,14 @@ declare class CpNode {
      * the inscribed circle defined by the maximal disk).
      */
     constructor(cp: ContactPoint, isHoleClosing: boolean, isIntersection: boolean, prev?: CpNode, next?: CpNode, prevOnCircle?: CpNode, nextOnCircle?: CpNode);
+    /**
+     * Returns the bezier curve from the maximal disk of this [[CpNode]] to the
+     * next [[CpNode]]'s maximal disk and thus directly represents a piece of the
+     * medial axis.
+     * @deprecated Use [[getCurveToNext]] instead
+     * @param cpNode
+     */
+    readonly matCurveToNextVertex: number[][];
     /**
      * Primarily for internal use.
      *

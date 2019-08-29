@@ -1,1 +1,0 @@
-{"version":3,"file":"loose-bounding-box.js","sourceRoot":"","sources":["../../../../../src/debug/functions/draw-elem/loose-bounding-box.ts"],"names":[],"mappings":";;AACA,uCAAkC;AAGlC,cAAc;AACd,SAAS,gBAAgB,CAAC,CAAc,EAAE,GAAe;IACxD,IAAI,IAAI,GAAG,iBAAM,CAAC,IAAI,CAAC,CAAC,EAAE,GAAG,EAAE,oBAAoB,CAAC,CAAC;IAErD,OAAO,IAAI,CAAC;AACb,CAAC;AAGQ,4CAAgB"}

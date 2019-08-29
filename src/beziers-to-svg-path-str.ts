@@ -21,13 +21,25 @@
                 ps[0][1].toFixed(D) + '\n';
         }
         
-        str += 'C ' + 
+        if (ps.length === 4) {
+            str += 'C ' + 
             ps[1][0].toFixed(D) + ' ' + 
             ps[1][1].toFixed(D) + ' ' +
             ps[2][0].toFixed(D) + ' ' + 
             ps[2][1].toFixed(D) + ' ' +
             ps[3][0].toFixed(D) + ' ' + 
             ps[3][1].toFixed(D) + ' ' + '\n';
+        } else if (ps.length === 3) {
+            str += 'Q ' + 
+            ps[1][0].toFixed(D) + ' ' + 
+            ps[1][1].toFixed(D) + ' ' +
+            ps[2][0].toFixed(D) + ' ' + 
+            ps[2][1].toFixed(D) + ' ' + '\n';
+        } else if (ps.length === 2) {
+            str += 'L ' + 
+            ps[1][0].toFixed(D) + ' ' + 
+            ps[1][1].toFixed(D) + ' ' + '\n';
+        }
     }
 
 

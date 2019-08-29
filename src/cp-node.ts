@@ -3,12 +3,11 @@
 declare var _debug_: MatDebug; 
 
 import { MatDebug } from './debug/debug';
-
 import LlRbTree from 'flo-ll-rb-tree';
-
 import { ContactPoint } from './contact-point';
 import { CpNodeForDebugging } from './debug/cp-node-for-debugging';
 import { removeCpNode } from './cp-node/remove';
+import { getCurveToNext } from './get-curve-to-next';
 
 
 /**
@@ -86,6 +85,18 @@ class CpNode {
 			public next           : CpNode = undefined,
 			public prevOnCircle   : CpNode = undefined,
 			public nextOnCircle   : CpNode = undefined) {
+	}
+
+
+	/**
+	 * Returns the bezier curve from the maximal disk of this [[CpNode]] to the 
+	 * next [[CpNode]]'s maximal disk and thus directly represents a piece of the 
+	 * medial axis.
+	 * @deprecated Use [[getCurveToNext]] instead
+	 * @param cpNode 
+	 */
+	get matCurveToNextVertex() {
+		return getCurveToNext(this);
 	}
 
 

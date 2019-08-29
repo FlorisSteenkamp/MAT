@@ -1,0 +1,1 @@
+{"version":3,"file":"get-edges-as-array.js","sourceRoot":"","sources":["../../src/mat/get-edges-as-array.ts"],"names":[],"mappings":";;AAEA,sDAAkD;AAGlD,cAAc;AACd,SAAS,eAAe,CAAC,MAAc;IACtC,IAAI,OAAO,GAAa,EAAE,CAAC;IAE3B,8BAAa,CACZ,MAAM,EACN,UAAS,MAAM,IAAI,OAAO,CAAC,IAAI,CAAC,MAAM,CAAC,CAAA,CAAC,CAAC,CACzC,CAAC;IAEF,OAAO,OAAO,CAAC;AAChB,CAAC;AAGQ,0CAAe"}

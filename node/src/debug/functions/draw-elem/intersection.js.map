@@ -1,1 +1,0 @@
-{"version":3,"file":"intersection.js","sourceRoot":"","sources":["../../../../../src/debug/functions/draw-elem/intersection.ts"],"names":[],"mappings":";;AACA,+DAA0D;AAI1D,cAAc;AACd,SAAS,YAAY,CAAC,CAAc,EAAE,CAAI;IACtC,OAAO,CAAC,uCAAiB,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,EAAE,GAAG,EAAE,qBAAqB,CAAC,CAAC,CAAC;AACvE,CAAC;AAGQ,oCAAY"}

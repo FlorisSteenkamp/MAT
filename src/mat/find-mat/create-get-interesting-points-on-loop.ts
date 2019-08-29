@@ -12,10 +12,11 @@ import { PointOnShape } from '../../point-on-shape';
  * @param loop
  * @param additionalPointCount 
  */
-function createGetInterestingPointsOnLoop(additionalPointCount = 3) {
+function createGetInterestingPointsOnLoop(
+        maxFlatness = 1.001,
+        maxLength = 10) {
 
     return function(loop: Loop) {
-
         let allPoints: PointOnShape[] = [];
 
         for (let i=0; i<loop.curves.length; i++) {
@@ -32,7 +33,7 @@ function createGetInterestingPointsOnLoop(additionalPointCount = 3) {
                 ...maxNegativeCurvatures
             );
 
-            let ts = splitByCurvatureAndLength(curve.ps, 1.001, 10);
+            let ts = splitByCurvatureAndLength(curve.ps, maxFlatness, maxLength);
             if (ts.length === 2) {
                 ts = [0, 0.5, 1];
             }

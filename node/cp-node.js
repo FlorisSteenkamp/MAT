@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const contact_point_1 = require("./src/contact-point");
-const cp_node_for_debugging_1 = require("./src/debug/cp-node-for-debugging");
-const remove_1 = require("./src/cp-node/remove");
+const contact_point_1 = require("./contact-point");
+const cp_node_for_debugging_1 = require("./debug/cp-node-for-debugging");
+const remove_1 = require("./cp-node/remove");
+const get_curve_to_next_1 = require("./get-curve-to-next");
 /**
  * The primary class of the library.
  *
@@ -77,6 +78,16 @@ class CpNode {
         this.next = next;
         this.prevOnCircle = prevOnCircle;
         this.nextOnCircle = nextOnCircle;
+    }
+    /**
+     * Returns the bezier curve from the maximal disk of this [[CpNode]] to the
+     * next [[CpNode]]'s maximal disk and thus directly represents a piece of the
+     * medial axis.
+     * @deprecated Use [[getCurveToNext]] instead
+     * @param cpNode
+     */
+    get matCurveToNextVertex() {
+        return get_curve_to_next_1.getCurveToNext(this);
     }
     /**
      * Returns the children of this [[CpNode]] when seen as a MAT edge. Only

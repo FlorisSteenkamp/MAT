@@ -30,12 +30,30 @@ import { normalizeLoops } from './loop/normalize/normalize-loop';
  * points with 2,3 or 4 elements corresponding to linear, quadratic and cubic 
  * beziers respectively. Each point is a two-element array (ordered pair), the
  * first of which is the x-coordinate and the second the y-coordinate.
- * @param additionalPointCount Additional points per bezier where a MAT circle
- * will be added. Defaults to 3.
+ * @param maxFlatness The maximum value the flatness of a curve can have before
+ * an additional MAT point is added in between. Defaults to 1.01. (Flatness is
+ * measured as the total distance between control points of a curve divided by
+ * the length of the curve. The value cannot be lower than 1.001 and must be
+ * less than 2.
+ * @param maxLength The maximum length a curve can have before an additional MAT 
+ * point is added in between. Together with maxFlatness it represents a 
+ * tolerance for the accuracy of the MAT. Defaults to 10. The value cannot be 
+ * lower than 1 or higher than 1000.
  */
 function findMats(
 		bezierLoops: number[][][][], 
-		additionalPointCount = 1) {
+		maxFlatness = 1.01,
+        maxLength = 10) {
+
+	// Limit the tolerance to a reasonable level
+	if (maxFlatness < 1.001 || maxFlatness >= 2) {
+		maxFlatness = 1.01
+	}
+
+	// Limit the tolerance to a reasonable level
+	if (maxLength < 1 || maxLength > 1000) {
+		maxLength = 10;
+	}
 
 	if (typeof _debug_ !== 'undefined') {
 		let timing = _debug_.generated.timing;
@@ -66,7 +84,7 @@ function findMats(
 	let mats: Mat[] = [];
 	for (let loops of loopss) {
 		loops.sort(ascendingByTopmostPoint);
-		let mat = findPartialMat(loops, xMap, additionalPointCount);
+		let mat = findPartialMat(loops, xMap, maxFlatness, maxLength);
 		if (mat) { mats.push(mat); }
 	}
 
@@ -81,7 +99,6 @@ function findMats(
 function loopHasNonNegligibleArea(minArea: number) {
 	return (loop: Loop) => {
 		let area = getLoopArea(loop);
-		//console.log(area);
 		return Math.abs(area) > minArea;
 	}
 }
@@ -98,7 +115,8 @@ function loopHasNonNegligibleArea(minArea: number) {
 function findPartialMat(
 		loops: Loop[], 
 		xMap: Map<number[][],{ ps: number[][] }>,
-		additionalPointCount = 3) {
+		maxFlatness = 1.001,
+        maxLength = 10) {
 
 	let extreme = getExtreme(loops);
 
@@ -107,7 +125,7 @@ function findPartialMat(
 	// Gets interesting points on the shape, i.e. those that makes sense to use 
 	// for the 2-prong procedure.
 	let pointsPerLoop = loops.map(
-		createGetInterestingPointsOnLoop(additionalPointCount)
+		createGetInterestingPointsOnLoop(maxFlatness, maxLength)
 	);
 
 	let for2ProngsPerLoop = getPotential2Prongs(pointsPerLoop);
