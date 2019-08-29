@@ -19,7 +19,7 @@ function getLoopArea(loop) {
         let yx_ = flo_poly_1.negate(flo_poly_1.multiply(y, dx));
         let poly = flo_poly_1.add(xy_, yx_);
         let f = flo_poly_1.evaluate(poly);
-        let area = flo_gauss_quadrature_1.default(f, [0, 1], 16);
+        let area = flo_gauss_quadrature_1.gaussQuadrature(f, [0, 1], 16);
         totalArea += area;
     }
     return -totalArea / 2;

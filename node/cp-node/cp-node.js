@@ -300,6 +300,7 @@ class CpNode {
         return this.getProngCount();
     }
 }
+exports.CpNode = CpNode;
 /**
  * Primarily for internal use.
  *
@@ -308,5 +309,4 @@ class CpNode {
  */
 CpNode.comparator = (a, b) => contact_point_1.ContactPoint.compare(a.cp, b.cp);
 CpNode.remove = remove_1.removeCpNode;
-exports.CpNode = CpNode;
 //# sourceMappingURL=cp-node.js.map

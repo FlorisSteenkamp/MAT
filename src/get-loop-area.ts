@@ -1,7 +1,7 @@
 
 import { Loop } from "./loop/loop";
 import { getX, getY, getDx, getDy } from "flo-bezier3";
-import gaussQuadrature from 'flo-gauss-quadrature';
+import { gaussQuadrature } from 'flo-gauss-quadrature';
 import { multiply, add, negate, evaluate } from 'flo-poly';
 
 

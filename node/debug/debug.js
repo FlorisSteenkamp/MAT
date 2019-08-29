@@ -69,7 +69,7 @@ class MatDebug {
          * These functions are meant to be used in the console, e.g. in the
          * console try typing d.fs.twoProng.traceConvergence(0);
          */
-        this.fs = Object.assign({ draw: flo_draw_1.drawFs }, general_1.generalDebugFunctions, { twoProng: two_prong_1.twoProngDebugFunctions, threeProng: three_prong_1.threeProngDebugFunctions, drawElem: draw_elem_1.drawElemFunctions });
+        this.fs = Object.assign(Object.assign({ draw: flo_draw_1.drawFs }, general_1.generalDebugFunctions), { twoProng: two_prong_1.twoProngDebugFunctions, threeProng: three_prong_1.threeProngDebugFunctions, drawElem: draw_elem_1.drawElemFunctions });
     }
     createNewGenerated(
     //bezierLoops: number[][][][],

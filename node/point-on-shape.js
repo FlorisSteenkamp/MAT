@@ -73,6 +73,7 @@ class PointOnShape {
         return -flo_vector2d_1.dot(n, v);
     }
 }
+exports.PointOnShape = PointOnShape;
 /**
  * Calculates and returns the osculating circle radius of the bezier at a
  * specific t. If it is found to have negative or nearly zero radius
@@ -184,5 +185,4 @@ PointOnShape.toHumanString = function (pos) {
         ' | bz: ' + pos.curve.idx +
         ' | t: ' + pos.t;
 };
-exports.PointOnShape = PointOnShape;
 //# sourceMappingURL=point-on-shape.js.map
