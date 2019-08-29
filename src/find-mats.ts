@@ -4,8 +4,8 @@ declare var _debug_: MatDebug;
 
 import { MatDebug } from './debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
-import { CpNode } from './cp-node/cp-node';
-import { Loop } from './loop/loop';
+import { CpNode } from './cp-node';
+import { Loop } from './loop';
 import { Mat } from './mat';
 import { simplifyPaths, ascendingByTopmostPoint } from './svg/fs/simplify-paths/simplify-paths';
 import { getExtreme } from './svg/fs/get-extreme';

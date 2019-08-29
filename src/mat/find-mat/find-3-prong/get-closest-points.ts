@@ -1,6 +1,6 @@
 
 import { PointOnShape } from '../../../point-on-shape';
-import { BezierPiece  } from '../../../bezier-piece';
+import { BezierPiece  } from '../../bezier-piece';
 
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';

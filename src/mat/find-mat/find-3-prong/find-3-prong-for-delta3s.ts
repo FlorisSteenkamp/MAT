@@ -8,9 +8,9 @@ import {
     cross
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { CpNode } from '../../../cp-node/cp-node';
+import { CpNode } from '../../../cp-node';
 import { Circle } from '../../../circle';
-import { BezierPiece } from '../../../bezier-piece';
+import { BezierPiece } from '../../bezier-piece';
 import { PointOnShape } from '../../../point-on-shape';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';

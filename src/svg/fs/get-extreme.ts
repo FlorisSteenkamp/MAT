@@ -1,5 +1,5 @@
 
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 import { getShapeBounds } from './get-shape-bounds';
 
 

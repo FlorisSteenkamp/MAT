@@ -3,7 +3,7 @@ import { flatCoefficients, allRoots } from 'flo-poly';
 import { 
     getBoundingBox, getX, getY, tangent, evaluate, translate
 } from 'flo-bezier3';
-import { Loop         } from "../../../loop/loop";
+import { Loop         } from "../../../loop";
 import { PointOnShape } from '../../../point-on-shape';
 import { getLoopBounds } from "../get-loop-bounds";
 

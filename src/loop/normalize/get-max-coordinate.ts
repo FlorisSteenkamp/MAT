@@ -1,6 +1,6 @@
 
 import { getLoopBounds } from "../../svg/fs/get-loop-bounds";
-import { Loop } from "../loop";
+import { Loop } from "../../loop";
 
 
 /**

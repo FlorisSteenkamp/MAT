@@ -1,8 +1,8 @@
 
-import { CpNode } from "./cp-node/cp-node";
+import { CpNode } from "./cp-node";
 import { getBranches } from "./get-branches";
 import { hausdorffDistance, closestPointOnBezier, toCubic } from "flo-bezier3";
-import { getCurveToNext } from "./get-curve/get-curve-to-next";
+import { getCurveToNext } from "./get-curve-to-next";
 import { getCurveBetween } from "./get-curve/get-curve-between";
 
 

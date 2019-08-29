@@ -1,7 +1,7 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop/loop";
-import { CpNode } from '../../cp-node/cp-node';
+import { Loop } from "../../loop";
+import { CpNode } from '../../cp-node';
 import { PointOnShape } from '../../point-on-shape';
 import { findAndAdd2Prongs } from './find-and-add-2-prongs';
 

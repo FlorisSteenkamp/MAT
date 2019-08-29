@@ -1,0 +1,1 @@
+{"version":3,"file":"tight-bounding-box.js","sourceRoot":"","sources":["../../../../../src/debug/functions/draw-elem/tight-bounding-box.ts"],"names":[],"mappings":";;AACA,uCAAkC;AAGlC,cAAc;AACd,SAAS,gBAAgB,CAAC,CAAc,EAAE,GAAe;IACxD,IAAI,IAAI,GAAG,iBAAM,CAAC,OAAO,CAAC,CAAC,EAAE,GAAG,EAAE,oBAAoB,CAAC,CAAC;IAExD,OAAO,IAAI,CAAC;AACb,CAAC;AAGQ,4CAAgB"}

@@ -4,8 +4,8 @@ declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop/loop";
-import { CpNode } from '../../cp-node/cp-node';
+import { Loop } from "../../loop";
+import { CpNode } from '../../cp-node';
 import { PointOnShape } from '../../point-on-shape';
 import { getShapeBounds } from '../../svg/fs/get-shape-bounds';
 import { Circle } from '../../circle';

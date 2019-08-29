@@ -1,12 +1,12 @@
 
 import { Mat } from './mat';
-import { Loop } from './loop/loop';
+import { Loop } from './loop';
 import { Curve } from './curve';
-import { CpNode } from './cp-node/cp-node';
+import { CpNode } from './cp-node';
 import { PointOnShape } from './point-on-shape';
 import { Circle } from './circle';
 import { ContactPoint } from './contact-point';
-import { BezierPiece } from './bezier-piece';
+import { BezierPiece } from './mat/bezier-piece';
 
 import { findMats } from './find-mats';
 import { trimMat } from './mat/trim-mat';
@@ -41,7 +41,7 @@ import { simplifyMat } from './simplify-mat';
 
 import { drawElemFunctions } from './debug/functions/draw-elem/draw-elem'
 
-import { getCurveToNext } from './get-curve/get-curve-to-next';
+import { getCurveToNext } from './get-curve-to-next';
 import { getCurveBetween } from './get-curve/get-curve-between';
 
 

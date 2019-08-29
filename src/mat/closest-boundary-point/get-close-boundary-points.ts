@@ -6,7 +6,7 @@ import { MatDebug } from '../../debug/debug';
 import { distanceBetween } from 'flo-vector2d';
 
 import { PointOnShape } from '../../point-on-shape';
-import { BezierPiece  } from '../../bezier-piece';
+import { BezierPiece  } from '../bezier-piece';
 
 import { cullBezierPieces } from './cull-bezier-pieces';
 import { closestPointsOnCurve } from './closest-points-on-curve';

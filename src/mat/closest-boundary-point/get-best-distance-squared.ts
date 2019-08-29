@@ -3,7 +3,7 @@ import { evaluate } from 'flo-bezier3';
 
 import { squaredDistanceBetween } from 'flo-vector2d';
 
-import { BezierPiece } from "../../bezier-piece";
+import { BezierPiece } from "../bezier-piece";
 
 
 /**

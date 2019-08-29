@@ -9,11 +9,11 @@ import { evaluate } from 'flo-bezier3';
 import { lineLineIntersection } from '../../geometry/line-line-intersection';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
-import { CpNode } from '../../../cp-node/cp-node';
-import { Loop } from '../../../loop/loop';
+import { CpNode } from '../../../cp-node';
+import { Loop } from '../../../loop';
 import { Circle } from '../../../circle';
 import { PointOnShape } from '../../../point-on-shape';
-import { BezierPiece } from '../../../bezier-piece';
+import { BezierPiece } from '../../bezier-piece';
 import { add1Prong } from '../add-1-prong';
 import { addDebugInfo } from './add-debug-info';
 import { TXForDebugging } from './x-for-debugging';

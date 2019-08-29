@@ -4,9 +4,9 @@ declare var _debug_: MatDebug;
 
 import { MatDebug }   from '../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 import { PointOnShape } from '../../point-on-shape';
-import { CpNode } from '../../cp-node/cp-node';
+import { CpNode } from '../../cp-node';
 import { addToCpGraph } from '../add-to-cp-graph';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 

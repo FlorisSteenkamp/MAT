@@ -1,7 +1,7 @@
 
 import { tangent } from 'flo-bezier3';
 import { memoize } from 'flo-memoize';
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 import { Curve, getCorner } from '../../curve';
 import { getLoopBounds } from './get-loop-bounds';
 

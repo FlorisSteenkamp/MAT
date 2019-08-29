@@ -4,7 +4,7 @@ declare var _debug_: MatDebug;
 
 import { MatDebug }   from '../../debug/debug';
 import { getBoundingHull, getBoundingBox, getBoundingBoxTight } from 'flo-bezier3';
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 import { PointOnShape } from '../../point-on-shape';
 import { Curve } from '../../curve';
 import { Mat } from '../../mat';

@@ -1,6 +1,6 @@
 
 
-import { CpNode } from './cp-node/cp-node';
+import { CpNode } from './cp-node';
 import { Curve  } from './curve';
 
 

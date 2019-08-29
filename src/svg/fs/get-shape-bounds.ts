@@ -1,6 +1,6 @@
 
 import { memoize } from 'flo-memoize';
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 import { getLoopBounds } from './get-loop-bounds';
 
 

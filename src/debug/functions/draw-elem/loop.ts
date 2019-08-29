@@ -1,5 +1,5 @@
 
-import { Loop } from "../../../loop/loop";
+import { Loop } from "../../../loop";
 
 // TODO - finish
 /** @hidden */

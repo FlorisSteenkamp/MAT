@@ -1,6 +1,6 @@
 
 import { reverse } from 'flo-bezier3';
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 
 
 /**

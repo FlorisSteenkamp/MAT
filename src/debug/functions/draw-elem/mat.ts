@@ -2,7 +2,7 @@
 import { Mat    } from '../../../mat';
 import { traverseEdges } from "../../../traverse-edges";
 import { drawFs } from 'flo-draw';
-import { getCurveToNext } from '../../../get-curve/get-curve-to-next';
+import { getCurveToNext } from '../../../get-curve-to-next';
 
 
 /** @hidden */

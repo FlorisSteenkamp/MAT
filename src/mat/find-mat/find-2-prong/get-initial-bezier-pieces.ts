@@ -2,9 +2,9 @@
 import LlRbTree from 'flo-ll-rb-tree';
 import { getNeighbouringPoints   } from '../../get-neighboring-cps';
 import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers';
-import { BezierPiece  } from '../../../bezier-piece';
-import { Loop } from '../../../loop/loop';
-import { CpNode } from '../../../cp-node/cp-node';
+import { BezierPiece  } from '../../bezier-piece';
+import { Loop } from '../../../loop';
+import { CpNode } from '../../../cp-node';
 import { PointOnShape } from '../../../point-on-shape';
 
 

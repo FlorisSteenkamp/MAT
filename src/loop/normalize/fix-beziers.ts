@@ -1,5 +1,5 @@
 
-import { Loop } from "../loop";
+import { Loop } from "../../loop";
 import { toGrid } from "./to-grid";
 import { isSelfOverlapping } from "flo-bezier3";
 import { fixBezierByPointSpacing } from "./fix-bezier-by-point-spacing";

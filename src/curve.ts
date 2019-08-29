@@ -1,8 +1,8 @@
 
 import { memoize } from 'flo-memoize';
 import { cross, dot, toUnitVector } from 'flo-vector2d';
-import { Loop } from './loop/loop';
-import { Corner } from './corner';
+import { Loop } from './loop';
+import { Corner } from './mat/corner';
 import { getInterfaceCcw } from 'flo-bezier3';
 
 

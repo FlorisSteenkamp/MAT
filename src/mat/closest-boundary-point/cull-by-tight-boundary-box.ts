@@ -1,6 +1,6 @@
 
 import { getBoundingBoxTight } from 'flo-bezier3';
-import { BezierPiece } from "../../bezier-piece";
+import { BezierPiece } from "../bezier-piece";
 import { getClosestSquaredDistanceToRotatedRect } from 
     '../geometry/get-closest-squared-distance-to-rotated-rect';
 

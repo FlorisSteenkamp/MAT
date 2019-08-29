@@ -1,7 +1,7 @@
 
 import { getContactCirclesAtInterface } from '../get-contact-circles-at-interface';
 import { getCurvatureExtrema, splitByCurvatureAndLength } from 'flo-bezier3';
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 import { PointOnShape } from '../../point-on-shape';
 
 

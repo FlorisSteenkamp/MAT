@@ -1,7 +1,7 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop/loop";
-import { CpNode } from '../../cp-node/cp-node';
+import { Loop } from "../../loop";
+import { CpNode } from '../../cp-node';
 import { getShapeBounds } from '../../svg/fs/get-shape-bounds';
 import { getMinYPos } from '../../svg/fs/get-min-y-pos'
 import { find2Prong } from './find-2-prong/find-2-prong';

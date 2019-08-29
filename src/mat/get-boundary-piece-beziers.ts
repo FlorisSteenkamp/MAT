@@ -1,7 +1,7 @@
 
-import { CpNode } from '../cp-node/cp-node';
+import { CpNode } from '../cp-node';
 import { Curve } from '../curve';
-import { BezierPiece } from '../bezier-piece';
+import { BezierPiece } from './bezier-piece';
 import { PointOnShape } from '../point-on-shape';
 import { ContactPoint } from '../contact-point';
 

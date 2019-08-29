@@ -1,5 +1,5 @@
 
-import { Loop         } from '../../../loop/loop';
+import { Loop         } from '../../../loop';
 import { Curve        } from '../../../curve';
 import { PointOnShape } from '../../../point-on-shape';
 

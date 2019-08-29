@@ -3,7 +3,7 @@ import { getBoundingBox } from "flo-bezier3";
 
 import { getClosestSquareDistanceToRect } from "../../geometry/get-closest-square-distance-to-rect";
 
-import { BezierPiece } from "../../../bezier-piece";
+import { BezierPiece } from "../../bezier-piece";
 
 
 /**

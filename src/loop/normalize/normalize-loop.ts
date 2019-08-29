@@ -1,5 +1,5 @@
 
-import { Loop } from "../loop";
+import { Loop } from "../../loop";
 import { getMaxCoordinate } from "./get-max-coordinate";
 import { fixBeziers } from "./fix-beziers";
 import { getBounds } from 'flo-bezier3';

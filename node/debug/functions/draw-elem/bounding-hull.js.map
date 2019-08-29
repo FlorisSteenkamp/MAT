@@ -1,1 +1,0 @@
-{"version":3,"file":"bounding-hull.js","sourceRoot":"","sources":["../../../../src/debug/functions/draw-elem/bounding-hull.ts"],"names":[],"mappings":";;AACA,uCAAkC;AAGlC,cAAc;AACd,SAAS,YAAY,CACb,CAAc,EACd,IAAgB,EAChB,QAAgB,oBAAoB;IAE3C,IAAI,QAAQ,GAAG,iBAAM,CAAC,OAAO,CAAC,CAAC,EAAE,IAAI,EAAE,KAAK,CAAC,CAAC;IAE9C,OAAO,QAAQ,CAAC;AACjB,CAAC;AAGQ,oCAAY"}

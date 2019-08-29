@@ -3,7 +3,7 @@ declare let _debug_: MatDebug;
 
 import { MatDebug, Generated } from '../debug';
 
-import { CpNode } from '../../cp-node/cp-node';
+import { CpNode } from '../../cp-node';
 import { Circle } from '../../circle';
 
 import { 

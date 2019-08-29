@@ -1,8 +1,8 @@
 
 import LlRbTree from "flo-ll-rb-tree";
 
-import { CpNode } from "./cp-node/cp-node";
-import { Loop   } from './loop/loop';
+import { CpNode } from "./cp-node";
+import { Loop   } from './loop';
 
 
 /**

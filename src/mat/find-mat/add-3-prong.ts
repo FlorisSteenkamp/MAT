@@ -1,7 +1,7 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
-import { CpNode } from '../../cp-node/cp-node';
-import { Loop } from '../../loop/loop';
+import { CpNode } from '../../cp-node';
+import { Loop } from '../../loop';
 import { Circle } from '../../circle';
 import { PointOnShape } from '../../point-on-shape';
 import { addToCpGraph } from '../add-to-cp-graph';

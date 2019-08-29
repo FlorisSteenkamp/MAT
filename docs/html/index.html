@@ -62,7 +62,9 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="medial-and-scale-axis-transform-library-svg-focused">Medial (and Scale) Axis Transform library - SVG focused</h1>
+				<a href="#medial-and-scale-axis-transform-library---svg-focused" id="medial-and-scale-axis-transform-library---svg-focused" style="color: inherit; text-decoration: none;">
+					<h1>Medial (and Scale) Axis Transform library - SVG focused</h1>
+				</a>
 				<p>A pure JavaScript (source in TypeScript) Medial (and Scale) Axis Transform (MAT/SAT) library.</p>
 				<hr>
 				<p>Bug reports, pull requests and ⭐⭐⭐⭐⭐s are welcome and appreciated!</p>
@@ -72,7 +74,9 @@
 				<p><strong><a href="https://github.com/FlorisSteenkamp/MAT">GitHub</a></strong></p>
 				<p><strong><a href="https://github.com/FlorisSteenkamp/mat-examples">More examples</a></strong></p>
 				<p><strong><a href="https://mat-demo.appspot.com/docs/index.html">Documentation</a></strong>, but also see installation instructions below.</p>
-				<h2 id="introduction">Introduction</h2>
+				<a href="#introduction" id="introduction" style="color: inherit; text-decoration: none;">
+					<h2>Introduction</h2>
+				</a>
 				<p>The <a href="https://en.wikipedia.org/wiki/Medial_axis">MAT</a> is an analytical form of skeletonization of a shape. It is perfectly suited to SVG. Described by many scholars as <em>the most important image transform</em>, it has endless use cases, e.g.:</p>
 				<ul>
 					<li><strong>Morphing</strong></li>
@@ -98,7 +102,9 @@
 					<a href="http://www.balintmiklos.com/scale-axis/scale_axis_transform_socg_2009.pdf">this paper</a>
 					but it has been improved to preserve topology at any scale &gt;= 1. It also guarantees that
 				the SAT is a subset of the MAT.</p>
-				<h1 id="code-example">Code example</h1>
+				<a href="#code-example" id="code-example" style="color: inherit; text-decoration: none;">
+					<h1>Code example</h1>
+				</a>
 				<p>Note that the example code given here is in TypeScript since the types make the
 				code clearer but plain JavaScript can also be used. </p>
 				<p>The live, interactive code can be viewed in this <a href="https://stackblitz.com/edit/typescript-yucdon">StackBlitz project</a>.</p>
@@ -351,33 +357,47 @@ main();</code></pre>
 				the MA. In the example code we draw this curve on our orignal SVG.</p>
 				<p>The <code>main</code> function concludes by finding the Scale Axis Transform of our found
 				MAT and then drawing it on top of the MAT with a different css class (blue).</p>
-				<h1 id="installation">Installation</h1>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h1>Installation</h1>
+				</a>
 				<p>Whether your target is Node or the browser the library can be installed via <a href="https://www.npmjs.com/">npm</a>.
-				(For the browser you can also download the <a href="https://raw.githubusercontent.com/FlorisSteenkamp/MAT/master/browser/index.min.js">minified .js</a> file - see below)</p>
+				(For the browser you can also download the <a href="https://raw.githubusercontent.com/FlorisSteenkamp/MAT/master/browser/index.min.js">minified.js</a> file - see below)</p>
 				<p>So whatever your target, at the the command line:</p>
-				<pre><code class="language-cli">npm install flo-mat --save</code></pre>
-				<h2 id="node-with-javascript-or-the-browser-with-webpack-or-similar-">Node with JavaScript (or the browser (with <a href="https://webpack.js.org/">webpack</a>) or similar)</h2>
+				<pre><code class="language-cli">npm install flo-mat</code></pre>
+				<a href="#node-with-javascript-or-the-browser-with-a-hrefhttpswebpackjsorgwebpacka-or-similar" id="node-with-javascript-or-the-browser-with-a-hrefhttpswebpackjsorgwebpacka-or-similar" style="color: inherit; text-decoration: none;">
+					<h2>Node with JavaScript (or the browser (with <a href="https://webpack.js.org/">webpack</a>) or similar)</h2>
+				</a>
 				<p>In your project</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">let</span> FloMat = <span class="hljs-built_in">require</span>(<span class="hljs-string">"flo-mat"</span>);</code></pre>
 				<p>or if you only want to require specific functionality:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">let</span> { findMats } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'flo-mat'</span>);</code></pre>
-				<h2 id="typescript">TypeScript</h2>
+				<a href="#typescript" id="typescript" style="color: inherit; text-decoration: none;">
+					<h2>TypeScript</h2>
+				</a>
 				<p>In your project</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> FloMat <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;</code></pre>
 				<p>or for specific functionalities:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { findMats } <span class="hljs-keyword">from</span> <span class="hljs-string">"flo-mat"</span>;</code></pre>
-				<h2 id="browser-using-global-var-">Browser (using global var)</h2>
+				<a href="#browser-using-global-var" id="browser-using-global-var" style="color: inherit; text-decoration: none;">
+					<h2>Browser (using global var)</h2>
+				</a>
 				<p>After the npm installation simply include the script in your project:</p>
 				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'node_modules/flo-mat/browser/index.min.js'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre>
 				<p>A new global object will available called <code>FloMat</code> representing the library. </p>
-				<h1 id="usage">Usage</h1>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h1>Usage</h1>
+				</a>
 				<p>Please see the documentation for the primary functions and classes:
 					<a href="https://mat-demo.appspot.com/docs/modules/_find_mats_.html">findMats</a>, <a href="https://mat-demo.appspot.com/docs/modules/_to_scale_axis_.html">toScaleAxis</a> and
 				<a href="https://mat-demo.appspot.com/docs/classes/_cp_node_.cpnode.html">CpNode</a>.</p>
-				<h1 id="documentation">Documentation</h1>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h1>Documentation</h1>
+				</a>
 				<p>For documentation and code examples please see the
 				<a href="https://mat-demo.appspot.com/docs/index.html">documentation</a></p>
-				<h1 id="license">License</h1>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h1>License</h1>
+				</a>
 				<p>The MIT License (MIT)</p>
 				<p>Copyright © 2018 Floris Steenkamp</p>
 				<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
@@ -392,9 +412,6 @@ main();</code></pre>
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_bezier_piece_.html">"bezier-<wbr>piece"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_beziers_to_svg_path_str_.html">"beziers-<wbr>to-<wbr>svg-<wbr>path-<wbr>str"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -404,25 +421,10 @@ main();</code></pre>
 						<a href="modules/_contact_point_.html">"contact-<wbr>point"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_corner_.html">"corner"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_cp_node_clone_.html">"cp-<wbr>node/clone"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_cp_node_cp_node_.html">"cp-<wbr>node/cp-<wbr>node"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_cp_node_get_children_.html">"cp-<wbr>node/get-<wbr>children"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_cp_node_remove_.html">"cp-<wbr>node/remove"</a>
+						<a href="modules/_cp_node_.html">"cp-<wbr>node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_curve_.html">"curve"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_de_pathologify_.html">"de-<wbr>pathologify"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_find_mats_.html">"find-<wbr>mats"</a>
@@ -437,13 +439,10 @@ main();</code></pre>
 						<a href="modules/_get_branches_.html">"get-<wbr>branches"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_get_loop_area_.html">"get-<wbr>loop-<wbr>area"</a>
+						<a href="modules/_get_curve_to_next_.html">"get-<wbr>curve-<wbr>to-<wbr>next"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_get_paths_from_str_.html">"get-<wbr>paths-<wbr>from-<wbr>str"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_index_.html">"index"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_loop_.html">"loop"</a>
@@ -452,19 +451,10 @@ main();</code></pre>
 						<a href="modules/_mat_.html">"mat"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_numerical_exponent_.html">"numerical/exponent"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_numerical_reduce_significand_.html">"numerical/reduce-<wbr>significand"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_numerical_split_.html">"numerical/split"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_numerical_to_grid_.html">"numerical/to-<wbr>grid"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_point_on_shape_.html">"point-<wbr>on-<wbr>shape"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_simplify_mat_.html">"simplify-<wbr>mat"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_to_scale_axis_.html">"to-<wbr>scale-<wbr>axis"</a>

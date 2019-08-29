@@ -3,7 +3,7 @@
 declare var _debug_: MatDebug; 
 
 import { MatDebug }   from '../../debug/debug';
-import { Loop } from '../../loop/loop';
+import { Loop } from '../../loop';
 import { getLoopBounds } from './get-loop-bounds';
 
 

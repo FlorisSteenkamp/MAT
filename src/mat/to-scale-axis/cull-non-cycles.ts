@@ -1,6 +1,6 @@
 
 import { getLeaves } from '../get-leaves';
-import { CpNode } from '../../cp-node/cp-node';
+import { CpNode } from '../../cp-node';
 
 
 /**

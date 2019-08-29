@@ -4,8 +4,8 @@ declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../../debug/debug';
 import { circumCenter } from 'flo-vector2d';
-import { CpNode      } from '../../../cp-node/cp-node';
-import { BezierPiece } from '../../../bezier-piece';
+import { CpNode      } from '../../../cp-node';
+import { BezierPiece } from '../../bezier-piece';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
 

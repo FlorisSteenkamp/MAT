@@ -72,9 +72,9 @@
 					<div class="lead">
 						<p>Represents a complete Medial Axis Transform (MAT).</p>
 					</div>
-					<p>The MAT is fully described through its <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> property. The <a href="_mat_.mat.html#cptrees">cpTrees</a>
+					<p>The MAT is fully described through its <a href="_cp_node_.cpnode.html">CpNode</a> property. The <a href="_mat_.mat.html#cptrees">cpTrees</a>
 						property is only added to facilitate extension of the MAT, e.g. by adding
-						extra maximal disks and is typically not used. See <a href="_cp_node_cp_node_.cpnode.html">CpNode</a> for more
+						extra maximal disks and is typically not used. See <a href="_cp_node_.cpnode.html">CpNode</a> for more
 					details.</p>
 				</div>
 			</section>
@@ -116,13 +116,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Mat<span class="tsd-signature-symbol">(</span>cpNode<span class="tsd-signature-symbol">: </span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, cpTrees<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="_loop_.loop.html" class="tsd-signature-type">Loop</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_mat_.mat.html" class="tsd-signature-type">Mat</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Mat<span class="tsd-signature-symbol">(</span>cpNode<span class="tsd-signature-symbol">: </span><a href="_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, cpTrees<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="_loop_.loop.html" class="tsd-signature-type">Loop</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_mat_.mat.html" class="tsd-signature-type">Mat</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43b4d00/src/mat.ts#L16">mat.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43cdda7/src/mat.ts#L16">mat.ts:16</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -130,19 +130,19 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>cpNode: <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
+									<h5>cpNode: <a href="_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>A complete representation of the MAT. See <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+											<p>A complete representation of the MAT. See <a href="_cp_node_.cpnode.html">CpNode</a>.</p>
 										</div>
 									</div>
 								</li>
 								<li>
-									<h5>cpTrees: <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="_loop_.loop.html" class="tsd-signature-type">Loop</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>cpTrees: <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="_loop_.loop.html" class="tsd-signature-type">Loop</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
 											<p>Primarily for internal use. A tree structure storing the
-												<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s of the MAT by their compare order, i.e. their cyclic order
+												<a href="_cp_node_.cpnode.html">CpNode</a>s of the MAT by their compare order, i.e. their cyclic order
 											around the shape boundary.</p>
 										</div>
 									</div>
@@ -158,31 +158,31 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
 					<a name="cpnode" class="tsd-anchor"></a>
 					<h3>cp<wbr>Node</h3>
-					<div class="tsd-signature tsd-kind-icon">cp<wbr>Node<span class="tsd-signature-symbol">:</span> <a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></div>
+					<div class="tsd-signature tsd-kind-icon">cp<wbr>Node<span class="tsd-signature-symbol">:</span> <a href="_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43b4d00/src/mat.ts#L25">mat.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43cdda7/src/mat.ts#L25">mat.ts:25</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>A complete representation of the MAT. See <a href="_cp_node_cp_node_.cpnode.html">CpNode</a>.</p>
+							<p>A complete representation of the MAT. See <a href="_cp_node_.cpnode.html">CpNode</a>.</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
 					<a name="cptrees" class="tsd-anchor"></a>
 					<h3>cp<wbr>Trees</h3>
-					<div class="tsd-signature tsd-kind-icon">cp<wbr>Trees<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="_loop_.loop.html" class="tsd-signature-type">Loop</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">cp<wbr>Trees<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="_loop_.loop.html" class="tsd-signature-type">Loop</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LlRbTree</span><span class="tsd-signature-symbol">&lt;</span><a href="_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43b4d00/src/mat.ts#L26">mat.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/43cdda7/src/mat.ts#L26">mat.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Primarily for internal use. A tree structure storing the
-								<a href="_cp_node_cp_node_.cpnode.html">CpNode</a>s of the MAT by their compare order, i.e. their cyclic order
+								<a href="_cp_node_.cpnode.html">CpNode</a>s of the MAT by their compare order, i.e. their cyclic order
 							around the shape boundary.</p>
 						</div>
 					</div>
@@ -195,8 +195,59 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_beziers_to_svg_path_str_.html">"beziers-<wbr>to-<wbr>svg-<wbr>path-<wbr>str"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_circle_.html">"circle"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_contact_point_.html">"contact-<wbr>point"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_cp_node_.html">"cp-<wbr>node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_curve_.html">"curve"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_find_mats_.html">"find-<wbr>mats"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_get_boundary_bezier_parts_to_next_.html">"get-<wbr>boundary-<wbr>bezier-<wbr>parts-<wbr>to-<wbr>next"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_get_boundary_beziers_to_next_.html">"get-<wbr>boundary-<wbr>beziers-<wbr>to-<wbr>next"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_get_branches_.html">"get-<wbr>branches"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_get_curve_to_next_.html">"get-<wbr>curve-<wbr>to-<wbr>next"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_get_paths_from_str_.html">"get-<wbr>paths-<wbr>from-<wbr>str"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_loop_.html">"loop"</a>
+					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/_mat_.html">"mat"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_point_on_shape_.html">"point-<wbr>on-<wbr>shape"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_simplify_mat_.html">"simplify-<wbr>mat"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_to_scale_axis_.html">"to-<wbr>scale-<wbr>axis"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_traverse_edges_.html">"traverse-<wbr>edges"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_traverse_vertices_.html">"traverse-<wbr>vertices"</a>
 					</li>
 				</ul>
 			</nav>
