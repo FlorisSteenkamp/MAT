@@ -2,6 +2,7 @@
 import { PointOnShape } from '../../point-on-shape';
 
 
+/** @hidden */
 function getPotential2Prongs(possPerLoop: PointOnShape[][]) {
     let for2ProngsArray = []; 
     

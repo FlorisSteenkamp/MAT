@@ -1,13 +1,11 @@
 
-import { Loop } from '../../loop/loop';
-
 import { totalAbsoluteCurvature } from 'flo-bezier3';
 import { getCurvatureAtInterface } from '../../svg/fs/get-curvature-at-interface';
 import { getTotalBy } from './get-total-by';
 
 
 /**
- * 
+ * @hidden
  */
 let getTotalAbsoluteCurvature = getTotalBy(
     curve => (

@@ -3,6 +3,7 @@ import { areAllPointsDifferent } from "./are-all-points-different";
 import { squaredDistanceBetween, toLength, fromTo, translate } from "flo-vector2d";
 
 /**
+ * @hidden
  * Returns the same bezier if its points are well-spaced, e.g. all points not
  * coincident, etc., else fix it, if possible, and return the fixed bezier,
  * else return undefined.

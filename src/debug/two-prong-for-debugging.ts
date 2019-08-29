@@ -6,6 +6,7 @@ import { BezierPiece  } from '../bezier-piece';
 import { Generated    } from './debug';
 
 
+/** @hidden */
 class TwoProngForDebugging {
     constructor(
             public generated: Generated,
@@ -29,4 +30,4 @@ class TwoProngForDebugging {
 }
 
 
-export { TwoProngForDebugging };
+export { TwoProngForDebugging }

@@ -3,6 +3,7 @@ import { PathState } from "../path-state";
 
 
 /**
+ * @hidden
  * C and c: (from www.w3.org) 
  * 
  * params: x1 y1 x2 y2 x y

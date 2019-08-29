@@ -7,7 +7,7 @@ import { getClosestBoundaryPoint } from
 
 
 /**
- * 
+ * @hidden
  * @param x 
  * @param bezierPiece3s 
  * @param extreme 

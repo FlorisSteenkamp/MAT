@@ -5,11 +5,12 @@ import {
 
 import { tangent } from 'flo-bezier3';
 
-import { CpNode } from '../../cp-node/cp-node';
-import { PointOnShape } from '../../point-on-shape';
+import { CpNode } from '../cp-node/cp-node';
+import { PointOnShape } from '../point-on-shape';
 
 
 /**
+ * @hidden
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).
  * @param cpNode 

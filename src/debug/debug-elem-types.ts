@@ -1,5 +1,4 @@
 
-import { ElemType_TwoProng } from "../mat/elem-type-two-prong";
 import { PointOnShape } from "../point-on-shape";
 import { TwoProngForDebugging } from "./two-prong-for-debugging";
 import { ThreeProngForDebugging } from "./three-prong-for-debugging";
@@ -12,6 +11,7 @@ import { X } from "../x/x";
 import { CpNodeForDebugging } from "./cp-node-for-debugging";
 
 
+/** @hidden */
 interface IDebugElems {
     oneProng: PointOnShape;
     oneProngAtDullCorner: PointOnShape;

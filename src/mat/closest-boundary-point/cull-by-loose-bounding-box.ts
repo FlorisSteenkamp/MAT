@@ -1,12 +1,11 @@
 
 import { getBoundingBox } from "flo-bezier3";
-
 import { BezierPiece } from "../../bezier-piece";
-
 import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect';
 
 
 /**
+ * @hidden
  * When checking distances, ignore all those with closest possible distance 
  * further than 'bestSquaredDistance', i.e. cull them.
  * @param bezierPieces 

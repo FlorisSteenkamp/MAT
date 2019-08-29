@@ -1,10 +1,9 @@
 
+/** @hidden */
 declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../debug/debug';
-
 import LlRbTree from 'flo-ll-rb-tree';
-
 import { Loop } from "../../loop/loop";
 import { CpNode } from '../../cp-node/cp-node';
 import { PointOnShape } from '../../point-on-shape';
@@ -15,6 +14,7 @@ import { add2Prong } from './add-2-prong';
 
 
 /**
+ * @hidden
  * Find and add two-prongs.
  * @param loops 
  * @param cpGraphs 
@@ -49,17 +49,13 @@ function findAndAdd2Prongs(
             loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k
         );
 
-        //console.log(twoProngInfo.circle.radius)
-
         if (twoProngInfo) {
             let { circle, zs } = twoProngInfo;
             let cpNode = add2Prong(cpGraphs, circle, pos, zs, false, extreme);
 
             // TODO - below should certainly be explained
             if (!cpNode_ && cpNode) { cpNode_ = cpNode; }
-        }/* else {
-            console.log('aaaaaaaaa')
-        }*/
+        }
 
         if (typeof _debug_ !== 'undefined') {
             if (i+1 === _debug_.directives.stopAfterTwoProngsNum) {
@@ -73,6 +69,7 @@ function findAndAdd2Prongs(
 
 
 /**
+ * @hidden
  * Simple linear array indexing.
  * @param n
  */
@@ -87,6 +84,7 @@ function indexLinear(n: number) {
 
 
 /**
+ * @hidden
  * Creates a kind of interlaced index vector.
  * @param n
 */

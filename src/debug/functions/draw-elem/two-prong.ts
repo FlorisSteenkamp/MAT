@@ -4,8 +4,8 @@ import { getTwoProngType } from '../../../mat/get-two-prong-type';
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 function twoProng(g: SVGGElement, twoProng: TwoProngForDebugging) {
-	//let scaleFactor = width/200;		
 	let scaleFactor = 0.3;
 
 	let $failedDot : SVGElement[] = [];

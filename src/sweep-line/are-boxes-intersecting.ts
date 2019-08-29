@@ -1,5 +1,6 @@
 
 /**
+ * @hidden
  * Returns true if the 2 given (closed) boxes intersect. At this stage we already
  * know their x-axis intersect.
  * @param a A rectangular box

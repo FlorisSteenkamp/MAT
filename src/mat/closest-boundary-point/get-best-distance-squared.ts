@@ -7,6 +7,7 @@ import { BezierPiece } from "../../bezier-piece";
 
 
 /**
+ * @hidden
  * Finds an initial distance such that the closest point can not be further than 
  * this distance away.
  */ 
@@ -35,6 +36,7 @@ function getBestDistanceSquared(
     }
 
     // The extra multiplier is to account for floating point precision.
+    // TODO - remove delta (or base it on theory)
     return bestSquaredDistance * 1.01;
 }
 

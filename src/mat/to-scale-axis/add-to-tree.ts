@@ -6,8 +6,18 @@ import { TTree } from './t-tree';
 
 // DEPTH_LIMIT can be anything from 1 to 16, but from 2 to 6 seem to be the 
 // fastest.
+/** @hidden */
 const DEPTH_LIMIT = 6;
 
+/**
+ * @hidden
+ * @param s 
+ * @param tree 
+ * @param coordinate 
+ * @param limits 
+ * @param circle 
+ * @param depth 
+ */
 function addToTree(
     s: number, 
     tree: TTree, 

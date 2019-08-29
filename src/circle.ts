@@ -55,4 +55,4 @@ class Circle {
 }
 
 
-export { Circle };
+export { Circle }

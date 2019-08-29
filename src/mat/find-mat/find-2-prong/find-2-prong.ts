@@ -1,27 +1,22 @@
 
+/** @hidden */
 declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../../debug/debug';
-
 import LlRbTree from 'flo-ll-rb-tree';
-import { 
-	distanceBetween, squaredDistanceBetween, interpolate, cross, dot 
-} from 'flo-vector2d';
+import { distanceBetween, squaredDistanceBetween, interpolate, dot } from 'flo-vector2d';
 import { evaluate } from 'flo-bezier3';
-
 import { lineLineIntersection } from '../../geometry/line-line-intersection';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
-
-import { CpNode       } from '../../../cp-node/cp-node';
-import { Loop         } from '../../../loop/loop';
-import { Circle       } from '../../../circle';
+import { CpNode } from '../../../cp-node/cp-node';
+import { Loop } from '../../../loop/loop';
+import { Circle } from '../../../circle';
 import { PointOnShape } from '../../../point-on-shape';
-import { BezierPiece  } from '../../../bezier-piece';
-
-import { add1Prong        } from '../add-1-prong';
-import { addDebugInfo     } from './add-debug-info';
-import { TXForDebugging   } from './x-for-debugging';
+import { BezierPiece } from '../../../bezier-piece';
+import { add1Prong } from '../add-1-prong';
+import { addDebugInfo } from './add-debug-info';
+import { TXForDebugging } from './x-for-debugging';
 import { cullBezierPieces } from './cull-bezier-pieces';
 import { findEquidistantPointOnLine } from './find-equidistant-point-on-line';
 import { getInitialBezierPieces } from './get-initial-bezier-pieces';
@@ -29,6 +24,7 @@ import { getCloseBoundaryPoints } from '../../closest-boundary-point/get-close-b
 
 
 /**
+ * @hidden
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and 
  * the second one is found by the algorithm.
  * 
@@ -63,7 +59,7 @@ function find2Prong(
 
 	const MAX_ITERATIONS = 25;
 	const squaredSeperationTolerance = (1e-6 * extreme)**2;
-	//const oneProngTolerance = 1+1e-4;
+	// TODO - base deltas on theory or remove
 	const oneProngTolerance = (1e-4)**2;
 	const squaredErrorTolerance = 1e-2 * squaredSeperationTolerance;
 	const maxOsculatingCircleRadiusSquared = squaredDiagonalLength;
@@ -148,6 +144,7 @@ function find2Prong(
 		// a relative error, i.e. distance between y (or z) / length(y (or z)).
 		if (!isHoleClosing && squaredDistanceBetween(y.p, z.pos.p) <= squaredSeperationTolerance) {
 			if (typeof _debug_ !== 'undefined') {
+				/*
 				let elems = _debug_.generated.elems;
 				let elem = isHoleClosing 
 					? elems.twoProng_holeClosing
@@ -155,7 +152,6 @@ function find2Prong(
 				let elemStr = isHoleClosing
 					? 'hole-closing: ' + elem.length
 					: 'regular: ' + elem.length;
-				/*
 				console.log(
 					'failed: two-prong radius too small - ' + elemStr
 				);
@@ -177,7 +173,6 @@ function find2Prong(
 		x = nextX;
 
 		if (squaredError < squaredErrorTolerance) {
-			//console.log(Math.sqrt(squaredError));
 			done++; // Do one more iteration
 		} else if (i === MAX_ITERATIONS) {
 			// Convergence was too slow.
@@ -197,16 +192,10 @@ function find2Prong(
 			distanceBetween(x, z.pos.p)
 		);
 
-		//if (point[0] === 228 && point[1] === -308) {
-		//if (zs.length > 1) { console.log(zs); }
-
 		if (!zs.length) { 
-			//console.log(zs);
-			// Numerical issue
+			// TODO - Numerical issue - fix
 			zs.push(z);
 		}
-
-		//zs = [z];
 	}
 
 	let circle: Circle;
@@ -220,11 +209,11 @@ function find2Prong(
 	}
 	
 	return failed ? undefined : { circle, zs };
-	//return failed ? undefined : { circle, z: z.pos };
 }
 
 
 /**
+ * @hidden
  * Reduces the circle radius initially as an optimization step.
  */
 function reduceRadius(
@@ -268,12 +257,13 @@ function reduceRadius(
 	}
 	
 	// The extra bit is to account for floating point precision.
+	// TODO - base delta on theory
 	return minRadius + TOLERANCE;
 }
 
 
 /**
- * 
+ * @hidden
  * @param p A point on the circle with normal pointing to x towards the center
  * of the circle.
  * @param x
@@ -285,6 +275,7 @@ function getCircleCenterFrom2PointsAndNormal(
 		x: number[],
 		p1: number[]) {
 
+	// TODO - remove delta
 	let TOLERANCE = (1e-4 * extreme)**2;
 
 	// Ignore if p and p1 are too close together

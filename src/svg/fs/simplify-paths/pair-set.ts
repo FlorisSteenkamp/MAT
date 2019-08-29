@@ -1,5 +1,6 @@
 
 /**
+ * @hidden
  * Adds an unordered pair of values to the set (given as a special map)
  * @param map The map representing the pairs.
  * @param vs The pair to add.
@@ -27,6 +28,7 @@ function pairSet_add<T>(
 
 
 /**
+ * @hidden
  * Returns true if the unordered pair is in the set of pairs (represented by a
  * map).
  * @param map The map representing the pairs.
@@ -49,6 +51,7 @@ function pairSet_has<T>(
 
 
 /**
+ * @hidden
  * Returns the unordered pairs as an array.
  * @param map The map representing the pairs.
  */

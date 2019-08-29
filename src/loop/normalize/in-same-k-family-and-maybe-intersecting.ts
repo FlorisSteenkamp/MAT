@@ -3,6 +3,7 @@ import { areBeziersInSameKFamily, getBoundingBox, isHorizontalLine, isVerticalLi
 import { areBoxesIntersecting } from "../../sweep-line/are-boxes-intersecting";
 
 
+/** @hidden */
 function inSameKFamliyAndMaybeIntersecting(ps1: number[][], ps2: number[][]) {
     let bbPs1 = getBoundingBox(ps1);
     let bbPs2 = getBoundingBox(ps2);

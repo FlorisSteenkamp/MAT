@@ -2,6 +2,7 @@
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 function boundingHull(
         g: SVGGElement,
         hull: number[][], 

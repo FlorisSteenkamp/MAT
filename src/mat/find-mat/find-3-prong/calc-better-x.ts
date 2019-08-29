@@ -8,6 +8,7 @@ import { getClosestPoints } from './get-closest-points';
 
 
 /**
+ * @hidden
  * Find new x and ps that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong 
  * circle center.
@@ -36,7 +37,6 @@ function calcBetterX(
         
         
         newPs = getClosestPoints(newX, bezierPiece3s);
-        //console.log(newPs.map(pos => '' + pos.p[0] + ' ' + pos.p[1]))
                     
         // Point of zero V
         let newCircleCenter = circumCenter(newPs.map(pos => pos.p)); 

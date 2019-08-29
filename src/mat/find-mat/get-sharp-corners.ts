@@ -2,6 +2,7 @@
 import { PointOnShape } from '../../point-on-shape';
 
 
+/** @hidden */
 function getSharpCorners(possPerLoop: PointOnShape[][]) {
     let sharpCornersPerLoop = [];
     

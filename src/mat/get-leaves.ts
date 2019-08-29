@@ -1,9 +1,8 @@
 
 import { CpNode } from '../cp-node/cp-node';
 
-import { traverseEdges } from "../traverse-edges";
 
-
+/** @hidden */
 function getLeaves(cpNode: CpNode) {
     let leaves: CpNode[] = [];
 
@@ -13,16 +12,6 @@ function getLeaves(cpNode: CpNode) {
             leaves.push(cp);
         }
     });
-
-    /*
-    traverseEdges(cpNode, f, true);
-
-    function f(cp: CpNode, isLeaf: boolean) {
-        if (isLeaf) { 
-            leaves.push(cp);
-        }
-    }
-    */
 
     return leaves;
 }

@@ -3,6 +3,7 @@ import { CpNode } from '../../../cp-node/cp-node';
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 function vertex(g: SVGGElement, cpNode: CpNode, visible: boolean = true, displayDelay?: number) {
 	let visibleClass = visible ? '' : ' invisible';
 

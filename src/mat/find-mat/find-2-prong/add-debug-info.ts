@@ -1,20 +1,19 @@
 
+/** @hidden */
 declare var _debug_: MatDebug; 
 
 import { MatDebug } from '../../../debug/debug';
-
 import { PointOnShape } from "../../../point-on-shape";
-import { Circle       } from "../../../circle";
-import { CpNode       } from "../../../cp-node/cp-node";
-import { BezierPiece  } from '../../../bezier-piece';
-
+import { Circle } from "../../../circle";
+import { CpNode } from "../../../cp-node/cp-node";
+import { BezierPiece } from '../../../bezier-piece';
 import { TwoProngForDebugging } from "../../../debug/two-prong-for-debugging";
-import { getTwoProngType      } from "../../get-two-prong-type";
-import { ElemType_TwoProng    } from "../../elem-type-two-prong";
-
+import { getTwoProngType } from "../../get-two-prong-type";
+import { ElemType_TwoProng } from "../../elem-type-two-prong";
 import { TXForDebugging } from './x-for-debugging';
 
 
+/** @hidden */
 function addDebugInfo(
         bezierPieces: BezierPiece[],
         failed: boolean, 

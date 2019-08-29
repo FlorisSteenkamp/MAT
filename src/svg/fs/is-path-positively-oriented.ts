@@ -1,15 +1,13 @@
 
 import { tangent } from 'flo-bezier3';
-import { cross } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
-
 import { Loop } from '../../loop/loop';
 import { Curve, getCorner } from '../../curve';
-
 import { getLoopBounds } from './get-loop-bounds';
 
 
 /**
+ * @hidden
  * Returns true if the given beizer loop is positively orientated, false 
  * otherwise. Careful! Checks leftmost part of loop so twisted complex paths
  * may give an ambiguous orientation.

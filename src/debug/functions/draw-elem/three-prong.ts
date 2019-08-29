@@ -4,9 +4,12 @@ import { ThreeProngForDebugging } from '../../three-prong-for-debugging';
 import { Circle } from '../../../circle';
 import { drawFs } from 'flo-draw';
 
+
+/** @hidden */
 const scaleFactor = 0.3;
 
 
+/** @hidden */
 function threeProng(g: SVGGElement, threeProng: ThreeProngForDebugging) {
 	let circle = Circle.scale(
 		threeProng.circle,

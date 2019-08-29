@@ -5,6 +5,7 @@ import { PointOnShape } from '../../../point-on-shape';
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 function minY(g: SVGGElement, pos: PointOnShape) {	
     let p = evaluate(pos.curve.ps, pos.t) ;
 

@@ -1,8 +1,10 @@
 
 import { drawFs } from 'flo-draw';
 import { CpNode } from '../../../cp-node/cp-node';
-import { getCurveToNext } from '../../../mat/smoothen/smoothen';
+import { getCurveToNext } from '../../../get-curve/get-curve-to-next';
 
+
+/** @hidden */
 function drawBranch(g: SVGGElement, branch: CpNode[], delay?: number) {
 
     let classes = 'thin5 purple nofill';

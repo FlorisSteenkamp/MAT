@@ -2,9 +2,10 @@
 import { Mat    } from '../../../mat';
 import { traverseEdges } from "../../../traverse-edges";
 import { drawFs } from 'flo-draw';
-import { getCurveToNext } from '../../../mat/smoothen/smoothen';
+import { getCurveToNext } from '../../../get-curve/get-curve-to-next';
 
 
+/** @hidden */
 function drawMat(type: 'mat' | 'sat') {
 
     let classes: string = type === 'mat'
@@ -15,15 +16,6 @@ function drawMat(type: 'mat' | 'sat') {
         let cpNode = mat.cpNode;
         
         if (!cpNode) { return undefined; }
-
-        // TODO - remove - testing
-        /*while (!cpNode.isTerminating()) {
-            cpNode = cpNode.next;
-        }*/
-        /*
-        drawFs.dot(g, cpNode.cp.pointOnShape.p, 1)
-        drawFs.dot(g, cpNode.cp.circle.center, 2)
-        */
 
         let $svgs: SVGElement[] = [];
         let i = 0;

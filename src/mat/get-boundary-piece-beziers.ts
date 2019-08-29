@@ -1,18 +1,18 @@
 
 import { CpNode } from '../cp-node/cp-node';
-import { Curve         } from '../curve';
-
-import { BezierPiece  } from '../bezier-piece';
+import { Curve } from '../curve';
+import { BezierPiece } from '../bezier-piece';
 import { PointOnShape } from '../point-on-shape';
 import { ContactPoint } from '../contact-point';
 
 
 /**
-* Returns the ordered cubic bezier pieces (i.e a bezier with a t range) 
-* from the given boundary piece.
-* @param cpNodes - An ordered pair that represents the start and end points of 
-* the boundary piece
-*/
+ * @hidden
+ * Returns the ordered cubic bezier pieces (i.e a bezier with a t range) 
+ * from the given boundary piece.
+ * @param cpNodes - An ordered pair that represents the start and end points of 
+ * the boundary piece
+ */
 function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
     let cpThis = cpNodes[0]; 
     let cpEnd  = cpNodes[1];
@@ -68,6 +68,7 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
 
 
 /**
+ * @hidden
  * Adds pieces of skipped beziers
  */
 function addSkippedBeziers(

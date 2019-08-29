@@ -3,7 +3,7 @@ import { squaredDistanceBetween } from 'flo-vector2d';
 
 
 /**
- *
+ * @hidden
  */
 function getClosestSquareDistanceToRect(box: number[][], p: number[]) {
 

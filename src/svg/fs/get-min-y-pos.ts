@@ -1,14 +1,14 @@
 
+/** @hidden */
 declare var _debug_: MatDebug; 
 
 import { MatDebug }   from '../../debug/debug';
-
 import { Loop } from '../../loop/loop';
-
 import { getLoopBounds } from './get-loop-bounds';
 
 
 /**
+ * @hidden
  * Get topmost PointOnShape the given loop.
  */
 function getMinYPos(loop: Loop) {

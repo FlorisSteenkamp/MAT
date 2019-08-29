@@ -1,17 +1,12 @@
 
-declare var _debug_: MatDebug; 
-
-import { MatDebug } from '../../../debug/debug';
-
 import { fromTo, reverse } from 'flo-bezier3';
-
 import { Curve } from '../../../curve';
-import { X     } from '../../../x/x';
-
+import { X } from '../../../x/x';
 import { ILoopTree  } from './i-loop-tree';
 import { getNextX } from './get-next-x';
 
 
+/** @hidden */
 function completeLoop(
         intersections : Map<Curve, X[]>,
         takenXs       : Set<X>,
@@ -100,7 +95,7 @@ function completeLoop(
 }
 
 
-
+/** @hidden */
 function addXOutPs(reversed: boolean, fromX: X, ps: number[][]) {
     if (fromX && !fromX.isDummy) {
         let x = reversed ? fromX : fromX.opposite;

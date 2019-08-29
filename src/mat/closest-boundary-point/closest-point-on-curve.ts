@@ -7,12 +7,14 @@ import { evaluate, getTangentPolyFromPoint } from 'flo-bezier3';
 import { Curve } from "../../curve";
 
 
+/** @hidden */
+// TODO - remove delta
 let DELTA = 1e-11;
 
 
 /**
- * 
- * @param curve The bezier
+ * @hidden
+ * @param curve The curve
  * @param p The point from which to check
  * @param tRange The allowed t range
  * @param touchedCurve The bezier on which p is located

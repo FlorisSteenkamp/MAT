@@ -15,9 +15,11 @@ import { IDebugElems } from './debug-elem-types';
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 type GeneratedElems = { [T in keyof IDebugElems]: IDebugElems[T][] };
 
 
+/** @hidden */
 export interface ITiming {
     simplify      : number[];
     holeClosers   : number[];
@@ -28,12 +30,14 @@ export interface ITiming {
 }
 
 
+/** @hidden */
 export interface IGenerated {
     elems  : GeneratedElems;
     timing : ITiming;
 }
 
 
+/** @hidden */
 export class Generated implements IGenerated {
     elems: GeneratedElems;
     timing: ITiming;
@@ -81,6 +85,7 @@ export class Generated implements IGenerated {
 }
 
 
+/** @hidden */
 export interface IDebugFunctions extends IGeneralDebugFunctions {
     draw       : IDrawFunctions,
     twoProng   : ITwoProngDebugFunctions,
@@ -89,6 +94,7 @@ export interface IDebugFunctions extends IGeneralDebugFunctions {
 }
 
 
+/** @hidden */
 export interface IDirectives {
     stopAfterHoleClosers: boolean,
     stopAfterHoleClosersNum: number,
@@ -98,6 +104,7 @@ export interface IDirectives {
 }
 
 
+/** @hidden */
 class MatDebug {
     /* The current path for which MATs are being found */
     generated: Generated = undefined;

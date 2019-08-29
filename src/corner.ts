@@ -1,5 +1,6 @@
 
 /**
+ * @hidden
  * Represents a corner on the shape boundary, i.e. a point where two bezier
  * curves meet. This class is typically used internally only.
  */
@@ -30,4 +31,4 @@ class Corner {
 }
 
 
-export { Corner };
+export { Corner }

@@ -1,11 +1,12 @@
 
-import { Loop } from "./loop/loop";
+import { Loop } from "./loop";
 import { getX, getY, getDx, getDy } from "flo-bezier3";
 import { gaussQuadrature } from 'flo-gauss-quadrature';
 import { multiply, add, negate, evaluate } from 'flo-poly';
 
 
 /** 
+ * @hidden
  * See e.g. https://mathinsight.org/greens_theorem_find_area
  */
 function getLoopArea(loop: Loop) {

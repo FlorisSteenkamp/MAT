@@ -6,6 +6,7 @@ import { Generated } from './debug';
 
 
 /**
+ * @hidden
  * Class used in debugging. A three-prong is a maximally inscribed circle that
  * touches the shape boundary (tangentially) at 3 points.
  */

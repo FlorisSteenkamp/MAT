@@ -1,11 +1,14 @@
 
 import { parseNumber } from './parse-number';
 
+/** @hidden */
 const COMMAND_MAP: { [index:string]: string } = {
     "Z":"Z", "M":"M", "L":"L", "C":"C", "Q":"Q", "A":"A", "H":"H", "V":"V", "S":"S", "T":"T",
     "z":"Z", "m":"m", "l":"l", "c":"c", "q":"q", "a":"a", "h":"h", "v":"v", "s":"s", "t":"t"
 };
 
+
+/** @hidden */
 class Source {
     _string: string;
     _currentIndex: number;

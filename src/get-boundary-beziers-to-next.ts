@@ -5,7 +5,7 @@ import { fromTo, fromTTo1, from0ToT } from 'flo-bezier3';
 
 
 /**
- * Returns the ordered cubic bezier curves from this CpNode to the next CpNode 
+ * Returns the ordered bezier curves from this CpNode to the next CpNode 
  * on the boundary.
  * @param cpNode
  */

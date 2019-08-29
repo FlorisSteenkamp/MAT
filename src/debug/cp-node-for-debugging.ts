@@ -6,6 +6,7 @@ import { Generated } from './debug';
 
 
 /**
+ * @hidden
  * Class used for debugging only. 
  */
 class CpNodeForDebugging {

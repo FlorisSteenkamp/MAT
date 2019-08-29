@@ -1,11 +1,9 @@
 
 import { memoize } from 'flo-memoize';
-//import { κExactAt0, κExactAt1 } from 'flo-bezier3';
 import { cross, dot, toUnitVector } from 'flo-vector2d';
-
 import { Loop } from './loop/loop';
 import { Corner } from './corner';
-import { getInterfaceCcw, κ } from 'flo-bezier3';
+import { getInterfaceCcw } from 'flo-bezier3';
 
 
 /**
@@ -37,6 +35,7 @@ class Curve {
 	
 
 	/**
+	 * @hidden
  	 * Returns information about the corner created at the end of this curve 
  	 * (at t === 1) and the start of the next curve (at t === 0).
 	 * @param curve The relevant [[Curve]].
@@ -48,8 +47,8 @@ class Curve {
 
 
 /** 
- * Angle in degrees to radians.
  * @hidden
+ * Angle in degrees to radians.
  */
 const DEGREES = {
 	//'0'    : 0.0000,
@@ -62,11 +61,12 @@ const DEGREES = {
 
 /** @hidden */
 //const DEGREE_LIMIT = DEGREES[1];
-//const DEGREE_LIMIT = DEGREES[4]; 
-const DEGREE_LIMIT = DEGREES[16]; 
+const DEGREE_LIMIT = DEGREES[4]; 
+//const DEGREE_LIMIT = DEGREES[16]; 
 
 
 /**
+ * @hidden
  * Returns a new corner with properties.
  * 
  * PRECONDITION: The beziers has control points with max bit-length of 26 and
@@ -132,9 +132,9 @@ function getCorner(psI: number[][], psO: number[][]) {
 
 
 /**
+ * @hidden
  * Returns information about the corner created at the end of this curve 
  * (at t === 1) and the start of the next curve (at t === 0).
- * @hidden
  */
 let getCornerAtEnd = memoize(function(curve: Curve) {
 	let psE = curve.ps;

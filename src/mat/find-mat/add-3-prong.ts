@@ -1,20 +1,15 @@
 
-declare var _debug_: MatDebug; 
-
-import { MatDebug }   from '../../debug/debug';
-
 import LlRbTree from 'flo-ll-rb-tree';
-
-import { CpNode       } from '../../cp-node/cp-node';
-import { Loop         } from '../../loop/loop';
-import { Circle       } from '../../circle';
+import { CpNode } from '../../cp-node/cp-node';
+import { Loop } from '../../loop/loop';
+import { Circle } from '../../circle';
 import { PointOnShape } from '../../point-on-shape';
-
 import { addToCpGraph } from '../add-to-cp-graph';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 
 
 /**
+ * @hidden
  * Adds a 3-prong MAT circle according to the 3 given (previously calculated) 
  * points on the shape. 
  * @param cpTrees 

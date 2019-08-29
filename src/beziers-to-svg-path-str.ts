@@ -6,7 +6,7 @@
  * @param decimalPlaces The number of decimal places in the returned path 
  * string.
  */
-function beziersToSvgPathStr(
+ function beziersToSvgPathStr(
         beziers: number[][][], 
         decimalPlaces: number = 10) {
 

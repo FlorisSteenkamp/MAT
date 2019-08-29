@@ -1,13 +1,5 @@
 
-import { PointOnShape } from '../../../point-on-shape';
-import { CpNode       } from '../../../cp-node/cp-node';
-import { Loop         } from '../../../loop/loop';
-import { Circle       } from '../../../circle';
-import { X            } from '../../../x/x';
-import { Curve        } from '../../../curve';
-import { TwoProngForDebugging   } from '../../two-prong-for-debugging';
-import { ThreeProngForDebugging } from '../../three-prong-for-debugging';
-import { /*DebugElemType,*/ IDebugElems } from '../../debug-elem-types';
+import { IDebugElems      } from '../../debug-elem-types';
 import { drawOneProng     } from './one-prong';
 import { twoProng         } from './two-prong';
 import { threeProng       } from './three-prong';
@@ -28,15 +20,18 @@ import { intersection     } from './intersection';
 import { oneProngAtDullCorner } from './one-prong-at-dull-corner';
 
 
+/** @hidden */
 type TDrawElemFunctions = 
 	{ [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T]) => SVGElement[] };
 
 
+/** @hidden */
 function notImplementedYet<T extends IDebugElems[keyof IDebugElems]> (g: SVGElement, elem: T) {
 	return [] as SVGElement[]; // TODO - implement relevant drawing function
 }
 
 
+/** @hidden */
 let drawElemFunctions: TDrawElemFunctions = {
 	oneProng: drawOneProng,
 	oneProngAtDullCorner,

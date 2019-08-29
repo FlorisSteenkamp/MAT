@@ -3,6 +3,7 @@ import { CpNode } from '../../../cp-node/cp-node';
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 function maxVertex(g: SVGGElement, cpNode: CpNode) {	
     let circle = cpNode.cp.circle;
 

@@ -1,32 +1,31 @@
+
+/** @hidden */
 declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../../debug/debug';
-
 import { 
     fromTo, circumCenter, len, distanceBetween, toUnitVector, rotate90Degrees,
     cross
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-
-import { CpNode     } from '../../../cp-node/cp-node';
-
-import { Circle       } from '../../../circle';
-import { BezierPiece  } from '../../../bezier-piece';
+import { CpNode } from '../../../cp-node/cp-node';
+import { Circle } from '../../../circle';
+import { BezierPiece } from '../../../bezier-piece';
 import { PointOnShape } from '../../../point-on-shape';
-
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
-
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center';
 import { getClosestPoints } from './get-closest-points';
-import { calcBetterX      } from './calc-better-x';
+import { calcBetterX } from './calc-better-x';
 import { Curve } from '../../../curve';
 
 
+/** @hidden */
 const calcVectorToZeroV_StraightToIt = fromTo;
 
 
 /**
+ * @hidden
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
@@ -78,7 +77,6 @@ function find3ProngForDelta3s(
     let ps: PointOnShape[];
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
-    //console.log(bezierPieces_)
     let x = calcInitial3ProngCenter(δ3s, bezierPiece3s);
 
     if (typeof _debug_ !== 'undefined') { 
@@ -106,9 +104,6 @@ function find3ProngForDelta3s(
 
         let vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter_);
 
-        //console.log('' + x[0] + ' ' + x[1])
-        //console.log('' + vectorToZeroV[0] + ' ' + vectorToZeroV[1]);
-
         if (!Number.isFinite(vectorToZeroV[0]) || !Number.isFinite(vectorToZeroV[1])) {
 
             // TODO - the code can be cleaned up and sped up a lot if we don't
@@ -133,8 +128,6 @@ function find3ProngForDelta3s(
         tolerance = Math.abs(V - upds.newV);
     }
 
-    //_debug_.fs.draw.dot(_debug_.generated.g, x, 0.05);
-
     let radius = (distanceBetween(x, ps[0].p) + 
                 distanceBetween(x, ps[1].p) + 
                 distanceBetween(x, ps[2].p)) / 3;
@@ -142,7 +135,7 @@ function find3ProngForDelta3s(
     let circle = new Circle(x, radius);
 
 
-    
+   
     //-------------------------------------------------------------------------
     // Calculate the unit tangent vector at 3-prong circle points - they should 
     // be very close to tangent to the boundary piece tangents at those points 

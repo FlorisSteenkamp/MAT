@@ -3,7 +3,7 @@ import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
 import { normal, evaluate, κ as curvature }   from 'flo-bezier3';
 
-import { Curve  } from './curve'
+import { Curve } from './curve'
 import { Circle } from './circle';
 
 /**
@@ -200,20 +200,17 @@ class PointOnShape {
 
 
     /**
+     * @hidden
      * Calculates the order (to distinguish between points lying on top of each 
      * other) of the contact point if it is a dull corner.
      * @param pos
-     * @hidden
      */
     public static calcOrder(
             circle : Circle, 
             pos    : PointOnShape): number {
         
         if (!PointOnShape.isCorner(pos)) { return 0; }
-        
-        if (!PointOnShape.isDullCorner(pos)) { 
-            return 0; 
-        }
+        if (!PointOnShape.isDullCorner(pos)) { return 0; }
 
         let corner = PointOnShape.getCorner(pos);
 

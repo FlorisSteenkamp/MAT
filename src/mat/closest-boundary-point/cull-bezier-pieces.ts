@@ -1,13 +1,12 @@
 
 import { BezierPiece } from "../../bezier-piece";
-
 import { getBestDistanceSquared } from "./get-best-distance-squared";
 import { cullByLooseBoundingBox } from "./cull-by-loose-bounding-box";
 import { cullByTightBoundingBox } from "./cull-by-tight-boundary-box";
 
 
 /**
- * 
+ * @hidden
  * @param bezierPieces 
  * @param p 
  * @param extreme

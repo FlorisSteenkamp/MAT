@@ -1,6 +1,5 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
-
 import { Loop         } from '../../loop/loop';
 import { Circle       } from '../../circle';
 import { CpNode       } from '../../cp-node/cp-node';
@@ -9,6 +8,7 @@ import { ContactPoint } from '../../contact-point';
 
 
 /**
+ * @hidden
  * Creates the initial ContactPoint loops from the given sharp corners.
  * @param shape
  * @param sharpCornerss

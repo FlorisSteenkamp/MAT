@@ -5,6 +5,7 @@ import { TTree } from './t-tree';
 
 
 /**
+ * @hidden
  * Traverses the spacial tree and calls the given callback function for each
  * MAT circle in the tree and iteravely for each subtree.
  * @param tree The spacial tree to traverse

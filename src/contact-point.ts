@@ -14,8 +14,7 @@ class ContactPoint {
 	 * @param order Internally used to order two points lying at the same planar 
 	 * point.
 	 * @param order2
-	 * Internally used to order two points lying at the same planar 
-	 * point.
+	 * Internally used to order two points lying at the same planar point.
 	 */
 	constructor(
 			readonly pointOnShape: PointOnShape, 
@@ -48,4 +47,4 @@ class ContactPoint {
 }
 
 
-export { ContactPoint };
+export { ContactPoint }

@@ -2,7 +2,9 @@
 import { ILoopTree } from '../svg/fs/simplify-paths/i-loop-tree';
 import { PointOnShape } from '../point-on-shape';
 
+
 /** 
+ * @hidden
  * Representation of one side of an intersection. The opposite side is at 
  * X.opposite.
  */

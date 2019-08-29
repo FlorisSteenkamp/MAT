@@ -1,11 +1,13 @@
 
 import { CpNode } from './cp-node/cp-node';
 import { tangent } from 'flo-bezier3';
-import * as Vector from 'flo-vector2d';
-import { getCurveToNext } from './mat/smoothen/smoothen';
+import { cross } from 'flo-vector2d';
+import { getCurveToNext } from './get-curve/get-curve-to-next';
 
 
+/** @hidden */
 const defaultTolerance = 1; // 1 degree
+
 
 /**
  * Traverses all edges (depth first) of the given MAT tree starting at the given 
@@ -74,8 +76,8 @@ function getBranches(
 			getCurveToNext(children[0]), 0
 		);
 
-		let cross = Vector.cross(backPointingTan, forwardPointingTan);
-		let angle = Math.abs(Math.asin( cross ) * (180/Math.PI));
+		let cross_ = cross(backPointingTan, forwardPointingTan);
+		let angle = Math.abs(Math.asin( cross_ ) * (180/Math.PI));
 
 		if (angle > tolerance) {
 			branches.push(branchCpNodes);

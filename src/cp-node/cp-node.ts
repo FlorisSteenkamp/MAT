@@ -9,7 +9,6 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { ContactPoint } from '../contact-point';
 import { CpNodeForDebugging } from '../debug/cp-node-for-debugging';
 import { removeCpNode } from './remove';
-import { getCurveToNext } from '../mat/smoothen/smoothen';
 
 
 /**
@@ -26,7 +25,7 @@ import { getCurveToNext } from '../mat/smoothen/smoothen';
  * 
  * To get the boundary point, use [[cp]].pointOnShape.
  * 
- * The edge, [[next]] (resp. [[prev]]) allows one to move anti-clockwise (resp.
+ * The edge [[next]] (resp. [[prev]]) allows one to move anti-clockwise (resp.
  * clockwise) on the shape boundary to the next [[CpNode]]. This also imposes a 
  * direction of traversal of the MAT edges and vertices. 
  * 
@@ -35,30 +34,30 @@ import { getCurveToNext } from '../mat/smoothen/smoothen';
  * the CpNode to the next maximal disk contact point. This is equivalent to 
  * following other branches on the MAT.
  * 
- * Each [[CpNode]] has a property, [[matCurveToNextVertex]], which is a bezier
- * curve from the maximal disk of this [[CpNode]] to the next [[CpNode]]'s 
- * maximal disk and thus directly represents a piece of the medial axis.
+ * Call [[getCurveBetween]](cpNodeFrom, cpNodeTo) or getCurveToNext(cpNode) 
+ * (replacing the older CpNode.[[matCurveToNextVertex]]) to get a bezier curve 
+ * from the maximal disk of this [[CpNode]] to the next [[CpNode]]'s 
+ * maximal disk and thus directly representing a piece of the medial axis.
  * 
- * The getter, [[children]], returns the children of this [[CpNode]] when
+ * The function, [[getChildren]], returns the children of this [[CpNode]] when
  * seen as a MAT edge. Only children in a 'forward' direction are returned. These
  * include all edges except the 'backward' edge given by [[prevOnCircle]]. For
  * [[CpNode]]s having a maximal disk with 2 contact points (a 2-prong, the usual 
  * case) the children will be the single edge [[next]]. For a 3-prong this will
- * be the edgese [[next]] and [[nextOnCircle]], etc. [[children]] allows one to
- * easily traverse the MAT tree - see e.g. the implementation of 
- * [[traverseEdges]].
+ * be the edges [[next]] and [[nextOnCircle]], etc. [[getChildren]] allows one to
+ * easily traverse the MAT tree - see e.g. the implementation of [[traverseEdges]].
  * 
- * [[vertexChildren]] is similar to [[children]] but returns the child nodes of
- * the tree when [[CpNode]] is seen as a MAT vertex point (as opposed to edge).
- * In this way the dual graph of the tree can easily be traversed - see e.g.
- * [[traverseVertices]]. Generally, however, traversing the edges is preferred
- * as it returns the entire Medial Axis (by utilizing [[matCurveToNextVertex]]
- * on each returned edge).
+ * The getter, [[vertexChildren]], is similar to [[getChildren]] but returns the 
+ * child nodes of the tree when [[CpNode]] is seen as a MAT vertex point (as 
+ * opposed to edge). In this way the dual graph of the tree can easily be 
+ * traversed - see e.g. [[traverseVertices]]. Generally, however, traversing the 
+ * edges is preferred as it returns the entire Medial Axis (by utilizing 
+ * [[getCurveToNext]] on each returned edge).
  * 
  * It may be worth mentioning that by traversing from the CpNode by following
  * [[next]] repeatedly until one is back at the same CpNode allows one
- * to 'go around' the shape and at the same time traverse the MAT twice in 
- * different directions.
+ * to 'go around' the shape boundary and at the same time traverse the MAT twice 
+ * in opposite directions.
  */
 class CpNode {
 
@@ -66,19 +65,18 @@ class CpNode {
 	 * Primarily for internal use.
 	 * @param cp The shape boundary contact point, i.e. a [[CpNode]] without its
 	 * edges.
+	 * @param isHoleClosing If true, this [[CpNode]] belongs to a hole-closing
+	 * maximal disk.
+	 * @param isIntersection true if this cpNode is at a shape boundary 
+	 * intersection point, false otherwise
 	 * @param prev The previous (going clockwise around the boundary) contact 
 	 * point ([[CpNode]]).
-	 * @param next The next (going ant-clockwise around the boundary) 
-	 * contact ([[CpNode]]).
+	 * @param next The next (going anti-clockwise around the boundary) contact 
+	 * point ([[CpNode]]).
 	 * @param prevOnCircle The previous [[CpNode]] (going clockwise around 
 	 * the inscribed circle defined by the maximal disk).
 	 * @param nextOnCircle The next [[CpNode]] (going anti-clockwise around 
 	 * the inscribed circle defined by the maximal disk).
-	 * @param matCurveToNextVertex The actual medial axis curve from this 
-	 * [[CpNode]]'s maximal disk circle to the next [[CpNode]]'s circle. It is a 
-	 * bezier curve of order 1, 2 or 3.
-	 * @param isHoleClosing If true, this [[CpNode]] belongs to a hole-closing
-	 * maximal disk.
 	 */
     constructor(
 			public readonly cp    : ContactPoint,
@@ -87,8 +85,7 @@ class CpNode {
 			public prev           : CpNode = undefined,
 			public next           : CpNode = undefined,
 			public prevOnCircle   : CpNode = undefined,
-			public nextOnCircle   : CpNode = undefined/*,
-			public matCurveToNextVertex: number[][] = undefined*/) {
+			public nextOnCircle   : CpNode = undefined) {
 	}
 
 
@@ -125,12 +122,12 @@ class CpNode {
 
 
 	/**
-	 * Similar to [[children]] but returns the child nodes of the tree when 
+	 * Similar to [[getChildren]] but returns the child nodes of the tree when 
 	 * [[CpNode]] is seen as a MAT vertex point (as opposed to edge). In this 
 	 * way the dual graph of the tree can easily be traversed - see e.g. 
 	 * [[traverseVertices]]. Generally, however, traversing the edges is 
 	 * preferred as it returns the entire Medial Axis (by utilizing 
-	 * [[matCurveToNextVertex]] on each returned edge).
+	 * [[getCurveToNext]] on each returned edge).
 	 */
 	get vertexChildren() {
 		if (this.isTerminating()) { return []; }
@@ -175,8 +172,8 @@ class CpNode {
 	 * @param isIntersection True if this is a contact point at a shape boundary
 	 * intersection point.
 	 * @param cpTree The tree graph holding the [[CpNodes]] of the MAT.
-	 * @param cp - [[ContactPoint]] defining the [[CpNode]].
-	 * @param prev_ - Inserts the new [[CpNode]] right after this item if the 
+	 * @param cp [[ContactPoint]] defining the [[CpNode]].
+	 * @param prev_ Inserts the new [[CpNode]] right after this item if the 
 	 * loop is not empty, else insert the new [[CpNode]] as the only item in the 
 	 * loop. 
 	 */

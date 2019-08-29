@@ -1,19 +1,18 @@
 
+/** @hidden */
 declare var _debug_: MatDebug; 
 
 import { MatDebug }   from '../../debug/debug';
-
 import LlRbTree from 'flo-ll-rb-tree';
-
-import { Loop         } from '../../loop/loop';
+import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
-import { CpNode       } from '../../cp-node/cp-node';
-
+import { CpNode } from '../../cp-node/cp-node';
 import { addToCpGraph } from '../add-to-cp-graph';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 
 
 /**
+ * @hidden
  * Add a 1-prong to the MAT.
  * @param cpGraphs
  * @param pos 
@@ -45,7 +44,6 @@ function add1Prong(
 	}
     
 	let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
-	//console.log(maxOsculatingCircleRadius)
 	
 	let order = PointOnShape.calcOrder(circle, pos);
 	// Make sure there isn't already a ContactPoint close by - it can cause

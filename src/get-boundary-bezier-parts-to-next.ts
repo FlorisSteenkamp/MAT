@@ -2,11 +2,10 @@
 
 import { CpNode } from './cp-node/cp-node';
 import { Curve  } from './curve';
-import { fromTo, fromTTo1, from0ToT } from 'flo-bezier3';
 
 
 /**
- * Returns the ordered cubic bezier curves from this CpNode to the next CpNode 
+ * Returns the ordered bezier curves from this CpNode to the next CpNode 
  * on the boundary.
  * @param cpNode
  */
@@ -50,8 +49,8 @@ function getBoundaryBezierPartsToNext(cpNode: CpNode) {
 
 
 /**
- * Adds pieces of skipped beziers.
  * @hidden
+ * Adds pieces of skipped beziers.
  */
 function addSkippedBeziers(
         bezierParts: { ps: number[][]; ts: number[] }[], 

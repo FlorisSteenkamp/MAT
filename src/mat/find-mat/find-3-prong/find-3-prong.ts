@@ -1,21 +1,19 @@
 
+/** @hidden */
 declare var _debug_: MatDebug; 
 
 import { MatDebug } from '../../../debug/debug';
-
 import { fromTo } from 'flo-bezier3';
-
-import { CpNode       } from '../../../cp-node/cp-node';
-import { Circle       } from '../../../circle';
+import { CpNode } from '../../../cp-node/cp-node';
+import { Circle } from '../../../circle';
 import { PointOnShape } from '../../../point-on-shape';
 import { ThreeProngForDebugging } from '../../../debug/three-prong-for-debugging';
-		
 import { find3ProngForDelta3s } from './find-3-prong-for-delta3s';
-
 import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers';
 
 
 /**
+ * @hidden
  * Find and return a 3-prong from the given boundary piece.
  * @param δs A boundary piece
  * @param extreme The maximum coordinate value used to calculate floating point
@@ -55,7 +53,6 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 	let smallestError = Number.POSITIVE_INFINITY;
 	for (let i=1; i<δs.length-1; i++) {
 		for (let k=0; k<3; k++) {
-			//let k = 0;
 			if (typeof _debug_ !== 'undefined') { 
 				let threeProngs = _debug_.generated.elems.threeProng;
 				let d = threeProngs[threeProngs.length-1];

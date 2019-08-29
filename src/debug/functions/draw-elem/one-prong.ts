@@ -3,9 +3,12 @@ import { PointOnShape } from '../../../point-on-shape';
 import { Circle } from '../../../circle';
 import { drawFs } from 'flo-draw';
 
+
+/** @hidden */
 const scaleFactor = 0.5;
 
 
+/** @hidden */
 function drawOneProng(g: SVGGElement, pos: PointOnShape) {
     let circle = Circle.scale(
         PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos),

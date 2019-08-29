@@ -3,44 +3,29 @@
 declare var _debug_: MatDebug;
 
 import { MatDebug } from './debug/debug';
-
 import { length } from 'flo-bezier3';
-
 import { CpNode } from './cp-node/cp-node';
 import { Circle } from './circle';
-import { Mat    } from './mat';
-import { traverseEdges    } from './traverse-edges';
+import { Mat } from './mat';
+import { traverseEdges } from './traverse-edges';
 import { traverseVertices } from './traverse-vertices';
 import { getLargestVertex } from './mat/get-largest-vertex';
-import { createNewCpTree  } from './mat/create-new-cp-tree';
-import { getLeaves        } from './mat/get-leaves';
-import { cull             } from './mat/to-scale-axis/cull';
-import { addDebugInfo     } from './mat/to-scale-axis/add-debug-info';
+import { createNewCpTree } from './mat/create-new-cp-tree';
+import { getLeaves } from './mat/get-leaves';
+import { cull } from './mat/to-scale-axis/cull';
+import { addDebugInfo } from './mat/to-scale-axis/add-debug-info';
 import { clone } from './cp-node/clone';
-import { getCurveToNext } from './mat/smoothen/smoothen';
-import { simplifyMat } from './mat/simplify-mat';
+import { getCurveToNext } from './get-curve/get-curve-to-next';
 
 
-/*
-function inverseScale(cpNode: CpNode, s: number) {
-	let rMax = cpNode.cp.circle.radius;
-
-	return function(r: number) {
-		let s_ = 1 + (s-1)*((rMax+0.1)/(r+0.1));
-		//console.log(s,s_,r)
-		return s_*r;
-	}
-}
-*/
-
-
-function linearScale(cpNode: CpNode, s: number) {
+function linearScale(s: number) {
 	return function(r: number) {
 		return s*r;
 	}
 }
 
 
+/** @hidden */
 let len = length([0,1]);
 
 
@@ -59,7 +44,7 @@ let len = length([0,1]);
 function toScaleAxis(
 		mat: Mat, 
 		s: number, 
-		f: (cpNode: CpNode, s: number) => (r: number) => number = linearScale) {
+		f: (s: number) => (r: number) => number = linearScale) {
 
 	if (typeof _debug_ !== 'undefined') {
 		_debug_.generated.timing.sats[0] = performance.now();
@@ -75,7 +60,7 @@ function toScaleAxis(
 	);
 
 	let cpNode = getLargestVertex(cpNodes);
-	let f_ = f(cpNode, s);
+	let f_ = f(s);
 
 	if (typeof _debug_ !== 'undefined') {
 		_debug_.generated.elems.maxVertex.push(cpNode);
@@ -92,20 +77,12 @@ function toScaleAxis(
 	traverseEdges(cpNode, function(cpNode) {
 		/** The occulating radius stored with this vertex. */
 		let R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
-		//let R = rMap.get(cpNode) || s * rThis;
 
 		let cpNode_ = cpNode.next;
 
-		//let c  = cpNode .cp.circle.center;
-		//let c_ = cpNode_.cp.circle.center;
-		/** Distance between this vertex and the next. */
-		//let l = distanceBetween(c, c_); // Almost always precise enough
-		//let l = len(cpNode.matCurveToNextVertex);
 		let l = len(getCurveToNext(cpNode));
 
 		let r = cpNode_.cp.circle.radius;
-		//let s_ = 1 + (s-1)*(rMax/r);
-		//let r_ = s * r;
 		let r_ = f_(r);
 		if (R - l > r_) {
 			for (let cpNode of cpNode_.getCpNodesOnCircle()) {

@@ -3,6 +3,7 @@ import { Curve } from '../../../curve';
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 function dullCorner(g: SVGGElement, curve: Curve) {
 	const scaleFactor = 1;
 		

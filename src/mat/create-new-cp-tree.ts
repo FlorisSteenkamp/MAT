@@ -1,12 +1,13 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
-
 import { CpNode } from '../cp-node/cp-node';
-import { Loop   } from '../loop/loop';
-
-import { traverseEdges } from '../traverse-edges';
+import { Loop } from '../loop/loop';
 
 
+/**
+ * @hidden
+ * @param cpNode 
+ */
 function createNewCpTree(cpNode: CpNode) {
 	let newCpTrees: Map<Loop,LlRbTree<CpNode>> = new Map();
 

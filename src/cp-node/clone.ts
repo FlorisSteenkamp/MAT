@@ -25,7 +25,6 @@ function clone(cpNode: CpNode): CpNode {
     let nodeMap: Map<CpNode, CpNode> = new Map();
 
     let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
-    //newCpNode.matCurveToNextVertex = cpNode.matCurveToNextVertex;
 
     nodeMap.set(cpNode, newCpNode);
     let cpStack = [{ cpNode, newCpNode }];
@@ -38,7 +37,6 @@ function clone(cpNode: CpNode): CpNode {
             let newNode = nodeMap.get(node);
             if (!newNode) {	
                 newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);
-                //newNode.matCurveToNextVertex = node.matCurveToNextVertex;
                 nodeMap.set(node, newNode);
                 cpStack.push({cpNode: node, newCpNode: newNode });
             }

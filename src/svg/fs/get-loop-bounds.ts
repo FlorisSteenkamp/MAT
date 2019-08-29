@@ -1,16 +1,17 @@
 
-import { memoize } from 'flo-memoize';
 import { getBounds } from 'flo-bezier3';
-
-import { Loop         } from '../../loop/loop';
-import { Curve        } from '../../curve';
+import { Loop } from '../../loop/loop';
+import { Curve } from '../../curve';
 import { PointOnShape } from '../../point-on-shape';
+import { memoize } from 'flo-memoize';
 
 
+/** @hidden */
 const INF = Number.POSITIVE_INFINITY;
 
 
-let getLoopBounds = /*memoize*/(function(loop: Loop) {	
+/** @hidden */
+let getLoopBounds = memoize(function(loop: Loop) {	
 	let extremes: { 
 		bezier: Curve, 
 		t: number, 

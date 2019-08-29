@@ -3,13 +3,10 @@
 declare var _debug_: MatDebug; 
 
 import { MatDebug } from './debug/debug';
-
 import LlRbTree from 'flo-ll-rb-tree';
-
 import { CpNode } from './cp-node/cp-node';
 import { Loop } from './loop/loop';
 import { Mat } from './mat';
-
 import { simplifyPaths, ascendingByTopmostPoint } from './svg/fs/simplify-paths/simplify-paths';
 import { getExtreme } from './svg/fs/get-extreme';
 import { findAndAddAll3Prongs } from './mat/find-mat/find-and-add-3-prongs';
@@ -20,7 +17,7 @@ import { getSharpCorners } from './mat/find-mat/get-sharp-corners';
 import { findAndAdd2ProngsOnAllPaths } from './mat/find-mat/find-and-add-2-prongs-on-all-paths';
 import { createGetInterestingPointsOnLoop } from './mat/find-mat/create-get-interesting-points-on-loop';
 import { findAndAddHoleClosing2Prongs } from './mat/find-mat/find-and-add-hole-closing-2-prongs';
-import { getLoopArea } from './get-loop-area';
+import { getLoopArea } from './loop/get-loop-area';
 import { normalizeLoops } from './loop/normalize/normalize-loop';
 
 
@@ -36,7 +33,6 @@ import { normalizeLoops } from './loop/normalize/normalize-loop';
  * @param additionalPointCount Additional points per bezier where a MAT circle
  * will be added. Defaults to 3.
  */
-//function findMats(bezierLoops: number[][][][], additionalPointCount = 3) {
 function findMats(
 		bezierLoops: number[][][][], 
 		additionalPointCount = 1) {
@@ -46,8 +42,6 @@ function findMats(
 		timing.simplify[0] = performance.now();
 	}
 
-	//loops_.map(loop => console.log(beziersToSvgPathStr(loop.beziers, 3)));
-
 	// We use 14 here since (14+3)*3 = 51 < 53 (signifcand length). In other
 	// words if we change a bezier point coordinate to power basis we add
 	// three more significant figures at most (due to multiplication by 6) to
@@ -56,14 +50,7 @@ function findMats(
 	//let loops = loops_.map(loop => normalizeLoop(loop, max, 13));
 	let loops = normalizeLoops(bezierLoops, 14);
 
-	//console.log(loops)
-	
-	//loops.map(loop => loop.beziers.map(ps => console.log(ps)))
-	//loops.map(loop => console.log(beziersToSvgPathStr(loop.beziers, 0)));
-
 	let { loopss, xMap } = simplifyPaths(loops);
-
-	//console.log(loopss[0][0].beziers)
 
 	for (let i=0; i<loopss.length; i++) {
 		let loops = loopss[i].filter(loopHasNonNegligibleArea(0.1))
@@ -87,6 +74,10 @@ function findMats(
 }
 
 
+/**
+ * @hidden
+ * @param minArea 
+ */
 function loopHasNonNegligibleArea(minArea: number) {
 	return (loop: Loop) => {
 		let area = getLoopArea(loop);
@@ -97,12 +88,12 @@ function loopHasNonNegligibleArea(minArea: number) {
 
 
 /**
+ * @hidden
  * Find the MAT of the given loops.
  * @param loops The loops (that as a precondition must be ordered from highest 
  * (i.e. smallest y-value) topmost point loops to lowest)
  * @param xMap Intersection point map.
  * @param additionalPointCount 
- * @hidden
  */
 function findPartialMat(
 		loops: Loop[], 
@@ -139,8 +130,6 @@ function findPartialMat(
 		loops, cpTrees, for2ProngsPerLoop, extreme
 	);
 
-	//console.log(cpNode)
-
 	addDebugInfo3();
 
 	if (typeof _debug_ !== 'undefined') {
@@ -167,4 +156,4 @@ function findPartialMat(
 }
 
 
-export { findMats };
+export { findMats }

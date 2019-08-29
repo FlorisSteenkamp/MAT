@@ -1,18 +1,16 @@
 
+/** @hidden */
 declare var _debug_: MatDebug; 
 
 import { MatDebug }   from '../../debug/debug';
-
-import { 
-	getBoundingHull, getBoundingBox, getBoundingBoxTight
-} from 'flo-bezier3';
-
-import { Loop         } from '../../loop/loop';
+import { getBoundingHull, getBoundingBox, getBoundingBoxTight } from 'flo-bezier3';
+import { Loop } from '../../loop/loop';
 import { PointOnShape } from '../../point-on-shape';
-import { Curve        } from '../../curve';
-import { Mat          } from '../../mat';
+import { Curve } from '../../curve';
+import { Mat } from '../../mat';
 
 
+/** @hidden */
 function addDebugInfo1(loops: Loop[]) {
     if (typeof _debug_ === 'undefined') { return; }
     
@@ -41,13 +39,6 @@ function addDebugInfo1(loops: Loop[]) {
             let tightBoundingBox = getBoundingBoxTight(ps);
             generated.elems.tightBoundingBox.push(tightBoundingBox);
 
-            /*
-            if (PointOnShape.isSharpCorner(pos)) {
-                generated.elems.sharpCorner.push(pos);
-            } else if (PointOnShape.isDullCorner(pos)) {
-                generated.elems.dullCorner.push(pos);
-            }
-            */
             let corner = Curve.getCornerAtEnd(curve);
             if (corner.isSharp) {
                 generated.elems.sharpCorner.push(curve);
@@ -61,6 +52,7 @@ function addDebugInfo1(loops: Loop[]) {
 }
 
 
+/** @hidden */
 function addDebugInfo2(pointOnShapeArrPerLoop: PointOnShape[][]) {
     if (typeof _debug_ === 'undefined') { return; }
 

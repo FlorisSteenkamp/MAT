@@ -1,13 +1,12 @@
 
 import { tangent } from 'flo-bezier3';
 import { cross } from 'flo-vector2d';
-
 import { X } from '../../../x/x';
 import { ILoopTree } from './i-loop-tree';
 
 
 /**
- * 
+ * @hidden
  * @param x The intersection
  */
 function getLoopMetrics(x: X) {

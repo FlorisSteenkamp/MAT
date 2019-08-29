@@ -1,20 +1,17 @@
 
-declare var _debug_: MatDebug; 
-
-import { MatDebug } from '../../debug/debug';
-
 import { Circle } from '../../circle';
-
 import { TTree } from './t-tree';
 import { addToTree } from './add-to-tree';
 
 
+/** @hidden */
 const width  = 1620; // TODO change to actual shape coordinates
+/** @hidden */
 const height = 1560; // ...
 
 
 /**
- * 
+ * @hidden
  * @param s 
  * @param circles 
  */

@@ -26,11 +26,11 @@
         "includeDeclarations": false,
         "excludeExternals": true,
         "exclude": [
-            //"**/*..ts",
             "**/node_modules/**/*",
             "**/src/debug/**/*",
             "**/src/mat/**/*",
             "**/src/svg/**/*",
+            "**/src/sweepline/**/*",
             "**/src/x/**/*",
             "**/src/bounding-box/**/*",
         ],

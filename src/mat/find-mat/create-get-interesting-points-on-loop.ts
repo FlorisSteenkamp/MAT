@@ -1,13 +1,12 @@
 
 import { getContactCirclesAtInterface } from '../get-contact-circles-at-interface';
-import { getCurvatureExtrema, splitByMaxCurvature, splitByCurvatureAndLength, splitByMaxCurveLength } from 'flo-bezier3';
-
+import { getCurvatureExtrema, splitByCurvatureAndLength } from 'flo-bezier3';
 import { Loop } from '../../loop/loop';
-
 import { PointOnShape } from '../../point-on-shape';
 
 
 /**
+ * @hidden
  * Get useful points on the shape - these incude points of maximum curvature and 
  * points at the bezier-bezier interfaces.  
  * @param loop
@@ -33,8 +32,6 @@ function createGetInterestingPointsOnLoop(additionalPointCount = 3) {
                 ...maxNegativeCurvatures
             );
 
-            //let ts = splitByMaxCurveLength(curve.ps, 50);
-            //let ts = splitByMaxCurvature(curve.ps, 1.01);
             let ts = splitByCurvatureAndLength(curve.ps, 1.001, 10);
             if (ts.length === 2) {
                 ts = [0, 0.5, 1];

@@ -5,7 +5,6 @@ import { MatDebug } from '../../debug/debug';
 
 import { distanceBetween } from 'flo-vector2d';
 
-import { Curve        } from '../../curve';
 import { PointOnShape } from '../../point-on-shape';
 import { BezierPiece  } from '../../bezier-piece';
 
@@ -14,6 +13,7 @@ import { closestPointsOnCurve } from './closest-points-on-curve';
   
 
 /**
+ * @hidden
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces
@@ -46,9 +46,7 @@ function getCloseBoundaryPoints(
 				point, 
 				bezierPiece.ts, 
 				touchedCurve, 
-				t,
-				distance,
-				DISTANCE_TOLERANCE
+				t
 		);
 
 		//if (ps === undefined) { continue; }
@@ -100,7 +98,6 @@ function getCloseBoundaryPoints(
 					  Math.abs(p1[1] - p3[1]) < 1e-6)
 					) {
 
-					//console.log(i);
 					indexesToRemove.push(indexesToCheck[i]);
 				}
 			}
@@ -108,13 +105,6 @@ function getCloseBoundaryPoints(
 		for (let i=indexesToRemove.length -1; i >= 0; i--) {
 		   posInfos.splice(indexesToRemove[i], 1);
 		}
-
-		/*
-		if (posInfos.length > 1) {
-			console.log(p_);
-			console.log(posInfos.map(pi => pi.d), posInfos.map(pi => pi.pos.p), posInfos.map(pi => pi.pos.t))
-			console.log('-------');
-		}*/
 	}
 
 	return posInfos;

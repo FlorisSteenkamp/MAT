@@ -4,6 +4,7 @@ import { CpNode } from '../../../cp-node/cp-node';
 import { drawCirclePercent } from './draw-circle-percent';
 
 
+/** @hidden */
 function leaves(g: SVGGElement, leaves: CpNode[]) {	
     let $elems: SVGElement[] = [];
 

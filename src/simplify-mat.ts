@@ -1,14 +1,22 @@
 
-import { CpNode } from "../cp-node/cp-node";
-import { getBranches } from "../get-branches";
+import { CpNode } from "./cp-node/cp-node";
+import { getBranches } from "./get-branches";
 import { hausdorffDistance, closestPointOnBezier, toCubic } from "flo-bezier3";
-import { getCurveToNext, getCurveBetween } from "./smoothen/smoothen";
+import { getCurveToNext } from "./get-curve/get-curve-to-next";
+import { getCurveBetween } from "./get-curve/get-curve-between";
 
 
 /**
- * Simplifies the given MAT by replacing piecewise quad beziers with a single 
- * one.
- * @param cpNode 
+ * Simplifies the given MAT by replacing the piecewise quad beziers composing 
+ * the MAT with fewer ones to within a given tolerance.
+ * @param cpNode A representation of the MAT
+ * @param anlgeTolerance Tolerance given as the degrees difference of the unit 
+ * direction vectors at the interface between curves. A tolerance of zero means
+ * perfect smoothness is required - defaults to 15.
+ * @hausdorffTolerance The approximate maximum Hausdorff Distance tolerance -
+ * defaults to 1
+ * @hausdorffSpacing The spacing on the curves used to calculate the Hausdorff
+ * Distance - defaults to 1
  */
 function simplifyMat(
         cpNode: CpNode, 
@@ -25,13 +33,9 @@ function simplifyMat(
 
     let branches = getBranches(cpNode, anlgeTolerance);
 
-    //let g = document.getElementById('svg').getElementsByTagName('g')[0] as SVGGElement;
     let canDeletes: CpNode[] = [];
-    //console.log(branches)
     for (let k=0; k<branches.length; k++) {
         let branch = branches[k];
-        //drawBranch(g, branch, (k+1)*1000);
-        //drawBranch(g, branch);
 
         // Try to remove some
         let j = 0;
@@ -64,9 +68,7 @@ function simplifyMat(
                 while (curCpNode !== branEnd) {
                     let t = closestPointOnBezier(medial, curCpNode.next.cp.circle.center).t;
                     simpleMap.set(curCpNode, { ps: medial, ts: [prevT, t] });
-
                     let oppositeCpNode = curCpNode.nextOnCircle.prev;
-                    //let rev = medial.slice().reverse();
                     simpleMap.set(oppositeCpNode, { ps: rev, ts: [1-t, 1-prevT] });
 
                     prevT = t;
@@ -75,7 +77,6 @@ function simplifyMat(
                 simpleMap.set(curCpNode, { ps: medial, ts: [prevT, 1] });
 
                 let oppositeCpNode = curCpNode.nextOnCircle.prev;
-                //let rev = medial.slice().reverse();
                 simpleMap.set(oppositeCpNode, { ps: rev, ts: [0, 1-prevT] });
             }
         }

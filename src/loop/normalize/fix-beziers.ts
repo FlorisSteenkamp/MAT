@@ -1,11 +1,12 @@
 
 import { Loop } from "../loop";
-import { toGrid } from "../../numerical/to-grid";
+import { toGrid } from "./to-grid";
 import { isSelfOverlapping } from "flo-bezier3";
 import { fixBezierByPointSpacing } from "./fix-bezier-by-point-spacing";
 
 
 /**
+ * @hidden
  * Returns the grid-aligned loop derived from the given input loop. 
  * 
  * Also ensures that:

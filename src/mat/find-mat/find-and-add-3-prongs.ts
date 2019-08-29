@@ -1,20 +1,19 @@
 
+/** @hidden */
 declare var _debug_: MatDebug; 
 
-import { MatDebug }   from '../../debug/debug';
-
-import { CpNode       } from '../../cp-node/cp-node';
-import { Loop         } from '../../loop/loop';
-import { Circle       } from '../../circle';
+import { MatDebug } from '../../debug/debug';
+import LlRbTree from 'flo-ll-rb-tree';
+import { CpNode } from '../../cp-node/cp-node';
+import { Loop } from '../../loop/loop';
+import { Circle } from '../../circle';
 import { PointOnShape } from '../../point-on-shape';
-
 import { find3Prong } from './find-3-prong/find-3-prong';
 import { add3Prong  } from '../find-mat/add-3-prong';
 
-import LlRbTree from 'flo-ll-rb-tree';
-
 
 /**
+ * @hidden
  * Finds and adds all 3-prongs.
  * @param cpGraphs
  * @param cpStart The CpNode to start traversing from. 
@@ -55,6 +54,7 @@ function findAndAddAll3Prongs(
 
 
 /**
+ * @hidden
  * Marks the given edge as already taken.
  */
 function markEdgeAsTaken(
@@ -78,6 +78,7 @@ function markEdgeAsTaken(
 }
 
 
+/** @hidden */
 function hasEdgeBeenTaken(
 		visitedEdges: Map<CpNode, Set<CpNode>>,
 		cp1: CpNode, 
@@ -95,9 +96,8 @@ function hasEdgeBeenTaken(
 }
 
 
-
-
 /**
+ * @hidden
  * Traverses the shape from the given ContactPoint going around contact circles 
  * so that only a piece of the shape is traversed and returns the visited 
  * CpNodes (starting from the given CpNode).
@@ -126,6 +126,7 @@ function traverseShape(cpStart: CpNode) {
 
 
 /**
+ * @hidden
  * Starting from some ContactPoint, traverses the shape going around Vertices
  * and if more than two Vertices have been visited in total then recursively 
  * adds 3-prongs until only one or two Vertices have been visited. 
@@ -156,6 +157,7 @@ function findAndAdd3Prongs(
 
 
 /**
+ * @hidden
  * Finds and add a 3-prong MAT circle to the given shape. 
  * @param cpGraphs
  * @param visitedCps
@@ -189,6 +191,7 @@ function findAndAdd3Prong(
 }
 
 
+/** @hidden */
 function add3ProngDebugInfo(
 		circle: Circle, 
 		visitedCps: CpNode[]) {
@@ -201,4 +204,4 @@ function add3ProngDebugInfo(
 }
 
 
-export { findAndAddAll3Prongs };
+export { findAndAddAll3Prongs }

@@ -1,7 +1,11 @@
 
+// TODO - move to another library
+
+/** @hidden */
 const C = 0.55191502449;
 
 
+/** @hidden */
 function circleToCubicBeziers(
         center: number[] = [0,0],
         radius: number, 

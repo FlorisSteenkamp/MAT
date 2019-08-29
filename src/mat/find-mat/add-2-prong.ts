@@ -1,24 +1,22 @@
 
+/** @hidden */
 declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../debug/debug';
-
 import LlRbTree from 'flo-ll-rb-tree';
-
 import { exponent } from 'flo-numerical';
-
 import { Loop         } from '../../loop/loop';
 import { CpNode       } from '../../cp-node/cp-node';
 import { Circle       } from '../../circle';
 import { ContactPoint } from '../../contact-point';
 import { PointOnShape } from '../../point-on-shape';
-
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 import { getNeighbouringPoints } from '../get-neighboring-cps';
 import { TwoProngForDebugging } from '../../debug/two-prong-for-debugging';
 
 
 /**
+ * @hidden
  * Adds a 2-prong contact circle to the shape.
  * @param cpGraphs
  * @param circle Circle containing the 2 contact points
@@ -36,18 +34,6 @@ function add2Prong(
 		posAntipodes     : { pos: PointOnShape, d: number }[],
 		holeClosing   : boolean,
 		extreme       : number) {
-
-	//console.log(circle.center[0], circle.center[1])
-	/*
-	if (posAntipodes.length > 1) {
-		console.log('>1')
-	}
-	*/
-	/*
-	if (circle.center[0] === 241 && circle.center[1] === -342.0764118857498) {
-		return;
-	}
-	*/
 
 	let orderSource   = PointOnShape.calcOrder(circle, posSource);
 	let orderAntipodes = posAntipodes.map(
@@ -124,8 +110,6 @@ function add2Prong(
 	}
 	
 	
-	//console.log(cpAntipode.pointOnShape.t);
-
 	// Source
 	let cpSource = new ContactPoint(posSource, circle, orderSource, 0);
 	let loopSource = posSource.curve.loop;
@@ -140,7 +124,6 @@ function add2Prong(
 		cpSource, 
 		deltaSource[0]
 	);
-	//console.log(cpSource.pointOnShape.t);
 
 
 	// Connect graph
@@ -153,11 +136,6 @@ function add2Prong(
 	} else {
 		let cpNodes = newCpAntipodes.slice();
 		cpNodes.push(newCpSource);
-
-
-		// This sometimes didn't work as it compares only according to it's own
-		// loop.
-		//cpNodes.sort(CpNode.comparator);
 
 		// Order points according to their angle with the x-axis
 		cpNodes.sort(byAngle(circle));
@@ -217,11 +195,13 @@ function add2Prong(
 }
 
 
+/** @hidden */
 function scale(n: number, exp: number) {
     return n * (2**-(exp+1));
 }
 
 
+/** @hidden */
 function getSize(x: number, y: number) {
 	// Get size of a
 	if (x > 0) {
@@ -248,6 +228,7 @@ function getSize(x: number, y: number) {
 }
 
 
+/** @hidden */
 function byAngle(circle: Circle) {
 	let c = circle.center;
 	let r = circle.radius;

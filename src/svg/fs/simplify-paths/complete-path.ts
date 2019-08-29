@@ -1,17 +1,15 @@
 
 import { Curve } from '../../../curve';
-import { Loop  } from '../../../loop/loop';
-
+import { Loop } from '../../../loop/loop';
 import { X } from '../../../x/x';
 import { ILoopTree } from './i-loop-tree';
-
-import { completeLoop   } from './complete-loop';
-import { getInitialX    } from './get-initial-x';
+import { completeLoop } from './complete-loop';
+import { getInitialX } from './get-initial-x';
 import { getLoopMetrics } from './get-loop-metrics';
 
 
 /**
- * 
+ * @hidden
  * @param intersections 
  * @param loopsTaken 
  * @param loop 
@@ -48,7 +46,7 @@ function completePath(
             loopTree, 
             x
         );
-        loopTree.loop = Loop.fromCubicBeziers(loopTree.beziers);
+        loopTree.loop = new Loop(loopTree.beziers);
     }
 }
 

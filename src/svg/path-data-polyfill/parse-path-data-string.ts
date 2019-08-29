@@ -2,6 +2,10 @@
 import { Source } from './source';
 
 
+/**
+ * @hidden
+ * @param string 
+ */
 function parsePathDataString(string: string) {
     if (!string.length) return [];
 

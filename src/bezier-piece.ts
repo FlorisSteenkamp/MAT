@@ -1,6 +1,7 @@
 
 import { Curve } from './curve';
 
+
 /**
  * Represents a part of a bezier within the shape boundary.
  */
@@ -16,4 +17,4 @@ class BezierPiece {
 }
 
 
-export { BezierPiece };
+export { BezierPiece }

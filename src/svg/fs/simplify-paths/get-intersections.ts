@@ -1,23 +1,23 @@
 
+/** @hidden */
 declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../../debug/debug';
-
 import { bezier3Intersection, getBoundingBox } from 'flo-bezier3';
-
 import { Loop } from '../../../loop/loop';
 import { Curve } from '../../../curve';
-
 import { X } from '../../../x/x';
 import { PointOnShape } from '../../../point-on-shape';
 import { pairSet_add, pairSet_has } from './pair-set';
 import { sweepLine } from '../../../sweep-line/sweep-line';
 import { areBoxesIntersecting } from '../../../sweep-line/are-boxes-intersecting';
 
+
 // TODO - DELTA is somewhat arbitrary
+/** @hidden */
 const DELTA = 1e-10;
 
-
+/** @hidden */ 
 interface IBoxInfo {
     box : number[][];
     loop : Loop;
@@ -147,7 +147,10 @@ function getIntersections(loops: Loop[]) {
 
 
 /**
- * 
+ * @hidden
+ * @param checkedPairs 
+ * @param curves 
+ * @param tPair 
  */
 function confirmIntersection(
         checkedPairs: Map<Curve, Set<Curve>>, 
@@ -221,6 +224,7 @@ function confirmIntersection(
 
 
 /**
+ * @hidden
  * Returns an array of lines of the bounding hulls of the Loop beziers' control
  * points including a map that maps each line to its hull, path and curve.
  * @param loops An array of Loops

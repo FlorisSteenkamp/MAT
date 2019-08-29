@@ -1,15 +1,14 @@
 
 import LlRbTree from "flo-ll-rb-tree";
-
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
-
-import { Loop         } from "../loop/loop";
-import { CpNode       } from "../cp-node/cp-node";
+import { Loop } from "../loop/loop";
+import { CpNode } from "../cp-node/cp-node";
 import { PointOnShape } from "../point-on-shape";
-import { Circle       } from "../circle";
-
+import { Circle } from "../circle";
 import { getNeighbouringPoints } from "./get-neighboring-cps";
 
+
+/** @hidden */
 //const ANGLE_THRESHOLD = Math.cos(3 * (Math.PI / 180)); // 3 degrees
 const ANGLE_THRESHOLD = 0.9986295347545738; // === Math.cos(3  degrees)
 //const ANGLE_THRESHOLD = 0.9848077530122080; // === Math.cos(10 degrees)
@@ -19,6 +18,7 @@ const ANGLE_THRESHOLD = 0.9986295347545738; // === Math.cos(3  degrees)
 
 
 /**
+ * @hidden
  * Returns true if another CpNode is close to the given implied (via pos, order
  * and order2) CpNode.
  * @param cpTrees 

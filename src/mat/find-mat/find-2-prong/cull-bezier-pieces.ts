@@ -7,6 +7,7 @@ import { BezierPiece } from "../../../bezier-piece";
 
 
 /**
+ * @hidden
  * Cull all bezierPieces not within given radius of a given point.
  * @param extreme
  * @param bezierPieces
@@ -19,6 +20,7 @@ function cullBezierPieces(
         rSquared: number) {
 
     const CULL_THRESHOLD = 5;
+    // TODO - base delta on theory
     const TOLERANCE = 1+1e-3;
 
     if (bezierPieces.length <= CULL_THRESHOLD) {

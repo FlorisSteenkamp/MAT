@@ -3,6 +3,7 @@ import { PathState } from '../path-state';
 
 
 /** 
+ * @hidden
  * H and h: (from www.w3.org) 
  * 
  * params: x
@@ -14,17 +15,9 @@ import { PathState } from '../path-state';
  * command, the new current point becomes (x, cpy) for the final value of x.
  */	
 function h(s: PathState) {
-    /*
-    let xInterval = (s.vals[0] - s.p[0]) / 3;
     let ps = [
-        s.p,
-        [s.p[0] + xInterval*1, s.p[1]],
-        [s.p[0] + xInterval*2, s.p[1]],
-        [s.p[0] + xInterval*3, s.p[1]]
-    ];
-    */
-    let ps = [
-        s.p, [s.vals[0], s.p[1]]
+        s.p, 
+        [s.vals[0], s.p[1]]
     ];
     s.prev2ndCubicControlPoint = undefined;
     s.prev2ndQuadraticControlPoint = undefined;

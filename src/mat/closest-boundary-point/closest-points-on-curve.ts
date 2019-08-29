@@ -1,15 +1,12 @@
 
 import { allRoots, deflate } from 'flo-poly';
-
-import { getObjClosestTo, distanceBetween } from 'flo-vector2d';
 import { evaluate, getTangentPolyFromPoint } from 'flo-bezier3';
-
 import { Curve } from "../../curve";
 
 
 /**
- * 
- * @param curve The bezier
+ * @hidden
+ * @param curve The curve
  * @param p The point from which to check
  * @param tRange The allowed t range
  * @param touchedCurve The bezier on which p is located
@@ -20,9 +17,7 @@ function closestPointsOnCurve(
         p: number[], 
         tRange: number[] = [0,1], 
         touchedCurve: Curve,
-        t: number,
-        distance: number,
-        distanceTolerance: number) {
+        t: number) {
 
     let poly = getTangentPolyFromPoint(curve.ps, p);
 
@@ -61,6 +56,8 @@ function closestPointsOnCurve(
     }
 
     // This is to take care of a numerical issue.
+    // TODO - remove delta of 1e-10 below and use adaptive infinite precision
+    // floating point arithmetic.
     let roots_: number[] = [];
     for (let i=0; i<roots.length; i++) {
         let root = roots[i];

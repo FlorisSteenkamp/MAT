@@ -2,21 +2,17 @@
 declare var _debug_: MatDebug; 
 
 import { MatDebug } from '../../../debug/debug';
-
 import { Loop } from '../../../loop/loop';
-
 import { getLoopBounds } from '../get-loop-bounds';
-
 import { ILoopTree } from './i-loop-tree';
-
 import { getIntersections } from './get-intersections';
-import { completePath     } from './complete-path';
+import { completePath } from './complete-path';
 import { getTightestContainingLoop } from './get-tightest-containing-loop';
 
 
 /**
  * Uses the algorithm of Lavanya Subramaniam (PARTITION OF A NON-SIMPLE POLYGON 
- * INTO SIMPLE POLYGONS) but modified to use cubic bezier curves (as opposed to
+ * INTO SIMPLE POLYGONS) but modified to use bezier curves (as opposed to
  * polygons) and to additionally take care of paths with multiple subpaths, i.e.
  * such as disjoint nested paths.
  * @param loops An array of possibly intersecting paths
@@ -44,7 +40,6 @@ function simplifyPaths(loops: Loop[]) {
         }
     }
 
-    //console.log(loops)
     for (let loop of loops) {
         // TODO - handle special case of 1 curve - maybe just delete lines below
         if (loop.curves.length <= 1) {
@@ -73,7 +68,7 @@ function simplifyPaths(loops: Loop[]) {
     let iLoopSets = loopTrees.map(getLoopsFromTree);
     
     let loopss = iLoopSets.map(
-        loopSet => loopSet.map(iLoop => Loop.fromCubicBeziers(iLoop.beziers))
+        loopSet => loopSet.map(iLoop => new Loop(iLoop.beziers))
     );
 
     let xMap: Map<number[][],{ ps: number[][] }> = new Map();
@@ -90,6 +85,10 @@ function simplifyPaths(loops: Loop[]) {
 }
 
 
+/**
+ * @hidden
+ * @param root 
+ */
 function splitLoopTrees(root: ILoopTree) {
 
     let iLoopTrees: ILoopTree[] = [];
@@ -114,6 +113,7 @@ function splitLoopTrees(root: ILoopTree) {
 
 
 /**
+ * @hidden
  * Returns an array of LoopTrees from the given LoopTree where each returned
  * LoopTree is one of the nodes of the tree. Nodes with winding number > 1 are
  * not returned.
@@ -144,6 +144,7 @@ function getLoopsFromTree(root: ILoopTree) {
 
 
 /**
+ * @hidden
  * Returns < 0 if loopA's topmost point is higher (i.e. smaller) than that of
  * loopB. Using this function in a sort will sort from highest topmost point 
  * loops to lowest.

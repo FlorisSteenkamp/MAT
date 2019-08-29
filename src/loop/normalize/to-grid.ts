@@ -3,6 +3,7 @@ import { reduceSignificand } from "flo-numerical";
 
 
 /**
+ * @hidden
  * Sends a onto a fixed-spacing grid with 2**12 divisions.
  * @param a 
  * @param expMax Max extent of grid in positive and negative directions - given

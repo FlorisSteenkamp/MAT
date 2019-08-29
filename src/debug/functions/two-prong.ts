@@ -16,6 +16,7 @@ import { TwoProngForDebugging } from '../two-prong-for-debugging';
 import { ElemType_TwoProng } from '../../mat/elem-type-two-prong';
 
 
+/** @hidden */
 interface ITwoProngDebugFunctions {
 	logδ       : (n: number, type?: ElemType_TwoProng) => void,
 	log        : (n: number, type?: ElemType_TwoProng) => void,
@@ -28,7 +29,7 @@ interface ITwoProngDebugFunctions {
 
 
 /**
- * 
+ * @hidden
  */
 function logδ(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 	let δ =_debug_.generated.elems[type][n].δ;
@@ -38,7 +39,7 @@ function logδ(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 
 
 /**
- * 
+ * @hidden
  */
 function log(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 	let twoProng = _debug_.generated.elems[type][n];
@@ -47,7 +48,7 @@ function log(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 
 
 /**
- * 
+ * @hidden
  */
 function drawNormal(
 		n: number, 
@@ -76,7 +77,7 @@ function drawNormal(
 
 
 /**
- * 
+ * @hidden
  */
 function logδBasic(
 		n: number, 
@@ -98,26 +99,18 @@ function logδBasic(
 
 
 /**
- * 
+ * @hidden
  */
 function logNearest(p: number[], showDelay = 1000, type: ElemType_TwoProng = 'twoProng_regular') {
 	let closestPerLoops: TwoProngForDebugging[] = [];
-	//_debug_.generatedAll.forEach(function(generated, loops) {
-		let generated = _debug_.generated;
-		let twoProng = getObjClosestTo<TwoProngForDebugging>(
-			p, 
-			generated.elems[type], 
-			twoProng => twoProng.circle.center
-		);
-		closestPerLoops.push(twoProng)
-	//});
-	/*
+
+	let generated = _debug_.generated;
 	let twoProng = getObjClosestTo<TwoProngForDebugging>(
 		p, 
-		closestPerLoops, 
+		generated.elems[type], 
 		twoProng => twoProng.circle.center
 	);
-	*/
+	closestPerLoops.push(twoProng);
 
 	console.log(twoProng);
 	
@@ -135,10 +128,9 @@ function logNearest(p: number[], showDelay = 1000, type: ElemType_TwoProng = 'tw
 
 
 /**
- * 
+ * @hidden
  * @param n - The 2-prong's zero-based index.
  * @param range
- * cascade of convergence)
  */
 function traceConvergence(
 		n         : number, 
@@ -189,6 +181,7 @@ function traceConvergence(
 }
 
 
+/** @hidden */
 let twoProngDebugFunctions: ITwoProngDebugFunctions = {
 	logδ,
 	log,

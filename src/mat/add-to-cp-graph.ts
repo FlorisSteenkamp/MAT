@@ -1,16 +1,15 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
-
-import { Loop         } from '../loop/loop';
-import { Circle       } from '../circle';
+import { Loop } from '../loop/loop';
+import { Circle } from '../circle';
 import { ContactPoint } from '../contact-point';
 import { PointOnShape } from '../point-on-shape';
-import { CpNode       } from '../cp-node/cp-node';
-
+import { CpNode } from '../cp-node/cp-node';
 import { getNeighbouringPoints } from './get-neighboring-cps';
 
+
 /**
- * 
+ * @hidden
  * @param circle 
  * @param orders 
  * @param cpTrees 

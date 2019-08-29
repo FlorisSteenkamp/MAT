@@ -1,19 +1,18 @@
 
+/** @hidden */
 declare var _debug_: MatDebug;
 
 import { MatDebug } from '../../debug/debug';
-
 import { distanceBetween } from 'flo-vector2d';
-
-import { Curve        } from '../../curve';
+import { Curve } from '../../curve';
 import { PointOnShape } from '../../point-on-shape';
 import { BezierPiece  } from '../../bezier-piece';
-
 import { cullBezierPieces } from './cull-bezier-pieces';
 import { closestPointOnCurve } from './closest-point-on-curve';
   
 
 /**
+ * @hidden
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces

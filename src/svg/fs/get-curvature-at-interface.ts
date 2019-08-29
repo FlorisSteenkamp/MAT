@@ -1,11 +1,13 @@
 
-import * as Bezier3 from 'flo-bezier3';
-import * as Vector from 'flo-vector2d';
+// TODO - move to another library
 
+import { tangent } from 'flo-bezier3';
+import { dot, cross } from 'flo-vector2d';
 import { Curve } from '../../curve';
 
 
 /**
+ * @hidden
  * Get the angle between the given bezier endpoint and the
  * startpoint of the next bezier.
  * @param curve
@@ -19,13 +21,13 @@ function getCurvatureAtInterface(curve: Curve) {
 	];
 	
 	let tans = [ 
-		Bezier3.tangent(pss[0])(1), 
-		Bezier3.tangent(pss[0])(0)
+		tangent(pss[0])(1), 
+		tangent(pss[0])(0)
 	];
 	
 	// The integral of a kind of Dirac Delta function.
-	let cosθ = Vector.dot  (tans[0], tans[1]);
-	let sinθ = Vector.cross(tans[0], tans[1]);
+	let cosθ = dot  (tans[0], tans[1]);
+	let sinθ = cross(tans[0], tans[1]);
 	let θ = acos(cosθ);
 	
 	let result = sinθ >= 0 ? θ : -θ;
@@ -35,6 +37,7 @@ function getCurvatureAtInterface(curve: Curve) {
 
 
 /**
+ * @hidden
  * Floating-point 'safer' version of acos. If x is larger than 1 (or smaller 
  * than -1), still returns 0 (or Math.PI) instead of NAN.
  * @param x

@@ -1,5 +1,6 @@
 
 /** 
+ * @hidden
  * Get an array of corresponding cubic bezier curve parameters for given arc 
  * curve paramters.
  */
@@ -158,6 +159,12 @@ function arcToCubicCurves(
 }
 
 
+/**
+ * @hidden
+ * @param x 
+ * @param y 
+ * @param angleRad 
+ */
 function rotate(
         x: number, 
         y: number, 
@@ -169,6 +176,10 @@ function rotate(
 }
 
 
+/**
+ * @hidden
+ * @param degrees 
+ */
 function degToRad(degrees: number) {
     return (Math.PI * degrees) / 180;
 }

@@ -1,22 +1,15 @@
 
-declare var _debug_: MatDebug; 
-
-import { MatDebug }   from '../../../debug/debug';
-
 import { flatCoefficients, allRoots } from 'flo-poly';
-import * as a from 'flo-bezier3';
-
 import { 
-    getBoundingBox, getX, getY, tangent, evaluate, translate, rotate
+    getBoundingBox, getX, getY, tangent, evaluate, translate
 } from 'flo-bezier3';
-
 import { Loop         } from "../../../loop/loop";
 import { PointOnShape } from '../../../point-on-shape';
-
 import { getLoopBounds } from "../get-loop-bounds";
-import { getShapeBounds } from '../get-shape-bounds';
 
 
+/** @hidden */
+// TODO - remove delta
 const DELTA = 1e-6;
 
 
@@ -28,6 +21,7 @@ type Dir =
 
 
 /**
+ * @hidden
  * Returns true if the first loop is contained wholly within the second. At this
  * stage we already know the loop is either wholly contained inside the loop
  * or is wholly outside.
@@ -83,6 +77,7 @@ function isLoopInLoop(loops: Loop[]) {
 
 
 /**
+ * @hidden
  * Returns true if the first loop is not wholly within the second. The converse
  * is not necessarily true. It is assumed the loops don't intersect.
  * @param loops
@@ -108,10 +103,8 @@ function isLoopNotInLoop(loops: Loop[]) {
 }
 
 
-//enum Dir { LEFT, RIGHT, UP, DOWN }
-
 /**
- * 
+ * @hidden
  * @param p The point where the horizontal ray starts
  * @param toLeft The ray to the left of this point (else right)
  * @param loop A loop of curves

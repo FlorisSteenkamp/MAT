@@ -1,15 +1,14 @@
 
+/** @hidden */
 declare let _debug_: MatDebug; 
 
 import { MatDebug } from '../debug';
-
 import { equal, getObjClosestTo } from 'flo-vector2d';
-
 import { Circle       } from '../../circle';
-
 import { ThreeProngForDebugging } from '../three-prong-for-debugging';
 
 
+/** @hidden */
 export interface IThreeProngDebugFunctions {
 	drawSpokes       : (n: number) => void,
 	traceConvergence : (n: number, indx: number) => void,
@@ -24,6 +23,7 @@ export interface IThreeProngDebugFunctions {
 
 
 /**
+ * @hidden
  * Draws 3 lines from the given 3-prong center to its 3 contact points.
  * @param n - The 3-prong's zero-based index. 
  */
@@ -40,6 +40,7 @@ function drawSpokes(n: number): void {
 
 
 /**
+ * @hidden
  * Shows the circle for each boundary iteration.
  * @param n_ - The 3-prong's zero-based index. If ommitted, all will be shown.
  * @param idx - The specific boundary iteration index to view. If ommitted, all
@@ -101,6 +102,7 @@ function traceConvergence(n_: number, idx: number): void {
 
 
 /**
+ * @hidden
  * Shows the actual boundary for each iteration.
  * @param n The 3-prong's zero-based index.
  * @param idx The specific boundary iteration index to view. If ommitted will 
@@ -161,6 +163,7 @@ function showBoundary(n: number, idx: number): void {
 
 
 /**
+ * @hidden
  * @param n The 3-prong's zero-based index. 
  */
 function logδs(n: number): void {
@@ -171,7 +174,7 @@ function logδs(n: number): void {
 
 
 /**
- * 
+ * @hidden
  * @param p
  */
 function logNearest(
@@ -180,8 +183,6 @@ function logNearest(
 		showBoundaries = true) {
 
 	return function(p: number[], showDelay = 1000) {
-		//let closestPerLoops: ThreeProngForDebugging[] = [];
-		//_debug_.generatedAll.forEach(function(generated) {
 		let generated = _debug_.generated;
 
 		let threeProng = getObjClosestTo<ThreeProngForDebugging>(
@@ -189,16 +190,6 @@ function logNearest(
 			generated.elems.threeProng, 
 			threeProng => threeProng.circle.center
 		);
-		//closestPerLoops.push(threeProng)
-
-		//});
-		/*
-		let threeProng = getObjClosestTo<ThreeProngForDebugging>(
-			p, 
-			closestPerLoops, 
-			threeProng => threeProng.circle.center
-		);
-		*/
 
 
 		let circle = threeProng.circle;
@@ -246,6 +237,7 @@ function logNearest(
 }
 
 
+/** @hidden */
 let threeProngDebugFunctions: IThreeProngDebugFunctions = {
 	drawSpokes,
 	traceConvergence,
@@ -255,4 +247,4 @@ let threeProngDebugFunctions: IThreeProngDebugFunctions = {
 }	
 	
 
-export { threeProngDebugFunctions };
+export { threeProngDebugFunctions }

@@ -3,6 +3,7 @@ import { PointOnShape } from '../../../point-on-shape';
 import { drawFs } from 'flo-draw';
 
 
+/** @hidden */
 function oneProngAtDullCorner(g: SVGGElement, pos: PointOnShape) {
     let oCircle = PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
 
