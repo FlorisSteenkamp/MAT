@@ -26,8 +26,8 @@
     ],
     "dependencies": {
         "flo-bezier3": "^1.0.1",
-        "flo-ll-rb-tree": "^0.1.0",
-        "flo-memoize": "^0.1.0",
+        "flo-ll-rb-tree": "^0.1.1",
+        "flo-memoize": "^0.1.1",
         "flo-poly": "^3.0.0",
         "flo-vector2d": "^1.0.1",
         "flo-gauss-quadrature": "1.0.0"
