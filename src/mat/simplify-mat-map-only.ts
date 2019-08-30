@@ -1,16 +1,16 @@
 
-import { CpNode } from "./cp-node";
-import { getBranches } from "./get-branches";
+import { CpNode } from "../cp-node";
+import { getBranches } from "../get-branches";
 import { hausdorffDistance, closestPointOnBezier, toCubic } from "flo-bezier3";
-import { getCurveToNext } from "./get-curve-to-next";
-import { getCurveBetween } from "./get-curve/get-curve-between";
-import { Mat } from "./mat";
-import { createNewCpTree } from "./mat/create-new-cp-tree";
+import { getCurveToNext } from "../get-curve-to-next";
+import { getCurveBetween } from "../get-curve/get-curve-between";
 
 
 /**
  * Simplifies the given MAT by replacing the piecewise quad beziers composing 
- * the MAT with fewer ones to within a given tolerance.
+ * the MAT with fewer ones to within a given tolerance. Returns the map of
+ * to be deleted nodes only - does not actually delete them. Use simplifyMat
+ * instead if you want to delete the nodes.
  * @param cpNode A representation of the MAT
  * @param anlgeTolerance Tolerance given as the degrees difference of the unit 
  * direction vectors at the interface between curves. A tolerance of zero means
@@ -20,14 +20,12 @@ import { createNewCpTree } from "./mat/create-new-cp-tree";
  * @param hausdorffSpacing The spacing on the curves used to calculate the Hausdorff
  * Distance - defaults to 1
  */
-function simplifyMat(
-        mat: Mat,
+function simplifyMatMapOnly(
+        cpNode: CpNode,
         anlgeTolerance = 15,
         hausdorffTolerance = 1e-1,
         hausdorffSpacing = 1e0) {
 
-    let cpNode = mat.cpNode;
-    
     let simpleMap: Map<CpNode, { ps: number[][], ts: number[] }> = new Map();
 
     // Start from a leaf
@@ -86,17 +84,7 @@ function simplifyMat(
         }
     }
 
-    for (let cpNode of canDeletes) {
-        let isTerminating = cpNode.isTerminating();
-        let onCircleCount = cpNode.getCpNodesOnCircle().length;
-        if (isTerminating || onCircleCount !== 2) { 
-            continue; 
-        }
-
-        CpNode.remove(cpNode);
-    }
-    
-    return new Mat(cpNode, createNewCpTree(cpNode)); 
+    return { simpleMap, cpNode };
 }
 
 
@@ -120,4 +108,4 @@ function getTotalHausdorffDistance(
 }
 
 
-export { simplifyMat }
+export { simplifyMatMapOnly }

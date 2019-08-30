@@ -1,15 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const cp_node_1 = require("./cp-node");
-const get_branches_1 = require("./get-branches");
+const get_branches_1 = require("../get-branches");
 const flo_bezier3_1 = require("flo-bezier3");
-const get_curve_to_next_1 = require("./get-curve-to-next");
-const get_curve_between_1 = require("./get-curve/get-curve-between");
-const mat_1 = require("./mat");
-const create_new_cp_tree_1 = require("./mat/create-new-cp-tree");
+const get_curve_to_next_1 = require("../get-curve-to-next");
+const get_curve_between_1 = require("../get-curve/get-curve-between");
 /**
  * Simplifies the given MAT by replacing the piecewise quad beziers composing
- * the MAT with fewer ones to within a given tolerance.
+ * the MAT with fewer ones to within a given tolerance. Returns the map of
+ * to be deleted nodes only - does not actually delete them. Use simplifyMat
+ * instead if you want to delete the nodes.
  * @param cpNode A representation of the MAT
  * @param anlgeTolerance Tolerance given as the degrees difference of the unit
  * direction vectors at the interface between curves. A tolerance of zero means
@@ -19,8 +18,7 @@ const create_new_cp_tree_1 = require("./mat/create-new-cp-tree");
  * @param hausdorffSpacing The spacing on the curves used to calculate the Hausdorff
  * Distance - defaults to 1
  */
-function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdorffSpacing = 1e0) {
-    let cpNode = mat.cpNode;
+function simplifyMatMapOnly(cpNode, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdorffSpacing = 1e0) {
     let simpleMap = new Map();
     // Start from a leaf
     while (!cpNode.isTerminating()) {
@@ -71,17 +69,9 @@ function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdo
             }
         }
     }
-    for (let cpNode of canDeletes) {
-        let isTerminating = cpNode.isTerminating();
-        let onCircleCount = cpNode.getCpNodesOnCircle().length;
-        if (isTerminating || onCircleCount !== 2) {
-            continue;
-        }
-        cp_node_1.CpNode.remove(cpNode);
-    }
-    return new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
+    return { simpleMap, cpNode };
 }
-exports.simplifyMat = simplifyMat;
+exports.simplifyMatMapOnly = simplifyMatMapOnly;
 function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
     let hds = [];
     let longCurve = get_curve_between_1.getCurveBetween(branch[i], branch[j].next);
@@ -90,4 +80,4 @@ function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
     }
     return Math.max(...hds);
 }
-//# sourceMappingURL=simplify-mat.js.map
+//# sourceMappingURL=simplify-mat-map-only.js.map

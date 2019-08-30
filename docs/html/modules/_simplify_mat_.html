@@ -92,7 +92,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/c4e0bc1/src/simplify-mat.ts#L111">simplify-mat.ts:111</a></li>
+									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/de18fdb/src/simplify-mat.ts#L103">simplify-mat.ts:103</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -118,13 +118,13 @@
 					<a name="simplifymat" class="tsd-anchor"></a>
 					<h3>simplify<wbr>Mat</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">simplify<wbr>Mat<span class="tsd-signature-symbol">(</span>cpNode<span class="tsd-signature-symbol">: </span><a href="../classes/_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a>, anlgeTolerance<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, hausdorffTolerance<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, hausdorffSpacing<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+						<li class="tsd-signature tsd-kind-icon">simplify<wbr>Mat<span class="tsd-signature-symbol">(</span>mat<span class="tsd-signature-symbol">: </span><a href="../classes/_mat_.mat.html" class="tsd-signature-type">Mat</a>, anlgeTolerance<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, hausdorffTolerance<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, hausdorffSpacing<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_mat_.mat.html" class="tsd-signature-type">Mat</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/c4e0bc1/src/simplify-mat.ts#L21">simplify-mat.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/FlorisSteenkamp/MAT/blob/de18fdb/src/simplify-mat.ts#L23">simplify-mat.ts:23</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -132,24 +132,11 @@
 									<p>Simplifies the given MAT by replacing the piecewise quad beziers composing
 									the MAT with fewer ones to within a given tolerance.</p>
 								</div>
-								<dl class="tsd-comment-tags">
-									<dt>hausdorfftolerance</dt>
-									<dd><p>The approximate maximum Hausdorff Distance tolerance -
-										defaults to 1</p>
-									</dd>
-									<dt>hausdorffspacing</dt>
-									<dd><p>The spacing on the curves used to calculate the Hausdorff
-										Distance - defaults to 1</p>
-									</dd>
-								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>cpNode: <a href="../classes/_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>A representation of the MAT</p>
-									</div>
+									<h5>mat: <a href="../classes/_mat_.mat.html" class="tsd-signature-type">Mat</a></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> anlgeTolerance: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;15</span></h5>
@@ -160,21 +147,21 @@
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> hausdorffTolerance: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;1</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> hausdorffTolerance: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0.1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The approximate maximum Hausdorff Distance tolerance -
+										defaults to 0.1</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> hausdorffSpacing: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The spacing on the curves used to calculate the Hausdorff
+										Distance - defaults to 1</p>
+									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter">
-									<h5>cp<wbr>Node<span class="tsd-signature-symbol">: </span><a href="../classes/_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a></h5>
-								</li>
-								<li class="tsd-parameter">
-									<h5>simple<wbr>Map<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../classes/_cp_node_.cpnode.html" class="tsd-signature-type">CpNode</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h5>
-								</li>
-							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../classes/_mat_.mat.html" class="tsd-signature-type">Mat</a></h4>
 						</li>
 					</ul>
 				</section>

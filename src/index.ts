@@ -38,6 +38,7 @@ import { getBoundaryBeziersToNext } from './get-boundary-beziers-to-next';
 import { getBoundaryBezierPartsToNext } from './get-boundary-bezier-parts-to-next';
 import { getBoundaryPieceBeziers } from './mat/get-boundary-piece-beziers';
 import { simplifyMat } from './simplify-mat';
+import { simplifyMatMapOnly } from './mat/simplify-mat-map-only';
 
 import { drawElemFunctions } from './debug/functions/draw-elem/draw-elem'
 
@@ -66,6 +67,7 @@ export {
 	getBoundaryBeziersToNext,
 	getBoundaryBezierPartsToNext,
 	simplifyMat,
+	simplifyMatMapOnly,
 
 	// SVG functions
 	beziersToSvgPathStr,
