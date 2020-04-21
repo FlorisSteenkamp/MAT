@@ -2,9 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 const flo_bezier3_1 = require("flo-bezier3");
-const line_line_intersection_1 = require("../../geometry/line-line-intersection");
 const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-closest-boundary-point");
-const circle_1 = require("../../../circle");
 const point_on_shape_1 = require("../../../point-on-shape");
 const add_1_prong_1 = require("../add-1-prong");
 const add_debug_info_1 = require("./add-debug-info");
@@ -46,6 +44,7 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     // The boundary piece that should contain the other point of 
     // the 2-prong circle. (Defined by start and end points).
     let { bezierPieces, δ } = get_initial_bezier_pieces_1.getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y);
+    //console.log(bezierPieces.length)
     /** The center of the two-prong (successively refined) */
     let x;
     let p;
@@ -57,7 +56,8 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     }
     else {
         p = y.p;
-        x = point_on_shape_1.PointOnShape.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
+        //x = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
+        x = point_on_shape_1.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
         r = flo_vector2d_1.squaredDistanceBetween(p, x);
     }
     // The lines below is an optimization.
@@ -65,14 +65,18 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     if (r > r_) {
         x = flo_vector2d_1.interpolate(p, x, Math.sqrt(r_ / r));
     }
-    let xs = []; // Trace the convergence (for debugging).
-    let z; // The antipode if the two-prong (successively refined)
+    /** Trace the convergence (for debugging). */
+    let xs = [];
+    /** The antipode of the two-prong (successively refined) */
+    let z;
     let i = 0;
     let done = 0;
     let failed = false; // The failed flag is set if a 2-prong cannot be found.
     let bezierPieces_ = bezierPieces;
+    // ---> for (let b of bezierPieces) { d.fs.draw.bezierPiece(document.getElementsByTagName('g')[0], b.curve.ps, b.ts, 'nofill thin10 red', 100); }
     do {
         i++;
+        /** squared distance between source boundary point and circle center */
         let r = flo_vector2d_1.squaredDistanceBetween(x, y.p);
         bezierPieces_ = cull_bezier_pieces_1.cullBezierPieces(bezierPieces_, x, r);
         z = get_closest_boundary_point_1.getClosestBoundaryPoint(bezierPieces_, x, y.curve, y.t);
@@ -93,6 +97,7 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         if (typeof _debug_ !== 'undefined') {
             xs.push({ x, y, z: z.pos, t: y.t });
         }
+        /** squared distance between anti-pode boundary point and circle center */
         let d = flo_vector2d_1.squaredDistanceBetween(x, z.pos.p);
         //if (i === 1 && d*oneProngTolerance >= r) {
         if (i === 1 && r < d + oneProngTolerance) {
@@ -148,7 +153,7 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     }
     let circle;
     if (z !== undefined) {
-        circle = new circle_1.Circle(x, flo_vector2d_1.distanceBetween(x, z.pos.p));
+        circle = { center: x, radius: flo_vector2d_1.distanceBetween(x, z.pos.p) };
     }
     if (typeof _debug_ !== 'undefined' && !failed) {
         xs.push({ x, y, z: z.pos, t: y.t });
@@ -168,8 +173,7 @@ function reduceRadius(extreme, bezierPieces, p, x) {
     for (let i = 0; i < bezierPieces.length; i++) {
         let bezierPiece = bezierPieces[i];
         let ps = bezierPiece.curve.ps;
-        let ev = flo_bezier3_1.evaluate(ps);
-        let p1 = ev(bezierPiece.ts[0]);
+        let p1 = flo_bezier3_1.evalDeCasteljau(ps, bezierPiece.ts[0]);
         let r1 = Number.POSITIVE_INFINITY;
         // Prevent evaluating the same points twice
         if (!prevP || prevP[0] !== p1[0] || prevP[1] !== p1[1]) {
@@ -179,7 +183,7 @@ function reduceRadius(extreme, bezierPieces, p, x) {
             }
         }
         let r2 = Number.POSITIVE_INFINITY;
-        let p2 = ev(bezierPiece.ts[1]);
+        let p2 = flo_bezier3_1.evalDeCasteljau(ps, bezierPiece.ts[1]);
         let cc2 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p2);
         if (cc2) {
             r2 = flo_vector2d_1.squaredDistanceBetween(p, cc2);
@@ -213,10 +217,10 @@ function getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1) {
         (p[0] + p1[0]) / 2,
         (p[1] + p1[1]) / 2,
     ];
-    let tangent = [p1[0] - p[0], p1[1] - p[1]];
-    let normal = [-tangent[1], tangent[0]]; // Rotate by 90 degrees
-    let pb2 = [pb[0] + normal[0], pb[1] + normal[1]];
-    let res = line_line_intersection_1.lineLineIntersection([p, x], [pb, pb2]);
+    let tan = [p1[0] - p[0], p1[1] - p[1]];
+    let norm = [-tan[1], tan[0]]; // Rotate by 90 degrees
+    let pb2 = [pb[0] + norm[0], pb[1] + norm[1]];
+    let res = flo_vector2d_1.lineLineIntersection([p, x], [pb, pb2]);
     if (!res) {
         return undefined;
     }

@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
-const line_line_intersection_1 = require("../mat/geometry/line-line-intersection");
 const get_edge_direction_1 = require("./get-edge-direction");
 /** @hidden */
 const TOLERANCE_ADD_2PRONG = 0.01;
@@ -18,7 +17,7 @@ function getCurveBetween(cpNodeFrom, cpNodeTo) {
     let fromL = get_edge_direction_1.getEdgeDirection(cpNodeFrom);
     let toCc = cpNodeTo.cp.circle.center;
     let toL = get_edge_direction_1.getEdgeDirection(cpNodeTo.prevOnCircle);
-    let mid = line_line_intersection_1.lineLineIntersection(fromL, toL);
+    let mid = flo_vector2d_1.lineLineIntersection(fromL, toL);
     let c = flo_vector2d_1.fromTo(fromCc, toCc);
     let twisted;
     if (!mid) {
@@ -49,8 +48,8 @@ function getCurveBetween(cpNodeFrom, cpNodeTo) {
         let v2 = flo_vector2d_1.translate(r, m2);
         let l1 = [m1, v1];
         let l2 = [m2, v2];
-        let mid1 = line_line_intersection_1.lineLineIntersection(fromL, l1);
-        let mid2 = line_line_intersection_1.lineLineIntersection(toL, l2);
+        let mid1 = flo_vector2d_1.lineLineIntersection(fromL, l1);
+        let mid2 = flo_vector2d_1.lineLineIntersection(toL, l2);
         return [fromCc, mid1, mid2, toCc];
     }
     // Within tolerance - approximate with a straight line.

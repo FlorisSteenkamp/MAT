@@ -14,5 +14,5 @@
  * @param predicate A predicate that takes two geometric objects and returns
  * true if they are of interest or false otherwise.
  */
-declare function sweepLine<T>(items: T[], getLeftmost: (item: T) => number, getRightmost: (item: T) => number, predicate: (item1: T, item2: T) => boolean): T[][];
+declare function sweepLine<T>(items: T[], getLeftmost: (item: T) => number, getRightmost: (item: T) => number, predicate: (item1: T, item2: T) => boolean): [T, T][];
 export { sweepLine };

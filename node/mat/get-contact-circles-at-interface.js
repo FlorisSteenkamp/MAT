@@ -7,7 +7,7 @@ const point_on_shape_1 = require("../point-on-shape");
  * @param curve
  */
 function getContactCirclesAtInterface(curve) {
-    let { isQuiteSharp, isQuiteDull } = curve_1.Curve.getCornerAtEnd(curve);
+    let { isQuiteSharp, isQuiteDull } = curve_1.getCornerAtEnd(curve);
     if (isQuiteSharp) {
         return [new point_on_shape_1.PointOnShape(curve, 1)];
     }

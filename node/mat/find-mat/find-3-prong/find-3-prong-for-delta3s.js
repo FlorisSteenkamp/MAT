@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 const flo_bezier3_1 = require("flo-bezier3");
-const circle_1 = require("../../../circle");
 const point_on_shape_1 = require("../../../point-on-shape");
 const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-closest-boundary-point");
 const calc_initial_3_prong_center_1 = require("./calc-initial-3-prong-center");
@@ -93,7 +92,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     let radius = (flo_vector2d_1.distanceBetween(x, ps[0].p) +
         flo_vector2d_1.distanceBetween(x, ps[1].p) +
         flo_vector2d_1.distanceBetween(x, ps[2].p)) / 3;
-    let circle = new circle_1.Circle(x, radius);
+    let circle = { center: x, radius };
     //-------------------------------------------------------------------------
     // Calculate the unit tangent vector at 3-prong circle points - they should 
     // be very close to tangent to the boundary piece tangents at those points 
@@ -110,8 +109,10 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
         //-----------------------------------
         // Check if point is on dull crorner
         //-----------------------------------
-        if (point_on_shape_1.PointOnShape.isDullCorner(p)) {
-            let corner = curve_1.Curve.getCornerAtEnd(p.curve);
+        //if (PointOnShape.isDullCorner(p)) {
+        if (point_on_shape_1.isPosDullCorner(p)) {
+            //let corner = Curve.getCornerAtEnd(p.curve);
+            let corner = curve_1.getCornerAtEnd(p.curve);
             let tans = corner.tangents;
             let perps = tans.map(flo_vector2d_1.rotate90Degrees);
             let angleError1 = Math.asin(flo_vector2d_1.cross(perps[0], v));

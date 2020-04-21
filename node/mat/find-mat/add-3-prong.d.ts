@@ -2,7 +2,7 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { CpNode } from '../../cp-node';
 import { Loop } from '../../loop';
 import { Circle } from '../../circle';
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 /**
  * @hidden
  * Adds a 3-prong MAT circle according to the 3 given (previously calculated)
@@ -13,7 +13,7 @@ import { PointOnShape } from '../../point-on-shape';
  */
 declare function add3Prong(cpTrees: Map<Loop, LlRbTree<CpNode>>, orders: number[], threeProng: {
     circle: Circle;
-    ps: PointOnShape[];
+    ps: IPointOnShape[];
     δ3s: CpNode[][];
 }): Circle;
 export { add3Prong };

@@ -1,13 +1,13 @@
 
 /** @hidden */
-declare var _debug_: MatDebug; 
+declare var _debug_: Debug; 
 
-import { MatDebug } from '../../debug/debug';
+import { Debug } from '../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
 import { CpNode } from '../../cp-node';
 import { Loop } from '../../loop';
 import { Circle } from '../../circle';
-import { PointOnShape } from '../../point-on-shape';
+import { calcPosOrder, isPosSharpCorner } from '../../point-on-shape';
 import { find3Prong } from './find-3-prong/find-3-prong';
 import { add3Prong  } from '../find-mat/add-3-prong';
 
@@ -39,8 +39,11 @@ function findAndAddAll3Prongs(
 		
 		for (let cpNode of cpStart.getCpNodesOnCircle()) {
 
-			if (!PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
-				findAndAdd3Prongs(cpGraphs, cpNode, extreme);
+			//if (!PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
+			if (!isPosSharpCorner(cpNode.cp.pointOnShape)) {
+				if (findAndAdd3Prongs(cpGraphs, cpNode, extreme) === undefined) {
+					return; // only for debugging purposes
+				};
 			}
 
 			if (hasEdgeBeenTaken(visitedEdges, cpNode, cpNode.next)) {
@@ -137,19 +140,27 @@ function traverseShape(cpStart: CpNode) {
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.
  */
+let ii = 0;
 function findAndAdd3Prongs(
 		cpGraphs : Map<Loop,LlRbTree<CpNode>>,
 		cpStart  : CpNode,
 		extreme  : number) {
 
-	let visitedCps;
+	let visitedCps: CpNode[];
 	
 	do {
 		visitedCps = traverseShape(cpStart);
 	
 		if (visitedCps.length > 2) {
 			findAndAdd3Prong(cpGraphs, visitedCps, extreme);
+			ii++;
 		}
+
+		if (typeof _debug_ !== 'undefined') {
+            if (ii === _debug_.directives.stopAfterThreeProngsNum) {
+                return undefined;
+            }
+        }
 	} while (visitedCps.length > 2);
 
 	return visitedCps;
@@ -179,7 +190,8 @@ function findAndAdd3Prong(
 	let orders = [];
 	for (let i=0; i<3; i++) {
 		orders.push(
-			PointOnShape.calcOrder(threeProng.circle, threeProng.ps[i])
+			//PointOnShape.calcOrder(threeProng.circle, threeProng.ps[i])
+			calcPosOrder(threeProng.circle, threeProng.ps[i])
 		);
 	}
 	

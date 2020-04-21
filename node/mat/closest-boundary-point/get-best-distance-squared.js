@@ -12,9 +12,8 @@ function getBestDistanceSquared(bezierPieces, p) {
     for (let i = 0; i < bezierPieces.length; i++) {
         let bezierPiece = bezierPieces[i];
         let ps = bezierPiece.curve.ps;
-        let evPs = flo_bezier3_1.evaluate(ps);
-        let p1 = evPs(bezierPiece.ts[0]);
-        let p2 = evPs(bezierPiece.ts[1]);
+        let p1 = flo_bezier3_1.evalDeCasteljau(ps, bezierPiece.ts[0]);
+        let p2 = flo_bezier3_1.evalDeCasteljau(ps, bezierPiece.ts[1]);
         let d = Math.min(flo_vector2d_1.squaredDistanceBetween(p, p1), flo_vector2d_1.squaredDistanceBetween(p, p2));
         if (d < bestSquaredDistance) {
             bestSquaredDistance = d;

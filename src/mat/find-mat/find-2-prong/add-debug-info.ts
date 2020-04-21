@@ -1,9 +1,9 @@
 
 /** @hidden */
-declare var _debug_: MatDebug; 
+declare var _debug_: Debug; 
 
-import { MatDebug } from '../../../debug/debug';
-import { PointOnShape } from "../../../point-on-shape";
+import { Debug } from '../../../debug/debug';
+import { IPointOnShape } from "../../../point-on-shape";
 import { Circle } from "../../../circle";
 import { CpNode } from "../../../cp-node";
 import { BezierPiece } from '../../bezier-piece';
@@ -17,26 +17,27 @@ import { TXForDebugging } from './x-for-debugging';
 function addDebugInfo(
         bezierPieces: BezierPiece[],
         failed: boolean, 
-        pos: PointOnShape, 
+        pos: IPointOnShape,
         circle: Circle, 
-        z: PointOnShape, 
+        z: IPointOnShape,
         δ: CpNode[], 
         xs: TXForDebugging[], 
         holeClosing: boolean) {
 
-    let twoProng = new TwoProngForDebugging(
-            _debug_.generated,
+    let twoProng: TwoProngForDebugging = {
+            generated: _debug_.generated,
             bezierPieces,
             pos,
             δ,
-            z ? z.p : undefined,
+            z: z ? z.p : undefined,
             circle,
             xs,
             failed,
             holeClosing,
-            false,
-            false
-    ); 
+            notAdded: false,
+            deleted: false,
+            cpNode: undefined
+    };
 
     let twoProngType = getTwoProngType(twoProng) as ElemType_TwoProng;
     _debug_.generated.elems[twoProngType].push(twoProng);

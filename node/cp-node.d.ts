@@ -82,7 +82,7 @@ declare class CpNode {
      * @deprecated Use [[getCurveToNext]] instead
      * @param cpNode
      */
-    readonly matCurveToNextVertex: number[][];
+    get matCurveToNextVertex(): number[][];
     /**
      * Primarily for internal use.
      *
@@ -106,7 +106,7 @@ declare class CpNode {
      * preferred as it returns the entire Medial Axis (by utilizing
      * [[getCurveToNext]] on each returned edge).
      */
-    readonly vertexChildren: CpNode[];
+    get vertexChildren(): CpNode[];
     /**
      * Returns all [[CpNode]]s on the MAT that this [[CpNode]] is part of
      * starting from the current one and going anti-clockwise around the shape.
@@ -147,7 +147,8 @@ declare class CpNode {
      *
      * This is always the case for sharp corners and maximal disks with
      * a single contact point. Note, however, that even in these cases there are
-     * two contact points stored (sitting 'on top' of each other) for the
+     * two contact points stored (s
+     * itting 'on top' of each other) for the
      * maximal disk. It can be seen as a limiting case of a two-prong where the
      * distance between two of the contact points tend to zero. One point
      * (represented by a [[CpNode]] of course) will be terminating with the

@@ -3,7 +3,7 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { Loop         } from '../../loop';
 import { Circle       } from '../../circle';
 import { CpNode       } from '../../cp-node';
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 import { ContactPoint } from '../../contact-point';
 
 
@@ -16,8 +16,8 @@ import { ContactPoint } from '../../contact-point';
 function createInitialCpGraph(
         loops: Loop[], 
         cpTrees: Map<Loop, LlRbTree<CpNode>>,
-        sharpCornerss: PointOnShape[][],
-        xMap: Map<number[][],{ ps: number[][] }>) {
+        sharpCornerss: IPointOnShape[][]/*,
+        xMap: Map<number[][],{ ps: number[][] }>*/) {
 
     let cpNode;
 
@@ -30,16 +30,16 @@ function createInitialCpGraph(
         let cpNode2 = undefined;
         for (let pos of sharpCorners) {
             let ps = pos.curve.next.ps;
-            let x = xMap.get(ps);
-            let isIntersection = !!x;
+            //let x = xMap.get(ps);
+            //let isIntersection = !!x;
             
-            let circle = new Circle(pos.p, 0);
+            let circle = { center: pos.p, radius: 0 };
 
-            let cp1 = new ContactPoint(pos, circle, -1, 0);
-            let cp2 = new ContactPoint(pos, circle, +1, 0);
+            let cp1: ContactPoint = { pointOnShape: pos, circle, order: -1, order2: 0 };
+            let cp2: ContactPoint = { pointOnShape: pos, circle, order: +1, order2: 0 };
 
-            cpNode1 = CpNode.insert(false, isIntersection, cpTree, cp1, cpNode2);
-            cpNode2 = CpNode.insert(false, isIntersection, cpTree, cp2, cpNode1);
+            cpNode1 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp1, cpNode2);
+            cpNode2 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp2, cpNode1);
             
             cpNode1.prevOnCircle = cpNode2; 
             cpNode2.prevOnCircle = cpNode1; 

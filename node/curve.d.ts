@@ -3,12 +3,7 @@ import { Corner } from './mat/corner';
 /**
  * Represents a bezier curve on the shape boundary / loop.
  */
-declare class Curve {
-    readonly loop: Loop;
-    readonly ps: number[][];
-    prev: Curve;
-    next: Curve;
-    readonly idx: number;
+interface Curve {
     /**
      * Primarily for internal use.
      * @param loop The closed loop of bezier curves representing the shape
@@ -23,14 +18,11 @@ declare class Curve {
      * @param idx The curve's ordered index in the loop. This imposes a cycling
      * ordering of the curves in the loop.
      */
-    constructor(loop: Loop, ps: number[][], prev: Curve, next: Curve, idx: number);
-    /**
-     * @hidden
-     * Returns information about the corner created at the end of this curve
-     * (at t === 1) and the start of the next curve (at t === 0).
-     * @param curve The relevant [[Curve]].
-     */
-    static getCornerAtEnd(curve: Curve): Corner;
+    loop: Loop;
+    ps: number[][];
+    prev: Curve;
+    next: Curve;
+    idx: number;
 }
 /**
  * @hidden
@@ -45,4 +37,10 @@ declare class Curve {
  * @param psO The outgoing bezier that starts at the corner
  */
 declare function getCorner(psI: number[][], psO: number[][]): Corner;
-export { Curve, getCorner };
+/**
+ * @hidden
+ * Returns information about the corner created at the end of this curve
+ * (at t === 1) and the start of the next curve (at t === 0).
+ */
+declare let getCornerAtEnd: (a: Curve) => Corner;
+export { Curve, getCorner, getCornerAtEnd };

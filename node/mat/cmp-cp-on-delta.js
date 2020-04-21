@@ -17,9 +17,9 @@ function cmpCpOnδ(δ, cp) {
     }
     let cpBef = δ[0].cp;
     let cpAft = δ[1].cp;
-    let cmp = contact_point_1.ContactPoint.compare(cpBef, cpAft);
-    let cmpPrev = contact_point_1.ContactPoint.compare(cpBef, cp);
-    let cmpNext = contact_point_1.ContactPoint.compare(cp, cpAft);
+    let cmp = contact_point_1.compareCps(cpBef, cpAft);
+    let cmpPrev = contact_point_1.compareCps(cpBef, cp);
+    let cmpNext = contact_point_1.compareCps(cp, cpAft);
     if (cmp < 0) {
         if (cmpPrev > 0 || cmpNext > 0) {
             console.log(`2-PRONG (antipode) Order is wrong - cmpPrev and cmpNext should be > 0; cmp: ${cmp}, cmpPrev: ${cmpPrev}, cmpNext ${cmpNext}`);

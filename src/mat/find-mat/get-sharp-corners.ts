@@ -1,16 +1,17 @@
 
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape, isPosQuiteSharpCorner } from '../../point-on-shape';
 
 
 /** @hidden */
-function getSharpCorners(possPerLoop: PointOnShape[][]) {
+function getSharpCorners(possPerLoop: IPointOnShape[][]) {
     let sharpCornersPerLoop = [];
     
     for (let poss of possPerLoop) {
         let sharpCorners = [];
         
         for (let pos of poss) {
-            if (PointOnShape.isQuiteSharpCorner(pos)) {
+            //if (PointOnShape.isQuiteSharpCorner(pos)) {
+            if (isPosQuiteSharpCorner(pos)) {
                 sharpCorners.push(pos);
             }
         }

@@ -6,7 +6,7 @@ import {
 import { tangent } from 'flo-bezier3';
 
 import { CpNode } from '../cp-node';
-import { PointOnShape } from '../point-on-shape';
+import { isPosSharpCorner } from '../point-on-shape';
 
 
 /**
@@ -30,7 +30,8 @@ function getEdgeDirection(cpNode: CpNode) {
 
     let vDir;
     
-    if (!PointOnShape.isSharpCorner(pos1)) {
+    //if (!PointOnShape.isSharpCorner(pos1)) {
+    if (!isPosSharpCorner(pos1)) {
         if (p1[0] === p2[0] && p1[1] === p2[1]) {
             vDir = fromTo(p1, circleCenter); // A 1-prong
         } else {
@@ -48,8 +49,8 @@ function getEdgeDirection(cpNode: CpNode) {
             curve2 = pos1.curve;
         }
 
-        let tan1 = tangent(curve1.ps)(0);
-        let tan2 = reverse( tangent(curve2.ps)(1) );
+        let tan1 = toUnitVector(tangent(curve1.ps, 0));
+        let tan2 = reverse( toUnitVector(tangent(curve2.ps, 1)) );
         
         let x = dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 

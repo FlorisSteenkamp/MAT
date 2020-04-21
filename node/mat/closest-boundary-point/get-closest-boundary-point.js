@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const flo_vector2d_1 = require("flo-vector2d");
 const point_on_shape_1 = require("../../point-on-shape");
 const cull_bezier_pieces_1 = require("./cull-bezier-pieces");
-const closest_point_on_curve_1 = require("./closest-point-on-curve");
+const closest_points_on_curve_1 = require("./closest-points-on-curve");
 /**
  * @hidden
  * Returns the closest boundary point to the given point, limited to the given
@@ -20,7 +20,8 @@ function getClosestBoundaryPoint(bezierPieces, point, touchedCurve, t) {
     let posInfo;
     for (let i = 0; i < bezierPieces.length; i++) {
         let bezierPiece = bezierPieces[i];
-        let p = closest_point_on_curve_1.closestPointOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
+        let ps = closest_points_on_curve_1.closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
+        let p = flo_vector2d_1.getObjClosestTo(point, ps, p => p.p);
         if (p === undefined) {
             continue;
         }

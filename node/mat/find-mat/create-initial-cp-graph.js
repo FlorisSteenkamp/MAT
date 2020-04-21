@@ -1,16 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_ll_rb_tree_1 = require("flo-ll-rb-tree");
-const circle_1 = require("../../circle");
 const cp_node_1 = require("../../cp-node");
-const contact_point_1 = require("../../contact-point");
 /**
  * @hidden
  * Creates the initial ContactPoint loops from the given sharp corners.
  * @param shape
  * @param sharpCornerss
  */
-function createInitialCpGraph(loops, cpTrees, sharpCornerss, xMap) {
+function createInitialCpGraph(loops, cpTrees, sharpCornerss /*,
+xMap: Map<number[][],{ ps: number[][] }>*/) {
     let cpNode;
     for (let k = 0; k < sharpCornerss.length; k++) {
         let sharpCorners = sharpCornerss[k];
@@ -19,13 +18,13 @@ function createInitialCpGraph(loops, cpTrees, sharpCornerss, xMap) {
         let cpNode2 = undefined;
         for (let pos of sharpCorners) {
             let ps = pos.curve.next.ps;
-            let x = xMap.get(ps);
-            let isIntersection = !!x;
-            let circle = new circle_1.Circle(pos.p, 0);
-            let cp1 = new contact_point_1.ContactPoint(pos, circle, -1, 0);
-            let cp2 = new contact_point_1.ContactPoint(pos, circle, +1, 0);
-            cpNode1 = cp_node_1.CpNode.insert(false, isIntersection, cpTree, cp1, cpNode2);
-            cpNode2 = cp_node_1.CpNode.insert(false, isIntersection, cpTree, cp2, cpNode1);
+            //let x = xMap.get(ps);
+            //let isIntersection = !!x;
+            let circle = { center: pos.p, radius: 0 };
+            let cp1 = { pointOnShape: pos, circle, order: -1, order2: 0 };
+            let cp2 = { pointOnShape: pos, circle, order: +1, order2: 0 };
+            cpNode1 = cp_node_1.CpNode.insert(false, /*isIntersection*/ false, cpTree, cp1, cpNode2);
+            cpNode2 = cp_node_1.CpNode.insert(false, /*isIntersection*/ false, cpTree, cp2, cpNode1);
             cpNode1.prevOnCircle = cpNode2;
             cpNode2.prevOnCircle = cpNode1;
             cpNode1.nextOnCircle = cpNode2;

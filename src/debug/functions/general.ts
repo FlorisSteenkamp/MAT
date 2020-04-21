@@ -1,6 +1,6 @@
 
-import { CpNode       } from '../../cp-node';
-import { PointOnShape } from '../../point-on-shape';
+import { CpNode } from '../../cp-node';
+import { posToHumanString } from '../../point-on-shape';
 
 
 /** @hidden */
@@ -31,7 +31,7 @@ function nameObj(o: any, pre: string = '') {
  */
 function δToString(cpNodes: CpNode[]) {
 	return cpNodes.map(
-		cpNode => PointOnShape.toHumanString(cpNode.cp.pointOnShape)
+		cpNode => posToHumanString(cpNode.cp.pointOnShape)
 	);
 }
 
@@ -68,7 +68,7 @@ function pointToStr(p: number[], decimalPlaces: number = 3) {
 
 
 /** @hidden */
-let generalDebugFunctions: IGeneralDebugFunctions = {
+let generalDebugFunctions/*: IGeneralDebugFunctions*/ = {
 	δToString,
 	δsToString,
 	pointToStr,

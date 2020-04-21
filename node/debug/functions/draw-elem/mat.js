@@ -19,13 +19,12 @@ function drawMat(type) {
             if (cpNode.isTerminating()) {
                 return;
             }
-            //let bezier = cpNode.matCurveToNextVertex;
             let bezier = get_curve_to_next_1.getCurveToNext(cpNode);
             if (!bezier) {
                 return;
             }
             i++;
-            $svgs.push(...flo_draw_1.drawFs.bezier(g, bezier, classes /*, i*100*/));
+            $svgs.push(...flo_draw_1.drawFs.bezier(g, bezier, classes /*, i*500*/));
         });
         return $svgs;
     };

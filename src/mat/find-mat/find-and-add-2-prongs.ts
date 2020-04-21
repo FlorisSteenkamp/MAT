@@ -1,13 +1,13 @@
 
 /** @hidden */
-declare var _debug_: MatDebug;
+declare var _debug_: Debug;
 
-import { MatDebug } from '../../debug/debug';
+import { Debug } from '../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
 import { Loop } from "../../loop";
 import { CpNode } from '../../cp-node';
-import { PointOnShape } from '../../point-on-shape';
-import { getShapeBounds } from '../../svg/fs/get-shape-bounds';
+import { IPointOnShape } from '../../point-on-shape';
+import { getShapeBounds } from '../../svg/get-shape-bounds';
 import { Circle } from '../../circle';
 import { find2Prong } from './find-2-prong/find-2-prong';
 import { add2Prong } from './add-2-prong';
@@ -27,7 +27,7 @@ function findAndAdd2Prongs(
         loops: Loop[],
         cpGraphs: Map<Loop,LlRbTree<CpNode>>,
         k: number, 
-        for2Prongs: PointOnShape[],
+        for2Prongs: IPointOnShape[],
         extreme: number) {
 
     let len = for2Prongs.length;
@@ -43,7 +43,7 @@ function findAndAdd2Prongs(
     for (let i=0; i<len; i++) {
         let pos = for2Prongs[index[i]];
 
-        let twoProngInfo: { circle: Circle,	zs: { pos: PointOnShape, d: number }[] };
+        let twoProngInfo: { circle: Circle,	zs: { pos: IPointOnShape, d: number }[] };
 
         twoProngInfo = find2Prong(
             loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k
@@ -52,9 +52,7 @@ function findAndAdd2Prongs(
         if (twoProngInfo) {
             let { circle, zs } = twoProngInfo;
             let cpNode = add2Prong(cpGraphs, circle, pos, zs, false, extreme);
-
-            // TODO - below should certainly be explained
-            if (!cpNode_ && cpNode) { cpNode_ = cpNode; }
+            cpNode_ = cpNode_ || cpNode;
         }
 
         if (typeof _debug_ !== 'undefined') {

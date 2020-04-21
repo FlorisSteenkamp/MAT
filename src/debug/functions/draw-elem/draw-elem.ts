@@ -16,13 +16,12 @@ import { loops            } from './loops';
 import { maxVertex        } from './max-vertex';
 import { leaves           } from './leaves';
 import { culls            } from './culls';
-import { intersection     } from './intersection';
 import { oneProngAtDullCorner } from './one-prong-at-dull-corner';
 
 
 /** @hidden */
 type TDrawElemFunctions = 
-	{ [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T]) => SVGElement[] };
+	{ [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T], classes?: string, delay?: number) => SVGElement[] };
 
 
 /** @hidden */
@@ -42,7 +41,7 @@ let drawElemFunctions: TDrawElemFunctions = {
 	twoProng_deleted: twoProng,
 	twoProng_holeClosing: twoProng,
 	threeProng,
-	minY,
+	//minY,
 	boundingHull,
 	looseBoundingBox,
 	tightBoundingBox,
@@ -51,12 +50,11 @@ let drawElemFunctions: TDrawElemFunctions = {
 	vertex,
 	mat: drawMat('mat'),
 	sat: drawMat('sat'),
-	loop,
-	loops,
+	//loop,
+	//loops,
 	maxVertex,
 	leaves,
 	culls,
-	intersection,
 	cpNode: notImplementedYet
 }
 

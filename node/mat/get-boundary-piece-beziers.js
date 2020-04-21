@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bezier_piece_1 = require("./bezier-piece");
 const point_on_shape_1 = require("../point-on-shape");
 const contact_point_1 = require("../contact-point");
 /**
@@ -26,16 +25,18 @@ function getBoundaryPieceBeziers(cpNodes) {
         let posThis = cpThis.cp.pointOnShape;
         let posNext = cpThis.next.cp.pointOnShape;
         if (posNext.curve === posThis.curve &&
-            point_on_shape_1.PointOnShape.isQuiteSharpCorner(posThis) &&
-            point_on_shape_1.PointOnShape.isQuiteSharpCorner(posNext)) {
+            //PointOnShape.isQuiteSharpCorner(posThis) && 
+            //PointOnShape.isQuiteSharpCorner(posNext)) {
+            point_on_shape_1.isPosQuiteSharpCorner(posThis) &&
+            point_on_shape_1.isPosQuiteSharpCorner(posNext)) {
             // Do nothing
         }
         else if (posNext.curve === posThis.curve &&
-            contact_point_1.ContactPoint.compare(cpThis.next.cp, cpThis.cp) > 0) {
-            bezierPieces.push(new bezier_piece_1.BezierPiece(posThis.curve, [posThis.t, posNext.t]));
+            contact_point_1.compareCps(cpThis.next.cp, cpThis.cp) > 0) {
+            bezierPieces.push({ curve: posThis.curve, ts: [posThis.t, posNext.t] });
         }
         else {
-            bezierPieces.push(new bezier_piece_1.BezierPiece(posThis.curve, [posThis.t, 1]));
+            bezierPieces.push({ curve: posThis.curve, ts: [posThis.t, 1] });
             if (cpThis.cp.pointOnShape.curve.loop === cpThis.next.cp.pointOnShape.curve.loop) {
                 addSkippedBeziers(bezierPieces, posThis.curve, posNext.curve, posNext.t);
             }
@@ -54,7 +55,7 @@ function addSkippedBeziers(bezierPieces, curveStart, curveEnd, t1) {
     do {
         curveThis = curveThis.next;
         let tEnd = curveThis === curveEnd ? t1 : 1;
-        bezierPieces.push(new bezier_piece_1.BezierPiece(curveThis, [0, tEnd]));
+        bezierPieces.push({ curve: curveThis, ts: [0, tEnd] });
     } while (curveThis !== curveEnd);
 }
 //# sourceMappingURL=get-boundary-piece-beziers.js.map

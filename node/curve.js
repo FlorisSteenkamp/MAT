@@ -2,44 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_memoize_1 = require("flo-memoize");
 const flo_vector2d_1 = require("flo-vector2d");
-const corner_1 = require("./mat/corner");
 const flo_bezier3_1 = require("flo-bezier3");
-/**
- * Represents a bezier curve on the shape boundary / loop.
- */
-class Curve {
-    /**
-     * Primarily for internal use.
-     * @param loop The closed loop of bezier curves representing the shape
-     * boundary this curve belongs to.
-     * @param ps The bezier control points.
-     * @param prev The previous curve (when going in a negative direction around
-     * the shape boundary, i.e. clockwise for the outer shape and anti-clockwise
-     * for the holes (if any)).
-     * @param next The next curve (when going in a positive direction around
-     * the shape boundary, i.e. anti-clockwise for the outer shape and clockwise
-     * for the holes (if any)).
-     * @param idx The curve's ordered index in the loop. This imposes a cycling
-     * ordering of the curves in the loop.
-     */
-    constructor(loop, ps, prev, next, idx) {
-        this.loop = loop;
-        this.ps = ps;
-        this.prev = prev;
-        this.next = next;
-        this.idx = idx;
-    }
-    /**
-     * @hidden
-     * Returns information about the corner created at the end of this curve
-     * (at t === 1) and the start of the next curve (at t === 0).
-     * @param curve The relevant [[Curve]].
-     */
-    static getCornerAtEnd(curve) {
-        return getCornerAtEnd(curve);
-    }
-}
-exports.Curve = Curve;
 /**
  * @hidden
  * Angle in degrees to radians.
@@ -105,7 +68,14 @@ function getCorner(psI, psO) {
         isQuiteSharp = isSharp;
         isQuiteDull = isDull;
     }
-    return new corner_1.Corner(tangents_, crossTangents, isSharp, isDull, isQuiteSharp, isQuiteDull);
+    return {
+        tangents: tangents_,
+        crossTangents,
+        isSharp,
+        isDull,
+        isQuiteSharp,
+        isQuiteDull
+    };
 }
 exports.getCorner = getCorner;
 /**
@@ -118,4 +88,5 @@ let getCornerAtEnd = flo_memoize_1.memoize(function (curve) {
     let psS = curve.next.ps;
     return getCorner(psE, psS);
 });
+exports.getCornerAtEnd = getCornerAtEnd;
 //# sourceMappingURL=curve.js.map

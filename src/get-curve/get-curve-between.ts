@@ -1,9 +1,9 @@
 
 import { 
-	fromTo, dot, cross, rotate90Degrees, interpolate, translate
+    fromTo, dot, cross, rotate90Degrees, interpolate, translate,
+    lineLineIntersection
 } from 'flo-vector2d';
 import { CpNode } from '../cp-node';
-import { lineLineIntersection } from '../mat/geometry/line-line-intersection';
 import { getEdgeDirection } from './get-edge-direction';
 
 

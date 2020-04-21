@@ -1,7 +1,6 @@
 import { CpNode } from '../../../cp-node';
-import { Circle } from '../../../circle';
 import { BezierPiece } from '../../bezier-piece';
-import { PointOnShape } from '../../../point-on-shape';
+import { IPointOnShape } from '../../../point-on-shape';
 /**
  * @hidden
  * Finds a 3-prong using only the 3 given δs.
@@ -12,8 +11,11 @@ import { PointOnShape } from '../../../point-on-shape';
  * tolerances.
  */
 declare function find3ProngForDelta3s(δs: CpNode[][], idx: number, k: number, bezierPiecess: BezierPiece[][], extreme: number): {
-    ps: PointOnShape[];
-    circle: Circle;
+    ps: IPointOnShape[];
+    circle: {
+        center: number[];
+        radius: number;
+    };
     error: number;
     δ3s: CpNode[][];
 };

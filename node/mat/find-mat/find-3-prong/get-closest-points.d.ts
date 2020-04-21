@@ -1,4 +1,3 @@
-import { PointOnShape } from '../../../point-on-shape';
 import { BezierPiece } from '../../bezier-piece';
 /**
  * @hidden
@@ -6,5 +5,5 @@ import { BezierPiece } from '../../bezier-piece';
  * @param bezierPiece3s
  * @param extreme
  */
-declare function getClosestPoints(x: number[], bezierPiece3s: BezierPiece[][]): PointOnShape[];
+declare function getClosestPoints(x: number[], bezierPiece3s: BezierPiece[][]): import("../../../point-on-shape").IPointOnShape[];
 export { getClosestPoints };

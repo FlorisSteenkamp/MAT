@@ -15,7 +15,7 @@ function find3Prong(δs, extreme) {
     let bezierPiecess = δs.map(get_boundary_piece_beziers_1.getBoundaryPieceBeziers);
     if (typeof _debug_ !== 'undefined') {
         let threeProngs = _debug_.generated.elems.threeProng;
-        threeProngs.push(new three_prong_for_debugging_1.ThreeProngForDebugging());
+        threeProngs.push(three_prong_for_debugging_1.createEmptyThreeProngForDebugging());
         let d = threeProngs[threeProngs.length - 1];
         d.boundaries = [];
         for (let bezierPieces of bezierPiecess) {
@@ -61,8 +61,8 @@ function find3Prong(δs, extreme) {
         let threeProngs = _debug_.generated.elems.threeProng;
         let d = threeProngs[threeProngs.length - 1];
         d.generated = _debug_.generated;
-        d.circle = threeProng.circle,
-            d.poss = threeProng.ps;
+        d.circle = threeProng.circle;
+        d.poss = threeProng.ps;
         d.cp3ss = threeProng.δ3s;
         d.cpss = δs;
         d.bestIndx = bestIndx;

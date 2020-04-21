@@ -1,22 +1,16 @@
 
-import { CpNode       } from '../cp-node';
-import { PointOnShape } from '../point-on-shape';
-import { Circle       } from '../circle';
+import { CpNode } from '../cp-node';
 import { Generated } from './debug';
 
 
 /**
  * @hidden
- * Class used for debugging only. 
+ * Used for debugging only. 
  */
-class CpNodeForDebugging {
-    cpsSimple: string[][];
-
-    constructor(
-            public generated  : Generated,
-            public cpNode     : CpNode) {
-    }
+interface ICpNodeForDebugging {
+    generated: Generated,
+    cpNode: CpNode
 }
 
 
-export { CpNodeForDebugging }
+export { ICpNodeForDebugging }

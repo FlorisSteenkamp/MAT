@@ -3,6 +3,7 @@ import { Mat    } from '../../../mat';
 import { traverseEdges } from "../../../traverse-edges";
 import { drawFs } from 'flo-draw';
 import { getCurveToNext } from '../../../get-curve-to-next';
+import { CpNode } from '../../../cp-node';
 
 
 /** @hidden */
@@ -23,14 +24,13 @@ function drawMat(type: 'mat' | 'sat') {
         traverseEdges(cpNode, cpNode => {
             if (cpNode.isTerminating()) { return; }
     
-            //let bezier = cpNode.matCurveToNextVertex;
             let bezier = getCurveToNext(cpNode);
-            
+
             if (!bezier) { return; }
 
             i++;
             
-            $svgs.push( ...drawFs.bezier(g, bezier, classes/*, i*100*/));
+            $svgs.push( ...drawFs.bezier(g, bezier, classes/*, i*500*/));
         });
         
         return $svgs;

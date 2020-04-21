@@ -1,5 +1,5 @@
 import { Curve } from '../../curve';
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 import { BezierPiece } from '../bezier-piece';
 /**
  * @hidden
@@ -12,7 +12,7 @@ import { BezierPiece } from '../bezier-piece';
  * @param extreme
  */
 declare function getClosestBoundaryPoint(bezierPieces: BezierPiece[], point: number[], touchedCurve: Curve, t: number): {
-    pos: PointOnShape;
+    pos: IPointOnShape;
     d: number;
 };
 export { getClosestBoundaryPoint };

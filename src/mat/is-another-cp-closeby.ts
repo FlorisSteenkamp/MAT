@@ -3,7 +3,7 @@ import LlRbTree from "flo-ll-rb-tree";
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
 import { Loop } from "../loop";
 import { CpNode } from "../cp-node";
-import { PointOnShape } from "../point-on-shape";
+import { IPointOnShape } from "../point-on-shape";
 import { Circle } from "../circle";
 import { getNeighbouringPoints } from "./get-neighboring-cps";
 
@@ -32,7 +32,7 @@ const ANGLE_THRESHOLD = 0.9986295347545738; // === Math.cos(3  degrees)
  */
 function isAnotherCpCloseby(
         cpTrees: Map<Loop,LlRbTree<CpNode>>,
-        pos: PointOnShape,
+        pos: IPointOnShape,
         circle: Circle,
         order: number,
         order2: number,

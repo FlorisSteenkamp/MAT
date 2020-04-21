@@ -1,5 +1,5 @@
 
-import { Circle    } from '../../circle';
+import { Circle, scaleCircle, engulfsCircle } from '../../circle';
 import { TTree } from './t-tree';
 import { calcGroups } from './calc-groups';
 
@@ -23,7 +23,7 @@ function getEngulfedVertices(
         tree: TTree, 
         circle: Circle) {
 
-    let c1 = Circle.scale(circle, s);
+    let c1 = scaleCircle(circle, s);
 
     let cullNodes: Set<Circle> = new Set();
 
@@ -40,8 +40,8 @@ function getEngulfedVertices(
         let circles = t.circles;
         
         circles.forEach(function(circle, key) {
-            let c2 = Circle.scale(circle, s);
-            if (Circle.engulfsCircle(c1, c2)) {
+            let c2 = scaleCircle(circle, s);
+            if (engulfsCircle(c1, c2)) {
                 cullNodes.add(circle);
                 circles.delete(key);
             }					

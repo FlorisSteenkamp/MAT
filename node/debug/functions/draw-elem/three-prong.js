@@ -6,7 +6,7 @@ const flo_draw_1 = require("flo-draw");
 const scaleFactor = 0.3;
 /** @hidden */
 function threeProng(g, threeProng) {
-    let circle = circle_1.Circle.scale(threeProng.circle, 1);
+    let circle = circle_1.scaleCircle(threeProng.circle, 1);
     let poss = threeProng.poss;
     let $cp1 = flo_draw_1.drawFs.dot(g, poss[0].p, 0.1 * 1 * scaleFactor, 'blue');
     let $cp2 = flo_draw_1.drawFs.dot(g, poss[1].p, 0.1 * 2 * scaleFactor, 'blue');

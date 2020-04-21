@@ -1,8 +1,8 @@
 import { Curve } from '../curve';
-import { PointOnShape } from '../point-on-shape';
+import { IPointOnShape } from '..';
 /**
  * @hidden
  * @param curve
  */
-declare function getContactCirclesAtInterface(curve: Curve): PointOnShape[];
+declare function getContactCirclesAtInterface(curve: Curve): IPointOnShape[];
 export { getContactCirclesAtInterface };

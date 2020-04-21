@@ -1,4 +1,4 @@
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 /** @hidden */
-declare function getPotential2Prongs(possPerLoop: PointOnShape[][]): PointOnShape[][];
+declare function getPotential2Prongs(possPerLoop: IPointOnShape[][]): IPointOnShape[][];
 export { getPotential2Prongs };

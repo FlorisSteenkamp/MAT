@@ -1,15 +1,15 @@
 
 /** @hidden */
-declare var _debug_: MatDebug;
+declare var _debug_: Debug;
 
-import { MatDebug } from '../../debug/debug';
+import { Debug } from '../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
 import { exponent } from 'flo-numerical';
 import { Loop         } from '../../loop';
 import { CpNode       } from '../../cp-node';
 import { Circle       } from '../../circle';
 import { ContactPoint } from '../../contact-point';
-import { PointOnShape } from '../../point-on-shape';
+import { PointOnShape, calcPosOrder, IPointOnShape } from '../../point-on-shape';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 import { getNeighbouringPoints } from '../get-neighboring-cps';
 import { TwoProngForDebugging } from '../../debug/two-prong-for-debugging';
@@ -29,17 +29,18 @@ import { TwoProngForDebugging } from '../../debug/two-prong-for-debugging';
 function add2Prong(
 		cpGraphs      : Map<Loop,LlRbTree<CpNode>>,
         circle        : Circle, 
-        posSource     : PointOnShape, 
-		//posAntipode   : PointOnShape, 
-		posAntipodes     : { pos: PointOnShape, d: number }[],
+        posSource     : IPointOnShape, 
+		posAntipodes  : { pos: IPointOnShape, d: number }[],
 		holeClosing   : boolean,
-		extreme       : number) {
+		extreme       : number): CpNode {
 
-	let orderSource   = PointOnShape.calcOrder(circle, posSource);
+	//let orderSource   = PointOnShape.calcOrder(circle, posSource);
+	let orderSource   = calcPosOrder(circle, posSource);
 	let orderAntipodes = posAntipodes.map(
 		posAntipode => {
 			//console.log(circle.center)
-			return PointOnShape.calcOrder(circle, posAntipode.pos);
+			//return PointOnShape.calcOrder(circle, posAntipode.pos);
+			return calcPosOrder(circle, posAntipode.pos);
 		}
 	);
 
@@ -89,7 +90,7 @@ function add2Prong(
 		let posAntipode = posAntipodes[i];
 		let orderAntipode = orderAntipodes[i];
 
-		let cpAntipode = new ContactPoint(posAntipode.pos, circle, orderAntipode, 0);
+		let cpAntipode: ContactPoint = { pointOnShape: posAntipode.pos, circle, order: orderAntipode, order2: 0 };
 		cpAntipodes.push(cpAntipode);
 		let loopAntipode = posAntipode.pos.curve.loop;
 		loopAntipodes.push(loopAntipode);
@@ -111,7 +112,7 @@ function add2Prong(
 	
 	
 	// Source
-	let cpSource = new ContactPoint(posSource, circle, orderSource, 0);
+	let cpSource: ContactPoint = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
 	let loopSource = posSource.curve.loop;
 	let cpTreeSource = cpGraphs.get(loopSource);
 	let deltaSource = getNeighbouringPoints(
@@ -157,10 +158,10 @@ function add2Prong(
 	if (holeClosing) { 
 		// TODO - important - take care of case where there are more than 1 antipode
 		// Duplicate ContactPoints
-		let cpB2 = new ContactPoint(posAntipodes[0].pos, circle, cpAntipodes[0].order, +1);
+		let cpB2: ContactPoint = { pointOnShape: posAntipodes[0].pos, circle, order: cpAntipodes[0].order, order2: +1 };
 		let newCpB2Node = CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
 		
-		let cpB1 = new ContactPoint(posSource, circle, cpSource.order, -1);
+		let cpB1: ContactPoint = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
 		let newCpB1Node = CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
 		
 		// Connect graph

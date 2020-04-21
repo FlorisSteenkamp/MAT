@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const get_shape_bounds_1 = require("../../svg/fs/get-shape-bounds");
+const get_shape_bounds_1 = require("../../svg/get-shape-bounds");
 const find_2_prong_1 = require("./find-2-prong/find-2-prong");
 const add_2_prong_1 = require("./add-2-prong");
 /**
@@ -28,10 +28,7 @@ function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
         if (twoProngInfo) {
             let { circle, zs } = twoProngInfo;
             let cpNode = add_2_prong_1.add2Prong(cpGraphs, circle, pos, zs, false, extreme);
-            // TODO - below should certainly be explained
-            if (!cpNode_ && cpNode) {
-                cpNode_ = cpNode;
-            }
+            cpNode_ = cpNode_ || cpNode;
         }
         if (typeof _debug_ !== 'undefined') {
             if (i + 1 === _debug_.directives.stopAfterTwoProngsNum) {

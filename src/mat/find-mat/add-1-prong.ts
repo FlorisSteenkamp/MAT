@@ -1,11 +1,11 @@
 
 /** @hidden */
-declare var _debug_: MatDebug; 
+declare var _debug_: Debug; 
 
-import { MatDebug }   from '../../debug/debug';
+import { Debug }   from '../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
 import { Loop } from '../../loop';
-import { PointOnShape } from '../../point-on-shape';
+import { getOsculatingCircle, calcPosOrder, isPosDullCorner, IPointOnShape } from '../../point-on-shape';
 import { CpNode } from '../../cp-node';
 import { addToCpGraph } from '../add-to-cp-graph';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
@@ -20,9 +20,10 @@ import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 function add1Prong(
 		maxOsculatingCircleRadius: number,
         cpGraphs: Map<Loop,LlRbTree<CpNode>>, 
-        pos: PointOnShape) {
+        pos: IPointOnShape) {
 
-    if (PointOnShape.isDullCorner(pos)) {
+	//if (PointOnShape.isDullCorner(pos)) {
+    if (isPosDullCorner(pos)) {
 		// This is a 1-prong at a dull corner.
 		
 		// TODO IMPORTANT 
@@ -42,10 +43,12 @@ function add1Prong(
 
 		return;
 	}
-    
-	let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
 	
-	let order = PointOnShape.calcOrder(circle, pos);
+	//let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
+	let circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
+	
+	//let order = PointOnShape.calcOrder(circle, pos);
+	let order = calcPosOrder(circle, pos);
 	// Make sure there isn't already a ContactPoint close by - it can cause
 	// floating point stability issues.
 	if (isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {

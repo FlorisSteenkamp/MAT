@@ -18,7 +18,8 @@ function getEdgeDirection(cpNode) {
     let p1 = pos1.p;
     let p2 = pos2.p;
     let vDir;
-    if (!point_on_shape_1.PointOnShape.isSharpCorner(pos1)) {
+    //if (!PointOnShape.isSharpCorner(pos1)) {
+    if (!point_on_shape_1.isPosSharpCorner(pos1)) {
         if (p1[0] === p2[0] && p1[1] === p2[1]) {
             vDir = flo_vector2d_1.fromTo(p1, circleCenter); // A 1-prong
         }
@@ -38,8 +39,8 @@ function getEdgeDirection(cpNode) {
             curve1 = pos1.curve.next;
             curve2 = pos1.curve;
         }
-        let tan1 = flo_bezier3_1.tangent(curve1.ps)(0);
-        let tan2 = flo_vector2d_1.reverse(flo_bezier3_1.tangent(curve2.ps)(1));
+        let tan1 = flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(curve1.ps, 0));
+        let tan2 = flo_vector2d_1.reverse(flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(curve2.ps, 1)));
         let x = flo_vector2d_1.dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 

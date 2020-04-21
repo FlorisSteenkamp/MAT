@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const cp_node_1 = require("../cp-node");
-const contact_point_1 = require("../contact-point");
 /**
  * @hidden
  * Returns the boundary piece that starts at the immediate previous point on the
@@ -12,7 +11,7 @@ const contact_point_1 = require("../contact-point");
  * @param order2
  */
 function getNeighbouringPoints(cpTree, pos, order, order2) {
-    let cps = cpTree.findBounds(new cp_node_1.CpNode(new contact_point_1.ContactPoint(pos, undefined, order, order2), false, false));
+    let cps = cpTree.findBounds(new cp_node_1.CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false));
     if (!cps[0] && !cps[1]) {
         // The tree is still empty
         return [undefined, undefined];

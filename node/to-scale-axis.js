@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_bezier3_1 = require("flo-bezier3");
-const mat_1 = require("./mat");
 const traverse_edges_1 = require("./traverse-edges");
 const traverse_vertices_1 = require("./traverse-vertices");
 const get_largest_vertex_1 = require("./mat/get-largest-vertex");
-const create_new_cp_tree_1 = require("./mat/create-new-cp-tree");
 const get_leaves_1 = require("./mat/get-leaves");
 const cull_1 = require("./mat/to-scale-axis/cull");
 const add_debug_info_1 = require("./mat/to-scale-axis/add-debug-info");
@@ -32,7 +30,7 @@ let len = flo_bezier3_1.length([0, 1]);
  */
 function toScaleAxis(mat, s, f = linearScale) {
     if (typeof _debug_ !== 'undefined') {
-        _debug_.generated.timing.sats[0] = performance.now();
+        var timingStart = performance.now();
         let leaves = get_leaves_1.getLeaves(mat.cpNode);
         _debug_.generated.elems.leaves.push(leaves);
     }
@@ -68,8 +66,10 @@ function toScaleAxis(mat, s, f = linearScale) {
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.culls.push(Array.from(culls));
     }
-    let sat = new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
-    add_debug_info_1.addDebugInfo(sat);
+    // TODO - put line below back - goes into infinite loop
+    //let sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
+    let sat = { cpNode, cpTrees: undefined };
+    add_debug_info_1.addDebugInfo(sat, timingStart);
     return sat;
 }
 exports.toScaleAxis = toScaleAxis;

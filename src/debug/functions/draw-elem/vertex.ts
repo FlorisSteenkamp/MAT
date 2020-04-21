@@ -4,7 +4,7 @@ import { drawFs } from 'flo-draw';
 
 
 /** @hidden */
-function vertex(g: SVGGElement, cpNode: CpNode, visible: boolean = true, displayDelay?: number) {
+function vertex(g: SVGGElement, cpNode: CpNode, classes?: string , delay?: number, visible: boolean = true) {
 	let visibleClass = visible ? '' : ' invisible';
 
 	let circle = cpNode.cp.circle;
@@ -16,8 +16,8 @@ function vertex(g: SVGGElement, cpNode: CpNode, visible: boolean = true, display
 
 	let $svgs: SVGElement[] = [];
 
-	let $circle = drawFs.circle(g, circle, 'red ' + THIN + ' nofill ' + visibleClass, displayDelay);
-	let $crossHair = drawFs.crossHair(g, circle.center, 'red ' + THIN + ' nofill ' + visibleClass, 3, displayDelay);
+	let $circle = drawFs.circle(g, circle, 'red ' + THIN + ' nofill ' + visibleClass, delay);
+	let $crossHair = drawFs.crossHair(g, circle.center, 'red ' + THIN + ' nofill ' + visibleClass, 3, delay);
 
 	$svgs = [...$circle, ...$crossHair];
 
@@ -25,15 +25,15 @@ function vertex(g: SVGGElement, cpNode: CpNode, visible: boolean = true, display
 		let cp = cps[i];
 		let edgeCircle = cp.next.cp.circle;
 
-		let $circle = drawFs.circle(g, edgeCircle, 'pink ' + THIN + ' nofill ' + visibleClass, displayDelay);
-		let $crossHair = drawFs.crossHair(g, edgeCircle.center, 'pink ' + THIN + ' nofill ' + visibleClass, 3, displayDelay);
+		let $circle = drawFs.circle(g, edgeCircle, 'pink ' + THIN + ' nofill ' + visibleClass, delay);
+		let $crossHair = drawFs.crossHair(g, edgeCircle.center, 'pink ' + THIN + ' nofill ' + visibleClass, 3, delay);
 
 		$svgs.push(...$circle, ...$crossHair)
 
 		let p1 = circle.center;
 		let p2 = edgeCircle.center;
 		let thin = i === 0 ? 'thin10' : (i === 1 ? 'thin20' : 'thin35');
-		let $line = drawFs.line(g, [p1, p2], 'yellow ' + thin  + ' nofill ' + visibleClass, displayDelay);
+		let $line = drawFs.line(g, [p1, p2], 'yellow ' + thin  + ' nofill ' + visibleClass, delay);
 
 		$svgs.push(...$line);
 	}

@@ -1,13 +1,13 @@
 
 /** @hidden */
-declare var _debug_: MatDebug; 
+declare var _debug_: Debug; 
 
-import { MatDebug } from '../../../debug/debug';
+import { Debug } from '../../../debug/debug';
 import { fromTo } from 'flo-bezier3';
 import { CpNode } from '../../../cp-node';
 import { Circle } from '../../../circle';
-import { PointOnShape } from '../../../point-on-shape';
-import { ThreeProngForDebugging } from '../../../debug/three-prong-for-debugging';
+import { IPointOnShape } from '../../../point-on-shape';
+import { ThreeProngForDebugging, createEmptyThreeProngForDebugging } from '../../../debug/three-prong-for-debugging';
 import { find3ProngForDelta3s } from './find-3-prong-for-delta3s';
 import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers';
 
@@ -24,7 +24,7 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 
 	if (typeof _debug_ !== 'undefined') { 
 		let threeProngs = _debug_.generated.elems.threeProng;
-		threeProngs.push(new ThreeProngForDebugging());
+		threeProngs.push(createEmptyThreeProngForDebugging());
 
 		let d = threeProngs[threeProngs.length-1];
 		d.boundaries = [];
@@ -46,7 +46,7 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 	// The best candidate amongst the different 'permutations' of the given δs.
 	let threeProng: { 
         circle: Circle, 
-        ps: PointOnShape[], 
+        ps: IPointOnShape[], 
         δ3s: CpNode[][] 
     };
 	let bestIndx = undefined; 
@@ -86,7 +86,7 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 		let d = threeProngs[threeProngs.length-1];
 
 		d.generated = _debug_.generated;
-		d.circle = threeProng.circle,
+		d.circle = threeProng.circle;
 		d.poss = threeProng.ps;
 		d.cp3ss = threeProng.δ3s;
 		d.cpss = δs;

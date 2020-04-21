@@ -1,8 +1,8 @@
 
 /** @hidden */
-declare var _debug_: MatDebug;
+declare var _debug_: Debug;
 
-import { MatDebug } from '../../../debug/debug';
+import { Debug } from '../../../debug/debug';
 import { circumCenter } from 'flo-vector2d';
 import { CpNode      } from '../../../cp-node';
 import { BezierPiece } from '../../bezier-piece';

@@ -2,12 +2,10 @@ import { CpNode } from '../cp-node';
 import { Generated } from './debug';
 /**
  * @hidden
- * Class used for debugging only.
+ * Used for debugging only.
  */
-declare class CpNodeForDebugging {
+interface ICpNodeForDebugging {
     generated: Generated;
     cpNode: CpNode;
-    cpsSimple: string[][];
-    constructor(generated: Generated, cpNode: CpNode);
 }
-export { CpNodeForDebugging };
+export { ICpNodeForDebugging };

@@ -3,7 +3,7 @@ import { Mat } from './mat';
 import { Loop } from './loop';
 import { Curve } from './curve';
 import { CpNode } from './cp-node';
-import { PointOnShape } from './point-on-shape';
+import { PointOnShape, IPointOnShape } from './point-on-shape';
 import { Circle } from './circle';
 import { ContactPoint } from './contact-point';
 import { BezierPiece } from './mat/bezier-piece';
@@ -16,23 +16,22 @@ import { traverseEdges } from './traverse-edges';
 import { getBranches } from './get-branches';
 import { traverseVertices } from './traverse-vertices';
 
-import { MatDebug } from './debug/debug';
+import { Debug, enableDebugForMat } from './debug/debug';
 import { drawBranch } from './debug/functions/draw-elem/branch';
 import { drawMat } from './debug/functions/draw-elem/mat';
 
 import { IDebugElems } from './debug/debug-elem-types';
 import { TDrawElemFunctions } from './debug/functions/draw-elem/draw-elem';
 
-import { CpNodeForDebugging } from './debug/cp-node-for-debugging';
+import { ICpNodeForDebugging } from './debug/cp-node-for-debugging';
 
 import { ITiming } from './debug/debug';
 
 import { getClosestBoundaryPoint } from 
 	'./mat/closest-boundary-point/get-closest-boundary-point';
 
-import { getPathsFromStr } from './get-paths-from-str';	
-import { beziersToSvgPathStr } from './beziers-to-svg-path-str';
-import { getShapeBounds } from './svg/fs/get-shape-bounds';
+import { beziersToSvgPathStr, getPathsFromStr } from 'flo-boolean';	
+import { getShapeBounds } from './svg/get-shape-bounds';
 
 import { getBoundaryBeziersToNext } from './get-boundary-beziers-to-next';
 import { getBoundaryBezierPartsToNext } from './get-boundary-bezier-parts-to-next';
@@ -44,12 +43,17 @@ import { drawElemFunctions } from './debug/functions/draw-elem/draw-elem'
 
 import { getCurveToNext } from './get-curve-to-next';
 import { getCurveBetween } from './get-curve/get-curve-between';
+import { sweepLine } from './sweep-line/sweep-line';
+import { areBoxesIntersecting } from './sweep-line/are-boxes-intersecting';
+import { getClosestSquareDistanceToRect } from './mat/geometry/get-closest-square-distance-to-rect';
+import { loopFromBeziers } from './loop';
 
 
 export { 
 	// Data structures
 	Mat,
 	PointOnShape,
+	IPointOnShape,
 	Curve,
 	Loop,
 	CpNode,
@@ -81,13 +85,21 @@ export {
 	getCurveToNext, getCurveBetween,
 
 	// Debug
-	MatDebug,
+	Debug,
 	IDebugElems,
 	TDrawElemFunctions,
-	CpNodeForDebugging,
+	ICpNodeForDebugging,
 	ITiming,
 
 	getBoundaryPieceBeziers,
 
-	drawElemFunctions
+	drawElemFunctions,
+
+	sweepLine,
+	areBoxesIntersecting,
+
+	getClosestSquareDistanceToRect,
+
+	loopFromBeziers,
+	enableDebugForMat
 }

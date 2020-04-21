@@ -10,11 +10,14 @@ const point_on_shape_1 = require("../../point-on-shape");
  * @param loop
  * @param additionalPointCount
  */
-function createGetInterestingPointsOnLoop(maxFlatness = 1.001, maxLength = 10) {
+function getInterestingPointsOnLoop(minBezLength, maxFlatness, maxLength) {
     return function (loop) {
         let allPoints = [];
         for (let i = 0; i < loop.curves.length; i++) {
             let curve = loop.curves[i];
+            if (flo_bezier3_1.lengthSquaredUpperBound(curve.ps) < minBezLength) {
+                continue;
+            }
             let { maxCurvatureTs, maxNegativeCurvatureTs } = flo_bezier3_1.getCurvatureExtrema(curve.ps);
             let maxCurvatures = maxCurvatureTs.map(t => new point_on_shape_1.PointOnShape(curve, t));
             let maxNegativeCurvatures = maxNegativeCurvatureTs.map(t => new point_on_shape_1.PointOnShape(curve, t));
@@ -27,9 +30,9 @@ function createGetInterestingPointsOnLoop(maxFlatness = 1.001, maxLength = 10) {
                 allPoints.push(new point_on_shape_1.PointOnShape(curve, ts[i]));
             }
         }
-        allPoints.sort(point_on_shape_1.PointOnShape.compare);
+        allPoints.sort(point_on_shape_1.comparePoss);
         return allPoints;
     };
 }
-exports.createGetInterestingPointsOnLoop = createGetInterestingPointsOnLoop;
+exports.getInterestingPointsOnLoop = getInterestingPointsOnLoop;
 //# sourceMappingURL=create-get-interesting-points-on-loop.js.map

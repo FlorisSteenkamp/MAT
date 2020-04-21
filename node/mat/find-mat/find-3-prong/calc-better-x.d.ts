@@ -1,4 +1,4 @@
-import { PointOnShape } from '../../../point-on-shape';
+import { IPointOnShape } from '../../../point-on-shape';
 import { BezierPiece } from '../../bezier-piece';
 /**
  * @hidden
@@ -14,6 +14,6 @@ import { BezierPiece } from '../../bezier-piece';
 declare function calcBetterX(bezierPiece3s: BezierPiece[][], x: number[], vectorToZeroV: number[]): {
     newX: number[];
     newV: number;
-    newPs: PointOnShape[];
+    newPs: IPointOnShape[];
 };
 export { calcBetterX };

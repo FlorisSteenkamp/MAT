@@ -1,6 +1,6 @@
 
 import { CpNode       } from '../cp-node';
-import { ContactPoint } from '../contact-point';
+import { ContactPoint, compareCps } from '../contact-point';
 
 
 /**
@@ -24,9 +24,9 @@ function cmpCpOnδ(
     let cpBef = δ[0].cp;
     let cpAft = δ[1].cp;
 
-    let cmp     = ContactPoint.compare(cpBef, cpAft); 
-    let cmpPrev = ContactPoint.compare(cpBef, cp);
-    let cmpNext = ContactPoint.compare(cp,    cpAft);
+    let cmp     = compareCps(cpBef, cpAft); 
+    let cmpPrev = compareCps(cpBef, cp);
+    let cmpNext = compareCps(cp,    cpAft);
     
     if (cmp < 0) {
         if (cmpPrev > 0 || cmpNext > 0) {

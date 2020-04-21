@@ -16,8 +16,7 @@ function getClosestSquareDistanceToRect(box: number[][], p: number[]) {
 		} else if (yp > y1) {
 			return squaredDistanceBetween([x0,y1], p);
 		} else {
-			let d = x0 - xp;
-			return d*d;
+			return (x0 - xp)**2;
 		}
 	} else if (xp > x1) {
 		if (yp < y0) {
@@ -25,19 +24,16 @@ function getClosestSquareDistanceToRect(box: number[][], p: number[]) {
 		} else if (yp > y1) {
 			return squaredDistanceBetween(box[1], p);
 		} else {
-			let d = xp - x1;
-			return d*d;
+			return (xp - x1)**2;
 		}
 	} else {
 		if (yp < y0) {
-			let d = y0 - yp;
-			return d*d;
+			return (y0 - yp)**2;
 		} else if (yp > y1) {
-			let d = yp - y1;
-			return d*d;
-		} else {
-			return 0;
-		}
+			return (yp - y1)**2;
+		} 
+			
+		return 0;
 	}
 }
 

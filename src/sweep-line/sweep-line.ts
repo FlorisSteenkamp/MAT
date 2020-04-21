@@ -29,7 +29,7 @@ function sweepLine<T>(
         items: T[], 
         getLeftmost: (item: T) => number,
         getRightmost: (item: T) => number,
-        predicate: (item1: T, item2: T) => boolean) {
+        predicate: (item1: T, item2: T) => boolean): [T,T][] {
 
     // Initialize event queue to contain all endpoints.
     let events: IEvent<T>[] = [];
@@ -51,7 +51,7 @@ function sweepLine<T>(
 	let activeItems = new Set<T>();
     
     /** A list of pairs of items that passed the predicate */
-	let pairedItems: T[][] = [];
+	let pairedItems: [T,T][] = [];
 	for (let event of events) {
     	let { item } = event;
     	

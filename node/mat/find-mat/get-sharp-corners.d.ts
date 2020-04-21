@@ -1,4 +1,4 @@
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 /** @hidden */
-declare function getSharpCorners(possPerLoop: PointOnShape[][]): PointOnShape[][];
+declare function getSharpCorners(possPerLoop: IPointOnShape[][]): IPointOnShape[][];
 export { getSharpCorners };

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const get_shape_bounds_1 = require("../../svg/fs/get-shape-bounds");
-const get_min_y_pos_1 = require("../../svg/fs/get-min-y-pos");
+const get_shape_bounds_1 = require("../../svg/get-shape-bounds");
+const get_min_y_pos_1 = require("../../svg/get-min-y-pos");
 const find_2_prong_1 = require("./find-2-prong/find-2-prong");
 const add_2_prong_1 = require("./add-2-prong");
 /**

@@ -1,4 +1,4 @@
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 import { BezierPiece } from '../bezier-piece';
 /**
  * @hidden
@@ -10,8 +10,8 @@ import { BezierPiece } from '../bezier-piece';
  * @param t
  * @param extreme
  */
-declare function getCloseBoundaryPoints(bezierPieces: BezierPiece[], point: number[], y: PointOnShape, distance: number): {
-    pos: PointOnShape;
+declare function getCloseBoundaryPoints(bezierPieces: BezierPiece[], point: number[], y: IPointOnShape, distance: number): {
+    pos: IPointOnShape;
     d: number;
 }[];
 export { getCloseBoundaryPoints };

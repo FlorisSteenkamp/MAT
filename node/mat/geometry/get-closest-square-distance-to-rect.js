@@ -15,8 +15,7 @@ function getClosestSquareDistanceToRect(box, p) {
             return flo_vector2d_1.squaredDistanceBetween([x0, y1], p);
         }
         else {
-            let d = x0 - xp;
-            return d * d;
+            return Math.pow((x0 - xp), 2);
         }
     }
     else if (xp > x1) {
@@ -27,22 +26,17 @@ function getClosestSquareDistanceToRect(box, p) {
             return flo_vector2d_1.squaredDistanceBetween(box[1], p);
         }
         else {
-            let d = xp - x1;
-            return d * d;
+            return Math.pow((xp - x1), 2);
         }
     }
     else {
         if (yp < y0) {
-            let d = y0 - yp;
-            return d * d;
+            return Math.pow((y0 - yp), 2);
         }
         else if (yp > y1) {
-            let d = yp - y1;
-            return d * d;
+            return Math.pow((yp - y1), 2);
         }
-        else {
-            return 0;
-        }
+        return 0;
     }
 }
 exports.getClosestSquareDistanceToRect = getClosestSquareDistanceToRect;

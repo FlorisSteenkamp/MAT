@@ -10,7 +10,8 @@ const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
  * @param pos
  */
 function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
-    if (point_on_shape_1.PointOnShape.isDullCorner(pos)) {
+    //if (PointOnShape.isDullCorner(pos)) {
+    if (point_on_shape_1.isPosDullCorner(pos)) {
         // This is a 1-prong at a dull corner.
         // TODO IMPORTANT 
         // Remove this line, uncomment piece below it and implement the 
@@ -26,8 +27,10 @@ function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
         }
         return;
     }
-    let circle = point_on_shape_1.PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
-    let order = point_on_shape_1.PointOnShape.calcOrder(circle, pos);
+    //let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
+    let circle = point_on_shape_1.getOsculatingCircle(maxOsculatingCircleRadius, pos);
+    //let order = PointOnShape.calcOrder(circle, pos);
+    let order = point_on_shape_1.calcPosOrder(circle, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
     if (is_another_cp_closeby_1.isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {

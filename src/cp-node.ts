@@ -1,11 +1,10 @@
 
 /** @hidden */
-declare var _debug_: MatDebug; 
+declare var _debug_: Debug; 
 
-import { MatDebug } from './debug/debug';
+import { Debug } from './debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
-import { ContactPoint } from './contact-point';
-import { CpNodeForDebugging } from './debug/cp-node-for-debugging';
+import { ContactPoint, compareCps } from './contact-point';
 import { removeCpNode } from './cp-node/remove';
 import { getCurveToNext } from './get-curve-to-next';
 
@@ -107,7 +106,7 @@ class CpNode {
 	 * on a [[CpNode]]'s relative position along the shape boundary.
 	 */
 	static comparator = 
-		(a: CpNode, b: CpNode) => ContactPoint.compare(a.cp, b.cp);
+		(a: CpNode, b: CpNode) => compareCps(a.cp, b.cp);
 
 
 	/**
@@ -197,12 +196,10 @@ class CpNode {
 	
 		let cpNode = new CpNode(cp, isHoleClosing, isIntersection);
 		if (typeof _debug_ !== 'undefined') {
-			_debug_.generated.elems.cpNode.push(
-				new CpNodeForDebugging(
-					_debug_.generated,
-					cpNode
-				)
-			);
+			_debug_.generated.elems.cpNode.push({
+				generated: _debug_.generated,
+				cpNode
+			});
 		}
 		
 		let prev;
@@ -271,7 +268,8 @@ class CpNode {
 	 * 
 	 * This is always the case for sharp corners and maximal disks with
 	 * a single contact point. Note, however, that even in these cases there are
-	 * two contact points stored (sitting 'on top' of each other) for the 
+	 * two contact points stored (s
+	 * itting 'on top' of each other) for the 
 	 * maximal disk. It can be seen as a limiting case of a two-prong where the
 	 * distance between two of the contact points tend to zero. One point 
 	 * (represented by a [[CpNode]] of course) will be terminating with the 

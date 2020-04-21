@@ -1,8 +1,8 @@
 
 /** @hidden */
-declare var _debug_: MatDebug;
+declare var _debug_: Debug;
 
-import { MatDebug } from './debug/debug';
+import { Debug } from './debug/debug';
 import { length } from 'flo-bezier3';
 import { CpNode } from './cp-node';
 import { Circle } from './circle';
@@ -44,10 +44,10 @@ let len = length([0,1]);
 function toScaleAxis(
 		mat: Mat, 
 		s: number, 
-		f: (s: number) => (r: number) => number = linearScale) {
+		f: (s: number) => (r: number) => number = linearScale): Mat {
 
 	if (typeof _debug_ !== 'undefined') {
-		_debug_.generated.timing.sats[0] = performance.now();
+		var timingStart = performance.now();
 		let leaves = getLeaves(mat.cpNode);
 		_debug_.generated.elems.leaves.push(leaves);
 	}
@@ -98,9 +98,11 @@ function toScaleAxis(
 		_debug_.generated.elems.culls.push(Array.from(culls));
 	}
 	 
-	let sat = new Mat(cpNode, createNewCpTree(cpNode));
+	// TODO - put line below back - goes into infinite loop
+	//let sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
+	let sat: Mat = { cpNode, cpTrees: undefined };
 
-	addDebugInfo(sat);
+	addDebugInfo(sat, timingStart);
 
 	return sat;
 }

@@ -2,8 +2,8 @@
 import { CpNode } from '../cp-node';
 import { Curve } from '../curve';
 import { BezierPiece } from './bezier-piece';
-import { PointOnShape } from '../point-on-shape';
-import { ContactPoint } from '../contact-point';
+import { isPosQuiteSharpCorner } from '../point-on-shape';
+import { compareCps } from '../contact-point';
 
 
 /**
@@ -34,19 +34,21 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
         let posNext = cpThis.next.cp.pointOnShape;
 
         if (posNext.curve === posThis.curve && 
-            PointOnShape.isQuiteSharpCorner(posThis) && 
-            PointOnShape.isQuiteSharpCorner(posNext)) {
+            //PointOnShape.isQuiteSharpCorner(posThis) && 
+            //PointOnShape.isQuiteSharpCorner(posNext)) {
+            isPosQuiteSharpCorner(posThis) && 
+            isPosQuiteSharpCorner(posNext)) {
 
             // Do nothing
         } else if (posNext.curve === posThis.curve &&
-                   ContactPoint.compare(cpThis.next.cp, cpThis.cp) > 0) {
+                   compareCps(cpThis.next.cp, cpThis.cp) > 0) {
                 
             bezierPieces.push(
-                new BezierPiece(posThis.curve, [posThis.t, posNext.t])
+                { curve: posThis.curve, ts: [posThis.t, posNext.t] }
             );
         } else {
             bezierPieces.push(
-                new BezierPiece(posThis.curve, [posThis.t, 1])
+                { curve: posThis.curve, ts: [posThis.t, 1] }
             );
             
             if (cpThis.cp.pointOnShape.curve.loop === cpThis.next.cp.pointOnShape.curve.loop) {
@@ -81,7 +83,7 @@ function addSkippedBeziers(
     do {
         curveThis = curveThis.next;
         let tEnd = curveThis === curveEnd ? t1 : 1;
-        bezierPieces.push( new BezierPiece(curveThis, [0, tEnd]) );
+        bezierPieces.push({ curve: curveThis, ts: [0, tEnd] });
     } while (curveThis !== curveEnd);
 }
 

@@ -1,6 +1,6 @@
 
-import { PointOnShape } from '../../../point-on-shape';
-import { Circle } from '../../../circle';
+import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape';
+import { Circle, scaleCircle } from '../../../circle';
 import { drawFs } from 'flo-draw';
 
 
@@ -9,15 +9,16 @@ const scaleFactor = 0.5;
 
 
 /** @hidden */
-function drawOneProng(g: SVGGElement, pos: PointOnShape) {
-    let circle = Circle.scale(
-        PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos),
+function drawOneProng(g: SVGGElement, pos: IPointOnShape, classes: string, delay = 0) {
+    let circle = scaleCircle(
+        //PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos),
+        getOsculatingCircle(Number.POSITIVE_INFINITY, pos),
         1
     );
 
-    let $center = drawFs.dot(g, pos.p, 0.1*scaleFactor, 'gray');
-    let $circle = drawFs.dot(g, circle.center, 0.25*scaleFactor, 'gray');
-    let $pos    = drawFs.circle(g, circle, 'gray thin10 nofill');
+    let $center = drawFs.dot(g, pos.p, 0.1*scaleFactor, 'gray', delay);
+    let $circle = drawFs.dot(g, circle.center, 0.25*scaleFactor, 'gray', delay);
+    let $pos    = drawFs.circle(g, circle, 'gray thin10 nofill', delay);
         
 	return [...$center, ...$circle, ...$pos];
 }

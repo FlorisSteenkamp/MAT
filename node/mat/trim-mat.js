@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const mat_1 = require("../mat");
 const create_new_cp_tree_1 = require("./create-new-cp-tree");
 const cull_non_cycles_1 = require("./to-scale-axis/cull-non-cycles");
 const clone_1 = require("../cp-node/clone");
@@ -14,8 +13,7 @@ function trimMat(mat) {
     if (!cpNode) {
         return undefined;
     }
-    let mat_ = new mat_1.Mat(cpNode, create_new_cp_tree_1.createNewCpTree(cpNode));
-    return mat_;
+    return { cpNode, cpTrees: create_new_cp_tree_1.createNewCpTree(cpNode) };
 }
 exports.trimMat = trimMat;
 //# sourceMappingURL=trim-mat.js.map

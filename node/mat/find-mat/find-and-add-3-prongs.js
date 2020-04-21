@@ -20,8 +20,12 @@ function findAndAddAll3Prongs(cpGraphs, cpStart, extreme) {
         let { fromCpNode, cpStart } = edgesToCheck.shift();
         markEdgeAsTaken(visitedEdges, fromCpNode, cpStart);
         for (let cpNode of cpStart.getCpNodesOnCircle()) {
-            if (!point_on_shape_1.PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
-                findAndAdd3Prongs(cpGraphs, cpNode, extreme);
+            //if (!PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
+            if (!point_on_shape_1.isPosSharpCorner(cpNode.cp.pointOnShape)) {
+                if (findAndAdd3Prongs(cpGraphs, cpNode, extreme) === undefined) {
+                    return; // only for debugging purposes
+                }
+                ;
             }
             if (hasEdgeBeenTaken(visitedEdges, cpNode, cpNode.next)) {
                 continue; // We already visited this edge
@@ -93,12 +97,19 @@ function traverseShape(cpStart) {
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.
  */
+let ii = 0;
 function findAndAdd3Prongs(cpGraphs, cpStart, extreme) {
     let visitedCps;
     do {
         visitedCps = traverseShape(cpStart);
         if (visitedCps.length > 2) {
             findAndAdd3Prong(cpGraphs, visitedCps, extreme);
+            ii++;
+        }
+        if (typeof _debug_ !== 'undefined') {
+            if (ii === _debug_.directives.stopAfterThreeProngsNum) {
+                return undefined;
+            }
         }
     } while (visitedCps.length > 2);
     return visitedCps;
@@ -119,7 +130,9 @@ function findAndAdd3Prong(cpGraphs, visitedCps, extreme) {
     let threeProng = find_3_prong_1.find3Prong(δs, extreme);
     let orders = [];
     for (let i = 0; i < 3; i++) {
-        orders.push(point_on_shape_1.PointOnShape.calcOrder(threeProng.circle, threeProng.ps[i]));
+        orders.push(
+        //PointOnShape.calcOrder(threeProng.circle, threeProng.ps[i])
+        point_on_shape_1.calcPosOrder(threeProng.circle, threeProng.ps[i]));
     }
     let circle = add_3_prong_1.add3Prong(cpGraphs, orders, threeProng);
     if (typeof _debug_ !== 'undefined') {

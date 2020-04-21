@@ -1,8 +1,6 @@
 
-import { evaluate } from 'flo-bezier3';
-
+import { evalDeCasteljau } from 'flo-bezier3';
 import { squaredDistanceBetween } from 'flo-vector2d';
-
 import { BezierPiece } from "../bezier-piece";
 
 
@@ -21,9 +19,8 @@ function getBestDistanceSquared(
 
         let ps = bezierPiece.curve.ps;
         
-        let evPs = evaluate(ps)
-        let p1 = evPs(bezierPiece.ts[0]);
-        let p2 = evPs(bezierPiece.ts[1]);
+        let p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
+        let p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
         
         let d = Math.min(
             squaredDistanceBetween(p, p1),

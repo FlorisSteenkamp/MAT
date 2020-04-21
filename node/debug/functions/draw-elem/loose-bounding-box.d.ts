@@ -1,3 +1,3 @@
 /** @hidden */
-declare function looseBoundingBox(g: SVGGElement, box: number[][]): SVGRectElement[];
+declare function looseBoundingBox(g: SVGGElement, box: number[][]): SVGPathElement[];
 export { looseBoundingBox };

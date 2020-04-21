@@ -1,7 +1,8 @@
 
-declare let _debug_: MatDebug; 
+declare let _debug_: Debug; 
 
-import { MatDebug, Generated } from '../debug';
+import { drawFs } from 'flo-draw';
+import { Debug, Generated } from '../debug';
 
 import { CpNode } from '../../cp-node';
 import { Circle } from '../../circle';
@@ -20,10 +21,10 @@ import { ElemType_TwoProng } from '../../mat/elem-type-two-prong';
 interface ITwoProngDebugFunctions {
 	logδ       : (n: number, type?: ElemType_TwoProng) => void,
 	log        : (n: number, type?: ElemType_TwoProng) => void,
-	drawNormal : (n: number, showDelay?: number) => void,
+	drawNormal : (g: SVGGElement, n: number, showDelay?: number) => void,
 	logδBasic  : (n: number) => void,
-	logNearest : (p: number[], showDelay?: number) => void,
-	traceConvergence: (n: number, finalOnly?: boolean, showDelay?: number,
+	logNearest : (g: SVGGElement, p: number[], showDelay?: number) => void,
+	traceConvergence: (g: SVGGElement, n: number, finalOnly?: boolean, showDelay?: number,
 		range?: number[], type?: ElemType_TwoProng) => void,
 }
 
@@ -51,6 +52,7 @@ function log(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
  * @hidden
  */
 function drawNormal(
+		g: SVGGElement,
 		n: number, 
 		showDelay = 1000, 
 		type: ElemType_TwoProng = 'twoProng_regular') {
@@ -60,17 +62,17 @@ function drawNormal(
 	// If not specified which, draw all
 	if (n === undefined) {
 		for (let i=0; i<twoProngs.length; i++) {
-			drawNormal(i);
+			drawNormal(g, i);
 		}
 	}
 	
 	let twoProng = twoProngs[n];
 
-	let g = twoProng.generated.g;
+	//let g = twoProng.generated.g;
 	
 	if (!twoProng) { return; }
 	
-	_debug_.fs.draw.line(
+	drawFs.line(
 		g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue', showDelay
 	);
 }
@@ -101,7 +103,7 @@ function logδBasic(
 /**
  * @hidden
  */
-function logNearest(p: number[], showDelay = 1000, type: ElemType_TwoProng = 'twoProng_regular') {
+function logNearest(g: SVGGElement, p: number[], showDelay = 1000, type: ElemType_TwoProng = 'twoProng_regular') {
 	let closestPerLoops: TwoProngForDebugging[] = [];
 
 	let generated = _debug_.generated;
@@ -123,7 +125,7 @@ function logNearest(p: number[], showDelay = 1000, type: ElemType_TwoProng = 'tw
 		}
 	}
 	
-	if (n !== undefined) { traceConvergence(n, true, showDelay); }
+	if (n !== undefined) { traceConvergence(g, n, true, showDelay); }
 }
 
 
@@ -133,6 +135,7 @@ function logNearest(p: number[], showDelay = 1000, type: ElemType_TwoProng = 'tw
  * @param range
  */
 function traceConvergence(
+		g: SVGGElement, 
 		n         : number, 
 		finalOnly : boolean,
 		showDelay = 1000,
@@ -143,7 +146,7 @@ function traceConvergence(
 
 	let twoProngInfo = _debug_.generated.elems[type][n];
 	let xs = twoProngInfo.xs;
-	let g = twoProngInfo.generated.g;
+	//let g = twoProngInfo.generated.g;
 
 	console.log(twoProngInfo);
 	console.log(
@@ -167,17 +170,17 @@ function traceConvergence(
 
 		let x = twoProngInfo.xs[i];
 
-		let circle = new Circle(x.x, distanceBetween(x.x, x.y.p));
-		_debug_.fs.draw.crossHair(g, x.x, 'red thin10 nofill', undefined, showDelay);
-		_debug_.fs.draw.circle(g, circle, 'blue thin10 nofill', showDelay);
+		let circle = { center: x.x, radius: distanceBetween(x.x, x.y.p) };
+		drawFs.crossHair(g, x.x, 'red thin10 nofill', undefined, showDelay);
+		drawFs.circle(g, circle, 'blue thin10 nofill', showDelay);
 		if (x.z !== undefined) {
-			_debug_.fs.draw.crossHair(
+			drawFs.crossHair(
 				g, x.z.p, 'yellow thin10 nofill', 2, showDelay
 			);
 		}
 	}
 
-	twoProngDebugFunctions.drawNormal(n, showDelay);
+	twoProngDebugFunctions.drawNormal(g, n, showDelay);
 }
 
 

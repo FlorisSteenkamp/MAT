@@ -4,14 +4,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @hidden
  * @param sat
  */
-function addDebugInfo(sat) {
+function addDebugInfo(sat, timingStart) {
     if (typeof _debug_ === 'undefined') {
         return;
     }
-    let generated = _debug_.generated;
-    generated.elems.sat.push(sat);
-    let timing = generated.timing;
-    timing.sats[1] += performance.now() - timing.sats[0];
+    _debug_.generated.elems.sat.push(sat);
+    let timing = _debug_.generated.timing;
+    timing.sats = performance.now() - timingStart;
 }
 exports.addDebugInfo = addDebugInfo;
 //# sourceMappingURL=add-debug-info.js.map

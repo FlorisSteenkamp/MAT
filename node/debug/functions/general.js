@@ -16,7 +16,7 @@ function nameObj(o, pre = '') {
  * @param cpNodes A boundary piece given by two CpNodes.
  */
 function δToString(cpNodes) {
-    return cpNodes.map(cpNode => point_on_shape_1.PointOnShape.toHumanString(cpNode.cp.pointOnShape));
+    return cpNodes.map(cpNode => point_on_shape_1.posToHumanString(cpNode.cp.pointOnShape));
 }
 /**
  * @hidden
@@ -44,7 +44,7 @@ function pointToStr(p, decimalPlaces = 3) {
     return p[0].toFixed(decimalPlaces) + ', ' + p[1].toFixed(decimalPlaces);
 }
 /** @hidden */
-let generalDebugFunctions = {
+let generalDebugFunctions /*: IGeneralDebugFunctions*/ = {
     δToString,
     δsToString,
     pointToStr,

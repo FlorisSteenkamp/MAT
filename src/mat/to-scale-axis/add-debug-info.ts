@@ -1,7 +1,7 @@
 
-declare var _debug_: MatDebug; 
+declare var _debug_: Debug; 
 
-import { MatDebug } from '../../debug/debug';
+import { Debug } from '../../debug/debug';
 import { Mat    } from '../../mat';
 
 
@@ -9,14 +9,13 @@ import { Mat    } from '../../mat';
  * @hidden
  * @param sat 
  */
-function addDebugInfo(sat: Mat) {
+function addDebugInfo(sat: Mat, timingStart: number) {
 	if (typeof _debug_ === 'undefined') { return; }
 
-	let generated = _debug_.generated;
-	generated.elems.sat.push(sat);
+	_debug_.generated.elems.sat.push(sat);
 
-	let timing = generated.timing;
-	timing.sats[1] += performance.now() - timing.sats[0];   
+	let timing = _debug_.generated.timing;
+	timing.sats = performance.now() - timingStart;
 }
 
 

@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const flo_numerical_1 = require("flo-numerical");
 const cp_node_1 = require("../../cp-node");
-const contact_point_1 = require("../../contact-point");
 const point_on_shape_1 = require("../../point-on-shape");
 const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
 const get_neighboring_cps_1 = require("../get-neighboring-cps");
@@ -17,13 +16,13 @@ const get_neighboring_cps_1 = require("../get-neighboring-cps");
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.
  */
-function add2Prong(cpGraphs, circle, posSource, 
-//posAntipode   : PointOnShape, 
-posAntipodes, holeClosing, extreme) {
-    let orderSource = point_on_shape_1.PointOnShape.calcOrder(circle, posSource);
+function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extreme) {
+    //let orderSource   = PointOnShape.calcOrder(circle, posSource);
+    let orderSource = point_on_shape_1.calcPosOrder(circle, posSource);
     let orderAntipodes = posAntipodes.map(posAntipode => {
         //console.log(circle.center)
-        return point_on_shape_1.PointOnShape.calcOrder(circle, posAntipode.pos);
+        //return PointOnShape.calcOrder(circle, posAntipode.pos);
+        return point_on_shape_1.calcPosOrder(circle, posAntipode.pos);
     });
     let t_s = posSource.t;
     let curve;
@@ -65,7 +64,7 @@ posAntipodes, holeClosing, extreme) {
     for (let i = 0; i < posAntipodes.length; i++) {
         let posAntipode = posAntipodes[i];
         let orderAntipode = orderAntipodes[i];
-        let cpAntipode = new contact_point_1.ContactPoint(posAntipode.pos, circle, orderAntipode, 0);
+        let cpAntipode = { pointOnShape: posAntipode.pos, circle, order: orderAntipode, order2: 0 };
         cpAntipodes.push(cpAntipode);
         let loopAntipode = posAntipode.pos.curve.loop;
         loopAntipodes.push(loopAntipode);
@@ -76,7 +75,7 @@ posAntipodes, holeClosing, extreme) {
         newCpAntipodes.push(cp_node_1.CpNode.insert(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]));
     }
     // Source
-    let cpSource = new contact_point_1.ContactPoint(posSource, circle, orderSource, 0);
+    let cpSource = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
     let loopSource = posSource.curve.loop;
     let cpTreeSource = cpGraphs.get(loopSource);
     let deltaSource = get_neighboring_cps_1.getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
@@ -106,9 +105,9 @@ posAntipodes, holeClosing, extreme) {
     if (holeClosing) {
         // TODO - important - take care of case where there are more than 1 antipode
         // Duplicate ContactPoints
-        let cpB2 = new contact_point_1.ContactPoint(posAntipodes[0].pos, circle, cpAntipodes[0].order, +1);
+        let cpB2 = { pointOnShape: posAntipodes[0].pos, circle, order: cpAntipodes[0].order, order2: +1 };
         let newCpB2Node = cp_node_1.CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
-        let cpB1 = new contact_point_1.ContactPoint(posSource, circle, cpSource.order, -1);
+        let cpB1 = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
         let newCpB1Node = cp_node_1.CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
         // Connect graph
         newCpB1Node.prevOnCircle = newCpB2Node;

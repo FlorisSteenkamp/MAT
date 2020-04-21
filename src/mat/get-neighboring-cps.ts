@@ -1,8 +1,7 @@
 
 import LlRbTree from 'flo-ll-rb-tree';
-import { PointOnShape } from '../point-on-shape';
+import { IPointOnShape } from '../point-on-shape';
 import { CpNode } from '../cp-node';
-import { ContactPoint } from '../contact-point';
 
 
 /**
@@ -16,12 +15,12 @@ import { ContactPoint } from '../contact-point';
  */
 function getNeighbouringPoints(
         cpTree: LlRbTree<CpNode>,
-        pos: PointOnShape,
+        pos: IPointOnShape,
         order: number,
         order2: number) {
 
     let cps = cpTree.findBounds(
-        new CpNode(new ContactPoint(pos, undefined, order, order2), false, false)
+        new CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false)
     );
 
     if (!cps[0] && !cps[1]) { 

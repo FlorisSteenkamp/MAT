@@ -1,7 +1,7 @@
 
 import { CpNode } from './cp-node';
 import { tangent } from 'flo-bezier3';
-import { cross } from 'flo-vector2d';
+import { cross, toUnitVector } from 'flo-vector2d';
 import { getCurveToNext } from './get-curve-to-next';
 
 
@@ -69,12 +69,14 @@ function getBranches(
 			continue;
 		}
 
-		let backPointingTan = tangent(
-			getCurveToNext(cp.next.prevOnCircle), 0
-		);
-		let forwardPointingTan = tangent(
-			getCurveToNext(children[0]), 0
-		);
+		let backPointingTan = toUnitVector(tangent(
+			getCurveToNext(cp.next.prevOnCircle), 
+			0
+		));
+		let forwardPointingTan = toUnitVector(tangent(
+			getCurveToNext(children[0]), 
+			0
+		));
 
 		let cross_ = cross(backPointingTan, forwardPointingTan);
 		let angle = Math.abs(Math.asin( cross_ ) * (180/Math.PI));

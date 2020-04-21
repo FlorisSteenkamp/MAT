@@ -1,23 +1,22 @@
 
 /** @hidden */
-declare var _debug_: MatDebug;
+declare var _debug_: Debug;
 
-import { MatDebug } from '../../../debug/debug';
+import { Debug } from '../../../debug/debug';
 import { 
     fromTo, circumCenter, len, distanceBetween, toUnitVector, rotate90Degrees,
     cross
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
 import { CpNode } from '../../../cp-node';
-import { Circle } from '../../../circle';
 import { BezierPiece } from '../../bezier-piece';
-import { PointOnShape } from '../../../point-on-shape';
+import { isPosDullCorner, IPointOnShape } from '../../../point-on-shape';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center';
 import { getClosestPoints } from './get-closest-points';
 import { calcBetterX } from './calc-better-x';
-import { Curve } from '../../../curve';
+import { Curve, getCornerAtEnd } from '../../../curve';
 
 
 /** @hidden */
@@ -74,7 +73,7 @@ function find3ProngForDelta3s(
     if (δ3s[0][0].isSharp()) { return undefined; }
 
 
-    let ps: PointOnShape[];
+    let ps: IPointOnShape[];
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
     let x = calcInitial3ProngCenter(δ3s, bezierPiece3s);
@@ -132,7 +131,7 @@ function find3ProngForDelta3s(
                 distanceBetween(x, ps[1].p) + 
                 distanceBetween(x, ps[2].p)) / 3;
 
-    let circle = new Circle(x, radius);
+    let circle = { center: x, radius };
 
 
    
@@ -154,8 +153,10 @@ function find3ProngForDelta3s(
         //-----------------------------------
         // Check if point is on dull crorner
         //-----------------------------------
-        if (PointOnShape.isDullCorner(p)) {
-            let corner = Curve.getCornerAtEnd(p.curve);
+        //if (PointOnShape.isDullCorner(p)) {
+        if (isPosDullCorner(p)) {
+            //let corner = Curve.getCornerAtEnd(p.curve);
+            let corner = getCornerAtEnd(p.curve);
             let tans = corner.tangents;
             let perps = tans.map( rotate90Degrees );
                 

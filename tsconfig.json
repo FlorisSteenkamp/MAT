@@ -16,7 +16,7 @@
         "outDir": "node"
     },
     "include": [
-        "src/**/*.ts", "cp-node.ts"
+        "src/**/*.ts"
     ],
     "exclude": [
         "node_modules"

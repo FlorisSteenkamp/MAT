@@ -14,7 +14,8 @@ function findAndAdd2ProngsOnAllPaths(loops, cpGraphs, for2Prongss, extreme) {
     let cpNode;
     for (let k = 0; k < for2Prongss.length; k++) {
         let for2Prongs = for2Prongss[k];
-        cpNode = find_and_add_2_prongs_1.findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme);
+        let _cpNode = find_and_add_2_prongs_1.findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme);
+        cpNode = cpNode || _cpNode;
     }
     return cpNode;
 }

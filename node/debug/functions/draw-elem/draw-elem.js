@@ -4,19 +4,15 @@ const one_prong_1 = require("./one-prong");
 const two_prong_1 = require("./two-prong");
 const three_prong_1 = require("./three-prong");
 const vertex_1 = require("./vertex");
-const min_y_1 = require("./min-y");
 const bounding_hull_1 = require("./bounding-hull");
 const loose_bounding_box_1 = require("./loose-bounding-box");
 const tight_bounding_box_1 = require("./tight-bounding-box");
 const sharp_corner_1 = require("./sharp-corner");
 const dull_corner_1 = require("./dull-corner");
 const mat_1 = require("./mat");
-const loop_1 = require("./loop");
-const loops_1 = require("./loops");
 const max_vertex_1 = require("./max-vertex");
 const leaves_1 = require("./leaves");
 const culls_1 = require("./culls");
-const intersection_1 = require("./intersection");
 const one_prong_at_dull_corner_1 = require("./one-prong-at-dull-corner");
 /** @hidden */
 function notImplementedYet(g, elem) {
@@ -32,7 +28,7 @@ let drawElemFunctions = {
     twoProng_deleted: two_prong_1.twoProng,
     twoProng_holeClosing: two_prong_1.twoProng,
     threeProng: three_prong_1.threeProng,
-    minY: min_y_1.minY,
+    //minY,
     boundingHull: bounding_hull_1.boundingHull,
     looseBoundingBox: loose_bounding_box_1.looseBoundingBox,
     tightBoundingBox: tight_bounding_box_1.tightBoundingBox,
@@ -41,12 +37,11 @@ let drawElemFunctions = {
     vertex: vertex_1.vertex,
     mat: mat_1.drawMat('mat'),
     sat: mat_1.drawMat('sat'),
-    loop: loop_1.loop,
-    loops: loops_1.loops,
+    //loop,
+    //loops,
     maxVertex: max_vertex_1.maxVertex,
     leaves: leaves_1.leaves,
     culls: culls_1.culls,
-    intersection: intersection_1.intersection,
     cpNode: notImplementedYet
 };
 exports.drawElemFunctions = drawElemFunctions;

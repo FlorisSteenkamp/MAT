@@ -1,84 +1,18 @@
 "use strict";
-//import * as Vector from 'flo-vector2d';
-//import * as Bezier3 from 'flo-bezier3';
 Object.defineProperty(exports, "__esModule", { value: true });
 const general_1 = require("./functions/general");
 const two_prong_1 = require("./functions/two-prong");
 const three_prong_1 = require("./functions/three-prong");
 const draw_elem_1 = require("./functions/draw-elem/draw-elem");
-const flo_draw_1 = require("flo-draw");
-/** @hidden */
-class Generated {
-    constructor(path, g) {
-        this.path = path;
-        this.g = g;
-        this.elems = {
-            twoProng_regular: [],
-            twoProng_failed: [],
-            twoProng_notAdded: [],
-            twoProng_deleted: [],
-            twoProng_holeClosing: [],
-            looseBoundingBox: [],
-            tightBoundingBox: [],
-            oneProng: [],
-            oneProngAtDullCorner: [],
-            sharpCorner: [],
-            dullCorner: [],
-            vertex: [],
-            minY: [],
-            threeProng: [],
-            boundingHull: [],
-            mat: [],
-            sat: [],
-            cpNode: [],
-            loop: [],
-            loops: [],
-            maxVertex: [],
-            leaves: [],
-            culls: [],
-            intersection: [],
-        };
-        this.timing = {
-            simplify: [0, 0],
-            holeClosers: [0, 0],
-            oneAnd2Prongs: [0, 0],
-            threeProngs: [0, 0],
-            mats: [0, 0],
-            sats: [0, 0]
-        };
+function enableDebugForMat(debugOn) {
+    var _a, _b, _c;
+    if (!debugOn) {
+        window._debug_ = undefined;
+        return;
     }
+    let debug = window._debug_;
+    debug = Object.assign(Object.assign({}, debug), { generated: Object.assign(Object.assign({}, debug === null || debug === void 0 ? void 0 : debug.generated), { elems: Object.assign(Object.assign({}, (_a = debug === null || debug === void 0 ? void 0 : debug.generated) === null || _a === void 0 ? void 0 : _a.elems), { twoProng_regular: [], twoProng_failed: [], twoProng_notAdded: [], twoProng_deleted: [], twoProng_holeClosing: [], looseBoundingBox: [], tightBoundingBox: [], oneProng: [], oneProngAtDullCorner: [], sharpCorner: [], dullCorner: [], vertex: [], threeProng: [], boundingHull: [], mat: [], sat: [], cpNode: [], maxVertex: [], leaves: [], culls: [] }), timing: Object.assign(Object.assign({}, (_b = debug === null || debug === void 0 ? void 0 : debug.generated) === null || _b === void 0 ? void 0 : _b.timing), { holeClosers: 0, oneAnd2Prongs: 0, threeProngs: 0, sats: 0, simplifyMat: 0 }) }), fs: Object.assign(Object.assign(Object.assign(Object.assign({}, debug === null || debug === void 0 ? void 0 : debug.fs), { drawElem: Object.assign(Object.assign({}, (_c = debug === null || debug === void 0 ? void 0 : debug.fs) === null || _c === void 0 ? void 0 : _c.drawElem), draw_elem_1.drawElemFunctions) }), general_1.generalDebugFunctions), { twoProng: two_prong_1.twoProngDebugFunctions, threeProng: three_prong_1.threeProngDebugFunctions }), directives: Object.assign(Object.assign({}, debug === null || debug === void 0 ? void 0 : debug.directives), { stopAfterHoleClosers: false, stopAfterHoleClosersNum: undefined, stopAfterTwoProngs: false, stopAfterTwoProngsNum: undefined, stopAfterThreeProngs: false, stopAfterThreeProngsNum: undefined }) });
+    window._debug_ = debug;
 }
-exports.Generated = Generated;
-/** @hidden */
-class MatDebug {
-    /**
-     * @param fs - some useful functions.
-     */
-    constructor() {
-        // These are included only for quick debugging from console
-        //(this as any).Bezier3  = Bezier3;
-        //(this as any).Vector2d = Vector; 
-        /* The current path for which MATs are being found */
-        this.generated = undefined;
-        this.directives = {
-            stopAfterHoleClosers: false,
-            stopAfterHoleClosersNum: undefined,
-            stopAfterTwoProngs: false,
-            stopAfterTwoProngsNum: undefined,
-            stopAfterThreeProngs: false,
-        };
-        /**
-         * These functions are meant to be used in the console, e.g. in the
-         * console try typing d.fs.twoProng.traceConvergence(0);
-         */
-        this.fs = Object.assign(Object.assign({ draw: flo_draw_1.drawFs }, general_1.generalDebugFunctions), { twoProng: two_prong_1.twoProngDebugFunctions, threeProng: three_prong_1.threeProngDebugFunctions, drawElem: draw_elem_1.drawElemFunctions });
-    }
-    createNewGenerated(
-    //bezierLoops: number[][][][],
-    path, g) {
-        this.generated = new Generated(path, g);
-        //this.generatedAll.set(bezierLoops, this.generated);
-    }
-}
-exports.MatDebug = MatDebug;
+exports.enableDebugForMat = enableDebugForMat;
 //# sourceMappingURL=debug.js.map

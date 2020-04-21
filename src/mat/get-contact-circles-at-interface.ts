@@ -1,14 +1,15 @@
 
-import { Curve        } from '../curve';
+import { Curve, getCornerAtEnd        } from '../curve';
 import { PointOnShape } from '../point-on-shape';
+import { IPointOnShape } from '..';
 
 
 /**
  * @hidden
  * @param curve 
  */
-function getContactCirclesAtInterface(curve: Curve) {
-	let { isQuiteSharp, isQuiteDull } = Curve.getCornerAtEnd(curve);
+function getContactCirclesAtInterface(curve: Curve): IPointOnShape[] {
+	let { isQuiteSharp, isQuiteDull } = getCornerAtEnd(curve);
 
 	if (isQuiteSharp) {  
 		return [new PointOnShape(curve, 1)]; 

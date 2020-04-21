@@ -1,12 +1,12 @@
 
-import { PointOnShape } from "../../../point-on-shape";
+import { IPointOnShape } from "../../../point-on-shape";
 
 
 /** @hidden */
 type TXForDebugging = { 
     x: number[]; 
-    y: PointOnShape; 
-    z: PointOnShape; 
+    y: IPointOnShape; 
+    z: IPointOnShape; 
     t: number; 
 }
 

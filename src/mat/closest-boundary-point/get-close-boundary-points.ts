@@ -1,11 +1,11 @@
 
-declare var _debug_: MatDebug;
+declare var _debug_: Debug;
 
-import { MatDebug } from '../../debug/debug';
+import { Debug } from '../../debug/debug';
 
 import { distanceBetween } from 'flo-vector2d';
 
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape, PointOnShape } from '../../point-on-shape';
 import { BezierPiece  } from '../bezier-piece';
 
 import { cullBezierPieces } from './cull-bezier-pieces';
@@ -25,7 +25,7 @@ import { closestPointsOnCurve } from './closest-points-on-curve';
 function getCloseBoundaryPoints(
         bezierPieces: BezierPiece[], 
         point: number[], 
-		y: PointOnShape, 
+		y: IPointOnShape,
 		distance: number) {
 	
 	let touchedCurve = y.curve;
@@ -36,7 +36,7 @@ function getCloseBoundaryPoints(
  
 	// TODO - integrate with is-another-cp-closeby - we MUST check angle too!
 	let DISTANCE_TOLERANCE = 1e-9;
-	let posInfos: { pos: PointOnShape; d: number }[] = [];
+	let posInfos: { pos: IPointOnShape; d: number }[] = [];
 	for (let i=0; i<bezierPieces.length; i++) {
 		let bezierPiece = bezierPieces[i];
 

@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const contact_point_1 = require("./contact-point");
-const cp_node_for_debugging_1 = require("./debug/cp-node-for-debugging");
 const remove_1 = require("./cp-node/remove");
 const get_curve_to_next_1 = require("./get-curve-to-next");
 /**
@@ -159,7 +158,10 @@ class CpNode {
     static insert(isHoleClosing, isIntersection, cpTree, cp, prev_) {
         let cpNode = new CpNode(cp, isHoleClosing, isIntersection);
         if (typeof _debug_ !== 'undefined') {
-            _debug_.generated.elems.cpNode.push(new cp_node_for_debugging_1.CpNodeForDebugging(_debug_.generated, cpNode));
+            _debug_.generated.elems.cpNode.push({
+                generated: _debug_.generated,
+                cpNode
+            });
         }
         let prev;
         let next;
@@ -215,7 +217,8 @@ class CpNode {
      *
      * This is always the case for sharp corners and maximal disks with
      * a single contact point. Note, however, that even in these cases there are
-     * two contact points stored (sitting 'on top' of each other) for the
+     * two contact points stored (s
+     * itting 'on top' of each other) for the
      * maximal disk. It can be seen as a limiting case of a two-prong where the
      * distance between two of the contact points tend to zero. One point
      * (represented by a [[CpNode]] of course) will be terminating with the
@@ -316,6 +319,6 @@ exports.CpNode = CpNode;
  * Compares the order of two [[CpNode]]s. The order is cyclic and depends
  * on a [[CpNode]]'s relative position along the shape boundary.
  */
-CpNode.comparator = (a, b) => contact_point_1.ContactPoint.compare(a.cp, b.cp);
+CpNode.comparator = (a, b) => contact_point_1.compareCps(a.cp, b.cp);
 CpNode.remove = remove_1.removeCpNode;
 //# sourceMappingURL=cp-node.js.map

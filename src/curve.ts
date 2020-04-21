@@ -9,7 +9,7 @@ import { getInterfaceCcw } from 'flo-bezier3';
 /**
  * Represents a bezier curve on the shape boundary / loop.
  */
-class Curve {
+interface Curve {
 
 	/** 
 	 * Primarily for internal use.
@@ -25,24 +25,11 @@ class Curve {
 	 * @param idx The curve's ordered index in the loop. This imposes a cycling
 	 * ordering of the curves in the loop.
 	 */
-    constructor(
-			public readonly loop : Loop, 
-			public readonly ps   : number[][], 
-			public          prev : Curve, 
-			public          next : Curve,
-			public readonly idx  : number) {
-	}
-	
-
-	/**
-	 * @hidden
- 	 * Returns information about the corner created at the end of this curve 
- 	 * (at t === 1) and the start of the next curve (at t === 0).
-	 * @param curve The relevant [[Curve]].
-	 */
-	public static getCornerAtEnd(curve: Curve) {
-		return getCornerAtEnd(curve);
-	}
+	loop : Loop;
+	ps   : number[][];
+	prev : Curve; 
+	next : Curve;
+	idx  : number;
 }
 
 
@@ -77,7 +64,7 @@ const DEGREE_LIMIT = DEGREES[4];
  * @param psI The incoming bezier that ends in the corner
  * @param psO The outgoing bezier that starts at the corner
  */
-function getCorner(psI: number[][], psO: number[][]) {
+function getCorner(psI: number[][], psO: number[][]): Corner {
 	// getInterfaceCcw must return a number !== 0 if psI and psO are not the
 	// same as seen as a curve extension with t ∈ [-∞,+∞]
 	let ccw = getInterfaceCcw(psI, psO);
@@ -120,14 +107,14 @@ function getCorner(psI: number[][], psO: number[][]) {
 		isQuiteDull  = isDull;
 	}
 
-	return new Corner(
-		tangents_, 
+	return {
+		tangents: tangents_, 
 		crossTangents, 
 		isSharp,
 		isDull, 
 		isQuiteSharp,
 		isQuiteDull
-	);
+	};
 }
 
 
@@ -144,4 +131,4 @@ let getCornerAtEnd = memoize(function(curve: Curve) {
 });
 
 
-export { Curve, getCorner };
+export { Curve, getCorner, getCornerAtEnd }

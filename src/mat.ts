@@ -13,18 +13,15 @@ import { Loop   } from './loop';
  * extra maximal disks and is typically not used. See [[CpNode]] for more
  * details.
  */
-class Mat {
-
-    /**
-     * @param cpNode A complete representation of the MAT. See [[CpNode]].
-     * @param cpTrees Primarily for internal use. A tree structure storing the
+interface Mat {
+    /** A complete representation of the MAT. See [[CpNode]]. */
+    cpNode: CpNode;
+    /** 
+     * Primarily for internal use. A tree structure storing the
      * [[CpNode]]s of the MAT by their compare order, i.e. their cyclic order
-     * around the shape boundary.
+     * around the shape boundary. 
      */
-    constructor(
-            public cpNode: CpNode, 
-            public cpTrees: Map<Loop, LlRbTree<CpNode>>) {
-    }
+    cpTrees: Map<Loop, LlRbTree<CpNode>>;
 }
 
 

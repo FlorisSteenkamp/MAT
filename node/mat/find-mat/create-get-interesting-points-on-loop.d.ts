@@ -1,5 +1,5 @@
 import { Loop } from '../../loop';
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 /**
  * @hidden
  * Get useful points on the shape - these incude points of maximum curvature and
@@ -7,5 +7,5 @@ import { PointOnShape } from '../../point-on-shape';
  * @param loop
  * @param additionalPointCount
  */
-declare function createGetInterestingPointsOnLoop(maxFlatness?: number, maxLength?: number): (loop: Loop) => PointOnShape[];
-export { createGetInterestingPointsOnLoop };
+declare function getInterestingPointsOnLoop(minBezLength: number, maxFlatness: number, maxLength: number): (loop: Loop) => IPointOnShape[];
+export { getInterestingPointsOnLoop };

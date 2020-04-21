@@ -1,7 +1,8 @@
 
-import { allRoots, deflate } from 'flo-poly';
-import { evaluate, getTangentPolyFromPoint } from 'flo-bezier3';
+import { allRoots, deflate, deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
+import { getTangentPolyFromPointExact, evalDeCasteljau, evaluate } from 'flo-bezier3';
 import { Curve } from "../../curve";
+import { estimate } from 'flo-numerical';
 
 
 /**
@@ -15,63 +16,65 @@ import { Curve } from "../../curve";
 function closestPointsOnCurve(
         curve: Curve, 
         p: number[], 
-        tRange: number[] = [0,1], 
+        [tS,tE]: number[] = [0,1], 
         touchedCurve: Curve,
         t: number) {
 
-    let poly = getTangentPolyFromPoint(curve.ps, p);
+    let poly = getTangentPolyFromPointExact(curve.ps, p);
 
-    if (curve === touchedCurve) {		
-        poly = deflate(poly, t);
+    if (curve === touchedCurve) {	
+        poly = deflateQuad(poly, t);
     }
 
-    let roots = allRoots(poly, tRange[0], tRange[1]); 
+    let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
+        poly, 
+        poly.map(c => 0),  // because all coefficients are exact
+        undefined,         // ...
+        tS,
+        tE
+    );
+
 
     // Also test the endpoints
     let push0 = true;
     let push1 = true;
     if ((t === 1 && curve === touchedCurve.next) ||
-        (curve === touchedCurve && t === 0)) {
+        (t === 0 && curve === touchedCurve)) {
         push0 = false;
     }
     if ((t === 0 && curve === touchedCurve.prev) ||
-        (curve === touchedCurve && t === 1)) {
+        (t === 1 && curve === touchedCurve)) {
         push1 = false;
     }
 
-    if (tRange[0] === 0) {
-        if (push0) { roots.push(tRange[0]); }
-    } else if (tRange[0] === 1) {
-        if (push1) { roots.push(tRange[0]); }
+    if (tS === 0) {
+        if (push0) { roots.push({ tS: 0, tE: 0 }); }
+    } else if (tS === 1) {
+        if (push1) { roots.push({ tS: 1, tE: 1 }); }
     } else {
-        roots.push(tRange[0]);
+        roots.push({ tS: tS, tE: tS });
     }
 
-    if (tRange[1] === 0) {
-        if (push0) { roots.push(tRange[1]); }
-    } else if (tRange[1] === 1) {
-        if (push1) { roots.push(tRange[1]); }
+    if (tE === 0) {
+        if (push0) { roots.push({ tS: 0, tE: 0 }); }
+    } else if (tE === 1) {
+        if (push1) { roots.push({ tS: 1, tE: 1 }); }
     } else {
-        roots.push(tRange[1]);
+        roots.push({ tS: tE, tE: tE });
     }
 
-    // This is to take care of a numerical issue.
-    // TODO - remove delta of 1e-10 below and use adaptive infinite precision
-    // floating point arithmetic.
-    let roots_: number[] = [];
-    for (let i=0; i<roots.length; i++) {
-        let root = roots[i];
-        if (root !== 0 && root < 1e-10) {
-            root = 0;
-        } else if (root !== 1 && 1-root < 1e-10) {
-            root = 1;
-        }
-        roots_.push(root);
-    }
-
-    let ev = evaluate(curve.ps);
     let ps = roots.map(
-        root => ({ p: ev(root), t: root })
+        root => { 
+            let tS = root.tS;
+            let tE = root.tE;
+            // TODO - tS, tE should always stay within [0,1] - modify findRootsMulti
+            let t = tS < 0 
+                ? 0
+                : tE > 1 ? 1 : (tS + tE)/2;
+            // TODO - why does evalDeCasteljau not work here?
+            return { p: evaluate(curve.ps,t), t }
+            //return { p: evalDeCasteljau(curve.ps,t), t }
+        }
     );
 
     return ps;

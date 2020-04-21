@@ -3,7 +3,7 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { CpNode } from '../../cp-node';
 import { Loop } from '../../loop';
 import { Circle } from '../../circle';
-import { PointOnShape } from '../../point-on-shape';
+import { IPointOnShape } from '../../point-on-shape';
 import { addToCpGraph } from '../add-to-cp-graph';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby';
 
@@ -21,7 +21,7 @@ function add3Prong(
 		orders: number[],
 		threeProng: { 
     		circle: Circle, 
-			ps: PointOnShape[],
+			ps: IPointOnShape[],
 			δ3s: CpNode[][]
 		}) {
 	

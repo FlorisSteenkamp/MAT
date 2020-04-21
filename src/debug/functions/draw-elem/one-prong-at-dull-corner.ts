@@ -1,11 +1,12 @@
 
-import { PointOnShape } from '../../../point-on-shape';
+import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape';
 import { drawFs } from 'flo-draw';
 
 
 /** @hidden */
-function oneProngAtDullCorner(g: SVGGElement, pos: PointOnShape) {
-    let oCircle = PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
+function oneProngAtDullCorner(g: SVGGElement, pos: IPointOnShape) {
+    //let oCircle = PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
+    let oCircle = getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
 
     let $center = drawFs.dot(g, pos.p, 0.1, 'orange');
     let $circle = drawFs.dot(g, oCircle.center, 0.25, 'orange');

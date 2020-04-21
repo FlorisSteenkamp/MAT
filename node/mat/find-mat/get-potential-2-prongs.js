@@ -7,7 +7,7 @@ function getPotential2Prongs(possPerLoop) {
     for (let poss of possPerLoop) {
         let for2Prongs = [];
         for (let pos of poss) {
-            if (!point_on_shape_1.PointOnShape.isQuiteSharpCorner(pos)) {
+            if (!point_on_shape_1.isPosQuiteSharpCorner(pos)) {
                 for2Prongs.push(pos);
             }
         }

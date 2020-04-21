@@ -1,8 +1,8 @@
 
 import { getContactCirclesAtInterface } from '../get-contact-circles-at-interface';
-import { getCurvatureExtrema, splitByCurvatureAndLength } from 'flo-bezier3';
+import { getCurvatureExtrema, splitByCurvatureAndLength, length, lengthSquaredUpperBound } from 'flo-bezier3';
 import { Loop } from '../../loop';
-import { PointOnShape } from '../../point-on-shape';
+import { PointOnShape, comparePoss, IPointOnShape } from '../../point-on-shape';
 
 
 /**
@@ -12,15 +12,21 @@ import { PointOnShape } from '../../point-on-shape';
  * @param loop
  * @param additionalPointCount 
  */
-function createGetInterestingPointsOnLoop(
-        maxFlatness = 1.001,
-        maxLength = 10) {
+function getInterestingPointsOnLoop(
+        minBezLength: number,
+        maxFlatness: number,
+        maxLength: number) {
 
     return function(loop: Loop) {
-        let allPoints: PointOnShape[] = [];
+        let allPoints: IPointOnShape[] = [];
 
         for (let i=0; i<loop.curves.length; i++) {
             let curve = loop.curves[i];
+
+            if (lengthSquaredUpperBound(curve.ps) < minBezLength) {
+                continue;
+            }
+            
 
             let { maxCurvatureTs, maxNegativeCurvatureTs } = 
                 getCurvatureExtrema(curve.ps);
@@ -43,11 +49,11 @@ function createGetInterestingPointsOnLoop(
             }
         }
 
-        allPoints.sort(PointOnShape.compare);
+        allPoints.sort(comparePoss);
 
         return allPoints;
     }
 }
 
 
-export { createGetInterestingPointsOnLoop }
+export { getInterestingPointsOnLoop }

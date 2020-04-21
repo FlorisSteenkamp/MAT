@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const contact_point_1 = require("../contact-point");
 const cp_node_1 = require("../cp-node");
 const get_neighboring_cps_1 = require("./get-neighboring-cps");
 /**
@@ -15,7 +14,7 @@ const get_neighboring_cps_1 = require("./get-neighboring-cps");
 function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
     let newCps = poss.map((pos, i) => {
         let cpTree = cpTrees.get(pos.curve.loop);
-        let newCp_ = new contact_point_1.ContactPoint(pos, circle, orders[i], 0);
+        let newCp_ = { pointOnShape: pos, circle, order: orders[i], order2: 0 };
         let neighboringCp = neighbors
             ? neighbors[i]
             : get_neighboring_cps_1.getNeighbouringPoints(cpTree, pos, orders[i], 0);

@@ -3,7 +3,7 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { Loop } from '../loop';
 import { Circle } from '../circle';
 import { ContactPoint } from '../contact-point';
-import { PointOnShape } from '../point-on-shape';
+import { IPointOnShape } from '../point-on-shape';
 import { CpNode } from '../cp-node';
 import { getNeighbouringPoints } from './get-neighboring-cps';
 
@@ -21,13 +21,13 @@ function addToCpGraph(
         circle  : Circle, 
         orders  : number[],
         cpTrees : Map<Loop,LlRbTree<CpNode>>,
-        poss    : PointOnShape[],
+        poss    : IPointOnShape[],
         neighbors? : CpNode[][]) {
 
     let newCps = poss.map((pos, i) => {
         let cpTree = cpTrees.get(pos.curve.loop);
 
-        let newCp_ = new ContactPoint(pos, circle, orders[i], 0);
+        let newCp_: ContactPoint = { pointOnShape: pos, circle, order: orders[i], order2: 0 };
 
         let neighboringCp = neighbors 
             ? neighbors[i]

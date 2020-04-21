@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const get_neighboring_cps_1 = require("../../get-neighboring-cps");
 const get_boundary_piece_beziers_1 = require("../../get-boundary-piece-beziers");
-const bezier_piece_1 = require("../../bezier-piece");
 const point_on_shape_1 = require("../../../point-on-shape");
 /** @hidden */
 function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
@@ -12,12 +11,13 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
         bezierPieces = [];
         for (let k2 = 0; k2 < k; k2++) {
             let pieces = loops[k2].curves
-                .map(curve => new bezier_piece_1.BezierPiece(curve, [0, 1]));
+                .map(curve => ({ curve, ts: [0, 1] }));
             bezierPieces.push(...pieces);
         }
     }
     else {
-        let order = point_on_shape_1.PointOnShape.isDullCorner(y)
+        //let order = PointOnShape.isDullCorner(y)
+        let order = point_on_shape_1.isPosDullCorner(y)
             ? y.t === 1 ? -1 : +1
             : 0;
         let loop = loops[k];
@@ -28,7 +28,7 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
             // terminating 2-prong currently in the MAT. Don't remove!
             (cpNode === cpNode.next.next)) {
             bezierPieces = loop.curves
-                .map(curve => new bezier_piece_1.BezierPiece(curve, [0, 1]));
+                .map(curve => ({ curve, ts: [0, 1] }));
         }
         else {
             bezierPieces = get_boundary_piece_beziers_1.getBoundaryPieceBeziers(δ);

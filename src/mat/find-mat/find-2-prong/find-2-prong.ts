@@ -1,18 +1,17 @@
 
 /** @hidden */
-declare var _debug_: MatDebug;
+declare var _debug_: Debug;
 
-import { MatDebug } from '../../../debug/debug';
+import { Debug } from '../../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
-import { distanceBetween, squaredDistanceBetween, interpolate, dot } from 'flo-vector2d';
-import { evaluate } from 'flo-bezier3';
-import { lineLineIntersection } from '../../geometry/line-line-intersection';
+import { lineLineIntersection, distanceBetween, squaredDistanceBetween, interpolate, dot } from 'flo-vector2d';
+import { evalDeCasteljau } from 'flo-bezier3';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
 import { CpNode } from '../../../cp-node';
 import { Loop } from '../../../loop';
 import { Circle } from '../../../circle';
-import { PointOnShape } from '../../../point-on-shape';
+import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape';
 import { BezierPiece } from '../../bezier-piece';
 import { add1Prong } from '../add-1-prong';
 import { addDebugInfo } from './add-debug-info';
@@ -53,7 +52,7 @@ function find2Prong(
 		extreme: number,
 		squaredDiagonalLength: number,
 		cpTrees: Map<Loop,LlRbTree<CpNode>>,
-        y: PointOnShape, 
+        y: IPointOnShape,
 		isHoleClosing: boolean,
 		k: number) {
 
@@ -69,6 +68,7 @@ function find2Prong(
 	let { bezierPieces, δ } = getInitialBezierPieces(
 		isHoleClosing, k, loops, cpTrees, y
 	);
+	//console.log(bezierPieces.length)
 
 	/** The center of the two-prong (successively refined) */
 	let x: number[];
@@ -80,7 +80,8 @@ function find2Prong(
 		r = maxOsculatingCircleRadiusSquared;
 	} else {
 		p = y.p;
-		x = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
+		//x = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
+		x = getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
 		r = squaredDistanceBetween(p,x);
 	}
 
@@ -91,15 +92,19 @@ function find2Prong(
 	}
 
 	
-	let xs: TXForDebugging[] = []; // Trace the convergence (for debugging).
-	let z: { pos: PointOnShape; d: number }; // The antipode if the two-prong (successively refined)
+	/** Trace the convergence (for debugging). */
+	let xs: TXForDebugging[] = []; 
+	/** The antipode of the two-prong (successively refined) */
+	let z: { pos: IPointOnShape; d: number }; 
 	let i = 0;
 	let done = 0;
 	let failed = false; // The failed flag is set if a 2-prong cannot be found.
 	let bezierPieces_ = bezierPieces;
+	// ---> for (let b of bezierPieces) { d.fs.draw.bezierPiece(document.getElementsByTagName('g')[0], b.curve.ps, b.ts, 'nofill thin10 red', 100); }
 	do {
 		i++
 
+		/** squared distance between source boundary point and circle center */
 		let r = squaredDistanceBetween(x, y.p);
 
 		bezierPieces_ = cullBezierPieces(bezierPieces_, x, r);
@@ -132,6 +137,7 @@ function find2Prong(
 			xs.push({ x, y, z: z.pos, t: y.t });	
 		}
 		
+		/** squared distance between anti-pode boundary point and circle center */
 		let d = squaredDistanceBetween(x, z.pos.p);
 		//if (i === 1 && d*oneProngTolerance >= r) {
 		if (i === 1 && r < d+oneProngTolerance) {
@@ -183,7 +189,7 @@ function find2Prong(
 
 	// TODO - Optimization: only do this if second closest point is within the
 	// tolerance which can be checked in getClosestBoundaryPoint algorithm
-	let zs: { pos: PointOnShape; d: number; }[] = [];
+	let zs: { pos: IPointOnShape; d: number; }[] = [];
 	if (!failed) {
 		zs = getCloseBoundaryPoints(
 			bezierPieces_, 
@@ -200,7 +206,7 @@ function find2Prong(
 
 	let circle: Circle;
 	if (z !== undefined) {
-		circle = new Circle(x, distanceBetween(x, z.pos.p));
+		circle = { center: x, radius: distanceBetween(x, z.pos.p) };
 	}
 
 	if (typeof _debug_ !== 'undefined' && !failed) { 
@@ -230,9 +236,8 @@ function reduceRadius(
 		let bezierPiece = bezierPieces[i];
 
 		let ps = bezierPiece.curve.ps;
-		let ev = evaluate(ps);
 
-		let p1 = ev(bezierPiece.ts[0]);
+		let p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
 		let r1 = Number.POSITIVE_INFINITY;
 
 		// Prevent evaluating the same points twice
@@ -242,7 +247,7 @@ function reduceRadius(
 		}
 		
 		let r2 = Number.POSITIVE_INFINITY;
-		let p2 = ev(bezierPiece.ts[1]);
+		let p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
 
 		let cc2 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p2);
 		if (cc2) { r2 = squaredDistanceBetween(p, cc2);	}
@@ -288,9 +293,9 @@ function getCircleCenterFrom2PointsAndNormal(
 		(p[0] + p1[0]) / 2,
 		(p[1] + p1[1]) / 2,
 	];
-	let tangent = [p1[0] - p[0], p1[1] - p[1]];
-	let normal  = [-tangent[1], tangent[0]]; // Rotate by 90 degrees
-	let pb2 = [pb[0] + normal[0], pb[1] + normal[1]];
+	let tan = [p1[0] - p[0], p1[1] - p[1]];
+	let norm  = [-tan[1], tan[0]]; // Rotate by 90 degrees
+	let pb2 = [pb[0] + norm[0], pb[1] + norm[1]];
 
 	let res = lineLineIntersection([p,x], [pb, pb2]);
 

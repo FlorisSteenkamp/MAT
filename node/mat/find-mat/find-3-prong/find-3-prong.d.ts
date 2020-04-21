@@ -1,6 +1,6 @@
 import { CpNode } from '../../../cp-node';
 import { Circle } from '../../../circle';
-import { PointOnShape } from '../../../point-on-shape';
+import { IPointOnShape } from '../../../point-on-shape';
 /**
  * @hidden
  * Find and return a 3-prong from the given boundary piece.
@@ -10,7 +10,7 @@ import { PointOnShape } from '../../../point-on-shape';
  */
 declare function find3Prong(δs: CpNode[][], extreme: number): {
     circle: Circle;
-    ps: PointOnShape[];
+    ps: IPointOnShape[];
     δ3s: CpNode[][];
 };
 export { find3Prong };

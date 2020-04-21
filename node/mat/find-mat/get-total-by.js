@@ -8,12 +8,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 function getTotalBy(f) {
     return function (loop) {
-        let node = loop.head;
+        let node = loop.curves[0];
         let total = 0;
         do {
             total += f(node);
             node = node.next;
-        } while (node !== loop.head);
+        } while (node !== loop.curves[0]);
         return total;
     };
 }

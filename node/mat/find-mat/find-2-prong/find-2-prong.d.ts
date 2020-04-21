@@ -2,7 +2,7 @@ import LlRbTree from 'flo-ll-rb-tree';
 import { CpNode } from '../../../cp-node';
 import { Loop } from '../../../loop';
 import { Circle } from '../../../circle';
-import { PointOnShape } from '../../../point-on-shape';
+import { IPointOnShape } from '../../../point-on-shape';
 /**
  * @hidden
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
@@ -27,10 +27,10 @@ import { PointOnShape } from '../../../point-on-shape';
  * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
  * @param k The loop array index
  */
-declare function find2Prong(loops: Loop[], extreme: number, squaredDiagonalLength: number, cpTrees: Map<Loop, LlRbTree<CpNode>>, y: PointOnShape, isHoleClosing: boolean, k: number): {
+declare function find2Prong(loops: Loop[], extreme: number, squaredDiagonalLength: number, cpTrees: Map<Loop, LlRbTree<CpNode>>, y: IPointOnShape, isHoleClosing: boolean, k: number): {
     circle: Circle;
     zs: {
-        pos: PointOnShape;
+        pos: IPointOnShape;
         d: number;
     }[];
 };

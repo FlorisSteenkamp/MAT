@@ -1,4 +1,4 @@
-import { PointOnShape } from '../../../point-on-shape';
+import { IPointOnShape } from '../../../point-on-shape';
 /** @hidden */
-declare function oneProngAtDullCorner(g: SVGGElement, pos: PointOnShape): SVGCircleElement[];
+declare function oneProngAtDullCorner(g: SVGGElement, pos: IPointOnShape): SVGCircleElement[];
 export { oneProngAtDullCorner };

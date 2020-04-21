@@ -10,14 +10,12 @@ import { clone } from '../cp-node/clone';
  * toScaleAxis(mat, Number.POSITIVE_INFINITY).
  * @param mat The MAT to trim.
  */
-function trimMat(mat: Mat) {
+function trimMat(mat: Mat): Mat {
 	let cpNode = cullNonCycles(clone(mat.cpNode));
 
     if (!cpNode) { return undefined; }
 
-    let mat_ = new Mat(cpNode, createNewCpTree(cpNode));
-    
-	return mat_;
+    return { cpNode, cpTrees: createNewCpTree(cpNode) };
 }
 
 

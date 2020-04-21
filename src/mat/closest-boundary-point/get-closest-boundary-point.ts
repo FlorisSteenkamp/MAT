@@ -1,14 +1,10 @@
 
-/** @hidden */
-declare var _debug_: MatDebug;
-
-import { MatDebug } from '../../debug/debug';
-import { distanceBetween } from 'flo-vector2d';
+import { distanceBetween, getObjClosestTo } from 'flo-vector2d';
 import { Curve } from '../../curve';
-import { PointOnShape } from '../../point-on-shape';
+import { PointOnShape, IPointOnShape } from '../../point-on-shape';
 import { BezierPiece  } from '../bezier-piece';
 import { cullBezierPieces } from './cull-bezier-pieces';
-import { closestPointOnCurve } from './closest-point-on-curve';
+import { closestPointsOnCurve } from './closest-points-on-curve';
   
 
 /**
@@ -30,17 +26,19 @@ function getClosestBoundaryPoint(
 	bezierPieces = cullBezierPieces(bezierPieces, point);
  
 	let bestDistance = Number.POSITIVE_INFINITY;
-	let posInfo: { pos: PointOnShape; d: number };
+	let posInfo: { pos: IPointOnShape; d: number };
 	for (let i=0; i<bezierPieces.length; i++) {
 		let bezierPiece = bezierPieces[i];
 
-		let p = closestPointOnCurve(
+		let ps = closestPointsOnCurve(
 				bezierPiece.curve, 
 				point, 
 				bezierPiece.ts, 
 				touchedCurve, 
 				t
 		);
+
+		let p = getObjClosestTo(point, ps, p => p.p)
 
 		if (p === undefined) { continue; }
 
