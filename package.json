@@ -25,15 +25,15 @@
         "skeleton"
     ],
     "dependencies": {
-        "flo-boolean": "^0.0.1",
+        "flo-boolean": "^0.0.2",
         "flo-bezier3": "^2.0.0",
         "flo-ll-rb-tree": "^0.1.2",
         "flo-memoize": "^0.1.2",
         "flo-poly": "^4.0.0",
         "flo-vector2d": "^2.0.0",
-        "flo-gauss-quadrature": "1.0.1",
-        "flo-numerical": "1.0.1",
-        "flo-draw": "1.0.0"
+        "flo-gauss-quadrature": "^1.0.1",
+        "flo-numerical": "^1.0.1",
+        "flo-draw": "^1.0.0"
     },
     "devDependencies": {
         "@istanbuljs/nyc-config-typescript": "^1.0.1",
