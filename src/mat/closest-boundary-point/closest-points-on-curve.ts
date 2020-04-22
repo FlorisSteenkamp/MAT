@@ -1,8 +1,7 @@
 
-import { allRoots, deflate, deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
+import { deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
 import { getTangentPolyFromPointExact, evalDeCasteljau, evaluate } from 'flo-bezier3';
 import { Curve } from "../../curve";
-import { estimate } from 'flo-numerical';
 
 
 /**

@@ -31,13 +31,15 @@
         "flo-memoize": "^0.1.2",
         "flo-poly": "^4.0.0",
         "flo-vector2d": "^2.0.0",
-        "flo-gauss-quadrature": "1.0.1"
+        "flo-gauss-quadrature": "1.0.1",
+        "flo-numerical": "1.0.1",
+        "flo-draw": "1.0.0"
     },
     "devDependencies": {
         "@istanbuljs/nyc-config-typescript": "^1.0.1",
         "@types/chai": "^4.2.11",
         "@types/mocha": "^7.0.2",
-        "@types/node": "^13.13.1",
+        "@types/node": "^13.13.2",
         "chai": "^4.2.0",
         "mocha": "^7.1.1",
         "nyc": "^15.0.1",
