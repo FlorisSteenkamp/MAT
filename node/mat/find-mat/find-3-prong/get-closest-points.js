@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getClosestPoints = void 0;
 const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-closest-boundary-point");
 /**
  * @hidden

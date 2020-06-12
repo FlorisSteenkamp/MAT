@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.cmpCpOnδ = void 0;
 const contact_point_1 = require("../contact-point");
 /**
  * @hidden

@@ -367,7 +367,7 @@ After the npm installation simply include the script in your project:
 ```html
 <script src='node_modules/flo-mat/browser/index.min.js'></script>
 ```
-A new global object will available called `FloMat` representing the library. 
+A new global object will be available called `FloMat` representing the library. 
 
 # Usage
 

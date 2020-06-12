@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.twoProngDebugFunctions = void 0;
 const flo_draw_1 = require("flo-draw");
 const flo_vector2d_1 = require("flo-vector2d");
 /**

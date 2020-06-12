@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getNeighbouringPoints = void 0;
 const cp_node_1 = require("../cp-node");
 /**
  * @hidden

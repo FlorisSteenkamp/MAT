@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.drawBranch = void 0;
 const flo_draw_1 = require("flo-draw");
 const get_curve_to_next_1 = require("../../../get-curve-to-next");
 /** @hidden */

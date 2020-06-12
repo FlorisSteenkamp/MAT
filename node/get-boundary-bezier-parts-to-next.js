@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getBoundaryBezierPartsToNext = void 0;
 /**
  * Returns the ordered bezier curves from this CpNode to the next CpNode
  * on the boundary.

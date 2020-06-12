@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addDebugInfo = void 0;
 /**
  * @hidden
  * @param sat

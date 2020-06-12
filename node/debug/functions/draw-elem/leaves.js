@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.leaves = void 0;
 const draw_circle_percent_1 = require("./draw-circle-percent");
 /** @hidden */
 function leaves(g, leaves) {

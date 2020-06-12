@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMinYPos = void 0;
 const get_loop_bounds_1 = require("./get-loop-bounds");
 /**
  * @hidden

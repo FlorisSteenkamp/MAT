@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.culls = void 0;
 /** @hidden */
 function culls(g, culls) {
     let $elems = [];

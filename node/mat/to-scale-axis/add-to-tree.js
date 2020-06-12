@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addToTree = void 0;
 const calc_groups_1 = require("./calc-groups");
 // DEPTH_LIMIT can be anything from 1 to 16, but from 2 to 6 seem to be the 
 // fastest.

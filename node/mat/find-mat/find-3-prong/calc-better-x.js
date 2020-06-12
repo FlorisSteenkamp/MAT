@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.calcBetterX = void 0;
 const flo_vector2d_1 = require("flo-vector2d");
 const get_closest_points_1 = require("./get-closest-points");
 /**

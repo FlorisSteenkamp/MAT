@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLargestThreeProng = void 0;
 /** @hidden */
 function getLargestThreeProng(cpNodes) {
     return cpNodes.reduce(function (maxCpNode, cpNode) {

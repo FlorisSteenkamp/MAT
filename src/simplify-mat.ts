@@ -29,12 +29,8 @@ function simplifyMat(
 
     let cpNode = mat.cpNode;
     
-    let simpleMap: Map<CpNode, { ps: number[][], ts: number[] }> = new Map();
-
     // Start from a leaf
-    while (!cpNode.isTerminating()) {
-        cpNode = cpNode.next;
-    }
+    while (!cpNode.isTerminating()) { cpNode = cpNode.next; }
 
     let branches = getBranches(cpNode, anlgeTolerance);
 
@@ -62,27 +58,7 @@ function simplifyMat(
 
             if (i+1 === j) { 
                 // no simplification occured
-            } else {
-                let branStart = branch[i];
-                let branEnd = branch[j-1];
-
-                let medial = toCubic(getCurveBetween(branStart, branEnd.next));
-                let rev = medial.slice().reverse();
-                let curCpNode = branStart;
-                let prevT = 0;
-                while (curCpNode !== branEnd) {
-                    let t = closestPointOnBezier(medial, curCpNode.next.cp.circle.center).t;
-                    simpleMap.set(curCpNode, { ps: medial, ts: [prevT, t] });
-                    let oppositeCpNode = curCpNode.nextOnCircle.prev;
-                    simpleMap.set(oppositeCpNode, { ps: rev, ts: [1-t, 1-prevT] });
-
-                    prevT = t;
-                    curCpNode = curCpNode.next;
-                }
-                simpleMap.set(curCpNode, { ps: medial, ts: [prevT, 1] });
-
-                let oppositeCpNode = curCpNode.nextOnCircle.prev;
-                simpleMap.set(oppositeCpNode, { ps: rev, ts: [0, 1-prevT] });
+                break;
             }
         }
     }
@@ -110,9 +86,9 @@ function getTotalHausdorffDistance(
 
     let hds: number[] = [];
     let longCurve = getCurveBetween(branch[i], branch[j].next);
-    for (let m=i; m<j+1; m++) {
+    for (; i<j+1; i++) {
         hds.push(hausdorffDistance(
-            getCurveToNext(branch[m]), 
+            getCurveToNext(branch[i]),
             longCurve,
             hausdorffSpacing
         ));

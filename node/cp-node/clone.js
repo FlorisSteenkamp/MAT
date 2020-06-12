@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.clone = void 0;
 const cp_node_1 = require("../cp-node");
 /** @hidden */
 const EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];

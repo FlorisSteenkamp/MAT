@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.drawOneProng = void 0;
 const point_on_shape_1 = require("../../../point-on-shape");
 const circle_1 = require("../../../circle");
 const flo_draw_1 = require("flo-draw");

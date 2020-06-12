@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.findAndAdd2Prongs = void 0;
 const get_shape_bounds_1 = require("../../svg/get-shape-bounds");
 const find_2_prong_1 = require("./find-2-prong/find-2-prong");
 const add_2_prong_1 = require("./add-2-prong");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getEngulfedVertices = void 0;
 const circle_1 = require("../../circle");
 const calc_groups_1 = require("./calc-groups");
 /** @hidden */

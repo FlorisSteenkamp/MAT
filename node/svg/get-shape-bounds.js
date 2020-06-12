@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getShapeBounds = void 0;
 const flo_memoize_1 = require("flo-memoize");
 const get_loop_bounds_1 = require("./get-loop-bounds");
 // TODO - move to another library

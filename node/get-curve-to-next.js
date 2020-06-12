@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCurveToNext = void 0;
 const get_curve_between_1 = require("./get-curve/get-curve-between");
 /**
  * Returns the bezier curve from the maximal disk of the given [[CpNode]] to the

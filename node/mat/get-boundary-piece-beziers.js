@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getBoundaryPieceBeziers = void 0;
 const point_on_shape_1 = require("../point-on-shape");
 const contact_point_1 = require("../contact-point");
 /**

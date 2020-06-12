@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.drawElemFunctions = void 0;
 const one_prong_1 = require("./one-prong");
 const two_prong_1 = require("./two-prong");
 const three_prong_1 = require("./three-prong");

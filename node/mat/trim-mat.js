@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.trimMat = void 0;
 const create_new_cp_tree_1 = require("./create-new-cp-tree");
 const cull_non_cycles_1 = require("./to-scale-axis/cull-non-cycles");
 const clone_1 = require("../cp-node/clone");

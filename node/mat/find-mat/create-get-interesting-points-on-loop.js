@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getInterestingPointsOnLoop = void 0;
 const get_contact_circles_at_interface_1 = require("../get-contact-circles-at-interface");
 const flo_bezier3_1 = require("flo-bezier3");
 const point_on_shape_1 = require("../../point-on-shape");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.calcInitial3ProngCenter = void 0;
 const flo_vector2d_1 = require("flo-vector2d");
 const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-closest-boundary-point");
 /**

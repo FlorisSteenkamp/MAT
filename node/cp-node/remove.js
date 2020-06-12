@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.removeCpNode = void 0;
 /**
  * Removes a cpNode from the MAT.
  * @param cpTree The tree graph holding the [[CpNodes]] of the MAT.

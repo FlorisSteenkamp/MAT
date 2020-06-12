@@ -1,6 +1,7 @@
 "use strict";
 // TODO - move to another library
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCurvatureAtInterface = void 0;
 const flo_bezier3_1 = require("flo-bezier3");
 const flo_vector2d_1 = require("flo-vector2d");
 /**

@@ -10,10 +10,7 @@ interface Circle {
  * @param circle
  * @param s multiplier
  */
-declare function scaleCircle(circle: Circle, s: number): {
-    center: number[];
-    radius: number;
-};
+declare function scaleCircle(circle: Circle, s: number): Circle;
 /**
  * Returns true if the first circle engulfs the second.
  * @param c1

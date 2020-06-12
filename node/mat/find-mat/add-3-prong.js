@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.add3Prong = void 0;
 const add_to_cp_graph_1 = require("../add-to-cp-graph");
 const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
 /**

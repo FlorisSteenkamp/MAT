@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.drawMat = void 0;
 const traverse_edges_1 = require("../../../traverse-edges");
 const flo_draw_1 = require("flo-draw");
 const get_curve_to_next_1 = require("../../../get-curve-to-next");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.findAndAdd2ProngsOnAllPaths = void 0;
 const find_and_add_2_prongs_1 = require("./find-and-add-2-prongs");
 /**
  * @hidden

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getInitialBezierPieces = void 0;
 const get_neighboring_cps_1 = require("../../get-neighboring-cps");
 const get_boundary_piece_beziers_1 = require("../../get-boundary-piece-beziers");
 const point_on_shape_1 = require("../../../point-on-shape");

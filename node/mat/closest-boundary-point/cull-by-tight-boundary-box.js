@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.cullByTightBoundingBox = void 0;
 const flo_bezier3_1 = require("flo-bezier3");
 const get_closest_squared_distance_to_rotated_rect_1 = require("../geometry/get-closest-squared-distance-to-rotated-rect");
 /**

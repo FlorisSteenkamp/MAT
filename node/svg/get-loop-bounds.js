@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLoopBounds = void 0;
 const flo_bezier3_1 = require("flo-bezier3");
 const point_on_shape_1 = require("../point-on-shape");
 const flo_memoize_1 = require("flo-memoize");

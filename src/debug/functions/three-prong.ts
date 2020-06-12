@@ -4,7 +4,6 @@ declare let _debug_: Debug;
 
 import { Debug } from '../debug';
 import { equal, getObjClosestTo } from 'flo-vector2d';
-import { Circle       } from '../../circle';
 import { ThreeProngForDebugging } from '../three-prong-for-debugging';
 import { drawFs } from 'flo-draw';
 

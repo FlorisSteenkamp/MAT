@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.simplifyMatMapOnly = void 0;
 const get_branches_1 = require("../get-branches");
 const flo_bezier3_1 = require("flo-bezier3");
 const get_curve_to_next_1 = require("../get-curve-to-next");

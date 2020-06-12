@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addDebugInfo = void 0;
 const get_two_prong_type_1 = require("../../get-two-prong-type");
 /** @hidden */
 function addDebugInfo(bezierPieces, failed, pos, circle, z, δ, xs, holeClosing) {

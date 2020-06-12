@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.traverseSpacialTree = void 0;
 /**
  * @hidden
  * Traverses the spacial tree and calls the given callback function for each

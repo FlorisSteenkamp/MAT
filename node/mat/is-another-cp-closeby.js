@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.isAnotherCpCloseby = void 0;
 const flo_vector2d_1 = require("flo-vector2d");
 const get_neighboring_cps_1 = require("./get-neighboring-cps");
 /** @hidden */

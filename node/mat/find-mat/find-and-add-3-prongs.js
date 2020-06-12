@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.findAndAddAll3Prongs = void 0;
 const point_on_shape_1 = require("../../point-on-shape");
 const find_3_prong_1 = require("./find-3-prong/find-3-prong");
 const add_3_prong_1 = require("../find-mat/add-3-prong");

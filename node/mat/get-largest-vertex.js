@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLargestVertex = void 0;
 /** @hidden */
 function getLargestVertex(cpNodes) {
     return cpNodes.reduce(function (maxCpNode, cpNode) {

@@ -1,5 +1,5 @@
 
-
+import { BezierPart } from 'flo-bezier3';
 import { CpNode } from './cp-node';
 import { Curve  } from './curve';
 
@@ -9,7 +9,7 @@ import { Curve  } from './curve';
  * on the boundary.
  * @param cpNode
  */
-function getBoundaryBezierPartsToNext(cpNode: CpNode) {
+function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPart[] {
     let cpThis = cpNode; 
     let cpNext = cpNode.next;
 
@@ -25,7 +25,7 @@ function getBoundaryBezierPartsToNext(cpNode: CpNode) {
         return undefined;
     }
     
-    let bezierParts: { ps: number[][]; ts: number[] }[] = [];
+    let bezierParts: BezierPart[] = [];
 
     if (curveNext === curveThis) {
         bezierParts.push(

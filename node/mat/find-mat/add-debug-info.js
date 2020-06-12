@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addDebugInfo4 = exports.addDebugInfo3 = exports.addDebugInfo2 = exports.addDebugInfo1 = void 0;
 const flo_bezier3_1 = require("flo-bezier3");
 const curve_1 = require("../../curve");
 if (typeof _debug_ !== 'undefined') {

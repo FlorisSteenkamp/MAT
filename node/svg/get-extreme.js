@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getExtreme = void 0;
 const get_shape_bounds_1 = require("./get-shape-bounds");
 /**
  * @hidden

@@ -1,10 +1,15 @@
 
 import { squaredDistanceBetween } from 'flo-vector2d';
+import { DeepReadonly } from 'utility-types';
 
 
 /**
  * Canonical circle representation.
  */
+//interface Circle extends DeepReadonly<{
+//    center: number[];
+//    radius: number;
+//}>{}
 interface Circle {
     center: number[];
     radius: number;
@@ -16,7 +21,7 @@ interface Circle {
  * @param circle
  * @param s multiplier
  */
-function scaleCircle(circle: Circle, s: number) {
+function scaleCircle(circle: Circle, s: number): Circle {
     return { center: circle.center, radius: s * circle.radius };
 }
 

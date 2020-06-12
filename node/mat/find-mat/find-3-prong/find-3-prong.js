@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.find3Prong = void 0;
 const flo_bezier3_1 = require("flo-bezier3");
 const three_prong_for_debugging_1 = require("../../../debug/three-prong-for-debugging");
 const find_3_prong_for_delta3s_1 = require("./find-3-prong-for-delta3s");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.sweepLine = void 0;
 /** @hidden */
 const EVENT_LEFT = 0;
 /** @hidden */

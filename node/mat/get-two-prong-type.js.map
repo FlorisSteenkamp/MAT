@@ -1,1 +1,1 @@
-{"version":3,"file":"get-two-prong-type.js","sourceRoot":"","sources":["../../src/mat/get-two-prong-type.ts"],"names":[],"mappings":";;AAKA,cAAc;AACd,SAAS,eAAe,CAAC,CAAuB;IAC/C,IAAI,CAAC,CAAC,WAAW,EAAE;QAAE,OAAO,sBAAsB,CAAA;KAAE;IAEpD,OAAO,kBAAkB,CAAC;AAC3B,CAAC;AAGQ,0CAAe"}
+{"version":3,"file":"get-two-prong-type.js","sourceRoot":"","sources":["../../src/mat/get-two-prong-type.ts"],"names":[],"mappings":";;;AAKA,cAAc;AACd,SAAS,eAAe,CAAC,CAAuB;IAC/C,IAAI,CAAC,CAAC,WAAW,EAAE;QAAE,OAAO,sBAAsB,CAAA;KAAE;IAEpD,OAAO,kBAAkB,CAAC;AAC3B,CAAC;AAGQ,0CAAe"}

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCloseBoundaryPoints = void 0;
 const flo_vector2d_1 = require("flo-vector2d");
 const point_on_shape_1 = require("../../point-on-shape");
 const cull_bezier_pieces_1 = require("./cull-bezier-pieces");

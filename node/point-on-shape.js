@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.isPosQuiteDullCorner = exports.isPosQuiteSharpCorner = exports.isPosDullCorner = exports.isPosSharpCorner = exports.posToHumanString = exports.calcPosOrder = exports.comparePoss = exports.getOsculatingCircle = exports.PointOnShape = void 0;
 const flo_vector2d_1 = require("flo-vector2d");
 const flo_memoize_1 = require("flo-memoize");
 const flo_bezier3_1 = require("flo-bezier3");

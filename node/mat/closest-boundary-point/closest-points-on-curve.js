@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.closestPointsOnCurve = void 0;
 const flo_poly_1 = require("flo-poly");
 const flo_bezier3_1 = require("flo-bezier3");
 /**

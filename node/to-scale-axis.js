@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.toScaleAxis = void 0;
 const flo_bezier3_1 = require("flo-bezier3");
 const traverse_edges_1 = require("./traverse-edges");
 const traverse_vertices_1 = require("./traverse-vertices");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.drawCirclePercent = void 0;
 /** @hidden */
 function drawCirclePercent(g, center, radiusPercent, classes) {
     const XMLNS = 'http://www.w3.org/2000/svg';

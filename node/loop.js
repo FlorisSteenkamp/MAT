@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.loopFromBeziers = void 0;
 /**
  * @param beziers A pre-ordered array of bezier curves to add initially.
  */
