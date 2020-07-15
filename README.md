@@ -5,7 +5,7 @@ A pure JavaScript (source in TypeScript) Medial (and Scale) Axis Transform (MAT/
 Bug reports, pull requests and ⭐⭐⭐⭐⭐s are welcome and appreciated!
 
 ---
-**[Demo](https://mat-demo.appspot.com)**
+**[Demo](https://florissteenkamp.github.io/MAT-Demo/)**
 
 **[Full simple 140 Lines of Code live StackBlitz project](https://stackblitz.com/edit/typescript-yucdon)**
 
