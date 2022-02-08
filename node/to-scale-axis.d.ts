@@ -1,4 +1,5 @@
 import { Mat } from './mat';
+/** @hidden */
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
  * the given MAT. The returned SAT is guaranteed to be a subset of the MAT and

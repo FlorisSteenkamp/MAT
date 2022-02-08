@@ -5,7 +5,7 @@ declare var _debug_: Debug;
 import { Debug } from '../../../debug/debug';
 import LlRbTree from 'flo-ll-rb-tree';
 import { lineLineIntersection, distanceBetween, squaredDistanceBetween, interpolate, dot } from 'flo-vector2d';
-import { evalDeCasteljau } from 'flo-bezier3';
+import { evalDeCasteljau as evalDeCasteljau_ } from 'flo-bezier3';
 import { getClosestBoundaryPoint } from 
     '../../closest-boundary-point/get-closest-boundary-point';
 import { CpNode } from '../../../cp-node';
@@ -20,6 +20,9 @@ import { cullBezierPieces } from './cull-bezier-pieces';
 import { findEquidistantPointOnLine } from './find-equidistant-point-on-line';
 import { getInitialBezierPieces } from './get-initial-bezier-pieces';
 import { getCloseBoundaryPoints } from '../../closest-boundary-point/get-close-boundary-points';
+
+
+const evalDeCasteljau = evalDeCasteljau_;
 
 
 /**

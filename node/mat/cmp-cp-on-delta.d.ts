@@ -10,5 +10,5 @@ import { ContactPoint } from '../contact-point';
  * @param δ The boundary piece
  * @param cp The contact point
  */
-declare function cmpCpOnδ(δ: CpNode[], cp: ContactPoint): 1 | 0 | -1;
+declare function cmpCpOnδ(δ: CpNode[], cp: ContactPoint): 0 | 1 | -1;
 export { cmpCpOnδ };

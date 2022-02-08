@@ -1,4 +1,3 @@
-
 import { getBounds } from 'flo-bezier3';
 import { Loop } from '../loop';
 import { Curve } from '../curve';
@@ -36,6 +35,7 @@ let getLoopBounds = memoize(function(loop: Loop): {
 	
 	loop.curves.forEach(function(curve: Curve): void {			
 		let ps = curve.ps; 
+		// let bounds = getBounds_(ps);
 		let bounds = getBounds(ps);
 		
 		

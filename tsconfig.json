@@ -9,7 +9,7 @@
         "strictFunctionTypes": true,
         //"strictPropertyInitialization": true,
         "module": "commonjs",
-        "target": "es2015",
+        "target": "es2017",
         "declaration": true,
         "noEmitOnError": true,
         "sourceMap": true,

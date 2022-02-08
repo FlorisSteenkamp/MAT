@@ -53,11 +53,6 @@ function findMats(
 
 	let loopss = simplifyPaths(bezierLoops, maxCoordinate);
 
-	if (typeof _debug_ !== 'undefined') {
-		let timing = _debug_.generated.timing;
-		timing.simplifyPaths = performance.now() - timingStart;
-	}
-
 	let mats: Mat[] = [];
 	for (let loops of loopss) {
 		let mat = findMat(

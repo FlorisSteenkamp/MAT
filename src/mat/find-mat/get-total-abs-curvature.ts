@@ -1,4 +1,3 @@
-
 import { totalAbsoluteCurvature } from 'flo-bezier3';
 import { getCurvatureAtInterface } from '../../svg/get-curvature-at-interface';
 import { getTotalBy } from './get-total-by';

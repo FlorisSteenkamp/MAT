@@ -1,9 +1,6 @@
-
-import { getBoundingBox } from "flo-bezier3";
-
 import { getClosestSquareDistanceToRect } from "../../geometry/get-closest-square-distance-to-rect";
-
 import { BezierPiece } from "../../bezier-piece";
+import { getBoundingBox_ } from "../../../get-bounding-box-";
 
 
 /**
@@ -32,7 +29,7 @@ function cullBezierPieces(
     for (let bezierPiece of bezierPieces) {
         let ps = bezierPiece.curve.ps;
         
-        let rect = getBoundingBox(ps);
+        let rect = getBoundingBox_(ps);
         let bd = getClosestSquareDistanceToRect(rect, p);
         if (bd <= rSquared * TOLERANCE) {
             newPieces.push(bezierPiece);

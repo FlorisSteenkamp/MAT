@@ -1,8 +1,12 @@
 
-import { getBoundingBoxTight } from 'flo-bezier3';
 import { BezierPiece } from "../bezier-piece";
 import { getClosestSquaredDistanceToRotatedRect } from 
     '../geometry/get-closest-squared-distance-to-rotated-rect';
+import { getBoundingBoxTight } from "flo-bezier3";
+import { memoize } from "flo-memoize";
+
+
+const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
 
 
 /**
@@ -24,7 +28,7 @@ function cullByTightBoundingBox(
         let bezierPiece = bezierPieces[i];
         let ps = bezierPiece.curve.ps;
         
-        let tightBoundingBox = getBoundingBoxTight(ps);
+        let tightBoundingBox = getBoundingBoxTight_(ps);
         let d = getClosestSquaredDistanceToRotatedRect(
                 tightBoundingBox,
                 p

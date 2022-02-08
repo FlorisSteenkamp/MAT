@@ -1,12 +1,13 @@
-
-/** @hidden */
-declare var _debug_: Debug; 
-
 import { Debug }   from '../../debug/debug';
-import { getBoundingHull, getBoundingBox, getBoundingBoxTight } from 'flo-bezier3';
+import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
 import { Loop } from '../../loop';
 import { Curve, getCornerAtEnd } from '../../curve';
 import { Mat } from '../../mat';
+import { getBoundingBox_ } from '../../get-bounding-box-';
+
+
+/** @hidden */
+declare var _debug_: Debug; 
 
 
 if (typeof _debug_ !== 'undefined') { 
@@ -37,7 +38,7 @@ function addDebugInfo1(loops: Loop[]) {
 
             generated.elems.boundingHull.push(hull);
 
-            let looseBoundingBox = getBoundingBox(ps);
+            let looseBoundingBox = getBoundingBox_(ps);
             generated.elems.looseBoundingBox.push(looseBoundingBox);
 
             let tightBoundingBox = getBoundingBoxTight(ps);

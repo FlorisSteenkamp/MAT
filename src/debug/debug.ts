@@ -28,8 +28,8 @@ type GeneratedElems = { [T in keyof IDebugElems]: IDebugElems[T][] };
 
 /** @hidden */
 interface ITiming {
-    normalize     : number;
-    simplifyPaths : number;
+    //normalize     : number;
+    //simplifyPaths : number;
     holeClosers   : number;
     oneAnd2Prongs : number;
     threeProngs   : number;
@@ -76,9 +76,11 @@ function enableDebugForMat(debugOn: boolean) {
     debug = { 
         ...debug, 
         generated: { 
-            ...debug?.generated,
+            //...debug?.generated,
+            ...(!debug ? {} : !debug.generated ? {} : debug.generated),
             elems: { 
-                ...debug?.generated?.elems,
+                //...debug?.generated?.elems,
+                ...(!debug ? {} : !debug.generated ? {} : !debug.generated.elems ? {} : debug.generated.elems),
                 twoProng_regular     : [],
                 twoProng_failed      : [],
                 twoProng_notAdded    : [],
@@ -101,7 +103,8 @@ function enableDebugForMat(debugOn: boolean) {
                 culls                : [],
             },
             timing: {
-                ...debug?.generated?.timing,
+                //...debug?.generated?.timing,
+                ...(!debug ? {} : !debug.generated ? {} : !debug.generated.timing ? {} : debug.generated.timing),
                 holeClosers   : 0,
                 oneAnd2Prongs : 0,
                 threeProngs   : 0,
@@ -110,9 +113,11 @@ function enableDebugForMat(debugOn: boolean) {
             }
         },
         fs: {
-            ...debug?.fs,
+            //...debug?.fs,
+            ...(!debug ? {} : !debug.fs ? {} : debug.fs),
             drawElem: {
-                ...debug?.fs?.drawElem,
+                //...debug?.fs?.drawElem,
+                ...(!debug ? {} : !debug.fs ? {} : !debug.fs.drawElem ? {} : debug.fs.drawElem),
                 ...drawElemFunctions
             },
             ...generalDebugFunctions,
@@ -120,7 +125,8 @@ function enableDebugForMat(debugOn: boolean) {
             threeProng: threeProngDebugFunctions, 
         },
         directives: {
-            ...debug?.directives,
+            //...debug?.directives,
+            ...(!debug ? {} : !debug.directives ? {} : debug.directives),
             stopAfterHoleClosers: false,
             stopAfterHoleClosersNum: undefined,
             stopAfterTwoProngs: false,

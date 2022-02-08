@@ -20,8 +20,6 @@ declare type GeneratedElems = {
 };
 /** @hidden */
 interface ITiming {
-    normalize: number;
-    simplifyPaths: number;
     holeClosers: number;
     oneAnd2Prongs: number;
     threeProngs: number;

@@ -26,7 +26,7 @@ function linearScale(s: number) {
 
 
 /** @hidden */
-let len = length([0,1]);
+//let len = length([0,1]);
 
 
 /**
@@ -80,7 +80,7 @@ function toScaleAxis(
 
 		let cpNode_ = cpNode.next;
 
-		let l = len(getCurveToNext(cpNode));
+		let l = length([0,1], getCurveToNext(cpNode));
 
 		let r = cpNode_.cp.circle.radius;
 		let r_ = f_(r);

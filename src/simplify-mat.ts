@@ -5,8 +5,6 @@ import { hausdorffDistance, toCubic } from "flo-bezier3";
 import { getCurveToNext } from "./get-curve-to-next";
 import { getCurveBetween } from "./get-curve/get-curve-between";
 import { Mat } from "./mat";
-import { createNewCpTree } from "./mat/create-new-cp-tree";
-import { closestPointOnBezier } from "flo-bezier3/node/simultaneous-properties/closest-point-on-bezier/closest-point-on-bezier";
 
 
 /**
