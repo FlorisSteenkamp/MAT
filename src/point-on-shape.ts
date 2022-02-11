@@ -1,10 +1,8 @@
-
 import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
 import { normal, κ as curvature, evalDeCasteljau }   from 'flo-bezier3';
-
-import { Curve, getCornerAtEnd } from './curve'
-import { Circle } from './circle';
+import { Curve, getCornerAtEnd } from './curve.js';
+import { Circle } from './circle.js';
 
 
 interface IPointOnShape {

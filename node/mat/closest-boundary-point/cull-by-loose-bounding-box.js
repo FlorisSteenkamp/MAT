@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.cullByLooseBoundingBox = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
-const get_closest_square_distance_to_rect_1 = require("../geometry/get-closest-square-distance-to-rect");
+import { getBoundingBox_ } from '../../get-bounding-box-.js';
+import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect.js';
 /**
  * @hidden
  * When checking distances, ignore all those with closest possible distance
@@ -16,13 +13,13 @@ function cullByLooseBoundingBox(bezierPieces, p, dSquared) {
     for (let i = 0; i < bezierPieces.length; i++) {
         let bezierPiece = bezierPieces[i];
         let ps = bezierPiece.curve.ps;
-        let boundingBox = flo_bezier3_1.getBoundingBox(ps);
-        let d = get_closest_square_distance_to_rect_1.getClosestSquareDistanceToRect(boundingBox, p);
+        let boundingBox = getBoundingBox_(ps);
+        let d = getClosestSquareDistanceToRect(boundingBox, p);
         if (d <= dSquared) {
             candidateBezierPieces.push(bezierPiece);
         }
     }
     return candidateBezierPieces;
 }
-exports.cullByLooseBoundingBox = cullByLooseBoundingBox;
+export { cullByLooseBoundingBox };
 //# sourceMappingURL=cull-by-loose-bounding-box.js.map

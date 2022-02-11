@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBoundaryBeziersToNext = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
+// qqq import { fromTo, fromTTo1, from0ToT } from 'flo-bezier3';
+import { fromTo } from 'flo-bezier3';
 /**
  * Returns the ordered bezier curves from this CpNode to the next CpNode
  * on the boundary.
@@ -21,15 +19,18 @@ function getBoundaryBeziersToNext(cpNode) {
     }
     let beziers = [];
     if (curveNext === curveThis) {
-        beziers.push(flo_bezier3_1.fromTo(posThis.curve.ps)(posThis.t, posNext.t));
+        beziers.push(
+        // fromTo(posThis.curve.ps)(posThis.t, posNext.t)
+        fromTo(posThis.curve.ps, posThis.t, posNext.t).ps);
     }
     else {
-        beziers.push(flo_bezier3_1.fromTTo1(posThis.curve.ps, posThis.t));
+        beziers.push(
+        // fromTTo1(posThis.curve.ps, posThis.t)
+        fromTo(posThis.curve.ps, posThis.t, 1).ps);
         addSkippedBeziers(beziers, posThis.curve, posNext.curve, posNext.t);
     }
     return beziers;
 }
-exports.getBoundaryBeziersToNext = getBoundaryBeziersToNext;
 /**
  * Adds pieces of skipped beziers.
  * @hidden
@@ -39,7 +40,10 @@ function addSkippedBeziers(beziers, curveStart, curveEnd, t1) {
     do {
         curveThis = curveThis.next;
         let tEnd = curveThis === curveEnd ? t1 : 1;
-        beziers.push(flo_bezier3_1.from0ToT(curveThis.ps, tEnd));
+        beziers.push(
+        // qqq from0ToT(curveThis.ps, tEnd) 
+        fromTo(curveThis.ps, 0, tEnd).ps);
     } while (curveThis !== curveEnd);
 }
+export { getBoundaryBeziersToNext };
 //# sourceMappingURL=get-boundary-beziers-to-next.js.map

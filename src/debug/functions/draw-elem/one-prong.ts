@@ -1,7 +1,6 @@
-
-import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape';
-import { Circle, scaleCircle } from '../../../circle';
 import { drawFs } from 'flo-draw';
+import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape.js';
+import { Circle, scaleCircle } from '../../../circle.js';
 
 
 /** @hidden */

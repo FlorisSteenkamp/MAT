@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.drawBranch = void 0;
-const flo_draw_1 = require("flo-draw");
-const get_curve_to_next_1 = require("../../../get-curve-to-next");
+import { drawFs } from 'flo-draw';
+import { getCurveToNext } from '../../../get-curve-to-next.js';
 /** @hidden */
 function drawBranch(g, branch, delay) {
     let classes = 'thin5 purple nofill';
@@ -13,14 +10,14 @@ function drawBranch(g, branch, delay) {
             continue;
         }
         //let bezier = cpNode.matCurveToNextVertex;
-        let bezier = get_curve_to_next_1.getCurveToNext(cpNode);
+        let bezier = getCurveToNext(cpNode);
         if (!bezier) {
             continue;
         }
         i++;
-        $svgs.push(...flo_draw_1.drawFs.bezier(g, bezier, classes, delay));
+        $svgs.push(...drawFs.bezier(g, bezier, classes, delay));
     }
     return $svgs;
 }
-exports.drawBranch = drawBranch;
+export { drawBranch };
 //# sourceMappingURL=branch.js.map

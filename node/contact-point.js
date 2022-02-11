@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.compareCps = void 0;
-const point_on_shape_1 = require("./point-on-shape");
+import { comparePoss } from './point-on-shape.js';
 /**
  * Primarily for internal use.
  *
@@ -12,7 +9,7 @@ const point_on_shape_1 = require("./point-on-shape");
  */
 function compareCps(a, b) {
     //let res = PointOnShape.compare(a.pointOnShape, b.pointOnShape);
-    let res = point_on_shape_1.comparePoss(a.pointOnShape, b.pointOnShape);
+    let res = comparePoss(a.pointOnShape, b.pointOnShape);
     if (res === undefined) {
         return undefined;
     }
@@ -25,5 +22,5 @@ function compareCps(a, b) {
     }
     return a.order2 - b.order2;
 }
-exports.compareCps = compareCps;
+export { compareCps };
 //# sourceMappingURL=contact-point.js.map

@@ -1,15 +1,8 @@
-
-declare var _debug_: Debug;
-
-import { Debug } from '../../debug/debug';
-
 import { distanceBetween } from 'flo-vector2d';
-
-import { IPointOnShape, PointOnShape } from '../../point-on-shape';
-import { BezierPiece  } from '../bezier-piece';
-
-import { cullBezierPieces } from './cull-bezier-pieces';
-import { closestPointsOnCurve } from './closest-points-on-curve';
+import { IPointOnShape, PointOnShape } from '../../point-on-shape.js';
+import { BezierPiece  } from '../bezier-piece.js';
+import { cullBezierPieces } from './cull-bezier-pieces.js';
+import { closestPointsOnCurve } from './closest-points-on-curve.js';
   
 
 /**

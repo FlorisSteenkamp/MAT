@@ -1,4 +1,3 @@
-
 import { squaredDistanceBetween as squaredDistanceBetween_ } from 'flo-vector2d';
 
 const squaredDistanceBetween = squaredDistanceBetween_;

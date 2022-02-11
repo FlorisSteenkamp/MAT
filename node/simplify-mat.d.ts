@@ -1,4 +1,4 @@
-import { Mat } from "./mat";
+import { Mat } from './mat.js';
 /**
  * Simplifies the given MAT by replacing the piecewise quad beziers composing
  * the MAT with fewer ones to within a given tolerance.

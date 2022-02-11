@@ -1,9 +1,8 @@
-
+import { getInterfaceCcw } from 'flo-bezier3';
 import { memoize } from 'flo-memoize';
 import { cross, dot, toUnitVector } from 'flo-vector2d';
-import { Loop } from './loop';
-import { Corner } from './mat/corner';
-import { getInterfaceCcw } from 'flo-bezier3';
+import { Loop } from './loop.js';
+import { Corner } from './mat/corner.js';
 
 
 /**

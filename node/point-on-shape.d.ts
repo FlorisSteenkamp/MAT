@@ -1,5 +1,5 @@
-import { Curve } from './curve';
-import { Circle } from './circle';
+import { Curve } from './curve.js';
+import { Circle } from './circle.js';
 interface IPointOnShape {
     /** The [[ICurve]] on the shape boundary this points belong to. */
     curve: Curve;

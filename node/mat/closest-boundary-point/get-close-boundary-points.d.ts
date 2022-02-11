@@ -1,5 +1,5 @@
-import { IPointOnShape } from '../../point-on-shape';
-import { BezierPiece } from '../bezier-piece';
+import { IPointOnShape } from '../../point-on-shape.js';
+import { BezierPiece } from '../bezier-piece.js';
 /**
  * @hidden
  * Returns the closest boundary point to the given point, limited to the given

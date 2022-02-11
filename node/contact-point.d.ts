@@ -1,5 +1,5 @@
-import { IPointOnShape } from './point-on-shape';
-import { Circle } from './circle';
+import { IPointOnShape } from './point-on-shape.js';
+import { Circle } from './circle.js';
 /**
  * Represents a point on the shape boundary for which MAT data has been
  * calculated.

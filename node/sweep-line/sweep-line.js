@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sweepLine = void 0;
 /** @hidden */
 const EVENT_LEFT = 0;
 /** @hidden */
@@ -56,7 +53,6 @@ function sweepLine(items, getLeftmost, getRightmost, predicate) {
     }
     return pairedItems;
 }
-exports.sweepLine = sweepLine;
 /**
  * @hidden
  * Compare two Events by their x-axis and then by their type. Since it is
@@ -73,4 +69,5 @@ function compare(a, b) {
     // Alwys put left events before right ones.
     return a.type === EVENT_LEFT ? -1 : +1;
 }
+export { sweepLine };
 //# sourceMappingURL=sweep-line.js.map

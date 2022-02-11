@@ -1,5 +1,5 @@
-import { CpNode } from '../cp-node';
-import { BezierPiece } from './bezier-piece';
+import { CpNode } from '../cp-node.js';
+import { BezierPiece } from './bezier-piece.js';
 /**
  * @hidden
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)

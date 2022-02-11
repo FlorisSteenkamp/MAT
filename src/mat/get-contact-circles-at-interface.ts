@@ -1,7 +1,6 @@
-
-import { Curve, getCornerAtEnd        } from '../curve';
-import { PointOnShape } from '../point-on-shape';
-import { IPointOnShape } from '..';
+import { Curve, getCornerAtEnd } from '../curve.js';
+import { PointOnShape } from '../point-on-shape.js';
+import { IPointOnShape } from '../point-on-shape.js';
 
 
 /**

@@ -1,8 +1,8 @@
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from '../../loop';
-import { CpNode } from '../../cp-node';
-import { Circle } from '../../circle';
-import { IPointOnShape } from '../../point-on-shape';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Loop } from '../../loop.js';
+import { CpNode } from '../../cp-node.js';
+import { Circle } from '../../circle.js';
+import { IPointOnShape } from '../../point-on-shape.js';
 /**
  * @hidden
  * Adds a 2-prong contact circle to the shape.

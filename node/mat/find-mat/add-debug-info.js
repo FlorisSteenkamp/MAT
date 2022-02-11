@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.addDebugInfo4 = exports.addDebugInfo3 = exports.addDebugInfo2 = exports.addDebugInfo1 = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
-const curve_1 = require("../../curve");
+import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
+import { getCornerAtEnd } from '../../curve.js';
+import { getBoundingBox_ } from '../../get-bounding-box-.js';
 if (typeof _debug_ !== 'undefined') {
     var timingStart;
 }
@@ -22,13 +20,13 @@ function addDebugInfo1(loops) {
         let i = 0;
         loop.curves.forEach(function (curve) {
             let ps = curve.ps;
-            let hull = flo_bezier3_1.getBoundingHull(ps);
+            let hull = getBoundingHull(ps);
             generated.elems.boundingHull.push(hull);
-            let looseBoundingBox = flo_bezier3_1.getBoundingBox(ps);
+            let looseBoundingBox = getBoundingBox_(ps);
             generated.elems.looseBoundingBox.push(looseBoundingBox);
-            let tightBoundingBox = flo_bezier3_1.getBoundingBoxTight(ps);
+            let tightBoundingBox = getBoundingBoxTight(ps);
             generated.elems.tightBoundingBox.push(tightBoundingBox);
-            let corner = curve_1.getCornerAtEnd(curve);
+            let corner = getCornerAtEnd(curve);
             if (corner.isSharp) {
                 generated.elems.sharpCorner.push(curve);
             }
@@ -39,7 +37,6 @@ function addDebugInfo1(loops) {
         });
     }
 }
-exports.addDebugInfo1 = addDebugInfo1;
 /** @hidden */
 function addDebugInfo2() {
     if (typeof _debug_ === 'undefined') {
@@ -50,7 +47,6 @@ function addDebugInfo2() {
     timing.holeClosers += now - timingStart;
     timingStart = now;
 }
-exports.addDebugInfo2 = addDebugInfo2;
 function addDebugInfo3() {
     if (typeof _debug_ === 'undefined') {
         return;
@@ -61,7 +57,6 @@ function addDebugInfo3() {
     timing.oneAnd2Prongs += now - timingStart;
     timingStart = now;
 }
-exports.addDebugInfo3 = addDebugInfo3;
 function addDebugInfo4(mat) {
     if (typeof _debug_ === 'undefined') {
         return;
@@ -71,5 +66,5 @@ function addDebugInfo4(mat) {
     generated.elems.mat.push(mat);
     timing.threeProngs += performance.now() - timingStart;
 }
-exports.addDebugInfo4 = addDebugInfo4;
+export { addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 };
 //# sourceMappingURL=add-debug-info.js.map

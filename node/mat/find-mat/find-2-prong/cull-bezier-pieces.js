@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.cullBezierPieces = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
-const get_closest_square_distance_to_rect_1 = require("../../geometry/get-closest-square-distance-to-rect");
+import { getClosestSquareDistanceToRect } from '../../geometry/get-closest-square-distance-to-rect.js';
+import { getBoundingBox_ } from '../../../get-bounding-box-.js';
 /**
  * @hidden
  * Cull all bezierPieces not within given radius of a given point.
@@ -21,13 +18,13 @@ function cullBezierPieces(bezierPieces, p, rSquared) {
     let newPieces = [];
     for (let bezierPiece of bezierPieces) {
         let ps = bezierPiece.curve.ps;
-        let rect = flo_bezier3_1.getBoundingBox(ps);
-        let bd = get_closest_square_distance_to_rect_1.getClosestSquareDistanceToRect(rect, p);
+        let rect = getBoundingBox_(ps);
+        let bd = getClosestSquareDistanceToRect(rect, p);
         if (bd <= rSquared * TOLERANCE) {
             newPieces.push(bezierPiece);
         }
     }
     return newPieces;
 }
-exports.cullBezierPieces = cullBezierPieces;
+export { cullBezierPieces };
 //# sourceMappingURL=cull-bezier-pieces.js.map

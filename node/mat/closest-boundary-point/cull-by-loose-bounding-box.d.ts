@@ -1,4 +1,4 @@
-import { BezierPiece } from "../bezier-piece";
+import { BezierPiece } from '../bezier-piece.js';
 /**
  * @hidden
  * When checking distances, ignore all those with closest possible distance

@@ -1,7 +1,9 @@
-
-import { deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
-import { getTangentPolyFromPointExact, evalDeCasteljau, evaluate } from 'flo-bezier3';
-import { Curve } from "../../curve";
+// qqq import { deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
+// qqq import { getTangentPolyFromPointExact, evalDeCasteljau, evaluate, getFootpointPolyExact } from 'flo-bezier3';
+import { ddDeflate, allRootsCertified, RootInterval } from 'flo-poly';
+import { evalDeCasteljau, evaluate, getFootpointPolyDd, getFootpointPolyExact } from 'flo-bezier3';
+import { Curve } from "../../curve.js";
+import { eToDd } from 'big-float-ts';
 
 
 /**
@@ -17,22 +19,22 @@ function closestPointsOnCurve(
         p: number[], 
         [tS,tE]: number[] = [0,1], 
         touchedCurve: Curve,
-        t: number) {
+        t: number): {
+            p: number[];
+            t: number;
+        }[] {
 
-    let poly = getTangentPolyFromPointExact(curve.ps, p);
+    // qqq let poly = getTangentPolyFromPointExact(curve.ps, p);
+    const _poly = getFootpointPolyDd(curve.ps, p);
 
-    if (curve === touchedCurve) {	
-        poly = deflateQuad(poly, t);
-    }
+    // qqq poly = deflateQuad(poly, t);
+    const poly = curve === touchedCurve
+        ? ddDeflate(_poly, t)
+        : _poly;
 
-    let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
-        poly, 
-        poly.map(c => 0),  // because all coefficients are exact
-        undefined,         // ...
-        tS,
-        tE
-    );
-
+    // let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
+    let roots: Omit<RootInterval,'multiplicity'>[];
+    roots = allRootsCertified(poly, tS, tE);
 
     // Also test the endpoints
     let push0 = true;

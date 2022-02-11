@@ -1,8 +1,7 @@
-
 declare var _debug_: Debug; 
 
-import { Debug } from '../../debug/debug';
-import { Mat    } from '../../mat';
+import { Debug } from '../../debug/debug.js';
+import { Mat } from '../../mat.js';
 
 
 /**

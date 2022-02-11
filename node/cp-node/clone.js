@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.clone = void 0;
-const cp_node_1 = require("../cp-node");
+import { CpNode } from "../cp-node.js";
 /** @hidden */
 const EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
 /**
@@ -13,7 +10,7 @@ function clone(cpNode) {
     // Don't change this function to be recursive, the call stack may 
     // overflow if there are too many CpNodes.
     let nodeMap = new Map();
-    let newCpNode = new cp_node_1.CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
+    let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
     nodeMap.set(cpNode, newCpNode);
     let cpStack = [{ cpNode, newCpNode }];
     while (cpStack.length) {
@@ -22,7 +19,7 @@ function clone(cpNode) {
             let node = cpNode[edge];
             let newNode = nodeMap.get(node);
             if (!newNode) {
-                newNode = new cp_node_1.CpNode(node.cp, node.isHoleClosing, node.isIntersection);
+                newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);
                 nodeMap.set(node, newNode);
                 cpStack.push({ cpNode: node, newCpNode: newNode });
             }
@@ -31,5 +28,5 @@ function clone(cpNode) {
     }
     return newCpNode;
 }
-exports.clone = clone;
+export { clone };
 //# sourceMappingURL=clone.js.map

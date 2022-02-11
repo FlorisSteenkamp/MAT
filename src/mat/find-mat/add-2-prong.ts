@@ -1,18 +1,17 @@
-
 /** @hidden */
 declare var _debug_: Debug;
 
-import { Debug } from '../../debug/debug';
-import LlRbTree from 'flo-ll-rb-tree';
-import { exponent } from 'flo-numerical';
-import { Loop         } from '../../loop';
-import { CpNode       } from '../../cp-node';
-import { Circle       } from '../../circle';
-import { ContactPoint } from '../../contact-point';
-import { PointOnShape, calcPosOrder, IPointOnShape } from '../../point-on-shape';
-import { isAnotherCpCloseby } from '../is-another-cp-closeby';
-import { getNeighbouringPoints } from '../get-neighboring-cps';
-import { TwoProngForDebugging } from '../../debug/two-prong-for-debugging';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { exponent } from 'big-float-ts';
+import { Debug } from '../../debug/debug.js';
+import { Loop         } from '../../loop.js';
+import { CpNode       } from '../../cp-node.js';
+import { Circle       } from '../../circle.js';
+import { ContactPoint } from '../../contact-point.js';
+import { PointOnShape, calcPosOrder, IPointOnShape } from '../../point-on-shape.js';
+import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
+import { getNeighbouringPoints } from '../get-neighboring-cps.js';
+import { TwoProngForDebugging } from '../../debug/two-prong-for-debugging.js';
 
 
 /**

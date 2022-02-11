@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSharpCorners = void 0;
-const point_on_shape_1 = require("../../point-on-shape");
+import { isPosQuiteSharpCorner } from '../../point-on-shape.js';
 /** @hidden */
 function getSharpCorners(possPerLoop) {
     let sharpCornersPerLoop = [];
@@ -9,7 +6,7 @@ function getSharpCorners(possPerLoop) {
         let sharpCorners = [];
         for (let pos of poss) {
             //if (PointOnShape.isQuiteSharpCorner(pos)) {
-            if (point_on_shape_1.isPosQuiteSharpCorner(pos)) {
+            if (isPosQuiteSharpCorner(pos)) {
                 sharpCorners.push(pos);
             }
         }
@@ -17,5 +14,5 @@ function getSharpCorners(possPerLoop) {
     }
     return sharpCornersPerLoop;
 }
-exports.getSharpCorners = getSharpCorners;
+export { getSharpCorners };
 //# sourceMappingURL=get-sharp-corners.js.map

@@ -1,6 +1,5 @@
-
-import { Curve } from '../../../curve';
 import { drawFs } from 'flo-draw';
+import { Curve } from '../../../curve.js';
 
 
 /** @hidden */

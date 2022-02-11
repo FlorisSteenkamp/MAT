@@ -1,10 +1,6 @@
-
 /** @hidden */
-declare var _debug_: Debug; 
-
-import { Debug }   from '../debug/debug';
-import { Loop } from '../loop';
-import { getLoopBounds } from './get-loop-bounds';
+import { Loop } from '../loop.js';
+import { getLoopBounds } from './get-loop-bounds.js';
 
 
 /**

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.generalDebugFunctions = void 0;
-const point_on_shape_1 = require("../../point-on-shape");
+import { posToHumanString } from '../../point-on-shape.js';
 /** @hidden */
 let i = 0;
 /**
@@ -17,7 +14,7 @@ function nameObj(o, pre = '') {
  * @param cpNodes A boundary piece given by two CpNodes.
  */
 function δToString(cpNodes) {
-    return cpNodes.map(cpNode => point_on_shape_1.posToHumanString(cpNode.cp.pointOnShape));
+    return cpNodes.map(cpNode => posToHumanString(cpNode.cp.pointOnShape));
 }
 /**
  * @hidden
@@ -52,5 +49,5 @@ let generalDebugFunctions /*: IGeneralDebugFunctions*/ = {
     pointsToStr,
     nameObj,
 };
-exports.generalDebugFunctions = generalDebugFunctions;
+export { generalDebugFunctions };
 //# sourceMappingURL=general.js.map

@@ -1,4 +1,4 @@
-import { Mat } from './mat';
+import { Mat } from './mat.js';
 /**
  * Finds and returns the Medial Axis Transforms (MATs) from the given array of
  * bezier loops representing shape boundaries.

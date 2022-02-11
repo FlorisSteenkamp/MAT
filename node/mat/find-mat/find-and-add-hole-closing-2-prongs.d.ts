@@ -1,6 +1,6 @@
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop";
-import { CpNode } from '../../cp-node';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Loop } from '../../loop.js';
+import { CpNode } from '../../cp-node.js';
 /**
  * @hidden
  * Find and add two-prongs that remove any holes in the shape.

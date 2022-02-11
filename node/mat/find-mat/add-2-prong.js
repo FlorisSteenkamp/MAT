@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.add2Prong = void 0;
-const flo_numerical_1 = require("flo-numerical");
-const cp_node_1 = require("../../cp-node");
-const point_on_shape_1 = require("../../point-on-shape");
-const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
-const get_neighboring_cps_1 = require("../get-neighboring-cps");
+import { exponent } from 'big-float-ts';
+import { CpNode } from '../../cp-node.js';
+import { PointOnShape, calcPosOrder } from '../../point-on-shape.js';
+import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
+import { getNeighbouringPoints } from '../get-neighboring-cps.js';
 /**
  * @hidden
  * Adds a 2-prong contact circle to the shape.
@@ -19,18 +16,18 @@ const get_neighboring_cps_1 = require("../get-neighboring-cps");
  */
 function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extreme) {
     //let orderSource   = PointOnShape.calcOrder(circle, posSource);
-    let orderSource = point_on_shape_1.calcPosOrder(circle, posSource);
+    let orderSource = calcPosOrder(circle, posSource);
     let orderAntipodes = posAntipodes.map(posAntipode => {
         //console.log(circle.center)
         //return PointOnShape.calcOrder(circle, posAntipode.pos);
-        return point_on_shape_1.calcPosOrder(circle, posAntipode.pos);
+        return calcPosOrder(circle, posAntipode.pos);
     });
     let t_s = posSource.t;
     let curve;
     if (t_s === 0) {
         t_s = 1;
         curve = posSource.curve.prev;
-        posSource = new point_on_shape_1.PointOnShape(curve, t_s);
+        posSource = new PointOnShape(curve, t_s);
     }
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
@@ -39,12 +36,12 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
     for (let i = 0; i < posAntipodes.length; i++) {
         let posAntipode = posAntipodes[i];
         let orderAntipode = orderAntipodes[i];
-        if (is_another_cp_closeby_1.isAnotherCpCloseby(cpGraphs, posAntipode.pos, circle, orderAntipode, 0, extreme, 'red')) {
+        if (isAnotherCpCloseby(cpGraphs, posAntipode.pos, circle, orderAntipode, 0, extreme, 'red')) {
             isCloseByAntipodes = true;
             break;
         }
     }
-    if (is_another_cp_closeby_1.isAnotherCpCloseby(cpGraphs, posSource, circle, orderSource, 0, extreme, 'red') ||
+    if (isAnotherCpCloseby(cpGraphs, posSource, circle, orderSource, 0, extreme, 'red') ||
         isCloseByAntipodes) {
         if (typeof _debug_ !== 'undefined') {
             if (holeClosing) {
@@ -71,16 +68,16 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
         loopAntipodes.push(loopAntipode);
         let cpTreeAntipode = cpGraphs.get(loopAntipode);
         cpTreeAntipodes.push(cpTreeAntipode);
-        let deltaAntipode = get_neighboring_cps_1.getNeighbouringPoints(cpTreeAntipode, posAntipode.pos, orderAntipode, 0);
+        let deltaAntipode = getNeighbouringPoints(cpTreeAntipode, posAntipode.pos, orderAntipode, 0);
         deltaAntipodes.push(deltaAntipode);
-        newCpAntipodes.push(cp_node_1.CpNode.insert(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]));
+        newCpAntipodes.push(CpNode.insert(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]));
     }
     // Source
     let cpSource = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
     let loopSource = posSource.curve.loop;
     let cpTreeSource = cpGraphs.get(loopSource);
-    let deltaSource = get_neighboring_cps_1.getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
-    let newCpSource = cp_node_1.CpNode.insert(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
+    let deltaSource = getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
+    let newCpSource = CpNode.insert(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
     // Connect graph
     if (newCpAntipodes.length === 1) {
         newCpSource.prevOnCircle = newCpAntipodes[0];
@@ -107,9 +104,9 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
         // TODO - important - take care of case where there are more than 1 antipode
         // Duplicate ContactPoints
         let cpB2 = { pointOnShape: posAntipodes[0].pos, circle, order: cpAntipodes[0].order, order2: +1 };
-        let newCpB2Node = cp_node_1.CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
+        let newCpB2Node = CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
         let cpB1 = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
-        let newCpB1Node = cp_node_1.CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
+        let newCpB1Node = CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
         // Connect graph
         newCpB1Node.prevOnCircle = newCpB2Node;
         newCpB1Node.nextOnCircle = newCpB2Node;
@@ -136,10 +133,9 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
     }
     return newCpSource;
 }
-exports.add2Prong = add2Prong;
 /** @hidden */
 function scale(n, exp) {
-    return n * (Math.pow(2, -(exp + 1)));
+    return n * (2 ** -(exp + 1));
 }
 /** @hidden */
 function getSize(x, y) {
@@ -175,7 +171,7 @@ function getSize(x, y) {
 function byAngle(circle) {
     let c = circle.center;
     let r = circle.radius;
-    let exp = flo_numerical_1.exponent(r);
+    let exp = exponent(r);
     return function (_a, _b) {
         let a = _a.cp.pointOnShape.p;
         let b = _b.cp.pointOnShape.p;
@@ -193,4 +189,5 @@ function byAngle(circle) {
         return sb - sa;
     };
 }
+export { add2Prong };
 //# sourceMappingURL=add-2-prong.js.map

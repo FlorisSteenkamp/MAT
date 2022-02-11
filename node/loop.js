@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.loopFromBeziers = void 0;
 /**
  * @param beziers A pre-ordered array of bezier curves to add initially.
  */
@@ -34,5 +31,5 @@ function loopFromBeziers(beziers = []) {
     lastCurve.next = curves[0];
     return loop;
 }
-exports.loopFromBeziers = loopFromBeziers;
+export { loopFromBeziers };
 //# sourceMappingURL=loop.js.map

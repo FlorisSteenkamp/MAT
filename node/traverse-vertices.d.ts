@@ -1,4 +1,4 @@
-import { CpNode } from './cp-node';
+import { CpNode } from './cp-node.js';
 /**
  * Traverses the MAT tree and calls the given callback function for each vertex
  * (represented by a [[CpNode]]) on the MAT.

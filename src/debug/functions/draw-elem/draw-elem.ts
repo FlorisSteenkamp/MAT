@@ -1,22 +1,21 @@
-
-import { IDebugElems      } from '../../debug-elem-types';
-import { drawOneProng     } from './one-prong';
-import { twoProng         } from './two-prong';
-import { threeProng       } from './three-prong';
-import { vertex           } from './vertex';
-import { minY             } from './min-y';
-import { boundingHull     } from './bounding-hull';
-import { looseBoundingBox } from './loose-bounding-box';
-import { tightBoundingBox } from './tight-bounding-box';
-import { sharpCorner      } from './sharp-corner';
-import { dullCorner       } from './dull-corner';
-import { drawMat          } from './mat';
-import { loop             } from './loop';
-import { loops            } from './loops';
-import { maxVertex        } from './max-vertex';
-import { leaves           } from './leaves';
-import { culls            } from './culls';
-import { oneProngAtDullCorner } from './one-prong-at-dull-corner';
+import { IDebugElems      } from '../../debug-elem-types.js';
+import { drawOneProng     } from './one-prong.js';
+import { twoProng         } from './two-prong.js';
+import { threeProng       } from './three-prong.js';
+import { vertex           } from './vertex.js';
+import { minY             } from './min-y.js';
+import { boundingHull     } from './bounding-hull.js';
+import { looseBoundingBox } from './loose-bounding-box.js';
+import { tightBoundingBox } from './tight-bounding-box.js';
+import { sharpCorner      } from './sharp-corner.js';
+import { dullCorner       } from './dull-corner.js';
+import { drawMat          } from './mat.js';
+import { loop             } from './loop.js';
+import { loops            } from './loops.js';
+import { maxVertex        } from './max-vertex.js';
+import { leaves           } from './leaves.js';
+import { culls            } from './culls.js';
+import { oneProngAtDullCorner } from './one-prong-at-dull-corner.js';
 
 
 /** @hidden */

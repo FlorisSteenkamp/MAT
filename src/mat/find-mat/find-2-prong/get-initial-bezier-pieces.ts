@@ -1,11 +1,10 @@
-
-import LlRbTree from 'flo-ll-rb-tree';
-import { getNeighbouringPoints   } from '../../get-neighboring-cps';
-import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers';
-import { BezierPiece  } from '../../bezier-piece';
-import { Loop } from '../../../loop';
-import { CpNode } from '../../../cp-node';
-import { isPosDullCorner, IPointOnShape } from '../../../point-on-shape';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { getNeighbouringPoints } from '../../get-neighboring-cps.js';
+import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
+import { BezierPiece  } from '../../bezier-piece.js';
+import { Loop } from '../../../loop.js';
+import { CpNode } from '../../../cp-node.js';
+import { isPosDullCorner, IPointOnShape } from '../../../point-on-shape.js';
 
 
 /** @hidden */

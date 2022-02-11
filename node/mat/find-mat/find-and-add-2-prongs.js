@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.findAndAdd2Prongs = void 0;
-const get_shape_bounds_1 = require("../../svg/get-shape-bounds");
-const find_2_prong_1 = require("./find-2-prong/find-2-prong");
-const add_2_prong_1 = require("./add-2-prong");
+import { getShapeBounds } from '../../svg/get-shape-bounds.js';
+import { find2Prong } from './find-2-prong/find-2-prong.js';
+import { add2Prong } from './add-2-prong.js';
 /**
  * @hidden
  * Find and add two-prongs.
@@ -19,16 +16,16 @@ function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
     let index = indexLinear(len);
     //let index = indexInterlaced(len); // Keep for possible future use.
     let cpNode_;
-    let bounds = get_shape_bounds_1.getShapeBounds(loops);
-    let squaredDiagonalLength = Math.pow((bounds.maxX.p[0] - bounds.minX.p[0]), 2) +
-        Math.pow((bounds.maxY.p[1] - bounds.minY.p[1]), 2);
+    let bounds = getShapeBounds(loops);
+    let squaredDiagonalLength = (bounds.maxX.p[0] - bounds.minX.p[0]) ** 2 +
+        (bounds.maxY.p[1] - bounds.minY.p[1]) ** 2;
     for (let i = 0; i < len; i++) {
         let pos = for2Prongs[index[i]];
         let twoProngInfo;
-        twoProngInfo = find_2_prong_1.find2Prong(loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k);
+        twoProngInfo = find2Prong(loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k);
         if (twoProngInfo) {
             let { circle, zs } = twoProngInfo;
-            let cpNode = add_2_prong_1.add2Prong(cpGraphs, circle, pos, zs, false, extreme);
+            let cpNode = add2Prong(cpGraphs, circle, pos, zs, false, extreme);
             cpNode_ = cpNode_ || cpNode;
         }
         if (typeof _debug_ !== 'undefined') {
@@ -39,7 +36,6 @@ function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
     }
     return cpNode_;
 }
-exports.findAndAdd2Prongs = findAndAdd2Prongs;
 /**
  * @hidden
  * Simple linear array indexing.
@@ -75,4 +71,5 @@ function indexInterlaced(n) {
     }
     return arr;
 }
+export { findAndAdd2Prongs };
 //# sourceMappingURL=find-and-add-2-prongs.js.map

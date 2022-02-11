@@ -1,12 +1,11 @@
-
-import { generalDebugFunctions } from './functions/general';
-import { IGeneralDebugFunctions } from './functions/general'; 
-import { twoProngDebugFunctions } from './functions/two-prong';
-import { ITwoProngDebugFunctions } from './functions/two-prong';
-import { threeProngDebugFunctions } from './functions/three-prong';
-import { IThreeProngDebugFunctions } from './functions/three-prong';
-import { drawElemFunctions, TDrawElemFunctions } from './functions/draw-elem/draw-elem';
-import { IDebugElems } from './debug-elem-types';
+import { generalDebugFunctions } from './functions/general.js';
+import { IGeneralDebugFunctions } from './functions/general.js'; 
+import { twoProngDebugFunctions } from './functions/two-prong.js';
+import { ITwoProngDebugFunctions } from './functions/two-prong.js';
+import { threeProngDebugFunctions } from './functions/three-prong.js';
+import { IThreeProngDebugFunctions } from './functions/three-prong.js';
+import { drawElemFunctions, TDrawElemFunctions } from './functions/draw-elem/draw-elem.js';
+import { IDebugElems } from './debug-elem-types.js';
 
 
 /** @hidden */

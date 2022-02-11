@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.culls = void 0;
 /** @hidden */
 function culls(g, culls) {
     let $elems = [];
@@ -10,7 +7,6 @@ function culls(g, culls) {
     }
     return $elems;
 }
-exports.culls = culls;
 /** @hidden */
 function drawCircle(g, center, radiusPercent, classes) {
     const XMLNS = 'http://www.w3.org/2000/svg';
@@ -22,4 +18,5 @@ function drawCircle(g, center, radiusPercent, classes) {
     g.appendChild($circle);
     return $circle;
 }
+export { culls };
 //# sourceMappingURL=culls.js.map

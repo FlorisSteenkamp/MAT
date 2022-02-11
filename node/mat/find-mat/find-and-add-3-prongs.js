@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.findAndAddAll3Prongs = void 0;
-const point_on_shape_1 = require("../../point-on-shape");
-const find_3_prong_1 = require("./find-3-prong/find-3-prong");
-const add_3_prong_1 = require("../find-mat/add-3-prong");
+import { calcPosOrder, isPosSharpCorner } from '../../point-on-shape.js';
+import { find3Prong } from './find-3-prong/find-3-prong.js';
+import { add3Prong } from '../find-mat/add-3-prong.js';
 /**
  * @hidden
  * Finds and adds all 3-prongs.
@@ -22,7 +19,7 @@ function findAndAddAll3Prongs(cpGraphs, cpStart, extreme) {
         markEdgeAsTaken(visitedEdges, fromCpNode, cpStart);
         for (let cpNode of cpStart.getCpNodesOnCircle()) {
             //if (!PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
-            if (!point_on_shape_1.isPosSharpCorner(cpNode.cp.pointOnShape)) {
+            if (!isPosSharpCorner(cpNode.cp.pointOnShape)) {
                 if (findAndAdd3Prongs(cpGraphs, cpNode, extreme) === undefined) {
                     return; // only for debugging purposes
                 }
@@ -35,7 +32,6 @@ function findAndAddAll3Prongs(cpGraphs, cpStart, extreme) {
         }
     }
 }
-exports.findAndAddAll3Prongs = findAndAddAll3Prongs;
 /**
  * @hidden
  * Marks the given edge as already taken.
@@ -128,14 +124,14 @@ function findAndAdd3Prong(cpGraphs, visitedCps, extreme) {
     for (let visitedCp of visitedCps) {
         δs.push([visitedCp, visitedCp.next]);
     }
-    let threeProng = find_3_prong_1.find3Prong(δs, extreme);
+    let threeProng = find3Prong(δs, extreme);
     let orders = [];
     for (let i = 0; i < 3; i++) {
         orders.push(
         //PointOnShape.calcOrder(threeProng.circle, threeProng.ps[i])
-        point_on_shape_1.calcPosOrder(threeProng.circle, threeProng.ps[i]));
+        calcPosOrder(threeProng.circle, threeProng.ps[i]));
     }
-    let circle = add_3_prong_1.add3Prong(cpGraphs, orders, threeProng);
+    let circle = add3Prong(cpGraphs, orders, threeProng);
     if (typeof _debug_ !== 'undefined') {
         add3ProngDebugInfo(circle, visitedCps);
     }
@@ -148,4 +144,5 @@ function add3ProngDebugInfo(circle, visitedCps) {
     data.visitedCps = visitedCps;
     data.circle = circle;
 }
+export { findAndAddAll3Prongs };
 //# sourceMappingURL=find-and-add-3-prongs.js.map

@@ -1,4 +1,3 @@
-
 import { 
 	squaredDistanceBetweenPointAndLineSegment, squaredDistanceBetween 
 } from 'flo-vector2d';

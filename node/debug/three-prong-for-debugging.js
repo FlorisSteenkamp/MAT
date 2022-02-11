@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEmptyThreeProngForDebugging = void 0;
-const point_on_shape_1 = require("../point-on-shape");
+import { posToHumanString } from '../point-on-shape.js';
 function createEmptyThreeProngForDebugging() {
     return {
         generated: undefined,
@@ -16,9 +13,9 @@ function createEmptyThreeProngForDebugging() {
         traces: undefined,
     };
 }
-exports.createEmptyThreeProngForDebugging = createEmptyThreeProngForDebugging;
 function cpsSimple(threeProngForDebugging) {
-    return threeProngForDebugging.cpss.map(δ => [point_on_shape_1.posToHumanString(δ[0].cp.pointOnShape),
-        point_on_shape_1.posToHumanString(δ[1].cp.pointOnShape)]);
+    return threeProngForDebugging.cpss.map(δ => [posToHumanString(δ[0].cp.pointOnShape),
+        posToHumanString(δ[1].cp.pointOnShape)]);
 }
+export { createEmptyThreeProngForDebugging };
 //# sourceMappingURL=three-prong-for-debugging.js.map

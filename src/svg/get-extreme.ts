@@ -1,6 +1,5 @@
-
-import { Loop } from '../loop';
-import { getShapeBounds } from './get-shape-bounds';
+import { Loop } from '../loop.js';
+import { getShapeBounds } from './get-shape-bounds.js';
 
 
 /**

@@ -1,5 +1,4 @@
-
-import { Circle } from '../../../circle';
+import { Circle } from '../../../circle.js';
 
 
 /** @hidden */

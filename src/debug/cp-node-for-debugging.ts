@@ -1,6 +1,5 @@
-
-import { CpNode } from '../cp-node';
-import { Generated } from './debug';
+import { CpNode } from '../cp-node.js';
+import { Generated } from './debug.js';
 
 
 /**

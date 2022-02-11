@@ -1,4 +1,4 @@
-import { Curve } from '../curve';
+import { Curve } from '../curve.js';
 /**
  * @hidden
  * Represents a part of a bezier within the shape boundary.

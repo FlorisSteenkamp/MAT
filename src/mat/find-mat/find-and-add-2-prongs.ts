@@ -1,16 +1,15 @@
-
 /** @hidden */
 declare var _debug_: Debug;
 
-import { Debug } from '../../debug/debug';
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop";
-import { CpNode } from '../../cp-node';
-import { IPointOnShape } from '../../point-on-shape';
-import { getShapeBounds } from '../../svg/get-shape-bounds';
-import { Circle } from '../../circle';
-import { find2Prong } from './find-2-prong/find-2-prong';
-import { add2Prong } from './add-2-prong';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Debug } from '../../debug/debug.js';
+import { Loop } from '../../loop.js';
+import { CpNode } from '../../cp-node.js';
+import { IPointOnShape } from '../../point-on-shape.js';
+import { getShapeBounds } from '../../svg/get-shape-bounds.js';
+import { Circle } from '../../circle.js';
+import { find2Prong } from './find-2-prong/find-2-prong.js';
+import { add2Prong } from './add-2-prong.js';
 
 
 /**

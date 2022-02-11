@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.drawMat = void 0;
-const traverse_edges_1 = require("../../../traverse-edges");
-const flo_draw_1 = require("flo-draw");
-const get_curve_to_next_1 = require("../../../get-curve-to-next");
+import { drawFs } from 'flo-draw';
+import { traverseEdges } from '../../../traverse-edges.js';
+import { getCurveToNext } from '../../../get-curve-to-next.js';
 /** @hidden */
 function drawMat(type) {
     let classes = type === 'mat'
@@ -16,19 +13,19 @@ function drawMat(type) {
         }
         let $svgs = [];
         let i = 0;
-        traverse_edges_1.traverseEdges(cpNode, cpNode => {
+        traverseEdges(cpNode, cpNode => {
             if (cpNode.isTerminating()) {
                 return;
             }
-            let bezier = get_curve_to_next_1.getCurveToNext(cpNode);
+            let bezier = getCurveToNext(cpNode);
             if (!bezier) {
                 return;
             }
             i++;
-            $svgs.push(...flo_draw_1.drawFs.bezier(g, bezier, classes /*, i*500*/));
+            $svgs.push(...drawFs.bezier(g, bezier, classes /*, i*500*/));
         });
         return $svgs;
     };
 }
-exports.drawMat = drawMat;
+export { drawMat };
 //# sourceMappingURL=mat.js.map

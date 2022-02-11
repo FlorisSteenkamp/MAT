@@ -1,7 +1,5 @@
-
-import { CpNode } from '../../../cp-node';
-
-import { drawCirclePercent } from './draw-circle-percent';
+import { CpNode } from '../../../cp-node.js';
+import { drawCirclePercent } from './draw-circle-percent.js';
 
 
 /** @hidden */

@@ -1,11 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.simplifyMatMapOnly = void 0;
-const get_branches_1 = require("../get-branches");
-const flo_bezier3_1 = require("flo-bezier3");
-const get_curve_to_next_1 = require("../get-curve-to-next");
-const get_curve_between_1 = require("../get-curve/get-curve-between");
-const closest_point_on_bezier_1 = require("flo-bezier3/node/simultaneous-properties/closest-point-on-bezier/closest-point-on-bezier");
+import { closestPointOnBezier, hausdorffDistance, toCubic } from 'flo-bezier3';
+import { getBranches } from '../get-branches.js';
+import { getCurveToNext } from '../get-curve-to-next.js';
+import { getCurveBetween } from '../get-curve/get-curve-between.js';
 /**
  * Simplifies the given MAT by replacing the piecewise quad beziers composing
  * the MAT with fewer ones to within a given tolerance. Returns the map of
@@ -26,7 +22,7 @@ function simplifyMatMapOnly(cpNode, anlgeTolerance = 15, hausdorffTolerance = 1e
     while (!cpNode.isTerminating()) {
         cpNode = cpNode.next;
     }
-    let branches = get_branches_1.getBranches(cpNode, anlgeTolerance);
+    let branches = getBranches(cpNode, anlgeTolerance);
     let canDeletes = [];
     for (let k = 0; k < branches.length; k++) {
         let branch = branches[k];
@@ -53,12 +49,12 @@ function simplifyMatMapOnly(cpNode, anlgeTolerance = 15, hausdorffTolerance = 1e
             else {
                 let branStart = branch[i];
                 let branEnd = branch[j - 1];
-                let medial = flo_bezier3_1.toCubic(get_curve_between_1.getCurveBetween(branStart, branEnd.next));
+                let medial = toCubic(getCurveBetween(branStart, branEnd.next));
                 let rev = medial.slice().reverse();
                 let curCpNode = branStart;
                 let prevT = 0;
                 while (curCpNode !== branEnd) {
-                    let t = closest_point_on_bezier_1.closestPointOnBezier(medial, curCpNode.next.cp.circle.center).t;
+                    let t = closestPointOnBezier(medial, curCpNode.next.cp.circle.center).t;
                     simpleMap.set(curCpNode, { ps: medial, ts: [prevT, t] });
                     let oppositeCpNode = curCpNode.nextOnCircle.prev;
                     simpleMap.set(oppositeCpNode, { ps: rev, ts: [1 - t, 1 - prevT] });
@@ -73,13 +69,13 @@ function simplifyMatMapOnly(cpNode, anlgeTolerance = 15, hausdorffTolerance = 1e
     }
     return { simpleMap, cpNode };
 }
-exports.simplifyMatMapOnly = simplifyMatMapOnly;
 function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
     let hds = [];
-    let longCurve = get_curve_between_1.getCurveBetween(branch[i], branch[j].next);
+    let longCurve = getCurveBetween(branch[i], branch[j].next);
     for (let m = i; m < j + 1; m++) {
-        hds.push(flo_bezier3_1.hausdorffDistance(get_curve_to_next_1.getCurveToNext(branch[m]), longCurve, hausdorffSpacing));
+        hds.push(hausdorffDistance(getCurveToNext(branch[m]), longCurve, hausdorffSpacing));
     }
     return Math.max(...hds);
 }
+export { simplifyMatMapOnly };
 //# sourceMappingURL=simplify-mat-map-only.js.map

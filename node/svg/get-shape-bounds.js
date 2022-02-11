@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getShapeBounds = void 0;
-const flo_memoize_1 = require("flo-memoize");
-const get_loop_bounds_1 = require("./get-loop-bounds");
+import { memoize } from 'flo-memoize';
+import { getLoopBounds } from './get-loop-bounds.js';
 // TODO - move to another library
 /** @hidden */
-let getShapeBounds = flo_memoize_1.memoize(function (loops) {
+let getShapeBounds = memoize(function (loops) {
     let minX_ = Number.POSITIVE_INFINITY;
     let maxX_ = Number.NEGATIVE_INFINITY;
     let minY_ = Number.POSITIVE_INFINITY;
@@ -15,7 +12,7 @@ let getShapeBounds = flo_memoize_1.memoize(function (loops) {
     let minY;
     let maxY;
     for (let loop of loops) {
-        let bounds = get_loop_bounds_1.getLoopBounds(loop);
+        let bounds = getLoopBounds(loop);
         if (bounds.minX.p[0] < minX_) {
             minX = bounds.minX;
             minX_ = bounds.minX.p[0];
@@ -35,5 +32,5 @@ let getShapeBounds = flo_memoize_1.memoize(function (loops) {
     }
     return { minX, minY, maxX, maxY };
 });
-exports.getShapeBounds = getShapeBounds;
+export { getShapeBounds };
 //# sourceMappingURL=get-shape-bounds.js.map

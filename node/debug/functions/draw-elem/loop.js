@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.loop = void 0;
 // TODO - finish
 /** @hidden */
 function loop(g, loop) {
@@ -11,5 +8,5 @@ function loop(g, loop) {
     */
     return [];
 }
-exports.loop = loop;
+export { loop };
 //# sourceMappingURL=loop.js.map

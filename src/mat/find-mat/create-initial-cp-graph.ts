@@ -1,10 +1,8 @@
-
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop         } from '../../loop';
-import { Circle       } from '../../circle';
-import { CpNode       } from '../../cp-node';
-import { IPointOnShape } from '../../point-on-shape';
-import { ContactPoint } from '../../contact-point';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Loop } from '../../loop.js';
+import { CpNode } from '../../cp-node.js';
+import { IPointOnShape } from '../../point-on-shape.js';
+import { ContactPoint } from '../../contact-point.js';
 
 
 /**
@@ -24,7 +22,8 @@ function createInitialCpGraph(
     for (let k=0; k<sharpCornerss.length; k++) {
         let sharpCorners = sharpCornerss[k];
 
-        let cpTree = new LlRbTree(CpNode.comparator, [], true);
+        // qqq let cpTree = new LlRbTree(CpNode.comparator, [], true);
+        let cpTree = new LlRbTree(CpNode.comparator, false);
         
         let cpNode1 = undefined;
         let cpNode2 = undefined;

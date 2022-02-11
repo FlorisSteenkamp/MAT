@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCornerAtEnd = exports.getCorner = void 0;
-const flo_memoize_1 = require("flo-memoize");
-const flo_vector2d_1 = require("flo-vector2d");
-const flo_bezier3_1 = require("flo-bezier3");
+import { getInterfaceCcw } from 'flo-bezier3';
+import { memoize } from 'flo-memoize';
+import { cross, dot, toUnitVector } from 'flo-vector2d';
 /**
  * @hidden
  * Angle in degrees to radians.
@@ -34,7 +31,7 @@ const DEGREE_LIMIT = DEGREES[4];
 function getCorner(psI, psO) {
     // getInterfaceCcw must return a number !== 0 if psI and psO are not the
     // same as seen as a curve extension with t ∈ [-∞,+∞]
-    let ccw = flo_bezier3_1.getInterfaceCcw(psI, psO);
+    let ccw = getInterfaceCcw(psI, psO);
     let isSharp = ccw < 0;
     let isDull = ccw > 0;
     // Find (non-normalized) tangent of curve.ps at t === 1
@@ -51,15 +48,15 @@ function getCorner(psI, psO) {
     let tangentAtStart = [xS, yS];
     // These use square root and are thus not exact
     let tangents_ = [
-        flo_vector2d_1.toUnitVector(tangentAtEnd),
-        flo_vector2d_1.toUnitVector(tangentAtStart),
+        toUnitVector(tangentAtEnd),
+        toUnitVector(tangentAtStart),
     ];
     // The cross calculated below should be exact due to beziers having been
     // normalized!
-    let crossTangents = flo_vector2d_1.cross(tangents_[0], tangents_[1]);
+    let crossTangents = cross(tangents_[0], tangents_[1]);
     let isQuiteSharp;
     let isQuiteDull;
-    let dotTangents = flo_vector2d_1.dot(tangentAtEnd, tangentAtStart);
+    let dotTangents = dot(tangentAtEnd, tangentAtStart);
     if (dotTangents > 0) {
         // Curves go in same direction
         isQuiteSharp = crossTangents < -DEGREE_LIMIT;
@@ -78,16 +75,15 @@ function getCorner(psI, psO) {
         isQuiteDull
     };
 }
-exports.getCorner = getCorner;
 /**
  * @hidden
  * Returns information about the corner created at the end of this curve
  * (at t === 1) and the start of the next curve (at t === 0).
  */
-let getCornerAtEnd = flo_memoize_1.memoize(function (curve) {
+let getCornerAtEnd = memoize(function (curve) {
     let psE = curve.ps;
     let psS = curve.next.ps;
     return getCorner(psE, psS);
 });
-exports.getCornerAtEnd = getCornerAtEnd;
+export { getCorner, getCornerAtEnd };
 //# sourceMappingURL=curve.js.map

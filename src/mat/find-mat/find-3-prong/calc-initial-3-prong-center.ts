@@ -1,13 +1,8 @@
-
 /** @hidden */
-declare var _debug_: Debug;
-
-import { Debug } from '../../../debug/debug';
 import { circumCenter } from 'flo-vector2d';
-import { CpNode      } from '../../../cp-node';
-import { BezierPiece } from '../../bezier-piece';
-import { getClosestBoundaryPoint } from 
-    '../../closest-boundary-point/get-closest-boundary-point';
+import { CpNode      } from '../../../cp-node.js';
+import { BezierPiece } from '../../bezier-piece.js';
+import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 
 
 /**

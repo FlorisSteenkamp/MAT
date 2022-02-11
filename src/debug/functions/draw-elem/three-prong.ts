@@ -1,8 +1,6 @@
-
-import { ThreeProngForDebugging } from '../../three-prong-for-debugging';
-
-import { Circle, scaleCircle } from '../../../circle';
 import { drawFs } from 'flo-draw';
+import { ThreeProngForDebugging } from '../../three-prong-for-debugging.js';
+import { Circle, scaleCircle } from '../../../circle.js';
 
 
 /** @hidden */

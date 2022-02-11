@@ -1,6 +1,6 @@
-import { CpNode } from '../../../cp-node';
-import { Circle } from '../../../circle';
-import { IPointOnShape } from '../../../point-on-shape';
+import { CpNode } from '../../../cp-node.js';
+import { Circle } from '../../../circle.js';
+import { IPointOnShape } from '../../../point-on-shape.js';
 /**
  * @hidden
  * Find and return a 3-prong from the given boundary piece.

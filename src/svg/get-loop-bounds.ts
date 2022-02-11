@@ -1,8 +1,8 @@
 import { getBounds } from 'flo-bezier3';
-import { Loop } from '../loop';
-import { Curve } from '../curve';
-import { PointOnShape, IPointOnShape } from '../point-on-shape';
 import { memoize } from 'flo-memoize';
+import { Loop } from '../loop.js';
+import { Curve } from '../curve.js';
+import { PointOnShape, IPointOnShape } from '../point-on-shape.js';
 
 
 /** @hidden */

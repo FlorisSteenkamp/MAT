@@ -1,8 +1,6 @@
-
 import { getXY, toCubic, evalDeCasteljau } from 'flo-bezier3';
-
-import { IPointOnShape } from '../../../point-on-shape';
 import { drawFs } from 'flo-draw';
+import { IPointOnShape } from '../../../point-on-shape.js';
 
 
 /** @hidden */

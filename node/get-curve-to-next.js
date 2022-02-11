@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCurveToNext = void 0;
-const get_curve_between_1 = require("./get-curve/get-curve-between");
+import { getCurveBetween } from './get-curve/get-curve-between.js';
 /**
  * Returns the bezier curve from the maximal disk of the given [[CpNode]] to the
  * next [[CpNode]]'s maximal disk and thus directly represents a piece of the
@@ -9,7 +6,7 @@ const get_curve_between_1 = require("./get-curve/get-curve-between");
  * @param cpNode
  */
 function getCurveToNext(cpNode) {
-    return get_curve_between_1.getCurveBetween(cpNode, cpNode.next);
+    return getCurveBetween(cpNode, cpNode.next);
 }
-exports.getCurveToNext = getCurveToNext;
+export { getCurveToNext };
 //# sourceMappingURL=get-curve-to-next.js.map

@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBoundaryBezierPartsToNext = void 0;
 /**
  * Returns the ordered bezier curves from this CpNode to the next CpNode
  * on the boundary.
@@ -28,7 +25,6 @@ function getBoundaryBezierPartsToNext(cpNode) {
     }
     return bezierParts;
 }
-exports.getBoundaryBezierPartsToNext = getBoundaryBezierPartsToNext;
 /**
  * @hidden
  * Adds pieces of skipped beziers.
@@ -43,4 +39,5 @@ function addSkippedBeziers(bezierParts, curveStart, curveEnd, t1) {
         bezierParts.push(bezierPart);
     } while (curveThis !== curveEnd);
 }
+export { getBoundaryBezierPartsToNext };
 //# sourceMappingURL=get-boundary-bezier-parts-to-next.js.map

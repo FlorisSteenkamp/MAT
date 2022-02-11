@@ -1,8 +1,5 @@
-
-import { BezierPiece  } from '../../bezier-piece';
-
-import { getClosestBoundaryPoint } from 
-    '../../closest-boundary-point/get-closest-boundary-point';
+import { BezierPiece  } from '../../bezier-piece.js';
+import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 
 
 /**

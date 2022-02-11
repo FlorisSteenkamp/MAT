@@ -1,4 +1,4 @@
-import { Mat } from '../../mat';
+import { Mat } from '../../mat.js';
 /**
  * @hidden
  * @param sat

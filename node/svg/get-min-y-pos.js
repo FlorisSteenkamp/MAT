@@ -1,13 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMinYPos = void 0;
-const get_loop_bounds_1 = require("./get-loop-bounds");
+import { getLoopBounds } from './get-loop-bounds.js';
 /**
  * @hidden
  * Get topmost PointOnShape of the given loop.
  */
 function getMinYPos(loop) {
-    return get_loop_bounds_1.getLoopBounds(loop).minY;
+    return getLoopBounds(loop).minY;
 }
-exports.getMinYPos = getMinYPos;
+export { getMinYPos };
 //# sourceMappingURL=get-min-y-pos.js.map

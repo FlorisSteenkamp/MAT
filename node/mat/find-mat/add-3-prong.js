@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.add3Prong = void 0;
-const add_to_cp_graph_1 = require("../add-to-cp-graph");
-const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
+import { addToCpGraph } from '../add-to-cp-graph.js';
+import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 /**
  * @hidden
  * Adds a 3-prong MAT circle according to the 3 given (previously calculated)
@@ -48,11 +45,11 @@ function add3Prong(cpTrees, orders, threeProng) {
     }
     */
     // TODO - replace 1000 below with correct value
-    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
-    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
-    is_another_cp_closeby_1.isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
-    add_to_cp_graph_1.addToCpGraph(circle, orders, cpTrees, poss, δ3s);
+    isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
+    isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
+    isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
+    addToCpGraph(circle, orders, cpTrees, poss, δ3s);
     return circle;
 }
-exports.add3Prong = add3Prong;
+export { add3Prong };
 //# sourceMappingURL=add-3-prong.js.map

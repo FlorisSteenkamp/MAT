@@ -1,10 +1,7 @@
-
 import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
-
-import { IPointOnShape } from '../../../point-on-shape';
-import { BezierPiece  } from '../../bezier-piece';
-
-import { getClosestPoints } from './get-closest-points';
+import { IPointOnShape } from '../../../point-on-shape.js';
+import { BezierPiece  } from '../../bezier-piece.js';
+import { getClosestPoints } from './get-closest-points.js';
 
 
 /**

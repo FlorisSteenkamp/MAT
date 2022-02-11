@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.simplifyMat = void 0;
-const cp_node_1 = require("./cp-node");
-const get_branches_1 = require("./get-branches");
-const flo_bezier3_1 = require("flo-bezier3");
-const get_curve_to_next_1 = require("./get-curve-to-next");
-const get_curve_between_1 = require("./get-curve/get-curve-between");
+import { hausdorffDistance } from 'flo-bezier3';
+import { CpNode } from './cp-node.js';
+import { getBranches } from './get-branches.js';
+import { getCurveToNext } from './get-curve-to-next.js';
+import { getCurveBetween } from './get-curve/get-curve-between.js';
 /**
  * Simplifies the given MAT by replacing the piecewise quad beziers composing
  * the MAT with fewer ones to within a given tolerance.
@@ -24,7 +21,7 @@ function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdo
     while (!cpNode.isTerminating()) {
         cpNode = cpNode.next;
     }
-    let branches = get_branches_1.getBranches(cpNode, anlgeTolerance);
+    let branches = getBranches(cpNode, anlgeTolerance);
     let canDeletes = [];
     for (let k = 0; k < branches.length; k++) {
         let branch = branches[k];
@@ -57,18 +54,18 @@ function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdo
         if (isTerminating || onCircleCount !== 2) {
             continue;
         }
-        cp_node_1.CpNode.remove(cpNode);
+        CpNode.remove(cpNode);
     }
     //return { cpNode, cpTrees: createNewCpTree(cpNode) }; 
     return { cpNode, cpTrees: undefined };
 }
-exports.simplifyMat = simplifyMat;
 function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
     let hds = [];
-    let longCurve = get_curve_between_1.getCurveBetween(branch[i], branch[j].next);
+    let longCurve = getCurveBetween(branch[i], branch[j].next);
     for (; i < j + 1; i++) {
-        hds.push(flo_bezier3_1.hausdorffDistance(get_curve_to_next_1.getCurveToNext(branch[i]), longCurve, hausdorffSpacing));
+        hds.push(hausdorffDistance(getCurveToNext(branch[i]), longCurve, hausdorffSpacing));
     }
     return Math.max(...hds);
 }
+export { simplifyMat };
 //# sourceMappingURL=simplify-mat.js.map

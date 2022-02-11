@@ -1,9 +1,9 @@
-import { Debug }   from '../../debug/debug';
 import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
-import { Loop } from '../../loop';
-import { Curve, getCornerAtEnd } from '../../curve';
-import { Mat } from '../../mat';
-import { getBoundingBox_ } from '../../get-bounding-box-';
+import { Debug }   from '../../debug/debug.js';
+import { Loop } from '../../loop.js';
+import { Curve, getCornerAtEnd } from '../../curve.js';
+import { Mat } from '../../mat.js';
+import { getBoundingBox_ } from '../../get-bounding-box-.js';
 
 
 /** @hidden */

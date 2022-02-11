@@ -1,7 +1,7 @@
-
-import { CpNode } from './cp-node';
-import { Curve  } from './curve';
-import { fromTo, fromTTo1, from0ToT } from 'flo-bezier3';
+// qqq import { fromTo, fromTTo1, from0ToT } from 'flo-bezier3';
+import { fromTo } from 'flo-bezier3';
+import { CpNode } from './cp-node.js';
+import { Curve  } from './curve.js';
 
 
 /**
@@ -29,11 +29,13 @@ function getBoundaryBeziersToNext(cpNode: CpNode) {
 
     if (curveNext === curveThis) {
         beziers.push(
-            fromTo(posThis.curve.ps)(posThis.t, posNext.t)
+            // fromTo(posThis.curve.ps)(posThis.t, posNext.t)
+            fromTo(posThis.curve.ps, posThis.t, posNext.t).ps
         );
     } else {
         beziers.push(
-            fromTTo1(posThis.curve.ps, posThis.t)
+            // fromTTo1(posThis.curve.ps, posThis.t)
+            fromTo(posThis.curve.ps, posThis.t, 1).ps
         );
         
         addSkippedBeziers(
@@ -63,7 +65,8 @@ function addSkippedBeziers(
         curveThis = curveThis.next;
         let tEnd = curveThis === curveEnd ? t1 : 1;
         beziers.push( 
-            from0ToT(curveThis.ps, tEnd) 
+            // qqq from0ToT(curveThis.ps, tEnd) 
+            fromTo(curveThis.ps, 0, tEnd).ps
         );
     } while (curveThis !== curveEnd);
 }

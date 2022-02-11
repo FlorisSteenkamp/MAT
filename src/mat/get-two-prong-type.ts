@@ -1,6 +1,5 @@
-
-import { TwoProngForDebugging } from "../debug/two-prong-for-debugging";
-import { ElemType_TwoProng } from "./elem-type-two-prong";
+import { TwoProngForDebugging } from '../debug/two-prong-for-debugging.js';
+import { ElemType_TwoProng } from './elem-type-two-prong.js';
 
 
 /** @hidden */

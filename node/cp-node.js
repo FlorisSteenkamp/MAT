@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CpNode = void 0;
-const contact_point_1 = require("./contact-point");
-const remove_1 = require("./cp-node/remove");
-const get_curve_to_next_1 = require("./get-curve-to-next");
+import { compareCps } from './contact-point.js';
+import { removeCpNode } from './cp-node/remove.js';
+import { getCurveToNext } from './get-curve-to-next.js';
 /**
  * The primary class of the library.
  *
@@ -87,7 +84,7 @@ class CpNode {
      * @param cpNode
      */
     get matCurveToNextVertex() {
-        return get_curve_to_next_1.getCurveToNext(this);
+        return getCurveToNext(this);
     }
     /**
      * Returns the children of this [[CpNode]] when seen as a MAT edge. Only
@@ -218,8 +215,7 @@ class CpNode {
      *
      * This is always the case for sharp corners and maximal disks with
      * a single contact point. Note, however, that even in these cases there are
-     * two contact points stored (s
-     * itting 'on top' of each other) for the
+     * two contact points stored (sitting 'on top' of each other) for the
      * maximal disk. It can be seen as a limiting case of a two-prong where the
      * distance between two of the contact points tend to zero. One point
      * (represented by a [[CpNode]] of course) will be terminating with the
@@ -313,13 +309,13 @@ class CpNode {
         return this.getProngCount();
     }
 }
-exports.CpNode = CpNode;
 /**
  * Primarily for internal use.
  *
  * Compares the order of two [[CpNode]]s. The order is cyclic and depends
  * on a [[CpNode]]'s relative position along the shape boundary.
  */
-CpNode.comparator = (a, b) => contact_point_1.compareCps(a.cp, b.cp);
-CpNode.remove = remove_1.removeCpNode;
+CpNode.comparator = (a, b) => compareCps(a.cp, b.cp);
+CpNode.remove = removeCpNode;
+export { CpNode };
 //# sourceMappingURL=cp-node.js.map

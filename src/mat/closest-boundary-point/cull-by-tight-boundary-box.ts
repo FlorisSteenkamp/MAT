@@ -1,9 +1,7 @@
-
-import { BezierPiece } from "../bezier-piece";
-import { getClosestSquaredDistanceToRotatedRect } from 
-    '../geometry/get-closest-squared-distance-to-rotated-rect';
 import { getBoundingBoxTight } from "flo-bezier3";
 import { memoize } from "flo-memoize";
+import { BezierPiece } from "../bezier-piece.js";
+import { getClosestSquaredDistanceToRotatedRect } from '../geometry/get-closest-squared-distance-to-rotated-rect.js';
 
 
 const getBoundingBoxTight_ = memoize(getBoundingBoxTight);

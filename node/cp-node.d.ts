@@ -1,6 +1,6 @@
-import LlRbTree from 'flo-ll-rb-tree';
-import { ContactPoint } from './contact-point';
-import { removeCpNode } from './cp-node/remove';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { ContactPoint } from './contact-point.js';
+import { removeCpNode } from './cp-node/remove.js';
 /**
  * The primary class of the library.
  *
@@ -147,8 +147,7 @@ declare class CpNode {
      *
      * This is always the case for sharp corners and maximal disks with
      * a single contact point. Note, however, that even in these cases there are
-     * two contact points stored (s
-     * itting 'on top' of each other) for the
+     * two contact points stored (sitting 'on top' of each other) for the
      * maximal disk. It can be seen as a limiting case of a two-prong where the
      * distance between two of the contact points tend to zero. One point
      * (represented by a [[CpNode]] of course) will be terminating with the

@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTwoProngType = void 0;
 /** @hidden */
 function getTwoProngType(e) {
     if (e.holeClosing) {
@@ -8,5 +5,5 @@ function getTwoProngType(e) {
     }
     return 'twoProng_regular';
 }
-exports.getTwoProngType = getTwoProngType;
+export { getTwoProngType };
 //# sourceMappingURL=get-two-prong-type.js.map

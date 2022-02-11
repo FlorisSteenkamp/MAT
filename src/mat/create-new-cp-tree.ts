@@ -1,7 +1,6 @@
-
-import LlRbTree from 'flo-ll-rb-tree';
-import { CpNode } from '../cp-node';
-import { Loop } from '../loop';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { CpNode } from '../cp-node.js';
+import { Loop } from '../loop.js';
 
 
 /**
@@ -19,7 +18,8 @@ function createNewCpTree(cpNode: CpNode) {
 		let loop = cpNode.cp.pointOnShape.curve.loop;
 		let cpTree = newCpTrees.get(loop);
 		if (!cpTree) { 
-			cpTree = new LlRbTree(CpNode.comparator, [], true); 
+			// qqq cpTree = new LlRbTree(CpNode.comparator, [], true); 
+			cpTree = new LlRbTree(CpNode.comparator, false); 
 			newCpTrees.set(loop, cpTree);
 		}
 		cpTree.insert(cpNode);

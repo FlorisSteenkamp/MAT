@@ -1,12 +1,11 @@
-
 /** @hidden */
 declare var _debug_: Debug; 
 
-import { Debug } from './debug/debug';
-import LlRbTree from 'flo-ll-rb-tree';
-import { ContactPoint, compareCps } from './contact-point';
-import { removeCpNode } from './cp-node/remove';
-import { getCurveToNext } from './get-curve-to-next';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Debug } from './debug/debug.js';
+import { ContactPoint, compareCps } from './contact-point.js';
+import { removeCpNode } from './cp-node/remove.js';
+import { getCurveToNext } from './get-curve-to-next.js';
 
 
 /**

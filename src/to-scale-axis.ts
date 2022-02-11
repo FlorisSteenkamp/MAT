@@ -1,21 +1,20 @@
-
 /** @hidden */
 declare var _debug_: Debug;
 
-import { Debug } from './debug/debug';
 import { length } from 'flo-bezier3';
-import { CpNode } from './cp-node';
-import { Circle } from './circle';
-import { Mat } from './mat';
-import { traverseEdges } from './traverse-edges';
-import { traverseVertices } from './traverse-vertices';
-import { getLargestVertex } from './mat/get-largest-vertex';
-import { createNewCpTree } from './mat/create-new-cp-tree';
-import { getLeaves } from './mat/get-leaves';
-import { cull } from './mat/to-scale-axis/cull';
-import { addDebugInfo } from './mat/to-scale-axis/add-debug-info';
-import { clone } from './cp-node/clone';
-import { getCurveToNext } from './get-curve-to-next';
+import { Debug } from './debug/debug.js';
+import { CpNode } from './cp-node.js';
+import { Circle } from './circle.js';
+import { Mat } from './mat.js';
+import { traverseEdges } from './traverse-edges.js';
+import { traverseVertices } from './traverse-vertices.js';
+import { getLargestVertex } from './mat/get-largest-vertex.js';
+import { createNewCpTree } from './mat/create-new-cp-tree.js';
+import { getLeaves } from './mat/get-leaves.js';
+import { cull } from './mat/to-scale-axis/cull.js';
+import { addDebugInfo } from './mat/to-scale-axis/add-debug-info.js';
+import { clone } from './cp-node/clone.js';
+import { getCurveToNext } from './get-curve-to-next.js';
 
 
 function linearScale(s: number) {

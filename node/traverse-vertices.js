@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.traverseVertices = void 0;
 /**
  * Traverses the MAT tree and calls the given callback function for each vertex
  * (represented by a [[CpNode]]) on the MAT.
@@ -27,5 +24,5 @@ function traverseVertices(cpNode, f) {
         }
     }
 }
-exports.traverseVertices = traverseVertices;
+export { traverseVertices };
 //# sourceMappingURL=traverse-vertices.js.map

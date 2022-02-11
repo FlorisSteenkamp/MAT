@@ -1,11 +1,10 @@
-
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from '../loop';
-import { Circle } from '../circle';
-import { ContactPoint } from '../contact-point';
-import { IPointOnShape } from '../point-on-shape';
-import { CpNode } from '../cp-node';
-import { getNeighbouringPoints } from './get-neighboring-cps';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Loop } from '../loop.js';
+import { Circle } from '../circle.js';
+import { ContactPoint } from '../contact-point.js';
+import { IPointOnShape } from '../point-on-shape.js';
+import { CpNode } from '../cp-node.js';
+import { getNeighbouringPoints } from './get-neighboring-cps.js';
 
 
 /**

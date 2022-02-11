@@ -1,5 +1,4 @@
-
-import { CpNode } from "../cp-node";
+import { CpNode } from "../cp-node.js";
 
 
 /** @hidden */

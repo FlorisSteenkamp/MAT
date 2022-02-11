@@ -1,8 +1,8 @@
-import LlRbTree from 'flo-ll-rb-tree';
-import { CpNode } from '../../../cp-node';
-import { Loop } from '../../../loop';
-import { Circle } from '../../../circle';
-import { IPointOnShape } from '../../../point-on-shape';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { CpNode } from '../../../cp-node.js';
+import { Loop } from '../../../loop.js';
+import { Circle } from '../../../circle.js';
+import { IPointOnShape } from '../../../point-on-shape.js';
 /**
  * @hidden
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and

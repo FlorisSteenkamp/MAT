@@ -1,6 +1,5 @@
-
-import { comparePoss, IPointOnShape } from './point-on-shape';
-import { Circle } from './circle';
+import { comparePoss, IPointOnShape } from './point-on-shape.js';
+import { Circle } from './circle.js';
 
 
 /**

@@ -1,22 +1,19 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.toScaleAxis = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
-const traverse_edges_1 = require("./traverse-edges");
-const traverse_vertices_1 = require("./traverse-vertices");
-const get_largest_vertex_1 = require("./mat/get-largest-vertex");
-const get_leaves_1 = require("./mat/get-leaves");
-const cull_1 = require("./mat/to-scale-axis/cull");
-const add_debug_info_1 = require("./mat/to-scale-axis/add-debug-info");
-const clone_1 = require("./cp-node/clone");
-const get_curve_to_next_1 = require("./get-curve-to-next");
+import { length } from 'flo-bezier3';
+import { traverseEdges } from './traverse-edges.js';
+import { traverseVertices } from './traverse-vertices.js';
+import { getLargestVertex } from './mat/get-largest-vertex.js';
+import { getLeaves } from './mat/get-leaves.js';
+import { cull } from './mat/to-scale-axis/cull.js';
+import { addDebugInfo } from './mat/to-scale-axis/add-debug-info.js';
+import { clone } from './cp-node/clone.js';
+import { getCurveToNext } from './get-curve-to-next.js';
 function linearScale(s) {
     return function (r) {
         return s * r;
     };
 }
 /** @hidden */
-let len = flo_bezier3_1.length([0, 1]);
+//let len = length([0,1]);
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
  * the given MAT. The returned SAT is guaranteed to be a subset of the MAT and
@@ -32,13 +29,13 @@ let len = flo_bezier3_1.length([0, 1]);
 function toScaleAxis(mat, s, f = linearScale) {
     if (typeof _debug_ !== 'undefined') {
         var timingStart = performance.now();
-        let leaves = get_leaves_1.getLeaves(mat.cpNode);
+        let leaves = getLeaves(mat.cpNode);
         _debug_.generated.elems.leaves.push(leaves);
     }
     /** The largest vertex (as measured by its inscribed disk) */
     let cpNodes = [];
-    traverse_vertices_1.traverseVertices(clone_1.clone(mat.cpNode), cpNode => { cpNodes.push(cpNode); });
-    let cpNode = get_largest_vertex_1.getLargestVertex(cpNodes);
+    traverseVertices(clone(mat.cpNode), cpNode => { cpNodes.push(cpNode); });
+    let cpNode = getLargestVertex(cpNodes);
     let f_ = f(s);
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.maxVertex.push(cpNode);
@@ -49,11 +46,11 @@ function toScaleAxis(mat, s, f = linearScale) {
      */
     let culls = new Set();
     let rMap = new Map();
-    traverse_edges_1.traverseEdges(cpNode, function (cpNode) {
+    traverseEdges(cpNode, function (cpNode) {
         /** The occulating radius stored with this vertex. */
         let R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
         let cpNode_ = cpNode.next;
-        let l = len(get_curve_to_next_1.getCurveToNext(cpNode));
+        let l = length([0, 1], getCurveToNext(cpNode));
         let r = cpNode_.cp.circle.radius;
         let r_ = f_(r);
         if (R - l > r_) {
@@ -63,15 +60,15 @@ function toScaleAxis(mat, s, f = linearScale) {
             culls.add(cpNode_.cp.circle);
         }
     });
-    cull_1.cull(culls, cpNode);
+    cull(culls, cpNode);
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.culls.push(Array.from(culls));
     }
     // TODO - put line below back - goes into infinite loop
     //let sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
     let sat = { cpNode, cpTrees: undefined };
-    add_debug_info_1.addDebugInfo(sat, timingStart);
+    addDebugInfo(sat, timingStart);
     return sat;
 }
-exports.toScaleAxis = toScaleAxis;
+export { toScaleAxis };
 //# sourceMappingURL=to-scale-axis.js.map

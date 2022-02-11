@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.addDebugInfo = void 0;
-const get_two_prong_type_1 = require("../../get-two-prong-type");
+import { getTwoProngType } from '../../get-two-prong-type.js';
 /** @hidden */
 function addDebugInfo(bezierPieces, failed, pos, circle, z, δ, xs, holeClosing) {
     let twoProng = {
@@ -18,8 +15,8 @@ function addDebugInfo(bezierPieces, failed, pos, circle, z, δ, xs, holeClosing)
         deleted: false,
         cpNode: undefined
     };
-    let twoProngType = get_two_prong_type_1.getTwoProngType(twoProng);
+    let twoProngType = getTwoProngType(twoProng);
     _debug_.generated.elems[twoProngType].push(twoProng);
 }
-exports.addDebugInfo = addDebugInfo;
+export { addDebugInfo };
 //# sourceMappingURL=add-debug-info.js.map

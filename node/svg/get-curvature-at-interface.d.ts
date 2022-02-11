@@ -1,4 +1,4 @@
-import { Curve } from '../curve';
+import { Curve } from '../curve.js';
 /**
  * @hidden
  * Get the angle between the given bezier endpoint and the

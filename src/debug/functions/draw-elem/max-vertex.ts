@@ -1,6 +1,5 @@
-
-import { CpNode } from '../../../cp-node';
 import { drawFs } from 'flo-draw';
+import { CpNode } from '../../../cp-node.js';
 
 
 /** @hidden */

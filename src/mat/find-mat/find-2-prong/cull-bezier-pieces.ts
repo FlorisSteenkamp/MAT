@@ -1,6 +1,6 @@
-import { getClosestSquareDistanceToRect } from "../../geometry/get-closest-square-distance-to-rect";
-import { BezierPiece } from "../../bezier-piece";
-import { getBoundingBox_ } from "../../../get-bounding-box-";
+import { getClosestSquareDistanceToRect } from '../../geometry/get-closest-square-distance-to-rect.js';
+import { BezierPiece } from '../../bezier-piece.js';
+import { getBoundingBox_ } from '../../../get-bounding-box-.js';
 
 
 /**

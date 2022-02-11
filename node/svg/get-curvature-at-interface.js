@@ -1,9 +1,6 @@
-"use strict";
 // TODO - move to another library
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCurvatureAtInterface = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
-const flo_vector2d_1 = require("flo-vector2d");
+import { tangent } from 'flo-bezier3';
+import { dot, cross, toUnitVector } from 'flo-vector2d';
 /**
  * @hidden
  * Get the angle between the given bezier endpoint and the
@@ -17,17 +14,16 @@ function getCurvatureAtInterface(curve) {
         curve.next.ps
     ];
     let tans = [
-        flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(pss[0], 1)),
-        flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(pss[0], 0))
+        toUnitVector(tangent(pss[0], 1)),
+        toUnitVector(tangent(pss[0], 0))
     ];
     // The integral of a kind of Dirac Delta function.
-    let cosθ = flo_vector2d_1.dot(tans[0], tans[1]);
-    let sinθ = flo_vector2d_1.cross(tans[0], tans[1]);
+    let cosθ = dot(tans[0], tans[1]);
+    let sinθ = cross(tans[0], tans[1]);
     let θ = acos(cosθ);
     let result = sinθ >= 0 ? θ : -θ;
     return result;
 }
-exports.getCurvatureAtInterface = getCurvatureAtInterface;
 /**
  * @hidden
  * Floating-point 'safer' version of acos. If x is larger than 1 (or smaller
@@ -46,4 +42,5 @@ function acos(x) {
     }
     return Math.acos(x);
 }
+export { getCurvatureAtInterface };
 //# sourceMappingURL=get-curvature-at-interface.js.map

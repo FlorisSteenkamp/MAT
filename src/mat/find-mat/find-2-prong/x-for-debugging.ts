@@ -1,5 +1,4 @@
-
-import { IPointOnShape } from "../../../point-on-shape";
+import { IPointOnShape } from '../../../point-on-shape.js';
 
 
 /** @hidden */

@@ -1,5 +1,5 @@
-import { Loop } from '../../loop';
-import { IPointOnShape } from '../../point-on-shape';
+import { Loop } from '../../loop.js';
+import { IPointOnShape } from '../../point-on-shape.js';
 /**
  * @hidden
  * Get useful points on the shape - these incude points of maximum curvature and

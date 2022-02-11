@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.add1Prong = void 0;
-const point_on_shape_1 = require("../../point-on-shape");
-const add_to_cp_graph_1 = require("../add-to-cp-graph");
-const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
+import { getOsculatingCircle, calcPosOrder, isPosDullCorner } from '../../point-on-shape.js';
+import { addToCpGraph } from '../add-to-cp-graph.js';
+import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 /**
  * @hidden
  * Add a 1-prong to the MAT.
@@ -12,7 +9,7 @@ const is_another_cp_closeby_1 = require("../is-another-cp-closeby");
  */
 function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
     //if (PointOnShape.isDullCorner(pos)) {
-    if (point_on_shape_1.isPosDullCorner(pos)) {
+    if (isPosDullCorner(pos)) {
         // This is a 1-prong at a dull corner.
         // TODO IMPORTANT 
         // Remove this line, uncomment piece below it and implement the 
@@ -29,18 +26,18 @@ function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
         return;
     }
     //let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
-    let circle = point_on_shape_1.getOsculatingCircle(maxOsculatingCircleRadius, pos);
+    let circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
     //let order = PointOnShape.calcOrder(circle, pos);
-    let order = point_on_shape_1.calcPosOrder(circle, pos);
+    let order = calcPosOrder(circle, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
-    if (is_another_cp_closeby_1.isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {
+    if (isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {
         return;
     }
-    add_to_cp_graph_1.addToCpGraph(circle, [-0.5, +0.5], cpGraphs, [pos, pos]);
+    addToCpGraph(circle, [-0.5, +0.5], cpGraphs, [pos, pos]);
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.oneProng.push(pos);
     }
 }
-exports.add1Prong = add1Prong;
+export { add1Prong };
 //# sourceMappingURL=add-1-prong.js.map

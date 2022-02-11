@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEngulfedVertices = void 0;
-const circle_1 = require("../../circle");
-const calc_groups_1 = require("./calc-groups");
+import { scaleCircle, engulfsCircle } from '../../circle.js';
+import { calcGroups } from './calc-groups.js';
 /** @hidden */
 const width = 1620; // TODO change to actual shape coordinates
 /** @hidden */
@@ -16,7 +13,7 @@ const height = 1560; // ...
  * @param circle The circle potentially engulfing other nodes
  */
 function getEngulfedVertices(s, tree, circle) {
-    let c1 = circle_1.scaleCircle(circle, s);
+    let c1 = scaleCircle(circle, s);
     let cullNodes = new Set();
     let limits = [[0, width], [0, height]];
     f(tree, 0, limits, 0);
@@ -28,8 +25,8 @@ function getEngulfedVertices(s, tree, circle) {
         }
         let circles = t.circles;
         circles.forEach(function (circle, key) {
-            let c2 = circle_1.scaleCircle(circle, s);
-            if (circle_1.engulfsCircle(c1, c2)) {
+            let c2 = scaleCircle(circle, s);
+            if (engulfsCircle(c1, c2)) {
                 cullNodes.add(circle);
                 circles.delete(key);
             }
@@ -48,7 +45,7 @@ function getEngulfedVertices(s, tree, circle) {
             }
             return;
         }
-        let { groups, newLimits } = calc_groups_1.calcGroups(s, coordinate, limits, circle);
+        let { groups, newLimits } = calcGroups(s, coordinate, limits, circle);
         if (groups.length === 1) {
             cullBranch5(tree);
             let group = groups[0];
@@ -91,5 +88,5 @@ function getEngulfedVertices(s, tree, circle) {
         }
     }
 }
-exports.getEngulfedVertices = getEngulfedVertices;
+export { getEngulfedVertices };
 //# sourceMappingURL=get-engulfed-vertices.js.map

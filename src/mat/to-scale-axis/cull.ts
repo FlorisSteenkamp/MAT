@@ -1,7 +1,6 @@
-
-import { Circle } from '../../circle';
-import { getLeaves } from '../get-leaves';
-import { CpNode } from '../../cp-node';
+import { Circle } from '../../circle.js';
+import { getLeaves } from '../get-leaves.js';
+import { CpNode } from '../../cp-node.js';
 
 
 /**

@@ -1,7 +1,6 @@
-
 import { memoize } from 'flo-memoize';
-import { Loop } from '../loop';
-import { getLoopBounds } from './get-loop-bounds';
+import { Loop } from '../loop.js';
+import { getLoopBounds } from './get-loop-bounds.js';
 
 
 // TODO - move to another library

@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.areBoxesIntersecting = void 0;
 /**
  * @hidden
  * Returns true if the 2 given (closed) boxes intersect. At this stage we already
@@ -38,5 +35,5 @@ function areBoxesIntersecting(closed) {
                 by0 < ay1 && by1 > ay0);
     };
 }
-exports.areBoxesIntersecting = areBoxesIntersecting;
+export { areBoxesIntersecting };
 //# sourceMappingURL=are-boxes-intersecting.js.map

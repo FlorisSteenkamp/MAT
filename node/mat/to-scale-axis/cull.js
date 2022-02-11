@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.cull = void 0;
-const get_leaves_1 = require("../get-leaves");
-const cp_node_1 = require("../../cp-node");
+import { getLeaves } from '../get-leaves.js';
+import { CpNode } from '../../cp-node.js';
 /**
  * @hidden
  * Returns the set of Vertices passing the following test: walk the MAT tree and
@@ -12,7 +9,7 @@ const cp_node_1 = require("../../cp-node");
  * @param maxCpNode The start CpNode which must reprsesent the maximal vertex.
  */
 function cull(culls, maxCpNode) {
-    let leaves = get_leaves_1.getLeaves(maxCpNode);
+    let leaves = getLeaves(maxCpNode);
     function getNonTrivialEdges(cpStart) {
         let cp = cpStart;
         let cps = [];
@@ -42,7 +39,7 @@ function cull(culls, maxCpNode) {
                 // Cut off the edge once a non-cull has been reached.
                 cut = true;
             }
-            else if (cp_node_1.CpNode.isOnSameCircle(cpNode, maxCpNode)) {
+            else if (CpNode.isOnSameCircle(cpNode, maxCpNode)) {
                 cut = true; // We are at the max disk - cut whole edge
             }
             else {
@@ -62,5 +59,75 @@ function cull(culls, maxCpNode) {
         }
     }
 }
-exports.cull = cull;
+/*
+function cull(
+    culls: Set<Circle>,
+    maxCpNode: CpNode) {
+
+let leaves = getLeaves(maxCpNode);
+
+function getNonTrivialBranches(cpStart: CpNode) {
+    let cp = cpStart.next;
+    
+    let cps: CpNode[] = [];
+    do {
+        if (cp.next !== cp.nextOnCircle) {
+            cps.push(cp);
+        }
+        cp = cp.nextOnCircle;
+    } while (cp !== cpStart)
+
+    return cps;
+}
+
+while (leaves.length) {
+    let leaf = leaves.pop();
+
+    // Preserve topology.
+    if (leaf.isHoleClosing || leaf.isIntersection) { continue; }
+
+    if (!culls.has(leaf.cp.circle)) {
+        continue;
+    }
+
+    let cpNode = leaf.next; // Turn around
+
+    while (true) {
+        cpNode = cpNode.next;
+        let cut = false;
+        let cp1 = cpNode.prevOnCircle;
+
+        if (!culls.has(cpNode.cp.circle)) {
+            // Cut the branch once a non-cull has been reached.
+            cut = true;
+        } else {
+            //let cp2 = cp1.prevOnCircle;
+            let cp2 = cpNode.nextOnCircle;
+
+            //if (maxCpNode === cpNode || maxCpNode === cp1 || maxCpNode === cp2) {
+            if (CpNode.isOnSameCircle(cpNode, maxCpNode)) {
+                cut = true; // We are at the max disk - cut whole edge
+            } else if (cpNode.next === cp2) {
+                // Continue but starting from cp2
+                cpNode = cp2;
+            } else if (cp2.next === cp1) {
+                // Do nothing - ignore the branch starting from cp2 since it
+                // is terminating.
+            } else if (cp2.next !== cp1) {
+                // At this stage (cpNode.next !== cp2 && cp2.next !== cp1)
+                // so it is a bifurcation point - cut the edge.
+                cut = true;
+            }
+        }
+
+        if (cut) {
+            cp1.next = cpNode;
+            cpNode.prev = cp1;
+            break;
+        }
+    }
+}
+}
+*/
+export { cull };
 //# sourceMappingURL=cull.js.map

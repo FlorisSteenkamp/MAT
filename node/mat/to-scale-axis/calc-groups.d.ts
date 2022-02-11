@@ -1,4 +1,4 @@
-import { Circle } from '../../circle';
+import { Circle } from '../../circle.js';
 /**
  * @hidden
  * Spacially divide into 5 special groups as follows:

@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.twoProngDebugFunctions = void 0;
-const flo_draw_1 = require("flo-draw");
-const flo_vector2d_1 = require("flo-vector2d");
+import { drawFs } from 'flo-draw';
+import { getObjClosestTo, distanceBetween, squaredDistanceBetween } from 'flo-vector2d';
 /**
  * @hidden
  */
@@ -33,7 +30,7 @@ function drawNormal(g, n, showDelay = 1000, type = 'twoProng_regular') {
     if (!twoProng) {
         return;
     }
-    flo_draw_1.drawFs.line(g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue', showDelay);
+    drawFs.line(g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue', showDelay);
 }
 /**
  * @hidden
@@ -56,7 +53,7 @@ function logδBasic(n, type = 'twoProng_regular') {
 function logNearest(g, p, showDelay = 1000, type = 'twoProng_regular') {
     let closestPerLoops = [];
     let generated = _debug_.generated;
-    let twoProng = flo_vector2d_1.getObjClosestTo(p, generated.elems[type], twoProng => twoProng.circle.center);
+    let twoProng = getObjClosestTo(p, generated.elems[type], twoProng => twoProng.circle.center);
     closestPerLoops.push(twoProng);
     console.log(twoProng);
     let n;
@@ -88,7 +85,7 @@ function traceConvergence(g, n, finalOnly, showDelay = 1000, range = undefined, 
         x: x.x,
         y: x.y,
         z: x.z,
-        d: x.z ? flo_vector2d_1.squaredDistanceBetween(x.y.p, x.z.p) : 0,
+        d: x.z ? squaredDistanceBetween(x.y.p, x.z.p) : 0,
         t: x.t,
     })));
     for (let i = 0; i < xs.length; i++) {
@@ -99,11 +96,11 @@ function traceConvergence(g, n, finalOnly, showDelay = 1000, range = undefined, 
             continue;
         }
         let x = twoProngInfo.xs[i];
-        let circle = { center: x.x, radius: flo_vector2d_1.distanceBetween(x.x, x.y.p) };
-        flo_draw_1.drawFs.crossHair(g, x.x, 'red thin10 nofill', undefined, showDelay);
-        flo_draw_1.drawFs.circle(g, circle, 'blue thin10 nofill', showDelay);
+        let circle = { center: x.x, radius: distanceBetween(x.x, x.y.p) };
+        drawFs.crossHair(g, x.x, 'red thin10 nofill', undefined, showDelay);
+        drawFs.circle(g, circle, 'blue thin10 nofill', showDelay);
         if (x.z !== undefined) {
-            flo_draw_1.drawFs.crossHair(g, x.z.p, 'yellow thin10 nofill', 2, showDelay);
+            drawFs.crossHair(g, x.z.p, 'yellow thin10 nofill', 2, showDelay);
         }
     }
     twoProngDebugFunctions.drawNormal(g, n, showDelay);
@@ -117,5 +114,5 @@ let twoProngDebugFunctions = {
     traceConvergence,
     logNearest,
 };
-exports.twoProngDebugFunctions = twoProngDebugFunctions;
+export { twoProngDebugFunctions };
 //# sourceMappingURL=two-prong.js.map

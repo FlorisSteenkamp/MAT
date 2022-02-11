@@ -1,9 +1,8 @@
-
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from "../../loop";
-import { CpNode } from '../../cp-node';
-import { IPointOnShape } from '../../point-on-shape';
-import { findAndAdd2Prongs } from './find-and-add-2-prongs';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Loop } from '../../loop.js';
+import { CpNode } from '../../cp-node.js';
+import { IPointOnShape } from '../../point-on-shape.js';
+import { findAndAdd2Prongs } from './find-and-add-2-prongs.js';
 
 
 /** 

@@ -1,4 +1,4 @@
-import { BezierPiece } from "../bezier-piece";
+import { BezierPiece } from '../bezier-piece.js';
 /**
  * @hidden
  * @param bezierPieces

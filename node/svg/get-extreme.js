@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getExtreme = void 0;
-const get_shape_bounds_1 = require("./get-shape-bounds");
+import { getShapeBounds } from './get-shape-bounds.js';
 /**
  * @hidden
  * Returns the max extreme point coordinate value for the given shape. This is
@@ -9,8 +6,8 @@ const get_shape_bounds_1 = require("./get-shape-bounds");
  * @param loops
  */
 function getExtreme(loops) {
-    let bounds = get_shape_bounds_1.getShapeBounds(loops);
+    let bounds = getShapeBounds(loops);
     return Math.max(Math.abs(bounds.minX.p[0]), Math.abs(bounds.minY.p[1]), Math.abs(bounds.maxX.p[0]), Math.abs(bounds.maxY.p[1]));
 }
-exports.getExtreme = getExtreme;
+export { getExtreme };
 //# sourceMappingURL=get-extreme.js.map

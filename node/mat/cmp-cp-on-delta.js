@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.cmpCpOnδ = void 0;
-const contact_point_1 = require("../contact-point");
+import { compareCps } from '../contact-point.js';
 /**
  * @hidden
  * Note: For debugging only
@@ -18,9 +15,9 @@ function cmpCpOnδ(δ, cp) {
     }
     let cpBef = δ[0].cp;
     let cpAft = δ[1].cp;
-    let cmp = contact_point_1.compareCps(cpBef, cpAft);
-    let cmpPrev = contact_point_1.compareCps(cpBef, cp);
-    let cmpNext = contact_point_1.compareCps(cp, cpAft);
+    let cmp = compareCps(cpBef, cpAft);
+    let cmpPrev = compareCps(cpBef, cp);
+    let cmpNext = compareCps(cp, cpAft);
     if (cmp < 0) {
         if (cmpPrev > 0 || cmpNext > 0) {
             console.log(`2-PRONG (antipode) Order is wrong - cmpPrev and cmpNext should be > 0; cmp: ${cmp}, cmpPrev: ${cmpPrev}, cmpNext ${cmpNext}`);
@@ -41,5 +38,5 @@ function cmpCpOnδ(δ, cp) {
     }
     return 1;
 }
-exports.cmpCpOnδ = cmpCpOnδ;
+export { cmpCpOnδ };
 //# sourceMappingURL=cmp-cp-on-delta.js.map

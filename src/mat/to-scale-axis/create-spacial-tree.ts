@@ -1,7 +1,6 @@
-
-import { Circle } from '../../circle';
-import { TTree } from './t-tree';
-import { addToTree } from './add-to-tree';
+import { Circle } from '../../circle.js';
+import { TTree } from './t-tree.js';
+import { addToTree } from './add-to-tree.js';
 
 
 /** @hidden */

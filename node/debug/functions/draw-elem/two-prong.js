@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.twoProng = void 0;
-const get_two_prong_type_1 = require("../../../mat/get-two-prong-type");
-const flo_draw_1 = require("flo-draw");
+import { drawFs } from 'flo-draw';
+import { getTwoProngType } from '../../../mat/get-two-prong-type.js';
 /** @hidden */
 function twoProng(g, twoProng) {
     let scaleFactor = 0.3;
@@ -13,7 +10,7 @@ function twoProng(g, twoProng) {
     let $cp2 = [];
     let color;
     let thin;
-    switch (get_two_prong_type_1.getTwoProngType(twoProng)) {
+    switch (getTwoProngType(twoProng)) {
         case 'twoProng_regular': {
             color = 'red ';
             thin = '2';
@@ -26,15 +23,15 @@ function twoProng(g, twoProng) {
         }
     }
     if (twoProng.failed) {
-        $failedDot = flo_draw_1.drawFs.dot(g, twoProng.pos.p, 1 * scaleFactor, 'black');
+        $failedDot = drawFs.dot(g, twoProng.pos.p, 1 * scaleFactor, 'black');
     }
     else if (!twoProng.failed) {
-        $center = flo_draw_1.drawFs.dot(g, twoProng.circle.center, 1 * scaleFactor, 'yellow');
-        $circle = flo_draw_1.drawFs.circle(g, twoProng.circle, color + 'thin' + thin + ' nofill');
-        $cp1 = flo_draw_1.drawFs.dot(g, twoProng.pos.p, 0.035 * scaleFactor, color);
-        $cp2 = flo_draw_1.drawFs.dot(g, twoProng.z, 0.07 * scaleFactor, color);
+        $center = drawFs.dot(g, twoProng.circle.center, 1 * scaleFactor, 'yellow');
+        $circle = drawFs.circle(g, twoProng.circle, color + 'thin' + thin + ' nofill');
+        $cp1 = drawFs.dot(g, twoProng.pos.p, 0.035 * scaleFactor, color);
+        $cp2 = drawFs.dot(g, twoProng.z, 0.07 * scaleFactor, color);
     }
     return [...$failedDot, ...$center, ...$circle, ...$cp1, ...$cp2];
 }
-exports.twoProng = twoProng;
+export { twoProng };
 //# sourceMappingURL=two-prong.js.map

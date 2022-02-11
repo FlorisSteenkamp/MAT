@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLargestVertex = void 0;
 /** @hidden */
 function getLargestVertex(cpNodes) {
     return cpNodes.reduce(function (maxCpNode, cpNode) {
@@ -9,5 +6,5 @@ function getLargestVertex(cpNodes) {
             : cpNode;
     }, cpNodes[0]);
 }
-exports.getLargestVertex = getLargestVertex;
+export { getLargestVertex };
 //# sourceMappingURL=get-largest-vertex.js.map

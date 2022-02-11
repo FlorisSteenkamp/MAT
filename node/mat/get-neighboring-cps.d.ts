@@ -1,6 +1,6 @@
-import LlRbTree from 'flo-ll-rb-tree';
-import { IPointOnShape } from '../point-on-shape';
-import { CpNode } from '../cp-node';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { IPointOnShape } from '../point-on-shape.js';
+import { CpNode } from '../cp-node.js';
 /**
  * @hidden
  * Returns the boundary piece that starts at the immediate previous point on the

@@ -1,8 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.closestPointsOnCurve = void 0;
-const flo_poly_1 = require("flo-poly");
-const flo_bezier3_1 = require("flo-bezier3");
+// qqq import { deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
+// qqq import { getTangentPolyFromPointExact, evalDeCasteljau, evaluate, getFootpointPolyExact } from 'flo-bezier3';
+import { ddDeflate, allRootsCertified } from 'flo-poly';
+import { evaluate, getFootpointPolyDd } from 'flo-bezier3';
 /**
  * @hidden
  * @param curve The curve
@@ -12,13 +11,23 @@ const flo_bezier3_1 = require("flo-bezier3");
  * @param t The t value of the bezier that locates p
  */
 function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
-    let poly = flo_bezier3_1.getTangentPolyFromPointExact(curve.ps, p);
-    if (curve === touchedCurve) {
-        poly = flo_poly_1.deflateQuad(poly, t);
+    // qqq let poly = getTangentPolyFromPointExact(curve.ps, p);
+    const _poly = getFootpointPolyDd(curve.ps, p);
+    // qqq poly = deflateQuad(poly, t);
+    const poly = curve === touchedCurve
+        ? ddDeflate(_poly, t)
+        : _poly;
+    // let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
+    let roots;
+    try {
+        roots = allRootsCertified(poly, tS, tE);
     }
-    let roots = flo_poly_1.allRootsMultiWithErrBounds(poly, poly.map(c => 0), // because all coefficients are exact
-    undefined, // ...
-    tS, tE);
+    catch (e) {
+        console.log(_poly);
+        console.log(poly);
+        console.log(t);
+        throw e;
+    }
     // Also test the endpoints
     let push0 = true;
     let push1 = true;
@@ -64,10 +73,10 @@ function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
             ? 0
             : tE > 1 ? 1 : (tS + tE) / 2;
         // TODO - why does evalDeCasteljau not work here?
-        return { p: flo_bezier3_1.evaluate(curve.ps, t), t };
+        return { p: evaluate(curve.ps, t), t };
         //return { p: evalDeCasteljau(curve.ps,t), t }
     });
     return ps;
 }
-exports.closestPointsOnCurve = closestPointsOnCurve;
+export { closestPointsOnCurve };
 //# sourceMappingURL=closest-points-on-curve.js.map

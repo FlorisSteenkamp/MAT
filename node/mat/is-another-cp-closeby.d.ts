@@ -1,8 +1,8 @@
-import LlRbTree from "flo-ll-rb-tree";
-import { Loop } from "../loop";
-import { CpNode } from "../cp-node";
-import { IPointOnShape } from "../point-on-shape";
-import { Circle } from "../circle";
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Loop } from '../loop.js';
+import { CpNode } from '../cp-node.js';
+import { IPointOnShape } from '../point-on-shape.js';
+import { Circle } from '../circle.js';
 /**
  * @hidden
  * Returns true if another CpNode is close to the given implied (via pos, order

@@ -1,6 +1,5 @@
+import { Loop } from "../../../loop.js";
 
-
-import { Loop } from "../../../loop";
 
 // TODO - finish
 /** @hidden */

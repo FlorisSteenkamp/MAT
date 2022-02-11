@@ -1,4 +1,3 @@
-
 const max = Math.max;
 const abs = Math.abs;
 

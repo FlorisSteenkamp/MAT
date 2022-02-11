@@ -1,5 +1,5 @@
-import { CpNode } from '../../../cp-node';
-import { BezierPiece } from '../../bezier-piece';
+import { CpNode } from '../../../cp-node.js';
+import { BezierPiece } from '../../bezier-piece.js';
 /**
  * @hidden
  * Finds an initial 3-prong circle center point from which to iterate. The point

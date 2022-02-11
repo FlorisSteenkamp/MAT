@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEdgeDirection = void 0;
-const flo_vector2d_1 = require("flo-vector2d");
-const flo_bezier3_1 = require("flo-bezier3");
-const point_on_shape_1 = require("../point-on-shape");
+import { toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse, dot } from 'flo-vector2d';
+import { tangent } from 'flo-bezier3';
+import { isPosSharpCorner } from '../point-on-shape.js';
 /**
  * @hidden
  * Returns a line segment of unit length starting in the given Vertex center and
@@ -20,12 +17,12 @@ function getEdgeDirection(cpNode) {
     let p2 = pos2.p;
     let vDir;
     //if (!PointOnShape.isSharpCorner(pos1)) {
-    if (!point_on_shape_1.isPosSharpCorner(pos1)) {
+    if (!isPosSharpCorner(pos1)) {
         if (p1[0] === p2[0] && p1[1] === p2[1]) {
-            vDir = flo_vector2d_1.fromTo(p1, circleCenter); // A 1-prong
+            vDir = fromTo(p1, circleCenter); // A 1-prong
         }
         else {
-            vDir = flo_vector2d_1.rotate90Degrees(flo_vector2d_1.fromTo(p1, p2)); // not a 1-prong.
+            vDir = rotate90Degrees(fromTo(p1, p2)); // not a 1-prong.
         }
     }
     else {
@@ -40,18 +37,18 @@ function getEdgeDirection(cpNode) {
             curve1 = pos1.curve.next;
             curve2 = pos1.curve;
         }
-        let tan1 = flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(curve1.ps, 0));
-        let tan2 = flo_vector2d_1.reverse(flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(curve2.ps, 1)));
-        let x = flo_vector2d_1.dot(tan1, tan2);
+        let tan1 = toUnitVector(tangent(curve1.ps, 0));
+        let tan2 = reverse(toUnitVector(tangent(curve2.ps, 1)));
+        let x = dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
         // be calculated.
         let cosθ = Math.sqrt((1 + x) / 2);
         let sinθ = Math.sqrt((1 - x) / 2);
-        vDir = flo_vector2d_1.rotate(sinθ, cosθ, tan2);
+        vDir = rotate(sinθ, cosθ, tan2);
     }
-    let v = flo_vector2d_1.translate(flo_vector2d_1.toUnitVector(vDir), circleCenter);
+    let v = translate(toUnitVector(vDir), circleCenter);
     return [circleCenter, v];
 }
-exports.getEdgeDirection = getEdgeDirection;
+export { getEdgeDirection };
 //# sourceMappingURL=get-edge-direction.js.map

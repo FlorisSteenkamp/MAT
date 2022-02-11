@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInitialBezierPieces = void 0;
-const get_neighboring_cps_1 = require("../../get-neighboring-cps");
-const get_boundary_piece_beziers_1 = require("../../get-boundary-piece-beziers");
-const point_on_shape_1 = require("../../../point-on-shape");
+import { getNeighbouringPoints } from '../../get-neighboring-cps.js';
+import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
+import { isPosDullCorner } from '../../../point-on-shape.js';
 /** @hidden */
 function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
     let bezierPieces;
@@ -18,11 +15,11 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
     }
     else {
         //let order = PointOnShape.isDullCorner(y)
-        let order = point_on_shape_1.isPosDullCorner(y)
+        let order = isPosDullCorner(y)
             ? y.t === 1 ? -1 : +1
             : 0;
         let loop = loops[k];
-        let cpNode = get_neighboring_cps_1.getNeighbouringPoints(cpTrees.get(loop), y, order, 0)[0];
+        let cpNode = getNeighbouringPoints(cpTrees.get(loop), y, order, 0)[0];
         δ = [cpNode, cpNode];
         if (!cpNode ||
             // The special case if there is only a single sharp corner or 
@@ -32,10 +29,10 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
                 .map(curve => ({ curve, ts: [0, 1] }));
         }
         else {
-            bezierPieces = get_boundary_piece_beziers_1.getBoundaryPieceBeziers(δ);
+            bezierPieces = getBoundaryPieceBeziers(δ);
         }
     }
     return { bezierPieces, δ };
 }
-exports.getInitialBezierPieces = getInitialBezierPieces;
+export { getInitialBezierPieces };
 //# sourceMappingURL=get-initial-bezier-pieces.js.map

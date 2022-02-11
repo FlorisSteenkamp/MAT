@@ -1,9 +1,8 @@
-
-import { CpNode       } from '../cp-node';
-import { IPointOnShape } from '../point-on-shape';
-import { Circle       } from '../circle';
-import { BezierPiece  } from '../mat/bezier-piece';
-import { Generated    } from './debug';
+import { CpNode } from '../cp-node.js';
+import { IPointOnShape } from '../point-on-shape.js';
+import { Circle } from '../circle.js';
+import { BezierPiece } from '../mat/bezier-piece.js';
+import { Generated } from './debug.js';
 
 
 /** @hidden */

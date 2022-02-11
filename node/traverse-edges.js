@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.traverseEdges = void 0;
 /**
  * Traverses all edges (depth first) of the given MAT tree starting at the given
  * vertex (represented by a [[CpNode]]).
@@ -21,5 +18,5 @@ function traverseEdges(cpNode, f) {
         cps.push(...cp.getChildren());
     }
 }
-exports.traverseEdges = traverseEdges;
+export { traverseEdges };
 //# sourceMappingURL=traverse-edges.js.map

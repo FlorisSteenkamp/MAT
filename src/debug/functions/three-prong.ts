@@ -1,11 +1,10 @@
-
 /** @hidden */
 declare let _debug_: Debug; 
 
-import { Debug } from '../debug';
-import { equal, getObjClosestTo } from 'flo-vector2d';
-import { ThreeProngForDebugging } from '../three-prong-for-debugging';
 import { drawFs } from 'flo-draw';
+import { equal, getObjClosestTo } from 'flo-vector2d';
+import { Debug } from '../debug.js';
+import { ThreeProngForDebugging } from '../three-prong-for-debugging.js';
 
 
 /** @hidden */

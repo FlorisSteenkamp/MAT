@@ -1,10 +1,9 @@
-
 import { distanceBetween, getObjClosestTo } from 'flo-vector2d';
-import { Curve } from '../../curve';
-import { PointOnShape, IPointOnShape } from '../../point-on-shape';
-import { BezierPiece  } from '../bezier-piece';
-import { cullBezierPieces } from './cull-bezier-pieces';
-import { closestPointsOnCurve } from './closest-points-on-curve';
+import { Curve } from '../../curve.js';
+import { PointOnShape, IPointOnShape } from '../../point-on-shape.js';
+import { BezierPiece  } from '../bezier-piece.js';
+import { cullBezierPieces } from './cull-bezier-pieces.js';
+import { closestPointsOnCurve } from './closest-points-on-curve.js';
   
 
 /**

@@ -9,7 +9,7 @@
  * contain their border) or open.
  */
 function areBoxesIntersecting(closed: boolean) {
-    return (a: number[][], b: number[][]) => {
+    return (a: number[][], b: number[][]): boolean => {
 
         let [[ax0, ay0],[ax1, ay1]] = a;
         let [[bx0, by0],[bx1, by1]] = b;

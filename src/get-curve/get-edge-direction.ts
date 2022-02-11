@@ -1,12 +1,9 @@
-
 import { 
     toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse, dot
 } from 'flo-vector2d';
-
 import { tangent } from 'flo-bezier3';
-
-import { CpNode } from '../cp-node';
-import { isPosSharpCorner } from '../point-on-shape';
+import { CpNode } from '../cp-node.js';
+import { isPosSharpCorner } from '../point-on-shape.js';
 
 
 /**

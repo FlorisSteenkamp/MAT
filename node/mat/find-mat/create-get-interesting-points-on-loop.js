@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInterestingPointsOnLoop = void 0;
-const get_contact_circles_at_interface_1 = require("../get-contact-circles-at-interface");
-const flo_bezier3_1 = require("flo-bezier3");
-const point_on_shape_1 = require("../../point-on-shape");
+import { getCurvatureExtrema, splitByCurvatureAndLength, controlPointLinesLength } from 'flo-bezier3';
+import { getContactCirclesAtInterface } from '../get-contact-circles-at-interface.js';
+import { PointOnShape, comparePoss } from '../../point-on-shape.js';
 /**
  * @hidden
  * Get useful points on the shape - these incude points of maximum curvature and
@@ -16,24 +13,40 @@ function getInterestingPointsOnLoop(minBezLength, maxFlatness, maxLength) {
         let allPoints = [];
         for (let i = 0; i < loop.curves.length; i++) {
             let curve = loop.curves[i];
-            if (flo_bezier3_1.lengthSquaredUpperBound(curve.ps) < minBezLength) {
+            // qqq if (lengthSquaredUpperBound(curve.ps) < minBezLength) {
+            if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
             }
-            let { maxCurvatureTs, maxNegativeCurvatureTs } = flo_bezier3_1.getCurvatureExtrema(curve.ps);
-            let maxCurvatures = maxCurvatureTs.map(t => new point_on_shape_1.PointOnShape(curve, t));
-            let maxNegativeCurvatures = maxNegativeCurvatureTs.map(t => new point_on_shape_1.PointOnShape(curve, t));
-            allPoints.push(...get_contact_circles_at_interface_1.getContactCirclesAtInterface(curve), ...maxCurvatures, ...maxNegativeCurvatures);
-            let ts = flo_bezier3_1.splitByCurvatureAndLength(curve.ps, maxFlatness, maxLength);
+            /*
+            let { maxCurvatureTs, maxNegativeCurvatureTs } =
+                getCurvatureExtrema(curve.ps);
+            let maxCurvatures = maxCurvatureTs.map(t => new PointOnShape(curve, t));
+            let maxNegativeCurvatures = maxNegativeCurvatureTs.map(t => new PointOnShape(curve, t));
+
+            allPoints.push(
+                ...getContactCirclesAtInterface(curve),
+                ...maxCurvatures,
+                ...maxNegativeCurvatures
+            );
+            */
+            // let { maxima } = getCurvatureExtrema(curve.ps);
+            // qqq let { maxCurvatureTs, maxNegativeCurvatureTs } = getCurvatureExtrema(curve.ps);
+            let { maxima } = getCurvatureExtrema(curve.ps);
+            // let maxAbsCurvatures = maxima.map(t => new PointOnShape(curve, t));
+            // qqq let maxAbsCurvatures = [...maxCurvatureTs, ...maxNegativeCurvatureTs].map(t => new PointOnShape(curve, t));
+            let maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
+            allPoints.push(...getContactCirclesAtInterface(curve), ...maxAbsCurvatures);
+            let ts = splitByCurvatureAndLength(curve.ps, maxFlatness, maxLength);
             if (ts.length === 2) {
                 ts = [0, 0.5, 1];
             }
             for (let i = 1; i < ts.length - 1; i++) {
-                allPoints.push(new point_on_shape_1.PointOnShape(curve, ts[i]));
+                allPoints.push(new PointOnShape(curve, ts[i]));
             }
         }
-        allPoints.sort(point_on_shape_1.comparePoss);
+        allPoints.sort(comparePoss);
         return allPoints;
     };
 }
-exports.getInterestingPointsOnLoop = getInterestingPointsOnLoop;
+export { getInterestingPointsOnLoop };
 //# sourceMappingURL=create-get-interesting-points-on-loop.js.map

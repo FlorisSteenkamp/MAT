@@ -1,5 +1,5 @@
-import { Curve } from '../../curve';
-import { Loop } from '../../loop';
+import { Curve } from '../../curve.js';
+import { Loop } from '../../loop.js';
 /**
  * @hidden
  * Helper function.

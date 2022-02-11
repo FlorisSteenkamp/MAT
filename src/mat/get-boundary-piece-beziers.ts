@@ -1,9 +1,8 @@
-
-import { CpNode } from '../cp-node';
-import { Curve } from '../curve';
-import { BezierPiece } from './bezier-piece';
-import { isPosQuiteSharpCorner } from '../point-on-shape';
-import { compareCps } from '../contact-point';
+import { CpNode } from '../cp-node.js';
+import { Curve } from '../curve.js';
+import { BezierPiece } from './bezier-piece.js';
+import { isPosQuiteSharpCorner } from '../point-on-shape.js';
+import { compareCps } from '../contact-point.js';
 
 
 /**

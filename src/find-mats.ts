@@ -1,22 +1,21 @@
-
 /** @hidden */
 declare var _debug_: Debug; 
 
-import { Debug } from './debug/debug';
-import LlRbTree from 'flo-ll-rb-tree';
+import { LlRbTree } from 'flo-ll-rb-tree';
 import { simplifyPaths } from 'flo-boolean';
-import { CpNode } from './cp-node';
-import { Loop } from './loop';
-import { Mat } from './mat';
-import { findAndAddAll3Prongs } from './mat/find-mat/find-and-add-3-prongs';
-import { createInitialCpGraph } from './mat/find-mat/create-initial-cp-graph';;
-import { addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './mat/find-mat/add-debug-info';
-import { getPotential2Prongs } from './mat/find-mat/get-potential-2-prongs';
-import { getSharpCorners } from './mat/find-mat/get-sharp-corners';
-import { findAndAdd2ProngsOnAllPaths } from './mat/find-mat/find-and-add-2-prongs-on-all-paths';
-import { getInterestingPointsOnLoop } from './mat/find-mat/create-get-interesting-points-on-loop';
-import { findAndAddHoleClosing2Prongs } from './mat/find-mat/find-and-add-hole-closing-2-prongs';
-import { getLoopsMetrics } from './loop/get-max-coordinate';
+import { Debug } from './debug/debug.js';
+import { CpNode } from './cp-node.js';
+import { Loop } from './loop.js';
+import { Mat } from './mat.js';
+import { findAndAddAll3Prongs } from './mat/find-mat/find-and-add-3-prongs.js';
+import { createInitialCpGraph } from './mat/find-mat/create-initial-cp-graph.js';;
+import { addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './mat/find-mat/add-debug-info.js';
+import { getPotential2Prongs } from './mat/find-mat/get-potential-2-prongs.js';
+import { getSharpCorners } from './mat/find-mat/get-sharp-corners.js';
+import { findAndAdd2ProngsOnAllPaths } from './mat/find-mat/find-and-add-2-prongs-on-all-paths.js';
+import { getInterestingPointsOnLoop } from './mat/find-mat/create-get-interesting-points-on-loop.js';
+import { findAndAddHoleClosing2Prongs } from './mat/find-mat/find-and-add-hole-closing-2-prongs.js';
+import { getLoopsMetrics } from './loop/get-max-coordinate.js';
 
 
 /**

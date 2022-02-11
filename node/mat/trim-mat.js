@@ -1,20 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.trimMat = void 0;
-const create_new_cp_tree_1 = require("./create-new-cp-tree");
-const cull_non_cycles_1 = require("./to-scale-axis/cull-non-cycles");
-const clone_1 = require("../cp-node/clone");
+import { createNewCpTree } from './create-new-cp-tree.js';
+import { cullNonCycles } from './to-scale-axis/cull-non-cycles.js';
+import { clone } from '../cp-node/clone.js';
 /**
  * Trims the given Medial Axis Transform so that only cycles remain. Similar to
  * toScaleAxis(mat, Number.POSITIVE_INFINITY).
  * @param mat The MAT to trim.
  */
 function trimMat(mat) {
-    let cpNode = cull_non_cycles_1.cullNonCycles(clone_1.clone(mat.cpNode));
+    let cpNode = cullNonCycles(clone(mat.cpNode));
     if (!cpNode) {
         return undefined;
     }
-    return { cpNode, cpTrees: create_new_cp_tree_1.createNewCpTree(cpNode) };
+    return { cpNode, cpTrees: createNewCpTree(cpNode) };
 }
-exports.trimMat = trimMat;
+export { trimMat };
 //# sourceMappingURL=trim-mat.js.map

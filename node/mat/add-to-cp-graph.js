@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.addToCpGraph = void 0;
-const cp_node_1 = require("../cp-node");
-const get_neighboring_cps_1 = require("./get-neighboring-cps");
+import { CpNode } from '../cp-node.js';
+import { getNeighbouringPoints } from './get-neighboring-cps.js';
 /**
  * @hidden
  * @param circle
@@ -18,8 +15,8 @@ function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
         let newCp_ = { pointOnShape: pos, circle, order: orders[i], order2: 0 };
         let neighboringCp = neighbors
             ? neighbors[i]
-            : get_neighboring_cps_1.getNeighbouringPoints(cpTree, pos, orders[i], 0);
-        let newCp = cp_node_1.CpNode.insert(false, false, cpTree, newCp_, neighboringCp[0]);
+            : getNeighbouringPoints(cpTree, pos, orders[i], 0);
+        let newCp = CpNode.insert(false, false, cpTree, newCp_, neighboringCp[0]);
         return newCp;
     });
     let len = poss.length;
@@ -30,5 +27,5 @@ function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
         newCps[i].nextOnCircle = newCps[indxNext];
     }
 }
-exports.addToCpGraph = addToCpGraph;
+export { addToCpGraph };
 //# sourceMappingURL=add-to-cp-graph.js.map

@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCloseBoundaryPoints = void 0;
-const flo_vector2d_1 = require("flo-vector2d");
-const point_on_shape_1 = require("../../point-on-shape");
-const cull_bezier_pieces_1 = require("./cull-bezier-pieces");
-const closest_points_on_curve_1 = require("./closest-points-on-curve");
+import { distanceBetween } from 'flo-vector2d';
+import { PointOnShape } from '../../point-on-shape.js';
+import { cullBezierPieces } from './cull-bezier-pieces.js';
+import { closestPointsOnCurve } from './closest-points-on-curve.js';
 /**
  * @hidden
  * Returns the closest boundary point to the given point, limited to the given
@@ -19,18 +16,18 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
     let touchedCurve = y.curve;
     let t = y.t;
     let p_ = y.p;
-    bezierPieces = cull_bezier_pieces_1.cullBezierPieces(bezierPieces, point);
+    bezierPieces = cullBezierPieces(bezierPieces, point);
     // TODO - integrate with is-another-cp-closeby - we MUST check angle too!
     let DISTANCE_TOLERANCE = 1e-9;
     let posInfos = [];
     for (let i = 0; i < bezierPieces.length; i++) {
         let bezierPiece = bezierPieces[i];
         // TOOD - important - should be able to return multiple points
-        let ps = closest_points_on_curve_1.closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
+        let ps = closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
         //if (ps === undefined) { continue; }
         for (let j = 0; j < ps.length; j++) {
             let p = ps[j];
-            let d = flo_vector2d_1.distanceBetween(p.p, point);
+            let d = distanceBetween(p.p, point);
             let curve = bezierPiece.curve;
             let t_ = p.t;
             if (Math.abs(d - distance) < DISTANCE_TOLERANCE) {
@@ -38,7 +35,7 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
                     t_ = 1;
                     curve = bezierPiece.curve.prev;
                 }
-                posInfos.push({ pos: new point_on_shape_1.PointOnShape(curve, t_), d });
+                posInfos.push({ pos: new PointOnShape(curve, t_), d });
             }
         }
     }
@@ -80,5 +77,5 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
     }
     return posInfos;
 }
-exports.getCloseBoundaryPoints = getCloseBoundaryPoints;
+export { getCloseBoundaryPoints };
 //# sourceMappingURL=get-close-boundary-points.js.map

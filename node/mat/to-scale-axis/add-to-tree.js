@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.addToTree = void 0;
-const calc_groups_1 = require("./calc-groups");
+import { calcGroups } from './calc-groups.js';
 // DEPTH_LIMIT can be anything from 1 to 16, but from 2 to 6 seem to be the 
 // fastest.
 /** @hidden */
@@ -16,7 +13,7 @@ const DEPTH_LIMIT = 6;
  * @param depth
  */
 function addToTree(s, tree, coordinate, limits, circle, depth) {
-    let { groups, newLimits } = calc_groups_1.calcGroups(s, coordinate, limits, circle);
+    let { groups, newLimits } = calcGroups(s, coordinate, limits, circle);
     // Create new edge if it does not exist yet.
     if (groups.length === 1 && depth !== DEPTH_LIMIT) {
         let group = groups[0];
@@ -35,5 +32,5 @@ function addToTree(s, tree, coordinate, limits, circle, depth) {
     let vertices = tree.trees.get(5).circles;
     vertices.add(circle);
 }
-exports.addToTree = addToTree;
+export { addToTree };
 //# sourceMappingURL=add-to-tree.js.map

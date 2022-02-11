@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPotential2Prongs = void 0;
-const point_on_shape_1 = require("../../point-on-shape");
+import { isPosQuiteSharpCorner } from '../../point-on-shape.js';
 /** @hidden */
 function getPotential2Prongs(possPerLoop) {
     let for2ProngsArray = [];
     for (let poss of possPerLoop) {
         let for2Prongs = [];
         for (let pos of poss) {
-            if (!point_on_shape_1.isPosQuiteSharpCorner(pos)) {
+            if (!isPosQuiteSharpCorner(pos)) {
                 for2Prongs.push(pos);
             }
         }
@@ -16,5 +13,5 @@ function getPotential2Prongs(possPerLoop) {
     }
     return for2ProngsArray;
 }
-exports.getPotential2Prongs = getPotential2Prongs;
+export { getPotential2Prongs };
 //# sourceMappingURL=get-potential-2-prongs.js.map

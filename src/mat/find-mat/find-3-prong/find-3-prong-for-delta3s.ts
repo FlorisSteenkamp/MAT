@@ -1,22 +1,20 @@
-
 /** @hidden */
 declare var _debug_: Debug;
 
-import { Debug } from '../../../debug/debug';
 import { 
     fromTo, circumCenter, len, distanceBetween, toUnitVector, rotate90Degrees,
-    cross
+    cross 
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { CpNode } from '../../../cp-node';
-import { BezierPiece } from '../../bezier-piece';
-import { isPosDullCorner, IPointOnShape } from '../../../point-on-shape';
-import { getClosestBoundaryPoint } from 
-    '../../closest-boundary-point/get-closest-boundary-point';
-import { calcInitial3ProngCenter } from './calc-initial-3-prong-center';
-import { getClosestPoints } from './get-closest-points';
-import { calcBetterX } from './calc-better-x';
-import { Curve, getCornerAtEnd } from '../../../curve';
+import { Debug } from '../../../debug/debug.js';
+import { CpNode } from '../../../cp-node.js';
+import { BezierPiece } from '../../bezier-piece.js';
+import { isPosDullCorner, IPointOnShape } from '../../../point-on-shape.js';
+import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
+import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
+import { getClosestPoints } from './get-closest-points.js';
+import { calcBetterX } from './calc-better-x.js';
+import { Curve, getCornerAtEnd } from '../../../curve.js';
 
 
 /** @hidden */

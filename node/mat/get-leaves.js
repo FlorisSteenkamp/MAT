@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLeaves = void 0;
 /** @hidden */
 function getLeaves(cpNode) {
     let leaves = [];
@@ -12,5 +9,5 @@ function getLeaves(cpNode) {
     });
     return leaves;
 }
-exports.getLeaves = getLeaves;
+export { getLeaves };
 //# sourceMappingURL=get-leaves.js.map

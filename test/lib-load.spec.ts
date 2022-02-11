@@ -1,4 +1,3 @@
-
 import { describe } from 'mocha';
 import { assert, expect } from 'chai';
 import { findMats } from '../node/index.js';

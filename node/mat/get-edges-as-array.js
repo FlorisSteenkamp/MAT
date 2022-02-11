@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEdgesAsArray = void 0;
-const traverse_edges_1 = require("../traverse-edges");
+import { traverseEdges } from '../traverse-edges.js';
 /** @hidden */
 function getEdgesAsArray(cpNode) {
     let cpNodes = [];
-    traverse_edges_1.traverseEdges(cpNode, function (cpNode) { cpNodes.push(cpNode); });
+    traverseEdges(cpNode, function (cpNode) { cpNodes.push(cpNode); });
     return cpNodes;
 }
-exports.getEdgesAsArray = getEdgesAsArray;
+export { getEdgesAsArray };
 //# sourceMappingURL=get-edges-as-array.js.map

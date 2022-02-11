@@ -1,8 +1,7 @@
-
-import { CpNode } from './cp-node';
 import { tangent } from 'flo-bezier3';
 import { cross, toUnitVector } from 'flo-vector2d';
-import { getCurveToNext } from './get-curve-to-next';
+import { CpNode } from './cp-node.js';
+import { getCurveToNext } from './get-curve-to-next.js';
 
 
 /** @hidden */

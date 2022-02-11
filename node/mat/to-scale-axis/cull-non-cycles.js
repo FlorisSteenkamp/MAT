@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.cullNonCycles = void 0;
-const get_leaves_1 = require("../get-leaves");
-const cp_node_1 = require("../../cp-node");
+import { getLeaves } from '../get-leaves.js';
+import { CpNode } from '../../cp-node.js';
 /**
  * @hidden
  * Cull all edges not part of a cycle in the MAT planar graph.
@@ -11,7 +8,7 @@ const cp_node_1 = require("../../cp-node");
  */
 function cullNonCycles(cpStart) {
     let cpNodeKept = cpStart;
-    let leaves = get_leaves_1.getLeaves(cpStart);
+    let leaves = getLeaves(cpStart);
     while (leaves.length) {
         let leaf = leaves.pop();
         // Preserve topology - keep cycles.
@@ -27,7 +24,7 @@ function cullNonCycles(cpStart) {
                 //let cp2 = cp1.prevOnCircle;
                 let cp2 = cpNode.nextOnCircle;
                 //if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
-                if (cp_node_1.CpNode.isOnSameCircle(cpNode, cpStart)) {
+                if (CpNode.isOnSameCircle(cpNode, cpStart)) {
                     cut = true; // We are at the max disk - cut whole edge
                 }
                 else if (cpNode.next === cp2) {
@@ -51,5 +48,5 @@ function cullNonCycles(cpStart) {
     }
     return cpNodeKept;
 }
-exports.cullNonCycles = cullNonCycles;
+export { cullNonCycles };
 //# sourceMappingURL=cull-non-cycles.js.map

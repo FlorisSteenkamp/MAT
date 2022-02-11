@@ -1,5 +1,5 @@
-import { Curve } from '../curve';
-import { IPointOnShape } from '..';
+import { Curve } from '../curve.js';
+import { IPointOnShape } from '../point-on-shape.js';
 /**
  * @hidden
  * @param curve

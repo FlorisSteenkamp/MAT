@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLoopsMetrics = void 0;
 const max = Math.max;
 const abs = Math.abs;
 /**
@@ -43,5 +40,5 @@ function getLoopsMetrics(loops) {
     let maxRadius = max(width, height);
     return { maxCoordinate, maxRadius };
 }
-exports.getLoopsMetrics = getLoopsMetrics;
+export { getLoopsMetrics };
 //# sourceMappingURL=get-max-coordinate.js.map

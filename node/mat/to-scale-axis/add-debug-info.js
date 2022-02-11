@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.addDebugInfo = void 0;
 /**
  * @hidden
  * @param sat
@@ -13,5 +10,5 @@ function addDebugInfo(sat, timingStart) {
     let timing = _debug_.generated.timing;
     timing.sats = performance.now() - timingStart;
 }
-exports.addDebugInfo = addDebugInfo;
+export { addDebugInfo };
 //# sourceMappingURL=add-debug-info.js.map

@@ -1,4 +1,4 @@
-import { ElemType_TwoProng } from '../../mat/elem-type-two-prong';
+import { ElemType_TwoProng } from '../../mat/elem-type-two-prong.js';
 /** @hidden */
 interface ITwoProngDebugFunctions {
     logδ: (n: number, type?: ElemType_TwoProng) => void;

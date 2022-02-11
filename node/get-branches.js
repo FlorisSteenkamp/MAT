@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBranches = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
-const flo_vector2d_1 = require("flo-vector2d");
-const get_curve_to_next_1 = require("./get-curve-to-next");
+import { tangent } from 'flo-bezier3';
+import { cross, toUnitVector } from 'flo-vector2d';
+import { getCurveToNext } from './get-curve-to-next.js';
 /** @hidden */
 const defaultTolerance = 1; // 1 degree
 /**
@@ -53,9 +50,9 @@ function getBranches(cpNode, tolerance = defaultTolerance) {
             cps.push(...children);
             continue;
         }
-        let backPointingTan = flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(get_curve_to_next_1.getCurveToNext(cp.next.prevOnCircle), 0));
-        let forwardPointingTan = flo_vector2d_1.toUnitVector(flo_bezier3_1.tangent(get_curve_to_next_1.getCurveToNext(children[0]), 0));
-        let cross_ = flo_vector2d_1.cross(backPointingTan, forwardPointingTan);
+        let backPointingTan = toUnitVector(tangent(getCurveToNext(cp.next.prevOnCircle), 0));
+        let forwardPointingTan = toUnitVector(tangent(getCurveToNext(children[0]), 0));
+        let cross_ = cross(backPointingTan, forwardPointingTan);
         let angle = Math.abs(Math.asin(cross_) * (180 / Math.PI));
         if (angle > tolerance) {
             branches.push(branchCpNodes);
@@ -68,5 +65,5 @@ function getBranches(cpNode, tolerance = defaultTolerance) {
     }
     return branches;
 }
-exports.getBranches = getBranches;
+export { getBranches };
 //# sourceMappingURL=get-branches.js.map

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getClosestPoints = void 0;
-const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-closest-boundary-point");
+import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 /**
  * @hidden
  * @param x
@@ -10,11 +7,11 @@ const get_closest_boundary_point_1 = require("../../closest-boundary-point/get-c
  */
 function getClosestPoints(x, bezierPiece3s) {
     return bezierPiece3s.map(bezierPieces => {
-        let posInfo = get_closest_boundary_point_1.getClosestBoundaryPoint(bezierPieces, x, undefined, // curve
+        let posInfo = getClosestBoundaryPoint(bezierPieces, x, undefined, // curve
         undefined // t
         );
         return posInfo ? posInfo.pos : undefined;
     });
 }
-exports.getClosestPoints = getClosestPoints;
+export { getClosestPoints };
 //# sourceMappingURL=get-closest-points.js.map

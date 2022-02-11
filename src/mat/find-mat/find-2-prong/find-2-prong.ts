@@ -1,25 +1,24 @@
-
 /** @hidden */
 declare var _debug_: Debug;
 
-import { Debug } from '../../../debug/debug';
-import LlRbTree from 'flo-ll-rb-tree';
+import { LlRbTree } from 'flo-ll-rb-tree';
 import { lineLineIntersection, distanceBetween, squaredDistanceBetween, interpolate, dot } from 'flo-vector2d';
 import { evalDeCasteljau as evalDeCasteljau_ } from 'flo-bezier3';
+import { Debug } from '../../../debug/debug.js';
 import { getClosestBoundaryPoint } from 
-    '../../closest-boundary-point/get-closest-boundary-point';
-import { CpNode } from '../../../cp-node';
-import { Loop } from '../../../loop';
-import { Circle } from '../../../circle';
-import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape';
-import { BezierPiece } from '../../bezier-piece';
-import { add1Prong } from '../add-1-prong';
-import { addDebugInfo } from './add-debug-info';
-import { TXForDebugging } from './x-for-debugging';
-import { cullBezierPieces } from './cull-bezier-pieces';
-import { findEquidistantPointOnLine } from './find-equidistant-point-on-line';
-import { getInitialBezierPieces } from './get-initial-bezier-pieces';
-import { getCloseBoundaryPoints } from '../../closest-boundary-point/get-close-boundary-points';
+    '../../closest-boundary-point/get-closest-boundary-point.js';
+import { CpNode } from '../../../cp-node.js';
+import { Loop } from '../../../loop.js';
+import { Circle } from '../../../circle.js';
+import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape.js';
+import { BezierPiece } from '../../bezier-piece.js';
+import { add1Prong } from '../add-1-prong.js';
+import { addDebugInfo } from './add-debug-info.js';
+import { TXForDebugging } from './x-for-debugging.js';
+import { cullBezierPieces } from './cull-bezier-pieces.js';
+import { findEquidistantPointOnLine } from './find-equidistant-point-on-line.js';
+import { getInitialBezierPieces } from './get-initial-bezier-pieces.js';
+import { getCloseBoundaryPoints } from '../../closest-boundary-point/get-close-boundary-points.js';
 
 
 const evalDeCasteljau = evalDeCasteljau_;

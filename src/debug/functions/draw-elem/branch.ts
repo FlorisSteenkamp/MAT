@@ -1,7 +1,6 @@
-
 import { drawFs } from 'flo-draw';
-import { CpNode } from '../../../cp-node';
-import { getCurveToNext } from '../../../get-curve-to-next';
+import { CpNode } from '../../../cp-node.js';
+import { getCurveToNext } from '../../../get-curve-to-next.js';
 
 
 /** @hidden */

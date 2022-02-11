@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.calcGroups = void 0;
 /**
  * @hidden
  * Spacially divide into 5 special groups as follows:
@@ -62,5 +59,5 @@ function calcGroups(s, coordinate, limits, circle) {
     }
     return { groups, newLimits };
 }
-exports.calcGroups = calcGroups;
+export { calcGroups };
 //# sourceMappingURL=calc-groups.js.map

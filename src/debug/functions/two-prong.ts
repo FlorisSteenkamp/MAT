@@ -1,20 +1,12 @@
-
 declare let _debug_: Debug; 
 
 import { drawFs } from 'flo-draw';
-import { Debug, Generated } from '../debug';
-
-import { CpNode } from '../../cp-node';
-import { Circle } from '../../circle';
-
-import { 
-	getObjClosestTo, 
-	distanceBetween, 
-	squaredDistanceBetween 
-} from 'flo-vector2d';
-
-import { TwoProngForDebugging } from '../two-prong-for-debugging';
-import { ElemType_TwoProng } from '../../mat/elem-type-two-prong';
+import { getObjClosestTo, distanceBetween, squaredDistanceBetween } from 'flo-vector2d';
+import { Debug, Generated } from '../debug.js';
+import { CpNode } from '../../cp-node.js';
+import { Circle } from '../../circle.js';
+import { TwoProngForDebugging } from '../two-prong-for-debugging.js';
+import { ElemType_TwoProng } from '../../mat/elem-type-two-prong.js';
 
 
 /** @hidden */

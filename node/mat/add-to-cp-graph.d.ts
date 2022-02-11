@@ -1,8 +1,8 @@
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from '../loop';
-import { Circle } from '../circle';
-import { IPointOnShape } from '../point-on-shape';
-import { CpNode } from '../cp-node';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Loop } from '../loop.js';
+import { Circle } from '../circle.js';
+import { IPointOnShape } from '../point-on-shape.js';
+import { CpNode } from '../cp-node.js';
 /**
  * @hidden
  * @param circle

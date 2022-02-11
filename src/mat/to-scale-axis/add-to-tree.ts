@@ -1,7 +1,6 @@
-
-import { Circle } from '../../circle';
-import { calcGroups } from './calc-groups';
-import { TTree } from './t-tree';
+import { Circle } from '../../circle.js';
+import { calcGroups } from './calc-groups.js';
+import { TTree } from './t-tree.js';
 
 
 // DEPTH_LIMIT can be anything from 1 to 16, but from 2 to 6 seem to be the 

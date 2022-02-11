@@ -1,4 +1,4 @@
-import { IDebugElems } from '../../debug-elem-types';
+import { IDebugElems } from '../../debug-elem-types.js';
 /** @hidden */
 declare type TDrawElemFunctions = {
     [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T], classes?: string, delay?: number) => SVGElement[];

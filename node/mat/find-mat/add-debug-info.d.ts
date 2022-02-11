@@ -1,5 +1,5 @@
-import { Loop } from '../../loop';
-import { Mat } from '../../mat';
+import { Loop } from '../../loop.js';
+import { Mat } from '../../mat.js';
 /** @hidden */
 declare function addDebugInfo1(loops: Loop[]): void;
 /** @hidden */

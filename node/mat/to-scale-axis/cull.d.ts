@@ -1,5 +1,5 @@
-import { Circle } from '../../circle';
-import { CpNode } from '../../cp-node';
+import { Circle } from '../../circle.js';
+import { CpNode } from '../../cp-node.js';
 /**
  * @hidden
  * Returns the set of Vertices passing the following test: walk the MAT tree and

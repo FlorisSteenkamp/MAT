@@ -1,15 +1,14 @@
-
 /** @hidden */
 declare var _debug_: Debug; 
 
-import { Debug } from '../../../debug/debug';
 import { fromTo } from 'flo-bezier3';
-import { CpNode } from '../../../cp-node';
-import { Circle } from '../../../circle';
-import { IPointOnShape } from '../../../point-on-shape';
-import { ThreeProngForDebugging, createEmptyThreeProngForDebugging } from '../../../debug/three-prong-for-debugging';
-import { find3ProngForDelta3s } from './find-3-prong-for-delta3s';
-import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers';
+import { Debug } from '../../../debug/debug.js';
+import { CpNode } from '../../../cp-node.js';
+import { Circle } from '../../../circle.js';
+import { IPointOnShape } from '../../../point-on-shape.js';
+import { createEmptyThreeProngForDebugging } from '../../../debug/three-prong-for-debugging.js';
+import { find3ProngForDelta3s } from './find-3-prong-for-delta3s.js';
+import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
 
 
 /**
@@ -32,9 +31,15 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 			let boundary: number[][][] = [];
 			d.boundaries.push(boundary);
 			for (let bezierPiece of bezierPieces) {
+				/* qqq
 				let bezier = fromTo(bezierPiece.curve.ps)(
 					bezierPiece.ts[0], bezierPiece.ts[1]
 				);
+				*/
+				const bezier = fromTo(
+					bezierPiece.curve.ps,
+					bezierPiece.ts[0], bezierPiece.ts[1]
+				).ps;
 				boundary.push(bezier);
 			}
 		}

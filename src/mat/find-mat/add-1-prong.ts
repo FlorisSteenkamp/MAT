@@ -1,14 +1,13 @@
-
 /** @hidden */
 declare var _debug_: Debug; 
 
-import { Debug }   from '../../debug/debug';
-import LlRbTree from 'flo-ll-rb-tree';
-import { Loop } from '../../loop';
-import { getOsculatingCircle, calcPosOrder, isPosDullCorner, IPointOnShape } from '../../point-on-shape';
-import { CpNode } from '../../cp-node';
-import { addToCpGraph } from '../add-to-cp-graph';
-import { isAnotherCpCloseby } from '../is-another-cp-closeby';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Debug }   from '../../debug/debug.js';
+import { Loop } from '../../loop.js';
+import { getOsculatingCircle, calcPosOrder, isPosDullCorner, IPointOnShape } from '../../point-on-shape.js';
+import { CpNode } from '../../cp-node.js';
+import { addToCpGraph } from '../add-to-cp-graph.js';
+import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 
 
 /**

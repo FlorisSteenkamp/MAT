@@ -1,7 +1,6 @@
-
-import LlRbTree from 'flo-ll-rb-tree';
-import { IPointOnShape } from '../point-on-shape';
-import { CpNode } from '../cp-node';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { IPointOnShape } from '../point-on-shape.js';
+import { CpNode } from '../cp-node.js';
 
 
 /**
@@ -38,8 +37,8 @@ function getNeighbouringPoints(
     }
 
     return [
-        cps[0].data, 
-        cps[1].data
+        cps[0].datum, 
+        cps[1].datum
     ] as CpNode[];  
 }
 

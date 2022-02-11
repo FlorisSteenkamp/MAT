@@ -1,5 +1,4 @@
-
-import { IPointOnShape, isPosQuiteSharpCorner } from '../../point-on-shape';
+import { IPointOnShape, isPosQuiteSharpCorner } from '../../point-on-shape.js';
 
 
 /** @hidden */

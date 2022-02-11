@@ -1,6 +1,6 @@
-import { CpNode } from '../../../cp-node';
-import { BezierPiece } from '../../bezier-piece';
-import { IPointOnShape } from '../../../point-on-shape';
+import { CpNode } from '../../../cp-node.js';
+import { BezierPiece } from '../../bezier-piece.js';
+import { IPointOnShape } from '../../../point-on-shape.js';
 /**
  * @hidden
  * Finds a 3-prong using only the 3 given δs.

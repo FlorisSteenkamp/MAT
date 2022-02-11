@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.threeProngDebugFunctions = void 0;
-const flo_vector2d_1 = require("flo-vector2d");
-const flo_draw_1 = require("flo-draw");
+import { drawFs } from 'flo-draw';
+import { equal, getObjClosestTo } from 'flo-vector2d';
 /**
  * @hidden
  * Draws 3 lines from the given 3-prong center to its 3 contact points.
@@ -16,9 +13,9 @@ function drawSpokes(g, n) {
     //_debug_.fs.draw.line(g, [poss[0].p, cc], 'thin5 red');
     //_debug_.fs.draw.line(g, [poss[1].p, cc], 'thin5 red');
     //_debug_.fs.draw.line(g, [poss[2].p, cc], 'thin5 red');
-    flo_draw_1.drawFs.line(g, [poss[0].p, cc], 'thin5 red');
-    flo_draw_1.drawFs.line(g, [poss[1].p, cc], 'thin5 red');
-    flo_draw_1.drawFs.line(g, [poss[2].p, cc], 'thin5 red');
+    drawFs.line(g, [poss[0].p, cc], 'thin5 red');
+    drawFs.line(g, [poss[1].p, cc], 'thin5 red');
+    drawFs.line(g, [poss[2].p, cc], 'thin5 red');
 }
 /**
  * @hidden
@@ -68,12 +65,12 @@ function traceConvergence(g, n_, idx) {
         for (let i = startIndx; i < endIndx; i++) {
             let circle = candidateThreeProngs[i].circle;
             if (forDebugging.bestIndx === i) {
-                flo_draw_1.drawFs.dot(g, circle.center, 0.2, 'green');
-                flo_draw_1.drawFs.circle(g, circle, 'black thin10 nofill');
+                drawFs.dot(g, circle.center, 0.2, 'green');
+                drawFs.circle(g, circle, 'black thin10 nofill');
             }
             else {
-                flo_draw_1.drawFs.dot(g, circle.center, 0.2, 'cyan');
-                flo_draw_1.drawFs.circle(g, circle, 'cyan thin5 nofill');
+                drawFs.dot(g, circle.center, 0.2, 'cyan');
+                drawFs.circle(g, circle, 'cyan thin5 nofill');
             }
         }
     }
@@ -115,12 +112,12 @@ function showBoundary(g, n, idx) {
             let pS = posS.p;
             let pE = posE.p;
             let r = 1 + (i * 0.5);
-            if (flo_vector2d_1.equal(pS, pE)) {
-                flo_draw_1.drawFs.crossHair(g, pS, 'red thin10 nofill', r);
+            if (equal(pS, pE)) {
+                drawFs.crossHair(g, pS, 'red thin10 nofill', r);
             }
             else {
-                flo_draw_1.drawFs.crossHair(g, pS, 'green thin10 nofill', r);
-                flo_draw_1.drawFs.crossHair(g, pE, 'blue thin10 nofill', r);
+                drawFs.crossHair(g, pS, 'green thin10 nofill', r);
+                drawFs.crossHair(g, pE, 'blue thin10 nofill', r);
             }
         }
         j++;
@@ -141,7 +138,7 @@ function logδs(n) {
 function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) {
     return function (g, p, showDelay = 1000) {
         let generated = _debug_.generated;
-        let threeProng = flo_vector2d_1.getObjClosestTo(p, generated.elems.threeProng, threeProng => threeProng.circle ? threeProng.circle.center : [0, 0]);
+        let threeProng = getObjClosestTo(p, generated.elems.threeProng, threeProng => threeProng.circle ? threeProng.circle.center : [0, 0]);
         let circle = threeProng.circle;
         //let g = threeProng.generated.g;
         console.log(threeProng);
@@ -150,28 +147,28 @@ function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) 
             radius: circle.radius || 1
         };
         //let draw = _debug_.fs.draw;
-        flo_draw_1.drawFs.circle(g, circle2, 'blue thin10 nofill', showDelay);
-        flo_draw_1.drawFs.crossHair(g, circle.center, 'red thin2 nofill', 2, showDelay);
+        drawFs.circle(g, circle2, 'blue thin10 nofill', showDelay);
+        drawFs.crossHair(g, circle.center, 'red thin2 nofill', 2, showDelay);
         if (showSpokes) {
-            flo_draw_1.drawFs.line(g, [threeProng.poss[0].p, circle.center], 'blue thin5 nofill', showDelay);
-            flo_draw_1.drawFs.line(g, [threeProng.poss[1].p, circle.center], 'blue thin5 nofill', showDelay);
-            flo_draw_1.drawFs.line(g, [threeProng.poss[2].p, circle.center], 'blue thin5 nofill', showDelay);
+            drawFs.line(g, [threeProng.poss[0].p, circle.center], 'blue thin5 nofill', showDelay);
+            drawFs.line(g, [threeProng.poss[1].p, circle.center], 'blue thin5 nofill', showDelay);
+            drawFs.line(g, [threeProng.poss[2].p, circle.center], 'blue thin5 nofill', showDelay);
         }
         if (showBoundaries) {
             let boundaries = threeProng.boundaries;
             let boundaryS = boundaries[0];
             let boundaryE = boundaries[boundaries.length - 1];
-            flo_draw_1.drawFs.beziers(g, boundaryS, 'red thin20 nofill', showDelay);
+            drawFs.beziers(g, boundaryS, 'red thin20 nofill', showDelay);
             for (let i = 1; i < boundaries.length - 1; i++) {
                 let boundary = boundaries[i];
-                flo_draw_1.drawFs.beziers(g, boundary, 'green thin20 nofill', showDelay);
+                drawFs.beziers(g, boundary, 'green thin20 nofill', showDelay);
             }
-            flo_draw_1.drawFs.beziers(g, boundaryE, 'blue thin20 nofill', showDelay);
+            drawFs.beziers(g, boundaryE, 'blue thin20 nofill', showDelay);
         }
         if (showTrace) {
             let traces = threeProng.traces;
             for (let trace of traces) {
-                flo_draw_1.drawFs.polyline(g, trace, 'red thin5 nofill', showDelay);
+                drawFs.polyline(g, trace, 'red thin5 nofill', showDelay);
             }
         }
     };
@@ -184,5 +181,5 @@ let threeProngDebugFunctions = {
     logδs,
     logNearest
 };
-exports.threeProngDebugFunctions = threeProngDebugFunctions;
+export { threeProngDebugFunctions };
 //# sourceMappingURL=three-prong.js.map

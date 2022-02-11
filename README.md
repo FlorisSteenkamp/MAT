@@ -48,6 +48,17 @@ The implementation of the SAT is similar to the original ideas that can be found
 but it has been improved to preserve topology at any scale >= 1. It also guarantees that
 the SAT is a subset of the MAT.
 
+# ESM note
+This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
+and can be used in `Node.js` (or in a browser when bundled using e.g. Webpack).
+
+Additionally, self-contained `ECMAScript Module` (ESM) files `index.module.js` and
+`index.module.min.js` in the `./browser` folder is provided.
+
+Or, if you need a legacy browser script there is also `index.js`
+and `index.min.js` in the `./browser` folder. Either script exposes a global 
+variable.
+
 # Code example
 
 Note that the example code given here is in TypeScript since the types make the 

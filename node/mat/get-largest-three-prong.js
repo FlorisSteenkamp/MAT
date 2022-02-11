@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLargestThreeProng = void 0;
 /** @hidden */
 function getLargestThreeProng(cpNodes) {
     return cpNodes.reduce(function (maxCpNode, cpNode) {
@@ -9,5 +6,5 @@ function getLargestThreeProng(cpNodes) {
             : cpNode;
     }, undefined);
 }
-exports.getLargestThreeProng = getLargestThreeProng;
+export { getLargestThreeProng };
 //# sourceMappingURL=get-largest-three-prong.js.map

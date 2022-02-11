@@ -1,13 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.dullCorner = void 0;
-const flo_draw_1 = require("flo-draw");
+import { drawFs } from 'flo-draw';
 /** @hidden */
 function dullCorner(g, curve) {
     const scaleFactor = 1;
-    let p = curve.ps[3];
-    let $pos = flo_draw_1.drawFs.dot(g, p, 0.5 * scaleFactor, 'orange');
+    let ps = curve.ps;
+    let p = curve.ps[ps.length - 1];
+    let $pos = drawFs.dot(g, p, 0.5 * scaleFactor, 'orange');
     return $pos;
 }
-exports.dullCorner = dullCorner;
+export { dullCorner };
 //# sourceMappingURL=dull-corner.js.map

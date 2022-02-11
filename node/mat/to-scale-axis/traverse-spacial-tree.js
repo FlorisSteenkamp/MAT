@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.traverseSpacialTree = void 0;
 /**
  * @hidden
  * Traverses the spacial tree and calls the given callback function for each
@@ -21,5 +18,5 @@ function traverseSpacialTree(tree, f) {
         [5, 0, 2, 4, 1, 3].forEach(i => g(tree.trees.get(i)));
     }
 }
-exports.traverseSpacialTree = traverseSpacialTree;
+export { traverseSpacialTree };
 //# sourceMappingURL=traverse-spacial-tree.js.map

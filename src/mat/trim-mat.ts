@@ -1,8 +1,7 @@
-
-import { Mat } from '../mat';
-import { createNewCpTree } from './create-new-cp-tree';
-import { cullNonCycles } from './to-scale-axis/cull-non-cycles';
-import { clone } from '../cp-node/clone';
+import { Mat } from '../mat.js';
+import { createNewCpTree } from './create-new-cp-tree.js';
+import { cullNonCycles } from './to-scale-axis/cull-non-cycles.js';
+import { clone } from '../cp-node/clone.js';
 
 
 /**

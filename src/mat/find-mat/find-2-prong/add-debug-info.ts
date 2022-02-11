@@ -1,16 +1,15 @@
-
 /** @hidden */
 declare var _debug_: Debug; 
 
-import { Debug } from '../../../debug/debug';
-import { IPointOnShape } from "../../../point-on-shape";
-import { Circle } from "../../../circle";
-import { CpNode } from "../../../cp-node";
-import { BezierPiece } from '../../bezier-piece';
-import { TwoProngForDebugging } from "../../../debug/two-prong-for-debugging";
-import { getTwoProngType } from "../../get-two-prong-type";
-import { ElemType_TwoProng } from "../../elem-type-two-prong";
-import { TXForDebugging } from './x-for-debugging';
+import { Debug } from '../../../debug/debug.js';
+import { IPointOnShape } from '../../../point-on-shape.js';
+import { Circle } from '../../../circle.js';
+import { CpNode } from '../../../cp-node.js';
+import { BezierPiece } from '../../bezier-piece.js';
+import { TwoProngForDebugging } from '../../../debug/two-prong-for-debugging.js';
+import { getTwoProngType } from '../../get-two-prong-type.js';
+import { ElemType_TwoProng } from '../../elem-type-two-prong.js';
+import { TXForDebugging } from './x-for-debugging.js';
 
 
 /** @hidden */

@@ -1,4 +1,4 @@
-import { BezierPiece } from "../bezier-piece";
+import { BezierPiece } from "../bezier-piece.js";
 /**
  * @hidden
  * Finds an initial distance such that the closest point can not be further than

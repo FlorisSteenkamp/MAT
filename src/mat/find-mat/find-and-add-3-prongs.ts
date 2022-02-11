@@ -1,15 +1,14 @@
-
 /** @hidden */
 declare var _debug_: Debug; 
 
-import { Debug } from '../../debug/debug';
-import LlRbTree from 'flo-ll-rb-tree';
-import { CpNode } from '../../cp-node';
-import { Loop } from '../../loop';
-import { Circle } from '../../circle';
-import { calcPosOrder, isPosSharpCorner } from '../../point-on-shape';
-import { find3Prong } from './find-3-prong/find-3-prong';
-import { add3Prong  } from '../find-mat/add-3-prong';
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { Debug } from '../../debug/debug.js';
+import { CpNode } from '../../cp-node.js';
+import { Loop } from '../../loop.js';
+import { Circle } from '../../circle.js';
+import { calcPosOrder, isPosSharpCorner } from '../../point-on-shape.js';
+import { find3Prong } from './find-3-prong/find-3-prong.js';
+import { add3Prong  } from '../find-mat/add-3-prong.js';
 
 
 /**

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNeighbouringPoints = void 0;
-const cp_node_1 = require("../cp-node");
+import { CpNode } from '../cp-node.js';
 /**
  * @hidden
  * Returns the boundary piece that starts at the immediate previous point on the
@@ -12,7 +9,7 @@ const cp_node_1 = require("../cp-node");
  * @param order2
  */
 function getNeighbouringPoints(cpTree, pos, order, order2) {
-    let cps = cpTree.findBounds(new cp_node_1.CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false));
+    let cps = cpTree.findBounds(new CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false));
     if (!cps[0] && !cps[1]) {
         // The tree is still empty
         return [undefined, undefined];
@@ -26,9 +23,9 @@ function getNeighbouringPoints(cpTree, pos, order, order2) {
         ];
     }
     return [
-        cps[0].data,
-        cps[1].data
+        cps[0].datum,
+        cps[1].datum
     ];
 }
-exports.getNeighbouringPoints = getNeighbouringPoints;
+export { getNeighbouringPoints };
 //# sourceMappingURL=get-neighboring-cps.js.map

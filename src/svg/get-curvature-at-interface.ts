@@ -1,9 +1,7 @@
-
 // TODO - move to another library
-
 import { tangent } from 'flo-bezier3';
 import { dot, cross, toUnitVector } from 'flo-vector2d';
-import { Curve } from '../curve';
+import { Curve } from '../curve.js';
 
 
 /**

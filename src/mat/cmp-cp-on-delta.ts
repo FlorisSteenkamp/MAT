@@ -1,6 +1,5 @@
-
-import { CpNode       } from '../cp-node';
-import { ContactPoint, compareCps } from '../contact-point';
+import { CpNode } from '../cp-node.js';
+import { ContactPoint, compareCps } from '../contact-point.js';
 
 
 /**

@@ -1,11 +1,11 @@
-import { IPointOnShape } from "../point-on-shape";
-import { TwoProngForDebugging } from "./two-prong-for-debugging";
-import { ThreeProngForDebugging } from "./three-prong-for-debugging";
-import { Curve } from "../curve";
-import { Mat } from "../mat";
-import { CpNode } from "../cp-node";
-import { Circle } from "../circle";
-import { ICpNodeForDebugging } from "./cp-node-for-debugging";
+import { IPointOnShape } from '../point-on-shape.js';
+import { TwoProngForDebugging } from './two-prong-for-debugging.js';
+import { ThreeProngForDebugging } from './three-prong-for-debugging.js';
+import { Curve } from '../curve.js';
+import { Mat } from '../mat.js';
+import { CpNode } from '../cp-node.js';
+import { Circle } from '../circle.js';
+import { ICpNodeForDebugging } from './cp-node-for-debugging.js';
 /** @hidden */
 interface IDebugElems {
     oneProng: IPointOnShape;

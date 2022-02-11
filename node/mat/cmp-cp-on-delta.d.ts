@@ -1,5 +1,5 @@
-import { CpNode } from '../cp-node';
-import { ContactPoint } from '../contact-point';
+import { CpNode } from '../cp-node.js';
+import { ContactPoint } from '../contact-point.js';
 /**
  * @hidden
  * Note: For debugging only
@@ -10,5 +10,5 @@ import { ContactPoint } from '../contact-point';
  * @param δ The boundary piece
  * @param cp The contact point
  */
-declare function cmpCpOnδ(δ: CpNode[], cp: ContactPoint): 0 | 1 | -1;
+declare function cmpCpOnδ(δ: CpNode[], cp: ContactPoint): 1 | -1 | 0;
 export { cmpCpOnδ };

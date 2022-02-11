@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.findEquidistantPointOnLine = void 0;
 /**
  * @hidden
  * @param x
@@ -39,5 +36,5 @@ function findEquidistantPointOnLine(x, y, z) {
     let t2 = a * t1 + b;
     return swapAxes ? [t2, t1] : [t1, t2];
 }
-exports.findEquidistantPointOnLine = findEquidistantPointOnLine;
+export { findEquidistantPointOnLine };
 //# sourceMappingURL=find-equidistant-point-on-line.js.map

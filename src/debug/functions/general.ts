@@ -1,6 +1,5 @@
-
-import { CpNode } from '../../cp-node';
-import { posToHumanString } from '../../point-on-shape';
+import { CpNode } from '../../cp-node.js';
+import { posToHumanString } from '../../point-on-shape.js';
 
 
 /** @hidden */

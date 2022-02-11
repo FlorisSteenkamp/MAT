@@ -1,4 +1,4 @@
-import { Curve } from "../../curve";
+import { Curve } from "../../curve.js";
 /**
  * @hidden
  * @param curve The curve

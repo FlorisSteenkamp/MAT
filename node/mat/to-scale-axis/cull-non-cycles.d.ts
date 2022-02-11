@@ -1,4 +1,4 @@
-import { CpNode } from '../../cp-node';
+import { CpNode } from '../../cp-node.js';
 /**
  * @hidden
  * Cull all edges not part of a cycle in the MAT planar graph.

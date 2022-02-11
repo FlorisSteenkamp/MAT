@@ -1,10 +1,9 @@
-
 import { 
     fromTo, dot, cross, rotate90Degrees, interpolate, translate,
     lineLineIntersection
 } from 'flo-vector2d';
-import { CpNode } from '../cp-node';
-import { getEdgeDirection } from './get-edge-direction';
+import { CpNode } from '../cp-node.js';
+import { getEdgeDirection } from './get-edge-direction.js';
 
 
 /** @hidden */

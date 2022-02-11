@@ -1,5 +1,5 @@
-import { Loop } from './loop';
-import { Corner } from './mat/corner';
+import { Loop } from './loop.js';
+import { Corner } from './mat/corner.js';
 /**
  * Represents a bezier curve on the shape boundary / loop.
  */

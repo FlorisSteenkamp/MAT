@@ -1,5 +1,5 @@
-import { IPointOnShape } from '../../../point-on-shape';
-import { BezierPiece } from '../../bezier-piece';
+import { IPointOnShape } from '../../../point-on-shape.js';
+import { BezierPiece } from '../../bezier-piece.js';
 /**
  * @hidden
  * Find new x and ps that are a better estimate of the 3-prong circle.

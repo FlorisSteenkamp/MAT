@@ -1,6 +1,6 @@
+coverage/
 .nyc_output
 .npm-debug.log
 node_modules
 c.bat
 papers
-

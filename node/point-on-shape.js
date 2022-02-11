@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.isPosQuiteDullCorner = exports.isPosQuiteSharpCorner = exports.isPosDullCorner = exports.isPosSharpCorner = exports.posToHumanString = exports.calcPosOrder = exports.comparePoss = exports.getOsculatingCircle = exports.PointOnShape = void 0;
-const flo_vector2d_1 = require("flo-vector2d");
-const flo_memoize_1 = require("flo-memoize");
-const flo_bezier3_1 = require("flo-bezier3");
-const curve_1 = require("./curve");
+import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
+import { memoize } from 'flo-memoize';
+import { normal, κ as curvature, evalDeCasteljau } from 'flo-bezier3';
+import { getCornerAtEnd } from './curve.js';
 /**
  * Represents a point on the shape boundary for which MAT vertex information
  * has not *necessarily* been calculated.
@@ -26,11 +23,10 @@ class PointOnShape {
      */
     get p() {
         return this.p_ === undefined
-            ? this.p_ = flo_bezier3_1.evalDeCasteljau(this.curve.ps, this.t)
+            ? this.p_ = evalDeCasteljau(this.curve.ps, this.t)
             : this.p_;
     }
 }
-exports.PointOnShape = PointOnShape;
 /**
  * @hidden
  */
@@ -41,48 +37,44 @@ function isPosCorner(pos) {
  * @hidden
  */
 function getPosCorner(pos) {
-    return curve_1.getCornerAtEnd(pos.t === 1 ? pos.curve : pos.curve.prev);
+    return getCornerAtEnd(pos.t === 1 ? pos.curve : pos.curve.prev);
 }
 /**
  * @hidden
  */
-let isPosSharpCorner = flo_memoize_1.memoize((pos) => {
+let isPosSharpCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
     return getPosCorner(pos).isSharp;
 });
-exports.isPosSharpCorner = isPosSharpCorner;
 /**
  * @hidden
  */
-let isPosDullCorner = flo_memoize_1.memoize((pos) => {
+let isPosDullCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
     return getPosCorner(pos).isDull;
 });
-exports.isPosDullCorner = isPosDullCorner;
 /**
  * @hidden
  */
-let isPosQuiteSharpCorner = flo_memoize_1.memoize((pos) => {
+let isPosQuiteSharpCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
     return getPosCorner(pos).isQuiteSharp;
 });
-exports.isPosQuiteSharpCorner = isPosQuiteSharpCorner;
 /**
  * @hidden
  */
-let isPosQuiteDullCorner = flo_memoize_1.memoize((pos) => {
+let isPosQuiteDullCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
     return getPosCorner(pos).isQuiteDull;
 });
-exports.isPosQuiteDullCorner = isPosQuiteDullCorner;
 /**
  * Returns a human-readable string of the given [[PointOnShape]].
  * For debugging only.
@@ -93,7 +85,6 @@ function posToHumanString(pos) {
         ' | bz: ' + pos.curve.idx +
         ' | t: ' + pos.t;
 }
-exports.posToHumanString = posToHumanString;
 /**
  * @hidden
  * Calculates the order (to distinguish between points lying on top of each
@@ -109,11 +100,10 @@ function calcPosOrder(circle, pos) {
     }
     //if (!isPosDullCorner(pos)) { return 0; }
     let corner = getPosCorner(pos);
-    let n = flo_vector2d_1.rotateNeg90Degrees(corner.tangents[0]);
-    let v = flo_vector2d_1.toUnitVector(flo_vector2d_1.fromTo(pos.p, circle.center));
-    return -flo_vector2d_1.dot(n, v);
+    let n = rotateNeg90Degrees(corner.tangents[0]);
+    let v = toUnitVector(fromTo(pos.p, circle.center));
+    return -dot(n, v);
 }
-exports.calcPosOrder = calcPosOrder;
 /**
  * Compares two [[PointOnShape]]s according to their cyclic ordering imposed
  * by their relative positions on the shape boundary.
@@ -133,7 +123,6 @@ function comparePoss(a, b) {
     res = a.t - b.t;
     return res;
 }
-exports.comparePoss = comparePoss;
 /**
  * Calculates and returns the osculating circle radius of the bezier at a
  * specific t. If it is found to have negative or nearly zero radius
@@ -142,10 +131,10 @@ exports.comparePoss = comparePoss;
  * @param t
  * @hidden
  */
-let calcOsculatingCircleRadius = flo_memoize_1.memoize((pos) => {
+let calcOsculatingCircleRadius = memoize((pos) => {
     let ps = pos.curve.ps;
     let t = pos.t;
-    let κ = -flo_bezier3_1.κ(ps, t);
+    let κ = -curvature(ps, t);
     // κ > 0 => bending inwards
     return 1 / κ;
 });
@@ -167,13 +156,13 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos) {
     radius = Math.min(radius, maxOsculatingCircleRadius);
     let ps = pos.curve.ps;
     let t = pos.t;
-    let normal_ = flo_vector2d_1.toUnitVector(flo_bezier3_1.normal(ps, t));
-    let p = flo_bezier3_1.evalDeCasteljau(ps, t);
+    let normal_ = toUnitVector(normal(ps, t));
+    let p = evalDeCasteljau(ps, t);
     let circleCenter = [
         p[0] + normal_[0] * radius,
         p[1] + normal_[1] * radius
     ];
     return { center: circleCenter, radius };
 }
-exports.getOsculatingCircle = getOsculatingCircle;
+export { PointOnShape, getOsculatingCircle, comparePoss, calcPosOrder, posToHumanString, isPosSharpCorner, isPosDullCorner, isPosQuiteSharpCorner, isPosQuiteDullCorner };
 //# sourceMappingURL=point-on-shape.js.map

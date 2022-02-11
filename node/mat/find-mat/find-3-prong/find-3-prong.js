@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.find3Prong = void 0;
-const flo_bezier3_1 = require("flo-bezier3");
-const three_prong_for_debugging_1 = require("../../../debug/three-prong-for-debugging");
-const find_3_prong_for_delta3s_1 = require("./find-3-prong-for-delta3s");
-const get_boundary_piece_beziers_1 = require("../../get-boundary-piece-beziers");
+import { fromTo } from 'flo-bezier3';
+import { createEmptyThreeProngForDebugging } from '../../../debug/three-prong-for-debugging.js';
+import { find3ProngForDelta3s } from './find-3-prong-for-delta3s.js';
+import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
 /**
  * @hidden
  * Find and return a 3-prong from the given boundary piece.
@@ -13,17 +10,22 @@ const get_boundary_piece_beziers_1 = require("../../get-boundary-piece-beziers")
  * tolerances.
  */
 function find3Prong(δs, extreme) {
-    let bezierPiecess = δs.map(get_boundary_piece_beziers_1.getBoundaryPieceBeziers);
+    let bezierPiecess = δs.map(getBoundaryPieceBeziers);
     if (typeof _debug_ !== 'undefined') {
         let threeProngs = _debug_.generated.elems.threeProng;
-        threeProngs.push(three_prong_for_debugging_1.createEmptyThreeProngForDebugging());
+        threeProngs.push(createEmptyThreeProngForDebugging());
         let d = threeProngs[threeProngs.length - 1];
         d.boundaries = [];
         for (let bezierPieces of bezierPiecess) {
             let boundary = [];
             d.boundaries.push(boundary);
             for (let bezierPiece of bezierPieces) {
-                let bezier = flo_bezier3_1.fromTo(bezierPiece.curve.ps)(bezierPiece.ts[0], bezierPiece.ts[1]);
+                /* qqq
+                let bezier = fromTo(bezierPiece.curve.ps)(
+                    bezierPiece.ts[0], bezierPiece.ts[1]
+                );
+                */
+                const bezier = fromTo(bezierPiece.curve.ps, bezierPiece.ts[0], bezierPiece.ts[1]).ps;
                 boundary.push(bezier);
             }
         }
@@ -42,7 +44,7 @@ function find3Prong(δs, extreme) {
                 let trace = [];
                 d.traces.push(trace);
             }
-            let threeProngInfo = find_3_prong_for_delta3s_1.find3ProngForDelta3s(δs, i, k, bezierPiecess, extreme);
+            let threeProngInfo = find3ProngForDelta3s(δs, i, k, bezierPiecess, extreme);
             if (!threeProngInfo) {
                 continue;
             }
@@ -71,5 +73,5 @@ function find3Prong(δs, extreme) {
     }
     return threeProng;
 }
-exports.find3Prong = find3Prong;
+export { find3Prong };
 //# sourceMappingURL=find-3-prong.js.map

@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.calcBetterX = void 0;
-const flo_vector2d_1 = require("flo-vector2d");
-const get_closest_points_1 = require("./get-closest-points");
+import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
+import { getClosestPoints } from './get-closest-points.js';
 /**
  * @hidden
  * Find new x and ps that are a better estimate of the 3-prong circle.
@@ -15,7 +12,7 @@ const get_closest_points_1 = require("./get-closest-points");
  * @param extreme
  */
 function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
-    let V = flo_vector2d_1.len(vectorToZeroV);
+    let V = len(vectorToZeroV);
     let nu = 1;
     let better;
     let newX;
@@ -23,18 +20,18 @@ function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
     let newV;
     let i = 0; // Safeguard
     do {
-        let shift = flo_vector2d_1.scale(vectorToZeroV, nu);
-        newX = flo_vector2d_1.translate(shift, x);
-        newPs = get_closest_points_1.getClosestPoints(newX, bezierPiece3s);
+        let shift = scale(vectorToZeroV, nu);
+        newX = translate(shift, x);
+        newPs = getClosestPoints(newX, bezierPiece3s);
         // Point of zero V
-        let newCircleCenter = flo_vector2d_1.circumCenter(newPs.map(pos => pos.p));
-        let newVectorToZeroV = flo_vector2d_1.fromTo(newX, newCircleCenter);
-        newV = flo_vector2d_1.len(newVectorToZeroV);
+        let newCircleCenter = circumCenter(newPs.map(pos => pos.p));
+        let newVectorToZeroV = fromTo(newX, newCircleCenter);
+        newV = len(newVectorToZeroV);
         better = newV < V;
         nu = nu / 2;
         i++;
     } while (!better && i < 3);
     return { newX, newV, newPs };
 }
-exports.calcBetterX = calcBetterX;
+export { calcBetterX };
 //# sourceMappingURL=calc-better-x.js.map

@@ -1,7 +1,6 @@
-
-import { Circle, scaleCircle, engulfsCircle } from '../../circle';
-import { TTree } from './t-tree';
-import { calcGroups } from './calc-groups';
+import { Circle, scaleCircle, engulfsCircle } from '../../circle.js';
+import { TTree } from './t-tree.js';
+import { calcGroups } from './calc-groups.js';
 
 
 /** @hidden */

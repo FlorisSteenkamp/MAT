@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBoundaryPieceBeziers = void 0;
-const point_on_shape_1 = require("../point-on-shape");
-const contact_point_1 = require("../contact-point");
+import { isPosQuiteSharpCorner } from '../point-on-shape.js';
+import { compareCps } from '../contact-point.js';
 /**
  * @hidden
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)
@@ -28,12 +25,12 @@ function getBoundaryPieceBeziers(cpNodes) {
         if (posNext.curve === posThis.curve &&
             //PointOnShape.isQuiteSharpCorner(posThis) && 
             //PointOnShape.isQuiteSharpCorner(posNext)) {
-            point_on_shape_1.isPosQuiteSharpCorner(posThis) &&
-            point_on_shape_1.isPosQuiteSharpCorner(posNext)) {
+            isPosQuiteSharpCorner(posThis) &&
+            isPosQuiteSharpCorner(posNext)) {
             // Do nothing
         }
         else if (posNext.curve === posThis.curve &&
-            contact_point_1.compareCps(cpThis.next.cp, cpThis.cp) > 0) {
+            compareCps(cpThis.next.cp, cpThis.cp) > 0) {
             bezierPieces.push({ curve: posThis.curve, ts: [posThis.t, posNext.t] });
         }
         else {
@@ -46,7 +43,6 @@ function getBoundaryPieceBeziers(cpNodes) {
     } while (cpThis !== cpEnd);
     return bezierPieces;
 }
-exports.getBoundaryPieceBeziers = getBoundaryPieceBeziers;
 /**
  * @hidden
  * Adds pieces of skipped beziers
@@ -59,4 +55,5 @@ function addSkippedBeziers(bezierPieces, curveStart, curveEnd, t1) {
         bezierPieces.push({ curve: curveThis, ts: [0, tEnd] });
     } while (curveThis !== curveEnd);
 }
+export { getBoundaryPieceBeziers };
 //# sourceMappingURL=get-boundary-piece-beziers.js.map

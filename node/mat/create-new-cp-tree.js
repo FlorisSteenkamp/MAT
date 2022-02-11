@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createNewCpTree = void 0;
-const flo_ll_rb_tree_1 = require("flo-ll-rb-tree");
-const cp_node_1 = require("../cp-node");
+import { LlRbTree } from 'flo-ll-rb-tree';
+import { CpNode } from '../cp-node.js';
 /**
  * @hidden
  * @param cpNode
@@ -15,12 +12,13 @@ function createNewCpTree(cpNode) {
         let loop = cpNode.cp.pointOnShape.curve.loop;
         let cpTree = newCpTrees.get(loop);
         if (!cpTree) {
-            cpTree = new flo_ll_rb_tree_1.default(cp_node_1.CpNode.comparator, [], true);
+            // qqq cpTree = new LlRbTree(CpNode.comparator, [], true); 
+            cpTree = new LlRbTree(CpNode.comparator, false);
             newCpTrees.set(loop, cpTree);
         }
         cpTree.insert(cpNode);
     }
     return newCpTrees;
 }
-exports.createNewCpTree = createNewCpTree;
+export { createNewCpTree };
 //# sourceMappingURL=create-new-cp-tree.js.map

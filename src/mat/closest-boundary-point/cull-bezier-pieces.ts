@@ -1,8 +1,7 @@
-
-import { BezierPiece } from "../bezier-piece";
-import { getBestDistanceSquared } from "./get-best-distance-squared";
-import { cullByLooseBoundingBox } from "./cull-by-loose-bounding-box";
-import { cullByTightBoundingBox } from "./cull-by-tight-boundary-box";
+import { BezierPiece } from '../bezier-piece.js';
+import { getBestDistanceSquared } from './get-best-distance-squared.js';
+import { cullByLooseBoundingBox } from './cull-by-loose-bounding-box.js';
+import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
 
 
 /**
