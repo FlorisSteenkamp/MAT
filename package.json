@@ -1,7 +1,7 @@
 {
     "name": "flo-mat",
     "description": "Medial / Scale Axis Transform (MAT/SAT) Library.",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "author": {
         "name": "Floris Steenkamp"
     },
@@ -64,6 +64,6 @@
         "build-browser": "rimraf browser && webpack",
         "test": "mocha",
         "coverage": "c8 mocha",
-	    "test-package": "npm pack"
+        "test-package": "npm pack"
     }
 }
