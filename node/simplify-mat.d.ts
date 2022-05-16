@@ -6,10 +6,11 @@ import { Mat } from './mat.js';
  * @param anlgeTolerance Tolerance given as the degrees difference of the unit
  * direction vectors at the interface between curves. A tolerance of zero means
  * perfect smoothness is required - defaults to 15.
+ * TODO - the next two params are wrong??
  * @param hausdorffTolerance The approximate maximum Hausdorff Distance tolerance -
  * defaults to 0.1
- * @param hausdorffSpacing The spacing on the curves used to calculate the Hausdorff
+ * @param maxIterations The spacing on the curves used to calculate the Hausdorff
  * Distance - defaults to 1
  */
-declare function simplifyMat(mat: Mat, anlgeTolerance?: number, hausdorffTolerance?: number, hausdorffSpacing?: number): Mat;
+declare function simplifyMat(mat: Mat, anlgeTolerance?: number, hausdorffTolerance?: number, maxIterations?: number): Mat;
 export { simplifyMat };

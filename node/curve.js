@@ -1,6 +1,6 @@
-import { getInterfaceCcw } from 'flo-bezier3';
 import { memoize } from 'flo-memoize';
 import { cross, dot, toUnitVector } from 'flo-vector2d';
+import { getInterfaceCcw } from './get-interface-ccw.js';
 /**
  * @hidden
  * Angle in degrees to radians.

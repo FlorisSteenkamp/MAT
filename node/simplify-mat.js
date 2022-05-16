@@ -10,12 +10,13 @@ import { getCurveBetween } from './get-curve/get-curve-between.js';
  * @param anlgeTolerance Tolerance given as the degrees difference of the unit
  * direction vectors at the interface between curves. A tolerance of zero means
  * perfect smoothness is required - defaults to 15.
+ * TODO - the next two params are wrong??
  * @param hausdorffTolerance The approximate maximum Hausdorff Distance tolerance -
  * defaults to 0.1
- * @param hausdorffSpacing The spacing on the curves used to calculate the Hausdorff
+ * @param maxIterations The spacing on the curves used to calculate the Hausdorff
  * Distance - defaults to 1
  */
-function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdorffSpacing = 1e0) {
+function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
     let cpNode = mat.cpNode;
     // Start from a leaf
     while (!cpNode.isTerminating()) {
@@ -34,7 +35,7 @@ function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdo
                 if (j === branch.length) {
                     break;
                 }
-                let hd = getTotalHausdorffDistance(i, j, branch, hausdorffSpacing);
+                let hd = getTotalHausdorffDistance(i, j, branch, maxIterations);
                 if (hd > hausdorffTolerance) {
                     break;
                 }

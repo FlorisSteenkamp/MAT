@@ -39,7 +39,7 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 				const bezier = fromTo(
 					bezierPiece.curve.ps,
 					bezierPiece.ts[0], bezierPiece.ts[1]
-				).ps;
+				);
 				boundary.push(bezier);
 			}
 		}

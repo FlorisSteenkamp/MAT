@@ -125,9 +125,8 @@ const config_EsmNoMinify = {
 
 
 module.exports = [
-    // TODO - put back
-    //config_VarMinify,
-    //config_VarNoMinify,
-    //config_EsmMinify,
+    config_VarMinify,
+    config_VarNoMinify,
+    config_EsmMinify,
     config_EsmNoMinify
 ];

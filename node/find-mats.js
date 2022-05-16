@@ -12,42 +12,45 @@ import { getLoopsMetrics } from './loop/get-max-coordinate.js';
 /**
  * Finds and returns the Medial Axis Transforms (MATs) from the given array of
  * bezier loops representing shape boundaries.
+ *
  * @param bezierLoops An array of (possibly intersecting) loops with each loop
  * representing one or more piecewise smooth closed curves (i.e. shapes). Each
  * loop consists of an array of beziers represented by an array of control
  * points with 2,3 or 4 elements corresponding to linear, quadratic and cubic
  * beziers respectively. Each point is a two-element array (ordered pair), the
  * first of which is the x-coordinate and the second the y-coordinate.
- * @param maxFlatness The maximum value the flatness of a curve can have before
- * an additional MAT point is added in between. Defaults to 1.01. (Flatness is
- * measured as the total distance between control points of a curve divided by
- * the length of the curve.) The is clipped in [1.001,2]..
+ *
+ * @param maxCurviness The maximum value the 'curviness' of a curve can have
+ * before an additional MAT point is inserted in between. Defaults to 0.4.
+ * (Curviness is measured as the total angle in radians between the consecutive
+ * vectors formed by the ordered control points of th bezier curve). The value
+ * is clipped in the range `[0.05,3]`.
  * @param maxLength The maximum length a curve can have before an additional MAT
- * point is added in between. This value is scaled to a reference 1024 x 1024
- * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the will be
- * halved, e.g. from 10 to 5). Together with maxFlatness it represents a
+ * point is inserted. This value is scaled to a reference 1024 x 1024
+ * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the value will be
+ * halved, e.g. from 10 to 5). Together with maxCurviness it represents a
  * tolerance for the accuracy of the MAT. Defaults to 4. The value is clipped
  * in [1,100].
  */
-function findMats(bezierLoops, maxFlatness = 1.01, maxLength = 4) {
+function findMats(bezierLoops, maxCurviness = 0.4, maxLength = 4) {
     if (typeof _debug_ !== 'undefined') {
         var timingStart = performance.now();
     }
     let maxCoordinate;
     let minBezLength;
-    ({ maxFlatness, maxLength, maxCoordinate, minBezLength } =
-        getSizeParams(bezierLoops, maxFlatness, maxLength));
+    ({ maxCurviness, maxLength, maxCoordinate, minBezLength } =
+        getSizeParams(bezierLoops, maxCurviness, maxLength));
     let loopss = simplifyPaths(bezierLoops, maxCoordinate);
     let mats = [];
     for (let loops of loopss) {
-        let mat = findMat(loops, minBezLength, maxFlatness, maxLength, maxCoordinate);
+        let mat = findMat(loops, minBezLength, maxCurviness, maxLength, maxCoordinate);
         if (mat) {
             mats.push(mat);
         }
     }
     return mats;
 }
-function getSizeParams(bezierLoops, maxFlatness, maxLength) {
+function getSizeParams(bezierLoops, maxCurviness, maxLength) {
     // Gather some shape metrics
     let { maxCoordinate, maxRadius } = getLoopsMetrics(bezierLoops);
     let expMax = Math.ceil(Math.log2(maxCoordinate));
@@ -58,11 +61,11 @@ function getSizeParams(bezierLoops, maxFlatness, maxLength) {
      */
     let minBezLength = 2 ** expMax * 2 ** (-minBezLengthSigBits);
     // Limit the tolerance to a reasonable level
-    if (maxFlatness < 1.001) {
-        maxFlatness = 1.001;
+    if (maxCurviness < 0.05) {
+        maxCurviness = 0.05;
     }
-    if (maxFlatness > 2) {
-        maxFlatness = 2;
+    if (maxCurviness > 3) {
+        maxCurviness = 3;
     }
     // Limit the tolerance to a reasonable level
     if (maxLength < 0.1) {
@@ -75,21 +78,19 @@ function getSizeParams(bezierLoops, maxFlatness, maxLength) {
     let expMaxRadius = Math.ceil(Math.log2(maxRadius));
     let maxLengthSigBits = 10; // 1024 x 1024
     maxLength = maxLength * (2 ** expMaxRadius * 2 ** (-maxLengthSigBits));
-    return { maxFlatness, maxLength, maxCoordinate, minBezLength };
+    return { maxCurviness, maxLength, maxCoordinate, minBezLength };
 }
 /**
  * @hidden
  * Find the MAT of the given loops.
  * @param loops The loops (that as a precondition must be ordered from highest
  * (i.e. smallest y-value) topmost point loops to lowest)
- * @param xMap Intersection point map.
- * @param additionalPointCount
  */
-function findMat(loops, minBezLength, maxFlatness, maxLength, maxCoordinate) {
+function findMat(loops, minBezLength, maxCurviness, maxLength, maxCoordinate) {
     addDebugInfo1(loops);
     // Gets interesting points on the shape, i.e. those that makes sense to use 
     // for the 2-prong procedure.
-    let pointsPerLoop = loops.map(getInterestingPointsOnLoop(minBezLength, maxFlatness, maxLength));
+    let pointsPerLoop = loops.map(getInterestingPointsOnLoop(minBezLength, maxCurviness, maxLength));
     let for2ProngsPerLoop = getPotential2Prongs(pointsPerLoop);
     let sharpCornersPerLoop = getSharpCorners(pointsPerLoop);
     let cpTrees = new Map();

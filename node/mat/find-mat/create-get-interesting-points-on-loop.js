@@ -8,7 +8,7 @@ import { PointOnShape, comparePoss } from '../../point-on-shape.js';
  * @param loop
  * @param additionalPointCount
  */
-function getInterestingPointsOnLoop(minBezLength, maxFlatness, maxLength) {
+function getInterestingPointsOnLoop(minBezLength, maxCurviness, maxLength) {
     return function (loop) {
         let allPoints = [];
         for (let i = 0; i < loop.curves.length; i++) {
@@ -36,7 +36,7 @@ function getInterestingPointsOnLoop(minBezLength, maxFlatness, maxLength) {
             // qqq let maxAbsCurvatures = [...maxCurvatureTs, ...maxNegativeCurvatureTs].map(t => new PointOnShape(curve, t));
             let maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
             allPoints.push(...getContactCirclesAtInterface(curve), ...maxAbsCurvatures);
-            let ts = splitByCurvatureAndLength(curve.ps, maxFlatness, maxLength);
+            let ts = splitByCurvatureAndLength(curve.ps, maxCurviness, maxLength);
             if (ts.length === 2) {
                 ts = [0, 0.5, 1];
             }

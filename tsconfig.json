@@ -15,33 +15,9 @@
         "moduleResolution": "node"
     },
     "include": [
-        "src/**/*.ts"
+        "src/index.ts"
     ],
     "exclude": [
         "node_modules"
-    ],
-    "typedocOptions": {
-        "mode": "modules",
-        "includeDeclarations": false,
-        "excludeExternals": true,
-        "exclude": [
-            "**/src/index.ts",
-            "**/src/cp-node/**/*",
-            "**/node_modules/**/*",
-            "**/src/debug/**/*",
-            "**/src/get-curve/**/*",
-            "**/src/loop/**/*",
-            "**/src/mat/**/*",
-            "**/src/svg/**/*",
-            "**/src/sweep-line/**/*",
-            "**/src/x/**/*",
-            "**/src/bounding-box/**/*",
-        ],
-        "module"   : "commonjs",
-        "target"   : "es2015",
-        "name"     : "FloMat",
-        "out"      : "docs/html",
-        "includes" : "./src/docs",
-        "theme"    : "./docs/theme",
-    }
+    ]
 }

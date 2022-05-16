@@ -25,7 +25,7 @@ function find3Prong(δs, extreme) {
                     bezierPiece.ts[0], bezierPiece.ts[1]
                 );
                 */
-                const bezier = fromTo(bezierPiece.curve.ps, bezierPiece.ts[0], bezierPiece.ts[1]).ps;
+                const bezier = fromTo(bezierPiece.curve.ps, bezierPiece.ts[0], bezierPiece.ts[1]);
                 boundary.push(bezier);
             }
         }

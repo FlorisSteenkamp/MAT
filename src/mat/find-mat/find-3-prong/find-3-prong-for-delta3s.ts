@@ -131,8 +131,6 @@ function find3ProngForDelta3s(
 
     let circle = { center: x, radius };
 
-
-   
     //-------------------------------------------------------------------------
     // Calculate the unit tangent vector at 3-prong circle points - they should 
     // be very close to tangent to the boundary piece tangents at those points 

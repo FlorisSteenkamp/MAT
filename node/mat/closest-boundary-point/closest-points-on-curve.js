@@ -19,15 +19,7 @@ function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
         : _poly;
     // let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
     let roots;
-    try {
-        roots = allRootsCertified(poly, tS, tE);
-    }
-    catch (e) {
-        console.log(_poly);
-        console.log(poly);
-        console.log(t);
-        throw e;
-    }
+    roots = allRootsCertified(poly, tS, tE);
     // Also test the endpoints
     let push0 = true;
     let push1 = true;

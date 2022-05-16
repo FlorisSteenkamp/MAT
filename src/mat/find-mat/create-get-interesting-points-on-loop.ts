@@ -13,7 +13,7 @@ import { PointOnShape, comparePoss, IPointOnShape } from '../../point-on-shape.j
  */
 function getInterestingPointsOnLoop(
         minBezLength: number,
-        maxFlatness: number,
+        maxCurviness: number,
         maxLength: number) {
 
     return function(loop: Loop) {
@@ -53,7 +53,7 @@ function getInterestingPointsOnLoop(
                 ...maxAbsCurvatures,
             );
 
-            let ts = splitByCurvatureAndLength(curve.ps, maxFlatness, maxLength);
+            let ts = splitByCurvatureAndLength(curve.ps, maxCurviness, maxLength);
             if (ts.length === 2) {
                 ts = [0, 0.5, 1];
             }

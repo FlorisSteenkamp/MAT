@@ -31,7 +31,6 @@ import { drawElemFunctions } from './debug/functions/draw-elem/draw-elem.js';
 import { getCurveToNext } from './get-curve-to-next.js';
 import { getCurveBetween } from './get-curve/get-curve-between.js';
 import { sweepLine } from './sweep-line/sweep-line.js';
-import { areBoxesIntersecting } from './sweep-line/are-boxes-intersecting.js';
 import { getClosestSquareDistanceToRect } from './mat/geometry/get-closest-square-distance-to-rect.js';
 import { loopFromBeziers } from './loop.js';
-export { Mat, PointOnShape, IPointOnShape, Curve, Loop, CpNode, Circle, ContactPoint, BezierPiece, findMats, toScaleAxis, trimMat, traverseVertices, traverseEdges, getBranches, getBoundaryBeziersToNext, getBoundaryBezierPartsToNext, simplifyMat, simplifyMatMapOnly, beziersToSvgPathStr, getPathsFromStr, getShapeBounds, drawBranch, drawMat, getClosestBoundaryPoint, getCurveToNext, getCurveBetween, Debug, IDebugElems, TDrawElemFunctions, ICpNodeForDebugging, ITiming, getBoundaryPieceBeziers, drawElemFunctions, sweepLine, areBoxesIntersecting, getClosestSquareDistanceToRect, loopFromBeziers, enableDebugForMat };
+export { Mat, PointOnShape, IPointOnShape, Curve, Loop, CpNode, Circle, ContactPoint, BezierPiece, findMats, toScaleAxis, trimMat, traverseVertices, traverseEdges, getBranches, getBoundaryBeziersToNext, getBoundaryBezierPartsToNext, simplifyMat, simplifyMatMapOnly, beziersToSvgPathStr, getPathsFromStr, getShapeBounds, drawBranch, drawMat, getClosestBoundaryPoint, getCurveToNext, getCurveBetween, Debug, IDebugElems, TDrawElemFunctions, ICpNodeForDebugging, ITiming, getBoundaryPieceBeziers, drawElemFunctions, sweepLine, getClosestSquareDistanceToRect, loopFromBeziers, enableDebugForMat };

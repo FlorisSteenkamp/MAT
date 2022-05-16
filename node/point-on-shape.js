@@ -1,6 +1,6 @@
 import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
-import { normal, κ as curvature, evalDeCasteljau } from 'flo-bezier3';
+import { curvature, evalDeCasteljau, tangent } from 'flo-bezier3';
 import { getCornerAtEnd } from './curve.js';
 /**
  * Represents a point on the shape boundary for which MAT vertex information
@@ -134,9 +134,9 @@ function comparePoss(a, b) {
 let calcOsculatingCircleRadius = memoize((pos) => {
     let ps = pos.curve.ps;
     let t = pos.t;
-    let κ = -curvature(ps, t);
-    // κ > 0 => bending inwards
-    return 1 / κ;
+    let c = -curvature(ps, t);
+    // c > 0 => bending inwards
+    return 1 / c;
 });
 /**
  * Returns the osculating circle at this point of the curve.
@@ -145,7 +145,6 @@ let calcOsculatingCircleRadius = memoize((pos) => {
  * @param pos The [[PointOnShape]] identifying the point.
  */
 function getOsculatingCircle(maxOsculatingCircleRadius, pos) {
-    //if (PointOnShape.isSharpCorner(pos)) {
     if (isPosSharpCorner(pos)) {
         return { center: pos.p, radius: 0 };
     }
@@ -156,11 +155,12 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos) {
     radius = Math.min(radius, maxOsculatingCircleRadius);
     let ps = pos.curve.ps;
     let t = pos.t;
-    let normal_ = toUnitVector(normal(ps, t));
+    const tangent_ = tangent(ps, t);
+    let normal_ = toUnitVector([-tangent_[1], tangent_[0]]);
     let p = evalDeCasteljau(ps, t);
     let circleCenter = [
-        p[0] + normal_[0] * radius,
-        p[1] + normal_[1] * radius
+        p[0] - normal_[0] * radius,
+        p[1] - normal_[1] * radius
     ];
     return { center: circleCenter, radius };
 }

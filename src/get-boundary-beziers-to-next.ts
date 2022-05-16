@@ -29,13 +29,11 @@ function getBoundaryBeziersToNext(cpNode: CpNode) {
 
     if (curveNext === curveThis) {
         beziers.push(
-            // fromTo(posThis.curve.ps)(posThis.t, posNext.t)
-            fromTo(posThis.curve.ps, posThis.t, posNext.t).ps
+            fromTo(posThis.curve.ps, posThis.t, posNext.t)
         );
     } else {
         beziers.push(
-            // fromTTo1(posThis.curve.ps, posThis.t)
-            fromTo(posThis.curve.ps, posThis.t, 1).ps
+            fromTo(posThis.curve.ps, posThis.t, 1)
         );
         
         addSkippedBeziers(
@@ -66,7 +64,7 @@ function addSkippedBeziers(
         let tEnd = curveThis === curveEnd ? t1 : 1;
         beziers.push( 
             // qqq from0ToT(curveThis.ps, tEnd) 
-            fromTo(curveThis.ps, 0, tEnd).ps
+            fromTo(curveThis.ps, 0, tEnd)
         );
     } while (curveThis !== curveEnd);
 }

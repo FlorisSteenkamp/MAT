@@ -7,5 +7,5 @@ import { IPointOnShape } from '../../point-on-shape.js';
  * @param loop
  * @param additionalPointCount
  */
-declare function getInterestingPointsOnLoop(minBezLength: number, maxFlatness: number, maxLength: number): (loop: Loop) => IPointOnShape[];
+declare function getInterestingPointsOnLoop(minBezLength: number, maxCurviness: number, maxLength: number): (loop: Loop) => IPointOnShape[];
 export { getInterestingPointsOnLoop };

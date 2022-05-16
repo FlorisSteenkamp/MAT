@@ -1,6 +1,6 @@
 import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
-import { normal, κ as curvature, evalDeCasteljau }   from 'flo-bezier3';
+import { curvature, evalDeCasteljau, tangent }   from 'flo-bezier3';
 import { Curve, getCornerAtEnd } from './curve.js';
 import { Circle } from './circle.js';
 
@@ -172,11 +172,11 @@ let calcOsculatingCircleRadius = memoize((pos: IPointOnShape) => {
     let ps = pos.curve.ps;
     let t  = pos.t;
 
-    let κ = -curvature(ps, t); 
+    let c = -curvature(ps, t); 
 
-    // κ > 0 => bending inwards
+    // c > 0 => bending inwards
 
-    return 1/κ;
+    return 1/c;
 });
 
 
@@ -190,7 +190,6 @@ function getOsculatingCircle(
         maxOsculatingCircleRadius: number, 
         pos: IPointOnShape): Circle {
 
-    //if (PointOnShape.isSharpCorner(pos)) {
     if (isPosSharpCorner(pos)) {
         return { center: pos.p, radius: 0 };
     }
@@ -206,11 +205,12 @@ function getOsculatingCircle(
     let ps = pos.curve.ps;
     let t  = pos.t;
     
-    let normal_ = toUnitVector(normal(ps,t));
+    const tangent_ = tangent(ps,t);
+    let normal_ = toUnitVector([-tangent_[1],tangent_[0]]);
     let p = evalDeCasteljau(ps,t);
     let circleCenter = [
-        p[0] + normal_[0]*radius, 
-        p[1] + normal_[1]*radius
+        p[0] - normal_[0]*radius,
+        p[1] - normal_[1]*radius
     ];
 
     return { center: circleCenter, radius };
