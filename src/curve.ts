@@ -66,37 +66,37 @@ const DEGREE_LIMIT = DEGREES[4];
 function getCorner(psI: number[][], psO: number[][]): Corner {
 	// getInterfaceCcw must return a number !== 0 if psI and psO are not the
 	// same as seen as a curve extension with t ∈ [-∞,+∞]
-	let ccw = getInterfaceCcw(psI, psO);
-	let isSharp = ccw < 0;
-	let isDull  = ccw > 0;
+	const ccw = getInterfaceCcw(psI, psO);
+	const isSharp = ccw < 0;
+	const isDull  = ccw > 0;
 
 	// Find (non-normalized) tangent of curve.ps at t === 1
-	let p0E = psI[psI.length-2];
-	let p1E = psI[psI.length-1];
-	let xE = p1E[0] - p0E[0];
-	let yE = p1E[1] - p0E[1];
-	let tangentAtEnd = [xE,yE];
+	const p0E = psI[psI.length-2];
+	const p1E = psI[psI.length-1];
+	const xE = p1E[0] - p0E[0];
+	const yE = p1E[1] - p0E[1];
+	const tangentAtEnd = [xE,yE];
 
 	// Find (non-normalized) tangent of curve.next.ps at t === 0
-	let p0S = psO[0];
-	let p1S = psO[1];
-	let xS = p1S[0] - p0S[0];
-	let yS = p1S[1] - p0S[1];
-	let tangentAtStart = [xS,yS];
+	const p0S = psO[0];
+	const p1S = psO[1];
+	const xS = p1S[0] - p0S[0];
+	const yS = p1S[1] - p0S[1];
+	const tangentAtStart = [xS,yS];
 
 	// These use square root and are thus not exact
-	let tangents_ = [
+	const tangents_ = [
 		toUnitVector(tangentAtEnd), 
 		toUnitVector(tangentAtStart), 
 	];
 
 	// The cross calculated below should be exact due to beziers having been
 	// normalized!
-	let crossTangents = cross(tangents_[0], tangents_[1]);
+	const crossTangents = cross(tangents_[0], tangents_[1]);
 
 	let isQuiteSharp: boolean; 
 	let isQuiteDull: boolean; 
-	let dotTangents = dot(tangentAtEnd, tangentAtStart);
+	const dotTangents = dot(tangentAtEnd, tangentAtStart);
 	if (dotTangents > 0) {
 		// Curves go in same direction
 		isQuiteSharp = crossTangents < -DEGREE_LIMIT;
@@ -122,9 +122,9 @@ function getCorner(psI: number[][], psO: number[][]): Corner {
  * Returns information about the corner created at the end of this curve 
  * (at t === 1) and the start of the next curve (at t === 0).
  */
-let getCornerAtEnd = memoize(function(curve: Curve) {
-	let psE = curve.ps;
-	let psS = curve.next.ps;
+const getCornerAtEnd = memoize(function(curve: Curve) {
+	const psE = curve.ps;
+	const psS = curve.next.ps;
 
 	return getCorner(psE, psS);
 });

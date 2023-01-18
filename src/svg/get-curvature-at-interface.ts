@@ -11,24 +11,22 @@ import { Curve } from '../curve.js';
  * @param curve
  */
 function getCurvatureAtInterface(curve: Curve) {	
-	const ts = [1,0];
-	
-	let pss = [
+	const pss = [
 		curve.ps,
 		curve.next.ps
 	];
 	
-	let tans = [ 
+	const tans = [ 
 		toUnitVector(tangent(pss[0], 1)), 
 		toUnitVector(tangent(pss[0], 0))
 	];
 	
 	// The integral of a kind of Dirac Delta function.
-	let cosθ = dot  (tans[0], tans[1]);
-	let sinθ = cross(tans[0], tans[1]);
-	let θ = acos(cosθ);
+	const cosθ = dot  (tans[0], tans[1]);
+	const sinθ = cross(tans[0], tans[1]);
+	const θ = acos(cosθ);
 	
-	let result = sinθ >= 0 ? θ : -θ;
+	const result = sinθ >= 0 ? θ : -θ;
 	
 	return result;
 }

@@ -30,21 +30,21 @@ function isAnotherCpCloseby(cpTrees, pos, circle, order, order2, extreme, color)
     //const DISTANCE_THRESHOLD = extreme * 1e-12;
     // It seems this can be zero else the ordering should be correct
     //const DISTANCE_THRESHOLD = 0;
-    let cpTree = cpTrees.get(pos.curve.loop);
-    let cpNodes = getNeighbouringPoints(cpTree, pos, order, order2);
+    const cpTree = cpTrees.get(pos.curve.loop);
+    const cpNodes = getNeighbouringPoints(cpTree, pos, order, order2);
     if (!cpNodes[0]) {
         return false;
     }
-    for (let cpNode of cpNodes) {
-        let pos2 = cpNode.cp.pointOnShape;
-        let p1 = pos.p;
-        let p2 = pos2.p;
+    for (const cpNode of cpNodes) {
+        const pos2 = cpNode.cp.pointOnShape;
+        const p1 = pos.p;
+        const p2 = pos2.p;
         if (distanceBetween(p1, p2) > DISTANCE_THRESHOLD) {
             continue;
         }
-        let v1 = toUnitVector(fromTo(cpNode.cp.pointOnShape.p, cpNode.cp.circle.center));
-        let v2 = toUnitVector(fromTo(p1, circle.center));
-        let cosTheta = dot(v1, v2);
+        const v1 = toUnitVector(fromTo(cpNode.cp.pointOnShape.p, cpNode.cp.circle.center));
+        const v2 = toUnitVector(fromTo(p1, circle.center));
+        const cosTheta = dot(v1, v2);
         if (cosTheta > ANGLE_THRESHOLD) {
             //console.log(`%c${cosTheta} - ${distanceBetween(p1,p2)}`, `color: ${color}`);
             return true;

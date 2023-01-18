@@ -8,14 +8,14 @@ import { Loop } from '../loop.js';
  * @param cpNode 
  */
 function createNewCpTree(cpNode: CpNode) {
-	let newCpTrees: Map<Loop,LlRbTree<CpNode>> = new Map();
+	const newCpTrees: Map<Loop,LlRbTree<CpNode>> = new Map();
 
-	let cps = cpNode.getAllOnLoop();
+	const cps = cpNode.getAllOnLoop();
 
 	cps.forEach(f);
 
 	function f(cpNode: CpNode) {
-		let loop = cpNode.cp.pointOnShape.curve.loop;
+		const loop = cpNode.cp.pointOnShape.curve.loop;
 		let cpTree = newCpTrees.get(loop);
 		if (!cpTree) { 
 			// qqq cpTree = new LlRbTree(CpNode.comparator, [], true); 

@@ -13,7 +13,7 @@ function getClosestPoints(
         bezierPiece3s: BezierPiece[][]) {
 
     return bezierPiece3s.map(bezierPieces => {
-        let posInfo = getClosestBoundaryPoint(
+        const posInfo = getClosestBoundaryPoint(
                 bezierPieces,
                 x, 
                 undefined, // curve

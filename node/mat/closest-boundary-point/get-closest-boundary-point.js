@@ -17,13 +17,13 @@ function getClosestBoundaryPoint(bezierPieces, point, touchedCurve, t) {
     let bestDistance = Number.POSITIVE_INFINITY;
     let posInfo;
     for (let i = 0; i < bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
-        let ps = closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
-        let p = getObjClosestTo(point, ps, p => p.p);
+        const bezierPiece = bezierPieces[i];
+        const ps = closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
+        const p = getObjClosestTo(point, ps, p => p.p);
         if (p === undefined) {
             continue;
         }
-        let d = distanceBetween(p.p, point);
+        const d = distanceBetween(p.p, point);
         let curve = bezierPiece.curve;
         let t_ = p.t;
         if (d < bestDistance) {

@@ -18,8 +18,7 @@ function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
         ? ddDeflate(_poly, t)
         : _poly;
     // let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
-    let roots;
-    roots = allRootsCertified(poly, tS, tE);
+    const roots = allRootsCertified(poly, tS, tE);
     // Also test the endpoints
     let push0 = true;
     let push1 = true;
@@ -57,11 +56,11 @@ function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
     else {
         roots.push({ tS: tE, tE: tE });
     }
-    let ps = roots.map(root => {
-        let tS = root.tS;
-        let tE = root.tE;
+    const ps = roots.map(root => {
+        const tS = root.tS;
+        const tE = root.tE;
         // TODO - tS, tE should always stay within [0,1] - modify findRootsMulti
-        let t = tS < 0
+        const t = tS < 0
             ? 0
             : tE > 1 ? 1 : (tS + tE) / 2;
         // TODO - why does evalDeCasteljau not work here?

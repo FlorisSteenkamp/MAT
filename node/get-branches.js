@@ -17,13 +17,13 @@ function getBranches(cpNode, tolerance = defaultTolerance) {
     while (!cpNode.isFullyTerminating()) {
         cpNode = cpNode.next;
     }
-    let branches = [];
+    const branches = [];
     // Since the tree is unrooted we must iterate in all directions from the
     // given vertex.
-    let cps = [cpNode.prevOnCircle];
+    const cps = [cpNode.prevOnCircle];
     let branchCpNodes = [];
     while (cps.length) {
-        let cp = cps.pop();
+        const cp = cps.pop();
         branchCpNodes.push(cp);
         let children = cp.getChildren();
         if (cp.isFullyTerminating()) {
@@ -50,10 +50,10 @@ function getBranches(cpNode, tolerance = defaultTolerance) {
             cps.push(...children);
             continue;
         }
-        let backPointingTan = toUnitVector(tangent(getCurveToNext(cp.next.prevOnCircle), 0));
-        let forwardPointingTan = toUnitVector(tangent(getCurveToNext(children[0]), 0));
-        let cross_ = cross(backPointingTan, forwardPointingTan);
-        let angle = Math.abs(Math.asin(cross_) * (180 / Math.PI));
+        const backPointingTan = toUnitVector(tangent(getCurveToNext(cp.next.prevOnCircle), 0));
+        const forwardPointingTan = toUnitVector(tangent(getCurveToNext(children[0]), 0));
+        const cross_ = cross(backPointingTan, forwardPointingTan);
+        const angle = Math.abs(Math.asin(cross_) * (180 / Math.PI));
         if (angle > tolerance) {
             branches.push(branchCpNodes);
             branchCpNodes = [];

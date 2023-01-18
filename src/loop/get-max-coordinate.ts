@@ -17,10 +17,10 @@ function getLoopsMetrics(loops: number[][][][]): {
     let minY = Number.POSITIVE_INFINITY;
     let maxY = Number.NEGATIVE_INFINITY;
 
-    for (let loop of loops) { for (let ps of loop) { for (let p of ps) {
-        let x = p[0];
-        let y = p[1];
-        let c = max(abs(x), abs(y));
+    for (const loop of loops) { for (const ps of loop) { for (const p of ps) {
+        const x = p[0];
+        const y = p[1];
+        const c = max(abs(x), abs(y));
         if (c > maxCoordinate) { maxCoordinate = c; }
         if (x < minX) { minX = x; }
         if (x > maxX) { maxX = x; }
@@ -28,9 +28,9 @@ function getLoopsMetrics(loops: number[][][][]): {
         if (y > maxY) { maxY = y; }
     } } }
 
-    let width  = maxX - minX;
-    let height = maxY - minY;
-    let maxRadius = max(width, height);
+    const width  = maxX - minX;
+    const height = maxY - minY;
+    const maxRadius = max(width, height);
 
     return { maxCoordinate, maxRadius };
 }

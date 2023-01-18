@@ -26,9 +26,9 @@ function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
         return;
     }
     //let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
-    let circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
-    //let order = PointOnShape.calcOrder(circle, pos);
-    let order = calcPosOrder(circle, pos);
+    const circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
+    //const order = PointOnShape.calcOrder(circle, pos);
+    const order = calcPosOrder(circle, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
     if (isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {

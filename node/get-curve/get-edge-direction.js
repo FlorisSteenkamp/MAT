@@ -8,13 +8,13 @@ import { isPosSharpCorner } from '../point-on-shape.js';
  * @param cpNode
  */
 function getEdgeDirection(cpNode) {
-    let circleCenter = cpNode.cp.circle.center;
-    let cp1 = cpNode;
-    let cp2 = cpNode.nextOnCircle;
-    let pos1 = cp1.cp.pointOnShape;
-    let pos2 = cp2.cp.pointOnShape;
-    let p1 = pos1.p;
-    let p2 = pos2.p;
+    const circleCenter = cpNode.cp.circle.center;
+    const cp1 = cpNode;
+    const cp2 = cpNode.nextOnCircle;
+    const pos1 = cp1.cp.pointOnShape;
+    const pos2 = cp2.cp.pointOnShape;
+    const p1 = pos1.p;
+    const p2 = pos2.p;
     let vDir;
     //if (!PointOnShape.isSharpCorner(pos1)) {
     if (!isPosSharpCorner(pos1)) {
@@ -37,17 +37,17 @@ function getEdgeDirection(cpNode) {
             curve1 = pos1.curve.next;
             curve2 = pos1.curve;
         }
-        let tan1 = toUnitVector(tangent(curve1.ps, 0));
-        let tan2 = reverse(toUnitVector(tangent(curve2.ps, 1)));
-        let x = dot(tan1, tan2);
+        const tan1 = toUnitVector(tangent(curve1.ps, 0));
+        const tan2 = reverse(toUnitVector(tangent(curve2.ps, 1)));
+        const x = dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
         // be calculated.
-        let cosθ = Math.sqrt((1 + x) / 2);
-        let sinθ = Math.sqrt((1 - x) / 2);
+        const cosθ = Math.sqrt((1 + x) / 2);
+        const sinθ = Math.sqrt((1 - x) / 2);
         vDir = rotate(sinθ, cosθ, tan2);
     }
-    let v = translate(toUnitVector(vDir), circleCenter);
+    const v = translate(toUnitVector(vDir), circleCenter);
     return [circleCenter, v];
 }
 export { getEdgeDirection };

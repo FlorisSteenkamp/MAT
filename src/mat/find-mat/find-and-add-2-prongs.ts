@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug;
+/** @internal */
+declare const _debug_: Debug;
 
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug } from '../../debug/debug.js';
@@ -29,28 +29,26 @@ function findAndAdd2Prongs(
         for2Prongs: IPointOnShape[],
         extreme: number) {
 
-    let len = for2Prongs.length;
-    let index = indexLinear(len); 
-    //let index = indexInterlaced(len); // Keep for possible future use.
+    const len = for2Prongs.length;
+    const index = indexLinear(len); 
+    //const index = indexInterlaced(len); // Keep for possible future use.
     let cpNode_;
 
-    let bounds = getShapeBounds(loops);
-    let squaredDiagonalLength = 
+    const bounds = getShapeBounds(loops);
+    const squaredDiagonalLength = 
         (bounds.maxX.p[0] - bounds.minX.p[0])**2 +
         (bounds.maxY.p[1] - bounds.minY.p[1])**2;
 
     for (let i=0; i<len; i++) {
-        let pos = for2Prongs[index[i]];
+        const pos = for2Prongs[index[i]];
 
-        let twoProngInfo: { circle: Circle,	zs: { pos: IPointOnShape, d: number }[] };
-
-        twoProngInfo = find2Prong(
+        const twoProngInfo: { circle: Circle,	zs: { pos: IPointOnShape, d: number }[] } = find2Prong(
             loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k
         );
 
         if (twoProngInfo) {
-            let { circle, zs } = twoProngInfo;
-            let cpNode = add2Prong(cpGraphs, circle, pos, zs, false, extreme);
+            const { circle, zs } = twoProngInfo;
+            const cpNode = add2Prong(cpGraphs, circle, pos, zs, false, extreme);
             cpNode_ = cpNode_ || cpNode;
         }
 
@@ -71,7 +69,7 @@ function findAndAdd2Prongs(
  * @param n
  */
 function indexLinear(n: number) {
-	let arr = [];
+	const arr = [];
 	for (let i=0; i<n; i++) {
 		arr.push(i);
 	}
@@ -86,8 +84,8 @@ function indexLinear(n: number) {
  * @param n
 */
 function indexInterlaced(n: number) {
-	let source: { [index:number]: boolean } = {};
-	let arr = [];
+	const source: { [index:number]: boolean } = {};
+	const arr = [];
 	// l is the lowest power of 2 so that 2^l > n
 	let l = Math.pow(2, Math.floor(Math.log2(n)));
 	

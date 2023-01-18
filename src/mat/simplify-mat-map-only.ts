@@ -25,29 +25,29 @@ function simplifyMatMapOnly(
         hausdorffTolerance = 1e-1,
         hausdorffSpacing = 1e0) {
 
-    let simpleMap: Map<CpNode, { ps: number[][], ts: number[] }> = new Map();
+    const simpleMap: Map<CpNode, { ps: number[][], ts: number[] }> = new Map();
 
     // Start from a leaf
     while (!cpNode.isTerminating()) {
         cpNode = cpNode.next;
     }
 
-    let branches = getBranches(cpNode, anlgeTolerance);
+    const branches = getBranches(cpNode, anlgeTolerance);
 
-    let canDeletes: CpNode[] = [];
+    const canDeletes: CpNode[] = [];
     for (let k=0; k<branches.length; k++) {
-        let branch = branches[k];
+        const branch = branches[k];
 
         // Try to remove some
         let j = 0;
         while (j < branch.length) {
-            let i = j;
+            const i = j;
             while (true) {
                 j++;
 
                 if (j === branch.length) { break; }
 
-                let hd = getTotalHausdorffDistance(i, j, branch, hausdorffSpacing);
+                const hd = getTotalHausdorffDistance(i, j, branch, hausdorffSpacing);
 
                 if (hd > hausdorffTolerance) {
                     break;
@@ -59,17 +59,17 @@ function simplifyMatMapOnly(
             if (i+1 === j) { 
                 // no simplification occured
             } else {
-                let branStart = branch[i];
-                let branEnd = branch[j-1];
+                const branStart = branch[i];
+                const branEnd = branch[j-1];
 
-                let medial = toCubic(getCurveBetween(branStart, branEnd.next));
-                let rev = medial.slice().reverse();
+                const medial = toCubic(getCurveBetween(branStart, branEnd.next));
+                const rev = medial.slice().reverse();
                 let curCpNode = branStart;
                 let prevT = 0;
                 while (curCpNode !== branEnd) {
-                    let t = closestPointOnBezier(medial, curCpNode.next.cp.circle.center).t;
+                    const t = closestPointOnBezier(medial, curCpNode.next.cp.circle.center).t;
                     simpleMap.set(curCpNode, { ps: medial, ts: [prevT, t] });
-                    let oppositeCpNode = curCpNode.nextOnCircle.prev;
+                    const oppositeCpNode = curCpNode.nextOnCircle.prev;
                     simpleMap.set(oppositeCpNode, { ps: rev, ts: [1-t, 1-prevT] });
 
                     prevT = t;
@@ -77,7 +77,7 @@ function simplifyMatMapOnly(
                 }
                 simpleMap.set(curCpNode, { ps: medial, ts: [prevT, 1] });
 
-                let oppositeCpNode = curCpNode.nextOnCircle.prev;
+                const oppositeCpNode = curCpNode.nextOnCircle.prev;
                 simpleMap.set(oppositeCpNode, { ps: rev, ts: [0, 1-prevT] });
             }
         }
@@ -93,8 +93,8 @@ function getTotalHausdorffDistance(
         branch: CpNode[],
         hausdorffSpacing: number) {
 
-    let hds: number[] = [];
-    let longCurve = getCurveBetween(branch[i], branch[j].next);
+    const hds: number[] = [];
+    const longCurve = getCurveBetween(branch[i], branch[j].next);
     for (let m=i; m<j+1; m++) {
         hds.push(hausdorffDistance(
             getCurveToNext(branch[m]), 

@@ -2,9 +2,9 @@ import { CpNode } from '../cp-node.js';
 import { traverseEdges } from '../traverse-edges.js';
 
 
-/** @hidden */
+/** @internal */
 function getEdgesAsArray(cpNode: CpNode) {	
-	let cpNodes: CpNode[] = [];
+	const cpNodes: CpNode[] = [];
 	
 	traverseEdges(
 		cpNode, 

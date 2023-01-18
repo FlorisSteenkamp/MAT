@@ -9,10 +9,10 @@ import { CpNode } from '../../cp-node.js';
  * @param maxCpNode The start CpNode which must reprsesent the maximal vertex.
  */
 function cull(culls, maxCpNode) {
-    let leaves = getLeaves(maxCpNode);
+    const leaves = getLeaves(maxCpNode);
     function getNonTrivialEdges(cpStart) {
         let cp = cpStart;
-        let cps = [];
+        const cps = [];
         do {
             if (cp.next !== cp.nextOnCircle) {
                 cps.push(cp);
@@ -22,7 +22,7 @@ function cull(culls, maxCpNode) {
         return cps;
     }
     while (leaves.length) {
-        let leaf = leaves.pop();
+        const leaf = leaves.pop();
         // Preserve topology.
         if (leaf.isHoleClosing || leaf.isIntersection) {
             continue;
@@ -34,7 +34,7 @@ function cull(culls, maxCpNode) {
         while (true) {
             cpNode = cpNode.next;
             let cut = false;
-            let cp1 = cpNode.prevOnCircle;
+            const cp1 = cpNode.prevOnCircle;
             if (!culls.has(cpNode.cp.circle)) {
                 // Cut off the edge once a non-cull has been reached.
                 cut = true;
@@ -43,7 +43,7 @@ function cull(culls, maxCpNode) {
                 cut = true; // We are at the max disk - cut whole edge
             }
             else {
-                let cps = getNonTrivialEdges(cpNode);
+                const cps = getNonTrivialEdges(cpNode);
                 if (cps.length === 1) {
                     cpNode = cps[0];
                 }

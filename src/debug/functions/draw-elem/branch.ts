@@ -6,15 +6,15 @@ import { getCurveToNext } from '../../../get-curve-to-next.js';
 /** @hidden */
 function drawBranch(g: SVGGElement, branch: CpNode[], delay?: number) {
 
-    let classes = 'thin5 purple nofill';
+    const classes = 'thin5 purple nofill';
 
-    let $svgs: SVGElement[] = [];
+    const $svgs: SVGElement[] = [];
     let i = 0;
 
-    for (let cpNode of branch) {
+    for (const cpNode of branch) {
         if (cpNode.isTerminating()) { continue; }
         //let bezier = cpNode.matCurveToNextVertex;
-        let bezier = getCurveToNext(cpNode);
+        const bezier = getCurveToNext(cpNode);
         if (!bezier) { continue; }
         i++;
         $svgs.push( ...drawFs.bezier(g, bezier, classes, delay));

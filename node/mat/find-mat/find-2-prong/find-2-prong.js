@@ -42,7 +42,7 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     const maxOsculatingCircleRadiusSquared = squaredDiagonalLength;
     // The boundary piece that should contain the other point of 
     // the 2-prong circle. (Defined by start and end points).
-    let { bezierPieces, δ } = getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y);
+    const { bezierPieces, δ } = getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y);
     //console.log(bezierPieces.length)
     /** The center of the two-prong (successively refined) */
     let x;
@@ -60,12 +60,12 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         r = squaredDistanceBetween(p, x);
     }
     // The lines below is an optimization.
-    let r_ = reduceRadius(extreme, bezierPieces, p, x);
+    const r_ = reduceRadius(extreme, bezierPieces, p, x);
     if (r > r_) {
         x = interpolate(p, x, Math.sqrt(r_ / r));
     }
     /** Trace the convergence (for debugging). */
-    let xs = [];
+    const xs = [];
     /** The antipode of the two-prong (successively refined) */
     let z;
     let i = 0;
@@ -76,16 +76,16 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     do {
         i++;
         /** squared distance between source boundary point and circle center */
-        let r = squaredDistanceBetween(x, y.p);
+        const r = squaredDistanceBetween(x, y.p);
         bezierPieces_ = cullBezierPieces(bezierPieces_, x, r);
         z = getClosestBoundaryPoint(bezierPieces_, x, y.curve, y.t);
         if (z === undefined) {
             if (typeof _debug_ !== 'undefined') {
-                let elems = _debug_.generated.elems;
-                let elem = isHoleClosing
+                const elems = _debug_.generated.elems;
+                const elem = isHoleClosing
                     ? elems.twoProng_holeClosing
                     : elems.twoProng_regular;
-                let elemStr = isHoleClosing
+                const elemStr = isHoleClosing
                     ? 'hole-closing: ' + elem.length
                     : 'regular: ' + elem.length;
                 console.log('failed: no closest point - ' + elemStr);
@@ -97,7 +97,7 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
             xs.push({ x, y, z: z.pos, t: y.t });
         }
         /** squared distance between anti-pode boundary point and circle center */
-        let d = squaredDistanceBetween(x, z.pos.p);
+        const d = squaredDistanceBetween(x, z.pos.p);
         //if (i === 1 && d*oneProngTolerance >= r) {
         if (i === 1 && r < d + oneProngTolerance) {
             // It is a 1-prong.
@@ -128,8 +128,8 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         // nextX, but rather (distance from x to y) - (distance from x to z)
         // Find the point on the line connecting y with x that is  
         // equidistant from y and z. This will be our next x.
-        let nextX = findEquidistantPointOnLine(x, y.p, z.pos.p);
-        let squaredError = squaredDistanceBetween(x, nextX);
+        const nextX = findEquidistantPointOnLine(x, y.p, z.pos.p);
+        const squaredError = squaredDistanceBetween(x, nextX);
         x = nextX;
         if (squaredError < squaredErrorTolerance) {
             done++; // Do one more iteration
@@ -169,25 +169,25 @@ function reduceRadius(extreme, bezierPieces, p, x) {
     let prevP = undefined;
     let minRadius = Number.POSITIVE_INFINITY;
     for (let i = 0; i < bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
-        let ps = bezierPiece.curve.ps;
-        let p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
+        const bezierPiece = bezierPieces[i];
+        const ps = bezierPiece.curve.ps;
+        const p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
         let r1 = Number.POSITIVE_INFINITY;
         // Prevent evaluating the same points twice
         if (!prevP || prevP[0] !== p1[0] || prevP[1] !== p1[1]) {
-            let cc1 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1);
+            const cc1 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1);
             if (cc1) {
                 r1 = squaredDistanceBetween(p, cc1);
             }
         }
         let r2 = Number.POSITIVE_INFINITY;
-        let p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
-        let cc2 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p2);
+        const p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
+        const cc2 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p2);
         if (cc2) {
             r2 = squaredDistanceBetween(p, cc2);
         }
         prevP = p2;
-        let d = Math.min(r1, r2);
+        const d = Math.min(r1, r2);
         if (d < minRadius) {
             minRadius = d;
         }
@@ -205,25 +205,25 @@ function reduceRadius(extreme, bezierPieces, p, x) {
  */
 function getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1) {
     // TODO - remove delta
-    let TOLERANCE = (1e-4 * extreme) ** 2;
+    const TOLERANCE = (1e-4 * extreme) ** 2;
     // Ignore if p and p1 are too close together
     if (squaredDistanceBetween(p, p1) < TOLERANCE) {
         return undefined;
     }
     /** The perpindicular bisector between the two given points on the circle */
-    let pb = [
+    const pb = [
         (p[0] + p1[0]) / 2,
         (p[1] + p1[1]) / 2,
     ];
-    let tan = [p1[0] - p[0], p1[1] - p[1]];
-    let norm = [-tan[1], tan[0]]; // Rotate by 90 degrees
-    let pb2 = [pb[0] + norm[0], pb[1] + norm[1]];
-    let res = lineLineIntersection([p, x], [pb, pb2]);
+    const tan = [p1[0] - p[0], p1[1] - p[1]];
+    const norm = [-tan[1], tan[0]]; // Rotate by 90 degrees
+    const pb2 = [pb[0] + norm[0], pb[1] + norm[1]];
+    const res = lineLineIntersection([p, x], [pb, pb2]);
     if (!res) {
         return undefined;
     }
-    let resO = [res[0] - p[0], res[1] - p[1]];
-    let xO = [x[0] - p[0], x[1] - p[1]];
+    const resO = [res[0] - p[0], res[1] - p[1]];
+    const xO = [x[0] - p[0], x[1] - p[1]];
     if (dot(resO, xO) < 0) {
         return undefined;
     }

@@ -20,22 +20,22 @@ function createInitialCpGraph(
     let cpNode;
 
     for (let k=0; k<sharpCornerss.length; k++) {
-        let sharpCorners = sharpCornerss[k];
+        const sharpCorners = sharpCornerss[k];
 
-        // qqq let cpTree = new LlRbTree(CpNode.comparator, [], true);
-        let cpTree = new LlRbTree(CpNode.comparator, false);
+        // qqq const cpTree = new LlRbTree(CpNode.comparator, [], true);
+        const cpTree = new LlRbTree(CpNode.comparator, false);
         
         let cpNode1 = undefined;
         let cpNode2 = undefined;
-        for (let pos of sharpCorners) {
-            let ps = pos.curve.next.ps;
-            //let x = xMap.get(ps);
-            //let isIntersection = !!x;
+        for (const pos of sharpCorners) {
+            const ps = pos.curve.next.ps;
+            //const x = xMap.get(ps);
+            //const isIntersection = !!x;
             
-            let circle = { center: pos.p, radius: 0 };
+            const circle = { center: pos.p, radius: 0 };
 
-            let cp1: ContactPoint = { pointOnShape: pos, circle, order: -1, order2: 0 };
-            let cp2: ContactPoint = { pointOnShape: pos, circle, order: +1, order2: 0 };
+            const cp1: ContactPoint = { pointOnShape: pos, circle, order: -1, order2: 0 };
+            const cp2: ContactPoint = { pointOnShape: pos, circle, order: +1, order2: 0 };
 
             cpNode1 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp1, cpNode2);
             cpNode2 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp2, cpNode1);
@@ -49,7 +49,7 @@ function createInitialCpGraph(
 
         if (!cpNode) { cpNode = cpNode1; }
 
-        let loop = loops[k];
+        const loop = loops[k];
         cpTrees.set(loop, cpTree);
     }
 

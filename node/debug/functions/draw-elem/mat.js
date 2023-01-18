@@ -3,21 +3,21 @@ import { traverseEdges } from '../../../traverse-edges.js';
 import { getCurveToNext } from '../../../get-curve-to-next.js';
 /** @hidden */
 function drawMat(type) {
-    let classes = type === 'mat'
+    const classes = type === 'mat'
         ? 'thin5 purple nofill'
         : 'thin10 red nofill';
     return (g, mat) => {
-        let cpNode = mat.cpNode;
+        const cpNode = mat.cpNode;
         if (!cpNode) {
             return undefined;
         }
-        let $svgs = [];
+        const $svgs = [];
         let i = 0;
         traverseEdges(cpNode, cpNode => {
             if (cpNode.isTerminating()) {
                 return;
             }
-            let bezier = getCurveToNext(cpNode);
+            const bezier = getCurveToNext(cpNode);
             if (!bezier) {
                 return;
             }

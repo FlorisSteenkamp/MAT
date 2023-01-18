@@ -10,9 +10,9 @@ import { PointOnShape, comparePoss } from '../../point-on-shape.js';
  */
 function getInterestingPointsOnLoop(minBezLength, maxCurviness, maxLength) {
     return function (loop) {
-        let allPoints = [];
+        const allPoints = [];
         for (let i = 0; i < loop.curves.length; i++) {
-            let curve = loop.curves[i];
+            const curve = loop.curves[i];
             // qqq if (lengthSquaredUpperBound(curve.ps) < minBezLength) {
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
@@ -31,10 +31,10 @@ function getInterestingPointsOnLoop(minBezLength, maxCurviness, maxLength) {
             */
             // let { maxima } = getCurvatureExtrema(curve.ps);
             // qqq let { maxCurvatureTs, maxNegativeCurvatureTs } = getCurvatureExtrema(curve.ps);
-            let { maxima } = getCurvatureExtrema(curve.ps);
+            const { maxima } = getCurvatureExtrema(curve.ps);
             // let maxAbsCurvatures = maxima.map(t => new PointOnShape(curve, t));
             // qqq let maxAbsCurvatures = [...maxCurvatureTs, ...maxNegativeCurvatureTs].map(t => new PointOnShape(curve, t));
-            let maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
+            const maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
             allPoints.push(...getContactCirclesAtInterface(curve), ...maxAbsCurvatures);
             let ts = splitByCurvatureAndLength(curve.ps, maxCurviness, maxLength);
             if (ts.length === 2) {

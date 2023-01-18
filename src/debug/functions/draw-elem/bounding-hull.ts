@@ -5,9 +5,9 @@ import { drawFs } from 'flo-draw';
 function boundingHull(
         g: SVGGElement,
         hull: number[][], 
-        style: string = 'thin5 black nofill') {
+        style = 'thin5 black nofill') {
             
-	let $polygon = drawFs.polygon(g, hull, style);
+	const $polygon = drawFs.polygon(g, hull, style);
 
 	return $polygon;
 }

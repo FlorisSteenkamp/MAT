@@ -12,11 +12,11 @@ function cullNonCycles(cpStart: CpNode) {
 
     let cpNodeKept = cpStart;
 
-    let leaves = getLeaves(cpStart);
+    const leaves = getLeaves(cpStart);
 
     
     while (leaves.length) {
-        let leaf = leaves.pop();
+        const leaf = leaves.pop();
 
         // Preserve topology - keep cycles.
         if (leaf.isHoleClosing || leaf.isIntersection) { continue; }
@@ -26,11 +26,11 @@ function cullNonCycles(cpStart: CpNode) {
         while (true) {
             cpNode = cpNode.next;
             let cut = false;
-            let cp1 = cpNode.prevOnCircle;
+            const cp1 = cpNode.prevOnCircle;
 
             if (cpNode.getProngCount() > 2) {
-                //let cp2 = cp1.prevOnCircle;
-                let cp2 = cpNode.nextOnCircle;
+                //const cp2 = cp1.prevOnCircle;
+                const cp2 = cpNode.nextOnCircle;
 
                 //if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
                 if (CpNode.isOnSameCircle(cpNode, cpStart)) {

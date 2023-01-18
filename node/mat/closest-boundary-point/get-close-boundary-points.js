@@ -13,21 +13,21 @@ import { closestPointsOnCurve } from './closest-points-on-curve.js';
  * @param extreme
  */
 function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
-    let touchedCurve = y.curve;
-    let t = y.t;
-    let p_ = y.p;
+    const touchedCurve = y.curve;
+    const t = y.t;
+    const p_ = y.p;
     bezierPieces = cullBezierPieces(bezierPieces, point);
     // TODO - integrate with is-another-cp-closeby - we MUST check angle too!
-    let DISTANCE_TOLERANCE = 1e-9;
-    let posInfos = [];
+    const DISTANCE_TOLERANCE = 1e-9;
+    const posInfos = [];
     for (let i = 0; i < bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
+        const bezierPiece = bezierPieces[i];
         // TOOD - important - should be able to return multiple points
-        let ps = closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
+        const ps = closestPointsOnCurve(bezierPiece.curve, point, bezierPiece.ts, touchedCurve, t);
         //if (ps === undefined) { continue; }
         for (let j = 0; j < ps.length; j++) {
-            let p = ps[j];
-            let d = distanceBetween(p.p, point);
+            const p = ps[j];
+            const d = distanceBetween(p.p, point);
             let curve = bezierPiece.curve;
             let t_ = p.t;
             if (Math.abs(d - distance) < DISTANCE_TOLERANCE) {
@@ -44,25 +44,25 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
         // TODO - in future remove all these checks and join n-prongs when they
         // are being added - much simpler and more symmetric. Remeber order when
         // comparing closeness!
-        let indexesToCheck = [];
+        const indexesToCheck = [];
         for (let i = 0; i < posInfos.length; i++) {
-            let pi = posInfos[i];
+            const pi = posInfos[i];
             // Only check if they are close to the edges. Why??
             //if (pi.pos.t < 1e-2 || 1-pi.pos.t < 1e-2) {
             indexesToCheck.push(i);
             //}
         }
-        let indexesToRemove = [];
+        const indexesToRemove = [];
         for (let i = 0; i < indexesToCheck.length; i++) {
             for (let j = i + 1; j < indexesToCheck.length; j++) {
                 if (i === j) {
                     continue;
                 }
-                let p1 = posInfos[indexesToCheck[i]].pos.p;
-                let p2 = posInfos[indexesToCheck[j]].pos.p;
+                const p1 = posInfos[indexesToCheck[i]].pos.p;
+                const p2 = posInfos[indexesToCheck[j]].pos.p;
                 // Below checks for source point too - similar to 
                 // isAnotherCpCloseBy
-                let p3 = p_;
+                const p3 = p_;
                 if ((Math.abs(p1[0] - p2[0]) < 1e-6 &&
                     Math.abs(p1[1] - p2[1]) < 1e-6) ||
                     (Math.abs(p1[0] - p3[0]) < 1e-6 &&

@@ -1,10 +1,10 @@
 import { isPosQuiteSharpCorner } from '../../point-on-shape.js';
 /** @hidden */
 function getSharpCorners(possPerLoop) {
-    let sharpCornersPerLoop = [];
-    for (let poss of possPerLoop) {
-        let sharpCorners = [];
-        for (let pos of poss) {
+    const sharpCornersPerLoop = [];
+    for (const poss of possPerLoop) {
+        const sharpCorners = [];
+        for (const pos of poss) {
             //if (PointOnShape.isQuiteSharpCorner(pos)) {
             if (isPosQuiteSharpCorner(pos)) {
                 sharpCorners.push(pos);

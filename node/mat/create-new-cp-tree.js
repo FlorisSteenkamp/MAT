@@ -5,11 +5,11 @@ import { CpNode } from '../cp-node.js';
  * @param cpNode
  */
 function createNewCpTree(cpNode) {
-    let newCpTrees = new Map();
-    let cps = cpNode.getAllOnLoop();
+    const newCpTrees = new Map();
+    const cps = cpNode.getAllOnLoop();
     cps.forEach(f);
     function f(cpNode) {
-        let loop = cpNode.cp.pointOnShape.curve.loop;
+        const loop = cpNode.cp.pointOnShape.curve.loop;
         let cpTree = newCpTrees.get(loop);
         if (!cpTree) {
             // qqq cpTree = new LlRbTree(CpNode.comparator, [], true); 

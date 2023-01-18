@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug; 
+/** @internal */
+declare const _debug_: Debug; 
 
 import { Debug } from '../../../debug/debug.js';
 import { IPointOnShape } from '../../../point-on-shape.js';
@@ -23,7 +23,7 @@ function addDebugInfo(
         xs: TXForDebugging[], 
         holeClosing: boolean) {
 
-    let twoProng: TwoProngForDebugging = {
+    const twoProng: TwoProngForDebugging = {
             generated: _debug_.generated,
             bezierPieces,
             pos,
@@ -38,7 +38,7 @@ function addDebugInfo(
             cpNode: undefined
     };
 
-    let twoProngType = getTwoProngType(twoProng) as ElemType_TwoProng;
+    const twoProngType = getTwoProngType(twoProng) as ElemType_TwoProng;
     _debug_.generated.elems[twoProngType].push(twoProng);
 }
 

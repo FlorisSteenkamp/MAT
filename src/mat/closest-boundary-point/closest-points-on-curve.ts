@@ -33,8 +33,7 @@ function closestPointsOnCurve(
         : _poly;
 
     // let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
-    let roots: Omit<RootInterval,'multiplicity'>[];
-    roots = allRootsCertified(poly, tS, tE);
+    const roots: Omit<RootInterval,'multiplicity'>[] = allRootsCertified(poly, tS, tE);
 
     // Also test the endpoints
     let push0 = true;
@@ -64,12 +63,12 @@ function closestPointsOnCurve(
         roots.push({ tS: tE, tE: tE });
     }
 
-    let ps = roots.map(
+    const ps = roots.map(
         root => { 
-            let tS = root.tS;
-            let tE = root.tE;
+            const tS = root.tS;
+            const tE = root.tE;
             // TODO - tS, tE should always stay within [0,1] - modify findRootsMulti
-            let t = tS < 0 
+            const t = tS < 0 
                 ? 0
                 : tE > 1 ? 1 : (tS + tE)/2;
             // TODO - why does evalDeCasteljau not work here?

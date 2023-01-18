@@ -22,24 +22,24 @@ function getEngulfedVertices(
         tree: TTree, 
         circle: Circle) {
 
-    let c1 = scaleCircle(circle, s);
+    const c1 = scaleCircle(circle, s);
 
-    let cullNodes: Set<Circle> = new Set();
+    const cullNodes: Set<Circle> = new Set();
 
-    let limits = [[0, width], [0, height]];
+    const limits = [[0, width], [0, height]];
     f(tree, 0, limits, 0);
 
     return cullNodes;
 
 
     function cullBranch5(tree: TTree) {
-        let t = tree.trees.get(5);
+        const t = tree.trees!.get(5);
         if (!t) { return; }
 
-        let circles = t.circles;
+        const circles = t.circles!;
         
         circles.forEach(function(circle, key) {
-            let c2 = scaleCircle(circle, s);
+            const c2 = scaleCircle(circle, s);
             if (engulfsCircle(c1, c2)) {
                 cullNodes.add(circle);
                 circles.delete(key);
@@ -51,7 +51,7 @@ function getEngulfedVertices(
     function f(
             tree: TTree, 
             coordinate: number, 
-            limits: number[][], 
+            limits: number[][] | null, 
             depth: number) {
         
         if (limits === null) {
@@ -60,7 +60,7 @@ function getEngulfedVertices(
             cullBranch5(tree);
             
             for (let i=0; i<=4; i++) {
-                let t = tree.trees.get(i);
+                const t = tree.trees!.get(i);
                 if (t) {
                     f(t, 0, null, depth+1);
                 }
@@ -69,7 +69,7 @@ function getEngulfedVertices(
             return;
         }
         
-        let { groups, newLimits } = calcGroups(
+        const { groups, newLimits } = calcGroups(
                 s, 
                 coordinate, 
                 limits, 
@@ -79,13 +79,13 @@ function getEngulfedVertices(
         if (groups.length === 1) {
             cullBranch5(tree);
             
-            let group = groups[0];
-            let newCoordinate = coordinate ? 0 : 1;
+            const group = groups[0];
+            const newCoordinate = coordinate ? 0 : 1;
             
             if (group === 1 || group === 3) {
                 // One of the higher priority left/top or 
                 // right/bottom half groups.
-                let t = tree.trees.get(group);
+                const t = tree.trees!.get(group);
                 
                 if (t) {
                     f(
@@ -98,12 +98,12 @@ function getEngulfedVertices(
             } else {
                 // One of the lower priority even groups (0,2 or 4).
                 
-                let branches = [];
-                branches.push(tree.trees.get(group));
-                if (group > 0) { branches.push(tree.trees.get(group-1)); }
-                if (group < 4) { branches.push(tree.trees.get(group+1)); }
+                const branches: TTree[] = [];
+                branches.push(tree.trees!.get(group)!);
+                if (group > 0) { branches.push(tree.trees!.get(group-1)!); }
+                if (group < 4) { branches.push(tree.trees!.get(group+1)!); }
                 
-                for (let branch of branches) {
+                for (const branch of branches) {
                     if (branch) {
                         f(
                                 branch, 
@@ -123,7 +123,7 @@ function getEngulfedVertices(
         // Circle spans multiple groups at this level of the tree. Check all 
         // circles in all branches.
         for (let i=0; i<=4; i++) {
-            let t = tree.trees.get(i);
+            const t = tree.trees!.get(i);
             if (!t) { continue; }
             
             f(t, 0, null, depth+1);

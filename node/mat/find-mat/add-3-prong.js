@@ -9,7 +9,7 @@ import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
  * @param threeProng
  */
 function add3Prong(cpTrees, orders, threeProng) {
-    let { circle, ps: poss, δ3s } = threeProng;
+    const { circle, ps: poss, δ3s } = threeProng;
     // Keep for possible future debugging.	
     /*
     if (typeof _debug_ !== 'undefined') {

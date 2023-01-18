@@ -9,14 +9,14 @@ import { Curve  } from './curve.js';
  * @param cpNode
  */
 function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] {
-    let cpThis = cpNode; 
-    let cpNext = cpNode.next;
+    const cpThis = cpNode; 
+    const cpNext = cpNode.next;
 
-    let posThis = cpThis.cp.pointOnShape;
-    let posNext = cpNext.cp.pointOnShape;
+    const posThis = cpThis.cp.pointOnShape;
+    const posNext = cpNext.cp.pointOnShape;
 
-    let curveThis = posThis.curve;
-    let curveNext = posNext.curve;
+    const curveThis = posThis.curve;
+    const curveNext = posNext.curve;
 
     if (curveThis.loop !== curveNext.loop) {
         // It is a hole-closer going over to the other loop - a kind of terminal
@@ -24,7 +24,7 @@ function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] {
         return undefined;
     }
     
-    let bezierParts: BezierPiece[] = [];
+    const bezierParts: BezierPiece[] = [];
 
     if (curveNext === curveThis) {
         bezierParts.push(
@@ -60,7 +60,7 @@ function addSkippedBeziers(
     let curveThis = curveStart;
     do {
         curveThis = curveThis.next;
-        let bezierPart = curveThis === curveEnd 
+        const bezierPart = curveThis === curveEnd 
             ? { ps: curveThis.ps, ts: [0, t1] }
             : { ps: curveThis.ps, ts: [0, 1] }
 

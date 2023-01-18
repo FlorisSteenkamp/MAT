@@ -19,13 +19,13 @@ import { tangentAt0, evaluate2ndDerivativeAt0, toPowerBasis_3rdDerivative } from
  */
 function compareCurvaturesAtInterface(psI, psO) {
     // Get x' and y' for incoming curve evaluated at 0
-    let [dxI, dyI] = tangentAt0(psI); // max bitlength increase / max shift === 3
+    const [dxI, dyI] = tangentAt0(psI); // max bitlength increase / max shift === 3
     // Get x'' and y'' for incoming curve evaluated at 0
-    let [ddxI, ddyI] = evaluate2ndDerivativeAt0(psI); // max bitlength increase / max shift === 5
+    const [ddxI, ddyI] = evaluate2ndDerivativeAt0(psI); // max bitlength increase / max shift === 5
     // Get x' and y' for outgoing curve evaluated at 0
-    let [dxO, dyO] = tangentAt0(psO); // max bitlength increase / max shift === 3
+    const [dxO, dyO] = tangentAt0(psO); // max bitlength increase / max shift === 3
     // Get x'' and y'' for outgoing curve evaluated at 0
-    let [ddxO, ddyO] = evaluate2ndDerivativeAt0(psO); // max bitlength increase / max shift === 5
+    const [ddxO, ddyO] = evaluate2ndDerivativeAt0(psO); // max bitlength increase / max shift === 5
     //console.log('κI: ', κ(psI, 0));
     //console.log('κO: ', κ(psO, 0));
     // Remember the formula for the signed curvature of a parametric curve:
@@ -48,32 +48,32 @@ function compareCurvaturesAtInterface(psI, psO) {
     // d -> 3 x ((p+3) + 1) === 3p + 12
     //let d = (dxI*dxI  + dyI*dyI )**3;
     // We need to resort to exact floating point arithmetic at this point
-    let a = eDiff(twoProduct(dxI, ddyI), twoProduct(dyI, ddxI));
-    let c = eDiff(twoProduct(dxO, ddyO), twoProduct(dyO, ddxO));
-    let signA = eSign(a);
-    let signC = eSign(c);
+    const a = eDiff(twoProduct(dxI, ddyI), twoProduct(dyI, ddxI));
+    const c = eDiff(twoProduct(dxO, ddyO), twoProduct(dyO, ddxO));
+    const signA = eSign(a);
+    const signC = eSign(c);
     if (signA !== signC) {
         //console.log('branch 3');
         return signA - signC;
     }
-    let b = fastExpansionSum(twoProduct(dxO, dxO), twoProduct(dyO, dyO));
-    let d = fastExpansionSum(twoProduct(dxI, dxI), twoProduct(dyI, dyI));
-    let b2 = expansionProduct(b, b);
-    let b3 = expansionProduct(b2, b);
-    let d2 = expansionProduct(d, d);
-    let d3 = expansionProduct(d2, d);
+    const b = fastExpansionSum(twoProduct(dxO, dxO), twoProduct(dyO, dyO));
+    const d = fastExpansionSum(twoProduct(dxI, dxI), twoProduct(dyI, dyI));
+    const b2 = expansionProduct(b, b);
+    const b3 = expansionProduct(b2, b);
+    const d2 = expansionProduct(d, d);
+    const d3 = expansionProduct(d2, d);
     if (signA !== 0 || signC !== 0) {
         //console.log('branch 4');
-        let a2 = expansionProduct(a, a);
-        let c2 = expansionProduct(c, c);
+        const a2 = expansionProduct(a, a);
+        const c2 = expansionProduct(c, c);
         // max aggregate bitlength increase (let original bitlength === p):
         // κ -> (2 x ((p+3)+(p+5) + 1)) + (3 x ((p+3) + 1)) === 7p + 30
         // e.g. for bit-aligned input bitlength p of 10 we get output bitlength 
         // of 100, or for p === 3 (the max exact bitlength allowed to have exact
         // results without resorting to infinite precision) we get 51 bits.
-        let κI = expansionProduct(a2, b3);
-        let κO = expansionProduct(c2, d3);
-        let δκ = eSign(eDiff(κI, κO));
+        const κI = expansionProduct(a2, b3);
+        const κO = expansionProduct(c2, d3);
+        const δκ = eSign(eDiff(κI, κO));
         if (δκ !== 0) {
             //console.log('branch 5');
             // At this point signA === signC, both +tive or -tive
@@ -91,18 +91,18 @@ function compareCurvaturesAtInterface(psI, psO) {
     // <=> (de - 3af)²b⁵ > (bg - 3ch)²d⁵
     // <=> i²b⁵ > j²d⁵
     // Get x′′′ and y′′′ for incoming curve evaluated at 1
-    let [dddxI, dddyI] = toPowerBasis_3rdDerivative(psI); // max bitlength increase === max shift === 6
-    let [dddxO, dddyO] = toPowerBasis_3rdDerivative(psO); // max bitlength increase === max shift === 6
-    let e = eDiff(twoProduct(dxI, dddyI), twoProduct(dyI, dddxI));
-    let f = fastExpansionSum(twoProduct(dxI, ddxI), twoProduct(dyI, ddyI));
-    let g = eDiff(twoProduct(dxO, dddyO), twoProduct(dyO, dddxO));
-    let h = fastExpansionSum(twoProduct(dxO, ddxO), twoProduct(dyO, ddyO));
+    const [dddxI, dddyI] = toPowerBasis_3rdDerivative(psI); // max bitlength increase === max shift === 6
+    const [dddxO, dddyO] = toPowerBasis_3rdDerivative(psO); // max bitlength increase === max shift === 6
+    const e = eDiff(twoProduct(dxI, dddyI), twoProduct(dyI, dddxI));
+    const f = fastExpansionSum(twoProduct(dxI, ddxI), twoProduct(dyI, ddyI));
+    const g = eDiff(twoProduct(dxO, dddyO), twoProduct(dyO, dddxO));
+    const h = fastExpansionSum(twoProduct(dxO, ddxO), twoProduct(dyO, ddyO));
     // (de - 3af)²b⁵ > (bg - 3ch)²d⁵
     // i²b⁵ > j²d⁵
-    let i = eDiff(expansionProduct(d, e), scaleExpansion(expansionProduct(a, f), 3));
-    let j = eDiff(expansionProduct(b, g), scaleExpansion(expansionProduct(c, h), 3));
-    let signI = eSign(i);
-    let signJ = eSign(j);
+    const i = eDiff(expansionProduct(d, e), scaleExpansion(expansionProduct(a, f), 3));
+    const j = eDiff(expansionProduct(b, g), scaleExpansion(expansionProduct(c, h), 3));
+    const signI = eSign(i);
+    const signJ = eSign(j);
     if (signA !== signC) {
         return signI - signJ;
     }
@@ -110,13 +110,13 @@ function compareCurvaturesAtInterface(psI, psO) {
         // Both curve extensions are identical, i.e. in the same K-family
         return 0;
     }
-    let i2 = expansionProduct(i, i);
-    let b5 = expansionProduct(b2, b3);
-    let j2 = expansionProduct(j, j);
-    let d5 = expansionProduct(d2, d3);
-    let dκI = expansionProduct(i2, b5);
-    let dκO = expansionProduct(j2, d5);
-    let sgn = eSign(eDiff(dκI, dκO));
+    const i2 = expansionProduct(i, i);
+    const b5 = expansionProduct(b2, b3);
+    const j2 = expansionProduct(j, j);
+    const d5 = expansionProduct(d2, d3);
+    const dκI = expansionProduct(i2, b5);
+    const dκO = expansionProduct(j2, d5);
+    const sgn = eSign(eDiff(dκI, dκO));
     return signI > 0 ? sgn : -sgn;
     // If the above returned value is still zero then the two curve extensions 
     // are identical, i.e. in the same K-family

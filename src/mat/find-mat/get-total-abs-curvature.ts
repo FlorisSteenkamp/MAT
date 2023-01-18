@@ -6,7 +6,7 @@ import { getTotalBy } from './get-total-by.js';
 /**
  * @hidden
  */
-let getTotalAbsoluteCurvature = getTotalBy(
+const getTotalAbsoluteCurvature = getTotalBy(
     curve => (
         totalAbsoluteCurvature(curve.ps, [0,1]) + 
         Math.abs(getCurvatureAtInterface(curve))

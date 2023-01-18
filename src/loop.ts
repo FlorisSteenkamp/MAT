@@ -17,9 +17,9 @@ interface Loop {
  * @param beziers A pre-ordered array of bezier curves to add initially.
  */
 function loopFromBeziers(beziers: number[][][] = []) {
-    let curves: Curve[] = [];
+    const curves: Curve[] = [];
 
-    let loop: Loop = {
+    const loop: Loop = {
         beziers,
         curves
     };
@@ -30,7 +30,7 @@ function loopFromBeziers(beziers: number[][][] = []) {
     
     for (let i=0; i<beziers.length; i++) {
 
-        let curve: Curve = {
+        const curve: Curve = {
             loop,
             ps: beziers[i],
             prev,
@@ -45,7 +45,7 @@ function loopFromBeziers(beziers: number[][][] = []) {
     }
 
     // close loop
-    let lastCurve = curves[curves.length-1];
+    const lastCurve = curves[curves.length-1];
     curves[0].prev = lastCurve;
     lastCurve.next = curves[0];
 

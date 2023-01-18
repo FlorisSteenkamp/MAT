@@ -1,7 +1,6 @@
 import { simplifyPaths } from 'flo-boolean';
 import { findAndAddAll3Prongs } from './mat/find-mat/find-and-add-3-prongs.js';
 import { createInitialCpGraph } from './mat/find-mat/create-initial-cp-graph.js';
-;
 import { addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './mat/find-mat/add-debug-info.js';
 import { getPotential2Prongs } from './mat/find-mat/get-potential-2-prongs.js';
 import { getSharpCorners } from './mat/find-mat/get-sharp-corners.js';
@@ -33,17 +32,15 @@ import { getLoopsMetrics } from './loop/get-max-coordinate.js';
  * in [1,100].
  */
 function findMats(bezierLoops, maxCurviness = 0.4, maxLength = 4) {
-    if (typeof _debug_ !== 'undefined') {
-        var timingStart = performance.now();
-    }
+    // if (typeof _debug_ !== 'undefined') { var timingStart = performance.now(); }
     let maxCoordinate;
     let minBezLength;
     ({ maxCurviness, maxLength, maxCoordinate, minBezLength } =
         getSizeParams(bezierLoops, maxCurviness, maxLength));
-    let loopss = simplifyPaths(bezierLoops, maxCoordinate);
-    let mats = [];
-    for (let loops of loopss) {
-        let mat = findMat(loops, minBezLength, maxCurviness, maxLength, maxCoordinate);
+    const loopss = simplifyPaths(bezierLoops, maxCoordinate);
+    const mats = [];
+    for (const loops of loopss) {
+        const mat = findMat(loops, minBezLength, maxCurviness, maxLength, maxCoordinate);
         if (mat) {
             mats.push(mat);
         }
@@ -52,14 +49,14 @@ function findMats(bezierLoops, maxCurviness = 0.4, maxLength = 4) {
 }
 function getSizeParams(bezierLoops, maxCurviness, maxLength) {
     // Gather some shape metrics
-    let { maxCoordinate, maxRadius } = getLoopsMetrics(bezierLoops);
-    let expMax = Math.ceil(Math.log2(maxCoordinate));
-    let minBezLengthSigBits = 14;
+    const { maxCoordinate, maxRadius } = getLoopsMetrics(bezierLoops);
+    const expMax = Math.ceil(Math.log2(maxCoordinate));
+    const minBezLengthSigBits = 14;
     /**
      * If a curve is shorter than this value then no points on it will be
      * selected for the purpose of finding the MAT.
      */
-    let minBezLength = 2 ** expMax * 2 ** (-minBezLengthSigBits);
+    const minBezLength = 2 ** expMax * 2 ** (-minBezLengthSigBits);
     // Limit the tolerance to a reasonable level
     if (maxCurviness < 0.05) {
         maxCurviness = 0.05;
@@ -75,8 +72,8 @@ function getSizeParams(bezierLoops, maxCurviness, maxLength) {
         maxLength = 100;
     }
     // Adjust length tolerance according to a reference max coordinate
-    let expMaxRadius = Math.ceil(Math.log2(maxRadius));
-    let maxLengthSigBits = 10; // 1024 x 1024
+    const expMaxRadius = Math.ceil(Math.log2(maxRadius));
+    const maxLengthSigBits = 10; // 1024 x 1024
     maxLength = maxLength * (2 ** expMaxRadius * 2 ** (-maxLengthSigBits));
     return { maxCurviness, maxLength, maxCoordinate, minBezLength };
 }
@@ -90,10 +87,10 @@ function findMat(loops, minBezLength, maxCurviness, maxLength, maxCoordinate) {
     addDebugInfo1(loops);
     // Gets interesting points on the shape, i.e. those that makes sense to use 
     // for the 2-prong procedure.
-    let pointsPerLoop = loops.map(getInterestingPointsOnLoop(minBezLength, maxCurviness, maxLength));
-    let for2ProngsPerLoop = getPotential2Prongs(pointsPerLoop);
-    let sharpCornersPerLoop = getSharpCorners(pointsPerLoop);
-    let cpTrees = new Map();
+    const pointsPerLoop = loops.map(getInterestingPointsOnLoop(minBezLength, maxCurviness, maxLength));
+    const for2ProngsPerLoop = getPotential2Prongs(pointsPerLoop);
+    const sharpCornersPerLoop = getSharpCorners(pointsPerLoop);
+    const cpTrees = new Map();
     let cpNode = createInitialCpGraph(loops, cpTrees, sharpCornersPerLoop);
     findAndAddHoleClosing2Prongs(loops, cpTrees, maxCoordinate);
     if (typeof _debug_ !== 'undefined') {
@@ -118,7 +115,7 @@ function findMat(loops, minBezLength, maxCurviness, maxLength, maxCoordinate) {
             return undefined;
         }
     }
-    let mat = { cpNode, cpTrees };
+    const mat = { cpNode, cpTrees };
     addDebugInfo4(mat);
     return mat;
 }

@@ -27,9 +27,9 @@ function getClosestBoundaryPoint(
 	let bestDistance = Number.POSITIVE_INFINITY;
 	let posInfo: { pos: IPointOnShape; d: number };
 	for (let i=0; i<bezierPieces.length; i++) {
-		let bezierPiece = bezierPieces[i];
+		const bezierPiece = bezierPieces[i];
 
-		let ps = closestPointsOnCurve(
+		const ps = closestPointsOnCurve(
 				bezierPiece.curve, 
 				point, 
 				bezierPiece.ts, 
@@ -37,11 +37,11 @@ function getClosestBoundaryPoint(
 				t
 		);
 
-		let p = getObjClosestTo(point, ps, p => p.p)
+		const p = getObjClosestTo(point, ps, p => p.p)
 
 		if (p === undefined) { continue; }
 
-		let d = distanceBetween(p.p, point);
+		const d = distanceBetween(p.p, point);
 
 		let curve = bezierPiece.curve;
 		let t_= p.t;

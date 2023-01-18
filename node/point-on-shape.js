@@ -42,7 +42,7 @@ function getPosCorner(pos) {
 /**
  * @hidden
  */
-let isPosSharpCorner = memoize((pos) => {
+const isPosSharpCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
@@ -51,7 +51,7 @@ let isPosSharpCorner = memoize((pos) => {
 /**
  * @hidden
  */
-let isPosDullCorner = memoize((pos) => {
+const isPosDullCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
@@ -60,7 +60,7 @@ let isPosDullCorner = memoize((pos) => {
 /**
  * @hidden
  */
-let isPosQuiteSharpCorner = memoize((pos) => {
+const isPosQuiteSharpCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
@@ -69,7 +69,7 @@ let isPosQuiteSharpCorner = memoize((pos) => {
 /**
  * @hidden
  */
-let isPosQuiteDullCorner = memoize((pos) => {
+const isPosQuiteDullCorner = memoize((pos) => {
     if (!isPosCorner(pos)) {
         return false;
     }
@@ -99,9 +99,9 @@ function calcPosOrder(circle, pos) {
         return 0;
     }
     //if (!isPosDullCorner(pos)) { return 0; }
-    let corner = getPosCorner(pos);
-    let n = rotateNeg90Degrees(corner.tangents[0]);
-    let v = toUnitVector(fromTo(pos.p, circle.center));
+    const corner = getPosCorner(pos);
+    const n = rotateNeg90Degrees(corner.tangents[0]);
+    const v = toUnitVector(fromTo(pos.p, circle.center));
     return -dot(n, v);
 }
 /**
@@ -131,10 +131,10 @@ function comparePoss(a, b) {
  * @param t
  * @hidden
  */
-let calcOsculatingCircleRadius = memoize((pos) => {
-    let ps = pos.curve.ps;
-    let t = pos.t;
-    let c = -curvature(ps, t);
+const calcOsculatingCircleRadius = memoize((pos) => {
+    const ps = pos.curve.ps;
+    const t = pos.t;
+    const c = -curvature(ps, t);
     // c > 0 => bending inwards
     return 1 / c;
 });
@@ -153,12 +153,12 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos) {
         radius = Number.POSITIVE_INFINITY;
     }
     radius = Math.min(radius, maxOsculatingCircleRadius);
-    let ps = pos.curve.ps;
-    let t = pos.t;
+    const ps = pos.curve.ps;
+    const t = pos.t;
     const tangent_ = tangent(ps, t);
-    let normal_ = toUnitVector([-tangent_[1], tangent_[0]]);
-    let p = evalDeCasteljau(ps, t);
-    let circleCenter = [
+    const normal_ = toUnitVector([-tangent_[1], tangent_[0]]);
+    const p = evalDeCasteljau(ps, t);
+    const circleCenter = [
         p[0] - normal_[0] * radius,
         p[1] - normal_[1] * radius
     ];

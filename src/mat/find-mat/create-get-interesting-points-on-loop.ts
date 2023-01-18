@@ -17,10 +17,10 @@ function getInterestingPointsOnLoop(
         maxLength: number) {
 
     return function(loop: Loop) {
-        let allPoints: IPointOnShape[] = [];
+        const allPoints: IPointOnShape[] = [];
 
         for (let i=0; i<loop.curves.length; i++) {
-            let curve = loop.curves[i];
+            const curve = loop.curves[i];
 
             // qqq if (lengthSquaredUpperBound(curve.ps) < minBezLength) {
             if (controlPointLinesLength(curve.ps) < minBezLength) {
@@ -43,10 +43,10 @@ function getInterestingPointsOnLoop(
 
             // let { maxima } = getCurvatureExtrema(curve.ps);
             // qqq let { maxCurvatureTs, maxNegativeCurvatureTs } = getCurvatureExtrema(curve.ps);
-            let { maxima } = getCurvatureExtrema(curve.ps);
+            const { maxima } = getCurvatureExtrema(curve.ps);
             // let maxAbsCurvatures = maxima.map(t => new PointOnShape(curve, t));
             // qqq let maxAbsCurvatures = [...maxCurvatureTs, ...maxNegativeCurvatureTs].map(t => new PointOnShape(curve, t));
-            let maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
+            const maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
 
             allPoints.push(
                 ...getContactCirclesAtInterface(curve), 

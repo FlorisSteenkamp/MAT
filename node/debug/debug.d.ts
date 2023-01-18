@@ -15,7 +15,7 @@ interface Debug {
     directives: IDirectives;
 }
 /** @hidden */
-declare type GeneratedElems = {
+type GeneratedElems = {
     [T in keyof IDebugElems]: IDebugElems[T][];
 };
 /** @hidden */

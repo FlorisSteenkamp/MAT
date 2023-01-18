@@ -42,7 +42,7 @@ function pointToStr(p, decimalPlaces = 3) {
     return p[0].toFixed(decimalPlaces) + ', ' + p[1].toFixed(decimalPlaces);
 }
 /** @hidden */
-let generalDebugFunctions /*: IGeneralDebugFunctions*/ = {
+const generalDebugFunctions /*: IGeneralDebugFunctions*/ = {
     δToString,
     δsToString,
     pointToStr,

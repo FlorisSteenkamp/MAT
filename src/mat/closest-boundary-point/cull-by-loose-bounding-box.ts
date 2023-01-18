@@ -16,15 +16,15 @@ function cullByLooseBoundingBox(
         p: number[],
         dSquared: number) {
 
-    let candidateBezierPieces = [];
+    const candidateBezierPieces = [];
 
     for (let i=0; i<bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
-        let ps = bezierPiece.curve.ps;
+        const bezierPiece = bezierPieces[i];
+        const ps = bezierPiece.curve.ps;
         
-        let boundingBox = getBoundingBox_(ps);
+        const boundingBox = getBoundingBox_(ps);
         
-        let d = getClosestSquareDistanceToRect(
+        const d = getClosestSquareDistanceToRect(
             boundingBox,
             p
         );

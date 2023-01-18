@@ -3,12 +3,12 @@ import { IPointOnShape, isPosQuiteSharpCorner } from '../../point-on-shape.js';
 
 /** @hidden */
 function getPotential2Prongs(possPerLoop: IPointOnShape[][]) {
-    let for2ProngsArray = []; 
+    const for2ProngsArray = []; 
     
-    for (let poss of possPerLoop) {
-        let for2Prongs = [];
+    for (const poss of possPerLoop) {
+        const for2Prongs = [];
         
-        for (let pos of poss) {
+        for (const pos of poss) {
             if (!isPosQuiteSharpCorner(pos)) {
                 for2Prongs.push(pos);
             } 

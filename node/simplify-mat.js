@@ -22,20 +22,20 @@ function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 2 ** -3, max
     while (!cpNode.isTerminating()) {
         cpNode = cpNode.next;
     }
-    let branches = getBranches(cpNode, anlgeTolerance);
-    let canDeletes = [];
+    const branches = getBranches(cpNode, anlgeTolerance);
+    const canDeletes = [];
     for (let k = 0; k < branches.length; k++) {
-        let branch = branches[k];
+        const branch = branches[k];
         // Try to remove some
         let j = 0;
         while (j < branch.length) {
-            let i = j;
+            const i = j;
             while (true) {
                 j++;
                 if (j === branch.length) {
                     break;
                 }
-                let hd = getTotalHausdorffDistance(i, j, branch, maxIterations);
+                const hd = getTotalHausdorffDistance(i, j, branch, maxIterations);
                 if (hd > hausdorffTolerance) {
                     break;
                 }
@@ -49,9 +49,9 @@ function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 2 ** -3, max
             }
         }
     }
-    for (let cpNode of canDeletes) {
-        let isTerminating = cpNode.isTerminating();
-        let onCircleCount = cpNode.getCpNodesOnCircle().length;
+    for (const cpNode of canDeletes) {
+        const isTerminating = cpNode.isTerminating();
+        const onCircleCount = cpNode.getCpNodesOnCircle().length;
         if (isTerminating || onCircleCount !== 2) {
             continue;
         }
@@ -61,8 +61,8 @@ function simplifyMat(mat, anlgeTolerance = 15, hausdorffTolerance = 2 ** -3, max
     return { cpNode, cpTrees: undefined };
 }
 function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
-    let hds = [];
-    let longCurve = getCurveBetween(branch[i], branch[j].next);
+    const hds = [];
+    const longCurve = getCurveBetween(branch[i], branch[j].next);
     for (; i < j + 1; i++) {
         hds.push(hausdorffDistance(getCurveToNext(branch[i]), longCurve, hausdorffSpacing));
     }

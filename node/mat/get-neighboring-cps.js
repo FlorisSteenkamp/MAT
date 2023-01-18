@@ -9,7 +9,7 @@ import { CpNode } from '../cp-node.js';
  * @param order2
  */
 function getNeighbouringPoints(cpTree, pos, order, order2) {
-    let cps = cpTree.findBounds(new CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false));
+    const cps = cpTree.findBounds(new CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false));
     if (!cps[0] && !cps[1]) {
         // The tree is still empty
         return [undefined, undefined];

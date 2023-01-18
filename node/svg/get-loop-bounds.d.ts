@@ -3,7 +3,7 @@ import { IPointOnShape } from '../point-on-shape.js';
 /**
  * @hidden
  */
-declare let getLoopBounds: (a: Loop) => {
+declare const getLoopBounds: (a: Loop) => {
     minX: IPointOnShape;
     minY: IPointOnShape;
     maxX: IPointOnShape;

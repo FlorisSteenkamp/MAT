@@ -18,7 +18,7 @@ let i = 0;
  * @hidden
  * Name the given object - for debugging purposes only 
  */
-function nameObj(o: any, pre: string = '') {
+function nameObj(o: any, pre = '') {
 	o.name = '' + pre + i++;
 }
 
@@ -61,13 +61,13 @@ function pointsToStr(ps: number[][], decimalPlaces = 3) {
  * @param p The point
  * @param decimalPlaces number of decimal places
  */
-function pointToStr(p: number[], decimalPlaces: number = 3) {
+function pointToStr(p: number[], decimalPlaces = 3) {
 	return p[0].toFixed(decimalPlaces) + ', ' + p[1].toFixed(decimalPlaces); 
 }
 
 
 /** @hidden */
-let generalDebugFunctions/*: IGeneralDebugFunctions*/ = {
+const generalDebugFunctions/*: IGeneralDebugFunctions*/ = {
 	δToString,
 	δsToString,
 	pointToStr,

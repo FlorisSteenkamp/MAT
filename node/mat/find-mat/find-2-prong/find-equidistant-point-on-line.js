@@ -8,7 +8,7 @@
 function findEquidistantPointOnLine(x, y, z) {
     // Some basic algebra (not shown) finds the required point.
     // Swap axes if x and y are more aligned to y-axis than to x-axis.
-    let swapAxes = Math.abs((x[1] - y[1]) / (x[0] - y[0])) > 1;
+    const swapAxes = Math.abs((x[1] - y[1]) / (x[0] - y[0])) > 1;
     // Cache
     let x1, x2, y1, y2, z1, z2;
     if (swapAxes) {
@@ -28,12 +28,12 @@ function findEquidistantPointOnLine(x, y, z) {
         z2 = z[1];
     }
     // a <= 1 (due to swapped axes)
-    let a = (x2 - y2) / (x1 - y1);
-    let b = y2 - a * y1;
-    let c = (y1 * y1 + y2 * y2 - z1 * z1 - z2 * z2) + 2 * b * (z2 - y2);
-    let d = y1 - z1 + a * (y2 - z2);
-    let t1 = c / (2 * d);
-    let t2 = a * t1 + b;
+    const a = (x2 - y2) / (x1 - y1);
+    const b = y2 - a * y1;
+    const c = (y1 * y1 + y2 * y2 - z1 * z1 - z2 * z2) + 2 * b * (z2 - y2);
+    const d = y1 - z1 + a * (y2 - z2);
+    const t1 = c / (2 * d);
+    const t2 = a * t1 + b;
     return swapAxes ? [t2, t1] : [t1, t2];
 }
 export { findEquidistantPointOnLine };

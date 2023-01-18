@@ -7,22 +7,22 @@ import { getCurveToNext } from '../../../get-curve-to-next.js';
 /** @hidden */
 function drawMat(type: 'mat' | 'sat') {
 
-    let classes: string = type === 'mat'
+    const classes: string = type === 'mat'
         ? 'thin5 purple nofill'
         : 'thin10 red nofill';
 
     return (g: SVGGElement, mat: Mat) => {
-        let cpNode = mat.cpNode;
+        const cpNode = mat.cpNode;
         
         if (!cpNode) { return undefined; }
 
-        let $svgs: SVGElement[] = [];
+        const $svgs: SVGElement[] = [];
         let i = 0;
 
         traverseEdges(cpNode, cpNode => {
             if (cpNode.isTerminating()) { return; }
     
-            let bezier = getCurveToNext(cpNode);
+            const bezier = getCurveToNext(cpNode);
 
             if (!bezier) { return; }
 

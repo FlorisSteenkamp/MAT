@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug; 
+/** @internal */
+declare const _debug_: Debug; 
 
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug } from './debug/debug.js';
@@ -115,9 +115,9 @@ class CpNode {
 	 * edges.
 	 */
 	getChildren() {
-		let children: CpNode[] = [];
+		const children: CpNode[] = [];
 
-		let cp = this.next;
+		const cp = this.next;
 		let cp_ = cp;
 		do {
 			children.push(cp_); 
@@ -141,8 +141,8 @@ class CpNode {
 	get vertexChildren() {
 		if (this.isTerminating()) { return []; }
 
-		let cp: CpNode = this;
-		let children: CpNode[] = [];
+		const cp: CpNode = this;
+		const children: CpNode[] = [];
 
 		let cp_ = cp;
 		while (cp_ !== cp.prevOnCircle) {
@@ -159,8 +159,8 @@ class CpNode {
 	 * starting from the current one and going anti-clockwise around the shape.
 	 */
 	public getAllOnLoop() {
-		let cpStart: CpNode = this;
-		let cps: CpNode[] = [cpStart];
+		const cpStart: CpNode = this;
+		const cps: CpNode[] = [cpStart];
 		let cp: CpNode = this.next;
 
 		while (cp !== cpStart) {
@@ -193,7 +193,7 @@ class CpNode {
 			cp: ContactPoint, 
 			prev_: CpNode) {
 	
-		let cpNode = new CpNode(cp, isHoleClosing, isIntersection);
+		const cpNode = new CpNode(cp, isHoleClosing, isIntersection);
 		if (typeof _debug_ !== 'undefined') {
 			_debug_.generated.elems.cpNode.push({
 				generated: _debug_.generated,
@@ -231,10 +231,10 @@ class CpNode {
 	 * [[CpNode]].
 	 */
 	public getCpNodesOnCircle(exclThis = false) {
-		let startCp = this as CpNode;
+		const startCp = this as CpNode;
 		let cp = startCp;
 		
-		let cps: CpNode[] = [];
+		const cps: CpNode[] = [];
 		do {
 			if (exclThis) {
 				exclThis = false;
@@ -255,7 +255,7 @@ class CpNode {
 	 * @param cpNode2 Another [[CpNode]]
 	 */
 	static isOnSameCircle(cpNode1: CpNode, cpNode2: CpNode) {
-		let cpNodes = cpNode1.getCpNodesOnCircle(true);
+		const cpNodes = cpNode1.getCpNodesOnCircle(true);
 
 		return cpNodes.indexOf(cpNode2) >= 0;
 	}
@@ -284,8 +284,8 @@ class CpNode {
 	 * (except this.prevOnCircle) is terminating.
 	 */
 	public isFullyTerminating() {
-		let otherOnCircle = this.prevOnCircle.getCpNodesOnCircle(true);
-		let isFullyTerminating = otherOnCircle.every(cpNode => cpNode.isTerminating());
+		const otherOnCircle = this.prevOnCircle.getCpNodesOnCircle(true);
+		const isFullyTerminating = otherOnCircle.every(cpNode => cpNode.isTerminating());
 
 		return isFullyTerminating;
 	}
@@ -296,7 +296,7 @@ class CpNode {
 	 * .nextOnCircle) that exits the circle.
 	 */
 	public getFirstExit() {
-		let startNode = this as CpNode;
+		const startNode = this as CpNode;
 		let cpNode = startNode;
 
 		while (cpNode.next === cpNode.prevOnCircle) {
@@ -333,16 +333,16 @@ class CpNode {
 	 * preserve symmetry - see [[isTerminating]] for more details.
 	 */
 	public isOneProng() {
-		let cp1 = this;
+		const cp1 = this;
 
 		if (cp1.cp.circle.radius === 0) {
 			return true;
 		}
 
-		let cp2 = cp1.nextOnCircle;
+		const cp2 = cp1.nextOnCircle;
 
-		let p1 = cp1.cp.pointOnShape.p;
-		let p2 = cp2.cp.pointOnShape.p;
+		const p1 = cp1.cp.pointOnShape.p;
+		const p2 = cp2.cp.pointOnShape.p;
 
 		return (p1[0] === p2[0] && p1[1] === p2[1]);
 	}
@@ -357,7 +357,7 @@ class CpNode {
 	 * [[getRealProngCount]] instead which will return 1 in these cases.
 	 */
 	public getProngCount() {
-		let startCp = this as CpNode;
+		const startCp = this as CpNode;
 		let cp = startCp;
 
 		let i = 0;

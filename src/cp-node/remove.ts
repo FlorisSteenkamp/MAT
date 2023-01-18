@@ -8,13 +8,13 @@ import { CpNode } from "../cp-node.js";
  * @param cpNode The [[CpNode]] to remove.
  */
 function removeCpNode(cpNode: CpNode, cpTree?: LlRbTree<CpNode>): void {
-    let prev = cpNode.prev;
-    let next = cpNode.next;
+    const prev = cpNode.prev;
+    const next = cpNode.next;
     prev.next = next;
     next.prev = prev;
 
-    let nextOpposite = next.prevOnCircle;
-    let prevOpposite = prev.nextOnCircle;
+    const nextOpposite = next.prevOnCircle;
+    const prevOpposite = prev.nextOnCircle;
     nextOpposite.next = prevOpposite;
     prevOpposite.prev = nextOpposite;
     

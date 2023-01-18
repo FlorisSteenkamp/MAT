@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug; 
+/** @internal */
+declare const _debug_: Debug; 
 
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug }   from '../../debug/debug.js';
@@ -44,10 +44,10 @@ function add1Prong(
 	}
 	
 	//let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
-	let circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
+	const circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
 	
-	//let order = PointOnShape.calcOrder(circle, pos);
-	let order = calcPosOrder(circle, pos);
+	//const order = PointOnShape.calcOrder(circle, pos);
+	const order = calcPosOrder(circle, pos);
 	// Make sure there isn't already a ContactPoint close by - it can cause
 	// floating point stability issues.
 	if (isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {

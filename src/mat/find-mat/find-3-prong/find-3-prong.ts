@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug; 
+/** @internal */
+declare const _debug_: Debug; 
 
 import { fromTo } from 'flo-bezier3';
 import { Debug } from '../../../debug/debug.js';
@@ -19,18 +19,18 @@ import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
  * tolerances.
  */ 
 function find3Prong(δs: CpNode[][], extreme: number) {
-	let bezierPiecess = δs.map(getBoundaryPieceBeziers);
+	const bezierPiecess = δs.map(getBoundaryPieceBeziers);
 
 	if (typeof _debug_ !== 'undefined') { 
-		let threeProngs = _debug_.generated.elems.threeProng;
+		const threeProngs = _debug_.generated.elems.threeProng;
 		threeProngs.push(createEmptyThreeProngForDebugging());
 
-		let d = threeProngs[threeProngs.length-1];
+		const d = threeProngs[threeProngs.length-1];
 		d.boundaries = [];
-		for (let bezierPieces of bezierPiecess) {
-			let boundary: number[][][] = [];
+		for (const bezierPieces of bezierPiecess) {
+			const boundary: number[][][] = [];
 			d.boundaries.push(boundary);
-			for (let bezierPiece of bezierPieces) {
+			for (const bezierPiece of bezierPieces) {
 				/* qqq
 				let bezier = fromTo(bezierPiece.curve.ps)(
 					bezierPiece.ts[0], bezierPiece.ts[1]
@@ -46,7 +46,7 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 		d.traces = [];
 	}
 
-	let candidateThreeProngs = [];
+	const candidateThreeProngs = [];
 
 	// The best candidate amongst the different 'permutations' of the given δs.
 	let threeProng: { 
@@ -59,17 +59,17 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 	for (let i=1; i<δs.length-1; i++) {
 		for (let k=0; k<3; k++) {
 			if (typeof _debug_ !== 'undefined') { 
-				let threeProngs = _debug_.generated.elems.threeProng;
-				let d = threeProngs[threeProngs.length-1];
-				let trace: number[][] = [];
+				const threeProngs = _debug_.generated.elems.threeProng;
+				const d = threeProngs[threeProngs.length-1];
+				const trace: number[][] = [];
 				d.traces.push(trace);
 			}
 
-			let threeProngInfo = 
+			const threeProngInfo = 
 				find3ProngForDelta3s(δs, i, k, bezierPiecess, extreme);
 			if (!threeProngInfo) { continue; }
 
-			let { circle, ps, error, δ3s } = threeProngInfo;
+			const { circle, ps, error, δ3s } = threeProngInfo;
 			
 			if (typeof _debug_ !== 'undefined') { 
 				candidateThreeProngs.push({ circle, ps });
@@ -87,8 +87,8 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 	//threeProng.δ3s = [δs[0], δs[bestIndx+1], δs[δs.length-1]];
 
 	if (typeof _debug_ !== 'undefined') { 
-		let threeProngs = _debug_.generated.elems.threeProng;
-		let d = threeProngs[threeProngs.length-1];
+		const threeProngs = _debug_.generated.elems.threeProng;
+		const d = threeProngs[threeProngs.length-1];
 
 		d.generated = _debug_.generated;
 		d.circle = threeProng.circle;

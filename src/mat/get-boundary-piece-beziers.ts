@@ -14,9 +14,9 @@ import { compareCps } from '../contact-point.js';
  */
 function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
     let cpThis = cpNodes[0]; 
-    let cpEnd  = cpNodes[1];
+    const cpEnd  = cpNodes[1];
     
-    let bezierPieces = [];
+    const bezierPieces = [];
 
     // As opposed to going around the circle and taking the last exit
     let goStraight = true; 
@@ -29,8 +29,8 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
 
         goStraight = false;
         
-        let posThis = cpThis     .cp.pointOnShape;
-        let posNext = cpThis.next.cp.pointOnShape;
+        const posThis = cpThis     .cp.pointOnShape;
+        const posNext = cpThis.next.cp.pointOnShape;
 
         if (posNext.curve === posThis.curve && 
             //PointOnShape.isQuiteSharpCorner(posThis) && 
@@ -81,7 +81,7 @@ function addSkippedBeziers(
     let curveThis = curveStart;
     do {
         curveThis = curveThis.next;
-        let tEnd = curveThis === curveEnd ? t1 : 1;
+        const tEnd = curveThis === curveEnd ? t1 : 1;
         bezierPieces.push({ curve: curveThis, ts: [0, tEnd] });
     } while (curveThis !== curveEnd);
 }

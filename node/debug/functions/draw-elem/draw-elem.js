@@ -17,7 +17,7 @@ function notImplementedYet(g, elem) {
     return []; // TODO - implement relevant drawing function
 }
 /** @hidden */
-let drawElemFunctions = {
+const drawElemFunctions = {
     oneProng: drawOneProng,
     oneProngAtDullCorner,
     twoProng_regular: twoProng,

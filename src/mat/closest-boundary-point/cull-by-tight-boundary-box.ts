@@ -20,14 +20,14 @@ function cullByTightBoundingBox(
         p: number[],
         bestSquaredDistance: number) {
 
-    let candidateBezierPieces = []; 
+    const candidateBezierPieces = [];
 
     for (let i=0; i<bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
-        let ps = bezierPiece.curve.ps;
+        const bezierPiece = bezierPieces[i];
+        const ps = bezierPiece.curve.ps;
         
-        let tightBoundingBox = getBoundingBoxTight_(ps);
-        let d = getClosestSquaredDistanceToRotatedRect(
+        const tightBoundingBox = getBoundingBoxTight_(ps);
+        const d = getClosestSquaredDistanceToRotatedRect(
                 tightBoundingBox,
                 p
         );

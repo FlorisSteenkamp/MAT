@@ -6,8 +6,8 @@ const INF = Number.POSITIVE_INFINITY;
 /**
  * @hidden
  */
-let getLoopBounds = memoize(function (loop) {
-    let extremes = [
+const getLoopBounds = memoize(function (loop) {
+    const extremes = [
         [
             { bezier: undefined, t: undefined, val: INF },
             { bezier: undefined, t: undefined, val: INF }
@@ -18,13 +18,13 @@ let getLoopBounds = memoize(function (loop) {
         ]
     ];
     loop.curves.forEach(function (curve) {
-        let ps = curve.ps;
-        // let bounds = getBounds_(ps);
-        let bounds = getBounds(ps);
+        const ps = curve.ps;
+        // const bounds = getBounds_(ps);
+        const bounds = getBounds(ps);
         {
             {
-                let v = bounds.box[0][0];
-                let x = extremes[0][0].val;
+                const v = bounds.box[0][0];
+                const x = extremes[0][0].val;
                 if (v < x || (v === x && bounds.ts[0][0] > extremes[0][0].t)) {
                     extremes[0][0] = {
                         bezier: curve,
@@ -34,8 +34,8 @@ let getLoopBounds = memoize(function (loop) {
                 }
             }
             {
-                let v = bounds.box[0][1];
-                let x = extremes[0][1].val;
+                const v = bounds.box[0][1];
+                const x = extremes[0][1].val;
                 if (v < x || (v === x && bounds.ts[0][1] > extremes[0][1].t)) {
                     extremes[0][1] = {
                         bezier: curve,
@@ -47,8 +47,8 @@ let getLoopBounds = memoize(function (loop) {
         }
         {
             {
-                let v = bounds.box[1][0];
-                let x = extremes[1][0].val;
+                const v = bounds.box[1][0];
+                const x = extremes[1][0].val;
                 if (v > x || (v === x && bounds.ts[1][0] > extremes[1][0].t)) {
                     extremes[1][0] = {
                         bezier: curve,
@@ -58,8 +58,8 @@ let getLoopBounds = memoize(function (loop) {
                 }
             }
             {
-                let v = bounds.box[1][1];
-                let x = extremes[1][1].val;
+                const v = bounds.box[1][1];
+                const x = extremes[1][1].val;
                 if (v > x || (v === x && bounds.ts[1][1] > extremes[1][1].t)) {
                     extremes[1][1] = {
                         bezier: curve,

@@ -9,7 +9,7 @@ import { getShapeBounds } from './get-shape-bounds.js';
  * @param loops 
  */
 function getExtreme(loops: Loop[]) {
-	let bounds = getShapeBounds(loops);
+	const bounds = getShapeBounds(loops);
 	
 	return Math.max(  
 			Math.abs(bounds.minX.p[0]),

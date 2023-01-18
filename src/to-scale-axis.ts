@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug;
+/** @internal */
+declare const _debug_: Debug;
 
 import { length } from 'flo-bezier3';
 import { Debug } from './debug/debug.js';
@@ -45,21 +45,22 @@ function toScaleAxis(
 		s: number, 
 		f: (s: number) => (r: number) => number = linearScale): Mat {
 
+	let timingStart = 0;
 	if (typeof _debug_ !== 'undefined') {
-		var timingStart = performance.now();
-		let leaves = getLeaves(mat.cpNode);
+		timingStart = performance.now();
+		const leaves = getLeaves(mat.cpNode);
 		_debug_.generated.elems.leaves.push(leaves);
 	}
 
 	/** The largest vertex (as measured by its inscribed disk) */
-	let cpNodes: CpNode[] = [];
+	const cpNodes: CpNode[] = [];
 	traverseVertices(
 		clone(mat.cpNode), 
 		cpNode => { cpNodes.push(cpNode); }
 	);
 
-	let cpNode = getLargestVertex(cpNodes);
-	let f_ = f(s);
+	const cpNode = getLargestVertex(cpNodes);
+	const f_ = f(s);
 
 	if (typeof _debug_ !== 'undefined') {
 		_debug_.generated.elems.maxVertex.push(cpNode);
@@ -69,22 +70,22 @@ function toScaleAxis(
 	 * All vertices that are set to be culled initially. This may change later 
 	 * in order to preserve topology. 
 	 */
-	let culls: Set<Circle> = new Set();
+	const culls: Set<Circle> = new Set();
 
-	let rMap: Map<CpNode,number> = new Map();
+	const rMap: Map<CpNode,number> = new Map();
 
 	traverseEdges(cpNode, function(cpNode) {
 		/** The occulating radius stored with this vertex. */
-		let R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
+		const R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
 
-		let cpNode_ = cpNode.next;
+		const cpNode_ = cpNode.next;
 
-		let l = length([0,1], getCurveToNext(cpNode));
+		const l = length([0,1], getCurveToNext(cpNode));
 
-		let r = cpNode_.cp.circle.radius;
-		let r_ = f_(r);
+		const r = cpNode_.cp.circle.radius;
+		const r_ = f_(r);
 		if (R - l > r_) {
-			for (let cpNode of cpNode_.getCpNodesOnCircle()) {
+			for (const cpNode of cpNode_.getCpNodesOnCircle()) {
 				rMap.set(cpNode, R - l); // Update osculating radii
 			}
 			culls.add(cpNode_.cp.circle);
@@ -98,8 +99,8 @@ function toScaleAxis(
 	}
 	 
 	// TODO - put line below back - goes into infinite loop
-	//let sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
-	let sat: Mat = { cpNode, cpTrees: undefined };
+	//const sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
+	const sat: Mat = { cpNode, cpTrees: undefined };
 
 	addDebugInfo(sat, timingStart);
 

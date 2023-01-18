@@ -29,19 +29,19 @@ declare class PointOnShape implements IPointOnShape {
 /**
  * @hidden
  */
-declare let isPosSharpCorner: (a: IPointOnShape) => boolean;
+declare const isPosSharpCorner: (a: IPointOnShape) => boolean;
 /**
  * @hidden
  */
-declare let isPosDullCorner: (a: IPointOnShape) => boolean;
+declare const isPosDullCorner: (a: IPointOnShape) => boolean;
 /**
  * @hidden
  */
-declare let isPosQuiteSharpCorner: (a: IPointOnShape) => boolean;
+declare const isPosQuiteSharpCorner: (a: IPointOnShape) => boolean;
 /**
  * @hidden
  */
-declare let isPosQuiteDullCorner: (a: IPointOnShape) => boolean;
+declare const isPosQuiteDullCorner: (a: IPointOnShape) => boolean;
 /**
  * Returns a human-readable string of the given [[PointOnShape]].
  * For debugging only.

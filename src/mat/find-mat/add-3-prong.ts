@@ -24,7 +24,7 @@ function add3Prong(
 			δ3s: CpNode[][]
 		}) {
 	
-	let { circle, ps: poss, δ3s } = threeProng;
+	const { circle, ps: poss, δ3s } = threeProng;
 
 	// Keep for possible future debugging.	
 	/*

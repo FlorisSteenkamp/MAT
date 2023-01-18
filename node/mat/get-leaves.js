@@ -1,7 +1,7 @@
 /** @hidden */
 function getLeaves(cpNode) {
-    let leaves = [];
-    let cps = cpNode.getAllOnLoop();
+    const leaves = [];
+    const cps = cpNode.getAllOnLoop();
     cps.forEach(function (cp) {
         if (cp.isTerminating()) {
             leaves.push(cp);

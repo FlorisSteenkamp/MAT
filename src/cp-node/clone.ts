@@ -21,18 +21,18 @@ function clone(cpNode: CpNode): CpNode {
     // Don't change this function to be recursive, the call stack may 
     // overflow if there are too many CpNodes.
 
-    let nodeMap: Map<CpNode, CpNode> = new Map();
+    const nodeMap: Map<CpNode, CpNode> = new Map();
 
-    let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
+    const newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
 
     nodeMap.set(cpNode, newCpNode);
-    let cpStack = [{ cpNode, newCpNode }];
+    const cpStack = [{ cpNode, newCpNode }];
 
     while (cpStack.length) {
-        let { cpNode, newCpNode } = cpStack.pop();
+        const { cpNode, newCpNode } = cpStack.pop();
 
-        for (let edge of EDGES) {
-            let node = cpNode[edge];
+        for (const edge of EDGES) {
+            const node = cpNode[edge];
             let newNode = nodeMap.get(node);
             if (!newNode) {	
                 newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);

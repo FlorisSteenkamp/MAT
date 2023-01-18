@@ -25,7 +25,7 @@ interface ITwoProngDebugFunctions {
  * @hidden
  */
 function logδ(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
-	let δ =_debug_.generated.elems[type][n].δ;
+	const δ =_debug_.generated.elems[type][n].δ;
 	
 	console.log(δ);
 }
@@ -35,7 +35,7 @@ function logδ(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
  * @hidden
  */
 function log(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
-	let twoProng = _debug_.generated.elems[type][n];
+	const twoProng = _debug_.generated.elems[type][n];
 	console.log(twoProng);
 }
 
@@ -49,7 +49,7 @@ function drawNormal(
 		showDelay = 1000, 
 		type: ElemType_TwoProng = 'twoProng_regular') {
 
-	let twoProngs = _debug_.generated.elems[type];
+	const twoProngs = _debug_.generated.elems[type];
 	
 	// If not specified which, draw all
 	if (n === undefined) {
@@ -58,7 +58,7 @@ function drawNormal(
 		}
 	}
 	
-	let twoProng = twoProngs[n];
+	const twoProng = twoProngs[n];
 
 	//let g = twoProng.generated.g;
 	
@@ -77,10 +77,10 @@ function logδBasic(
 		n: number, 
 		type: ElemType_TwoProng = 'twoProng_regular') {
 
-	let delta = _debug_.generated.elems[type][n].δ;
+	const delta = _debug_.generated.elems[type][n].δ;
 
 	function f(x: CpNode) {
-		let pos = x.cp.pointOnShape;
+		const pos = x.cp.pointOnShape;
 		return {
 			bez: pos.curve.ps,
 			t: pos.t
@@ -96,10 +96,10 @@ function logδBasic(
  * @hidden
  */
 function logNearest(g: SVGGElement, p: number[], showDelay = 1000, type: ElemType_TwoProng = 'twoProng_regular') {
-	let closestPerLoops: TwoProngForDebugging[] = [];
+	const closestPerLoops: TwoProngForDebugging[] = [];
 
-	let generated = _debug_.generated;
-	let twoProng = getObjClosestTo<TwoProngForDebugging>(
+	const generated = _debug_.generated;
+	const twoProng = getObjClosestTo<TwoProngForDebugging>(
 		p, 
 		generated.elems[type], 
 		twoProng => twoProng.circle.center
@@ -110,7 +110,7 @@ function logNearest(g: SVGGElement, p: number[], showDelay = 1000, type: ElemTyp
 	
 	let n;
 	for (let i=0; i<_debug_.generated.elems[type].length; i++) {
-		let twoProng_ = _debug_.generated.elems[type][i];
+		const twoProng_ = _debug_.generated.elems[type][i];
 		if (twoProng_ === twoProng) {
 			n = i;
 			break;
@@ -136,8 +136,8 @@ function traceConvergence(
 
 	if (n === undefined) { return; }
 
-	let twoProngInfo = _debug_.generated.elems[type][n];
-	let xs = twoProngInfo.xs;
+	const twoProngInfo = _debug_.generated.elems[type][n];
+	const xs = twoProngInfo.xs;
 	//let g = twoProngInfo.generated.g;
 
 	console.log(twoProngInfo);
@@ -160,9 +160,9 @@ function traceConvergence(
 			continue;
 		}
 
-		let x = twoProngInfo.xs[i];
+		const x = twoProngInfo.xs[i];
 
-		let circle = { center: x.x, radius: distanceBetween(x.x, x.y.p) };
+		const circle = { center: x.x, radius: distanceBetween(x.x, x.y.p) };
 		drawFs.crossHair(g, x.x, 'red thin10 nofill', undefined, showDelay);
 		drawFs.circle(g, circle, 'blue thin10 nofill', showDelay);
 		if (x.z !== undefined) {
@@ -177,7 +177,7 @@ function traceConvergence(
 
 
 /** @hidden */
-let twoProngDebugFunctions: ITwoProngDebugFunctions = {
+const twoProngDebugFunctions: ITwoProngDebugFunctions = {
 	logδ,
 	log,
 	drawNormal,

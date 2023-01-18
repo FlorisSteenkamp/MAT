@@ -3,11 +3,6 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 const ResolveTypeScriptPlugin = require("resolve-typescript-plugin");
 
 
-////////////////////////////////
-const library = 'FloMat';
-////////////////////////////////
-
-
 const extensions = [
     '.js', '.mjs', '.cjs', 
     '.jsx', '.cjsx', '.mjsx'
@@ -15,8 +10,8 @@ const extensions = [
 
 
 const config_Basic = {
-    // mode: 'production',
-    mode: 'development',
+    mode: 'production',
+    // mode: 'development',
     entry: './src/index.ts',
     resolve: {
         extensions,
@@ -49,40 +44,12 @@ const config_Basic = {
             // set the current working directory for displaying module paths
             cwd: process.cwd(),
         })
-    ]
-}
-
-
-const lib = {
-    path: path.resolve(__dirname, 'browser'),
-    library,
-    libraryTarget: 'var'
-};
-
-
-/** Global var library, minified */ 
-const config_VarMinify = {
-    ...config_Basic,
+    ],
     output: {
-        filename: 'index.min.js',
-        ...lib
+        path: path.resolve(__dirname, 'browser'),
+        library: { type: 'module' }
     },
-    optimization: {
-        minimize: true
-    }
-};
-
-
-/** Global var library, not minified */ 
-const config_VarNoMinify = {
-    ...config_Basic,
-    output: {
-        filename: 'index.js',
-        ...lib
-    },
-    optimization: {
-        minimize: false
-    }
+    experiments: { outputModule: true }
 }
 
 
@@ -90,18 +57,10 @@ const config_VarNoMinify = {
 const config_EsmMinify = {
     ...config_Basic,
     output: {
-        filename: 'index.module.min.js',
-        path: path.resolve(__dirname, 'browser'),
-        library: {
-            type: 'module'
-        }
+        ...config_Basic.output,
+        filename: 'index.min.js',
     },
-    optimization: {
-        minimize: true
-    },
-    experiments: {
-        outputModule: true
-    }
+    optimization: { minimize: true }
 };
 
 
@@ -109,24 +68,14 @@ const config_EsmMinify = {
 const config_EsmNoMinify = {
     ...config_Basic,
     output: {
-        filename: 'index.module.js',
-        path: path.resolve(__dirname, 'browser'),
-        library: {
-            type: 'module'
-        }
+        ...config_Basic.output,
+        filename: 'index.js',
     },
-    optimization: {
-        minimize: false
-    },
-    experiments: {
-        outputModule: true
-    }
+    optimization: { minimize: false },
 };
 
 
 module.exports = [
-    config_VarMinify,
-    config_VarNoMinify,
     config_EsmMinify,
     config_EsmNoMinify
 ];

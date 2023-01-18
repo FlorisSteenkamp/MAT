@@ -38,7 +38,7 @@ declare function pointsToStr(ps: number[][], decimalPlaces?: number): string[];
  */
 declare function pointToStr(p: number[], decimalPlaces?: number): string;
 /** @hidden */
-declare let generalDebugFunctions: {
+declare const generalDebugFunctions: {
     δToString: typeof δToString;
     δsToString: typeof δsToString;
     pointToStr: typeof pointToStr;

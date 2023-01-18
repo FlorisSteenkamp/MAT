@@ -20,12 +20,12 @@ function cmpCpOnδ(
         return 1;
     }
 
-    let cpBef = δ[0].cp;
-    let cpAft = δ[1].cp;
+    const cpBef = δ[0].cp;
+    const cpAft = δ[1].cp;
 
-    let cmp     = compareCps(cpBef, cpAft); 
-    let cmpPrev = compareCps(cpBef, cp);
-    let cmpNext = compareCps(cp,    cpAft);
+    const cmp     = compareCps(cpBef, cpAft); 
+    const cmpPrev = compareCps(cpBef, cp);
+    const cmpNext = compareCps(cp,    cpAft);
     
     if (cmp < 0) {
         if (cmpPrev > 0 || cmpNext > 0) {

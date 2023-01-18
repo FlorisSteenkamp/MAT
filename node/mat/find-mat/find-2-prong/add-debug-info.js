@@ -1,7 +1,7 @@
 import { getTwoProngType } from '../../get-two-prong-type.js';
 /** @hidden */
 function addDebugInfo(bezierPieces, failed, pos, circle, z, δ, xs, holeClosing) {
-    let twoProng = {
+    const twoProng = {
         generated: _debug_.generated,
         bezierPieces,
         pos,
@@ -15,7 +15,7 @@ function addDebugInfo(bezierPieces, failed, pos, circle, z, δ, xs, holeClosing)
         deleted: false,
         cpNode: undefined
     };
-    let twoProngType = getTwoProngType(twoProng);
+    const twoProngType = getTwoProngType(twoProng);
     _debug_.generated.elems[twoProngType].push(twoProng);
 }
 export { addDebugInfo };

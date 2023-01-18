@@ -15,12 +15,12 @@ function cull(
         culls: Set<Circle>, 
         maxCpNode: CpNode) {
 
-    let leaves = getLeaves(maxCpNode);
+    const leaves = getLeaves(maxCpNode);
 
     function getNonTrivialEdges(cpStart: CpNode) {
 		let cp = cpStart;
 		
-        let cps: CpNode[] = [];
+        const cps: CpNode[] = [];
 		do {
             if (cp.next !== cp.nextOnCircle) {
                 cps.push(cp);
@@ -32,7 +32,7 @@ function cull(
     }
 
     while (leaves.length) {
-        let leaf = leaves.pop();
+        const leaf = leaves.pop();
 
         // Preserve topology.
         if (leaf.isHoleClosing || leaf.isIntersection) { continue; }
@@ -46,7 +46,7 @@ function cull(
         while (true) {
             cpNode = cpNode.next;
             let cut = false;
-            let cp1 = cpNode.prevOnCircle;
+            const cp1 = cpNode.prevOnCircle;
 
             if (!culls.has(cpNode.cp.circle)) {
                 // Cut off the edge once a non-cull has been reached.
@@ -54,7 +54,7 @@ function cull(
             } else if (CpNode.isOnSameCircle(cpNode, maxCpNode)) {
                 cut = true; // We are at the max disk - cut whole edge
             } else {
-                let cps = getNonTrivialEdges(cpNode);
+                const cps = getNonTrivialEdges(cpNode);
 
                 if (cps.length === 1) { 
                     cpNode = cps[0];

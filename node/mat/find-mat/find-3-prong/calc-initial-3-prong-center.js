@@ -11,11 +11,11 @@ import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closes
  * @param extreme
  */
 function calcInitial3ProngCenter(δ3s, bezierPiece3s) {
-    let twoProngCircleCenter = δ3s[0][0].cp.circle.center;
-    let posInfo = getClosestBoundaryPoint(bezierPiece3s[1], twoProngCircleCenter, undefined, // curve
+    const twoProngCircleCenter = δ3s[0][0].cp.circle.center;
+    const posInfo = getClosestBoundaryPoint(bezierPiece3s[1], twoProngCircleCenter, undefined, // curve
     undefined // t
     );
-    let meanPoints = [
+    const meanPoints = [
         δ3s[0][0].cp.pointOnShape.p,
         posInfo.pos.p,
         δ3s[2][1].cp.pointOnShape.p,

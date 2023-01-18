@@ -29,47 +29,47 @@ function calcGroups(
         limits: number[][], 
         circle: Circle) {
 
-    let limit = limits[coordinate];
-    let l1 = limit[0];
-    let l2 = limit[1];
+    const limit = limits[coordinate];
+    const l1 = limit[0];
+    const l2 = limit[1];
 
     // Relevant cut-off lines.
-    let q = (l2 - l1) / 4;
-    let w = q+q;
+    const q = (l2 - l1) / 4;
+    const w = q+q;
 
     // Shift origin
-    let r = circle.radius;
-    let x = circle.center[coordinate] - l1;
-    let x0 = x - (r * s);
-    let x1 = x + (r * s); 
+    const r = circle.radius;
+    const x = circle.center[coordinate] - l1;
+    const x0 = x - (r * s);
+    const x1 = x + (r * s); 
 
-    let newLimit: number[] = [,];
-    let groups = []; // Group to which circle belongs;
+    let newLimit: (number | undefined)[] = [,];
+    const groups: number[] = []; // Group to which circle belongs;
 
-    let qStart = Math.floor(x0/q);
-    let qEnd   = Math.floor(x1/q) + 1;
-    let qDiff  = qEnd - qStart; 
+    const qStart = Math.floor(x0/q);
+    const qEnd   = Math.floor(x1/q) + 1;
+    const qDiff  = qEnd - qStart; 
 
-    let group;
+    let group: number;
     if (qDiff === 1) {
         // If contained in sliver.
         group = (2 * Math.floor(qStart/2)) + 1;
         groups.push(group);
         
-        let lowerLimit = l1 + q*(group-1); 
+        const lowerLimit = l1 + q*(group-1); 
         newLimit = [lowerLimit, lowerLimit + w];			
         
     } else if (qDiff === 2) {
         group = qStart + 1;
         groups.push(group);
         
-        let lowerLimit = l1 + q*(group-1); 
+        const lowerLimit = l1 + q*(group-1); 
         newLimit = [lowerLimit, lowerLimit + w];
     }
 
-    let newLimits: number[][] = [,];
+    const newLimits: ((number | undefined)[] | undefined)[] = [,];
     if (groups.length === 1) {
-        let otherCoordinate = coordinate ? 0 : 1; 
+        const otherCoordinate = coordinate ? 0 : 1; 
         
         newLimits[otherCoordinate] = limits[otherCoordinate];
         newLimits[coordinate] = newLimit;

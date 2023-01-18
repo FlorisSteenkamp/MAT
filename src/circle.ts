@@ -30,9 +30,9 @@ function engulfsCircle(c1: Circle, c2: Circle) {
         return false; 
     }
     
-    let d = squaredDistanceBetween(c1.center, c2.center);
-    let dr = c1.radius - c2.radius; 
-    let δ = dr*dr;
+    const d = squaredDistanceBetween(c1.center, c2.center);
+    const dr = c1.radius - c2.radius; 
+    const δ = dr*dr;
 
     return δ > d;
 }

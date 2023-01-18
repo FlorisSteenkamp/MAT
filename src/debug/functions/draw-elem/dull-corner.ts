@@ -6,9 +6,9 @@ import { Curve } from '../../../curve.js';
 function dullCorner(g: SVGGElement, curve: Curve) {
 	const scaleFactor = 1;
 		
-	let ps = curve.ps; 
-	let p = curve.ps[ps.length-1];
-	let $pos = drawFs.dot(g, p, 0.5*scaleFactor, 'orange');
+	const ps = curve.ps; 
+	const p = curve.ps[ps.length-1];
+	const $pos = drawFs.dot(g, p, 0.5*scaleFactor, 'orange');
 	
 	return $pos;
 }

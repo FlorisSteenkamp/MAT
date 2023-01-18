@@ -52,12 +52,8 @@ the SAT is a subset of the MAT.
 This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
 and can be used in `Node.js` (or in a browser when bundled using e.g. Webpack).
 
-Additionally, self-contained `ECMAScript Module` (ESM) files `index.module.js` and
-`index.module.min.js` in the `./browser` folder is provided.
-
-Or, if you need a legacy browser script there is also `index.js`
-and `index.min.js` in the `./browser` folder. Either script exposes a global 
-variable.
+Additionally, self-contained `ECMAScript Module` (ESM) files `index.js` and
+`index.min.js` in the `./browser` folder are provided.
 
 # Code example
 
@@ -350,35 +346,21 @@ So whatever your target, at the the command line:
 npm install flo-mat
 ```
 
-## Node with JavaScript (or the browser (with [webpack](https://webpack.js.org/)) or similar) 
+## Node with JavaScript/TypeScript (or the browser (with [webpack](https://webpack.js.org/)) or similar) 
 
 In your project
+
 ```javascript
-let FloMat = require("flo-mat");
+import { findMats } from 'flo-mat';
 ```
-or if you only want to require specific functionality:
+
+## Browser - directly, without a bundler, using the pre-bundled minified .js file
+
+Please note that no tree shaking will take place in this case.
+
 ```javascript
-let { findMats } = require('flo-mat');
+import { findMats } from './node_modules/flo-mat/browser/index.min.js';
 ```
-
-## TypeScript
-
-In your project
-```typescript
-import * as FloMat from "flo-mat";
-```
-or for specific functionalities:
-```typescript
-import { findMats } from "flo-mat";
-```
-
-## Browser (using global var)
-
-After the npm installation simply include the script in your project:
-```html
-<script src='node_modules/flo-mat/browser/index.min.js'></script>
-```
-A new global object will be available called `FloMat` representing the library. 
 
 # Usage
 

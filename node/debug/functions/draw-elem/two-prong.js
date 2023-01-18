@@ -2,7 +2,7 @@ import { drawFs } from 'flo-draw';
 import { getTwoProngType } from '../../../mat/get-two-prong-type.js';
 /** @hidden */
 function twoProng(g, twoProng) {
-    let scaleFactor = 0.3;
+    const scaleFactor = 0.3;
     let $failedDot = [];
     let $center = [];
     let $circle = [];

@@ -18,7 +18,7 @@ function getNeighbouringPoints(
         order: number,
         order2: number) {
 
-    let cps = cpTree.findBounds(
+    const cps = cpTree.findBounds(
         new CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false)
     );
 

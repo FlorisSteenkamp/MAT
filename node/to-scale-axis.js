@@ -27,16 +27,17 @@ function linearScale(s) {
  * @param s The scale factor >= 1 (e.g. 1.3)
  */
 function toScaleAxis(mat, s, f = linearScale) {
+    let timingStart = 0;
     if (typeof _debug_ !== 'undefined') {
-        var timingStart = performance.now();
-        let leaves = getLeaves(mat.cpNode);
+        timingStart = performance.now();
+        const leaves = getLeaves(mat.cpNode);
         _debug_.generated.elems.leaves.push(leaves);
     }
     /** The largest vertex (as measured by its inscribed disk) */
-    let cpNodes = [];
+    const cpNodes = [];
     traverseVertices(clone(mat.cpNode), cpNode => { cpNodes.push(cpNode); });
-    let cpNode = getLargestVertex(cpNodes);
-    let f_ = f(s);
+    const cpNode = getLargestVertex(cpNodes);
+    const f_ = f(s);
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.maxVertex.push(cpNode);
     }
@@ -44,17 +45,17 @@ function toScaleAxis(mat, s, f = linearScale) {
      * All vertices that are set to be culled initially. This may change later
      * in order to preserve topology.
      */
-    let culls = new Set();
-    let rMap = new Map();
+    const culls = new Set();
+    const rMap = new Map();
     traverseEdges(cpNode, function (cpNode) {
         /** The occulating radius stored with this vertex. */
-        let R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
-        let cpNode_ = cpNode.next;
-        let l = length([0, 1], getCurveToNext(cpNode));
-        let r = cpNode_.cp.circle.radius;
-        let r_ = f_(r);
+        const R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
+        const cpNode_ = cpNode.next;
+        const l = length([0, 1], getCurveToNext(cpNode));
+        const r = cpNode_.cp.circle.radius;
+        const r_ = f_(r);
         if (R - l > r_) {
-            for (let cpNode of cpNode_.getCpNodesOnCircle()) {
+            for (const cpNode of cpNode_.getCpNodesOnCircle()) {
                 rMap.set(cpNode, R - l); // Update osculating radii
             }
             culls.add(cpNode_.cp.circle);
@@ -65,8 +66,8 @@ function toScaleAxis(mat, s, f = linearScale) {
         _debug_.generated.elems.culls.push(Array.from(culls));
     }
     // TODO - put line below back - goes into infinite loop
-    //let sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
-    let sat = { cpNode, cpTrees: undefined };
+    //const sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
+    const sat = { cpNode, cpTrees: undefined };
     addDebugInfo(sat, timingStart);
     return sat;
 }

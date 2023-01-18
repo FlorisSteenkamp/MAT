@@ -24,14 +24,14 @@ function compareCurvaturesAtInterface(
         psO: number[][]) {
 
     // Get x' and y' for incoming curve evaluated at 0
-    let [dxI, dyI] = tangentAt0(psI); // max bitlength increase / max shift === 3
+    const [dxI, dyI] = tangentAt0(psI); // max bitlength increase / max shift === 3
     // Get x'' and y'' for incoming curve evaluated at 0
-    let [ddxI, ddyI] = evaluate2ndDerivativeAt0(psI); // max bitlength increase / max shift === 5
+    const [ddxI, ddyI] = evaluate2ndDerivativeAt0(psI); // max bitlength increase / max shift === 5
 
     // Get x' and y' for outgoing curve evaluated at 0
-    let [dxO, dyO] = tangentAt0(psO); // max bitlength increase / max shift === 3
+    const [dxO, dyO] = tangentAt0(psO); // max bitlength increase / max shift === 3
     // Get x'' and y'' for outgoing curve evaluated at 0
-    let [ddxO, ddyO] = evaluate2ndDerivativeAt0(psO); // max bitlength increase / max shift === 5
+    const [ddxO, ddyO] = evaluate2ndDerivativeAt0(psO); // max bitlength increase / max shift === 5
 
     //console.log('κI: ', κ(psI, 0));
     //console.log('κO: ', κ(psO, 0));
@@ -59,40 +59,40 @@ function compareCurvaturesAtInterface(
     //let d = (dxI*dxI  + dyI*dyI )**3;
 
     // We need to resort to exact floating point arithmetic at this point
-    let a = eDiff(
+    const a = eDiff(
         twoProduct(dxI, ddyI), 
         twoProduct(dyI, ddxI)
     );
-    let c = eDiff(
+    const c = eDiff(
         twoProduct(dxO, ddyO),
         twoProduct(dyO, ddxO)
     );
 
-    let signA = eSign(a);
-    let signC = eSign(c);
+    const signA = eSign(a);
+    const signC = eSign(c);
     if (signA !== signC) {
         //console.log('branch 3');
         return signA - signC;
     }
 
-    let b = fastExpansionSum(
+    const b = fastExpansionSum(
         twoProduct(dxO, dxO),
         twoProduct(dyO, dyO)
     );
-    let d = fastExpansionSum(
+    const d = fastExpansionSum(
         twoProduct(dxI, dxI),
         twoProduct(dyI, dyI)
     );
 
-    let b2 = expansionProduct(b, b);
-    let b3 = expansionProduct(b2, b);
-    let d2 = expansionProduct(d, d);
-    let d3 = expansionProduct(d2, d);
+    const b2 = expansionProduct(b, b);
+    const b3 = expansionProduct(b2, b);
+    const d2 = expansionProduct(d, d);
+    const d3 = expansionProduct(d2, d);
 
     if (signA !== 0 || signC !== 0) {
         //console.log('branch 4');
-        let a2 = expansionProduct(a, a);
-        let c2 = expansionProduct(c, c);
+        const a2 = expansionProduct(a, a);
+        const c2 = expansionProduct(c, c);
 
         // max aggregate bitlength increase (let original bitlength === p):
         // κ -> (2 x ((p+3)+(p+5) + 1)) + (3 x ((p+3) + 1)) === 7p + 30
@@ -101,9 +101,9 @@ function compareCurvaturesAtInterface(
         // results without resorting to infinite precision) we get 51 bits.
 
         
-        let κI = expansionProduct(a2,b3);
-        let κO = expansionProduct(c2,d3);
-        let δκ = eSign(eDiff(κI, κO));
+        const κI = expansionProduct(a2,b3);
+        const κO = expansionProduct(c2,d3);
+        const δκ = eSign(eDiff(κI, κO));
 
         if (δκ !== 0) {
             //console.log('branch 5');
@@ -125,32 +125,32 @@ function compareCurvaturesAtInterface(
     // <=> i²b⁵ > j²d⁵
 
     // Get x′′′ and y′′′ for incoming curve evaluated at 1
-    let [dddxI, dddyI] = toPowerBasis_3rdDerivative(psI); // max bitlength increase === max shift === 6
-    let [dddxO, dddyO] = toPowerBasis_3rdDerivative(psO); // max bitlength increase === max shift === 6
+    const [dddxI, dddyI] = toPowerBasis_3rdDerivative(psI); // max bitlength increase === max shift === 6
+    const [dddxO, dddyO] = toPowerBasis_3rdDerivative(psO); // max bitlength increase === max shift === 6
 
-    let e = eDiff(
+    const e = eDiff(
         twoProduct(dxI, dddyI),
         twoProduct(dyI, dddxI)
     );
 
-    let f = fastExpansionSum(
+    const f = fastExpansionSum(
         twoProduct(dxI, ddxI),
         twoProduct(dyI, ddyI)
     );
 
-    let g = eDiff(
+    const g = eDiff(
         twoProduct(dxO, dddyO),
         twoProduct(dyO, dddxO)
     );
 
-    let h = fastExpansionSum(
+    const h = fastExpansionSum(
         twoProduct(dxO, ddxO),
         twoProduct(dyO, ddyO)
     );
 
     // (de - 3af)²b⁵ > (bg - 3ch)²d⁵
     // i²b⁵ > j²d⁵
-    let i = eDiff(
+    const i = eDiff(
         expansionProduct(d, e),
         scaleExpansion(
             expansionProduct(a, f),
@@ -158,7 +158,7 @@ function compareCurvaturesAtInterface(
         )
     );
 
-    let j = eDiff(
+    const j = eDiff(
         expansionProduct(b, g),
         scaleExpansion(
             expansionProduct(c, h),
@@ -166,8 +166,8 @@ function compareCurvaturesAtInterface(
         )
     );
 
-    let signI = eSign(i);
-    let signJ = eSign(j);
+    const signI = eSign(i);
+    const signJ = eSign(j);
     if (signA !== signC) {
         return signI - signJ;
     }
@@ -177,15 +177,15 @@ function compareCurvaturesAtInterface(
         return 0;
     }
 
-    let i2 = expansionProduct(i,i);
-    let b5 = expansionProduct(b2,b3);
-    let j2 = expansionProduct(j,j);
-    let d5 = expansionProduct(d2,d3);
+    const i2 = expansionProduct(i,i);
+    const b5 = expansionProduct(b2,b3);
+    const j2 = expansionProduct(j,j);
+    const d5 = expansionProduct(d2,d3);
 
-    let dκI = expansionProduct(i2,b5);
-    let dκO = expansionProduct(j2,d5);
+    const dκI = expansionProduct(i2,b5);
+    const dκO = expansionProduct(j2,d5);
 
-    let sgn = eSign(eDiff(dκI, dκO));
+    const sgn = eSign(eDiff(dκI, dκO));
 
     return signI > 0 ? sgn : -sgn;
 

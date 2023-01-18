@@ -8,11 +8,11 @@ import { squaredDistanceBetween } from 'flo-vector2d';
 function getBestDistanceSquared(bezierPieces, p) {
     let bestSquaredDistance = Number.POSITIVE_INFINITY;
     for (let i = 0; i < bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
-        let ps = bezierPiece.curve.ps;
-        let p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
-        let p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
-        let d = Math.min(squaredDistanceBetween(p, p1), squaredDistanceBetween(p, p2));
+        const bezierPiece = bezierPieces[i];
+        const ps = bezierPiece.curve.ps;
+        const p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
+        const p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
+        const d = Math.min(squaredDistanceBetween(p, p1), squaredDistanceBetween(p, p2));
         if (d < bestSquaredDistance) {
             bestSquaredDistance = d;
         }

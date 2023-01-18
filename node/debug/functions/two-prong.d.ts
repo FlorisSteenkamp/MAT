@@ -9,5 +9,5 @@ interface ITwoProngDebugFunctions {
     traceConvergence: (g: SVGGElement, n: number, finalOnly?: boolean, showDelay?: number, range?: number[], type?: ElemType_TwoProng) => void;
 }
 /** @hidden */
-declare let twoProngDebugFunctions: ITwoProngDebugFunctions;
+declare const twoProngDebugFunctions: ITwoProngDebugFunctions;
 export { ITwoProngDebugFunctions, twoProngDebugFunctions };

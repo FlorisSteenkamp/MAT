@@ -15,10 +15,10 @@ function areBoxesIntersecting(closed: boolean) {
         let [[bx0, by0],[bx1, by1]] = b;
 
         // Swap so smaller coordinate comes first
-        if (ay0 > ay1) { [ay0,ay1] = [ay1,ay0] };
-        if (by0 > by1) { [by0,by1] = [by1,by0] };
-        if (ax0 > ax1) { [ax0,ax1] = [ax1,ax0] };
-        if (bx0 > bx1) { [bx0,bx1] = [bx1,bx0] };
+        if (ay0 > ay1) { [ay0,ay1] = [ay1,ay0] }
+        if (by0 > by1) { [by0,by1] = [by1,by0] }
+        if (ax0 > ax1) { [ax0,ax1] = [ax1,ax0] }
+        if (bx0 > bx1) { [bx0,bx1] = [bx1,bx0] }
 
         return closed
             ? (

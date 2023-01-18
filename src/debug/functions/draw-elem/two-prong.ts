@@ -5,7 +5,7 @@ import { getTwoProngType } from '../../../mat/get-two-prong-type.js';
 
 /** @hidden */
 function twoProng(g: SVGGElement, twoProng: TwoProngForDebugging) {
-	let scaleFactor = 0.3;
+	const scaleFactor = 0.3;
 
 	let $failedDot : SVGElement[] = [];
 	let $center    : SVGElement[] = [];

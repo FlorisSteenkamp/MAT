@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug; 
+/** @internal */
+declare const _debug_: Debug; 
 
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug } from '../../debug/debug.js';
@@ -27,22 +27,22 @@ function findAndAddAll3Prongs(
 	// Don't change this function to be recursive, the call stack may overflow 
 	// if there are too many two-prongs.
 
-	let visitedEdges = new Map<CpNode, Set<CpNode>>();
+	const visitedEdges = new Map<CpNode, Set<CpNode>>();
 
-	let edgesToCheck = [{ fromCpNode: undefined as CpNode, cpStart }];
+	const edgesToCheck = [{ fromCpNode: undefined as CpNode, cpStart }];
 
 	while (edgesToCheck.length) {
-		let { fromCpNode, cpStart } = edgesToCheck.shift();
+		const { fromCpNode, cpStart } = edgesToCheck.shift();
 
 		markEdgeAsTaken(visitedEdges, fromCpNode, cpStart);
 		
-		for (let cpNode of cpStart.getCpNodesOnCircle()) {
+		for (const cpNode of cpStart.getCpNodesOnCircle()) {
 
 			//if (!PointOnShape.isSharpCorner(cpNode.cp.pointOnShape)) {
 			if (!isPosSharpCorner(cpNode.cp.pointOnShape)) {
 				if (findAndAdd3Prongs(cpGraphs, cpNode, extreme) === undefined) {
 					return; // only for debugging purposes
-				};
+				}
 			}
 
 			if (hasEdgeBeenTaken(visitedEdges, cpNode, cpNode.next)) {
@@ -89,10 +89,10 @@ function hasEdgeBeenTaken(
 	let cps: Set<CpNode>;
 
 	cps = visitedEdges.get(cp1);
-	let takenForward   = cps && cps.has(cp2); 
+	const takenForward   = cps && cps.has(cp2); 
 
 	cps = visitedEdges.get(cp2);
-	let takenBackwards = cps && cps.has(cp1); 
+	const takenBackwards = cps && cps.has(cp1); 
 
 	return takenForward || takenBackwards;
 }
@@ -112,11 +112,11 @@ function traverseShape(cpStart: CpNode) {
 		return [cpNode];
 	}
 
-	let visitedCps = [];
+	const visitedCps = [];
 	do {
 		visitedCps.push(cpNode);
 	
-		let next = cpNode.next.prevOnCircle;
+		const next = cpNode.next.prevOnCircle;
 		cpNode = cpNode === next
 				? cpNode = cpNode.next.next // Terminal vertex
 				: cpNode = next         // Take last exit
@@ -179,14 +179,14 @@ function findAndAdd3Prong(
 		visitedCps : CpNode[],
 		extreme    : number) {
 	
-	let δs = [];
-	for (let visitedCp of visitedCps) {
+	const δs = [];
+	for (const visitedCp of visitedCps) {
 		δs.push([visitedCp, visitedCp.next]);
 	}
 	
-	let threeProng = find3Prong(δs, extreme);
+	const threeProng = find3Prong(δs, extreme);
 	
-	let orders = [];
+	const orders = [];
 	for (let i=0; i<3; i++) {
 		orders.push(
 			//PointOnShape.calcOrder(threeProng.circle, threeProng.ps[i])
@@ -194,7 +194,7 @@ function findAndAdd3Prong(
 		);
 	}
 	
-	let circle = add3Prong(cpGraphs, orders, threeProng);
+	const circle = add3Prong(cpGraphs, orders, threeProng);
 
 	if (typeof _debug_ !== 'undefined') { 
 		add3ProngDebugInfo(circle, visitedCps);
@@ -207,9 +207,9 @@ function add3ProngDebugInfo(
 		circle: Circle, 
 		visitedCps: CpNode[]) {
 
-	let threeProngs = _debug_.generated.elems.threeProng;
-	let len = threeProngs.length;
-	let data = threeProngs[len-1];
+	const threeProngs = _debug_.generated.elems.threeProng;
+	const len = threeProngs.length;
+	const data = threeProngs[len-1];
 	data.visitedCps = visitedCps;
 	data.circle     = circle;
 }

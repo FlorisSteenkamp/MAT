@@ -2,8 +2,8 @@
  * @param beziers A pre-ordered array of bezier curves to add initially.
  */
 function loopFromBeziers(beziers = []) {
-    let curves = [];
-    let loop = {
+    const curves = [];
+    const loop = {
         beziers,
         curves
     };
@@ -12,7 +12,7 @@ function loopFromBeziers(beziers = []) {
     }
     let prev;
     for (let i = 0; i < beziers.length; i++) {
-        let curve = {
+        const curve = {
             loop,
             ps: beziers[i],
             prev,
@@ -26,7 +26,7 @@ function loopFromBeziers(beziers = []) {
         curves.push(curve);
     }
     // close loop
-    let lastCurve = curves[curves.length - 1];
+    const lastCurve = curves[curves.length - 1];
     curves[0].prev = lastCurve;
     lastCurve.next = curves[0];
     return loop;

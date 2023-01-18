@@ -8,7 +8,7 @@ import { IPointOnShape } from '../point-on-shape.js';
  * @param curve 
  */
 function getContactCirclesAtInterface(curve: Curve): IPointOnShape[] {
-	let { isQuiteSharp, isQuiteDull } = getCornerAtEnd(curve);
+	const { isQuiteSharp, isQuiteDull } = getCornerAtEnd(curve);
 
 	if (isQuiteSharp) {  
 		return [new PointOnShape(curve, 1)]; 

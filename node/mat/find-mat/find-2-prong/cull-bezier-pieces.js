@@ -15,11 +15,11 @@ function cullBezierPieces(bezierPieces, p, rSquared) {
     if (bezierPieces.length <= CULL_THRESHOLD) {
         return bezierPieces;
     }
-    let newPieces = [];
-    for (let bezierPiece of bezierPieces) {
-        let ps = bezierPiece.curve.ps;
-        let rect = getBoundingBox_(ps);
-        let bd = getClosestSquareDistanceToRect(rect, p);
+    const newPieces = [];
+    for (const bezierPiece of bezierPieces) {
+        const ps = bezierPiece.curve.ps;
+        const rect = getBoundingBox_(ps);
+        const bd = getClosestSquareDistanceToRect(rect, p);
         if (bd <= rSquared * TOLERANCE) {
             newPieces.push(bezierPiece);
         }

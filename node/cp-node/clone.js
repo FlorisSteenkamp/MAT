@@ -9,14 +9,14 @@ const EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
 function clone(cpNode) {
     // Don't change this function to be recursive, the call stack may 
     // overflow if there are too many CpNodes.
-    let nodeMap = new Map();
-    let newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
+    const nodeMap = new Map();
+    const newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
     nodeMap.set(cpNode, newCpNode);
-    let cpStack = [{ cpNode, newCpNode }];
+    const cpStack = [{ cpNode, newCpNode }];
     while (cpStack.length) {
-        let { cpNode, newCpNode } = cpStack.pop();
-        for (let edge of EDGES) {
-            let node = cpNode[edge];
+        const { cpNode, newCpNode } = cpStack.pop();
+        for (const edge of EDGES) {
+            const node = cpNode[edge];
             let newNode = nodeMap.get(node);
             if (!newNode) {
                 newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);

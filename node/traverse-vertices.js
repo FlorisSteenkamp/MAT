@@ -16,9 +16,9 @@ function traverseVertices(cpNode, f) {
         .map(cpNode => cpNode.next)
         .forEach(f_);
     function f_(cpNode) {
-        let cps = [cpNode];
+        const cps = [cpNode];
         while (cps.length) {
-            let cp = cps.pop();
+            const cp = cps.pop();
             f(cp);
             cps.push(...cp.vertexChildren);
         }

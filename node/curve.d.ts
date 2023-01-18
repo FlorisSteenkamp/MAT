@@ -42,5 +42,5 @@ declare function getCorner(psI: number[][], psO: number[][]): Corner;
  * Returns information about the corner created at the end of this curve
  * (at t === 1) and the start of the next curve (at t === 0).
  */
-declare let getCornerAtEnd: (a: Curve) => Corner;
+declare const getCornerAtEnd: (a: Curve) => Corner;
 export { Curve, getCorner, getCornerAtEnd };

@@ -7,7 +7,7 @@ function addDebugInfo(sat, timingStart) {
         return;
     }
     _debug_.generated.elems.sat.push(sat);
-    let timing = _debug_.generated.timing;
+    const timing = _debug_.generated.timing;
     timing.sats = performance.now() - timingStart;
 }
 export { addDebugInfo };

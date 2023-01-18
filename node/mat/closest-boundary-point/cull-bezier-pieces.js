@@ -10,7 +10,7 @@ import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
 function cullBezierPieces(bezierPieces, p) {
     const CULL_THRESHOLD = 0;
     if (bezierPieces.length > CULL_THRESHOLD) {
-        let bestSquaredDistance = getBestDistanceSquared(bezierPieces, p);
+        const bestSquaredDistance = getBestDistanceSquared(bezierPieces, p);
         bezierPieces = cullByLooseBoundingBox(bezierPieces, p, bestSquaredDistance);
         bezierPieces = cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance);
     }

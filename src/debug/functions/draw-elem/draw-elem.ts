@@ -30,7 +30,7 @@ function notImplementedYet<T extends IDebugElems[keyof IDebugElems]> (g: SVGElem
 
 
 /** @hidden */
-let drawElemFunctions: TDrawElemFunctions = {
+const drawElemFunctions: TDrawElemFunctions = {
 	oneProng: drawOneProng,
 	oneProngAtDullCorner,
 	

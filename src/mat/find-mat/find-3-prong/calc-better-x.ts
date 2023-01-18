@@ -20,7 +20,7 @@ function calcBetterX(
         x: number[], 
         vectorToZeroV: number[]) {
 
-    let V = len(vectorToZeroV);
+    const V = len(vectorToZeroV);
 
     let nu = 1;
     let better;
@@ -29,15 +29,15 @@ function calcBetterX(
     let newV;
     let i = 0; // Safeguard
     do { 
-        let shift = scale(vectorToZeroV, nu);
+        const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x); 
         
         
         newPs = getClosestPoints(newX, bezierPiece3s);
                     
         // Point of zero V
-        let newCircleCenter = circumCenter(newPs.map(pos => pos.p)); 
-        let newVectorToZeroV = fromTo(newX, newCircleCenter);
+        const newCircleCenter = circumCenter(newPs.map(pos => pos.p)); 
+        const newVectorToZeroV = fromTo(newX, newCircleCenter);
         newV = len(newVectorToZeroV);
         
         better = newV < V;

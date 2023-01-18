@@ -11,12 +11,12 @@ const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
  * @param bestSquaredDistance
  */
 function cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance) {
-    let candidateBezierPieces = [];
+    const candidateBezierPieces = [];
     for (let i = 0; i < bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
-        let ps = bezierPiece.curve.ps;
-        let tightBoundingBox = getBoundingBoxTight_(ps);
-        let d = getClosestSquaredDistanceToRotatedRect(tightBoundingBox, p);
+        const bezierPiece = bezierPieces[i];
+        const ps = bezierPiece.curve.ps;
+        const tightBoundingBox = getBoundingBoxTight_(ps);
+        const d = getClosestSquaredDistanceToRotatedRect(tightBoundingBox, p);
         if (d <= bestSquaredDistance) {
             candidateBezierPieces.push(bezierPiece);
         }

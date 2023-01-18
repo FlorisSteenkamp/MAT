@@ -11,43 +11,43 @@ const TOLERANCE_USE_LINE = 0.0001; // else cubic
  * @param cpNodeTo
  */
 function getCurveBetween(cpNodeFrom, cpNodeTo) {
-    let fromCc = cpNodeFrom.cp.circle.center;
-    let fromL = getEdgeDirection(cpNodeFrom);
-    let toCc = cpNodeTo.cp.circle.center;
-    let toL = getEdgeDirection(cpNodeTo.prevOnCircle);
-    let mid = lineLineIntersection(fromL, toL);
-    let c = fromTo(fromCc, toCc);
+    const fromCc = cpNodeFrom.cp.circle.center;
+    const fromL = getEdgeDirection(cpNodeFrom);
+    const toCc = cpNodeTo.cp.circle.center;
+    const toL = getEdgeDirection(cpNodeTo.prevOnCircle);
+    const mid = lineLineIntersection(fromL, toL);
+    const c = fromTo(fromCc, toCc);
     let twisted;
     if (!mid) {
         twisted = true;
     }
     else {
-        let a = fromTo(fromCc, mid);
-        let b = fromTo(toCc, mid);
+        const a = fromTo(fromCc, mid);
+        const b = fromTo(toCc, mid);
         twisted = dot(a, c) < 0 || dot(b, c) > 0;
     }
     if (!twisted) {
         return [fromCc, mid, toCc];
     }
-    let r = rotate90Degrees(c);
-    let w1 = fromTo(fromL[0], fromL[1]); // This is a unit vector
-    let w2 = fromTo(toL[0], toL[1]); // This is a unit vector
-    let d1 = Math.abs(cross(c, w1)) / (3 * 3);
-    let d2 = Math.abs(cross(c, w2)) / (3 * 3);
+    const r = rotate90Degrees(c);
+    const w1 = fromTo(fromL[0], fromL[1]); // This is a unit vector
+    const w2 = fromTo(toL[0], toL[1]); // This is a unit vector
+    const d1 = Math.abs(cross(c, w1)) / (3 * 3);
+    const d2 = Math.abs(cross(c, w2)) / (3 * 3);
     if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
         // TODO - not within tolerance - must add additional 2-prong
         return [fromCc, toCc];
     }
     if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {
         // approximate with cubic bezier
-        let m1 = interpolate(fromCc, toCc, 1 / 3);
-        let m2 = interpolate(fromCc, toCc, 2 / 3);
-        let v1 = translate(r, m1);
-        let v2 = translate(r, m2);
-        let l1 = [m1, v1];
-        let l2 = [m2, v2];
-        let mid1 = lineLineIntersection(fromL, l1);
-        let mid2 = lineLineIntersection(toL, l2);
+        const m1 = interpolate(fromCc, toCc, 1 / 3);
+        const m2 = interpolate(fromCc, toCc, 2 / 3);
+        const v1 = translate(r, m1);
+        const v2 = translate(r, m2);
+        const l1 = [m1, v1];
+        const l2 = [m2, v2];
+        const mid1 = lineLineIntersection(fromL, l1);
+        const mid2 = lineLineIntersection(toL, l2);
         return [fromCc, mid1, mid2, toCc];
     }
     // Within tolerance - approximate with a straight line.

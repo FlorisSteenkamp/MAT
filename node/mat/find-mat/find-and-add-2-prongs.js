@@ -12,20 +12,19 @@ import { add2Prong } from './add-2-prong.js';
  * tolerances.
  */
 function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
-    let len = for2Prongs.length;
-    let index = indexLinear(len);
-    //let index = indexInterlaced(len); // Keep for possible future use.
+    const len = for2Prongs.length;
+    const index = indexLinear(len);
+    //const index = indexInterlaced(len); // Keep for possible future use.
     let cpNode_;
-    let bounds = getShapeBounds(loops);
-    let squaredDiagonalLength = (bounds.maxX.p[0] - bounds.minX.p[0]) ** 2 +
+    const bounds = getShapeBounds(loops);
+    const squaredDiagonalLength = (bounds.maxX.p[0] - bounds.minX.p[0]) ** 2 +
         (bounds.maxY.p[1] - bounds.minY.p[1]) ** 2;
     for (let i = 0; i < len; i++) {
-        let pos = for2Prongs[index[i]];
-        let twoProngInfo;
-        twoProngInfo = find2Prong(loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k);
+        const pos = for2Prongs[index[i]];
+        const twoProngInfo = find2Prong(loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k);
         if (twoProngInfo) {
-            let { circle, zs } = twoProngInfo;
-            let cpNode = add2Prong(cpGraphs, circle, pos, zs, false, extreme);
+            const { circle, zs } = twoProngInfo;
+            const cpNode = add2Prong(cpGraphs, circle, pos, zs, false, extreme);
             cpNode_ = cpNode_ || cpNode;
         }
         if (typeof _debug_ !== 'undefined') {
@@ -42,7 +41,7 @@ function findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme) {
  * @param n
  */
 function indexLinear(n) {
-    let arr = [];
+    const arr = [];
     for (let i = 0; i < n; i++) {
         arr.push(i);
     }
@@ -54,8 +53,8 @@ function indexLinear(n) {
  * @param n
 */
 function indexInterlaced(n) {
-    let source = {};
-    let arr = [];
+    const source = {};
+    const arr = [];
     // l is the lowest power of 2 so that 2^l > n
     let l = Math.pow(2, Math.floor(Math.log2(n)));
     while (l >= 1) {

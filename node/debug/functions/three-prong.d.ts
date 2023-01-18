@@ -7,5 +7,5 @@ export interface IThreeProngDebugFunctions {
     logNearest: (showSpokes?: boolean, showTrace?: boolean, showBoundaries?: boolean) => (g: SVGGElement, p: number[], showDelay?: number) => void;
 }
 /** @hidden */
-declare let threeProngDebugFunctions: IThreeProngDebugFunctions;
+declare const threeProngDebugFunctions: IThreeProngDebugFunctions;
 export { threeProngDebugFunctions };

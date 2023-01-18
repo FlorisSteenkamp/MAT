@@ -18,12 +18,12 @@ function createSpacialTree(
         s: number, 
         circles: Circle[]) {
 
-    let coordinate = 0;
-    let limits = [[0, width], [0, height]];
+    const coordinate = 0;
+    const limits = [[0, width], [0, height]];
 
-    let tree: TTree = { trees: new Map(), circles: new Set() };
+    const tree: TTree = { trees: new Map(), circles: new Set() };
 
-    for (let circle of circles) {
+    for (const circle of circles) {
         addToTree(
                 s, 
                 tree, 

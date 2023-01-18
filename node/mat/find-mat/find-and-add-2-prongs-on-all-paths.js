@@ -11,8 +11,8 @@ import { findAndAdd2Prongs } from './find-and-add-2-prongs.js';
 function findAndAdd2ProngsOnAllPaths(loops, cpGraphs, for2Prongss, extreme) {
     let cpNode;
     for (let k = 0; k < for2Prongss.length; k++) {
-        let for2Prongs = for2Prongss[k];
-        let _cpNode = findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme);
+        const for2Prongs = for2Prongss[k];
+        const _cpNode = findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme);
         cpNode = cpNode || _cpNode;
     }
     return cpNode;

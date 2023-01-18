@@ -9,12 +9,12 @@ import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-d
  * @param dSquared
  */
 function cullByLooseBoundingBox(bezierPieces, p, dSquared) {
-    let candidateBezierPieces = [];
+    const candidateBezierPieces = [];
     for (let i = 0; i < bezierPieces.length; i++) {
-        let bezierPiece = bezierPieces[i];
-        let ps = bezierPiece.curve.ps;
-        let boundingBox = getBoundingBox_(ps);
-        let d = getClosestSquareDistanceToRect(boundingBox, p);
+        const bezierPiece = bezierPieces[i];
+        const ps = bezierPiece.curve.ps;
+        const boundingBox = getBoundingBox_(ps);
+        const d = getClosestSquareDistanceToRect(boundingBox, p);
         if (d <= dSquared) {
             candidateBezierPieces.push(bezierPiece);
         }

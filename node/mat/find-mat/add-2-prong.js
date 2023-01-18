@@ -16,8 +16,8 @@ import { getNeighbouringPoints } from '../get-neighboring-cps.js';
  */
 function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extreme) {
     //let orderSource   = PointOnShape.calcOrder(circle, posSource);
-    let orderSource = calcPosOrder(circle, posSource);
-    let orderAntipodes = posAntipodes.map(posAntipode => {
+    const orderSource = calcPosOrder(circle, posSource);
+    const orderAntipodes = posAntipodes.map(posAntipode => {
         //console.log(circle.center)
         //return PointOnShape.calcOrder(circle, posAntipode.pos);
         return calcPosOrder(circle, posAntipode.pos);
@@ -34,8 +34,8 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
     // TODO - possibly combine n-prongs in this case
     let isCloseByAntipodes = false;
     for (let i = 0; i < posAntipodes.length; i++) {
-        let posAntipode = posAntipodes[i];
-        let orderAntipode = orderAntipodes[i];
+        const posAntipode = posAntipodes[i];
+        const orderAntipode = orderAntipodes[i];
         if (isAnotherCpCloseby(cpGraphs, posAntipode.pos, circle, orderAntipode, 0, extreme, 'red')) {
             isCloseByAntipodes = true;
             break;
@@ -54,30 +54,30 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
         return;
     }
     // Antipode
-    let newCpAntipodes = [];
-    let cpAntipodes = [];
-    let cpTreeAntipodes = [];
-    let deltaAntipodes = [];
-    let loopAntipodes = [];
+    const newCpAntipodes = [];
+    const cpAntipodes = [];
+    const cpTreeAntipodes = [];
+    const deltaAntipodes = [];
+    const loopAntipodes = [];
     for (let i = 0; i < posAntipodes.length; i++) {
-        let posAntipode = posAntipodes[i];
-        let orderAntipode = orderAntipodes[i];
-        let cpAntipode = { pointOnShape: posAntipode.pos, circle, order: orderAntipode, order2: 0 };
+        const posAntipode = posAntipodes[i];
+        const orderAntipode = orderAntipodes[i];
+        const cpAntipode = { pointOnShape: posAntipode.pos, circle, order: orderAntipode, order2: 0 };
         cpAntipodes.push(cpAntipode);
-        let loopAntipode = posAntipode.pos.curve.loop;
+        const loopAntipode = posAntipode.pos.curve.loop;
         loopAntipodes.push(loopAntipode);
-        let cpTreeAntipode = cpGraphs.get(loopAntipode);
+        const cpTreeAntipode = cpGraphs.get(loopAntipode);
         cpTreeAntipodes.push(cpTreeAntipode);
-        let deltaAntipode = getNeighbouringPoints(cpTreeAntipode, posAntipode.pos, orderAntipode, 0);
+        const deltaAntipode = getNeighbouringPoints(cpTreeAntipode, posAntipode.pos, orderAntipode, 0);
         deltaAntipodes.push(deltaAntipode);
         newCpAntipodes.push(CpNode.insert(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]));
     }
     // Source
-    let cpSource = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
-    let loopSource = posSource.curve.loop;
-    let cpTreeSource = cpGraphs.get(loopSource);
-    let deltaSource = getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
-    let newCpSource = CpNode.insert(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
+    const cpSource = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
+    const loopSource = posSource.curve.loop;
+    const cpTreeSource = cpGraphs.get(loopSource);
+    const deltaSource = getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
+    const newCpSource = CpNode.insert(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
     // Connect graph
     if (newCpAntipodes.length === 1) {
         newCpSource.prevOnCircle = newCpAntipodes[0];
@@ -86,16 +86,16 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
         newCpAntipodes[0].nextOnCircle = newCpSource;
     }
     else {
-        let cpNodes = newCpAntipodes.slice();
+        const cpNodes = newCpAntipodes.slice();
         cpNodes.push(newCpSource);
         // Order points according to their angle with the x-axis
         cpNodes.sort(byAngle(circle));
         for (let i = 0; i < cpNodes.length; i++) {
-            let iNext = (i + 1 === cpNodes.length) ? 0 : i + 1;
-            let iPrev = (i === 0) ? cpNodes.length - 1 : i - 1;
-            let cpNodeCurr = cpNodes[i];
-            let cpNodeNext = cpNodes[iNext];
-            let cpNodePrev = cpNodes[iPrev];
+            const iNext = (i + 1 === cpNodes.length) ? 0 : i + 1;
+            const iPrev = (i === 0) ? cpNodes.length - 1 : i - 1;
+            const cpNodeCurr = cpNodes[i];
+            const cpNodeNext = cpNodes[iNext];
+            const cpNodePrev = cpNodes[iPrev];
             cpNodeCurr.nextOnCircle = cpNodeNext;
             cpNodeCurr.prevOnCircle = cpNodePrev;
         }
@@ -103,10 +103,10 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
     if (holeClosing) {
         // TODO - important - take care of case where there are more than 1 antipode
         // Duplicate ContactPoints
-        let cpB2 = { pointOnShape: posAntipodes[0].pos, circle, order: cpAntipodes[0].order, order2: +1 };
-        let newCpB2Node = CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
-        let cpB1 = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
-        let newCpB1Node = CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
+        const cpB2 = { pointOnShape: posAntipodes[0].pos, circle, order: cpAntipodes[0].order, order2: +1 };
+        const newCpB2Node = CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
+        const cpB1 = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
+        const newCpB1Node = CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
         // Connect graph
         newCpB1Node.prevOnCircle = newCpB2Node;
         newCpB1Node.nextOnCircle = newCpB2Node;
@@ -125,7 +125,7 @@ function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extre
         else {
             elems = _debug_.generated.elems['twoProng_regular'];
         }
-        let elem = elems[elems.length - 1];
+        const elem = elems[elems.length - 1];
         if (!newCpSource) {
             console.log('asas');
         }
@@ -169,9 +169,9 @@ function getSize(x, y) {
 }
 /** @hidden */
 function byAngle(circle) {
-    let c = circle.center;
-    let r = circle.radius;
-    let exp = exponent(r);
+    const c = circle.center;
+    const r = circle.radius;
+    const exp = exponent(r);
     return function (_a, _b) {
         let a = _a.cp.pointOnShape.p;
         let b = _b.cp.pointOnShape.p;
@@ -179,13 +179,13 @@ function byAngle(circle) {
         a = [a[0] - c[0], a[1] - c[1]];
         b = [b[0] - c[0], b[1] - c[1]];
         // Scale
-        let ax = scale(a[0], exp);
-        let ay = scale(a[1], exp);
-        let bx = scale(b[0], exp);
-        let by = scale(b[1], exp);
+        const ax = scale(a[0], exp);
+        const ay = scale(a[1], exp);
+        const bx = scale(b[0], exp);
+        const by = scale(b[1], exp);
         // Get 'size'
-        let sa = getSize(ax, ay);
-        let sb = getSize(bx, by);
+        const sa = getSize(ax, ay);
+        const sb = getSize(bx, by);
         return sb - sa;
     };
 }

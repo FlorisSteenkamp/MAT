@@ -25,7 +25,7 @@ function addToTree(
     circle: Circle,
     depth: number) {
 
-    let { groups, newLimits } = calcGroups(
+    const { groups, newLimits } = calcGroups(
         s,
         coordinate, 
         limits, 
@@ -34,15 +34,15 @@ function addToTree(
 
     // Create new edge if it does not exist yet.
     if (groups.length === 1 && depth !== DEPTH_LIMIT) {
-        let group = groups[0]; 
+        const group = groups[0]; 
         
-        if (!tree.trees.get(group)) { 
-            tree.trees.set(group, { trees: new Map(), circles: new Set() } ); 
+        if (!tree.trees!.get(group)) { 
+            tree.trees!.set(group, { trees: new Map(), circles: new Set() } ); 
         }	
-        let t = tree.trees.get(group);
+        const t = tree.trees!.get(group)!;
         
         // Flip coordinates
-        let newCoordinate = coordinate ? 0 : 1; 
+        const newCoordinate = coordinate ? 0 : 1; 
         addToTree(
             s,
             t, 
@@ -55,11 +55,11 @@ function addToTree(
         return;
     }
 
-    if (!tree.trees.get(5)) { 
-        tree.trees.set(5, { trees: new Map(), circles: new Set() } );
+    if (!tree.trees!.get(5)) { 
+        tree.trees!.set(5, { trees: new Map(), circles: new Set() } );
     }
-    let vertices = tree.trees.get(5).circles;
-    vertices.add(circle);
+    const vertices = tree.trees!.get(5)!.circles;
+    vertices!.add(circle);
 }
 
 

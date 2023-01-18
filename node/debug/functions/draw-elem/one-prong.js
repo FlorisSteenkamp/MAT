@@ -5,12 +5,12 @@ import { scaleCircle } from '../../../circle.js';
 const scaleFactor = 0.5;
 /** @hidden */
 function drawOneProng(g, pos, classes, delay = 0) {
-    let circle = scaleCircle(
+    const circle = scaleCircle(
     //PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos),
     getOsculatingCircle(Number.POSITIVE_INFINITY, pos), 1);
-    let $center = drawFs.dot(g, pos.p, 0.1 * scaleFactor, 'gray', delay);
-    let $circle = drawFs.dot(g, circle.center, 0.25 * scaleFactor, 'gray', delay);
-    let $pos = drawFs.circle(g, circle, 'gray thin10 nofill', delay);
+    const $center = drawFs.dot(g, pos.p, 0.1 * scaleFactor, 'gray', delay);
+    const $circle = drawFs.dot(g, circle.center, 0.25 * scaleFactor, 'gray', delay);
+    const $pos = drawFs.circle(g, circle, 'gray thin10 nofill', delay);
     return [...$center, ...$circle, ...$pos];
 }
 export { drawOneProng };

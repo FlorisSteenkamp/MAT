@@ -1,5 +1,5 @@
-/** @hidden */
-declare var _debug_: Debug;
+/** @internal */
+declare const _debug_: Debug;
 
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { exponent } from 'big-float-ts';
@@ -34,8 +34,8 @@ function add2Prong(
 		extreme       : number): CpNode {
 
 	//let orderSource   = PointOnShape.calcOrder(circle, posSource);
-	let orderSource   = calcPosOrder(circle, posSource);
-	let orderAntipodes = posAntipodes.map(
+	const orderSource   = calcPosOrder(circle, posSource);
+	const orderAntipodes = posAntipodes.map(
 		posAntipode => {
 			//console.log(circle.center)
 			//return PointOnShape.calcOrder(circle, posAntipode.pos);
@@ -58,8 +58,8 @@ function add2Prong(
 
 	let isCloseByAntipodes = false;
 	for (let i=0; i<posAntipodes.length; i++) {
-		let posAntipode = posAntipodes[i];
-		let orderAntipode = orderAntipodes[i];
+		const posAntipode = posAntipodes[i];
+		const orderAntipode = orderAntipodes[i];
 
 		if (isAnotherCpCloseby(cpGraphs, posAntipode.pos, circle, orderAntipode, 0, extreme, 'red')) {
 			isCloseByAntipodes = true;
@@ -80,22 +80,22 @@ function add2Prong(
 	}
 
 	// Antipode
-	let newCpAntipodes: CpNode[] = [];
-	let cpAntipodes: ContactPoint[] = [];
-	let cpTreeAntipodes: LlRbTree<CpNode>[] = [];
-	let deltaAntipodes: CpNode[][] = [];
-	let loopAntipodes: Loop[] = [];
+	const newCpAntipodes: CpNode[] = [];
+	const cpAntipodes: ContactPoint[] = [];
+	const cpTreeAntipodes: LlRbTree<CpNode>[] = [];
+	const deltaAntipodes: CpNode[][] = [];
+	const loopAntipodes: Loop[] = [];
 	for (let i=0; i<posAntipodes.length; i++) {
-		let posAntipode = posAntipodes[i];
-		let orderAntipode = orderAntipodes[i];
+		const posAntipode = posAntipodes[i];
+		const orderAntipode = orderAntipodes[i];
 
-		let cpAntipode: ContactPoint = { pointOnShape: posAntipode.pos, circle, order: orderAntipode, order2: 0 };
+		const cpAntipode: ContactPoint = { pointOnShape: posAntipode.pos, circle, order: orderAntipode, order2: 0 };
 		cpAntipodes.push(cpAntipode);
-		let loopAntipode = posAntipode.pos.curve.loop;
+		const loopAntipode = posAntipode.pos.curve.loop;
 		loopAntipodes.push(loopAntipode);
-		let cpTreeAntipode = cpGraphs.get(loopAntipode);
+		const cpTreeAntipode = cpGraphs.get(loopAntipode);
 		cpTreeAntipodes.push(cpTreeAntipode);
-		let deltaAntipode = getNeighbouringPoints(
+		const deltaAntipode = getNeighbouringPoints(
 			cpTreeAntipode, posAntipode.pos, orderAntipode, 0
 		);	
 		deltaAntipodes.push(deltaAntipode);
@@ -111,13 +111,13 @@ function add2Prong(
 	
 	
 	// Source
-	let cpSource: ContactPoint = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
-	let loopSource = posSource.curve.loop;
-	let cpTreeSource = cpGraphs.get(loopSource);
-	let deltaSource = getNeighbouringPoints(
+	const cpSource: ContactPoint = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
+	const loopSource = posSource.curve.loop;
+	const cpTreeSource = cpGraphs.get(loopSource);
+	const deltaSource = getNeighbouringPoints(
 		cpTreeSource, posSource, orderSource, 0
 	);
-	let newCpSource = CpNode.insert(
+	const newCpSource = CpNode.insert(
 		holeClosing,
 		false,
 		cpTreeSource,
@@ -134,19 +134,19 @@ function add2Prong(
 		newCpAntipodes[0].prevOnCircle = newCpSource;
 		newCpAntipodes[0].nextOnCircle = newCpSource;
 	} else {
-		let cpNodes = newCpAntipodes.slice();
+		const cpNodes = newCpAntipodes.slice();
 		cpNodes.push(newCpSource);
 
 		// Order points according to their angle with the x-axis
 		cpNodes.sort(byAngle(circle));
 
 		for (let i=0; i<cpNodes.length; i++) {
-			let iNext = (i+1 === cpNodes.length) ? 0 : i+1;
-			let iPrev = (i === 0) ? cpNodes.length-1 : i-1;
+			const iNext = (i+1 === cpNodes.length) ? 0 : i+1;
+			const iPrev = (i === 0) ? cpNodes.length-1 : i-1;
 
-			let cpNodeCurr = cpNodes[i];
-			let cpNodeNext = cpNodes[iNext];
-			let cpNodePrev = cpNodes[iPrev];
+			const cpNodeCurr = cpNodes[i];
+			const cpNodeNext = cpNodes[iNext];
+			const cpNodePrev = cpNodes[iPrev];
 
 			cpNodeCurr.nextOnCircle = cpNodeNext;
 			cpNodeCurr.prevOnCircle = cpNodePrev;
@@ -157,11 +157,11 @@ function add2Prong(
 	if (holeClosing) { 
 		// TODO - important - take care of case where there are more than 1 antipode
 		// Duplicate ContactPoints
-		let cpB2: ContactPoint = { pointOnShape: posAntipodes[0].pos, circle, order: cpAntipodes[0].order, order2: +1 };
-		let newCpB2Node = CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
+		const cpB2: ContactPoint = { pointOnShape: posAntipodes[0].pos, circle, order: cpAntipodes[0].order, order2: +1 };
+		const newCpB2Node = CpNode.insert(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
 		
-		let cpB1: ContactPoint = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
-		let newCpB1Node = CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
+		const cpB1: ContactPoint = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
+		const newCpB1Node = CpNode.insert(true, false, cpTreeSource, cpB1, newCpSource.prev);
 		
 		// Connect graph
 		newCpB1Node.prevOnCircle = newCpB2Node;
@@ -185,7 +185,7 @@ function add2Prong(
 			elems = _debug_.generated.elems['twoProng_regular'];
 		}
 
-		let elem = elems[elems.length-1];
+		const elem = elems[elems.length-1];
 
 		if (!newCpSource) { console.log('asas')}
 		elem.cpNode = newCpSource;
@@ -230,10 +230,10 @@ function getSize(x: number, y: number) {
 
 /** @hidden */
 function byAngle(circle: Circle) {
-	let c = circle.center;
-	let r = circle.radius;
+	const c = circle.center;
+	const r = circle.radius;
 
-	let exp = exponent(r);
+	const exp = exponent(r);
 
 	return function(_a: CpNode, _b: CpNode) {
 		let a = _a.cp.pointOnShape.p;
@@ -244,14 +244,14 @@ function byAngle(circle: Circle) {
 		b = [b[0]-c[0], b[1]-c[1]];
 
 		// Scale
-		let ax = scale(a[0], exp);
-		let ay = scale(a[1], exp);
-		let bx = scale(b[0], exp);
-		let by = scale(b[1], exp);
+		const ax = scale(a[0], exp);
+		const ay = scale(a[1], exp);
+		const bx = scale(b[0], exp);
+		const by = scale(b[1], exp);
 
 		// Get 'size'
-		let sa = getSize(ax, ay);
-		let sb = getSize(bx, by);
+		const sa = getSize(ax, ay);
+		const sb = getSize(bx, by);
 
 		return sb - sa;
 	}
