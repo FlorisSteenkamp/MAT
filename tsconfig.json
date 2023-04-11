@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "charset": "utf8",
         "noImplicitAny": true, 
         "noImplicitThis": true,
         "alwaysStrict": true,
