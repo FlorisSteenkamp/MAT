@@ -24,32 +24,32 @@ var __webpack_exports__ = {};
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  "M1": () => (/* reexport */ CpNode),
-  "bt": () => (/* reexport */ PointOnShape),
-  "A3": () => (/* reexport */ beziersToSvgPathStr),
-  "zh": () => (/* reexport */ drawBranch),
-  "Ls": () => (/* reexport */ drawElemFunctions),
-  "CU": () => (/* reexport */ drawMat),
-  "gM": () => (/* reexport */ enableDebugForMat),
-  "SQ": () => (/* reexport */ findMats),
-  "BG": () => (/* reexport */ getBoundaryBezierPartsToNext),
-  "Ij": () => (/* reexport */ getBoundaryBeziersToNext),
-  "tQ": () => (/* reexport */ getBoundaryPieceBeziers),
-  "C_": () => (/* reexport */ getBranches),
-  "aS": () => (/* reexport */ getClosestBoundaryPoint),
-  "DZ": () => (/* reexport */ getClosestSquareDistanceToRect),
-  "wH": () => (/* reexport */ getCurveBetween),
-  "N0": () => (/* reexport */ getCurveToNext),
-  "Jt": () => (/* reexport */ getPathsFromStr),
-  "tO": () => (/* reexport */ getShapeBounds),
-  "bQ": () => (/* reexport */ loop_loopFromBeziers),
-  "UW": () => (/* reexport */ simplifyMat),
-  "_T": () => (/* reexport */ simplifyMatMapOnly),
-  "Dw": () => (/* reexport */ sweep_line_sweepLine),
-  "xs": () => (/* reexport */ toScaleAxis),
-  "y9": () => (/* reexport */ traverseEdges),
-  "Fw": () => (/* reexport */ traverseVertices),
-  "QE": () => (/* reexport */ trimMat)
+  M1: () => (/* reexport */ CpNode),
+  bt: () => (/* reexport */ PointOnShape),
+  A3: () => (/* reexport */ beziersToSvgPathStr),
+  zh: () => (/* reexport */ drawBranch),
+  Ls: () => (/* reexport */ drawElemFunctions),
+  CU: () => (/* reexport */ drawMat),
+  gM: () => (/* reexport */ enableDebugForMat),
+  SQ: () => (/* reexport */ findMats),
+  BG: () => (/* reexport */ getBoundaryBezierPartsToNext),
+  Ij: () => (/* reexport */ getBoundaryBeziersToNext),
+  tQ: () => (/* reexport */ getBoundaryPieceBeziers),
+  C_: () => (/* reexport */ getBranches),
+  aS: () => (/* reexport */ getClosestBoundaryPoint),
+  DZ: () => (/* reexport */ getClosestSquareDistanceToRect),
+  wH: () => (/* reexport */ getCurveBetween),
+  N0: () => (/* reexport */ getCurveToNext),
+  Jt: () => (/* reexport */ getPathsFromStr),
+  tO: () => (/* reexport */ getShapeBounds),
+  bQ: () => (/* reexport */ loop_loopFromBeziers),
+  UW: () => (/* reexport */ simplifyMat),
+  _T: () => (/* reexport */ simplifyMatMapOnly),
+  Dw: () => (/* reexport */ sweep_line_sweepLine),
+  xs: () => (/* reexport */ toScaleAxis),
+  y9: () => (/* reexport */ traverseEdges),
+  Fw: () => (/* reexport */ traverseVertices),
+  QE: () => (/* reexport */ trimMat)
 });
 
 ;// CONCATENATED MODULE: ./node_modules/flo-boolean/node/svg/beziers-to-svg-path-str.js
@@ -937,52 +937,33 @@ function dot(a, b) {
 }
 
 //# sourceMappingURL=dot.js.map
-;// CONCATENATED MODULE: ./node_modules/flo-memoize/node/index.js
-
-
-const SUPPORTED = typeof WeakMap === 'function';
+;// CONCATENATED MODULE: ./node_modules/flo-memoize/node/memoize.js
 /**
  * Memoize (by reference on the input parameter) the given arity 1 function.
+ *
+ * * the input parameter must be an `object` (so it can be used as a key to
+ * `WeakMap` and thus garbage collected later; this is especially important
+ * in functional programming where a lot of garbage collection takes place;
+ *
+ * * use `memoizePrimitive` instead if it is not important that the keys
+ * will *never* be garbage collected
  */
 function memoize(f) {
-    if (!SUPPORTED) {
-        return f;
-    }
     const results = new WeakMap();
-    return function (a) {
-        let result = results.get(a);
-        if (result !== undefined) {
+    return function (t) {
+        let r = results.get(t);
+        if (r !== undefined) {
             //console.log('cache hit');
-            return result;
+            return r;
         }
         //console.log('cache miss');
-        result = f(a);
-        results.set(a, result);
-        return result;
-    };
-}
-/**
- * Memoize (by reference on the ordered input parameters) the given arity 2 function.
- */
-function memoize2(f) {
-    if (!SUPPORTED) {
-        return f;
-    }
-    const results = new WeakMap();
-    return function (a, b) {
-        let result = pairMap_get(results, a, b);
-        if (result !== undefined) {
-            //console.log('cache hit');
-            return result;
-        }
-        //console.log('cache miss');
-        result = f(a, b);
-        pairMap_set(results, a, b, result);
-        return result;
+        r = f(t);
+        results.set(t, r);
+        return r;
     };
 }
 
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=memoize.js.map
 ;// CONCATENATED MODULE: ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/double/eval-de-casteljau.js
 /**
  * Returns the resulting point of evaluating the given bezier curve at the
@@ -9840,6 +9821,7 @@ function completeLoop(expMax, takenOuts, out) {
     // Move immediately to the outgoing start of the loop
     let out_ = out;
     let additionalBezier;
+    // console.log(out_);
     do {
         takenOuts.add(out_); // Mark this intersection as taken
         const { beziers: additionalBeziers, in_, inBez } = getBeziersToNextContainer(expMax, out_);
@@ -10939,7 +10921,7 @@ function getLoopsFromTree(root) {
 }
 
 //# sourceMappingURL=get-loops-from-tree.js.map
-;// CONCATENATED MODULE: ./node_modules/flo-bezier3/node/boxes/are-boxes-intersecting.js
+;// CONCATENATED MODULE: ./node_modules/flo-boolean/node/are-boxes-intersecting.js
 /**
  * Returns `true` if the 2 given axis-aligned rectangular boxes intersect.
  *
@@ -10969,11 +10951,21 @@ function areBoxesIntersecting(closed, a, b) {
     if (bx0 > bx1) {
         [bx0, bx1] = [bx1, bx0];
     }
-    return closed
-        ? ax0 <= bx1 && ax1 >= bx0 &&
-            by0 <= ay1 && by1 >= ay0
-        : ax0 < bx1 && ax1 > bx0 &&
-            by0 < ay1 && by1 > ay0;
+    const closedX = closed || (ax0 === ax1 && bx0 === bx1);
+    const closedY = closed || (ay0 === ay1 && by0 === by1);
+    return ((closedX ? ax0 <= bx1 : ax0 < bx1) &&
+        (closedX ? ax1 >= bx0 : ax1 > bx0) &&
+        (closedY ? by0 <= ay1 : by0 < ay1) &&
+        (closedY ? by1 >= ay0 : by1 > ay0));
+    // return closed
+    //     ? ax0 <= bx1 &&
+    //       ax1 >= bx0 && 
+    //       by0 <= ay1 &&
+    //       by1 >= ay0
+    //     : ax0 < bx1 &&
+    //       ax1 > bx0 && 
+    //       by0 < ay1 &&
+    //       by1 > ay0
 }
 
 //# sourceMappingURL=are-boxes-intersecting.js.map
@@ -18324,6 +18316,9 @@ function boxExpToBox(boxExp) {
 function getInOutsViaSides(container, ioIdx) {
     // We check one __X__ for each curve with an intersection within this container
     const xs_ = container.xs;
+    //if (xs_.length === 4) {
+    //    console.log(xs_.map(x => x.x.kind))
+    //}
     const inOuts = [];
     // get a map from each Curve to each __X__ of this container
     const xMap = new Map();
@@ -18496,6 +18491,7 @@ function getInOutsViaCrossing(container, ioIdx) {
 function getContainerInOuts(container, ioIdx) {
     // We check one __X__ for each curve with an intersection within this container
     const xs = container.xs;
+    // console.log(xs);
     // Check nature of Xs. If Xs is the very common case where two curves cross
     // we can use a faster check. Also in the bit less common case where all
     // curves are joining at an interface we can do a fast ccw (the ccw part
@@ -20828,6 +20824,7 @@ function makeSimpleX(t, curve, kind) {
 
 
 
+
 /**
  * Returns the pairs of intersection `t` values between the curves. Interface
  * intersections may not be returned - they should already be caught.
@@ -20846,7 +20843,9 @@ function getCurvesIntersections(expMax) {
             // curves are connected at endpoints
             // closed bounding boxes are guaranteed to intersect - don't check
             // check open bounding boxes
-            const aabbsIntersectOpen = areBoxesIntersecting(false, getBoundingBox_(psA), getBoundingBox_(psB));
+            const aabbsIntersectOpen = areBoxesIntersecting(false, 
+            // const aabbsIntersectOpen = areBoxesIntersecting(true,
+            getBoundingBox_(psA), getBoundingBox_(psB));
             if (!aabbsIntersectOpen) {
                 return checkEndpoints(curveA, curveB);
             }
@@ -20924,15 +20923,18 @@ function getLineLineIntersections(curveA, curveB, expMax) {
     let psB = curveB.ps;
     const bbA = getBoundingBox_(psA);
     const bbB = getBoundingBox_(psB);
+    // if (equal(psA,[[4,8],[4,7]]) && equal(psB,[[4,6],[4,8]])) {
+    //     console.log('testing');
+    // }
     if (curveA.next !== curveB && curveB.next !== curveA) {
-        // the two lines are not connected at their endpoints
+        // the two line curves are not consecutive in the loop
         if (areBoxesIntersecting(true, bbA, bbB)) {
             const xs = getIntersection(curveA, curveB, expMax, false);
             return xs.length ? xs : undefined;
         }
         return undefined;
     }
-    // the two lines are connected at their endpoints
+    // the two line curves are consecutive in the loop
     const swap = curveB.next === curveA;
     if (swap) {
         [curveA, curveB] = [curveB, curveA];
@@ -20952,16 +20954,14 @@ function getLineLineIntersections(curveA, curveB, expMax) {
     }
     // it is a line going back on itself 
     // - return endpoint intersections
-    const lenCurve1 = squared_distance_between_squaredDistanceBetween(psA[0], psA[1]);
-    const lenCurve2 = squared_distance_between_squaredDistanceBetween(psB[0], psB[1]);
+    const lenCurveA = squared_distance_between_squaredDistanceBetween(psA[0], psA[1]);
+    const lenCurveB = squared_distance_between_squaredDistanceBetween(psB[0], psB[1]);
     let tPair;
-    if (lenCurve1 > lenCurve2) {
-        // tPair = [inversion01Precise(psA, psB[1]), 1];
+    if (lenCurveA > lenCurveB) {
         const t0 = mid(closestPointOnBezierCertified(psA, psB[1])[0].ri);
         tPair = [t0, 1];
     }
     else {
-        // tPair = [0, inversion01Precise(psB, psA[0])];
         const t1 = mid(closestPointOnBezierCertified(psB, psA[0])[0].ri);
         tPair = [0, t1];
     }
@@ -21799,7 +21799,37 @@ function compareOrderedInOut(inOutA, inOutB) {
 }
 
 //# sourceMappingURL=compare-in-out.js.map
+;// CONCATENATED MODULE: ./node_modules/flo-boolean/node/calc-containers/filter-containers.js
+/**
+ * Returns the containers that is the given containers filtered so that those
+ * having only interface intersections or only a single (given as a pair) even
+ * multiple intersection are not included.
+ * @param containers
+ */
+function filterContainers(containers) {
+    const containers_ = containers.filter(container => {
+        const xs = container.xs;
+        if (container.xs.length === 2) {
+            const _x_ = xs[0];
+            if (_x_.x.kind === 1 && _x_.x.ri.multiplicity % 2 === 0) {
+                // multiple even intersection - exclude
+                return false;
+            }
+        }
+        for (const x of container.xs) {
+            if (x.x.kind !== 4) {
+                // include container if any __X__ is not an interface
+                return true;
+            }
+        }
+        return false; // exclude container
+    });
+    return containers_;
+}
+
+//# sourceMappingURL=filter-containers.js.map
 ;// CONCATENATED MODULE: ./node_modules/flo-boolean/node/calc-containers/get-containers.js
+
 
 
 
@@ -21826,10 +21856,10 @@ function getContainers(loops, containerDim, expMax) {
     const xs3 = getInterfaceIntersections(loops);
     const { extremes, xs: xs4 } = getExtremes(loops);
     let xPairs = [...xs1, ...xs2, ...xs3, ...xs4];
-    //console.log('general  ', xs1);
-    //console.log('self     ', xs2);
-    //console.log('interface', xs3);
-    //console.log('topmost  ', xs4);
+    // console.log('general  ', xs1);
+    // console.log('self     ', xs2);
+    // console.log('interface', xs3);
+    // console.log('topmost  ', xs4);
     if (typeof _debug_ !== 'undefined') {
         for (const xPair of xs1) {
             _debug_.generated.elems.intersection.push(...xPair);
@@ -21926,32 +21956,6 @@ function getContainers(loops, containerDim, expMax) {
         }
     }
     return { extremes, containers };
-}
-/**
- * Returns the containers that is the given containers filtered so that those
- * having only interface intersections or only a single (given as a pair) even
- * multiple intersection are not included.
- * @param containers
- */
-function filterContainers(containers) {
-    const containers_ = containers.filter(container => {
-        const xs = container.xs;
-        if (container.xs.length === 2) {
-            const _x_ = xs[0];
-            if (_x_.x.kind === 1 && _x_.x.ri.multiplicity % 2 === 0) {
-                // multiple even intersection - exclude
-                return false;
-            }
-        }
-        for (const x of container.xs) {
-            if (x.x.kind !== 4) {
-                // include container if any __X__ is not an interface
-                return true;
-            }
-        }
-        return false; // exclude container
-    });
-    return containers_;
 }
 function getLeftMost(container) {
     return container.box[0][0];
@@ -22227,6 +22231,33 @@ function toLength(p, length) {
 }
 
 //# sourceMappingURL=to-length.js.map
+;// CONCATENATED MODULE: ./node_modules/flo-bezier3/node/simultaneous-properties/equal.js
+/**
+ * Returns `true` if the two given bezier curves are exactly equal when compared
+ * by value (deep equality), `false` otherwise
+ *
+ * @param ps1 an order 0,1,2 or 3 bezier curve given as an ordered array of its
+ * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param ps2 another bezier curve
+ *
+ * @doc
+ */
+function equal_equal(ps1, ps2) {
+    if (ps1 === ps2) {
+        return true;
+    }
+    if (ps1.length !== ps2.length) {
+        return false;
+    }
+    for (let i = 0; i < ps1.length; i++) {
+        if (ps1[i][0] !== ps2[i][0] || ps1[i][1] !== ps2[i][1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//# sourceMappingURL=equal.js.map
 ;// CONCATENATED MODULE: ./node_modules/flo-boolean/node/loop/normalize/are-all-points-different.js
 /**
  * Returns true if all points in the given array are different, false otherwise.
@@ -22257,6 +22288,9 @@ const { abs: fix_bezier_by_point_spacing_abs } = Math;
  * @param ps A bezier
  */
 function fixBezierByPointSpacing(ps, gridSpacing, sendToGrid) {
+    if (ps === undefined) {
+        return undefined;
+    }
     // Early filter - if all points coincide, we're done - degenerate to point
     if (isReallyPoint(ps)) {
         return undefined; // Cannot fix
@@ -22276,9 +22310,8 @@ function fixBezierByPointSpacing(ps, gridSpacing, sendToGrid) {
         // Is the quadratic bezier overlapping onto itself? 
         if (arePsEqual(ps[0], ps[2])) {
             // a quadratic with equal endpoints (and not degenerate to a point)
-            // The overlap is of no consequence to the algorithm so make it a
-            // line
-            return [ps[0], ps[1]];
+            return undefined; // better to just remove it
+            // return [ps[0], ps[1]];
         }
         // At this point not all points same and not all points different and 
         // not endpoints coincide, so either:
@@ -22290,28 +22323,42 @@ function fixBezierByPointSpacing(ps, gridSpacing, sendToGrid) {
     // ---- at this point we must have a cubic
     // Early filter - if no points coincide, we're done - well spaced
     if (areAllPointsDifferent(ps)) {
-        return checkCubicForLineOrQuad(ps);
+        const ps_ = checkCubicForLineOrQuad(ps);
+        if (ps_ === undefined) {
+            return undefined;
+        }
+        if (equal_equal(ps_, ps)) {
+            return ps;
+        }
+        return fixBezierByPointSpacing(ps_, gridSpacing, sendToGrid);
     }
     if (arePsEqual(ps[0], ps[3])) {
         // we should simply handle this case for cubics - lines and quadratics 
         // degenerate into a point and a self-overlapping curve respectively.
-        if (arePsEqual(ps[1], ps[2])) {
-            // it is a cubic degenerated to a line
-            return [ps[0], ps[2]];
+        // if (isCollinear(ps)) { return [ps[0], ps[3]]; }
+        if (isCollinear(ps)) {
+            return undefined;
         }
+        // if (arePsEqual(ps[1], ps[2])) {
+        //     // it is a cubic degenerated to a line
+        //     return [ps[0], ps[2]];
+        // }
         // no need to fix anything - it is a loop - it cannot be a line or a
         // quadratic (they don't make loops)
         return ps;
+    }
+    if (isCollinear(ps)) {
+        return [ps[0], ps[3]];
     }
     // At this point, either:
     // * point 0, 1 and 2 coincide
     // * point 1, 2 and 3 coincide
     // * points 0,1 AND points 2,3 coincide
-    // * only point 0 and point 1 coincides
-    // * only point 0 and point 2 coincides        
-    // * only point 1 and point 2 coincides
-    // * only point 1 and point 3 coincides
-    // * only point 2 and point 3 coincides
+    // * only point 0 and point 1 coincide
+    // * only point 0 and point 2 coincide
+    // * only point 1 and point 2 coincide
+    // * only point 1 and point 3 coincide
+    // * only point 2 and point 3 coincide
     // If point 0, 1 and 2 coincide OR point 1, 2 and 3 coincide OR
     // points 0,1 AND points 2,3 coincide we have a line
     if ((arePsEqual(ps[0], ps[1]) &&
@@ -22320,17 +22367,24 @@ function fixBezierByPointSpacing(ps, gridSpacing, sendToGrid) {
             arePsEqual(ps[2], ps[3])) ||
         (arePsEqual(ps[0], ps[1]) &&
             arePsEqual(ps[2], ps[3]))) {
+        return fixBezierByPointSpacing([ps[0], ps[ps.length - 1]], gridSpacing, sendToGrid);
+        /*
         // Check if first and last point are sufficiently far apart to split
         // the bezier into a line so that all points differ.
-        if (fix_bezier_by_point_spacing_abs(ps[0][0] - ps[3][0]) > (3 + 1) * gridSpacing ||
-            fix_bezier_by_point_spacing_abs(ps[0][1] - ps[3][1]) > (3 + 1) * gridSpacing) {
-            return [ps[0], ps[ps.length - 1]];
-        }
-        else {
+
+        // TODO2 - is below maybe not correct?
+        //if ((ps[0][0] - ps[3][0]) > (3+1)*gridSpacing ||
+        //    (ps[0][1] - ps[3][1]) > (3+1)*gridSpacing) {
+        if (abs(ps[0][0] - ps[3][0]) > (3+1)*gridSpacing ||
+            abs(ps[0][1] - ps[3][1]) > (3+1)*gridSpacing) {
+
+            return [ps[0], ps[ps.length-1]];
+        } else {
             // Points are not sufficiently far apart to resolve onto grid -
             // cannot fix it - it is basically a point.
+
             return undefined;
-        }
+        }*/
     }
     // At this point, either:
     // * only point 0 and point 1 coincides
@@ -22360,12 +22414,7 @@ function fixBezierByPointSpacing(ps, gridSpacing, sendToGrid) {
         // move them onto each other - this shouldn't affect the overall 
         // accuracy of the algorithm and it ensures the move > gridSpacing.
         if (squared_distance_between_squaredDistanceBetween(ps[1], ps[2]) < 4 * gridSpacing) {
-            return [
-                ps[0],
-                ps[2],
-                ps[2],
-                ps[3]
-            ]; // cannot be a line or quad
+            return [ps[0], ps[2], ps[2], ps[3]]; // cannot be a line or quad
         }
         else {
             const v = toLength(fromTo(ps[1], ps[2]), 2 * gridSpacing);
@@ -22728,10 +22777,11 @@ function simplifyPaths(bezierLoops, maxCoordinate) {
      * A size (based on the max value of the tangent) for the containers holding
      * critical points.
      */
-    const containerSizeMultiplier = 2 ** 4;
-    //const containerSizeMultiplier = 2**39;
+    const containerSizeMultiplier = 2 ** 4; // TODO2 - put back!!
+    // const containerSizeMultiplier = 2**36;
     const containerDim = gridSpacing * containerSizeMultiplier;
     bezierLoops = normalizeLoops(bezierLoops, maxBitLength, expMax, false, true);
+    // console.log(bezierLoops)
     addDebugInfo1(bezierLoops);
     bezierLoops.sort(orderLoopAscendingByMinY);
     const loops = bezierLoops.map((loop, i) => loopFromBeziers(loop, i));
