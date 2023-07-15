@@ -1,6 +1,6 @@
 import { distanceBetween, getObjClosestTo } from 'flo-vector2d';
 import { Curve } from '../../curve.js';
-import { PointOnShape, IPointOnShape } from '../../point-on-shape.js';
+import { createPos, PointOnShape } from '../../point-on-shape.js';
 import { BezierPiece  } from '../bezier-piece.js';
 import { cullBezierPieces } from './cull-bezier-pieces.js';
 import { closestPointsOnCurve } from './closest-points-on-curve.js';
@@ -23,7 +23,7 @@ function getClosestBoundaryPointDd(
 		t: number) {
 	
 	let bestDistance = Number.POSITIVE_INFINITY;
-	let posInfo: { pos: IPointOnShape; d: number };
+	let posInfo: { pos: PointOnShape; d: number };
 	for (let i=0; i<bezierPieces.length; i++) {
 		const bezierPiece = bezierPieces[i];
 
@@ -50,7 +50,11 @@ function getClosestBoundaryPointDd(
 				curve = bezierPiece.curve.prev;
 			}
 			
-			posInfo = { pos: new PointOnShape(curve, t_), d };
+			// posInfo = { pos: new PointOnShape(curve, t_), d };
+			posInfo = {
+				pos: createPos(curve, t_),
+				d
+			};
 			bestDistance = d;
 		}
 	}

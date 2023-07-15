@@ -1,7 +1,7 @@
 import { getCurvatureExtrema, splitByCurvatureAndLength, controlPointLinesLength } from 'flo-bezier3';
 import { getContactCirclesAtInterface } from '../get-contact-circles-at-interface.js';
 import { Loop } from '../../loop.js';
-import { PointOnShape, comparePoss, IPointOnShape } from '../../point-on-shape.js';
+import { PointOnShape, comparePoss, createPos } from '../../point-on-shape.js';
 
 
 /**
@@ -17,7 +17,7 @@ function getInterestingPointsOnLoop(
         maxLength: number) {
 
     return function(loop: Loop) {
-        const allPoints: IPointOnShape[] = [];
+        const allPoints: PointOnShape[] = [];
 
         for (let i=0; i<loop.curves.length; i++) {
             const curve = loop.curves[i];
@@ -46,7 +46,8 @@ function getInterestingPointsOnLoop(
             const { maxima } = getCurvatureExtrema(curve.ps);
             // let maxAbsCurvatures = maxima.map(t => new PointOnShape(curve, t));
             // qqq let maxAbsCurvatures = [...maxCurvatureTs, ...maxNegativeCurvatureTs].map(t => new PointOnShape(curve, t));
-            const maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
+            // const maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
+            const maxAbsCurvatures = [...maxima].map(t => createPos(curve, t));
 
             allPoints.push(
                 ...getContactCirclesAtInterface(curve), 
@@ -60,7 +61,8 @@ function getInterestingPointsOnLoop(
             // }
 
             for (let i=1; i<ts.length-1; i++) {
-                allPoints.push( new PointOnShape(curve, ts[i]) );
+                // allPoints.push( new PointOnShape(curve, ts[i]) );
+                allPoints.push( createPos(curve, ts[i]) );
             }
         }
 

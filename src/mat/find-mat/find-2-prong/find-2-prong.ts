@@ -10,7 +10,7 @@ import { getClosestBoundaryPoint } from
 import { CpNode } from '../../../cp-node.js';
 import { Loop } from '../../../loop.js';
 import { Circle } from '../../../circle.js';
-import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape.js';
+import { getOsculatingCircle, PointOnShape } from '../../../point-on-shape.js';
 import { BezierPiece } from '../../bezier-piece.js';
 import { add1Prong } from '../add-1-prong.js';
 import { addDebugInfo } from './add-debug-info.js';
@@ -55,7 +55,7 @@ function find2Prong(
 		extreme: number,
 		squaredDiagonalLength: number,
 		cpTrees: Map<Loop,LlRbTree<CpNode>>,
-        y: IPointOnShape,
+        y: PointOnShape,
 		isHoleClosing: boolean,
 		k: number) {
 
@@ -99,7 +99,7 @@ function find2Prong(
 	/** Trace the convergence (for debugging). */
 	const xs: TXForDebugging[] = []; 
 	/** The antipode of the two-prong (successively refined) */
-	let z: { pos: IPointOnShape; d: number }; 
+	let z: { pos: PointOnShape; d: number }; 
 	let i = 0;
 	let done = 0;
 	let failed = false; // The failed flag is set if a 2-prong cannot be found.
@@ -222,7 +222,7 @@ function find2Prong(
 
 	// TODO - Optimization: only do this if second closest point is within the
 	// tolerance which can be checked in getClosestBoundaryPoint algorithm
-	let zs: { pos: IPointOnShape; d: number; }[] = [];
+	let zs: { pos: PointOnShape; d: number; }[] = [];
 	if (!failed) {
 		zs = getCloseBoundaryPoints(
 			bezierPieces_, 

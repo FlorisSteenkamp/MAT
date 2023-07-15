@@ -2,13 +2,14 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { Loop } from '../loop.js';
 import { Circle } from '../circle.js';
 import { ContactPoint } from '../contact-point.js';
-import { IPointOnShape } from '../point-on-shape.js';
+import { PointOnShape } from '../point-on-shape.js';
 import { CpNode } from '../cp-node.js';
 import { getNeighbouringPoints } from './get-neighboring-cps.js';
 
 
 /**
  * @hidden
+ *
  * @param circle 
  * @param orders 
  * @param cpTrees 
@@ -20,7 +21,7 @@ function addToCpGraph(
         circle  : Circle, 
         orders  : number[],
         cpTrees : Map<Loop,LlRbTree<CpNode>>,
-        poss    : IPointOnShape[],
+        poss    : PointOnShape[],
         neighbors? : CpNode[][]) {
 
     const newCps = poss.map((pos, i) => {
@@ -51,6 +52,8 @@ function addToCpGraph(
         newCps[i].prevOnCircle = newCps[indxPrev];
         newCps[i].nextOnCircle = newCps[indxNext];
     }
+
+    return newCps;
 }
 
 

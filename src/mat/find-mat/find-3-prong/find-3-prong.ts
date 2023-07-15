@@ -5,7 +5,7 @@ import { fromTo } from 'flo-bezier3';
 import { Debug } from '../../../debug/debug.js';
 import { CpNode } from '../../../cp-node.js';
 import { Circle } from '../../../circle.js';
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape.js';
 import { createEmptyThreeProngForDebugging } from '../../../debug/three-prong-for-debugging.js';
 import { find3ProngForDelta3s } from './find-3-prong-for-delta3s.js';
 import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
@@ -51,7 +51,7 @@ function find3Prong(δs: CpNode[][], extreme: number) {
 	// The best candidate amongst the different 'permutations' of the given δs.
 	let threeProng: { 
         circle: Circle, 
-        ps: IPointOnShape[], 
+        ps: PointOnShape[], 
         δ3s: CpNode[][] 
     };
 	let bestIndx = undefined; 

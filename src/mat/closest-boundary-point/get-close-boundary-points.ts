@@ -1,5 +1,5 @@
 import { distanceBetween } from 'flo-vector2d';
-import { IPointOnShape, PointOnShape } from '../../point-on-shape.js';
+import { createPos, PointOnShape } from '../../point-on-shape.js';
 import { BezierPiece  } from '../bezier-piece.js';
 import { cullBezierPieces } from './cull-bezier-pieces.js';
 import { closestPointsOnCurve } from './closest-points-on-curve.js';
@@ -18,7 +18,7 @@ import { closestPointsOnCurve } from './closest-points-on-curve.js';
 function getCloseBoundaryPoints(
         bezierPieces: BezierPiece[], 
         point: number[], 
-		y: IPointOnShape,
+		y: PointOnShape,
 		distance: number) {
 	
 	const touchedCurve = y.curve;
@@ -29,7 +29,7 @@ function getCloseBoundaryPoints(
  
 	// TODO - integrate with is-another-cp-closeby - we MUST check angle too!
 	const DISTANCE_TOLERANCE = 1e-9;
-	const posInfos: { pos: IPointOnShape; d: number }[] = [];
+	const posInfos: { pos: PointOnShape; d: number }[] = [];
 	for (let i=0; i<bezierPieces.length; i++) {
 		const bezierPiece = bezierPieces[i];
 
@@ -57,7 +57,8 @@ function getCloseBoundaryPoints(
 					curve = bezierPiece.curve.prev;
 				}
 				
-				posInfos.push({ pos: new PointOnShape(curve, t_), d });
+				// posInfos.push({ pos: new PointOnShape(curve, t_), d });
+				posInfos.push({ pos: createPos(curve, t_), d });
 			}
 		}
 	}

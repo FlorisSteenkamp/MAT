@@ -5,7 +5,7 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug } from '../../debug/debug.js';
 import { Loop } from '../../loop.js';
 import { CpNode } from '../../cp-node.js';
-import { IPointOnShape } from '../../point-on-shape.js';
+import { PointOnShape } from '../../point-on-shape.js';
 import { getShapeBounds } from '../../svg/get-shape-bounds.js';
 import { Circle } from '../../circle.js';
 import { find2Prong } from './find-2-prong/find-2-prong.js';
@@ -26,7 +26,7 @@ function findAndAdd2Prongs(
         loops: Loop[],
         cpGraphs: Map<Loop,LlRbTree<CpNode>>,
         k: number, 
-        for2Prongs: IPointOnShape[],
+        for2Prongs: PointOnShape[],
         extreme: number) {
 
     const len = for2Prongs.length;
@@ -42,7 +42,7 @@ function findAndAdd2Prongs(
     for (let i=0; i<len; i++) {
         const pos = for2Prongs[index[i]];
 
-        const twoProngInfo: { circle: Circle,	zs: { pos: IPointOnShape, d: number }[] } = find2Prong(
+        const twoProngInfo: { circle: Circle,	zs: { pos: PointOnShape, d: number }[] } = find2Prong(
             loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k
         );
 

@@ -4,7 +4,7 @@ import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
 import { BezierPiece  } from '../../bezier-piece.js';
 import { Loop } from '../../../loop.js';
 import { CpNode } from '../../../cp-node.js';
-import { isPosDullCorner, IPointOnShape } from '../../../point-on-shape.js';
+import { isPosDullCorner, PointOnShape } from '../../../point-on-shape.js';
 
 
 /** @hidden */
@@ -13,7 +13,7 @@ function getInitialBezierPieces(
         k: number,
         loops: Loop[],
         cpTrees: Map<Loop,LlRbTree<CpNode>>,
-        y: IPointOnShape) {
+        y: PointOnShape) {
 
     let bezierPieces: BezierPiece[];
     let δ: CpNode[];

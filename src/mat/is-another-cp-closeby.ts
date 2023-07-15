@@ -2,7 +2,7 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
 import { Loop } from '../loop.js';
 import { CpNode } from '../cp-node.js';
-import { IPointOnShape } from '../point-on-shape.js';
+import { PointOnShape } from '../point-on-shape.js';
 import { Circle } from '../circle.js';
 import { getNeighbouringPoints } from './get-neighboring-cps.js';
 
@@ -26,7 +26,7 @@ const ANGLE_THRESHOLD = Math.cos(15 * (Math.PI / 180));  // 15 degrees
  */
 function isAnotherCpCloseby(
         cpTrees: Map<Loop,LlRbTree<CpNode>>,
-        pos: IPointOnShape,
+        pos: PointOnShape,
         circle: Circle,
         order: number,
         order2: number,
@@ -49,7 +49,7 @@ function isAnotherCpCloseby(
         }
 
         // TODO2
-        return true;
+        // return true;
 
         const v1 = toUnitVector(fromTo(p2, cpNode.cp.circle.center));
         const v2 = toUnitVector(fromTo(p1, circle.center));

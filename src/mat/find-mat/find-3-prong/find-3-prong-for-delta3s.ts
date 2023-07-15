@@ -9,7 +9,7 @@ import { tangent } from 'flo-bezier3';
 import { Debug } from '../../../debug/debug.js';
 import { CpNode } from '../../../cp-node.js';
 import { BezierPiece } from '../../bezier-piece.js';
-import { isPosDullCorner, IPointOnShape } from '../../../point-on-shape.js';
+import { isPosDullCorner, PointOnShape } from '../../../point-on-shape.js';
 import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
@@ -71,7 +71,7 @@ function find3ProngForDelta3s(
     if (δ3s[0][0].isSharp()) { return undefined; }
 
 
-    let ps: IPointOnShape[];
+    let ps: PointOnShape[];
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
     let x = calcInitial3ProngCenter(δ3s, bezierPiece3s);

@@ -2,7 +2,7 @@
 declare const _debug_: Debug; 
 
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { simplifyPaths } from 'flo-boolean';
+import { beziersToSvgPathStr, simplifyPaths } from 'flo-boolean';
 import { Debug } from './debug/debug.js';
 import { CpNode } from './cp-node.js';
 import { Loop } from './loop.js';
@@ -54,6 +54,7 @@ function findMats(
 		getSizeParams(bezierLoops, maxCurviness, maxLength));
 
 	const loopss = simplifyPaths(bezierLoops, maxCoordinate);
+	// console.log(loopsToSvgPathStr(loopss[0].map(loop => loop.beziers)));
 
 	const mats: Mat[] = [];
 	for (const loops of loopss) {
@@ -68,6 +69,23 @@ function findMats(
 	}
 
 	return mats;
+}
+
+
+/**
+ * Returns an SVG path string representation of the given bezier loops.
+ * @param loops An array of loops having an array of bezier curves each given as 
+ * an array of control points.
+ */
+function loopsToSvgPathStr(
+		loops: number[][][][]) {
+
+	let str = '';
+	for (const loop of loops) {
+		str = str + beziersToSvgPathStr(loop) + '\n';
+	}
+
+	return str;
 }
 
 

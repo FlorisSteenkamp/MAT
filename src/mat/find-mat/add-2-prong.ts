@@ -8,7 +8,7 @@ import { Loop         } from '../../loop.js';
 import { CpNode       } from '../../cp-node.js';
 import { Circle       } from '../../circle.js';
 import { ContactPoint } from '../../contact-point.js';
-import { PointOnShape, calcPosOrder, IPointOnShape } from '../../point-on-shape.js';
+import { PointOnShape, calcPosOrder, createPos} from '../../point-on-shape.js';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 import { getNeighbouringPoints } from '../get-neighboring-cps.js';
 import { TwoProngForDebugging } from '../../debug/two-prong-for-debugging.js';
@@ -28,8 +28,8 @@ import { TwoProngForDebugging } from '../../debug/two-prong-for-debugging.js';
 function add2Prong(
 		cpGraphs      : Map<Loop,LlRbTree<CpNode>>,
         circle        : Circle, 
-        posSource     : IPointOnShape, 
-		posAntipodes  : { pos: IPointOnShape, d: number }[],
+        posSource     : PointOnShape, 
+		posAntipodes  : { pos: PointOnShape, d: number }[],
 		holeClosing   : boolean,
 		extreme       : number): CpNode {
 
@@ -48,7 +48,8 @@ function add2Prong(
 	if (t_s === 0) {
 		t_s = 1;
 		curve = posSource.curve.prev;
-		posSource = new PointOnShape(curve, t_s);
+		// posSource = new PointOnShape(curve, t_s);
+		posSource = createPos(curve, t_s);
 	}
 
 

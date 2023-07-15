@@ -1,7 +1,7 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Loop } from '../../loop.js';
 import { CpNode } from '../../cp-node.js';
-import { IPointOnShape } from '../../point-on-shape.js';
+import { PointOnShape } from '../../point-on-shape.js';
 import { findAndAdd2Prongs } from './find-and-add-2-prongs.js';
 
 
@@ -17,7 +17,7 @@ import { findAndAdd2Prongs } from './find-and-add-2-prongs.js';
 function findAndAdd2ProngsOnAllPaths(
         loops: Loop[],
         cpGraphs: Map<Loop,LlRbTree<CpNode>>,
-        for2Prongss: IPointOnShape[][],
+        for2Prongss: PointOnShape[][],
         extreme: number) {
 
     let cpNode;

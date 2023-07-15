@@ -1,4 +1,4 @@
-import { IPointOnShape } from '../point-on-shape.js';
+import { PointOnShape } from '../point-on-shape.js';
 import { TwoProngForDebugging } from './two-prong-for-debugging.js';
 import { ThreeProngForDebugging } from './three-prong-for-debugging.js';
 import { Curve } from '../curve.js';
@@ -10,8 +10,8 @@ import { ICpNodeForDebugging } from './cp-node-for-debugging.js';
 
 /** @hidden */
 interface IDebugElems {
-    oneProng: IPointOnShape;
-    oneProngAtDullCorner: IPointOnShape;
+    oneProng: PointOnShape;
+    oneProngAtDullCorner: PointOnShape;
     twoProng_regular: TwoProngForDebugging;
 	twoProng_failed: TwoProngForDebugging;
 	twoProng_notAdded: TwoProngForDebugging;

@@ -1,10 +1,10 @@
 import { toCubic, evalDeCasteljau } from 'flo-bezier3';
 import { drawFs } from 'flo-draw';
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape.js';
 
 
 /** @hidden */
-function minY(g: SVGGElement, pos: IPointOnShape) {	
+function minY(g: SVGGElement, pos: PointOnShape) {	
     const p = evalDeCasteljau(pos.curve.ps, pos.t) ;
 
     const ps = toCubic(pos.curve.ps);

@@ -1,7 +1,7 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Loop } from '../../loop.js';
 import { CpNode } from '../../cp-node.js';
-import { IPointOnShape } from '../../point-on-shape.js';
+import { PointOnShape } from '../../point-on-shape.js';
 import { ContactPoint } from '../../contact-point.js';
 
 
@@ -14,7 +14,7 @@ import { ContactPoint } from '../../contact-point.js';
 function createInitialCpGraph(
         loops: Loop[], 
         cpTrees: Map<Loop, LlRbTree<CpNode>>,
-        sharpCornerss: IPointOnShape[][]/*,
+        sharpCornerss: PointOnShape[][]/*,
         xMap: Map<number[][],{ ps: number[][] }>*/) {
 
     let cpNode;

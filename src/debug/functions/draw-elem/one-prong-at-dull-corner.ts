@@ -1,9 +1,12 @@
 import { drawFs } from 'flo-draw';
-import { getOsculatingCircle, IPointOnShape } from '../../../point-on-shape.js';
+import { getOsculatingCircle, PointOnShape } from '../../../point-on-shape.js';
 
 
 /** @hidden */
-function oneProngAtDullCorner(g: SVGGElement, pos: IPointOnShape) {
+function oneProngAtDullCorner(
+        g: SVGGElement,
+        pos: PointOnShape) {
+
     //let oCircle = PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
     const oCircle = getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
 

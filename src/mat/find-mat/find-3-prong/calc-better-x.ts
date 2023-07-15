@@ -1,5 +1,5 @@
 import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape.js';
 import { BezierPiece  } from '../../bezier-piece.js';
 import { getClosestPoints } from './get-closest-points.js';
 
@@ -25,7 +25,7 @@ function calcBetterX(
     let nu = 1;
     let better;
     let newX;
-    let newPs: IPointOnShape[];
+    let newPs: PointOnShape[];
     let newV;
     let i = 0; // Safeguard
     do { 

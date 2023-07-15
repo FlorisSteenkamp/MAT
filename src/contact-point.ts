@@ -1,4 +1,4 @@
-import { comparePoss, IPointOnShape } from './point-on-shape.js';
+import { comparePoss, PointOnShape } from './point-on-shape.js';
 import { Circle } from './circle.js';
 
 
@@ -8,7 +8,7 @@ import { Circle } from './circle.js';
  */
 interface ContactPoint {
 	/** Identifies the point on the shape boundary. */
-	pointOnShape: IPointOnShape;
+	pointOnShape: PointOnShape;
 	/** The maximal disk circle touching this point. */
 	circle: Circle;
 	/** Internally used to order two points lying at the same planar point. */

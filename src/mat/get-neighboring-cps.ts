@@ -1,5 +1,5 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { IPointOnShape } from '../point-on-shape.js';
+import { PointOnShape } from '../point-on-shape.js';
 import { CpNode } from '../cp-node.js';
 
 
@@ -14,7 +14,7 @@ import { CpNode } from '../cp-node.js';
  */
 function getNeighbouringPoints(
         cpTree: LlRbTree<CpNode>,
-        pos: IPointOnShape,
+        pos: PointOnShape,
         order: number,
         order2: number) {
 

@@ -5,7 +5,7 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { CpNode } from '../../cp-node.js';
 import { Loop } from '../../loop.js';
 import { Circle } from '../../circle.js';
-import { comparePoss, IPointOnShape, PointOnShape } from '../../point-on-shape.js';
+import { comparePoss, PointOnShape } from '../../point-on-shape.js';
 import { addToCpGraph } from '../add-to-cp-graph.js';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 import { compareCps } from '../../contact-point.js';
@@ -24,7 +24,7 @@ function add3Prong(
 		orders: number[],
 		threeProng: { 
     		circle: Circle, 
-			ps: IPointOnShape[],
+			ps: PointOnShape[],
 			δ3s: CpNode[][]
 		}) {
 	
@@ -33,6 +33,7 @@ function add3Prong(
 	// Keep for possible future debugging.	
 
 	/*
+	let ii = -1;
 	if (typeof _debug_ !== 'undefined') {
 		for (let i=0; i<3; i++) {
 			const cpBef = threeProng.δ3s[i][0].cp;
@@ -56,6 +57,7 @@ function add3Prong(
 				console.log(cpBef);
 				console.log(cpAft);
 				console.log(poss[i]);
+				ii = i;
 			}
 			if (cmpAft < 0) {
 				console.log('----------------------------------------');
@@ -76,7 +78,10 @@ function add3Prong(
 
 	// console.log(c1,c2,c3);
 
-	addToCpGraph(circle, orders, cpTrees, poss, δ3s); 
+	const cps = addToCpGraph(circle, orders, cpTrees, poss, δ3s); 
+	// if (ii !== -1) {
+	// 	console.log(cps[ii]);
+	// }
 
 	return circle;
 }

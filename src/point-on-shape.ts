@@ -4,9 +4,10 @@ import { curvature, evalDeCasteljau, tangent }   from 'flo-bezier3';
 import { Curve, getCornerAtEnd } from './curve.js';
 import { Circle } from './circle.js';
 import { Corner } from './mat/corner.js';
+// import { evalDeCasteljau$ } from './memoized/eval-de-casteljau.js';
 
 
-interface IPointOnShape {
+interface PointOnShape {
     /** The [[ICurve]] on the shape boundary this points belong to. */
     curve: Curve;
     /** The bezier parameter value on the curve identifying the point coordinates. */
@@ -15,32 +16,12 @@ interface IPointOnShape {
 }
 
 
-/**
- * Represents a point on the shape boundary for which MAT vertex information 
- * has not *necessarily* been calculated.
- */
-class PointOnShape implements IPointOnShape {
+function createPos(
+        curve: Curve,
+        t: number): PointOnShape {
 
-    /** 
-     * @param curve	The [[ICurve]] on the shape boundary this points belong to.
-     * @param t The bezier parameter value on the curve to identify the point
-     * coordinates.
-     */	
-    constructor(
-            public readonly curve: Curve,
-            public readonly t: number) {
-    }	
-
-
-    // Cache
-    private p_ : number[] = undefined;
-    /**
-     * The planar point coordinates of this [[PointOnShape]].
-     */
-    get p() {
-        return this.p_ === undefined
-            ? this.p_ = evalDeCasteljau(this.curve.ps, this.t)
-            : this.p_;
+    return {
+        curve, t, p: evalDeCasteljau(curve.ps, t)
     }
 }
 
@@ -48,7 +29,7 @@ class PointOnShape implements IPointOnShape {
 /**
  * @hidden
  */
-function isPosCorner(pos: IPointOnShape) {
+function isPosCorner(pos: PointOnShape) {
     return (pos.t === 0 || pos.t === 1);
 }
 
@@ -56,7 +37,7 @@ function isPosCorner(pos: IPointOnShape) {
 /**
  * @hidden
  */
-function getPosCorner(pos: IPointOnShape): Corner {
+function getPosCorner(pos: PointOnShape): Corner {
     return getCornerAtEnd(
         pos.t === 1 ? pos.curve : pos.curve.prev
     );
@@ -66,7 +47,7 @@ function getPosCorner(pos: IPointOnShape): Corner {
 /**
  * @hidden
  */
-const isPosSharpCorner = memoize((pos: IPointOnShape) => {
+const isPosSharpCorner = memoize((pos: PointOnShape) => {
     if (!isPosCorner(pos)) { return false; }
 
     return getPosCorner(pos).isSharp;
@@ -76,7 +57,7 @@ const isPosSharpCorner = memoize((pos: IPointOnShape) => {
 /**
  * @hidden
  */
-const isPosDullCorner = memoize((pos: IPointOnShape) => {
+const isPosDullCorner = memoize((pos: PointOnShape) => {
     if (!isPosCorner(pos)) { return false; }
 
     return getPosCorner(pos).isDull;
@@ -86,7 +67,7 @@ const isPosDullCorner = memoize((pos: IPointOnShape) => {
 /**
  * @hidden
  */
-const isPosQuiteSharpCorner = memoize((pos: IPointOnShape) => {
+const isPosQuiteSharpCorner = memoize((pos: PointOnShape) => {
     if (!isPosCorner(pos)) { return false; }
 
     return getPosCorner(pos).isQuiteSharp;
@@ -96,7 +77,7 @@ const isPosQuiteSharpCorner = memoize((pos: IPointOnShape) => {
 /**
  * @hidden
  */
-const isPosQuiteDullCorner = memoize((pos: IPointOnShape) => {
+const isPosQuiteDullCorner = memoize((pos: PointOnShape) => {
     if (!isPosCorner(pos)) { return false; }
 
     return getPosCorner(pos).isQuiteDull;
@@ -108,7 +89,7 @@ const isPosQuiteDullCorner = memoize((pos: IPointOnShape) => {
  * For debugging only.
  * @hidden
  */
-function posToHumanString(pos: IPointOnShape) {
+function posToHumanString(pos: PointOnShape) {
     return '' + pos.p[0] + ', ' + pos.p[1] + 
         ' | bz: '   + pos.curve.idx + 
         ' | t: '    + pos.t 
@@ -122,12 +103,11 @@ function posToHumanString(pos: IPointOnShape) {
  * @param pos
  */
 function calcPosOrder(
-        circle : Circle, 
-        pos    : IPointOnShape): number {
+        circle: Circle, 
+        pos: PointOnShape): number {
 
     if (!isPosCorner(pos)) { return 0; }
     if (!isPosDullCorner(pos)) { return 0; }
-    //if (!isPosDullCorner(pos)) { return 0; }
 
     const corner = getPosCorner(pos);
 
@@ -145,7 +125,10 @@ function calcPosOrder(
  * @param b The second [[PointOnShape]].
  * @hidden
  */
-function comparePoss(a: IPointOnShape, b: IPointOnShape) {
+function comparePoss(
+        a: PointOnShape,
+        b: PointOnShape) {
+
     if (a === undefined || b === undefined) {
         return undefined;
     }
@@ -169,7 +152,7 @@ function comparePoss(a: IPointOnShape, b: IPointOnShape) {
  * @param t
  * @hidden
  */
-const calcOsculatingCircleRadius = memoize((pos: IPointOnShape) => {
+const calcOsculatingCircleRadius = memoize((pos: PointOnShape) => {
     const ps = pos.curve.ps;
     const t  = pos.t;
 
@@ -189,7 +172,7 @@ const calcOsculatingCircleRadius = memoize((pos: IPointOnShape) => {
  */
 function getOsculatingCircle(
         maxOsculatingCircleRadius: number, 
-        pos: IPointOnShape): Circle {
+        pos: PointOnShape): Circle {
 
     if (isPosSharpCorner(pos)) {
         return { center: pos.p, radius: 0 };
@@ -219,8 +202,8 @@ function getOsculatingCircle(
 
 
 export { 
-    IPointOnShape,
-    PointOnShape, 
+    PointOnShape,
+    // PointOnShape, 
     getOsculatingCircle,
     comparePoss, 
     calcPosOrder,
@@ -228,5 +211,6 @@ export {
     isPosSharpCorner,
     isPosDullCorner,
     isPosQuiteSharpCorner,
-    isPosQuiteDullCorner
+    isPosQuiteDullCorner,
+    createPos
 }

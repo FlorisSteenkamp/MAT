@@ -2,7 +2,7 @@ import { getBounds } from 'flo-bezier3';
 import { memoize } from 'flo-memoize';
 import { Loop } from '../loop.js';
 import { Curve } from '../curve.js';
-import { PointOnShape, IPointOnShape } from '../point-on-shape.js';
+import { PointOnShape, createPos } from '../point-on-shape.js';
 
 
 /** @hidden */
@@ -13,10 +13,10 @@ const INF = Number.POSITIVE_INFINITY;
  * @hidden 
  */
 const getLoopBounds = memoize(function(loop: Loop): {
-		minX: IPointOnShape;
-		minY: IPointOnShape;
-		maxX: IPointOnShape;
-		maxY: IPointOnShape } {	
+		minX: PointOnShape;
+		minY: PointOnShape;
+		maxX: PointOnShape;
+		maxY: PointOnShape } {	
 
 	const extremes: { 
 		bezier: Curve, 
@@ -93,10 +93,14 @@ const getLoopBounds = memoize(function(loop: Loop): {
 	});
 
 	return {
-		minX : new PointOnShape(extremes[0][0].bezier, extremes[0][0].t),
-		minY : new PointOnShape(extremes[0][1].bezier, extremes[0][1].t),
-		maxX : new PointOnShape(extremes[1][0].bezier, extremes[1][0].t),
-		maxY : new PointOnShape(extremes[1][1].bezier, extremes[1][1].t)
+		// minX : new PointOnShape(extremes[0][0].bezier, extremes[0][0].t),
+		// minY : new PointOnShape(extremes[0][1].bezier, extremes[0][1].t),
+		// maxX : new PointOnShape(extremes[1][0].bezier, extremes[1][0].t),
+		// maxY : new PointOnShape(extremes[1][1].bezier, extremes[1][1].t)
+		minY : createPos(extremes[0][1].bezier, extremes[0][1].t),
+		minX : createPos(extremes[0][0].bezier, extremes[0][0].t),
+		maxX : createPos(extremes[1][0].bezier, extremes[1][0].t),
+		maxY : createPos(extremes[1][1].bezier, extremes[1][1].t)
 	};
 });
 

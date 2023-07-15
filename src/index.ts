@@ -4,7 +4,7 @@ import { Mat } from './mat.js';
 import { Loop } from './loop.js';
 import { Curve } from './curve.js';
 import { CpNode } from './cp-node.js';
-import { PointOnShape, IPointOnShape } from './point-on-shape.js';
+import { PointOnShape, createPos } from './point-on-shape.js';
 import { Circle } from './circle.js';
 import { ContactPoint } from './contact-point.js';
 import { BezierPiece } from './mat/bezier-piece.js';
@@ -40,7 +40,7 @@ export {
 	// Data structures
 	Mat,
 	PointOnShape,
-	IPointOnShape,
+	// IPointOnShape,
 	Curve,
 	Loop,
 	CpNode,
@@ -70,6 +70,7 @@ export {
 	// Other functions
 	getClosestBoundaryPoint, 
 	getCurveToNext, getCurveBetween,
+	createPos,
 
 	// Debug
 	Debug,

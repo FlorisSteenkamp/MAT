@@ -2,7 +2,7 @@
 declare const _debug_: Debug; 
 
 import { Debug } from '../../../debug/debug.js';
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape.js';
 import { Circle } from '../../../circle.js';
 import { CpNode } from '../../../cp-node.js';
 import { BezierPiece } from '../../bezier-piece.js';
@@ -16,9 +16,9 @@ import { TXForDebugging } from './x-for-debugging.js';
 function addDebugInfo(
         bezierPieces: BezierPiece[],
         failed: boolean, 
-        pos: IPointOnShape,
+        pos: PointOnShape,
         circle: Circle, 
-        z: IPointOnShape,
+        z: PointOnShape,
         δ: CpNode[], 
         xs: TXForDebugging[], 
         holeClosing: boolean) {

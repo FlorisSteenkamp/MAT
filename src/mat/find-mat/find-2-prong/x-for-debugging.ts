@@ -1,11 +1,11 @@
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape.js';
 
 
 /** @hidden */
 type TXForDebugging = { 
     x: number[]; 
-    y: IPointOnShape; 
-    z: IPointOnShape; 
+    y: PointOnShape; 
+    z: PointOnShape; 
     t: number; 
 }
 

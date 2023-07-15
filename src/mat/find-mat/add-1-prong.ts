@@ -4,7 +4,7 @@ declare const _debug_: Debug;
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug }   from '../../debug/debug.js';
 import { Loop } from '../../loop.js';
-import { getOsculatingCircle, calcPosOrder, isPosDullCorner, IPointOnShape } from '../../point-on-shape.js';
+import { getOsculatingCircle, calcPosOrder, isPosDullCorner, PointOnShape } from '../../point-on-shape.js';
 import { CpNode } from '../../cp-node.js';
 import { addToCpGraph } from '../add-to-cp-graph.js';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
@@ -19,7 +19,7 @@ import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 function add1Prong(
 		maxOsculatingCircleRadius: number,
         cpGraphs: Map<Loop,LlRbTree<CpNode>>, 
-        pos: IPointOnShape) {
+        pos: PointOnShape) {
 
 	//if (PointOnShape.isDullCorner(pos)) {
     if (isPosDullCorner(pos)) {
