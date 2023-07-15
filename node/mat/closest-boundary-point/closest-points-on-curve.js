@@ -1,5 +1,3 @@
-// qqq import { deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
-// qqq import { getTangentPolyFromPointExact, evalDeCasteljau, evaluate, getFootpointPolyExact } from 'flo-bezier3';
 import { ddDeflate, allRootsCertified } from 'flo-poly';
 import { evaluate, getFootpointPolyDd } from 'flo-bezier3';
 /**
@@ -11,13 +9,10 @@ import { evaluate, getFootpointPolyDd } from 'flo-bezier3';
  * @param t The t value of the bezier that locates p
  */
 function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
-    // qqq let poly = getTangentPolyFromPointExact(curve.ps, p);
     const _poly = getFootpointPolyDd(curve.ps, p);
-    // qqq poly = deflateQuad(poly, t);
     const poly = curve === touchedCurve
         ? ddDeflate(_poly, t)
         : _poly;
-    // let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
     const roots = allRootsCertified(poly, tS, tE);
     // Also test the endpoints
     let push0 = true;
@@ -64,8 +59,16 @@ function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
             ? 0
             : tE > 1 ? 1 : (tS + tE) / 2;
         // TODO - why does evalDeCasteljau not work here?
-        return { p: evaluate(curve.ps, t), t };
         //return { p: evalDeCasteljau(curve.ps,t), t }
+        // TODO2 - will make it slower
+        // const aa = evaluate(curve.ps,t);
+        // const bb = evalDeCasteljauDd(curve.ps,[0,t]).map(v => v[1]);
+        // if (aa[0] !== bb[0] || aa[1] !== bb[1]) {
+        //     console.log(aa);
+        //     console.log(bb);
+        // }
+        return { p: evaluate(curve.ps, t), t };
+        // return { p: evalDeCasteljauDd(curve.ps,[0,t]).map(v => v[1]), t }
     });
     return ps;
 }

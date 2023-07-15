@@ -9,7 +9,6 @@ function getSharpCorners(possPerLoop: IPointOnShape[][]) {
         const sharpCorners = [];
         
         for (const pos of poss) {
-            //if (PointOnShape.isQuiteSharpCorner(pos)) {
             if (isPosQuiteSharpCorner(pos)) {
                 sharpCorners.push(pos);
             }

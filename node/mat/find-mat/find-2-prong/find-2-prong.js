@@ -35,9 +35,11 @@ const evalDeCasteljau = evalDeCasteljau_;
  */
 function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClosing, k) {
     const MAX_ITERATIONS = 25;
-    const squaredSeperationTolerance = (1e-6 * extreme) ** 2;
+    const squaredSeperationTolerance = (1e-5 * extreme) ** 2;
     // TODO - base deltas on theory or remove
     const oneProngTolerance = (1e-4) ** 2;
+    // const oneProngTolerance = (1e-5)**2;
+    // const oneProngTolerance = 0;
     const squaredErrorTolerance = 1e-2 * squaredSeperationTolerance;
     const maxOsculatingCircleRadiusSquared = squaredDiagonalLength;
     // The boundary piece that should contain the other point of 
@@ -55,7 +57,6 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     }
     else {
         p = y.p;
-        //x = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
         x = getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
         r = squaredDistanceBetween(p, x);
     }
@@ -76,8 +77,8 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     do {
         i++;
         /** squared distance between source boundary point and circle center */
-        const r = squaredDistanceBetween(x, y.p);
-        bezierPieces_ = cullBezierPieces(bezierPieces_, x, r);
+        const xy = squaredDistanceBetween(x, y.p);
+        bezierPieces_ = cullBezierPieces(bezierPieces_, x, xy);
         z = getClosestBoundaryPoint(bezierPieces_, x, y.curve, y.t);
         if (z === undefined) {
             if (typeof _debug_ !== 'undefined') {
@@ -97,16 +98,18 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
             xs.push({ x, y, z: z.pos, t: y.t });
         }
         /** squared distance between anti-pode boundary point and circle center */
-        const d = squaredDistanceBetween(x, z.pos.p);
+        const xz = squaredDistanceBetween(x, z.pos.p);
         //if (i === 1 && d*oneProngTolerance >= r) {
-        if (i === 1 && r < d + oneProngTolerance) {
+        if (i === 1 && xy < xz + oneProngTolerance) {
             // It is a 1-prong.
+            // TODO2 - below line was removed (maybe)
             add1Prong(Math.sqrt(maxOsculatingCircleRadiusSquared), cpTrees, y);
             return undefined;
         }
         // TODO - squaredSeperationTolerance should in future be replaced with
         // a relative error, i.e. distance between y (or z) / length(y (or z)).
-        if (!isHoleClosing && squaredDistanceBetween(y.p, z.pos.p) <= squaredSeperationTolerance) {
+        const yz = squaredDistanceBetween(y.p, z.pos.p);
+        if (!isHoleClosing && yz <= squaredSeperationTolerance) {
             if (typeof _debug_ !== 'undefined') {
                 /*
                 let elems = _debug_.generated.elems;
@@ -128,8 +131,10 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         // nextX, but rather (distance from x to y) - (distance from x to z)
         // Find the point on the line connecting y with x that is  
         // equidistant from y and z. This will be our next x.
+        // const nextX = findEquidistantPointOnLineDd(x, y.p, z.pos.p);
         const nextX = findEquidistantPointOnLine(x, y.p, z.pos.p);
         const squaredError = squaredDistanceBetween(x, nextX);
+        // const squaredError = Math.abs(xy - xz);
         x = nextX;
         if (squaredError < squaredErrorTolerance) {
             done++; // Do one more iteration
@@ -140,6 +145,29 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
             break; // We're done
         }
     } while (done < 1);
+    /************************************************************************ */
+    /* Do one more double-double precision iteration
+    /************************************************************************ */
+    /*
+    z = getClosestBoundaryPoint(
+        bezierPieces_, x, y.curve, y.t
+    );
+
+    if (z === undefined) {
+        failed = true;
+    }
+    
+    if (typeof _debug_ !== 'undefined') {
+        xs.push({ x, y, z: z.pos, t: y.t });
+    }
+    
+    if (!isHoleClosing && squaredDistanceBetween(y.p, z.pos.p) <= squaredSeperationTolerance) {
+        failed = true;
+    } else {
+        x = findEquidistantPointOnLineDd(x, y.p, z.pos.p);
+    }
+    /************************************************************************ */
+    /************************************************************************ */
     // TODO - Optimization: only do this if second closest point is within the
     // tolerance which can be checked in getClosestBoundaryPoint algorithm
     let zs = [];
@@ -154,6 +182,8 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     if (z !== undefined) {
         circle = { center: x, radius: distanceBetween(x, z.pos.p) };
     }
+    // TODO2
+    // if (Math.random() > 0.8 && !isHoleClosing) { return undefined; }
     if (typeof _debug_ !== 'undefined' && !failed) {
         xs.push({ x, y, z: z.pos, t: y.t });
         addDebugInfo(bezierPieces, failed, y, circle, z.pos, δ, xs, isHoleClosing);

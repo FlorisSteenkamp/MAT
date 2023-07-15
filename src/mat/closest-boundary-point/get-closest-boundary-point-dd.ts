@@ -16,14 +16,12 @@ import { closestPointsOnCurve } from './closest-points-on-curve.js';
  * @param t
  * @param extreme
  */
-function getClosestBoundaryPoint(
+function getClosestBoundaryPointDd(
         bezierPieces: BezierPiece[], 
         point: number[], 
 		touchedCurve: Curve, 
 		t: number) {
 	
-	bezierPieces = cullBezierPieces(bezierPieces, point);
- 
 	let bestDistance = Number.POSITIVE_INFINITY;
 	let posInfo: { pos: IPointOnShape; d: number };
 	for (let i=0; i<bezierPieces.length; i++) {
@@ -61,4 +59,4 @@ function getClosestBoundaryPoint(
 }
 
 
-export { getClosestBoundaryPoint };
+export { getClosestBoundaryPointDd };

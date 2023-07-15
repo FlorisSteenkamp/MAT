@@ -46,11 +46,7 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
         // comparing closeness!
         const indexesToCheck = [];
         for (let i = 0; i < posInfos.length; i++) {
-            const pi = posInfos[i];
-            // Only check if they are close to the edges. Why??
-            //if (pi.pos.t < 1e-2 || 1-pi.pos.t < 1e-2) {
             indexesToCheck.push(i);
-            //}
         }
         const indexesToRemove = [];
         for (let i = 0; i < indexesToCheck.length; i++) {

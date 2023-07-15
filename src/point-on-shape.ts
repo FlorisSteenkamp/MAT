@@ -3,6 +3,7 @@ import { memoize } from 'flo-memoize';
 import { curvature, evalDeCasteljau, tangent }   from 'flo-bezier3';
 import { Curve, getCornerAtEnd } from './curve.js';
 import { Circle } from './circle.js';
+import { Corner } from './mat/corner.js';
 
 
 interface IPointOnShape {
@@ -55,7 +56,7 @@ function isPosCorner(pos: IPointOnShape) {
 /**
  * @hidden
  */
-function getPosCorner(pos: IPointOnShape) {
+function getPosCorner(pos: IPointOnShape): Corner {
     return getCornerAtEnd(
         pos.t === 1 ? pos.curve : pos.curve.prev
     );

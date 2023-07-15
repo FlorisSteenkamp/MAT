@@ -14,24 +14,27 @@ function add3Prong(cpTrees, orders, threeProng) {
     /*
     if (typeof _debug_ !== 'undefined') {
         for (let i=0; i<3; i++) {
-            let cpBef = threeProng.δ3s[i][0].cp;
-            let cpAft = threeProng.δ3s[i][1].cp;
-            //let cmpBef = PointOnShape.compareInclOrder(cpBef.pointOnShape, ps[i], cpBef.order, orders[i]);
-            //let cmpAft = PointOnShape.compareInclOrder(cpAft.pointOnShape, ps[i], cpAft.order, orders[i]);
+            const cpBef = threeProng.δ3s[i][0].cp;
+            const cpAft = threeProng.δ3s[i][1].cp;
 
-            let cmpBef = PointOnShape.compare(cpBef.pointOnShape, ps[i]);
-            let cmpAft = PointOnShape.compare(cpAft.pointOnShape, ps[i]);
+            //let cmpBef = PointOnShape.compareInclOrder(cpBef.pointOnShape, poss[i], cpBef.order, orders[i]);
+            //let cmpAft = PointOnShape.compareInclOrder(cpAft.pointOnShape, poss[i], cpAft.order, orders[i]);
+            const cmpBef = compareCps(cpBef, { pointOnShape: poss[i], order: orders[i], order2: 0, circle: undefined });
+            const cmpAft = compareCps(cpAft, { pointOnShape: poss[i], order: orders[i], order2: 0, circle: undefined });
+
+            // const cmpBef = comparePoss(cpBef.pointOnShape, poss[i]);
+            // const cmpAft = comparePoss(cpAft.pointOnShape, poss[i]);
 
             // len is used by debug functions to reference a particular
             // three-prong.
-            let len = _debug_.generated.elems.threeProng.length-1;
+            const len = _debug_.generated.elems.threeProng.length-1;
             if (cmpBef > 0) {
                 console.log('----------------------------------------');
                 console.log(`3-prong order is wrong (bef) : i: ${i} - cmp: ${cmpBef} - n: ${len}`);
                 console.log(threeProng);
                 console.log(cpBef);
                 console.log(cpAft);
-                console.log(ps[i]);
+                console.log(poss[i]);
             }
             if (cmpAft < 0) {
                 console.log('----------------------------------------');
@@ -39,15 +42,16 @@ function add3Prong(cpTrees, orders, threeProng) {
                 console.log(threeProng);
                 console.log(cpBef);
                 console.log(cpAft);
-                console.log(ps[i]);
+                console.log(poss[i]);
             }
         }
     }
     */
     // TODO - replace 1000 below with correct value
-    isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
-    isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
-    isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
+    const c1 = isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
+    const c2 = isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
+    const c3 = isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
+    // console.log(c1,c2,c3);
     addToCpGraph(circle, orders, cpTrees, poss, δ3s);
     return circle;
 }

@@ -4,7 +4,7 @@ import { Circle, scaleCircle } from '../../../circle.js';
 
 
 /** @hidden */
-const scaleFactor = 0.3;
+const scaleFactor = 0.1;
 
 
 /** @hidden */

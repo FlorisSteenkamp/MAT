@@ -1,7 +1,7 @@
 import { drawFs } from 'flo-draw';
 import { scaleCircle } from '../../../circle.js';
 /** @hidden */
-const scaleFactor = 0.3;
+const scaleFactor = 0.1;
 /** @hidden */
 function threeProng(g, threeProng) {
     const circle = scaleCircle(threeProng.circle, 1);

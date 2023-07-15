@@ -23278,8 +23278,6 @@ function evaluate(ps, t) {
 
 //# sourceMappingURL=evaluate.js.map
 ;// CONCATENATED MODULE: ./src/mat/closest-boundary-point/closest-points-on-curve.ts
-// qqq import { deflateQuad, allRootsMultiWithErrBounds, RootInterval } from 'flo-poly';
-// qqq import { getTangentPolyFromPointExact, evalDeCasteljau, evaluate, getFootpointPolyExact } from 'flo-bezier3';
 
 
 /**
@@ -23291,13 +23289,10 @@ function evaluate(ps, t) {
  * @param t The t value of the bezier that locates p
  */
 function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
-    // qqq let poly = getTangentPolyFromPointExact(curve.ps, p);
     const _poly = getFootpointPolyDd(curve.ps, p);
-    // qqq poly = deflateQuad(poly, t);
     const poly = curve === touchedCurve
         ? ddDeflate(_poly, t)
         : _poly;
-    // let roots: Omit<RootInterval,'multiplicity'>[] = allRootsMultiWithErrBounds(
     const roots = allRootsCertified(poly, tS, tE);
     // Also test the endpoints
     let push0 = true;
@@ -23344,8 +23339,16 @@ function closestPointsOnCurve(curve, p, [tS, tE] = [0, 1], touchedCurve, t) {
             ? 0
             : tE > 1 ? 1 : (tS + tE) / 2;
         // TODO - why does evalDeCasteljau not work here?
-        return { p: evaluate(curve.ps, t), t };
         //return { p: evalDeCasteljau(curve.ps,t), t }
+        // TODO2 - will make it slower
+        // const aa = evaluate(curve.ps,t);
+        // const bb = evalDeCasteljauDd(curve.ps,[0,t]).map(v => v[1]);
+        // if (aa[0] !== bb[0] || aa[1] !== bb[1]) {
+        //     console.log(aa);
+        //     console.log(bb);
+        // }
+        return { p: evaluate(curve.ps, t), t };
+        // return { p: evalDeCasteljauDd(curve.ps,[0,t]).map(v => v[1]), t }
     });
     return ps;
 }
@@ -23854,12 +23857,7 @@ function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
 
 
 /** @hidden */
-//const ANGLE_THRESHOLD = Math.cos(3 * (Math.PI / 180)); // 3 degrees
-const ANGLE_THRESHOLD = 0.9986295347545738; // === Math.cos(3  degrees)
-//const ANGLE_THRESHOLD = 0.9848077530122080; // === Math.cos(10 degrees)
-//const ANGLE_THRESHOLD = 0.9998476951563913; // === Math.cos(1 degrees)
-//const ANGLE_THRESHOLD = 0.9999984769132877; // === Math.cos(0.1 degrees)   
-//const ANGLE_THRESHOLD = 0.9999999847691291  // === Math.cos(0.01 degrees)   
+const ANGLE_THRESHOLD = Math.cos(15 * (Math.PI / 180)); // 15 degrees
 /**
  * @hidden
  * Returns true if another CpNode is close to the given implied (via pos, order
@@ -23874,15 +23872,7 @@ const ANGLE_THRESHOLD = 0.9986295347545738; // === Math.cos(3  degrees)
  * @param color Used for debugging only
  */
 function isAnotherCpCloseby(cpTrees, pos, circle, order, order2, extreme, color) {
-    //console.log(extreme)
-    //const DISTANCE_THRESHOLD = extreme * 1e-1; 
-    //const DISTANCE_THRESHOLD = extreme * 1e-1;
     const DISTANCE_THRESHOLD = extreme * 1e-4;
-    //const DISTANCE_THRESHOLD = extreme * 1e-4; - was this
-    //const DISTANCE_THRESHOLD = extreme * 1e-6;
-    //const DISTANCE_THRESHOLD = extreme * 1e-12;
-    // It seems this can be zero else the ordering should be correct
-    //const DISTANCE_THRESHOLD = 0;
     const cpTree = cpTrees.get(pos.curve.loop);
     const cpNodes = getNeighbouringPoints(cpTree, pos, order, order2);
     if (!cpNodes[0]) {
@@ -23895,11 +23885,13 @@ function isAnotherCpCloseby(cpTrees, pos, circle, order, order2, extreme, color)
         if (distanceBetween(p1, p2) > DISTANCE_THRESHOLD) {
             continue;
         }
-        const v1 = toUnitVector(fromTo(cpNode.cp.pointOnShape.p, cpNode.cp.circle.center));
+        // TODO2
+        return true;
+        const v1 = toUnitVector(fromTo(p2, cpNode.cp.circle.center));
         const v2 = toUnitVector(fromTo(p1, circle.center));
         const cosTheta = dot(v1, v2);
         if (cosTheta > ANGLE_THRESHOLD) {
-            //console.log(`%c${cosTheta} - ${distanceBetween(p1,p2)}`, `color: ${color}`);
+            // console.log(`%c${cosTheta} - ${distanceBetween(p1,p2)}`, `color: ${color}`);
             return true;
         }
     }
@@ -23924,24 +23916,27 @@ function add3Prong(cpTrees, orders, threeProng) {
     /*
     if (typeof _debug_ !== 'undefined') {
         for (let i=0; i<3; i++) {
-            let cpBef = threeProng.δ3s[i][0].cp;
-            let cpAft = threeProng.δ3s[i][1].cp;
-            //let cmpBef = PointOnShape.compareInclOrder(cpBef.pointOnShape, ps[i], cpBef.order, orders[i]);
-            //let cmpAft = PointOnShape.compareInclOrder(cpAft.pointOnShape, ps[i], cpAft.order, orders[i]);
+            const cpBef = threeProng.δ3s[i][0].cp;
+            const cpAft = threeProng.δ3s[i][1].cp;
 
-            let cmpBef = PointOnShape.compare(cpBef.pointOnShape, ps[i]);
-            let cmpAft = PointOnShape.compare(cpAft.pointOnShape, ps[i]);
+            //let cmpBef = PointOnShape.compareInclOrder(cpBef.pointOnShape, poss[i], cpBef.order, orders[i]);
+            //let cmpAft = PointOnShape.compareInclOrder(cpAft.pointOnShape, poss[i], cpAft.order, orders[i]);
+            const cmpBef = compareCps(cpBef, { pointOnShape: poss[i], order: orders[i], order2: 0, circle: undefined });
+            const cmpAft = compareCps(cpAft, { pointOnShape: poss[i], order: orders[i], order2: 0, circle: undefined });
+
+            // const cmpBef = comparePoss(cpBef.pointOnShape, poss[i]);
+            // const cmpAft = comparePoss(cpAft.pointOnShape, poss[i]);
 
             // len is used by debug functions to reference a particular
             // three-prong.
-            let len = _debug_.generated.elems.threeProng.length-1;
+            const len = _debug_.generated.elems.threeProng.length-1;
             if (cmpBef > 0) {
                 console.log('----------------------------------------');
                 console.log(`3-prong order is wrong (bef) : i: ${i} - cmp: ${cmpBef} - n: ${len}`);
                 console.log(threeProng);
                 console.log(cpBef);
                 console.log(cpAft);
-                console.log(ps[i]);
+                console.log(poss[i]);
             }
             if (cmpAft < 0) {
                 console.log('----------------------------------------');
@@ -23949,15 +23944,16 @@ function add3Prong(cpTrees, orders, threeProng) {
                 console.log(threeProng);
                 console.log(cpBef);
                 console.log(cpAft);
-                console.log(ps[i]);
+                console.log(poss[i]);
             }
         }
     }
     */
     // TODO - replace 1000 below with correct value
-    isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
-    isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
-    isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
+    const c1 = isAnotherCpCloseby(cpTrees, poss[0], circle, orders[0], 0, 1000, 'blue');
+    const c2 = isAnotherCpCloseby(cpTrees, poss[1], circle, orders[1], 0, 1000, 'blue');
+    const c3 = isAnotherCpCloseby(cpTrees, poss[2], circle, orders[2], 0, 1000, 'blue');
+    // console.log(c1,c2,c3);
     addToCpGraph(circle, orders, cpTrees, poss, δ3s);
     return circle;
 }
@@ -24803,7 +24799,6 @@ function getSharpCorners(possPerLoop) {
     for (const poss of possPerLoop) {
         const sharpCorners = [];
         for (const pos of poss) {
-            //if (PointOnShape.isQuiteSharpCorner(pos)) {
             if (isPosQuiteSharpCorner(pos)) {
                 sharpCorners.push(pos);
             }
@@ -25170,11 +25165,7 @@ function getCloseBoundaryPoints(bezierPieces, point, y, distance) {
         // comparing closeness!
         const indexesToCheck = [];
         for (let i = 0; i < posInfos.length; i++) {
-            const pi = posInfos[i];
-            // Only check if they are close to the edges. Why??
-            //if (pi.pos.t < 1e-2 || 1-pi.pos.t < 1e-2) {
             indexesToCheck.push(i);
-            //}
         }
         const indexesToRemove = [];
         for (let i = 0; i < indexesToCheck.length; i++) {
@@ -25241,9 +25232,11 @@ const find_2_prong_evalDeCasteljau = evalDeCasteljau;
  */
 function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClosing, k) {
     const MAX_ITERATIONS = 25;
-    const squaredSeperationTolerance = (1e-6 * extreme) ** 2;
+    const squaredSeperationTolerance = (1e-5 * extreme) ** 2;
     // TODO - base deltas on theory or remove
     const oneProngTolerance = (1e-4) ** 2;
+    // const oneProngTolerance = (1e-5)**2;
+    // const oneProngTolerance = 0;
     const squaredErrorTolerance = 1e-2 * squaredSeperationTolerance;
     const maxOsculatingCircleRadiusSquared = squaredDiagonalLength;
     // The boundary piece that should contain the other point of 
@@ -25261,7 +25254,6 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     }
     else {
         p = y.p;
-        //x = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
         x = getOsculatingCircle(maxOsculatingCircleRadiusSquared, y).center;
         r = squared_distance_between_squaredDistanceBetween(p, x);
     }
@@ -25282,8 +25274,8 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     do {
         i++;
         /** squared distance between source boundary point and circle center */
-        const r = squared_distance_between_squaredDistanceBetween(x, y.p);
-        bezierPieces_ = cull_bezier_pieces_cullBezierPieces(bezierPieces_, x, r);
+        const xy = squared_distance_between_squaredDistanceBetween(x, y.p);
+        bezierPieces_ = cull_bezier_pieces_cullBezierPieces(bezierPieces_, x, xy);
         z = getClosestBoundaryPoint(bezierPieces_, x, y.curve, y.t);
         if (z === undefined) {
             if (typeof _debug_ !== 'undefined') {
@@ -25303,16 +25295,18 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
             xs.push({ x, y, z: z.pos, t: y.t });
         }
         /** squared distance between anti-pode boundary point and circle center */
-        const d = squared_distance_between_squaredDistanceBetween(x, z.pos.p);
+        const xz = squared_distance_between_squaredDistanceBetween(x, z.pos.p);
         //if (i === 1 && d*oneProngTolerance >= r) {
-        if (i === 1 && r < d + oneProngTolerance) {
+        if (i === 1 && xy < xz + oneProngTolerance) {
             // It is a 1-prong.
+            // TODO2 - below line was removed (maybe)
             add1Prong(Math.sqrt(maxOsculatingCircleRadiusSquared), cpTrees, y);
             return undefined;
         }
         // TODO - squaredSeperationTolerance should in future be replaced with
         // a relative error, i.e. distance between y (or z) / length(y (or z)).
-        if (!isHoleClosing && squared_distance_between_squaredDistanceBetween(y.p, z.pos.p) <= squaredSeperationTolerance) {
+        const yz = squared_distance_between_squaredDistanceBetween(y.p, z.pos.p);
+        if (!isHoleClosing && yz <= squaredSeperationTolerance) {
             if (typeof _debug_ !== 'undefined') {
                 /*
                 let elems = _debug_.generated.elems;
@@ -25334,8 +25328,10 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
         // nextX, but rather (distance from x to y) - (distance from x to z)
         // Find the point on the line connecting y with x that is  
         // equidistant from y and z. This will be our next x.
+        // const nextX = findEquidistantPointOnLineDd(x, y.p, z.pos.p);
         const nextX = findEquidistantPointOnLine(x, y.p, z.pos.p);
         const squaredError = squared_distance_between_squaredDistanceBetween(x, nextX);
+        // const squaredError = Math.abs(xy - xz);
         x = nextX;
         if (squaredError < squaredErrorTolerance) {
             done++; // Do one more iteration
@@ -25346,6 +25342,29 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
             break; // We're done
         }
     } while (done < 1);
+    /************************************************************************ */
+    /* Do one more double-double precision iteration
+    /************************************************************************ */
+    /*
+    z = getClosestBoundaryPoint(
+        bezierPieces_, x, y.curve, y.t
+    );
+
+    if (z === undefined) {
+        failed = true;
+    }
+    
+    if (typeof _debug_ !== 'undefined') {
+        xs.push({ x, y, z: z.pos, t: y.t });
+    }
+    
+    if (!isHoleClosing && squaredDistanceBetween(y.p, z.pos.p) <= squaredSeperationTolerance) {
+        failed = true;
+    } else {
+        x = findEquidistantPointOnLineDd(x, y.p, z.pos.p);
+    }
+    /************************************************************************ */
+    /************************************************************************ */
     // TODO - Optimization: only do this if second closest point is within the
     // tolerance which can be checked in getClosestBoundaryPoint algorithm
     let zs = [];
@@ -25360,6 +25379,8 @@ function find2Prong(loops, extreme, squaredDiagonalLength, cpTrees, y, isHoleClo
     if (z !== undefined) {
         circle = { center: x, radius: distanceBetween(x, z.pos.p) };
     }
+    // TODO2
+    // if (Math.random() > 0.8 && !isHoleClosing) { return undefined; }
     if (typeof _debug_ !== 'undefined' && !failed) {
         xs.push({ x, y, z: z.pos, t: y.t });
         addDebugInfo(bezierPieces, failed, y, circle, z.pos, δ, xs, isHoleClosing);
@@ -26137,10 +26158,11 @@ function getInterestingPointsOnLoop(minBezLength, maxCurviness, maxLength) {
             // qqq let maxAbsCurvatures = [...maxCurvatureTs, ...maxNegativeCurvatureTs].map(t => new PointOnShape(curve, t));
             const maxAbsCurvatures = [...maxima].map(t => new PointOnShape(curve, t));
             allPoints.push(...getContactCirclesAtInterface(curve), ...maxAbsCurvatures);
-            let ts = splitByCurvatureAndLength(curve.ps, maxCurviness, maxLength);
-            if (ts.length === 2) {
-                ts = [0, 0.5, 1];
-            }
+            const ts = splitByCurvatureAndLength(curve.ps, maxCurviness, maxLength);
+            // if (ts.length > 10) { console.log(ts); }
+            // if (ts.length === 2) {
+            //     ts = [0, 0.5, 1];
+            // }
             for (let i = 1; i < ts.length - 1; i++) {
                 allPoints.push(new PointOnShape(curve, ts[i]));
             }
@@ -28345,7 +28367,7 @@ function drawOneProng(g, pos, classes, delay = 0) {
 
 /** @hidden */
 function twoProng(g, twoProng) {
-    const scaleFactor = 0.3;
+    const scaleFactor = 0.01;
     let $failedDot = [];
     let $center = [];
     let $circle = [];
@@ -28369,7 +28391,7 @@ function twoProng(g, twoProng) {
         $failedDot = drawFs.dot(g, twoProng.pos.p, 1 * scaleFactor, 'black');
     }
     else if (!twoProng.failed) {
-        $center = drawFs.dot(g, twoProng.circle.center, 1 * scaleFactor, 'yellow');
+        $center = drawFs.dot(g, twoProng.circle.center, 0.02 * scaleFactor, 'yellow');
         $circle = drawFs.circle(g, twoProng.circle, color + 'thin' + thin + ' nofill');
         $cp1 = drawFs.dot(g, twoProng.pos.p, 0.035 * scaleFactor, color);
         $cp2 = drawFs.dot(g, twoProng.z, 0.07 * scaleFactor, color);
@@ -28382,7 +28404,7 @@ function twoProng(g, twoProng) {
 
 
 /** @hidden */
-const three_prong_scaleFactor = 0.3;
+const three_prong_scaleFactor = 0.1;
 /** @hidden */
 function threeProng(g, threeProng) {
     const circle = scaleCircle(threeProng.circle, 1);

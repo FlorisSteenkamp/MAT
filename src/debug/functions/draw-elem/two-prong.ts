@@ -5,7 +5,7 @@ import { getTwoProngType } from '../../../mat/get-two-prong-type.js';
 
 /** @hidden */
 function twoProng(g: SVGGElement, twoProng: TwoProngForDebugging) {
-	const scaleFactor = 0.3;
+	const scaleFactor = 0.01;
 
 	let $failedDot : SVGElement[] = [];
 	let $center    : SVGElement[] = [];
@@ -33,7 +33,7 @@ function twoProng(g: SVGGElement, twoProng: TwoProngForDebugging) {
 	if (twoProng.failed) {
 		$failedDot = drawFs.dot(g, twoProng.pos.p, 1*scaleFactor, 'black');
 	} else if (!twoProng.failed) {
-		$center = drawFs.dot   (g, twoProng.circle.center, 1*scaleFactor, 'yellow');
+		$center = drawFs.dot   (g, twoProng.circle.center, 0.02*scaleFactor, 'yellow');
 		$circle = drawFs.circle(g, twoProng.circle, color + 'thin' + thin + ' nofill'); 
 		$cp1    = drawFs.dot   (g, twoProng.pos.p, 0.035*scaleFactor, color);
 		$cp2    = drawFs.dot   (g, twoProng.z, 0.07*scaleFactor, color);	

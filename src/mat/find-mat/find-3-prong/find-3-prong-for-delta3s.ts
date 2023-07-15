@@ -14,7 +14,7 @@ import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closes
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
-import { Curve, getCornerAtEnd } from '../../../curve.js';
+import { getCornerAtEnd } from '../../../curve.js';
 
 
 /** @hidden */

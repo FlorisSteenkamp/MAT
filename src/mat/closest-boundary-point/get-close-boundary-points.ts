@@ -69,11 +69,7 @@ function getCloseBoundaryPoints(
 		// comparing closeness!
 		const indexesToCheck: number[] = [];
 		for (let i=0; i<posInfos.length; i++) {
-			const pi = posInfos[i];
-			// Only check if they are close to the edges. Why??
-			//if (pi.pos.t < 1e-2 || 1-pi.pos.t < 1e-2) {
-				indexesToCheck.push(i);
-			//}
+			indexesToCheck.push(i);
 		}
 		const indexesToRemove: number[] = [];
 		for (let i=0; i<indexesToCheck.length; i++) {

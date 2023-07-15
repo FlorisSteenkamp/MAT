@@ -53,10 +53,11 @@ function getInterestingPointsOnLoop(
                 ...maxAbsCurvatures,
             );
 
-            let ts = splitByCurvatureAndLength(curve.ps, maxCurviness, maxLength);
-            if (ts.length === 2) {
-                ts = [0, 0.5, 1];
-            }
+            const ts = splitByCurvatureAndLength(curve.ps, maxCurviness, maxLength);
+            // if (ts.length > 10) { console.log(ts); }
+            // if (ts.length === 2) {
+            //     ts = [0, 0.5, 1];
+            // }
 
             for (let i=1; i<ts.length-1; i++) {
                 allPoints.push( new PointOnShape(curve, ts[i]) );
