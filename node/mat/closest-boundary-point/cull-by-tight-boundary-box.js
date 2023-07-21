@@ -3,7 +3,7 @@ import { memoize } from "flo-memoize";
 import { getClosestSquaredDistanceToRotatedRect } from '../geometry/get-closest-squared-distance-to-rotated-rect.js';
 const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
 /**
- * @hidden
+ * @internal
  * When checking distances, ignore all those with closest possible distance
  * further than 'bestSquaredDistance', i.e. cull them.
  * @param bezierPieces

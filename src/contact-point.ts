@@ -1,4 +1,5 @@
-import { comparePoss, PointOnShape } from './point-on-shape.js';
+import { PointOnShape } from './point-on-shape/point-on-shape.js';
+import { comparePoss } from './point-on-shape/compare-poss.js';
 import { Circle } from './circle.js';
 
 
@@ -27,11 +28,8 @@ interface ContactPoint {
  * @param b The second contact point.
  */
 function compareCps(a: ContactPoint, b: ContactPoint) {
-	//let res = PointOnShape.compare(a.pointOnShape, b.pointOnShape);
 	let res = comparePoss(a.pointOnShape, b.pointOnShape);
 
-	if (res === undefined) { return undefined; }
-	
 	if (res !== 0) { return res; }
 
 	res = a.order - b.order;

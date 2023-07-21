@@ -2,7 +2,7 @@ import { getBestDistanceSquared } from './get-best-distance-squared.js';
 import { cullByLooseBoundingBox } from './cull-by-loose-bounding-box.js';
 import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
 /**
- * @hidden
+ * @internal
  * @param bezierPieces
  * @param p
  * @param extreme

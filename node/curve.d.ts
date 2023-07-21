@@ -1,4 +1,4 @@
-import { Loop } from './loop.js';
+import { Loop } from 'flo-boolean';
 import { Corner } from './mat/corner.js';
 /**
  * Represents a bezier curve on the shape boundary / loop.
@@ -25,7 +25,7 @@ interface Curve {
     idx: number;
 }
 /**
- * @hidden
+ * @internal
  * Returns a new corner with properties.
  *
  * PRECONDITION: The beziers has control points with max bit-length of 26 and
@@ -38,7 +38,7 @@ interface Curve {
  */
 declare function getCorner(psI: number[][], psO: number[][]): Corner;
 /**
- * @hidden
+ * @internal
  * Returns information about the corner created at the end of this curve
  * (at t === 1) and the start of the next curve (at t === 0).
  */

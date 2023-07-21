@@ -1,5 +1,5 @@
-import { isPosQuiteSharpCorner } from '../../point-on-shape.js';
-/** @hidden */
+import { isPosQuiteSharpCorner } from '../../point-on-shape/is-pos-quite-sharp-corner.js';
+/** @internal */
 function getSharpCorners(possPerLoop) {
     const sharpCornersPerLoop = [];
     for (const poss of possPerLoop) {

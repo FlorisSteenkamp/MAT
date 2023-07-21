@@ -12,11 +12,11 @@ import { maxVertex } from './max-vertex.js';
 import { leaves } from './leaves.js';
 import { culls } from './culls.js';
 import { oneProngAtDullCorner } from './one-prong-at-dull-corner.js';
-/** @hidden */
+/** @internal */
 function notImplementedYet(g, elem) {
     return []; // TODO - implement relevant drawing function
 }
-/** @hidden */
+/** @internal */
 const drawElemFunctions = {
     oneProng: drawOneProng,
     oneProngAtDullCorner,

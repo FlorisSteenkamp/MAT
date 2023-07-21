@@ -1,4 +1,4 @@
 import { Curve } from '../../../curve.js';
-/** @hidden */
-declare function sharpCorner(g: SVGGElement, curve: Curve): SVGCircleElement[];
+/** @internal */
+declare function sharpCorner(g: SVGGElement, curve: Curve, classes?: string, delay?: number, scaleFactor?: number): SVGCircleElement[];
 export { sharpCorner };

@@ -1,4 +1,4 @@
-import { comparePoss } from './point-on-shape.js';
+import { comparePoss } from './point-on-shape/compare-poss.js';
 /**
  * Primarily for internal use.
  *
@@ -8,11 +8,7 @@ import { comparePoss } from './point-on-shape.js';
  * @param b The second contact point.
  */
 function compareCps(a, b) {
-    //let res = PointOnShape.compare(a.pointOnShape, b.pointOnShape);
     let res = comparePoss(a.pointOnShape, b.pointOnShape);
-    if (res === undefined) {
-        return undefined;
-    }
     if (res !== 0) {
         return res;
     }

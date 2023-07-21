@@ -1,6 +1,6 @@
 import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 /**
- * @hidden
+ * @internal
  * @param x
  * @param bezierPiece3s
  * @param extreme

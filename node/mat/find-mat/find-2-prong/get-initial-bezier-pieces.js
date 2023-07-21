@@ -1,7 +1,7 @@
 import { getNeighbouringPoints } from '../../get-neighboring-cps.js';
 import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
-import { isPosDullCorner } from '../../../point-on-shape.js';
-/** @hidden */
+import { isPosDullCorner } from '../../../point-on-shape/is-pos-dull-corner.js';
+/** @internal */
 function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
     let bezierPieces;
     let δ;
@@ -32,7 +32,7 @@ function getInitialBezierPieces(isHoleClosing, k, loops, cpTrees, y) {
             bezierPieces = getBoundaryPieceBeziers(δ);
         }
     }
-    return { bezierPieces, δ };
+    return { bezierPieces, δ: δ };
 }
 export { getInitialBezierPieces };
 //# sourceMappingURL=get-initial-bezier-pieces.js.map

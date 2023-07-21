@@ -1,5 +1,5 @@
 /**
- * @hidden
+ * @internal
  * @param sat
  */
 function addDebugInfo(sat, timingStart) {

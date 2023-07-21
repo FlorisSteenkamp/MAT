@@ -1,5 +1,5 @@
 // TODO - finish
-/** @hidden */
+/** @internal */
 function loop(g, loop) {
     /*
     for (let curve of loop.curves) {

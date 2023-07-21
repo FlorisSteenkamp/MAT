@@ -1,4 +1,4 @@
-import { CpNode } from './cp-node.js';
+import { CpNode } from './cp-node/cp-node.js';
 import { getCurveBetween } from './get-curve/get-curve-between.js';
 
 

@@ -1,4 +1,4 @@
-import { CpNode } from './cp-node.js';
+import { CpNode, getCpNodesOnCircle, isTerminating, vertexChildren } from './cp-node/cp-node.js';
 
 
 /**
@@ -18,17 +18,17 @@ function traverseVertices(
 
 	// Since the tree is unrooted we must iterate in all directions from the
 	// given cpNode.	
-	cpNode.getCpNodesOnCircle()
-		.filter(cpNode => !cpNode.isTerminating())
+	getCpNodesOnCircle(cpNode)
+		.filter(cpNode => !isTerminating(cpNode))
 		.map(cpNode => cpNode.next)
 		.forEach(f_);
 
 	function f_(cpNode: CpNode) {
 		const cps = [cpNode];
 		while (cps.length) {
-			const cp = cps.pop();
+			const cp = cps.pop()!;
 			f(cp);
-			cps.push(...cp.vertexChildren);
+			cps.push(...vertexChildren(cp));
 		}
 	}
 }

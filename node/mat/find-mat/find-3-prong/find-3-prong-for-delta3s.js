@@ -1,15 +1,16 @@
 import { fromTo, circumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { isPosDullCorner } from '../../../point-on-shape.js';
+import { isSharp } from '../../../cp-node/cp-node.js';
+import { isPosDullCorner } from '../../../point-on-shape/is-pos-dull-corner.js';
 import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
 import { getCornerAtEnd } from '../../../curve.js';
-/** @hidden */
+/** @internal */
 const calcVectorToZeroV_StraightToIt = fromTo;
 /**
- * @hidden
+ * @internal
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
@@ -42,7 +43,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     ];
     const δ3s = δ3ss[k];
     const bezierPiece3s = bezierPiecess_[k];
-    if (δ3s[0][0].isSharp()) {
+    if (isSharp(δ3s[0][0])) {
         return undefined;
     }
     let ps;
@@ -107,9 +108,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
         //-----------------------------------
         // Check if point is on dull crorner
         //-----------------------------------
-        //if (PointOnShape.isDullCorner(p)) {
         if (isPosDullCorner(p)) {
-            //const corner = Curve.getCornerAtEnd(p.curve);
             const corner = getCornerAtEnd(p.curve);
             const tans = corner.tangents;
             const perps = tans.map(rotate90Degrees);
@@ -154,7 +153,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     const W1 = 1;
     const W2 = 1;
     const error = W1 * radiusDelta + W2 * totalAngleError;
-    return { ps, circle, error, δ3s };
+    return { ps: ps, circle, error, δ3s };
 }
 export { find3ProngForDelta3s };
 //# sourceMappingURL=find-3-prong-for-delta3s.js.map

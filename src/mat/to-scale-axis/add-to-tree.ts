@@ -5,11 +5,11 @@ import { TTree } from './t-tree.js';
 
 // DEPTH_LIMIT can be anything from 1 to 16, but from 2 to 6 seem to be the 
 // fastest.
-/** @hidden */
+/** @internal */
 const DEPTH_LIMIT = 6;
 
 /**
- * @hidden
+ * @internal
  * @param s 
  * @param tree 
  * @param coordinate 

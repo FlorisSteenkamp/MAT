@@ -1,12 +1,12 @@
-import { CpNode } from '../cp-node.js';
+import { CpNode } from '../cp-node/cp-node.js';
 import { Curve } from '../curve.js';
 import { BezierPiece } from './bezier-piece.js';
-import { isPosQuiteSharpCorner } from '../point-on-shape.js';
+import { isPosQuiteSharpCorner } from '../point-on-shape/is-pos-quite-sharp-corner.js';
 import { compareCps } from '../contact-point.js';
 
 
 /**
- * @hidden
+ * @internal
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range) 
  * from the given boundary piece.
  * @param cpNodes - An ordered pair that represents the start and end points of 
@@ -69,7 +69,7 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
 
 
 /**
- * @hidden
+ * @internal
  * Adds pieces of skipped beziers
  */
 function addSkippedBeziers(

@@ -1,4 +1,5 @@
 import { closestPointOnBezier, hausdorffDistance, toCubic } from 'flo-bezier3';
+import { isTerminating } from '../cp-node/cp-node.js';
 import { getBranches } from '../get-branches.js';
 import { getCurveToNext } from '../get-curve-to-next.js';
 import { getCurveBetween } from '../get-curve/get-curve-between.js';
@@ -19,7 +20,7 @@ import { getCurveBetween } from '../get-curve/get-curve-between.js';
 function simplifyMatMapOnly(cpNode, anlgeTolerance = 15, hausdorffTolerance = 1e-1, hausdorffSpacing = 1e0) {
     const simpleMap = new Map();
     // Start from a leaf
-    while (!cpNode.isTerminating()) {
+    while (!isTerminating(cpNode)) {
         cpNode = cpNode.next;
     }
     const branches = getBranches(cpNode, anlgeTolerance);

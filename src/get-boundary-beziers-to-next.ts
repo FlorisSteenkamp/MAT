@@ -1,6 +1,6 @@
 // qqq import { fromTo, fromTTo1, from0ToT } from 'flo-bezier3';
 import { fromTo } from 'flo-bezier3';
-import { CpNode } from './cp-node.js';
+import { CpNode } from './cp-node/cp-node.js';
 import { Curve  } from './curve.js';
 
 
@@ -50,7 +50,7 @@ function getBoundaryBeziersToNext(cpNode: CpNode) {
 
 /**
  * Adds pieces of skipped beziers.
- * @hidden
+ * @internal
  */
 function addSkippedBeziers(
         beziers    : number[][][], 

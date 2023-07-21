@@ -1,7 +1,7 @@
 import { drawFs } from 'flo-draw';
-/** @hidden */
-function tightBoundingBox(g, box) {
-    const $box = drawFs.polygon(g, box, 'thin5 pinker nofill');
+/** @internal */
+function tightBoundingBox(g, box, classes = 'thin5 pinker nofill', delay = 0, scaleFactor = 1) {
+    const $box = drawFs.polygon(g, box, 'thin5 pinker nofill', delay);
     return $box;
 }
 export { tightBoundingBox };

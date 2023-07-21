@@ -3,13 +3,13 @@ declare let _debug_: Debug;
 import { drawFs } from 'flo-draw';
 import { getObjClosestTo, distanceBetween, squaredDistanceBetween } from 'flo-vector2d';
 import { Debug, Generated } from '../debug.js';
-import { CpNode } from '../../cp-node.js';
+import { CpNode } from '../../cp-node/cp-node.js';
 import { Circle } from '../../circle.js';
 import { TwoProngForDebugging } from '../two-prong-for-debugging.js';
 import { ElemType_TwoProng } from '../../mat/elem-type-two-prong.js';
 
 
-/** @hidden */
+/** @internal */
 interface ITwoProngDebugFunctions {
 	logδ       : (n: number, type?: ElemType_TwoProng) => void,
 	log        : (n: number, type?: ElemType_TwoProng) => void,
@@ -22,7 +22,7 @@ interface ITwoProngDebugFunctions {
 
 
 /**
- * @hidden
+ * @internal
  */
 function logδ(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 	const δ =_debug_.generated.elems[type][n].δ;
@@ -32,7 +32,7 @@ function logδ(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 
 
 /**
- * @hidden
+ * @internal
  */
 function log(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 	const twoProng = _debug_.generated.elems[type][n];
@@ -41,7 +41,7 @@ function log(n: number, type: ElemType_TwoProng = 'twoProng_regular') {
 
 
 /**
- * @hidden
+ * @internal
  */
 function drawNormal(
 		g: SVGGElement,
@@ -71,7 +71,7 @@ function drawNormal(
 
 
 /**
- * @hidden
+ * @internal
  */
 function logδBasic(
 		n: number, 
@@ -93,7 +93,7 @@ function logδBasic(
 
 
 /**
- * @hidden
+ * @internal
  */
 function logNearest(g: SVGGElement, p: number[], showDelay = 1000, type: ElemType_TwoProng = 'twoProng_regular') {
 	const closestPerLoops: TwoProngForDebugging[] = [];
@@ -104,7 +104,7 @@ function logNearest(g: SVGGElement, p: number[], showDelay = 1000, type: ElemTyp
 		generated.elems[type], 
 		twoProng => twoProng.circle.center
 	);
-	closestPerLoops.push(twoProng);
+	closestPerLoops.push(twoProng!);
 
 	console.log(twoProng);
 	
@@ -122,17 +122,17 @@ function logNearest(g: SVGGElement, p: number[], showDelay = 1000, type: ElemTyp
 
 
 /**
- * @hidden
+ * @internal
  * @param n - The 2-prong's zero-based index.
  * @param range
  */
 function traceConvergence(
 		g: SVGGElement, 
-		n         : number, 
-		finalOnly : boolean,
+		n: number, 
+		finalOnly?: boolean,
 		showDelay = 1000,
-		range     : number[] = undefined, 
-		type      : ElemType_TwoProng = 'twoProng_regular') {
+		range: number[] = undefined!, 
+		type: ElemType_TwoProng = 'twoProng_regular') {
 
 	if (n === undefined) { return; }
 
@@ -176,7 +176,7 @@ function traceConvergence(
 }
 
 
-/** @hidden */
+/** @internal */
 const twoProngDebugFunctions: ITwoProngDebugFunctions = {
 	logδ,
 	log,

@@ -26,7 +26,7 @@ function getBoundaryBezierPartsToNext(cpNode) {
     return bezierParts;
 }
 /**
- * @hidden
+ * @internal
  * Adds pieces of skipped beziers.
  */
 function addSkippedBeziers(bezierParts, curveStart, curveEnd, t1) {

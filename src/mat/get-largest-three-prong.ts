@@ -1,7 +1,7 @@
 import { CpNode } from '../cp-node.js';
 
 
-/** @hidden */
+/** @internal */
 function getLargestThreeProng(cpNodes: CpNode[]) {
 	return cpNodes.reduce(function(maxCpNode: CpNode, cpNode: CpNode) {
 		return cpNode === undefined || maxCpNode.cp.circle.radius >= cpNode.cp.circle.radius

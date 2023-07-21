@@ -1,15 +1,17 @@
-import { CpNode } from '../cp-node.js';
+import { createCpNode } from '../cp-node/create-cp-node.js';
 /**
- * @hidden
+ * @internal
+ *
  * Returns the boundary piece that starts at the immediate previous point on the
  * shape and ends at the immediate next point.
+ *
  * @param cpTree
  * @param pos
  * @param order
  * @param order2
  */
 function getNeighbouringPoints(cpTree, pos, order, order2) {
-    const cps = cpTree.findBounds(new CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false));
+    const cps = cpTree.findBounds(createCpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false));
     if (!cps[0] && !cps[1]) {
         // The tree is still empty
         return [undefined, undefined];

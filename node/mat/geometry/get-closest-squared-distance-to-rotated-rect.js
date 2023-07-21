@@ -1,6 +1,6 @@
 import { squaredDistanceBetweenPointAndLineSegment, squaredDistanceBetween } from 'flo-vector2d';
 /**
- * @hidden
+ * @internal
  */
 function getClosestSquaredDistanceToRotatedRect(ps, p) {
     const ds = [0, 1, 2, 3].map(i => squaredDistanceBetweenPointAndLineSegment(p, [ps[i], ps[(i + 1) % 4]]));

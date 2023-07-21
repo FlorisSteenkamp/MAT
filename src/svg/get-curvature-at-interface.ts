@@ -5,7 +5,7 @@ import { Curve } from '../curve.js';
 
 
 /**
- * @hidden
+ * @internal
  * Get the angle between the given bezier endpoint and the
  * startpoint of the next bezier.
  * @param curve
@@ -33,7 +33,7 @@ function getCurvatureAtInterface(curve: Curve) {
 
 
 /**
- * @hidden
+ * @internal
  * Floating-point 'safer' version of acos. If x is larger than 1 (or smaller 
  * than -1), still returns 0 (or Math.PI) instead of NAN.
  * @param x

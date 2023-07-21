@@ -1,16 +1,17 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from '../loop.js';
+import { Loop } from 'flo-boolean';
 import { Circle } from '../circle.js';
-import { IPointOnShape } from '../point-on-shape.js';
-import { CpNode } from '../cp-node.js';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { CpNode } from '../cp-node/cp-node.js';
 /**
- * @hidden
+ * @internal
+ *
  * @param circle
  * @param orders
  * @param cpTrees
  * @param poss
  * @param neighbors
- * @hidden
+ * @internal
  */
-declare function addToCpGraph(circle: Circle, orders: number[], cpTrees: Map<Loop, LlRbTree<CpNode>>, poss: IPointOnShape[], neighbors?: CpNode[][]): void;
+declare function addToCpGraph(circle: Circle, orders: number[], cpTrees: Map<Loop, LlRbTree<CpNode>>, poss: PointOnShape[], neighbors?: CpNode[][]): CpNode[];
 export { addToCpGraph };

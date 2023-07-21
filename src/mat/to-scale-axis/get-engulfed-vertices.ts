@@ -3,14 +3,14 @@ import { TTree } from './t-tree.js';
 import { calcGroups } from './calc-groups.js';
 
 
-/** @hidden */
+/** @internal */
 const width  = 1620; // TODO change to actual shape coordinates
-/** @hidden */
+/** @internal */
 const height = 1560; // ...
 
 
 /**
- * @hidden
+ * @internal
  * Returns a map of engulfed MAT nodes determined to be engulfed by the given
  * test node and scale factor and starting from the given spacial tree node.
  * @param s The scale factor
@@ -88,11 +88,10 @@ function getEngulfedVertices(
                 const t = tree.trees!.get(group);
                 
                 if (t) {
-                    f(
-                            t, 
-                            newCoordinate, 
-                            newLimits, 
-                            depth+1
+                    f(t, 
+                      newCoordinate, 
+                      newLimits, 
+                      depth+1
                     );
                 }
             } else {

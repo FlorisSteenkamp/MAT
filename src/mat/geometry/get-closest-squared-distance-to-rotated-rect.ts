@@ -4,7 +4,7 @@ import {
 
 
 /**
- * @hidden
+ * @internal
  */
 function getClosestSquaredDistanceToRotatedRect(ps: number[][], p: number[]) {
 	const ds = [0,1,2,3].map(i => squaredDistanceBetweenPointAndLineSegment(

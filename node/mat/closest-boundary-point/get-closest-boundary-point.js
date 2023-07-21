@@ -1,9 +1,9 @@
 import { distanceBetween, getObjClosestTo } from 'flo-vector2d';
-import { PointOnShape } from '../../point-on-shape.js';
+import { createPos } from '../../point-on-shape/create-pos.js';
 import { cullBezierPieces } from './cull-bezier-pieces.js';
 import { closestPointsOnCurve } from './closest-points-on-curve.js';
 /**
- * @hidden
+ * @internal
  * Returns the closest boundary point to the given point, limited to the given
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces
@@ -31,7 +31,11 @@ function getClosestBoundaryPoint(bezierPieces, point, touchedCurve, t) {
                 t_ = 1;
                 curve = bezierPiece.curve.prev;
             }
-            posInfo = { pos: new PointOnShape(curve, t_), d };
+            posInfo = {
+                // pos: new PointOnShape(curve, t_), d
+                pos: createPos(curve, t_),
+                d
+            };
             bestDistance = d;
         }
     }

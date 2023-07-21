@@ -1,8 +1,8 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from '../cp-node.js';
-import { Loop } from '../loop.js';
+import { CpNode } from '../cp-node/cp-node.js';
+import { Loop } from 'flo-boolean';
 /**
- * @hidden
+ * @internal
  * @param cpNode
  */
 declare function createNewCpTree(cpNode: CpNode): Map<Loop, LlRbTree<CpNode>>;

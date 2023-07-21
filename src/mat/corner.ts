@@ -1,6 +1,6 @@
 
 /**
- * @hidden
+ * @internal
  * Represents a corner on the shape boundary, i.e. a point where two bezier
  * curves meet. Typically used internally only.
  */

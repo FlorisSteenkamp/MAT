@@ -1,5 +1,5 @@
 import { getTwoProngType } from '../../get-two-prong-type.js';
-/** @hidden */
+/** @internal */
 function addDebugInfo(bezierPieces, failed, pos, circle, z, δ, xs, holeClosing) {
     const twoProng = {
         generated: _debug_.generated,

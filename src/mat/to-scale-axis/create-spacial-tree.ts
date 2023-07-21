@@ -3,14 +3,14 @@ import { TTree } from './t-tree.js';
 import { addToTree } from './add-to-tree.js';
 
 
-/** @hidden */
+/** @internal */
 const width  = 1620; // TODO change to actual shape coordinates
-/** @hidden */
+/** @internal */
 const height = 1560; // ...
 
 
 /**
- * @hidden
+ * @internal
  * @param s 
  * @param circles 
  */

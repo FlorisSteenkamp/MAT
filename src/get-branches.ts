@@ -1,10 +1,10 @@
 import { tangent } from 'flo-bezier3';
 import { cross, toUnitVector } from 'flo-vector2d';
-import { CpNode } from './cp-node.js';
+import { CpNode, getChildren, isFullyTerminating, isTerminating } from './cp-node/cp-node.js';
 import { getCurveToNext } from './get-curve-to-next.js';
 
 
-/** @hidden */
+/** @internal */
 const defaultTolerance = 1; // 1 degree
 
 
@@ -22,7 +22,7 @@ function getBranches(
 		tolerance: number = defaultTolerance): CpNode[][] {
 
 	// Start from a leaf
-	while (!cpNode.isFullyTerminating()) {
+	while (!isFullyTerminating(cpNode)) {
 		cpNode = cpNode.next;
 	}
 
@@ -34,12 +34,12 @@ function getBranches(
 
 	let branchCpNodes: CpNode[] = [];
 	while (cps.length) {
-		const cp = cps.pop();
+		const cp = cps.pop()!;
 		branchCpNodes.push(cp);
 
-		let children = cp.getChildren();
+		let children = getChildren(cp);
 
-		if (cp.isFullyTerminating()) {
+		if (isFullyTerminating(cp)) {
 			if (branchCpNodes.length > 1) {
 				branches.push(branchCpNodes);
 			}
@@ -52,7 +52,7 @@ function getBranches(
 			continue;
 		}
 
-		children = children.filter(cpNode => !cpNode.isTerminating());
+		children = children.filter(cpNode => !isTerminating(cpNode));
 
 		if (children.length === 0) {
 			branches.push(branchCpNodes);

@@ -2,13 +2,13 @@ import {
     fromTo, dot, cross, rotate90Degrees, interpolate, translate,
     lineLineIntersection
 } from 'flo-vector2d';
-import { CpNode } from '../cp-node.js';
+import { CpNode } from '../cp-node/cp-node.js';
 import { getEdgeDirection } from './get-edge-direction.js';
 
 
-/** @hidden */
+/** @internal */
 const TOLERANCE_ADD_2PRONG = 0.01;
-/** @hidden */
+/** @internal */
 const TOLERANCE_USE_LINE = 0.0001; // else cubic
 
 
@@ -20,7 +20,7 @@ const TOLERANCE_USE_LINE = 0.0001; // else cubic
  */
 function getCurveBetween(
         cpNodeFrom: CpNode, 
-        cpNodeTo: CpNode) {
+        cpNodeTo: CpNode): number[][] {
 
     const fromCc = cpNodeFrom.cp.circle.center;
     const fromL = getEdgeDirection(cpNodeFrom);
@@ -43,7 +43,7 @@ function getCurveBetween(
     }
     
     if (!twisted) {
-        return [fromCc, mid, toCc];
+        return [fromCc, mid!, toCc];
     } 
         
     const r = rotate90Degrees(c);
@@ -66,8 +66,8 @@ function getCurveBetween(
         const v2 = translate(r, m2);
         const l1 = [m1,v1];
         const l2 = [m2,v2];
-        const mid1 = lineLineIntersection(fromL, l1);
-        const mid2 = lineLineIntersection(toL,   l2);
+        const mid1 = lineLineIntersection(fromL, l1)!;
+        const mid2 = lineLineIntersection(toL,   l2)!;
 
         return [fromCc, mid1, mid2, toCc];
     } 

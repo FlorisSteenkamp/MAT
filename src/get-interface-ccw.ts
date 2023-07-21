@@ -1,4 +1,4 @@
-import { orient2d } from 'big-float-ts';
+import { eAdd, eEstimate, eMult, eNegativeOf, eProduct, orient2d, twoDiff } from 'big-float-ts';
 import { dot } from "flo-vector2d";
 import { compareCurvaturesAtInterface } from "./compare-curvatures-at-interface.js";
 
@@ -36,32 +36,6 @@ function getInterfaceCcw(psI: number[][], psO: number[][]) {
     // second control point of outgoing curve
     const p2 = psO[1];
 
-    /*
-    if (typeof _bez_debug_ !== 'undefined') {
-        let maxBitLength = 25;
-        let p1_ = psI[lenI-1];
-        // ---- precondition: does endpoints coincide
-        if (p1_[0] !== p1[0] || p1_[1] !== p1[1]) {
-            throw new Error('Curve endpoints must coincide.');
-        }
-        // ---- precondition: are coordinates grid-aligned
-        // Get all coordinate values into an array
-        let xs: number[] = [];
-        [psI, psO].forEach(ps => ps.forEach(p => p.forEach(x => {
-            xs.push(x); 
-        })));
-        
-        let msb = xs.reduce((prevX, x) => Math.max(prevX, msbExponent(x)), Number.NEGATIVE_INFINITY);
-        let lsb = xs.reduce((prevX, x) => Math.min(prevX, lsbExponent(x)), Number.POSITIVE_INFINITY);
-        let bitlengthAll = msb - lsb + 1;
-        if (bitlengthAll > maxBitLength) {
-            throw new Error(
-                `Curve control point coordinates must be bit-aligned and <= ${maxBitLength}. bitlength === ${bitlengthAll}, coordinates: ${xs}`
-            );
-        }
-    }
-    */
-
     // Max one bit can be added in the calculations below due to bit-alignment
     const xE = p1[0] - p0[0];  // tangent x-coordinate
 	const yE = p1[1] - p0[1];  // tangent y-coordinate
@@ -76,13 +50,9 @@ function getInterfaceCcw(psI: number[][], psO: number[][]) {
     // (non-normalized) tangent of outgoing curve at t === 0
 	const tangentAtStart = [xS,yS];
 
-    // The cross calculated below will have a max bitlength of 
-    // (2*(maxBitLength+1))+1 === e.g. (2*(25+1)) + 1 === 53
-    // If the preconditions are met it is exact
-    //let crossTangents = cross(tangentAtEnd, tangentAtStart);
-    
-    // The cross below is exact by adaptive infinite precision
-    const crossTangents = orient2d(p0, p1, p2);
+    // TODO2
+    // const crossTangents = orient2d(p0, p1, p2);
+    const crossTangents = orient2dPrecise(p0, p1, p2);
 
 	if (crossTangents !== 0) {
 		return crossTangents;
@@ -106,6 +76,30 @@ function getInterfaceCcw(psI: number[][], psO: number[][]) {
     
     // Look at curvature
     return compareCurvaturesAtInterface(psI.slice().reverse(), psO);
+}
+
+
+/** Returns the cross from A to B to C */
+function orient2dPrecise(
+        A: number[],
+        B: number[],
+        C: number[]) {
+
+    // const detleft  = (A[0] - C[0]) * (B[1] - C[1]);
+    // const detright = (A[1] - C[1]) * (B[0] - C[0]);
+    // const det = detleft - detright;
+
+    const a = twoDiff(A[0],C[0]);
+    const b = twoDiff(B[1],C[1]);
+    const c = twoDiff(A[1],C[1]);
+    const d = twoDiff(B[0],C[0]);
+
+    const e = eMult(a,b);
+    const f = eMult(c,d);
+
+    const g = eAdd(e,eNegativeOf(f));
+
+    return eEstimate(g);
 }
 
 

@@ -1,6 +1,6 @@
 import { Curve } from '../curve.js';
 /**
- * @hidden
+ * @internal
  * Represents a part of a bezier within the shape boundary.
  */
 interface BezierPiece {

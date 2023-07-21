@@ -3,15 +3,18 @@ declare const _debug_: Debug;
 
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug }   from '../../debug/debug.js';
-import { Loop } from '../../loop.js';
-import { getOsculatingCircle, calcPosOrder, isPosDullCorner, PointOnShape } from '../../point-on-shape.js';
-import { CpNode } from '../../cp-node.js';
+import { Loop } from 'flo-boolean';
+import { getOsculatingCircle } from '../../point-on-shape/get-osculating-circle.js';
+import { calcPosOrder } from '../../point-on-shape/calc-pos-order.js';
+import { isPosDullCorner } from '../../point-on-shape/is-pos-dull-corner.js';
+import { PointOnShape } from '../../point-on-shape/point-on-shape.js';
+import { CpNode } from '../../cp-node/cp-node.js';
 import { addToCpGraph } from '../add-to-cp-graph.js';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 
 
 /**
- * @hidden
+ * @internal
  * Add a 1-prong to the MAT.
  * @param cpGraphs
  * @param pos 
@@ -40,17 +43,18 @@ function add1Prong(
             _debug_.generated.elems.oneProngAtDullCorner.push(pos);
         }
 
+		// console.log('dull')
+
 		return;
 	}
+	// return;  // TODO2 - this was added
 	
-	//let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
 	const circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
 	
-	//const order = PointOnShape.calcOrder(circle, pos);
 	const order = calcPosOrder(circle, pos);
 	// Make sure there isn't already a ContactPoint close by - it can cause
 	// floating point stability issues.
-	if (isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {
+	if (!!isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000)) {
 		return;
 	}
 

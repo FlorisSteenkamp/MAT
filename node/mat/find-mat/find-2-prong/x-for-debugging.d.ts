@@ -1,9 +1,9 @@
-import { IPointOnShape } from '../../../point-on-shape.js';
-/** @hidden */
-type TXForDebugging = {
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
+/** @internal */
+declare type TXForDebugging = {
     x: number[];
-    y: IPointOnShape;
-    z: IPointOnShape;
+    y: PointOnShape;
+    z: PointOnShape;
     t: number;
 };
 export { TXForDebugging };

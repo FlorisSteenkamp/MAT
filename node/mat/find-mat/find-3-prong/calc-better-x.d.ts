@@ -1,7 +1,7 @@
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
 import { BezierPiece } from '../../bezier-piece.js';
 /**
- * @hidden
+ * @internal
  * Find new x and ps that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong
  * circle center.
@@ -14,6 +14,6 @@ import { BezierPiece } from '../../bezier-piece.js';
 declare function calcBetterX(bezierPiece3s: BezierPiece[][], x: number[], vectorToZeroV: number[]): {
     newX: number[];
     newV: number;
-    newPs: IPointOnShape[];
+    newPs: (PointOnShape | undefined)[];
 };
 export { calcBetterX };

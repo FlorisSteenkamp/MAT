@@ -1,7 +1,7 @@
 import { getClosestSquareDistanceToRect } from '../../geometry/get-closest-square-distance-to-rect.js';
 import { getBoundingBox_ } from '../../../get-bounding-box-.js';
 /**
- * @hidden
+ * @internal
  * Cull all bezierPieces not within given radius of a given point.
  * @param extreme
  * @param bezierPieces

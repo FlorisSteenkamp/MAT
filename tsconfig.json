@@ -5,6 +5,7 @@
         "alwaysStrict": true,
         "strictBindCallApply": true,
         "strictFunctionTypes": true,
+        "strict": true,
         "module": "es2020",
         "target": "es2020",
         "declaration": true,

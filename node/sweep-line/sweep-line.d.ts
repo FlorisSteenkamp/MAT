@@ -1,5 +1,5 @@
 /**
- * @hidden
+ * @internal
  * Generalized sweepline algorithm.
  *
  * Typically used to turn O(n^2) algorithms into roughly O(n logn) algorithms.

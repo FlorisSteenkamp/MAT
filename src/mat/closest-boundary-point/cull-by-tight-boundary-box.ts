@@ -8,7 +8,7 @@ const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
 
 
 /**
- * @hidden
+ * @internal
  * When checking distances, ignore all those with closest possible distance 
  * further than 'bestSquaredDistance', i.e. cull them.
  * @param bezierPieces 

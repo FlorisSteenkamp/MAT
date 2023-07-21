@@ -1,12 +1,13 @@
 import { drawFs } from 'flo-draw';
+import { isTerminating } from '../../../cp-node/cp-node.js';
 import { getCurveToNext } from '../../../get-curve-to-next.js';
-/** @hidden */
+/** @internal */
 function drawBranch(g, branch, delay) {
     const classes = 'thin5 purple nofill';
     const $svgs = [];
     let i = 0;
     for (const cpNode of branch) {
-        if (cpNode.isTerminating()) {
+        if (isTerminating(cpNode)) {
             continue;
         }
         //let bezier = cpNode.matCurveToNextVertex;

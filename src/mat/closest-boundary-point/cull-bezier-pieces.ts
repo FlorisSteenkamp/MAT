@@ -5,7 +5,7 @@ import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
 
 
 /**
- * @hidden
+ * @internal
  * @param bezierPieces 
  * @param p 
  * @param extreme

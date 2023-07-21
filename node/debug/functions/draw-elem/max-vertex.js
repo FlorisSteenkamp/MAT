@@ -1,5 +1,5 @@
 import { drawFs } from 'flo-draw';
-/** @hidden */
+/** @internal */
 function maxVertex(g, cpNode) {
     const circle = cpNode.cp.circle;
     const $elems = drawFs.circle(g, circle, 'brown thin10 nofill');

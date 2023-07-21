@@ -1,8 +1,10 @@
-import { getOsculatingCircle, calcPosOrder, isPosDullCorner } from '../../point-on-shape.js';
+import { getOsculatingCircle } from '../../point-on-shape/get-osculating-circle.js';
+import { calcPosOrder } from '../../point-on-shape/calc-pos-order.js';
+import { isPosDullCorner } from '../../point-on-shape/is-pos-dull-corner.js';
 import { addToCpGraph } from '../add-to-cp-graph.js';
 import { isAnotherCpCloseby } from '../is-another-cp-closeby.js';
 /**
- * @hidden
+ * @internal
  * Add a 1-prong to the MAT.
  * @param cpGraphs
  * @param pos
@@ -23,15 +25,15 @@ function add1Prong(maxOsculatingCircleRadius, cpGraphs, pos) {
         if (typeof _debug_ !== 'undefined') {
             _debug_.generated.elems.oneProngAtDullCorner.push(pos);
         }
+        // console.log('dull')
         return;
     }
-    //let circle = PointOnShape.getOsculatingCircle(maxOsculatingCircleRadius, pos);
+    // return;  // TODO2 - this was added
     const circle = getOsculatingCircle(maxOsculatingCircleRadius, pos);
-    //const order = PointOnShape.calcOrder(circle, pos);
     const order = calcPosOrder(circle, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
-    if (isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000, 'magenta')) {
+    if (!!isAnotherCpCloseby(cpGraphs, pos, circle, order, 0, 1000)) {
         return;
     }
     addToCpGraph(circle, [-0.5, +0.5], cpGraphs, [pos, pos]);

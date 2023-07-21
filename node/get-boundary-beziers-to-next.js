@@ -29,7 +29,7 @@ function getBoundaryBeziersToNext(cpNode) {
 }
 /**
  * Adds pieces of skipped beziers.
- * @hidden
+ * @internal
  */
 function addSkippedBeziers(beziers, curveStart, curveEnd, t1) {
     let curveThis = curveStart;

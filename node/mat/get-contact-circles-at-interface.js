@@ -1,21 +1,17 @@
 import { getCornerAtEnd } from '../curve.js';
-import { PointOnShape } from '../point-on-shape.js';
+import { createPos } from '../point-on-shape/create-pos.js';
 /**
- * @hidden
+ * @internal
  * @param curve
  */
 function getContactCirclesAtInterface(curve) {
     const { isQuiteSharp, isQuiteDull } = getCornerAtEnd(curve);
-    if (isQuiteSharp) {
-        return [new PointOnShape(curve, 1)];
-    }
-    else if (isQuiteDull) {
-        return [
-            new PointOnShape(curve, 1),
-            new PointOnShape(curve.next, 0)
-        ];
-    }
-    return [];
+    return isQuiteSharp
+        ? [createPos(curve, 1)]
+        : isQuiteDull
+            ? [createPos(curve, 1),
+                createPos(curve.next, 0)]
+            : [];
 }
 export { getContactCirclesAtInterface };
 //# sourceMappingURL=get-contact-circles-at-interface.js.map

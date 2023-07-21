@@ -1,7 +1,7 @@
 import { evalDeCasteljau } from 'flo-bezier3';
 import { squaredDistanceBetween } from 'flo-vector2d';
 /**
- * @hidden
+ * @internal
  * Finds an initial distance such that the closest point can not be further than
  * this distance away.
  */

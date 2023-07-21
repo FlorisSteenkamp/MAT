@@ -1,4 +1,4 @@
 import { TwoProngForDebugging } from '../../two-prong-for-debugging.js';
-/** @hidden */
-declare function twoProng(g: SVGGElement, twoProng: TwoProngForDebugging): SVGElement[];
+/** @internal */
+declare function twoProng(g: SVGGElement, twoProng: TwoProngForDebugging, classes?: string, delay?: number, scaleFactor?: number): SVGElement[];
 export { twoProng };

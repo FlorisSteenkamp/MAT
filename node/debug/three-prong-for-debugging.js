@@ -1,4 +1,4 @@
-import { posToHumanString } from '../point-on-shape.js';
+import { posToHumanString } from '../point-on-shape/pos-to-human-string.js';
 function createEmptyThreeProngForDebugging() {
     return {
         generated: undefined,

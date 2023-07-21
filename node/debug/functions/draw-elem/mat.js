@@ -1,20 +1,22 @@
 import { drawFs } from 'flo-draw';
 import { traverseEdges } from '../../../traverse-edges.js';
 import { getCurveToNext } from '../../../get-curve-to-next.js';
-/** @hidden */
+import { isTerminating } from '../../../cp-node/cp-node.js';
+/** @internal */
 function drawMat(type) {
     const classes = type === 'mat'
         ? 'thin5 purple nofill'
         : 'thin10 red nofill';
-    return (g, mat) => {
+    return (g, mat, classes_, delay = 0, scaleFactor = 1) => {
         const cpNode = mat.cpNode;
+        // if (!cpNode) { return undefined; }
         if (!cpNode) {
-            return undefined;
+            return [];
         }
         const $svgs = [];
         let i = 0;
         traverseEdges(cpNode, cpNode => {
-            if (cpNode.isTerminating()) {
+            if (isTerminating(cpNode)) {
                 return;
             }
             const bezier = getCurveToNext(cpNode);
@@ -22,7 +24,7 @@ function drawMat(type) {
                 return;
             }
             i++;
-            $svgs.push(...drawFs.bezier(g, bezier, classes /*, i*500*/));
+            $svgs.push(...drawFs.bezier(g, bezier, classes, delay));
         });
         return $svgs;
     };

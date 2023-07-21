@@ -1,4 +1,4 @@
 import { Mat } from '../../../mat.js';
-/** @hidden */
-declare function drawMat(type: 'mat' | 'sat'): (g: SVGGElement, mat: Mat) => SVGElement[];
+/** @internal */
+declare function drawMat(type: 'mat' | 'sat'): (g: SVGGElement, mat: Mat, classes_?: string | undefined, delay?: number, scaleFactor?: number) => SVGElement[];
 export { drawMat };

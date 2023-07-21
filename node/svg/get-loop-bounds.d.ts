@@ -1,12 +1,12 @@
-import { Loop } from '../loop.js';
-import { IPointOnShape } from '../point-on-shape.js';
+import { Loop } from 'flo-boolean';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
- * @hidden
+ * @internal
  */
 declare const getLoopBounds: (a: Loop) => {
-    minX: IPointOnShape;
-    minY: IPointOnShape;
-    maxX: IPointOnShape;
-    maxY: IPointOnShape;
+    minX: PointOnShape;
+    minY: PointOnShape;
+    maxX: PointOnShape;
+    maxY: PointOnShape;
 };
 export { getLoopBounds };

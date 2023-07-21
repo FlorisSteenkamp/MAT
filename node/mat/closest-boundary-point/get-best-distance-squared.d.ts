@@ -1,6 +1,6 @@
 import { BezierPiece } from "../bezier-piece.js";
 /**
- * @hidden
+ * @internal
  * Finds an initial distance such that the closest point can not be further than
  * this distance away.
  */

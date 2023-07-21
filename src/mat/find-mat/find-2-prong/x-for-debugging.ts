@@ -1,7 +1,7 @@
-import { PointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
 
 
-/** @hidden */
+/** @internal */
 type TXForDebugging = { 
     x: number[]; 
     y: PointOnShape; 

@@ -1,8 +1,8 @@
-/** @hidden */
-import { Loop } from '../loop.js';
+/** @internal */
+import { Loop } from 'flo-boolean';
 /**
- * @hidden
+ * @internal
  * Get topmost PointOnShape of the given loop.
  */
-declare function getMinYPos(loop: Loop): import("../point-on-shape.js").IPointOnShape;
+declare function getMinYPos(loop: Loop): import("../point-on-shape/point-on-shape.js").PointOnShape;
 export { getMinYPos };

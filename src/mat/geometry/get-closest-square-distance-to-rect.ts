@@ -4,7 +4,7 @@ const squaredDistanceBetween = squaredDistanceBetween_;
 
 
 /**
- * @hidden
+ * @internal
  */
 function getClosestSquareDistanceToRect(
 		box: number[][], p: number[]): number {

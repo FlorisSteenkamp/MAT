@@ -1,14 +1,15 @@
-import { CpNode } from "../cp-node.js";
+import { CpNode } from "./cp-node.js";
+import { createCpNode } from "./create-cp-node.js";
 
 
-/** @hidden */
+/** @internal */
 type Edge =
     | 'prev'
 	| 'next'
 	| 'prevOnCircle'
 	| 'nextOnCircle';
 
-/** @hidden */
+/** @internal */
 const EDGES: Edge[] = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
 
 
@@ -23,19 +24,29 @@ function clone(cpNode: CpNode): CpNode {
 
     const nodeMap: Map<CpNode, CpNode> = new Map();
 
-    const newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
+    // const newCpNode = new CpNode(cpNode.cp, cpNode.isHoleClosing, cpNode.isIntersection);
+    const newCpNode = createCpNode(
+        cpNode.cp,
+        cpNode.isHoleClosing,
+        cpNode.isIntersection
+    );
 
     nodeMap.set(cpNode, newCpNode);
     const cpStack = [{ cpNode, newCpNode }];
 
     while (cpStack.length) {
-        const { cpNode, newCpNode } = cpStack.pop();
+        const { cpNode, newCpNode } = cpStack.pop()!;
 
         for (const edge of EDGES) {
             const node = cpNode[edge];
             let newNode = nodeMap.get(node);
             if (!newNode) {	
-                newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);
+                // newNode = new CpNode(node.cp, node.isHoleClosing, node.isIntersection);
+                newNode = createCpNode(
+                    node.cp,
+                    node.isHoleClosing,
+                    node.isIntersection,
+                );
                 nodeMap.set(node, newNode);
                 cpStack.push({cpNode: node, newCpNode: newNode });
             }

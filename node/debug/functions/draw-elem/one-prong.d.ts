@@ -1,4 +1,4 @@
-import { IPointOnShape } from '../../../point-on-shape.js';
-/** @hidden */
-declare function drawOneProng(g: SVGGElement, pos: IPointOnShape, classes: string, delay?: number): SVGCircleElement[];
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
+/** @internal */
+declare function drawOneProng(g: SVGGElement, pos: PointOnShape, classes?: string, delay?: number, scaleFactor?: number): SVGCircleElement[];
 export { drawOneProng };

@@ -12,7 +12,7 @@ import { clone } from '../cp-node/clone.js';
 function trimMat(mat: Mat): Mat {
 	const cpNode = cullNonCycles(clone(mat.cpNode));
 
-    if (!cpNode) { return undefined; }
+    if (!cpNode) { return undefined!; }
 
     return { cpNode, cpTrees: createNewCpTree(cpNode) };
 }

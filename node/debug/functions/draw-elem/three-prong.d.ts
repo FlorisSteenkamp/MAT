@@ -1,4 +1,4 @@
 import { ThreeProngForDebugging } from '../../three-prong-for-debugging.js';
-/** @hidden */
-declare function threeProng(g: SVGGElement, threeProng: ThreeProngForDebugging): SVGCircleElement[];
+/** @internal */
+declare function threeProng(g: SVGGElement, threeProng: ThreeProngForDebugging, classes?: string, delay?: number, scaleFactor?: number): SVGCircleElement[];
 export { threeProng };

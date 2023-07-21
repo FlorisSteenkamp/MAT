@@ -1,5 +1,5 @@
 
-/** @hidden */
+/** @internal */
 function drawCirclePercent(
         g: SVGGElement,
         center: number[], 

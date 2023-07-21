@@ -18,18 +18,23 @@ import { culls            } from './culls.js';
 import { oneProngAtDullCorner } from './one-prong-at-dull-corner.js';
 
 
-/** @hidden */
+/** @internal */
 type TDrawElemFunctions = 
-	{ [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T], classes?: string, delay?: number) => SVGElement[] };
+	{ [T in keyof IDebugElems]: (
+		g: SVGGElement,
+		elem: IDebugElems[T],
+		classes?: string,
+		delay?: number,
+		scaleFactor?: number) => SVGElement[] };
 
 
-/** @hidden */
+/** @internal */
 function notImplementedYet<T extends IDebugElems[keyof IDebugElems]> (g: SVGElement, elem: T) {
 	return [] as SVGElement[]; // TODO - implement relevant drawing function
 }
 
 
-/** @hidden */
+/** @internal */
 const drawElemFunctions: TDrawElemFunctions = {
 	oneProng: drawOneProng,
 	oneProngAtDullCorner,

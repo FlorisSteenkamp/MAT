@@ -1,11 +1,12 @@
-import { CpNode } from '../cp-node.js';
-import { posToHumanString, PointOnShape } from '../point-on-shape.js';
+import { CpNode } from '../cp-node/cp-node.js';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { posToHumanString } from '../point-on-shape/pos-to-human-string.js';
 import { Circle } from '../circle.js';
 import { Generated } from './debug.js';
 
 
 /**
- * @hidden
+ * @internal
  * Used for debugging only. A three-prong is a maximally inscribed circle that
  * touches the shape boundary (tangentially) at 3 points.
  */
@@ -33,16 +34,16 @@ interface ThreeProngForDebugging {
 
 function createEmptyThreeProngForDebugging(): ThreeProngForDebugging {
     return {
-        generated  : undefined,
-        circle     : undefined,
-        poss       : undefined,
-        cp3ss      : undefined,
-        cpss       : undefined,
-        bestIndx   : undefined,
-        candidateThreeProngs : undefined,
-        visitedCps : undefined,
-        boundaries : undefined,
-        traces     : undefined,
+        generated  : undefined!,
+        circle     : undefined!,
+        poss       : undefined!,
+        cp3ss      : undefined!,
+        cpss       : undefined!,
+        bestIndx   : undefined!,
+        candidateThreeProngs : undefined!,
+        visitedCps : undefined!,
+        boundaries : undefined!,
+        traces     : undefined!,
     }
 }
 

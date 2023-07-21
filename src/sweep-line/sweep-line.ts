@@ -1,16 +1,16 @@
 
-/** @hidden */
+/** @internal */
 const EVENT_LEFT  = 0;
-/** @hidden */
+/** @internal */
 const EVENT_RIGHT = 1;
 
-/** @hidden */
+/** @internal */
 type LEFT = 0;
-/** @hidden */
+/** @internal */
 type RIGHT = 1;
 
 /**
- * @hidden
+ * @internal
  * Generalized sweepline algorithm.
  * 
  * Typically used to turn O(n^2) algorithms into roughly O(n logn) algorithms.
@@ -71,7 +71,7 @@ function sweepLine<T>(
 	return pairedItems;
 }
 
-/** @hidden */
+/** @internal */
 interface IEvent<T> {
     /** type - 0 -> left side, 1 -> right side */
     type: LEFT|RIGHT;
@@ -85,7 +85,7 @@ interface IEvent<T> {
 
 
 /**
- * @hidden
+ * @internal
  * Compare two Events by their x-axis and then by their type. Since it is
  * open boxes that are compared we must let the right endpoint type come
  * before the left.

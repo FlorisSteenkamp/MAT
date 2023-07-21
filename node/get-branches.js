@@ -1,7 +1,8 @@
 import { tangent } from 'flo-bezier3';
 import { cross, toUnitVector } from 'flo-vector2d';
+import { getChildren, isFullyTerminating, isTerminating } from './cp-node/cp-node.js';
 import { getCurveToNext } from './get-curve-to-next.js';
-/** @hidden */
+/** @internal */
 const defaultTolerance = 1; // 1 degree
 /**
  * Traverses all edges (depth first) of the given MAT tree starting at the given
@@ -14,7 +15,7 @@ const defaultTolerance = 1; // 1 degree
  */
 function getBranches(cpNode, tolerance = defaultTolerance) {
     // Start from a leaf
-    while (!cpNode.isFullyTerminating()) {
+    while (!isFullyTerminating(cpNode)) {
         cpNode = cpNode.next;
     }
     const branches = [];
@@ -25,8 +26,8 @@ function getBranches(cpNode, tolerance = defaultTolerance) {
     while (cps.length) {
         const cp = cps.pop();
         branchCpNodes.push(cp);
-        let children = cp.getChildren();
-        if (cp.isFullyTerminating()) {
+        let children = getChildren(cp);
+        if (isFullyTerminating(cp)) {
             if (branchCpNodes.length > 1) {
                 branches.push(branchCpNodes);
             }
@@ -37,7 +38,7 @@ function getBranches(cpNode, tolerance = defaultTolerance) {
             cps.push(children[0]);
             continue;
         }
-        children = children.filter(cpNode => !cpNode.isTerminating());
+        children = children.filter(cpNode => !isTerminating(cpNode));
         if (children.length === 0) {
             branches.push(branchCpNodes);
             branchCpNodes = [];

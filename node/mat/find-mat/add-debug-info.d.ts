@@ -1,8 +1,8 @@
-import { Loop } from '../../loop.js';
+import { Loop } from 'flo-boolean';
 import { Mat } from '../../mat.js';
-/** @hidden */
+/** @internal */
 declare function addDebugInfo1(loops: Loop[]): void;
-/** @hidden */
+/** @internal */
 declare function addDebugInfo2(): void;
 declare function addDebugInfo3(): void;
 declare function addDebugInfo4(mat: Mat): void;

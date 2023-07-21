@@ -1,3 +1,4 @@
+import { getCpNodesOnCircle, isTerminating, vertexChildren } from './cp-node/cp-node.js';
 /**
  * Traverses the MAT tree and calls the given callback function for each vertex
  * (represented by a [[CpNode]]) on the MAT.
@@ -11,8 +12,8 @@ function traverseVertices(cpNode, f) {
     f(cpNode);
     // Since the tree is unrooted we must iterate in all directions from the
     // given cpNode.	
-    cpNode.getCpNodesOnCircle()
-        .filter(cpNode => !cpNode.isTerminating())
+    getCpNodesOnCircle(cpNode)
+        .filter(cpNode => !isTerminating(cpNode))
         .map(cpNode => cpNode.next)
         .forEach(f_);
     function f_(cpNode) {
@@ -20,7 +21,7 @@ function traverseVertices(cpNode, f) {
         while (cps.length) {
             const cp = cps.pop();
             f(cp);
-            cps.push(...cp.vertexChildren);
+            cps.push(...vertexChildren(cp));
         }
     }
 }

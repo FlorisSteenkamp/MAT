@@ -1,6 +1,6 @@
-import { CpNode } from '../cp-node.js';
+import { CpNode } from '../cp-node/cp-node.js';
 /**
- * @hidden
+ * @internal
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).
  * @param cpNode

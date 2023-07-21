@@ -1,7 +1,7 @@
 import { getLeaves } from '../get-leaves.js';
-import { CpNode } from '../../cp-node.js';
+import { getProngCount, isOnSameCircle, isTerminating } from '../../cp-node/cp-node.js';
 /**
- * @hidden
+ * @internal
  * Cull all edges not part of a cycle in the MAT planar graph.
  * @param cpStart The start CpNode which must reprsesent the maximal 3-prong
  * vertex.
@@ -20,11 +20,11 @@ function cullNonCycles(cpStart) {
             cpNode = cpNode.next;
             let cut = false;
             const cp1 = cpNode.prevOnCircle;
-            if (cpNode.getProngCount() > 2) {
+            if (getProngCount(cpNode) > 2) {
                 //const cp2 = cp1.prevOnCircle;
                 const cp2 = cpNode.nextOnCircle;
                 //if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
-                if (CpNode.isOnSameCircle(cpNode, cpStart)) {
+                if (isOnSameCircle(cpNode, cpStart)) {
                     cut = true; // We are at the max disk - cut whole edge
                 }
                 else if (cpNode.next === cp2) {
@@ -34,7 +34,7 @@ function cullNonCycles(cpStart) {
                     cut = true; // Cut whole edge
                 }
             }
-            else if (cpNode.isTerminating() && !cpNode.isIntersection) {
+            else if (isTerminating(cpNode) && !cpNode.isIntersection) {
                 cpNodeKept = cpNode;
                 return undefined;
             }

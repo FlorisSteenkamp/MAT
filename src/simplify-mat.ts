@@ -1,5 +1,5 @@
 import { hausdorffDistance } from 'flo-bezier3';
-import { CpNode } from './cp-node.js';
+import { CpNode, getCpNodesOnCircle, isTerminating, removeCpNode } from './cp-node/cp-node.js';
 import { getBranches } from './get-branches.js';
 import { getCurveToNext } from './get-curve-to-next.js';
 import { getCurveBetween } from './get-curve/get-curve-between.js';
@@ -28,7 +28,7 @@ function simplifyMat(
     let cpNode = mat.cpNode;
     
     // Start from a leaf
-    while (!cpNode.isTerminating()) { cpNode = cpNode.next; }
+    while (!isTerminating(cpNode)) { cpNode = cpNode.next; }
 
     const branches = getBranches(cpNode, anlgeTolerance);
 
@@ -62,17 +62,17 @@ function simplifyMat(
     }
 
     for (const cpNode of canDeletes) {
-        const isTerminating = cpNode.isTerminating();
-        const onCircleCount = cpNode.getCpNodesOnCircle().length;
-        if (isTerminating || onCircleCount !== 2) { 
+        const isTerminating_ = isTerminating(cpNode);
+        const onCircleCount = getCpNodesOnCircle(cpNode).length;
+        if (isTerminating_ || onCircleCount !== 2) { 
             continue; 
         }
 
-        CpNode.remove(cpNode);
+        removeCpNode(cpNode);
     }
     
     //return { cpNode, cpTrees: createNewCpTree(cpNode) }; 
-    return { cpNode, cpTrees: undefined }; 
+    return { cpNode, cpTrees: undefined! }; 
 }
 
 

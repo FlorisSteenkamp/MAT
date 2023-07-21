@@ -1,6 +1,6 @@
 import { toCubic, evalDeCasteljau } from 'flo-bezier3';
 import { drawFs } from 'flo-draw';
-/** @hidden */
+/** @internal */
 function minY(g, pos) {
     const p = evalDeCasteljau(pos.curve.ps, pos.t);
     const ps = toCubic(pos.curve.ps);

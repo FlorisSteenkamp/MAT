@@ -1,12 +1,13 @@
 import { distanceBetween } from 'flo-vector2d';
-import { createPos, PointOnShape } from '../../point-on-shape.js';
+import { PointOnShape } from '../../point-on-shape/point-on-shape.js';
+import { createPos } from '../../point-on-shape/create-pos.js';
 import { BezierPiece  } from '../bezier-piece.js';
 import { cullBezierPieces } from './cull-bezier-pieces.js';
 import { closestPointsOnCurve } from './closest-points-on-curve.js';
   
 
 /**
- * @hidden
+ * @internal
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces

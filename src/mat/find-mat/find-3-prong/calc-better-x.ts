@@ -1,11 +1,11 @@
 import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
-import { PointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
 import { BezierPiece  } from '../../bezier-piece.js';
 import { getClosestPoints } from './get-closest-points.js';
 
 
 /**
- * @hidden
+ * @internal
  * Find new x and ps that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong 
  * circle center.
@@ -25,7 +25,7 @@ function calcBetterX(
     let nu = 1;
     let better;
     let newX;
-    let newPs: PointOnShape[];
+    let newPs: (PointOnShape | undefined)[];
     let newV;
     let i = 0; // Safeguard
     do { 
@@ -36,7 +36,7 @@ function calcBetterX(
         newPs = getClosestPoints(newX, bezierPiece3s);
                     
         // Point of zero V
-        const newCircleCenter = circumCenter(newPs.map(pos => pos.p)); 
+        const newCircleCenter = circumCenter(newPs.map(pos => pos!.p)); 
         const newVectorToZeroV = fromTo(newX, newCircleCenter);
         newV = len(newVectorToZeroV);
         

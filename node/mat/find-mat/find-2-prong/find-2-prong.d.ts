@@ -1,10 +1,10 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from '../../../cp-node.js';
-import { Loop } from '../../../loop.js';
+import { CpNode } from '../../../cp-node/cp-node.js';
+import { Loop } from 'flo-boolean';
 import { Circle } from '../../../circle.js';
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
 /**
- * @hidden
+ * @internal
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
  *
@@ -27,11 +27,11 @@ import { IPointOnShape } from '../../../point-on-shape.js';
  * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
  * @param k The loop array index
  */
-declare function find2Prong(loops: Loop[], extreme: number, squaredDiagonalLength: number, cpTrees: Map<Loop, LlRbTree<CpNode>>, y: IPointOnShape, isHoleClosing: boolean, k: number): {
+declare function find2Prong(loops: Loop[], extreme: number, squaredDiagonalLength: number, cpTrees: Map<Loop, LlRbTree<CpNode>>, y: PointOnShape, isHoleClosing: boolean, k: number): {
     circle: Circle;
     zs: {
-        pos: IPointOnShape;
+        pos: PointOnShape;
         d: number;
     }[];
-};
+} | undefined;
 export { find2Prong };

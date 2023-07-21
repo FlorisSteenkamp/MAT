@@ -1,16 +1,17 @@
 import { getBounds } from 'flo-bezier3';
 import { memoize } from 'flo-memoize';
-import { Loop } from '../loop.js';
+import { Loop } from 'flo-boolean';
 import { Curve } from '../curve.js';
-import { PointOnShape, createPos } from '../point-on-shape.js';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { createPos } from '../point-on-shape/create-pos.js';
 
 
-/** @hidden */
+/** @internal */
 const INF = Number.POSITIVE_INFINITY;
 
 
 /** 
- * @hidden 
+ * @internal 
  */
 const getLoopBounds = memoize(function(loop: Loop): {
 		minX: PointOnShape;
@@ -24,12 +25,12 @@ const getLoopBounds = memoize(function(loop: Loop): {
 		val: number 
 	}[][] = [
 		[
-			{ bezier: undefined, t: undefined, val: INF}, 
-			{ bezier: undefined, t: undefined, val: INF}
+			{ bezier: undefined!, t: undefined!, val: INF}, 
+			{ bezier: undefined!, t: undefined!, val: INF}
 		], 
 		[
-			{ bezier: undefined, t: undefined, val: -INF}, 
-			{ bezier: undefined, t: undefined, val: -INF}
+			{ bezier: undefined!, t: undefined!, val: -INF}, 
+			{ bezier: undefined!, t: undefined!, val: -INF}
 		]
 	];
 	

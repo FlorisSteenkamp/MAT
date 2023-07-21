@@ -1,12 +1,12 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from '../../loop.js';
-import { CpNode } from '../../cp-node.js';
-import { PointOnShape } from '../../point-on-shape.js';
+import { Loop } from 'flo-boolean';
+import { CpNode, cpNodeComparator, insertCpNode } from '../../cp-node/cp-node.js';
+import { PointOnShape } from '../../point-on-shape/point-on-shape.js';
 import { ContactPoint } from '../../contact-point.js';
 
 
 /**
- * @hidden
+ * @internal
  * Creates the initial ContactPoint loops from the given sharp corners.
  * @param shape
  * @param sharpCornerss
@@ -23,7 +23,7 @@ function createInitialCpGraph(
         const sharpCorners = sharpCornerss[k];
 
         // qqq const cpTree = new LlRbTree(CpNode.comparator, [], true);
-        const cpTree = new LlRbTree(CpNode.comparator, false);
+        const cpTree = new LlRbTree(cpNodeComparator, false);
         
         let cpNode1 = undefined;
         let cpNode2 = undefined;
@@ -37,8 +37,8 @@ function createInitialCpGraph(
             const cp1: ContactPoint = { pointOnShape: pos, circle, order: -1, order2: 0 };
             const cp2: ContactPoint = { pointOnShape: pos, circle, order: +1, order2: 0 };
 
-            cpNode1 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp1, cpNode2);
-            cpNode2 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp2, cpNode1);
+            cpNode1 = insertCpNode(false, /*isIntersection*/ false, cpTree, cp1, cpNode2!);
+            cpNode2 = insertCpNode(false, /*isIntersection*/ false, cpTree, cp2, cpNode1);
             
             cpNode1.prevOnCircle = cpNode2; 
             cpNode2.prevOnCircle = cpNode1; 

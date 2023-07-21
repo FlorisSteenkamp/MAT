@@ -2,7 +2,7 @@ import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
 import { getCornerAtEnd } from '../../curve.js';
 import { getBoundingBox_ } from '../../get-bounding-box-.js';
 let timingStart;
-/** @hidden */
+/** @internal */
 function addDebugInfo1(loops) {
     if (typeof _debug_ === 'undefined') {
         return;
@@ -35,7 +35,7 @@ function addDebugInfo1(loops) {
         });
     }
 }
-/** @hidden */
+/** @internal */
 function addDebugInfo2() {
     if (typeof _debug_ === 'undefined') {
         return;

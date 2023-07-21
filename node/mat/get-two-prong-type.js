@@ -1,4 +1,4 @@
-/** @hidden */
+/** @internal */
 function getTwoProngType(e) {
     if (e.holeClosing) {
         return 'twoProng_holeClosing';

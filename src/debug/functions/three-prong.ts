@@ -1,4 +1,4 @@
-/** @hidden */
+/** @internal */
 declare let _debug_: Debug; 
 
 import { drawFs } from 'flo-draw';
@@ -7,7 +7,7 @@ import { Debug } from '../debug.js';
 import { ThreeProngForDebugging } from '../three-prong-for-debugging.js';
 
 
-/** @hidden */
+/** @internal */
 export interface IThreeProngDebugFunctions {
 	drawSpokes       : (g: SVGGElement, n: number) => void,
 	traceConvergence : (g: SVGGElement, n: number, indx: number) => void,
@@ -22,7 +22,7 @@ export interface IThreeProngDebugFunctions {
 
 
 /**
- * @hidden
+ * @internal
  * Draws 3 lines from the given 3-prong center to its 3 contact points.
  * @param n - The 3-prong's zero-based index. 
  */
@@ -43,7 +43,7 @@ function drawSpokes(g: SVGGElement, n: number): void {
 
 
 /**
- * @hidden
+ * @internal
  * Shows the circle for each boundary iteration.
  * @param n_ - The 3-prong's zero-based index. If ommitted, all will be shown.
  * @param idx - The specific boundary iteration index to view. If ommitted, all
@@ -105,7 +105,7 @@ function traceConvergence(g: SVGGElement, n_: number, idx: number): void {
 
 
 /**
- * @hidden
+ * @internal
  * Shows the actual boundary for each iteration.
  * @param n The 3-prong's zero-based index.
  * @param idx The specific boundary iteration index to view. If ommitted will 
@@ -166,7 +166,7 @@ function showBoundary(g: SVGGElement, n: number, idx: number): void {
 
 
 /**
- * @hidden
+ * @internal
  * @param n The 3-prong's zero-based index. 
  */
 function logδs(n: number): void {
@@ -177,7 +177,7 @@ function logδs(n: number): void {
 
 
 /**
- * @hidden
+ * @internal
  * @param p
  */
 function logNearest(
@@ -192,7 +192,7 @@ function logNearest(
 			p, 
 			generated.elems.threeProng, 
 			threeProng => threeProng.circle ? threeProng.circle.center : [0,0]
-		);
+		)!;
 
 
 		const circle = threeProng.circle;
@@ -240,7 +240,7 @@ function logNearest(
 }
 
 
-/** @hidden */
+/** @internal */
 const threeProngDebugFunctions: IThreeProngDebugFunctions = {
 	drawSpokes,
 	traceConvergence,

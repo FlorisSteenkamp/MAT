@@ -3,7 +3,7 @@ declare const _debug_: Debug;
 
 import { length } from 'flo-bezier3';
 import { Debug } from './debug/debug.js';
-import { CpNode } from './cp-node.js';
+import { CpNode, getCpNodesOnCircle } from './cp-node/cp-node.js';
 import { Circle } from './circle.js';
 import { Mat } from './mat.js';
 import { traverseEdges } from './traverse-edges.js';
@@ -24,7 +24,7 @@ function linearScale(s: number) {
 }
 
 
-/** @hidden */
+/** @internal */
 //let len = length([0,1]);
 
 
@@ -85,7 +85,7 @@ function toScaleAxis(
 		const r = cpNode_.cp.circle.radius;
 		const r_ = f_(r);
 		if (R - l > r_) {
-			for (const cpNode of cpNode_.getCpNodesOnCircle()) {
+			for (const cpNode of getCpNodesOnCircle(cpNode_)) {
 				rMap.set(cpNode, R - l); // Update osculating radii
 			}
 			culls.add(cpNode_.cp.circle);
@@ -100,7 +100,7 @@ function toScaleAxis(
 	 
 	// TODO - put line below back - goes into infinite loop
 	//const sat: Mat = { cpNode, cpTrees: createNewCpTree(cpNode) };
-	const sat: Mat = { cpNode, cpTrees: undefined };
+	const sat: Mat = { cpNode, cpTrees: undefined! };
 
 	addDebugInfo(sat, timingStart);
 

@@ -1,8 +1,8 @@
-/** @hidden */
+/** @internal */
 import { circumCenter } from 'flo-vector2d';
 import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 /**
- * @hidden
+ * @internal
  * Finds an initial 3-prong circle center point from which to iterate. The point
  * must be within the shape.
  * @param δ3s - The three boundary pieces of which we need to find the three

@@ -1,7 +1,7 @@
 import { Circle } from '../../../circle.js';
 
 
-/** @hidden */
+/** @internal */
 function culls(g: SVGGElement, culls: Circle[]) {	
     const $elems: SVGElement[] = [];
 
@@ -15,7 +15,7 @@ function culls(g: SVGGElement, culls: Circle[]) {
 }
 
 
-/** @hidden */
+/** @internal */
 function drawCircle(
         g: SVGGElement,
         center: number[], 

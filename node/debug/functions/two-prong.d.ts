@@ -1,5 +1,5 @@
 import { ElemType_TwoProng } from '../../mat/elem-type-two-prong.js';
-/** @hidden */
+/** @internal */
 interface ITwoProngDebugFunctions {
     logδ: (n: number, type?: ElemType_TwoProng) => void;
     log: (n: number, type?: ElemType_TwoProng) => void;
@@ -8,6 +8,6 @@ interface ITwoProngDebugFunctions {
     logNearest: (g: SVGGElement, p: number[], showDelay?: number) => void;
     traceConvergence: (g: SVGGElement, n: number, finalOnly?: boolean, showDelay?: number, range?: number[], type?: ElemType_TwoProng) => void;
 }
-/** @hidden */
+/** @internal */
 declare const twoProngDebugFunctions: ITwoProngDebugFunctions;
 export { ITwoProngDebugFunctions, twoProngDebugFunctions };

@@ -7,9 +7,10 @@ import {
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
 import { Debug } from '../../../debug/debug.js';
-import { CpNode } from '../../../cp-node.js';
+import { CpNode, isSharp } from '../../../cp-node/cp-node.js';
 import { BezierPiece } from '../../bezier-piece.js';
-import { isPosDullCorner, PointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
+import { isPosDullCorner } from '../../../point-on-shape/is-pos-dull-corner.js';
 import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closest-boundary-point.js';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
@@ -17,12 +18,12 @@ import { calcBetterX } from './calc-better-x.js';
 import { getCornerAtEnd } from '../../../curve.js';
 
 
-/** @hidden */
+/** @internal */
 const calcVectorToZeroV_StraightToIt = fromTo;
 
 
 /**
- * @hidden
+ * @internal
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
@@ -68,10 +69,10 @@ function find3ProngForDelta3s(
     const δ3s = δ3ss[k];
     const bezierPiece3s = bezierPiecess_[k];
 
-    if (δ3s[0][0].isSharp()) { return undefined; }
+    if (isSharp(δ3s[0][0])) { return undefined; }
 
 
-    let ps: PointOnShape[];
+    let ps: (PointOnShape | undefined)[];
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
     let x = calcInitial3ProngCenter(δ3s, bezierPiece3s);
@@ -97,7 +98,7 @@ function find3ProngForDelta3s(
             return undefined;
         }
 
-        circumCenter_ = circumCenter(ps.map(x => x.p));
+        circumCenter_ = circumCenter(ps.map(x => x!.p));
 
         const vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter_);
 
@@ -125,9 +126,9 @@ function find3ProngForDelta3s(
         tolerance = Math.abs(V - upds.newV);
     }
 
-    const radius = (distanceBetween(x, ps[0].p) + 
-                distanceBetween(x, ps[1].p) + 
-                distanceBetween(x, ps[2].p)) / 3;
+    const radius = (distanceBetween(x, ps![0]!.p) + 
+                    distanceBetween(x, ps![1]!.p) + 
+                    distanceBetween(x, ps![2]!.p)) / 3;
 
     const circle = { center: x, radius };
 
@@ -138,21 +139,19 @@ function find3ProngForDelta3s(
     //-------------------------------------------------------------------------
     let totalAngleError = 0;
     for (let i=0; i<3; i++) {
-        const p = ps[i];
+        const p = ps![i];
         //----------------------------
         // Tangent of circle at point
         //----------------------------
-        const v = toUnitVector(fromTo(p.p, x));
+        const v = toUnitVector(fromTo(p!.p, x));
         const v1 = rotate90Degrees(v);
         
         
         //-----------------------------------
         // Check if point is on dull crorner
         //-----------------------------------
-        //if (PointOnShape.isDullCorner(p)) {
-        if (isPosDullCorner(p)) {
-            //const corner = Curve.getCornerAtEnd(p.curve);
-            const corner = getCornerAtEnd(p.curve);
+        if (isPosDullCorner(p!)) {
+            const corner = getCornerAtEnd(p!.curve);
             const tans = corner.tangents;
             const perps = tans.map( rotate90Degrees );
                 
@@ -168,7 +167,7 @@ function find3ProngForDelta3s(
             //---------------------------
             // Tangent of curve at point
             //---------------------------
-            const v2 = toUnitVector( tangent(p.curve.ps, p.t) );
+            const v2 = toUnitVector( tangent(p!.curve.ps, p!.t) );
             
             // Cross is more numerically stable than Vector.dot at angles a
             // multiple of Math.PI **and** is close to the actual angle value
@@ -190,7 +189,7 @@ function find3ProngForDelta3s(
     const closestDs = [];
     for (let i=0; i<bezierPiecess.length; i++) {
         const p = getClosestBoundaryPoint(
-            bezierPiecess[i], x, undefined, undefined
+            bezierPiecess[i], x, undefined!, undefined!
         );
         
         closestDs.push( distanceBetween(p.pos.p, x) );
@@ -203,7 +202,7 @@ function find3ProngForDelta3s(
     const W2 = 1;
     const error = W1*radiusDelta + W2*totalAngleError;
 
-    return { ps, circle, error, δ3s };
+    return { ps: ps!, circle, error, δ3s };
 }
 
 

@@ -2,7 +2,7 @@ import { memoize } from 'flo-memoize';
 import { cross, dot, toUnitVector } from 'flo-vector2d';
 import { getInterfaceCcw } from './get-interface-ccw.js';
 /**
- * @hidden
+ * @internal
  * Angle in degrees to radians.
  */
 const DEGREES = {
@@ -12,12 +12,12 @@ const DEGREES = {
     4: 0.0698,
     16: 0.2756,
 };
-/** @hidden */
+/** @internal */
 //const DEGREE_LIMIT = DEGREES[1];
 const DEGREE_LIMIT = DEGREES[4];
 //const DEGREE_LIMIT = DEGREES[16]; 
 /**
- * @hidden
+ * @internal
  * Returns a new corner with properties.
  *
  * PRECONDITION: The beziers has control points with max bit-length of 26 and
@@ -76,7 +76,7 @@ function getCorner(psI, psO) {
     };
 }
 /**
- * @hidden
+ * @internal
  * Returns information about the corner created at the end of this curve
  * (at t === 1) and the start of the next curve (at t === 0).
  */

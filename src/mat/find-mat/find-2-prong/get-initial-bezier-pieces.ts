@@ -2,12 +2,13 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { getNeighbouringPoints } from '../../get-neighboring-cps.js';
 import { getBoundaryPieceBeziers } from '../../get-boundary-piece-beziers.js';
 import { BezierPiece  } from '../../bezier-piece.js';
-import { Loop } from '../../../loop.js';
-import { CpNode } from '../../../cp-node.js';
-import { isPosDullCorner, PointOnShape } from '../../../point-on-shape.js';
+import { Loop } from 'flo-boolean';
+import { CpNode } from '../../../cp-node/cp-node.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
+import { isPosDullCorner } from '../../../point-on-shape/is-pos-dull-corner.js';
 
 
-/** @hidden */
+/** @internal */
 function getInitialBezierPieces(
         isHoleClosing: boolean,
         k: number,
@@ -31,7 +32,7 @@ function getInitialBezierPieces(
                 ? y.t === 1 ? -1 : +1
                 : 0;
         const loop = loops[k];
-        const cpNode = getNeighbouringPoints(cpTrees.get(loop), y, order, 0)[0];
+        const cpNode = getNeighbouringPoints(cpTrees.get(loop)!, y, order, 0)[0];
         δ = [cpNode, cpNode];
         if (!cpNode || 
             // The special case if there is only a single sharp corner or 
@@ -45,7 +46,7 @@ function getInitialBezierPieces(
         }
     }
 
-    return { bezierPieces, δ };
+    return { bezierPieces, δ: δ! };
 }
 
 

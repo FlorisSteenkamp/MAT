@@ -15,7 +15,7 @@ function loopFromBeziers(beziers = []) {
         const curve = {
             loop,
             ps: beziers[i],
-            prev,
+            prev: prev,
             next: undefined,
             idx: i
         };

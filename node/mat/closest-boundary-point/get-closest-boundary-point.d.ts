@@ -1,8 +1,8 @@
 import { Curve } from '../../curve.js';
-import { IPointOnShape } from '../../point-on-shape.js';
+import { PointOnShape } from '../../point-on-shape/point-on-shape.js';
 import { BezierPiece } from '../bezier-piece.js';
 /**
- * @hidden
+ * @internal
  * Returns the closest boundary point to the given point, limited to the given
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces
@@ -12,7 +12,7 @@ import { BezierPiece } from '../bezier-piece.js';
  * @param extreme
  */
 declare function getClosestBoundaryPoint(bezierPieces: BezierPiece[], point: number[], touchedCurve: Curve, t: number): {
-    pos: IPointOnShape;
+    pos: PointOnShape;
     d: number;
 };
 export { getClosestBoundaryPoint };

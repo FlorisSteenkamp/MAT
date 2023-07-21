@@ -1,9 +1,9 @@
-/** @hidden */
+/** @internal */
 const EVENT_LEFT = 0;
-/** @hidden */
+/** @internal */
 const EVENT_RIGHT = 1;
 /**
- * @hidden
+ * @internal
  * Generalized sweepline algorithm.
  *
  * Typically used to turn O(n^2) algorithms into roughly O(n logn) algorithms.
@@ -54,7 +54,7 @@ function sweepLine(items, getLeftmost, getRightmost, predicate) {
     return pairedItems;
 }
 /**
- * @hidden
+ * @internal
  * Compare two Events by their x-axis and then by their type. Since it is
  * open boxes that are compared we must let the right endpoint type come
  * before the left.

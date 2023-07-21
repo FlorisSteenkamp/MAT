@@ -1,0 +1,1 @@
+{"version":3,"file":"is-pos-corner.js","sourceRoot":"","sources":["../../src/point-on-shape/is-pos-corner.ts"],"names":[],"mappings":"AAGA;;GAEG;AACH,SAAS,WAAW,CAAC,GAAiB;IAClC,OAAO,CAAC,GAAG,CAAC,CAAC,KAAK,CAAC,IAAI,GAAG,CAAC,CAAC,KAAK,CAAC,CAAC,CAAC;AACxC,CAAC;AAGD,OAAO,EAAE,WAAW,EAAE,CAAA"}

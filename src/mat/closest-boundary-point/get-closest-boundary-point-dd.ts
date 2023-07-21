@@ -7,7 +7,7 @@ import { closestPointsOnCurve } from './closest-points-on-curve.js';
   
 
 /**
- * @hidden
+ * @internal
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces

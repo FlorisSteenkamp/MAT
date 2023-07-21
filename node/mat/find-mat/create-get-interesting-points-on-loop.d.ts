@@ -1,11 +1,11 @@
-import { Loop } from '../../loop.js';
-import { IPointOnShape } from '../../point-on-shape.js';
+import { Loop } from 'flo-boolean';
+import { PointOnShape } from '../../point-on-shape/point-on-shape.js';
 /**
- * @hidden
+ * @internal
  * Get useful points on the shape - these incude points of maximum curvature and
  * points at the bezier-bezier interfaces.
  * @param loop
  * @param additionalPointCount
  */
-declare function getInterestingPointsOnLoop(minBezLength: number, maxCurviness: number, maxLength: number): (loop: Loop) => IPointOnShape[];
+declare function getInterestingPointsOnLoop(minBezLength: number, maxCurviness: number, maxLength: number): (loop: Loop) => PointOnShape[];
 export { getInterestingPointsOnLoop };

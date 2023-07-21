@@ -2,30 +2,10 @@ import { dot, fromTo, toUnitVector, rotateNeg90Degrees } from 'flo-vector2d';
 import { memoize } from 'flo-memoize';
 import { curvature, evalDeCasteljau, tangent } from 'flo-bezier3';
 import { getCornerAtEnd } from './curve.js';
-/**
- * Represents a point on the shape boundary for which MAT vertex information
- * has not *necessarily* been calculated.
- */
-class PointOnShape {
-    /**
-     * @param curve	The [[ICurve]] on the shape boundary this points belong to.
-     * @param t The bezier parameter value on the curve to identify the point
-     * coordinates.
-     */
-    constructor(curve, t) {
-        this.curve = curve;
-        this.t = t;
-        // Cache
-        this.p_ = undefined;
-    }
-    /**
-     * The planar point coordinates of this [[PointOnShape]].
-     */
-    get p() {
-        return this.p_ === undefined
-            ? this.p_ = evalDeCasteljau(this.curve.ps, this.t)
-            : this.p_;
-    }
+function createPos(curve, t) {
+    return {
+        curve, t, p: evalDeCasteljau(curve.ps, t)
+    };
 }
 /**
  * @hidden
@@ -98,7 +78,6 @@ function calcPosOrder(circle, pos) {
     if (!isPosDullCorner(pos)) {
         return 0;
     }
-    //if (!isPosDullCorner(pos)) { return 0; }
     const corner = getPosCorner(pos);
     const n = rotateNeg90Degrees(corner.tangents[0]);
     const v = toUnitVector(fromTo(pos.p, circle.center));
@@ -112,9 +91,6 @@ function calcPosOrder(circle, pos) {
  * @hidden
  */
 function comparePoss(a, b) {
-    if (a === undefined || b === undefined) {
-        return undefined;
-    }
     let res;
     res = a.curve.idx - b.curve.idx;
     if (res !== 0) {
@@ -164,5 +140,7 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos) {
     ];
     return { center: circleCenter, radius };
 }
-export { PointOnShape, getOsculatingCircle, comparePoss, calcPosOrder, posToHumanString, isPosSharpCorner, isPosDullCorner, isPosQuiteSharpCorner, isPosQuiteDullCorner };
+export { 
+// PointOnShape, 
+getOsculatingCircle, comparePoss, calcPosOrder, posToHumanString, isPosSharpCorner, isPosDullCorner, isPosQuiteSharpCorner, isPosQuiteDullCorner, createPos };
 //# sourceMappingURL=point-on-shape.js.map

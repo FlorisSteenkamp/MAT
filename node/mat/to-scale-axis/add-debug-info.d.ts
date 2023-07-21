@@ -1,6 +1,6 @@
 import { Mat } from '../../mat.js';
 /**
- * @hidden
+ * @internal
  * @param sat
  */
 declare function addDebugInfo(sat: Mat, timingStart: number): void;

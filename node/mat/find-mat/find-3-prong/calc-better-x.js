@@ -1,7 +1,7 @@
 import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
 import { getClosestPoints } from './get-closest-points.js';
 /**
- * @hidden
+ * @internal
  * Find new x and ps that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong
  * circle center.

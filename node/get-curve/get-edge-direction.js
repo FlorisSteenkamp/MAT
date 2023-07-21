@@ -1,8 +1,8 @@
 import { toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse, dot } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { isPosSharpCorner } from '../point-on-shape.js';
+import { isPosSharpCorner } from '../point-on-shape/is-pos-sharp-corner.js';
 /**
- * @hidden
+ * @internal
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).
  * @param cpNode

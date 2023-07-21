@@ -3,7 +3,7 @@ import { ContactPoint, compareCps } from '../contact-point.js';
 
 
 /**
- * @hidden
+ * @internal
  * 
  * Note: For debugging only
  * 

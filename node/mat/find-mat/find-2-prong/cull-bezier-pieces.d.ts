@@ -1,6 +1,6 @@
 import { BezierPiece } from '../../bezier-piece.js';
 /**
- * @hidden
+ * @internal
  * Cull all bezierPieces not within given radius of a given point.
  * @param extreme
  * @param bezierPieces

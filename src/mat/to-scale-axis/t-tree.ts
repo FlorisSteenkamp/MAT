@@ -1,7 +1,7 @@
 import { Circle } from '../../circle.js';
 
 
-/** @hidden */
+/** @internal */
 export type TTree = {
     trees?: Map<number,TTree>,
     circles?: Set<Circle>

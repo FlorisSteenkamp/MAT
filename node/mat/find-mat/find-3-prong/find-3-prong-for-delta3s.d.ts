@@ -1,8 +1,8 @@
-import { CpNode } from '../../../cp-node.js';
+import { CpNode } from '../../../cp-node/cp-node.js';
 import { BezierPiece } from '../../bezier-piece.js';
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
 /**
- * @hidden
+ * @internal
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
@@ -11,12 +11,12 @@ import { IPointOnShape } from '../../../point-on-shape.js';
  * tolerances.
  */
 declare function find3ProngForDelta3s(δs: CpNode[][], idx: number, k: number, bezierPiecess: BezierPiece[][], extreme: number): {
-    ps: IPointOnShape[];
+    ps: (PointOnShape | undefined)[];
     circle: {
         center: number[];
         radius: number;
     };
     error: number;
     δ3s: CpNode[][];
-};
+} | undefined;
 export { find3ProngForDelta3s };

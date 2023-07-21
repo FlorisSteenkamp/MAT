@@ -4,7 +4,7 @@ import { getTotalBy } from './get-total-by.js';
 
 
 /**
- * @hidden
+ * @internal
  */
 const getTotalAbsoluteCurvature = getTotalBy(
     curve => (

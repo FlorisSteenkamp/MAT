@@ -1,4 +1,4 @@
-import { CpNode } from './cp-node.js';
+import { CpNode } from './cp-node/cp-node.js';
 /**
  * Traverses all edges (depth first) of the given MAT tree starting at the given
  * vertex (represented by a [[CpNode]]). Returns the result as an array of

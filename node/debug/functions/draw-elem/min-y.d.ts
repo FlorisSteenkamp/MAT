@@ -1,4 +1,4 @@
-import { IPointOnShape } from '../../../point-on-shape.js';
-/** @hidden */
-declare function minY(g: SVGGElement, pos: IPointOnShape): SVGElement[];
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
+/** @internal */
+declare function minY(g: SVGGElement, pos: PointOnShape): SVGElement[];
 export { minY };

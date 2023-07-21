@@ -1,7 +1,7 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from '../../cp-node.js';
+import { cpNodeComparator, insertCpNode } from '../../cp-node/cp-node.js';
 /**
- * @hidden
+ * @internal
  * Creates the initial ContactPoint loops from the given sharp corners.
  * @param shape
  * @param sharpCornerss
@@ -12,7 +12,7 @@ xMap: Map<number[][],{ ps: number[][] }>*/) {
     for (let k = 0; k < sharpCornerss.length; k++) {
         const sharpCorners = sharpCornerss[k];
         // qqq const cpTree = new LlRbTree(CpNode.comparator, [], true);
-        const cpTree = new LlRbTree(CpNode.comparator, false);
+        const cpTree = new LlRbTree(cpNodeComparator, false);
         let cpNode1 = undefined;
         let cpNode2 = undefined;
         for (const pos of sharpCorners) {
@@ -22,8 +22,8 @@ xMap: Map<number[][],{ ps: number[][] }>*/) {
             const circle = { center: pos.p, radius: 0 };
             const cp1 = { pointOnShape: pos, circle, order: -1, order2: 0 };
             const cp2 = { pointOnShape: pos, circle, order: +1, order2: 0 };
-            cpNode1 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp1, cpNode2);
-            cpNode2 = CpNode.insert(false, /*isIntersection*/ false, cpTree, cp2, cpNode1);
+            cpNode1 = insertCpNode(false, /*isIntersection*/ false, cpTree, cp1, cpNode2);
+            cpNode2 = insertCpNode(false, /*isIntersection*/ false, cpTree, cp2, cpNode1);
             cpNode1.prevOnCircle = cpNode2;
             cpNode2.prevOnCircle = cpNode1;
             cpNode1.nextOnCircle = cpNode2;

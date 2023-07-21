@@ -2,7 +2,7 @@ import { Circle } from '../../circle.js';
 
 
 /**
- * @hidden
+ * @internal
  * Spacially divide into 5 special groups as follows:
  * 
  *   *******||*******|*******|*******|*******||*******

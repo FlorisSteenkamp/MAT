@@ -3,7 +3,7 @@ import { getClosestBoundaryPoint } from '../../closest-boundary-point/get-closes
 
 
 /**
- * @hidden
+ * @internal
  * @param x 
  * @param bezierPiece3s 
  * @param extreme 
@@ -16,8 +16,8 @@ function getClosestPoints(
         const posInfo = getClosestBoundaryPoint(
                 bezierPieces,
                 x, 
-                undefined, // curve
-                undefined  // t
+                undefined!, // curve
+                undefined!  // t
         );
 
         return posInfo ? posInfo.pos : undefined;

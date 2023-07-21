@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node.js';
+import { CpNode } from '../cp-node/cp-node.js';
 /**
  * Simplifies the given MAT by replacing the piecewise quad beziers composing
  * the MAT with fewer ones to within a given tolerance. Returns the map of

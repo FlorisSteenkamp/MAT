@@ -1,21 +1,21 @@
 import { drawFs } from 'flo-draw';
 import { getObjClosestTo, distanceBetween, squaredDistanceBetween } from 'flo-vector2d';
 /**
- * @hidden
+ * @internal
  */
 function logδ(n, type = 'twoProng_regular') {
     const δ = _debug_.generated.elems[type][n].δ;
     console.log(δ);
 }
 /**
- * @hidden
+ * @internal
  */
 function log(n, type = 'twoProng_regular') {
     const twoProng = _debug_.generated.elems[type][n];
     console.log(twoProng);
 }
 /**
- * @hidden
+ * @internal
  */
 function drawNormal(g, n, showDelay = 1000, type = 'twoProng_regular') {
     const twoProngs = _debug_.generated.elems[type];
@@ -33,7 +33,7 @@ function drawNormal(g, n, showDelay = 1000, type = 'twoProng_regular') {
     drawFs.line(g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue', showDelay);
 }
 /**
- * @hidden
+ * @internal
  */
 function logδBasic(n, type = 'twoProng_regular') {
     const delta = _debug_.generated.elems[type][n].δ;
@@ -48,7 +48,7 @@ function logδBasic(n, type = 'twoProng_regular') {
     console.log(f(delta[1]));
 }
 /**
- * @hidden
+ * @internal
  */
 function logNearest(g, p, showDelay = 1000, type = 'twoProng_regular') {
     const closestPerLoops = [];
@@ -69,7 +69,7 @@ function logNearest(g, p, showDelay = 1000, type = 'twoProng_regular') {
     }
 }
 /**
- * @hidden
+ * @internal
  * @param n - The 2-prong's zero-based index.
  * @param range
  */
@@ -105,7 +105,7 @@ function traceConvergence(g, n, finalOnly, showDelay = 1000, range = undefined, 
     }
     twoProngDebugFunctions.drawNormal(g, n, showDelay);
 }
-/** @hidden */
+/** @internal */
 const twoProngDebugFunctions = {
     logδ,
     log,

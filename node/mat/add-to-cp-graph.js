@@ -1,13 +1,14 @@
-import { CpNode } from '../cp-node.js';
+import { insertCpNode } from '../cp-node/cp-node.js';
 import { getNeighbouringPoints } from './get-neighboring-cps.js';
 /**
- * @hidden
+ * @internal
+ *
  * @param circle
  * @param orders
  * @param cpTrees
  * @param poss
  * @param neighbors
- * @hidden
+ * @internal
  */
 function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
     const newCps = poss.map((pos, i) => {
@@ -16,7 +17,7 @@ function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
         const neighboringCp = neighbors
             ? neighbors[i]
             : getNeighbouringPoints(cpTree, pos, orders[i], 0);
-        const newCp = CpNode.insert(false, false, cpTree, newCp_, neighboringCp[0]);
+        const newCp = insertCpNode(false, false, cpTree, newCp_, neighboringCp[0]);
         return newCp;
     });
     const len = poss.length;
@@ -26,6 +27,7 @@ function addToCpGraph(circle, orders, cpTrees, poss, neighbors) {
         newCps[i].prevOnCircle = newCps[indxPrev];
         newCps[i].nextOnCircle = newCps[indxNext];
     }
+    return newCps;
 }
 export { addToCpGraph };
 //# sourceMappingURL=add-to-cp-graph.js.map

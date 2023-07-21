@@ -1,5 +1,5 @@
 import { drawCirclePercent } from './draw-circle-percent.js';
-/** @hidden */
+/** @internal */
 function leaves(g, leaves) {
     const $elems = [];
     for (const cpNode of leaves) {

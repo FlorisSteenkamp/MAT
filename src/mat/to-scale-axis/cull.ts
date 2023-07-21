@@ -1,10 +1,10 @@
 import { Circle } from '../../circle.js';
 import { getLeaves } from '../get-leaves.js';
-import { CpNode } from '../../cp-node.js';
+import { CpNode, isOnSameCircle } from '../../cp-node/cp-node.js';
 
 
 /**
- * @hidden
+ * @internal
  * Returns the set of Vertices passing the following test: walk the MAT tree and 
  * keep all Vertices not in the current cull set and any Vertices that have a 
  * non-culled node further down the line toward the tree leaves.
@@ -32,7 +32,7 @@ function cull(
     }
 
     while (leaves.length) {
-        const leaf = leaves.pop();
+        const leaf = leaves.pop()!;
 
         // Preserve topology.
         if (leaf.isHoleClosing || leaf.isIntersection) { continue; }
@@ -51,7 +51,7 @@ function cull(
             if (!culls.has(cpNode.cp.circle)) {
                 // Cut off the edge once a non-cull has been reached.
                 cut = true;
-            } else if (CpNode.isOnSameCircle(cpNode, maxCpNode)) {
+            } else if (isOnSameCircle(cpNode, maxCpNode)) {
                 cut = true; // We are at the max disk - cut whole edge
             } else {
                 const cps = getNonTrivialEdges(cpNode);

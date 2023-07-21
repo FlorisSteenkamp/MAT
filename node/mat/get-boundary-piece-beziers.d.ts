@@ -1,7 +1,7 @@
-import { CpNode } from '../cp-node.js';
+import { CpNode } from '../cp-node/cp-node.js';
 import { BezierPiece } from './bezier-piece.js';
 /**
- * @hidden
+ * @internal
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)
  * from the given boundary piece.
  * @param cpNodes - An ordered pair that represents the start and end points of

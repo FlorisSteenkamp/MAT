@@ -1,12 +1,15 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { PointOnShape } from '../point-on-shape.js';
-import { CpNode } from '../cp-node.js';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { CpNode } from '../cp-node/cp-node.js';
+import { createCpNode } from '../cp-node/create-cp-node.js';
 
 
 /**
- * @hidden
+ * @internal
+ * 
  * Returns the boundary piece that starts at the immediate previous point on the 
  * shape and ends at the immediate next point.  
+ * 
  * @param cpTree 
  * @param pos 
  * @param order 
@@ -19,12 +22,12 @@ function getNeighbouringPoints(
         order2: number) {
 
     const cps = cpTree.findBounds(
-        new CpNode({ pointOnShape: pos, circle: undefined, order, order2 }, false, false)
+        createCpNode({ pointOnShape: pos, circle: undefined!, order, order2 }, false, false)
     );
 
     if (!cps[0] && !cps[1]) { 
         // The tree is still empty
-        return [undefined, undefined] as CpNode[];
+        return [undefined!, undefined!] as CpNode[];
     }
 
     if (!cps[0] || !cps[1]) { 

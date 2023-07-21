@@ -1,7 +1,7 @@
 import { ddDeflate, allRootsCertified } from 'flo-poly';
 import { evaluate, getFootpointPolyDd } from 'flo-bezier3';
 /**
- * @hidden
+ * @internal
  * @param curve The curve
  * @param p The point from which to check
  * @param tRange The allowed t range

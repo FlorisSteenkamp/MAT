@@ -1,7 +1,7 @@
-import { CpNode } from '../cp-node.js';
+import { CpNode } from '../cp-node/cp-node.js';
 import { Generated } from './debug.js';
 /**
- * @hidden
+ * @internal
  * Used for debugging only.
  */
 interface ICpNodeForDebugging {

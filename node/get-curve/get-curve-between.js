@@ -1,8 +1,8 @@
 import { fromTo, dot, cross, rotate90Degrees, interpolate, translate, lineLineIntersection } from 'flo-vector2d';
 import { getEdgeDirection } from './get-edge-direction.js';
-/** @hidden */
+/** @internal */
 const TOLERANCE_ADD_2PRONG = 0.01;
-/** @hidden */
+/** @internal */
 const TOLERANCE_USE_LINE = 0.0001; // else cubic
 /**
  * Returns the bezier curve from the maximal disk of one [[CpNode]] to another

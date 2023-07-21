@@ -1,3 +1,4 @@
+import { getChildren, getCpNodesOnCircle, isTerminating } from './cp-node/cp-node.js';
 /**
  * Traverses all edges (depth first) of the given MAT tree starting at the given
  * vertex (represented by a [[CpNode]]).
@@ -8,14 +9,16 @@
 function traverseEdges(cpNode, f) {
     // Since the tree is unrooted we must iterate in all directions from the
     // given vertex.
-    const cps = cpNode.getCpNodesOnCircle();
-    while (cps.length) {
+    const cps = getCpNodesOnCircle(cpNode);
+    let ii = 0; // TODO2 - remove
+    while (cps.length /* && ii<1500*/) {
+        ii++;
         const cp = cps.pop();
         f(cp);
-        if (cp.isTerminating()) {
+        if (isTerminating(cp)) {
             continue;
         }
-        cps.push(...cp.getChildren());
+        cps.push(...getChildren(cp));
     }
 }
 export { traverseEdges };

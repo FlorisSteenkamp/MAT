@@ -1,16 +1,16 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from '../cp-node.js';
-import { Loop } from '../loop.js';
+import { CpNode, cpNodeComparator, getAllOnLoop } from '../cp-node/cp-node.js';
+import { Loop } from 'flo-boolean';
 
 
 /**
- * @hidden
+ * @internal
  * @param cpNode 
  */
 function createNewCpTree(cpNode: CpNode) {
 	const newCpTrees: Map<Loop,LlRbTree<CpNode>> = new Map();
 
-	const cps = cpNode.getAllOnLoop();
+	const cps = getAllOnLoop(cpNode);
 
 	cps.forEach(f);
 
@@ -18,8 +18,7 @@ function createNewCpTree(cpNode: CpNode) {
 		const loop = cpNode.cp.pointOnShape.curve.loop;
 		let cpTree = newCpTrees.get(loop);
 		if (!cpTree) { 
-			// qqq cpTree = new LlRbTree(CpNode.comparator, [], true); 
-			cpTree = new LlRbTree(CpNode.comparator, false); 
+			cpTree = new LlRbTree(cpNodeComparator, false); 
 			newCpTrees.set(loop, cpTree);
 		}
 		cpTree.insert(cpNode);

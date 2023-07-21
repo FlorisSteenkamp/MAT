@@ -1,12 +1,13 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from '../loop.js';
-import { CpNode } from '../cp-node.js';
-import { IPointOnShape } from '../point-on-shape.js';
+import { Loop } from 'flo-boolean';
+import { CpNode } from '../cp-node/cp-node.js';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { Circle } from '../circle.js';
 /**
- * @hidden
- * Returns true if another CpNode is close to the given implied (via pos, order
- * and order2) CpNode.
+ * @internal
+ * If another `CpNode` is close by (to the given implied (via `pos`, `order` and
+ * `order2`) then return it, else return `undefined`.
+ *
  * @param cpTrees
  * @param pos
  * @param circle
@@ -16,5 +17,5 @@ import { Circle } from '../circle.js';
  * tolerances.
  * @param color Used for debugging only
  */
-declare function isAnotherCpCloseby(cpTrees: Map<Loop, LlRbTree<CpNode>>, pos: IPointOnShape, circle: Circle, order: number, order2: number, extreme: number, color: string): boolean;
+declare function isAnotherCpCloseby(cpTrees: Map<Loop, LlRbTree<CpNode>>, pos: PointOnShape, circle: Circle, order: number, order2: number, extreme: number): CpNode | undefined;
 export { isAnotherCpCloseby };

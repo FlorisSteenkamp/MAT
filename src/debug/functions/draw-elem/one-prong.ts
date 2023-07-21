@@ -1,16 +1,18 @@
 import { drawFs } from 'flo-draw';
-import { getOsculatingCircle, PointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
+import { getOsculatingCircle } from '../../../point-on-shape/get-osculating-circle.js';
 import { Circle, scaleCircle } from '../../../circle.js';
 
 
-/** @hidden */
-const scaleFactor = 0.5;
+/** @internal */
+function drawOneProng(
+        g: SVGGElement,
+        pos: PointOnShape,
+        classes?: string,
+        delay = 0,
+        scaleFactor = 0.5) {
 
-
-/** @hidden */
-function drawOneProng(g: SVGGElement, pos: PointOnShape, classes: string, delay = 0) {
     const circle = scaleCircle(
-        //PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos),
         getOsculatingCircle(Number.POSITIVE_INFINITY, pos),
         1
     );

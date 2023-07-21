@@ -1,6 +1,6 @@
 import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
 import { Debug }   from '../../debug/debug.js';
-import { Loop } from '../../loop.js';
+import { Loop } from 'flo-boolean';
 import { Curve, getCornerAtEnd } from '../../curve.js';
 import { Mat } from '../../mat.js';
 import { getBoundingBox_ } from '../../get-bounding-box-.js';
@@ -13,7 +13,7 @@ declare const _debug_: Debug;
 let timingStart: number;
 
 
-/** @hidden */
+/** @internal */
 function addDebugInfo1(loops: Loop[]) {
     if (typeof _debug_ === 'undefined') { return; }
     
@@ -32,7 +32,7 @@ function addDebugInfo1(loops: Loop[]) {
         let i = 0;
         loop.curves.forEach(function(curve: Curve) {
             const ps = curve.ps;
-            const hull = getBoundingHull(ps); 
+            const hull = getBoundingHull(ps)!; 
 
             generated.elems.boundingHull.push(hull);
 
@@ -55,7 +55,7 @@ function addDebugInfo1(loops: Loop[]) {
 }
 
 
-/** @hidden */
+/** @internal */
 function addDebugInfo2() {
     if (typeof _debug_ === 'undefined') { return; }
 

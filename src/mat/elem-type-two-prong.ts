@@ -1,5 +1,5 @@
 
-/** @hidden */
+/** @internal */
 type ElemType_TwoProng =
     | 'twoProng_regular'
     | 'twoProng_holeClosing';

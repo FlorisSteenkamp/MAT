@@ -1,5 +1,5 @@
 /**
- * @hidden
+ * @internal
  * @param x
  * @param y
  * @param z

@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node.js';
+import { CpNode } from '../cp-node/cp-node.js';
 /**
  * Returns the bezier curve from the maximal disk of one [[CpNode]] to another
  * [[CpNode]]'s maximal disk.

@@ -1,5 +1,5 @@
 import { BezierPiece } from 'flo-bezier3';
-import { CpNode } from './cp-node.js';
+import { CpNode } from './cp-node/cp-node.js';
 import { Curve  } from './curve.js';
 
 
@@ -21,7 +21,7 @@ function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] {
     if (curveThis.loop !== curveNext.loop) {
         // It is a hole-closer going over to the other loop - a kind of terminal
         // CpNode.
-        return undefined;
+        return undefined!;
     }
     
     const bezierParts: BezierPiece[] = [];
@@ -48,7 +48,7 @@ function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] {
 
 
 /**
- * @hidden
+ * @internal
  * Adds pieces of skipped beziers.
  */
 function addSkippedBeziers(

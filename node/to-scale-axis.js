@@ -1,4 +1,5 @@
 import { length } from 'flo-bezier3';
+import { getCpNodesOnCircle } from './cp-node/cp-node.js';
 import { traverseEdges } from './traverse-edges.js';
 import { traverseVertices } from './traverse-vertices.js';
 import { getLargestVertex } from './mat/get-largest-vertex.js';
@@ -12,7 +13,7 @@ function linearScale(s) {
         return s * r;
     };
 }
-/** @hidden */
+/** @internal */
 //let len = length([0,1]);
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
@@ -55,7 +56,7 @@ function toScaleAxis(mat, s, f = linearScale) {
         const r = cpNode_.cp.circle.radius;
         const r_ = f_(r);
         if (R - l > r_) {
-            for (const cpNode of cpNode_.getCpNodesOnCircle()) {
+            for (const cpNode of getCpNodesOnCircle(cpNode_)) {
                 rMap.set(cpNode, R - l); // Update osculating radii
             }
             culls.add(cpNode_.cp.circle);

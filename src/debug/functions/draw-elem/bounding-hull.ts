@@ -1,13 +1,15 @@
 import { drawFs } from 'flo-draw';
 
 
-/** @hidden */
+/** @internal */
 function boundingHull(
         g: SVGGElement,
         hull: number[][], 
-        style = 'thin5 black nofill') {
+        classes = 'thin5 black nofill',
+        delay = 0,
+        scaleFactor = 1) {
             
-	const $polygon = drawFs.polygon(g, hull, style);
+	const $polygon = drawFs.polygon(g, hull, classes, delay);
 
 	return $polygon;
 }

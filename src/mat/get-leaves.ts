@@ -1,13 +1,13 @@
-import { CpNode } from '../cp-node.js';
+import { CpNode, getAllOnLoop, isTerminating } from '../cp-node/cp-node.js';
 
 
-/** @hidden */
+/** @internal */
 function getLeaves(cpNode: CpNode) {
     const leaves: CpNode[] = [];
 
-    const cps = cpNode.getAllOnLoop();
+    const cps = getAllOnLoop(cpNode);
     cps.forEach(function(cp) {
-        if (cp.isTerminating()) { 
+        if (isTerminating(cp)) { 
             leaves.push(cp);
         }
     });

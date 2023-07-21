@@ -1,5 +1,6 @@
 import { memoize } from 'flo-memoize';
-import { Loop } from '../loop.js';
+import { Loop } from 'flo-boolean';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getLoopBounds } from './get-loop-bounds.js';
 
 
@@ -13,10 +14,10 @@ const getShapeBounds = memoize(function(loops: Loop[]) {
     let minY_ = Number.POSITIVE_INFINITY;
     let maxY_ = Number.NEGATIVE_INFINITY;
 
-    let minX;
-    let maxX;
-    let minY;
-    let maxY;
+    let minX: PointOnShape;
+    let maxX: PointOnShape;
+    let minY: PointOnShape;
+    let maxY: PointOnShape;
 
     for (const loop of loops) {
         const bounds = getLoopBounds(loop);
@@ -38,7 +39,12 @@ const getShapeBounds = memoize(function(loops: Loop[]) {
         }
     }
     
-    return { minX, minY, maxX, maxY };
+    return {
+        minX: minX!,
+        minY: minY!,
+        maxX: maxX!,
+        maxY: maxY!
+    };
 });
 
 

@@ -1,5 +1,5 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from "../cp-node.js";
+import { CpNode } from "./cp-node.js";
 
 
 /**

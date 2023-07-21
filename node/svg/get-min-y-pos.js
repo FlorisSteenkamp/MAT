@@ -1,6 +1,6 @@
 import { getLoopBounds } from './get-loop-bounds.js';
 /**
- * @hidden
+ * @internal
  * Get topmost PointOnShape of the given loop.
  */
 function getMinYPos(loop) {

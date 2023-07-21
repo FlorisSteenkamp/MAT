@@ -1,8 +1,8 @@
-import { CpNode } from '../../../cp-node.js';
+import { CpNode } from '../../../cp-node/cp-node.js';
 import { drawCirclePercent } from './draw-circle-percent.js';
 
 
-/** @hidden */
+/** @internal */
 function leaves(g: SVGGElement, leaves: CpNode[]) {	
     const $elems: SVGElement[] = [];
 

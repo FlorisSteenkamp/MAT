@@ -1,4 +1,4 @@
-import { IPointOnShape } from './point-on-shape.js';
+import { PointOnShape } from './point-on-shape/point-on-shape.js';
 import { Circle } from './circle.js';
 /**
  * Represents a point on the shape boundary for which MAT data has been
@@ -6,7 +6,7 @@ import { Circle } from './circle.js';
  */
 interface ContactPoint {
     /** Identifies the point on the shape boundary. */
-    pointOnShape: IPointOnShape;
+    pointOnShape: PointOnShape;
     /** The maximal disk circle touching this point. */
     circle: Circle;
     /** Internally used to order two points lying at the same planar point. */

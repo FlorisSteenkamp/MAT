@@ -1,7 +1,9 @@
 import { beziersToSvgPathStr, getPathsFromStr } from 'flo-boolean';
-import { CpNode } from './cp-node.js';
-import { PointOnShape } from './point-on-shape.js';
-import { findMats } from './find-mats.js';
+import { matCurveToNextVertex, getChildren, vertexChildren, getAllOnLoop, insertCpNode, getCpNodesOnCircle, isOnSameCircle, isTerminating, isFullyTerminating, getFirstExit, isSharp, isOneProng, getProngCount, getRealProngCount, cpNodeComparator, removeCpNode } from './cp-node/cp-node.js';
+import { createCpNode } from './cp-node/create-cp-node.js';
+import { enhanceCpNode } from './cp-node/enhance-cp-node.js';
+import { createPos } from './point-on-shape/create-pos.js';
+import { findMats } from './mat/find-mat/find-mats.js';
 import { trimMat } from './mat/trim-mat.js';
 import { toScaleAxis } from './to-scale-axis.js';
 import { traverseEdges } from './traverse-edges.js';
@@ -22,12 +24,14 @@ import { getCurveToNext } from './get-curve-to-next.js';
 import { getCurveBetween } from './get-curve/get-curve-between.js';
 import { sweepLine } from './sweep-line/sweep-line.js';
 import { getClosestSquareDistanceToRect } from './mat/geometry/get-closest-square-distance-to-rect.js';
-import { loopFromBeziers } from './loop.js';
-export { PointOnShape, CpNode, 
+import { loopFromBeziers } from 'flo-boolean';
+export { 
 // Main functions
 findMats, toScaleAxis, trimMat, traverseVertices, traverseEdges, getBranches, getBoundaryBeziersToNext, getBoundaryBezierPartsToNext, simplifyMat, simplifyMatMapOnly, 
+// CpNode
+createCpNode, matCurveToNextVertex, getChildren, vertexChildren, getAllOnLoop, insertCpNode, getCpNodesOnCircle, isOnSameCircle, isTerminating, isFullyTerminating, getFirstExit, isSharp, isOneProng, getProngCount, getRealProngCount, cpNodeComparator, removeCpNode, enhanceCpNode, 
 // SVG functions
 beziersToSvgPathStr, getPathsFromStr, getShapeBounds, drawBranch, drawMat, 
 // Other functions
-getClosestBoundaryPoint, getCurveToNext, getCurveBetween, getBoundaryPieceBeziers, drawElemFunctions, sweepLine, getClosestSquareDistanceToRect, loopFromBeziers, enableDebugForMat };
+getClosestBoundaryPoint, getCurveToNext, getCurveBetween, createPos, getBoundaryPieceBeziers, drawElemFunctions, sweepLine, getClosestSquareDistanceToRect, loopFromBeziers, enableDebugForMat };
 //# sourceMappingURL=index.js.map

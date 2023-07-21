@@ -1,8 +1,8 @@
-import { CpNode } from '../../../cp-node.js';
+import { CpNode } from '../../../cp-node/cp-node.js';
 import { Circle } from '../../../circle.js';
-import { IPointOnShape } from '../../../point-on-shape.js';
+import { PointOnShape } from '../../../point-on-shape/point-on-shape.js';
 /**
- * @hidden
+ * @internal
  * Find and return a 3-prong from the given boundary piece.
  * @param δs A boundary piece
  * @param extreme The maximum coordinate value used to calculate floating point
@@ -10,7 +10,7 @@ import { IPointOnShape } from '../../../point-on-shape.js';
  */
 declare function find3Prong(δs: CpNode[][], extreme: number): {
     circle: Circle;
-    ps: IPointOnShape[];
+    ps: PointOnShape[];
     δ3s: CpNode[][];
 };
 export { find3Prong };

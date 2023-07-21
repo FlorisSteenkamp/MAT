@@ -1,11 +1,11 @@
 import { Curve } from '../../curve.js';
-import { Loop } from '../../loop.js';
+import { Loop } from 'flo-boolean';
 
 
 /**
- * @hidden
+ * @internal
  * Helper function.
- * @hidden
+ * @internal
  * @param f
  */
 function getTotalBy(f: (curve: Curve) => number) {

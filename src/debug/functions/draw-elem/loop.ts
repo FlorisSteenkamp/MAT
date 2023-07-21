@@ -1,7 +1,9 @@
-import { Loop } from "../../../loop.js";
+//import { Loop } from "../../../loop.js";
+import { Loop } from 'flo-boolean';
+
 
 // TODO - finish
-/** @hidden */
+/** @internal */
 function loop(g: SVGGElement, loop: Loop): SVGElement[] {
     /*
     for (let curve of loop.curves) {

@@ -1,11 +1,11 @@
-import { CpNode } from '../cp-node.js';
-import { PointOnShape } from '../point-on-shape.js';
+import { CpNode } from '../cp-node/cp-node.js';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { Circle } from '../circle.js';
 import { BezierPiece } from '../mat/bezier-piece.js';
 import { Generated } from './debug.js';
 
 
-/** @hidden */
+/** @internal */
 interface TwoProngForDebugging {
     generated: Generated;
     bezierPieces: BezierPiece[];

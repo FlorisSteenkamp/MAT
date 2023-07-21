@@ -1,4 +1,4 @@
-/** @hidden */
+/** @internal */
 function drawCirclePercent(g, center, radiusPercent, classes) {
     const XMLNS = 'http://www.w3.org/2000/svg';
     const $circle = document.createElementNS(XMLNS, 'circle');

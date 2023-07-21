@@ -30,7 +30,12 @@ const getShapeBounds = memoize(function (loops) {
             maxY_ = bounds.maxY.p[1];
         }
     }
-    return { minX, minY, maxX, maxY };
+    return {
+        minX: minX,
+        minY: minY,
+        maxX: maxX,
+        maxY: maxY
+    };
 });
 export { getShapeBounds };
 //# sourceMappingURL=get-shape-bounds.js.map

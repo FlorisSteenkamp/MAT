@@ -1,7 +1,7 @@
 import { drawFs } from 'flo-draw';
 import { equal, getObjClosestTo } from 'flo-vector2d';
 /**
- * @hidden
+ * @internal
  * Draws 3 lines from the given 3-prong center to its 3 contact points.
  * @param n - The 3-prong's zero-based index.
  */
@@ -18,7 +18,7 @@ function drawSpokes(g, n) {
     drawFs.line(g, [poss[2].p, cc], 'thin5 red');
 }
 /**
- * @hidden
+ * @internal
  * Shows the circle for each boundary iteration.
  * @param n_ - The 3-prong's zero-based index. If ommitted, all will be shown.
  * @param idx - The specific boundary iteration index to view. If ommitted, all
@@ -76,7 +76,7 @@ function traceConvergence(g, n_, idx) {
     }
 }
 /**
- * @hidden
+ * @internal
  * Shows the actual boundary for each iteration.
  * @param n The 3-prong's zero-based index.
  * @param idx The specific boundary iteration index to view. If ommitted will
@@ -124,7 +124,7 @@ function showBoundary(g, n, idx) {
     }
 }
 /**
- * @hidden
+ * @internal
  * @param n The 3-prong's zero-based index.
  */
 function logδs(n) {
@@ -132,7 +132,7 @@ function logδs(n) {
     console.log(threeProng.cpss);
 }
 /**
- * @hidden
+ * @internal
  * @param p
  */
 function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) {
@@ -173,7 +173,7 @@ function logNearest(showSpokes = true, showTrace = true, showBoundaries = true) 
         }
     };
 }
-/** @hidden */
+/** @internal */
 const threeProngDebugFunctions = {
     drawSpokes,
     traceConvergence,

@@ -1,0 +1,1 @@
+{"version":3,"file":"create-cp-node.js","sourceRoot":"","sources":["../../src/cp-node/create-cp-node.ts"],"names":[],"mappings":"AAIA,SAAS,YAAY,CACb,EAAgB,EAChB,aAAwB,EACxB,cAAwB,EACxB,OAA0B,SAAU,EACpC,OAA0B,SAAU,EACpC,eAA0B,SAAU,EACpC,eAA0B,SAAU;IAExC,OAAO;QACH,EAAE,EAAE,aAAa,EAAE,cAAc;QACjC,IAAI,EAAE,IAAI,EAAE,YAAY,EAAE,YAAY;KACzC,CAAA;AACL,CAAC;AAGD,OAAO,EAAE,YAAY,EAAE,CAAA"}

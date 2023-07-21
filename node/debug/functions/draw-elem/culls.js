@@ -1,4 +1,4 @@
-/** @hidden */
+/** @internal */
 function culls(g, culls) {
     const $elems = [];
     for (const circle of culls) {
@@ -7,7 +7,7 @@ function culls(g, culls) {
     }
     return $elems;
 }
-/** @hidden */
+/** @internal */
 function drawCircle(g, center, radiusPercent, classes) {
     const XMLNS = 'http://www.w3.org/2000/svg';
     const $circle = document.createElementNS(XMLNS, 'circle');

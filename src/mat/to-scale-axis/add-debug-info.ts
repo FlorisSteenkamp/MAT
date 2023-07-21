@@ -5,7 +5,7 @@ import { Mat } from '../../mat.js';
 
 
 /**
- * @hidden
+ * @internal
  * @param sat 
  */
 function addDebugInfo(
