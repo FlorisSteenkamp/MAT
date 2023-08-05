@@ -1,5 +1,4 @@
 import { IDebugElems      } from '../../debug-elem-types.js';
-import { drawOneProng     } from './one-prong.js';
 import { twoProng         } from './two-prong.js';
 import { threeProng       } from './three-prong.js';
 import { vertex           } from './vertex.js';
@@ -15,7 +14,6 @@ import { loops            } from './loops.js';
 import { maxVertex        } from './max-vertex.js';
 import { leaves           } from './leaves.js';
 import { culls            } from './culls.js';
-import { oneProngAtDullCorner } from './one-prong-at-dull-corner.js';
 
 
 /** @internal */
@@ -30,15 +28,12 @@ type TDrawElemFunctions =
 
 /** @internal */
 function notImplementedYet<T extends IDebugElems[keyof IDebugElems]> (g: SVGElement, elem: T) {
-	return [] as SVGElement[]; // TODO - implement relevant drawing function
+	return [] as SVGElement[];
 }
 
 
 /** @internal */
 const drawElemFunctions: TDrawElemFunctions = {
-	oneProng: drawOneProng,
-	oneProngAtDullCorner,
-	
 	twoProng_regular: twoProng,
 	twoProng_failed: twoProng,
 	twoProng_notAdded: twoProng,

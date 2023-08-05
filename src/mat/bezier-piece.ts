@@ -1,4 +1,4 @@
-import { Curve } from '../curve.js';
+import { Curve } from '../curve/curve.js';
 
 
 /**

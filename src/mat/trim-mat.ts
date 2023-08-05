@@ -1,6 +1,6 @@
-import { Mat } from '../mat.js';
+import { Mat } from './mat.js';
 import { createNewCpTree } from './create-new-cp-tree.js';
-import { cullNonCycles } from './to-scale-axis/cull-non-cycles.js';
+import { cullNonCycles } from '../sat/cull-non-cycles.js';
 import { clone } from '../cp-node/clone.js';
 
 

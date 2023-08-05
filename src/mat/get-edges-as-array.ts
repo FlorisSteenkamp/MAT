@@ -1,5 +1,5 @@
-import { CpNode } from '../cp-node.js';
-import { traverseEdges } from '../traverse-edges.js';
+import { CpNode } from '../cp-node/cp-node.js';
+import { traverseEdges } from '../cp-node/traverse-edges.js';
 
 
 /** @internal */

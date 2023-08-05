@@ -1,4 +1,4 @@
-import { Circle } from '../../../circle.js';
+import { Circle } from '../../../geometry/circle.js';
 
 
 /** @internal */

@@ -1,8 +1,8 @@
 import { CpNode } from '../cp-node/cp-node.js';
-import { Curve } from '../curve.js';
+import { Curve } from '../curve/curve.js';
 import { BezierPiece } from './bezier-piece.js';
 import { isPosQuiteSharpCorner } from '../point-on-shape/is-pos-quite-sharp-corner.js';
-import { compareCps } from '../contact-point.js';
+import { compareCps } from '../contact-point/contact-point.js';
 
 
 /**
@@ -16,7 +16,7 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[] {
     let cpThis = cpNodes[0]; 
     const cpEnd  = cpNodes[1];
     
-    const bezierPieces = [];
+    const bezierPieces: BezierPiece[] = [];
 
     // As opposed to going around the circle and taking the last exit
     let goStraight = true; 

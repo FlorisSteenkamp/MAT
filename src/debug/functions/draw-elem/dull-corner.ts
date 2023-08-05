@@ -1,5 +1,5 @@
 import { drawFs } from 'flo-draw';
-import { Curve } from '../../../curve.js';
+import { Curve } from '../../../curve/curve.js';
 
 
 /** @internal */
@@ -12,7 +12,7 @@ function dullCorner(
 
 	const ps = curve.ps; 
 	const p = curve.ps[ps.length-1];
-	const $pos = drawFs.dot(g, p, 0.01*0.5*scaleFactor, classes, delay);
+	const $pos = drawFs.dot(g, p, 0.1*0.5*scaleFactor, classes, delay);
 	
 	return $pos;
 }

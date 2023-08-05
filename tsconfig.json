@@ -1,13 +1,8 @@
 {
     "compilerOptions": {
-        "noImplicitAny": true, 
-        "noImplicitThis": true,
-        "alwaysStrict": true,
-        "strictBindCallApply": true,
-        "strictFunctionTypes": true,
         "strict": true,
-        "module": "es2020",
-        "target": "es2020",
+        "module": "es2022",
+        "target": "es2022",
         "declaration": true,
         "noEmitOnError": true,
         "sourceMap": true,

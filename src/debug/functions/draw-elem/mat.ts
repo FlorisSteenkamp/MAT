@@ -1,7 +1,7 @@
 import { drawFs } from 'flo-draw';
-import { Mat } from '../../../mat.js';
-import { traverseEdges } from '../../../traverse-edges.js';
-import { getCurveToNext } from '../../../get-curve-to-next.js';
+import { Mat } from '../../../mat/mat.js';
+import { traverseEdges } from '../../../cp-node/traverse-edges.js';
+import { getCurveToNext } from '../../../cp-node/get-curve-to-next.js';
 import { isTerminating } from '../../../cp-node/cp-node.js';
 
 

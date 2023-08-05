@@ -1,5 +1,5 @@
 import { drawFs } from 'flo-draw';
-import { Curve } from '../../../curve.js';
+import { Curve } from '../../../curve/curve.js';
 
 
 /** @internal */

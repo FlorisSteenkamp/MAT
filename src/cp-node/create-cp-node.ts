@@ -1,4 +1,4 @@
-import { ContactPoint } from '../contact-point.js';
+import { ContactPoint } from '../contact-point/contact-point.js';
 import { CpNode } from './cp-node.js';
 
 

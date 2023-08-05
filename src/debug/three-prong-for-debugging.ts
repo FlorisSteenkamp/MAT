@@ -1,7 +1,7 @@
 import { CpNode } from '../cp-node/cp-node.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { posToHumanString } from '../point-on-shape/pos-to-human-string.js';
-import { Circle } from '../circle.js';
+import { Circle } from '../geometry/circle.js';
 import { Generated } from './debug.js';
 
 

@@ -1,6 +1,6 @@
 import {
     CpNode, getProngCount, getRealProngCount, isFullyTerminating,
-    isOneProng, isSharp, isTerminating
+    isSharp, isTerminating
 } from "./cp-node.js";
 import { getCpNodeOrdering } from './get-cp-node-ordering.js';
 
@@ -15,7 +15,6 @@ function enhanceCpNode(cpNode: CpNode) {
         isTerminating: isTerminating(cpNode),
         isFullyTerminating: isFullyTerminating(cpNode),
         isSharp: isSharp(cpNode),
-        isOneProng: isOneProng(cpNode),
         prongCount: getProngCount(cpNode),
         getRealProngCount: getRealProngCount(cpNode),
         ordering: getCpNodeOrdering(cpNode),

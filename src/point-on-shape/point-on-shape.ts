@@ -1,4 +1,4 @@
-import { Curve } from '../curve.js';
+import { Curve } from '../curve/curve.js';
 
 
 interface PointOnShape {
@@ -7,6 +7,9 @@ interface PointOnShape {
     /** The bezier parameter value on the curve identifying the point coordinates. */
     t: number;
     p: number[];
+    /** Only for dull corners - and maybe only for source points (not antipodal points) */
+    // angle?: number | undefined;
+    source: boolean;  // just for debugging
 }
 
 

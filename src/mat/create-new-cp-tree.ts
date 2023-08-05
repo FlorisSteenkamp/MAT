@@ -10,11 +10,9 @@ import { Loop } from 'flo-boolean';
 function createNewCpTree(cpNode: CpNode) {
 	const newCpTrees: Map<Loop,LlRbTree<CpNode>> = new Map();
 
-	const cps = getAllOnLoop(cpNode);
+	getAllOnLoop(cpNode).forEach(createNewCpTree_);
 
-	cps.forEach(f);
-
-	function f(cpNode: CpNode) {
+	function createNewCpTree_(cpNode: CpNode) {
 		const loop = cpNode.cp.pointOnShape.curve.loop;
 		let cpTree = newCpTrees.get(loop);
 		if (!cpTree) { 

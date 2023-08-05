@@ -1,9 +1,9 @@
-import { Loop } from 'flo-boolean';
+import { Loop } from '../loop.js';
 import { getShapeBounds } from './get-shape-bounds.js';
 
 
 /**
- * @internal
+ * @hidden
  * Returns the max extreme point coordinate value for the given shape. This is
  * used for floating point tolerance calculations.
  * @param loops 

@@ -1,7 +1,7 @@
 import { getBounds } from 'flo-bezier3';
 import { memoize } from 'flo-memoize';
 import { Loop } from 'flo-boolean';
-import { Curve } from '../curve.js';
+import { Curve } from '../curve/curve.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { createPos } from '../point-on-shape/create-pos.js';
 
@@ -98,10 +98,10 @@ const getLoopBounds = memoize(function(loop: Loop): {
 		// minY : new PointOnShape(extremes[0][1].bezier, extremes[0][1].t),
 		// maxX : new PointOnShape(extremes[1][0].bezier, extremes[1][0].t),
 		// maxY : new PointOnShape(extremes[1][1].bezier, extremes[1][1].t)
-		minY : createPos(extremes[0][1].bezier, extremes[0][1].t),
-		minX : createPos(extremes[0][0].bezier, extremes[0][0].t),
-		maxX : createPos(extremes[1][0].bezier, extremes[1][0].t),
-		maxY : createPos(extremes[1][1].bezier, extremes[1][1].t)
+		minY : createPos(extremes[0][1].bezier, extremes[0][1].t, true),
+		minX : createPos(extremes[0][0].bezier, extremes[0][0].t, true),
+		maxX : createPos(extremes[1][0].bezier, extremes[1][0].t, true),
+		maxY : createPos(extremes[1][1].bezier, extremes[1][1].t, true)
 	};
 });
 

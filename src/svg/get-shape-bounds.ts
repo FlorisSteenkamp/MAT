@@ -4,9 +4,6 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getLoopBounds } from './get-loop-bounds.js';
 
 
-// TODO - move to another library
-
-
 /** @internal */
 const getShapeBounds = memoize(function(loops: Loop[]) {
     let minX_ = Number.POSITIVE_INFINITY;

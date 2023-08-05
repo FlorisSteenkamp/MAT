@@ -1,5 +1,5 @@
-import { getCornerAtEnd } from "../curve.js";
-import { Corner } from "../mat/corner.js";
+import { getCornerAtEnd } from "../curve/curve.js";
+import { Corner } from "../corner/corner.js";
 import { PointOnShape } from "./point-on-shape.js";
 
 

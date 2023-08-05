@@ -28,17 +28,13 @@ export interface IThreeProngDebugFunctions {
  */
 function drawSpokes(g: SVGGElement, n: number): void {
 	const threeProng = _debug_.generated.elems.threeProng[n]; 
-	//const g = threeProng.generated.g;
 	const cc = threeProng.circle.center;
 	const poss = threeProng.poss;
 
-	//_debug_.fs.draw.line(g, [poss[0].p, cc], 'thin5 red');
-	//_debug_.fs.draw.line(g, [poss[1].p, cc], 'thin5 red');
-	//_debug_.fs.draw.line(g, [poss[2].p, cc], 'thin5 red');
-
-	drawFs.line(g, [poss[0].p, cc], 'thin5 red');
-	drawFs.line(g, [poss[1].p, cc], 'thin5 red');
-	drawFs.line(g, [poss[2].p, cc], 'thin5 red');
+	for (let i=0; i<poss.length; i++) {
+		const pos = poss[i];
+		drawFs.line(g, [pos.p, cc], 'thin5 red');
+	}
 }
 
 
@@ -57,7 +53,7 @@ function traceConvergence(g: SVGGElement, n_: number, idx: number): void {
 		eIndx = _debug_.generated.elems.threeProng.length;
 	} else {
 		sIndx = n_;
-		eIndx = n_+1;
+		eIndx = n_ + 1;
 	}
 	
 	for (let n=sIndx; n<eIndx; n++) {
@@ -76,14 +72,14 @@ function traceConvergence(g: SVGGElement, n_: number, idx: number): void {
 		let endIndx;
 		if (n_ === undefined || idx === -1) {
 			startIndx = forDebugging.bestIndx;
-			endIndx   = forDebugging.bestIndx+1;
+			endIndx   = forDebugging.bestIndx + 1;
 		} else {
 			if (idx === undefined) {
 				startIndx = 0;
 				endIndx   = candidateThreeProngs.length;
 			} else {
 				startIndx = idx;
-				endIndx   = idx+1;
+				endIndx   = idx + 1;
 			}	
 		}
 

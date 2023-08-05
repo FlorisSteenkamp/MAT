@@ -2,7 +2,6 @@
 import { Loop } from 'flo-boolean';
 
 
-// TODO - finish
 /** @internal */
 function loop(g: SVGGElement, loop: Loop): SVGElement[] {
     /*

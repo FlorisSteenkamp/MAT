@@ -4,7 +4,7 @@ import {
 import { tangent } from 'flo-bezier3';
 import { CpNode } from '../cp-node/cp-node.js';
 import { isPosSharpCorner } from '../point-on-shape/is-pos-sharp-corner.js';
-import { Curve } from '../curve.js';
+import { Curve } from '../curve/curve.js';
 
 
 /**
@@ -27,17 +27,12 @@ function getEdgeDirection(cpNode: CpNode) {
 
     let vDir;
     
-    //if (!PointOnShape.isSharpCorner(pos1)) {
     if (!isPosSharpCorner(pos1)) {
-        if (p1[0] === p2[0] && p1[1] === p2[1]) {
-            vDir = fromTo(p1, circleCenter); // A 1-prong
-        } else {
-            vDir = rotate90Degrees( fromTo(p1, p2) ); // not a 1-prong.
-        }
+        vDir = rotate90Degrees( fromTo(p1, p2) ); // not a 1-prong.
     } else {
         let curve1: Curve;
         let curve2: Curve;
-        // TODO - test if pos1.t can ever be 0 - it is terminating
+
         if (pos1.t === 0) {
             curve1 = pos1.curve;
             curve2 = pos1.curve.prev;
@@ -53,8 +48,8 @@ function getEdgeDirection(cpNode: CpNode) {
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
         // be calculated.
-        const cosθ = Math.sqrt((1+x)/2);
-        const sinθ = Math.sqrt((1-x)/2);
+        const cosθ = Math.sqrt((1 + x)/2);
+        const sinθ = Math.sqrt((1 - x)/2);
         
         vDir = rotate(sinθ, cosθ, tan2);
     }

@@ -87,8 +87,6 @@ function enableDebugForMat(debugOn: boolean) {
                 twoProng_holeClosing : [],
                 looseBoundingBox     : [],
                 tightBoundingBox     : [],
-                oneProng             : [],
-                oneProngAtDullCorner : [],
                 sharpCorner          : [],
                 dullCorner           : [],
                 vertex               : [],
