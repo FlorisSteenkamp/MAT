@@ -6,11 +6,11 @@ function getLeaves(cpNode: CpNode) {
     const leaves: CpNode[] = [];
 
     const cps = getAllOnLoop(cpNode);
-    cps.forEach(function(cp) {
+    for (const cp of cps) {
         if (isTerminating(cp)) { 
             leaves.push(cp);
         }
-    });
+    }
 
     return leaves;
 }
