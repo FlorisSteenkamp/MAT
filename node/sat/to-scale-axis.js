@@ -8,13 +8,6 @@ import { cull } from './cull.js';
 import { addDebugInfo } from './add-debug-info.js';
 import { clone } from '../cp-node/clone.js';
 import { getCurveToNext } from '../cp-node/get-curve-to-next.js';
-function linearScale(s) {
-    return function (r) {
-        return s * r;
-    };
-}
-/** @internal */
-//let len = length([0,1]);
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
  * the given MAT. The returned SAT is guaranteed to be a subset of the MAT and
@@ -27,7 +20,7 @@ function linearScale(s) {
  * @param mat The Medial Axis Transform ([[Mat]]) on which to apply the SAT.
  * @param s The scale factor >= 1 (e.g. 1.3)
  */
-function toScaleAxis(mat, s, f = linearScale) {
+function toScaleAxis(mat, s) {
     let timingStart = 0;
     if (typeof _debug_ !== 'undefined') {
         timingStart = performance.now();
@@ -38,7 +31,7 @@ function toScaleAxis(mat, s, f = linearScale) {
     const cpNodes = [];
     traverseVertices(clone(mat.cpNode), cpNode => { cpNodes.push(cpNode); });
     const cpNode = getLargestVertex(cpNodes);
-    const f_ = f(s);
+    // console.log(cpNodes.map(c => c.cp.circle.radius).length)
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.maxVertex.push(cpNode);
     }
@@ -50,11 +43,11 @@ function toScaleAxis(mat, s, f = linearScale) {
     const rMap = new Map();
     traverseEdges(cpNode, function (cpNode) {
         /** The occulating radius stored with this vertex. */
-        const R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
+        const R = rMap.get(cpNode) || (s * cpNode.cp.circle.radius);
         const cpNode_ = cpNode.next;
         const l = length([0, 1], getCurveToNext(cpNode));
         const r = cpNode_.cp.circle.radius;
-        const r_ = f_(r);
+        const r_ = s * r;
         if (R - l > r_) {
             for (const cpNode of getCpNodesOnCircle(cpNode_)) {
                 rMap.set(cpNode, R - l); // Update osculating radii

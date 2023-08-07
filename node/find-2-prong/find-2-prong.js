@@ -122,15 +122,11 @@ function find2Prong(angle, loops, extreme, squaredDiagonalLength, cpTrees, y, is
             return undefined;
         }
     }
-    // const zs_ = zs;
-    // console.log(zs.length)
-    // const zPos = createPos(z.curve, z.t, false);
     const circle = { center: x, radius: distanceBetween(x, z.p) };
     if (typeof _debug_ !== 'undefined') {
         addDebugInfo(bezierPieces, false, x, y, z, circle, δ, xs, isHoleClosing);
     }
-    // return { circle, zs: zs_ };
-    return { circle, zs: zs };
+    return { circle, zs: [z] };
 }
 function addDebugInfo2(isHoleClosing) {
     if (typeof _debug_ !== 'undefined') {

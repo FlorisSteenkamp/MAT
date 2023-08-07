@@ -28918,15 +28918,11 @@ function find2Prong(angle, loops, extreme, squaredDiagonalLength, cpTrees, y, is
             return undefined;
         }
     }
-    // const zs_ = zs;
-    // console.log(zs.length)
-    // const zPos = createPos(z.curve, z.t, false);
     const circle = { center: x, radius: distanceBetween(x, z.p) };
     if (typeof _debug_ !== 'undefined') {
         addDebugInfo(bezierPieces, false, x, y, z, circle, δ, xs, isHoleClosing);
     }
-    // return { circle, zs: zs_ };
-    return { circle, zs: zs };
+    return { circle, zs: [z] };
 }
 function find_2_prong_addDebugInfo2(isHoleClosing) {
     if (typeof _debug_ !== 'undefined') {
@@ -30257,11 +30253,11 @@ function createNewCpTree(cpNode) {
 function getLeaves(cpNode) {
     const leaves = [];
     const cps = getAllOnLoop(cpNode);
-    cps.forEach(function (cp) {
+    for (const cp of cps) {
         if (isTerminating(cp)) {
             leaves.push(cp);
         }
-    });
+    }
     return leaves;
 }
 
@@ -31007,76 +31003,6 @@ function cull(culls, maxCpNode) {
         }
     }
 }
-/*
-function cull(
-    culls: Set<Circle>,
-    maxCpNode: CpNode) {
-
-let leaves = getLeaves(maxCpNode);
-
-function getNonTrivialBranches(cpStart: CpNode) {
-    let cp = cpStart.next;
-    
-    let cps: CpNode[] = [];
-    do {
-        if (cp.next !== cp.nextOnCircle) {
-            cps.push(cp);
-        }
-        cp = cp.nextOnCircle;
-    } while (cp !== cpStart)
-
-    return cps;
-}
-
-while (leaves.length) {
-    let leaf = leaves.pop();
-
-    // Preserve topology.
-    if (leaf.isHoleClosing || leaf.isIntersection) { continue; }
-
-    if (!culls.has(leaf.cp.circle)) {
-        continue;
-    }
-
-    let cpNode = leaf.next; // Turn around
-
-    while (true) {
-        cpNode = cpNode.next;
-        let cut = false;
-        let cp1 = cpNode.prevOnCircle;
-
-        if (!culls.has(cpNode.cp.circle)) {
-            // Cut the branch once a non-cull has been reached.
-            cut = true;
-        } else {
-            //let cp2 = cp1.prevOnCircle;
-            let cp2 = cpNode.nextOnCircle;
-
-            //if (maxCpNode === cpNode || maxCpNode === cp1 || maxCpNode === cp2) {
-            if (CpNode.isOnSameCircle(cpNode, maxCpNode)) {
-                cut = true; // We are at the max disk - cut whole edge
-            } else if (cpNode.next === cp2) {
-                // Continue but starting from cp2
-                cpNode = cp2;
-            } else if (cp2.next === cp1) {
-                // Do nothing - ignore the branch starting from cp2 since it
-                // is terminating.
-            } else if (cp2.next !== cp1) {
-                // At this stage (cpNode.next !== cp2 && cp2.next !== cp1)
-                // so it is a bifurcation point - cut the edge.
-                cut = true;
-            }
-        }
-
-        if (cut) {
-            cp1.next = cpNode;
-            cpNode.prev = cp1;
-            break;
-        }
-    }
-}
-}
-*/
 
 
 ;// CONCATENATED MODULE: ./src/sat/add-debug-info.ts
@@ -31105,13 +31031,6 @@ function add_debug_info_addDebugInfo(sat, timingStart) {
 
 
 
-function linearScale(s) {
-    return function (r) {
-        return s * r;
-    };
-}
-/** @internal */
-//let len = length([0,1]);
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
  * the given MAT. The returned SAT is guaranteed to be a subset of the MAT and
@@ -31124,7 +31043,7 @@ function linearScale(s) {
  * @param mat The Medial Axis Transform ([[Mat]]) on which to apply the SAT.
  * @param s The scale factor >= 1 (e.g. 1.3)
  */
-function toScaleAxis(mat, s, f = linearScale) {
+function toScaleAxis(mat, s) {
     let timingStart = 0;
     if (typeof _debug_ !== 'undefined') {
         timingStart = performance.now();
@@ -31135,7 +31054,7 @@ function toScaleAxis(mat, s, f = linearScale) {
     const cpNodes = [];
     traverseVertices(clone(mat.cpNode), cpNode => { cpNodes.push(cpNode); });
     const cpNode = getLargestVertex(cpNodes);
-    const f_ = f(s);
+    // console.log(cpNodes.map(c => c.cp.circle.radius).length)
     if (typeof _debug_ !== 'undefined') {
         _debug_.generated.elems.maxVertex.push(cpNode);
     }
@@ -31147,11 +31066,11 @@ function toScaleAxis(mat, s, f = linearScale) {
     const rMap = new Map();
     traverseEdges(cpNode, function (cpNode) {
         /** The occulating radius stored with this vertex. */
-        const R = rMap.get(cpNode) || f_(cpNode.cp.circle.radius);
+        const R = rMap.get(cpNode) || (s * cpNode.cp.circle.radius);
         const cpNode_ = cpNode.next;
         const l = length_length([0, 1], getCurveToNext(cpNode));
         const r = cpNode_.cp.circle.radius;
-        const r_ = f_(r);
+        const r_ = s * r;
         if (R - l > r_) {
             for (const cpNode of getCpNodesOnCircle(cpNode_)) {
                 rMap.set(cpNode, R - l); // Update osculating radii
