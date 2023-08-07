@@ -1,100 +1,68 @@
-import { distanceBetween } from 'flo-vector2d';
+import { BezierPiece  } from '../mat/bezier-piece.js';
+import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
+import { cullBezierPieces1 } from './cull-bezier-pieces.js';
+import { Curve } from '../curve/curve.js';
+import { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { createPos } from '../point-on-shape/create-pos.js';
-import { BezierPiece  } from '../mat/bezier-piece.js';
-import { closestPointsOnCurveCertified } from './closest-points-on-curve-certified.js';
-  
+
 
 /**
  * @internal
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces
- * @param point
+ * @param x
  * @param touchedCurve
  * @param t
  * @param extreme
  */
-// TODO - improve now that it is certified
 function getCloseBoundaryPointsCertified(
-		angle: number,
         bezierPieces: BezierPiece[], 
-        point: number[], 
-		y: PointOnShape,
-		distance: number,
-		extreme: number) {
+        x: number[], 
+		touchedCurve: Curve | undefined = undefined,
+		t: number | undefined = undefined,
+		for1Prong = false,
+		angle = 0): PointOnShape[] {
 	
-	const touchedCurve = y.curve;
-	const t = y.t;
-	const p_ = y.p;
-
-	// bezierPieces = cullBezierPieces(bezierPieces, point);
+	bezierPieces = cullBezierPieces1(bezierPieces, x);
  
-	// TODO - integrate with is-another-cp-closeby - we MUST check angle too!
-	const DISTANCE_TOLERANCE = 2**-40*extreme;
-	const poss: PointOnShape[] = [];
+	const pInfoss: FootAndEndpointInfo[] = [];
 	for (let i=0; i<bezierPieces.length; i++) {
 		const bezierPiece = bezierPieces[i];
 
-		const ps = closestPointsOnCurveCertified(
-			angle,
+		const pInfos = getPotentialClosestPointsOnCurveCertified(
 			bezierPiece.curve, 
-			point, 
+			x, 
 			bezierPiece.ts, 
 			touchedCurve, 
-			t
+			t,
+			for1Prong,
+			angle
 		);
 
-		for (let j=0; j<ps.length; j++) {
-			const p = ps[j];
-			const d = distanceBetween(p.p, point);
+		pInfoss.push(...pInfos);
+	}
 
-			let curve = bezierPiece.curve;
-			let t_= p.t;
-	
-			if (Math.abs(d - distance) < DISTANCE_TOLERANCE) {
-				if (t_ === 0) {
-					t_ = 1;
-					curve = bezierPiece.curve.prev;
-				}
-				
-				poss.push(createPos(curve, t_, false));
-			}
+	/** the minimum max interval value */
+	let minMax = Number.POSITIVE_INFINITY;
+	for (let i=0; i<pInfoss.length; i++) {
+		const diMax = pInfoss[i].dSquaredI[1];
+		if (diMax < minMax) {
+			minMax = diMax;
 		}
 	}
 
-	if (poss.length > 1) {
-		// Remove ones that are too close together.
-		const indexesToCheck: number[] = [];
-		for (let i=0; i<poss.length; i++) {
-			indexesToCheck.push(i);
-		}
-		const indexesToRemove: number[] = [];
-		for (let i=0; i<indexesToCheck.length; i++) {
-			for (let j=i + 1; j<indexesToCheck.length; j++) {
-				if (i === j) { continue; }
-				const p1 = poss[indexesToCheck[i]].p;
-				const p2 = poss[indexesToCheck[j]].p;
-				// Below checks for source point too - similar to 
-				// isAnotherCpCloseBy
-				const p3 = p_;
-				if ((Math.abs(p1[0] - p2[0]) < 2**-30*extreme && 
-					 Math.abs(p1[1] - p2[1]) < 2**-30*extreme) ||
-					
-					 (Math.abs(p1[0] - p3[0]) < 2**-30*extreme && 
-					  Math.abs(p1[1] - p3[1]) < 2**-30*extreme)
-					) {
+	const closestPointInfos: FootAndEndpointInfo[] = [];
 
-					indexesToRemove.push(indexesToCheck[i]);
-				}
-			}
-		}
-		for (let i=indexesToRemove.length -1; i >= 0; i--) {
-		   poss.splice(indexesToRemove[i], 1);
+	for (let i=0; i<pInfoss.length; i++) {
+		const info = pInfoss[i];
+		if (info.dSquaredI[0] <= minMax) {
+			closestPointInfos.push(info);
 		}
 	}
 
-	return poss;
+	return closestPointInfos.map(info => createPos(info.curve, info.t, false));
 }
 
 

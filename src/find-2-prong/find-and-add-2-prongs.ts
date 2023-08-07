@@ -34,7 +34,8 @@ function findAndAdd2Prongs(
         cpGraphs: Map<Loop,LlRbTree<CpNode>>,
         k: number, 
         for2Prongs: PointOnShape[],
-        extreme: number) {
+        extreme: number,
+        for1Prongs: boolean) {
 
     let cpNode_;
 
@@ -58,14 +59,14 @@ function findAndAdd2Prongs(
                 const a3 = ((a2 - a1) + 2*PI)%(2*PI);
                 let angle = ANGLE;
                 while (angle <= a3 - (ANGLE/2)) {
-                    // angles.push(angle);
+                    angles.push(angle);
                     angle += ANGLE;
                 }
             }
         }
         for (let angle of angles) {
             const twoProngInfo = find2Prong(
-                angle, loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k
+                angle, loops, extreme, squaredDiagonalLength, cpGraphs, pos, false, k, for1Prongs
             );
 
             if (twoProngInfo) {

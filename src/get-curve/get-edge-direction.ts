@@ -28,7 +28,11 @@ function getEdgeDirection(cpNode: CpNode) {
     let vDir;
     
     if (!isPosSharpCorner(pos1)) {
-        vDir = rotate90Degrees( fromTo(p1, p2) ); // not a 1-prong.
+        if (p1[0] === p2[0] && p1[1] === p2[1]) {
+            vDir = fromTo(p1, circleCenter); // A 1-prong
+        } else {
+            vDir = rotate90Degrees( fromTo(p1, p2) ); // not a 1-prong.
+        }
     } else {
         let curve1: Curve;
         let curve2: Curve;

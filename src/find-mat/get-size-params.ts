@@ -9,7 +9,7 @@ function getSizeParams(
     // Gather some shape metrics
     const { maxCoordinate, maxRadius } = getLoopsMetrics(bezierLoops);
     const expMax = Math.ceil(Math.log2(maxCoordinate));
-    const minBezLengthSigBits = 14;
+    const minBezLengthSigBits = 16;
     /** 
      * If a curve is shorter than this value then no points on it will be 
      * selected for the purpose of finding the MAT.

@@ -20,11 +20,12 @@ function findAndAdd2ProngsOnAllPaths(
         loops: Loop[],
         cpGraphs: Map<Loop,LlRbTree<CpNode>>,
         for2Prongss: PointOnShape[][],
-        extreme: number) {
+        extreme: number,
+        for1Prongs: boolean) {
 
     for (let k=0; k<for2Prongss.length; k++) {
         const for2Prongs = for2Prongss[k];
-        const _cpNode = findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme);
+        const _cpNode = findAndAdd2Prongs(loops, cpGraphs, k, for2Prongs, extreme, for1Prongs);
         cpNode = cpNode || _cpNode;
     }
 

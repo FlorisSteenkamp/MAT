@@ -1,7 +1,7 @@
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
 import { getNeighbouringPoints } from './get-neighboring-cps.js';
 /** @internal */
-const DEGREES = 5; // TODO2 - make about 3 degrees
+const DEGREES = 3;
 const ANGLE_THRESHOLD = Math.cos(DEGREES * (Math.PI / 180));
 /**
  * @internal
@@ -18,28 +18,26 @@ const ANGLE_THRESHOLD = Math.cos(DEGREES * (Math.PI / 180));
  * @param color Used for debugging only
  */
 function isAnotherCpCloseby(cpTrees, pos, circle, order, order2, extreme) {
-    const DISTANCE_THRESHOLD = extreme * 1e-4;
-    const DISTANCE_THRESHOLD2 = DISTANCE_THRESHOLD * 1e-6;
+    const DISTANCE_THRESHOLD = extreme * 2e-14;
+    const DISTANCE_THRESHOLD_2 = DISTANCE_THRESHOLD * 2e-2;
     const cpTree = cpTrees.get(pos.curve.loop);
     const cpNodes = getNeighbouringPoints(cpTree, pos, order, order2);
     if (!cpNodes[0]) {
         return undefined;
     }
+    const { p, t } = pos;
     for (const cpNode of cpNodes) {
         const pos2 = cpNode.cp.pointOnShape;
-        const p1 = pos.p;
         const p2 = pos2.p;
-        const d = distanceBetween(p1, p2);
+        const d = distanceBetween(p, p2);
         if (d > DISTANCE_THRESHOLD) {
             continue;
         }
-        // TODO2
-        // return true;
         const v1 = toUnitVector(fromTo(p2, cpNode.cp.circle.center));
-        const v2 = toUnitVector(fromTo(p1, circle.center));
+        const v2 = toUnitVector(fromTo(p, circle.center));
         const cosTheta = dot(v1, v2);
         if (cosTheta > ANGLE_THRESHOLD ||
-            d < DISTANCE_THRESHOLD2) {
+            (d < DISTANCE_THRESHOLD_2 && t !== 0 && t !== 1)) {
             // console.log(d, DISTANCE_THRESHOLD2)
             return cpNode;
         }

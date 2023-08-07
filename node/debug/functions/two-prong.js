@@ -17,19 +17,7 @@ function log(n, type = 'twoProng_regular') {
 /**
  * @internal
  */
-function drawNormal(g, n, showDelay = 1000, type = 'twoProng_regular') {
-    const twoProngs = _debug_.generated.elems[type];
-    // If not specified which, draw all
-    if (n === undefined) {
-        for (let i = 0; i < twoProngs.length; i++) {
-            drawNormal(g, i);
-        }
-    }
-    const twoProng = twoProngs[n];
-    //let g = twoProng.generated.g;
-    if (!twoProng) {
-        return;
-    }
+function drawNormal(g, twoProng, showDelay = 1000) {
     drawFs.line(g, [twoProng.pos.p, twoProng.circle.center], 'thin10 blue', showDelay);
 }
 /**
@@ -37,73 +25,83 @@ function drawNormal(g, n, showDelay = 1000, type = 'twoProng_regular') {
  */
 function logδBasic(n, type = 'twoProng_regular') {
     const delta = _debug_.generated.elems[type][n].δ;
-    function f(x) {
+    function logδBasic_(x) {
         const pos = x.cp.pointOnShape;
         return {
             bez: pos.curve.ps,
             t: pos.t
         };
     }
-    console.log(f(delta[0]));
-    console.log(f(delta[1]));
+    console.log(logδBasic_(delta[0]));
+    console.log(logδBasic_(delta[1]));
+}
+/**
+ * @internal
+ * Draws 3 lines from the given 3-prong center to its 3 contact points.
+ * @param n - The 3-prong's zero-based index.
+ */
+function drawSpokes(g, twoProng, showDelay = 1000) {
+    const cc = twoProng.circle.center;
+    const { pos, circle, cpNode, xs, z, δ } = twoProng;
+    drawFs.line(g, [pos.p, cc], 'thin5 red', showDelay);
+    drawFs.line(g, [z, cc], 'thin5 red', showDelay);
 }
 /**
  * @internal
  */
-function logNearest(g, p, showDelay = 1000, type = 'twoProng_regular') {
-    const closestPerLoops = [];
-    const generated = _debug_.generated;
-    const twoProng = getObjClosestTo(p, generated.elems[type], twoProng => twoProng.circle.center);
-    closestPerLoops.push(twoProng);
-    console.log(twoProng);
-    let n;
-    for (let i = 0; i < _debug_.generated.elems[type].length; i++) {
-        const twoProng_ = _debug_.generated.elems[type][i];
-        if (twoProng_ === twoProng) {
-            n = i;
-            break;
+function logNearest(showSpokes, showTrace, showBoundaries) {
+    return (g, p, showDelay = 1000, scale = 1) => {
+        const closestPerLoops = [];
+        const generated = _debug_.generated;
+        const twoProng = getObjClosestTo(p, 
+        // generated.elems[type], 
+        generated.elems['twoProng_regular'], twoProng => twoProng.circle.center);
+        closestPerLoops.push(twoProng);
+        console.log(twoProng);
+        let n;
+        //for (let i=0; i<_debug_.generated.elems[type].length; i++) {
+        //	const twoProng_ = _debug_.generated.elems[type][i];
+        for (let i = 0; i < _debug_.generated.elems['twoProng_regular'].length; i++) {
+            const twoProng_ = _debug_.generated.elems['twoProng_regular'][i];
+            if (twoProng_ === twoProng) {
+                n = i;
+                break;
+            }
         }
-    }
-    if (n !== undefined) {
-        traceConvergence(g, n, true, showDelay);
-    }
+        if (showSpokes) {
+            drawSpokes(g, twoProng, showDelay);
+        }
+        if (n !== undefined && showTrace) {
+            traceConvergence(g, twoProng, showDelay, scale);
+        }
+    };
 }
 /**
  * @internal
  * @param n - The 2-prong's zero-based index.
  * @param range
  */
-function traceConvergence(g, n, finalOnly, showDelay = 1000, range = undefined, type = 'twoProng_regular') {
-    if (n === undefined) {
-        return;
-    }
-    const twoProngInfo = _debug_.generated.elems[type][n];
-    const xs = twoProngInfo.xs;
-    //let g = twoProngInfo.generated.g;
-    console.log(twoProngInfo);
-    console.log(twoProngInfo.xs.map(x => ({
+function traceConvergence(g, twoProng, showDelay = 1000, scale = 1) {
+    const xs = twoProng.xs;
+    console.log(twoProng);
+    console.log(twoProng.xs.map(x => ({
         x: x.x,
         y: x.y,
         z: x.z,
         d: x.z ? squaredDistanceBetween(x.y.p, x.z.p) : 0,
         t: x.t,
     })));
+    console.log(xs.length);
     for (let i = 0; i < xs.length; i++) {
-        if (range && (i < range[0] || i >= range[1])) {
-            continue;
-        }
-        if (finalOnly && i !== xs.length - 1) {
-            continue;
-        }
-        const x = twoProngInfo.xs[i];
+        const x = twoProng.xs[i];
         const circle = { center: x.x, radius: distanceBetween(x.x, x.y.p) };
-        drawFs.crossHair(g, x.x, 'red thin10 nofill', undefined, showDelay);
+        drawFs.crossHair(g, x.x, 'red thin10 nofill', 0.002 * scale, showDelay);
         drawFs.circle(g, circle, 'blue thin10 nofill', showDelay);
         if (x.z !== undefined) {
-            drawFs.crossHair(g, x.z.p, 'yellow thin10 nofill', 2, showDelay);
+            drawFs.crossHair(g, x.z.p, 'yellow thin10 nofill', 0.001 * scale, showDelay);
         }
     }
-    twoProngDebugFunctions.drawNormal(g, n, showDelay);
+    // twoProngDebugFunctions.drawNormal(g, twoProng, showDelay);
 }
 /** @internal */
 const twoProngDebugFunctions = {

@@ -1,5 +1,5 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { ContactPoint } from '../contact-point.js';
+import { ContactPoint } from '../contact-point/contact-point.js';
 import { removeCpNode } from './remove.js';
 /**
  * The primary interface of the library.
@@ -169,15 +169,6 @@ declare function getFirstExit(cpNode: CpNode): CpNode | undefined;
  */
 declare function isSharp(cpNode: CpNode): boolean;
 /**
- * Returns true if this [[CpNode]]'s maximal disk has only one contact point
- * on the shape boundary (up to planar coordinates). These includes sharp
- * corners.
- *
- * Note, however, that two [[CpNode]]s are stored for each such point to
- * preserve symmetry - see [[isTerminating]] for more details.
- */
-declare function isOneProng(cpNode: CpNode): boolean;
-/**
  * Returns the number of contact points on the maximal disk circle implied
  * by this [[CpNode]].
  *
@@ -193,4 +184,13 @@ declare function getProngCount(cpNode: CpNode): number;
  * See also [[getProngCount]].
  */
 declare function getRealProngCount(cpNode: CpNode): number;
+/**
+ * Returns true if this [[CpNode]]'s maximal disk has only one contact point
+ * on the shape boundary (up to planar coordinates). These includes sharp
+ * corners.
+ *
+ * Note, however, that two [[CpNode]]s are stored for each such point to
+ * preserve symmetry - see [[isTerminating]] for more details.
+ */
+declare function isOneProng(cpNode: CpNode): boolean;
 export { CpNode, matCurveToNextVertex, getChildren, vertexChildren, getAllOnLoop, insertCpNode, getCpNodesOnCircle, isOnSameCircle, isTerminating, isFullyTerminating, getFirstExit, isSharp, isOneProng, getProngCount, getRealProngCount, cpNodeComparator, removeCpNode };

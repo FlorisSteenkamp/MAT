@@ -1,5 +1,5 @@
 import { isPosQuiteSharpCorner } from '../point-on-shape/is-pos-quite-sharp-corner.js';
-import { compareCps } from '../contact-point.js';
+import { compareCps } from '../contact-point/contact-point.js';
 /**
  * @internal
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)

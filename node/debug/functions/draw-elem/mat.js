@@ -1,6 +1,6 @@
 import { drawFs } from 'flo-draw';
-import { traverseEdges } from '../../../traverse-edges.js';
-import { getCurveToNext } from '../../../get-curve-to-next.js';
+import { traverseEdges } from '../../../cp-node/traverse-edges.js';
+import { getCurveToNext } from '../../../cp-node/get-curve-to-next.js';
 import { isTerminating } from '../../../cp-node/cp-node.js';
 /** @internal */
 function drawMat(type) {

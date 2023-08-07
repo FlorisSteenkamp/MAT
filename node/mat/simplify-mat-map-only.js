@@ -1,7 +1,7 @@
 import { closestPointOnBezier, hausdorffDistance, toCubic } from 'flo-bezier3';
 import { isTerminating } from '../cp-node/cp-node.js';
-import { getBranches } from '../get-branches.js';
-import { getCurveToNext } from '../get-curve-to-next.js';
+import { getBranches } from './get-branches.js';
+import { getCurveToNext } from '../cp-node/get-curve-to-next.js';
 import { getCurveBetween } from '../get-curve/get-curve-between.js';
 /**
  * Simplifies the given MAT by replacing the piecewise quad beziers composing

@@ -1,8 +1,6 @@
-import { tangent, tangentExact, eCurvature } from 'flo-bezier3';
+import { tangentExact, ddCurvature } from 'flo-bezier3';
 import { Circle } from '../geometry/circle.js';
-import { calcOsculatingCircleInverseRadius } from './calc-osculating-circle-inverse-radius.js';
 import { PointOnShape } from './point-on-shape.js';
-import { isPosSharpCorner } from './is-pos-sharp-corner.js';
 
 
 
@@ -13,17 +11,17 @@ import { isPosSharpCorner } from './is-pos-sharp-corner.js';
  * @param pos The [[PointOnShape]] identifying the point.
  */
 function getOsculatingCircle(
-        maxOsculatingCircleRadius: number, 
+        minCurvature: number, 
         pos: PointOnShape,
         useMaxRadius = false): Circle {
 
     const ps = pos.curve.ps;
     const { p, t } = pos;
 
-    let k = -eCurvature(ps, t);
+    let k = -ddCurvature(ps, t);
 
-    if (k < 1/maxOsculatingCircleRadius || useMaxRadius) {
-        k = 1/maxOsculatingCircleRadius;
+    if (k < minCurvature || useMaxRadius) {
+        k = minCurvature;
     }
 
     const tangent_ = tangentExact(ps,t).map(c => c[c.length-1]);

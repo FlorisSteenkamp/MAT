@@ -11,11 +11,12 @@ import { CpNode, isSharp } from '../cp-node/cp-node.js';
 import { BezierPiece } from '../mat/bezier-piece.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { isPosDullCorner } from '../point-on-shape/is-pos-dull-corner.js';
-import { getClosestBoundaryPointCertified } from '../closest-boundary-point/get-closest-boundary-point-certified.js';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
 import { getCornerAtEnd } from '../curve/curve.js';
+import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
+import { createPos } from '../point-on-shape/create-pos.js';
 
 
 /** @internal */
@@ -188,10 +189,10 @@ function find3ProngForDelta3s(
     //-------------------------------------------------------------------------
     const closestDs = [];
     for (let i=0; i<bezierPiecess.length; i++) {
-        const p = getClosestBoundaryPointCertified(
-            0, bezierPiecess[i], x, undefined!, undefined!
-        );
-        
+        const p = getCloseBoundaryPointsCertified(
+            bezierPiecess[i], x
+        )[0];
+
         closestDs.push( distanceBetween(p.p, x) );
     }
     const closestD = Math.min(...closestDs);

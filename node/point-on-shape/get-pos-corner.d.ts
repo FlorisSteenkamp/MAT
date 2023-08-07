@@ -1,4 +1,4 @@
-import { Corner } from "../mat/corner.js";
+import { Corner } from "../corner/corner.js";
 import { PointOnShape } from "./point-on-shape.js";
 /**
  * @internal

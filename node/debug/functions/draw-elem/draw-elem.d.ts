@@ -1,6 +1,6 @@
 import { IDebugElems } from '../../debug-elem-types.js';
 /** @internal */
-declare type TDrawElemFunctions = {
+type TDrawElemFunctions = {
     [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T], classes?: string, delay?: number, scaleFactor?: number) => SVGElement[];
 };
 /** @internal */

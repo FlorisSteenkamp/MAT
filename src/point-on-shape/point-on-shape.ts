@@ -7,9 +7,8 @@ interface PointOnShape {
     /** The bezier parameter value on the curve identifying the point coordinates. */
     t: number;
     p: number[];
-    /** Only for dull corners - and maybe only for source points (not antipodal points) */
-    // angle?: number | undefined;
-    source: boolean;  // just for debugging
+    /** just for debugging */
+    source: boolean;  
 }
 
 

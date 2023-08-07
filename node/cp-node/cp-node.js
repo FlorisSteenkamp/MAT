@@ -1,6 +1,6 @@
-import { compareCps } from '../contact-point.js';
+import { compareCps } from '../contact-point/contact-point.js';
 import { removeCpNode } from './remove.js';
-import { getCurveToNext } from '../get-curve-to-next.js';
+import { getCurveToNext } from './get-curve-to-next.js';
 import { createCpNode } from './create-cp-node.js';
 /**
  * Returns the bezier curve from the maximal disk of this [[CpNode]] to the
@@ -194,26 +194,7 @@ function getFirstExit(cpNode) {
  * terminating and one not. See [[isTerminating]] for more details.
  */
 function isSharp(cpNode) {
-    // return this.cp.circle.radius === 0;
     return cpNode.cp.circle.radius === 0;
-}
-/**
- * Returns true if this [[CpNode]]'s maximal disk has only one contact point
- * on the shape boundary (up to planar coordinates). These includes sharp
- * corners.
- *
- * Note, however, that two [[CpNode]]s are stored for each such point to
- * preserve symmetry - see [[isTerminating]] for more details.
- */
-function isOneProng(cpNode) {
-    const cp1 = cpNode;
-    if (cp1.cp.circle.radius === 0) {
-        return true;
-    }
-    const cp2 = cp1.nextOnCircle;
-    const p1 = cp1.cp.pointOnShape.p;
-    const p2 = cp2.cp.pointOnShape.p;
-    return (p1[0] === p2[0] && p1[1] === p2[1]);
 }
 /**
  * Returns the number of contact points on the maximal disk circle implied
@@ -245,6 +226,24 @@ function getRealProngCount(cpNode) {
         return 1;
     }
     return getProngCount(cpNode);
+}
+/**
+ * Returns true if this [[CpNode]]'s maximal disk has only one contact point
+ * on the shape boundary (up to planar coordinates). These includes sharp
+ * corners.
+ *
+ * Note, however, that two [[CpNode]]s are stored for each such point to
+ * preserve symmetry - see [[isTerminating]] for more details.
+ */
+function isOneProng(cpNode) {
+    const cp1 = cpNode;
+    if (cp1.cp.circle.radius === 0) {
+        return true;
+    }
+    const cp2 = cp1.nextOnCircle;
+    const p1 = cp1.cp.pointOnShape.p;
+    const p2 = cp2.cp.pointOnShape.p;
+    return (p1[0] === p2[0] && p1[1] === p2[1]);
 }
 export { matCurveToNextVertex, getChildren, vertexChildren, getAllOnLoop, insertCpNode, getCpNodesOnCircle, isOnSameCircle, isTerminating, isFullyTerminating, getFirstExit, isSharp, isOneProng, getProngCount, getRealProngCount, cpNodeComparator, removeCpNode };
 //# sourceMappingURL=cp-node.js.map

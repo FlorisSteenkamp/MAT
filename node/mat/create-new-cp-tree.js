@@ -6,9 +6,8 @@ import { cpNodeComparator, getAllOnLoop } from '../cp-node/cp-node.js';
  */
 function createNewCpTree(cpNode) {
     const newCpTrees = new Map();
-    const cps = getAllOnLoop(cpNode);
-    cps.forEach(f);
-    function f(cpNode) {
+    getAllOnLoop(cpNode).forEach(createNewCpTree_);
+    function createNewCpTree_(cpNode) {
         const loop = cpNode.cp.pointOnShape.curve.loop;
         let cpTree = newCpTrees.get(loop);
         if (!cpTree) {

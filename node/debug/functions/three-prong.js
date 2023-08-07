@@ -7,15 +7,12 @@ import { equal, getObjClosestTo } from 'flo-vector2d';
  */
 function drawSpokes(g, n) {
     const threeProng = _debug_.generated.elems.threeProng[n];
-    //const g = threeProng.generated.g;
     const cc = threeProng.circle.center;
     const poss = threeProng.poss;
-    //_debug_.fs.draw.line(g, [poss[0].p, cc], 'thin5 red');
-    //_debug_.fs.draw.line(g, [poss[1].p, cc], 'thin5 red');
-    //_debug_.fs.draw.line(g, [poss[2].p, cc], 'thin5 red');
-    drawFs.line(g, [poss[0].p, cc], 'thin5 red');
-    drawFs.line(g, [poss[1].p, cc], 'thin5 red');
-    drawFs.line(g, [poss[2].p, cc], 'thin5 red');
+    for (let i = 0; i < poss.length; i++) {
+        const pos = poss[i];
+        drawFs.line(g, [pos.p, cc], 'thin5 red');
+    }
 }
 /**
  * @internal

@@ -10,6 +10,8 @@ import { ICpNodeForDebugging } from './cp-node-for-debugging.js';
 
 /** @internal */
 interface IDebugElems {
+    oneProng: CpNode[];
+    oneProngAtDullCorner: PointOnShape;    
     twoProng_regular: TwoProngForDebugging;
 	twoProng_failed: TwoProngForDebugging;
 	twoProng_notAdded: TwoProngForDebugging;

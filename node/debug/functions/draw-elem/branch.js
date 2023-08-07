@@ -1,6 +1,6 @@
 import { drawFs } from 'flo-draw';
 import { isTerminating } from '../../../cp-node/cp-node.js';
-import { getCurveToNext } from '../../../get-curve-to-next.js';
+import { getCurveToNext } from '../../../cp-node/get-curve-to-next.js';
 /** @internal */
 function drawBranch(g, branch, delay) {
     const classes = 'thin5 purple nofill';

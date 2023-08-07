@@ -2,7 +2,8 @@
 import { circumCenter } from 'flo-vector2d';
 import { CpNode      } from '../cp-node/cp-node.js';
 import { BezierPiece } from '../mat/bezier-piece.js';
-import { getClosestBoundaryPointCertified } from '../closest-boundary-point/get-closest-boundary-point-certified.js';
+import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
+import { createPos } from '../point-on-shape/create-pos.js';
 
 
 /**
@@ -20,13 +21,10 @@ function calcInitial3ProngCenter(
 
     const twoProngCircleCenter = δ3s[0][0].cp.circle.center;
 
-    const pos = getClosestBoundaryPointCertified(
-            0,
-            bezierPiece3s[1],
-            twoProngCircleCenter, 
-            undefined!, // curve
-            undefined!  // t
-    );
+    const pos = getCloseBoundaryPointsCertified(
+        bezierPiece3s[1],
+        twoProngCircleCenter
+    )[0];
 
     const meanPoints = [
         δ3s[0][0].cp.pointOnShape.p, 

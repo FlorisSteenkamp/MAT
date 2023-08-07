@@ -13,6 +13,7 @@ import { getSharpCornersOnLoop } from './get-sharp-corners.js';
 import { getDullCornersOnLoop } from './get-dull-corners.js';
 import { findAndAdd2ProngsOnAllPaths } from '../find-2-prong/find-and-add-2-prongs-on-all-paths.js';
 import { getFor2ProngsOnLoop } from './get-for-2-prongs-on-loop.js';
+import { getFor1ProngsOnLoop } from './get-for-1-prongs-on-loop.js';
 import { findAndAddHoleClosing2Prongs } from '../find-2-prong/find-and-add-hole-closing-2-prongs.js';
 
 
@@ -46,16 +47,22 @@ function findMat(
     }
     addDebugInfo2();
 
+    const for1ProngsPerLoop = loops.map(
+        getFor1ProngsOnLoop(minBezLength)
+    );
     const for2ProngsPerLoop = loops.map(
         getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength)
     );
 
     let cpNode: CpNode | undefined;
     cpNode = findAndAdd2ProngsOnAllPaths(
-        cpNode, loops, cpTrees, dullCornersPerLoop, maxCoordinate
+        cpNode, loops, cpTrees, dullCornersPerLoop, maxCoordinate, false
     );
     cpNode = findAndAdd2ProngsOnAllPaths(
-        cpNode, loops, cpTrees, for2ProngsPerLoop, maxCoordinate
+        cpNode, loops, cpTrees, for1ProngsPerLoop, maxCoordinate, true
+    );
+    cpNode = findAndAdd2ProngsOnAllPaths(
+        cpNode, loops, cpTrees, for2ProngsPerLoop, maxCoordinate, false
     );
 
     addDebugInfo3();

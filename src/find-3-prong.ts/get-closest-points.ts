@@ -1,5 +1,6 @@
 import { BezierPiece  } from '../mat/bezier-piece.js';
-import { getClosestBoundaryPointCertified } from '../closest-boundary-point/get-closest-boundary-point-certified.js';
+import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
+import { createPos } from '../point-on-shape/create-pos.js';
 
 
 /**
@@ -13,15 +14,9 @@ function getClosestPoints(
         bezierPiece3s: BezierPiece[][]) {
 
     return bezierPiece3s.map(bezierPieces => {
-        const pos = getClosestBoundaryPointCertified(
-            0,
-            bezierPieces,
-            x, 
-            undefined!, // curve
-            undefined!  // t
-        );
-
-        return pos ? pos : undefined;
+        return getCloseBoundaryPointsCertified(
+            bezierPieces, x
+        )[0];
     });
 }
 

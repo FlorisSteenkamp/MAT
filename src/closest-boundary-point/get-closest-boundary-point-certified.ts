@@ -4,17 +4,16 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { createPos } from '../point-on-shape/create-pos.js';
 import { BezierPiece  } from '../mat/bezier-piece.js';
 import { cullBezierPieces1 } from './cull-bezier-pieces.js';
-import { closestPointsOnCurveCertified } from './closest-points-on-curve-certified.js';
+import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
 import { squaredDistanceBetweenDd } from '../find-2-prong/squared-distance-between-dd.js';
-import { closestPointsOnCurvePrecise } from './closest-points-on-curve-precise.js';
-  
+
 
 /**
  * @internal
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
  * @param bezierPieces
- * @param point
+ * @param x
  * @param touchedCurve
  * @param t
  * @param extreme
@@ -22,31 +21,33 @@ import { closestPointsOnCurvePrecise } from './closest-points-on-curve-precise.j
 function getClosestBoundaryPointCertified(
 		angle: number,
         bezierPieces: BezierPiece[], 
-        point: number[], 
+        x: number[], 
 		touchedCurve: Curve, 
-		t: number) {
+		t: number,
+		for1Prong: boolean) {
 	
-	bezierPieces = cullBezierPieces1(bezierPieces, point);
+	bezierPieces = cullBezierPieces1(bezierPieces, x);
  
 	let bestDistance = Number.POSITIVE_INFINITY;
 	let pos: PointOnShape;
 	for (let i=0; i<bezierPieces.length; i++) {
 		const bezierPiece = bezierPieces[i];
 
-        const ps = closestPointsOnCurveCertified(
-			angle,
+        const ps = getPotentialClosestPointsOnCurveCertified(
             bezierPiece.curve, 
-            point, 
+            x, 
             bezierPiece.ts, 
             touchedCurve, 
-            t
+            t,
+			for1Prong,
+			angle
         );
 
-		const p = getObjClosestTo(point, ps, p => p.p)
+		const p = getObjClosestTo(x, ps, p => p.p)
 
 		if (p === undefined) { continue; }
 
-		const d = squaredDistanceBetweenDd(p.p, point);
+		const d = squaredDistanceBetweenDd(p.p, x);
 
 		let curve = bezierPiece.curve;
 		let t_= p.t;

@@ -1,4 +1,4 @@
-import { Mat } from '../mat.js';
+import { Mat } from './mat.js';
 /**
  * Trims the given Medial Axis Transform so that only cycles remain. Similar to
  * toScaleAxis(mat, Number.POSITIVE_INFINITY).

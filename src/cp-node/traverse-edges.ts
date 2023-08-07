@@ -16,10 +16,7 @@ function traverseEdges(
 	// given vertex.
 	const cps = getCpNodesOnCircle(cpNode);
 
-	let ii = 0;
-	// TODO2
-	while (cps.length && ii<1500) {
-		ii++;
+	while (cps.length) {
 		const cp = cps.pop()!;
 		f(cp);
 

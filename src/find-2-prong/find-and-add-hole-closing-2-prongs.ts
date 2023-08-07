@@ -34,7 +34,7 @@ function findAndAddHoleClosing2Prongs(
         const posSource = minYs[k];
         
         const holeClosingTwoProng = find2Prong(
-            0, loops, extreme, squaredDiagonalLength, cpTrees, posSource, true, k
+            0, loops, extreme, squaredDiagonalLength, cpTrees, posSource, true, k, false
         );
 
         if (!holeClosingTwoProng) { 

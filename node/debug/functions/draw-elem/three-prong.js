@@ -1,5 +1,5 @@
 import { drawFs } from 'flo-draw';
-import { scaleCircle } from '../../../circle.js';
+import { scaleCircle } from '../../../geometry/circle.js';
 /** @internal */
 function threeProng(g, threeProng, classes, delay = 0, scaleFactor = 1) {
     const circle = scaleCircle(threeProng.circle, 1);

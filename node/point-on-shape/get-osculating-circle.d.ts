@@ -1,4 +1,4 @@
-import { Circle } from '../circle.js';
+import { Circle } from '../geometry/circle.js';
 import { PointOnShape } from './point-on-shape.js';
 /**
  * Returns the osculating circle at this point of the curve.
@@ -6,5 +6,5 @@ import { PointOnShape } from './point-on-shape.js';
  * circle radius will be limited to this value.
  * @param pos The [[PointOnShape]] identifying the point.
  */
-declare function getOsculatingCircle(maxOsculatingCircleRadius: number, pos: PointOnShape): Circle;
+declare function getOsculatingCircle(minCurvature: number, pos: PointOnShape, useMaxRadius?: boolean): Circle;
 export { getOsculatingCircle };

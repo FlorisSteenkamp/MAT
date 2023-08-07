@@ -1,4 +1,4 @@
-import { getCornerAtEnd } from "../curve.js";
+import { getCornerAtEnd } from "../curve/curve.js";
 /**
  * @internal
  */

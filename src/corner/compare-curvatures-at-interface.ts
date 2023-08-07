@@ -125,8 +125,8 @@ function compareCurvaturesAtInterface(
     // <=> i²b⁵ > j²d⁵
 
     // Get x′′′ and y′′′ for incoming curve evaluated at 1
-    const [dddxI, dddyI] = toPowerBasis_3rdDerivative(psI); // max bitlength increase === max shift === 6
-    const [dddxO, dddyO] = toPowerBasis_3rdDerivative(psO); // max bitlength increase === max shift === 6
+    const [[dddxI], [dddyI]] = toPowerBasis_3rdDerivative(psI); // max bitlength increase === max shift === 6
+    const [[dddxO], [dddyO]] = toPowerBasis_3rdDerivative(psO); // max bitlength increase === max shift === 6
 
     const e = eDiff(
         twoProduct(dxI, dddyI),

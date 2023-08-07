@@ -16,6 +16,8 @@ function enableDebugForMat(debugOn) {
             elems: {
                 //...debug?.generated?.elems,
                 ...(!debug ? {} : !debug.generated ? {} : !debug.generated.elems ? {} : debug.generated.elems),
+                oneProng: [],
+                oneProngAtDullCorner: [],
                 twoProng_regular: [],
                 twoProng_failed: [],
                 twoProng_notAdded: [],
@@ -23,8 +25,6 @@ function enableDebugForMat(debugOn) {
                 twoProng_holeClosing: [],
                 looseBoundingBox: [],
                 tightBoundingBox: [],
-                oneProng: [],
-                oneProngAtDullCorner: [],
                 sharpCorner: [],
                 dullCorner: [],
                 vertex: [],

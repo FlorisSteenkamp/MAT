@@ -16,7 +16,6 @@ function getEdgeDirection(cpNode) {
     const p1 = pos1.p;
     const p2 = pos2.p;
     let vDir;
-    //if (!PointOnShape.isSharpCorner(pos1)) {
     if (!isPosSharpCorner(pos1)) {
         if (p1[0] === p2[0] && p1[1] === p2[1]) {
             vDir = fromTo(p1, circleCenter); // A 1-prong
@@ -28,7 +27,6 @@ function getEdgeDirection(cpNode) {
     else {
         let curve1;
         let curve2;
-        // TODO - test if pos1.t can ever be 0 - it is terminating
         if (pos1.t === 0) {
             curve1 = pos1.curve;
             curve2 = pos1.curve.prev;

@@ -1,4 +1,3 @@
-// TODO - finish
 /** @internal */
 function loop(g, loop) {
     /*

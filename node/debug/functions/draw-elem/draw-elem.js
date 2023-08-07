@@ -14,7 +14,7 @@ import { culls } from './culls.js';
 import { oneProngAtDullCorner } from './one-prong-at-dull-corner.js';
 /** @internal */
 function notImplementedYet(g, elem) {
-    return []; // TODO - implement relevant drawing function
+    return [];
 }
 /** @internal */
 const drawElemFunctions = {

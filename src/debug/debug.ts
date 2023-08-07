@@ -80,6 +80,8 @@ function enableDebugForMat(debugOn: boolean) {
             elems: { 
                 //...debug?.generated?.elems,
                 ...(!debug ? {} : !debug.generated ? {} : !debug.generated.elems ? {} : debug.generated.elems),
+                oneProng             : [],
+                oneProngAtDullCorner : [],
                 twoProng_regular     : [],
                 twoProng_failed      : [],
                 twoProng_notAdded    : [],

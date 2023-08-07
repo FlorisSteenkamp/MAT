@@ -1,5 +1,5 @@
 import { createNewCpTree } from './create-new-cp-tree.js';
-import { cullNonCycles } from './to-scale-axis/cull-non-cycles.js';
+import { cullNonCycles } from '../sat/cull-non-cycles.js';
 import { clone } from '../cp-node/clone.js';
 /**
  * Trims the given Medial Axis Transform so that only cycles remain. Similar to
