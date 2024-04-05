@@ -96,7 +96,7 @@ h1, h2 {
 ```typescript
 import './style.css'; // Import stylesheets
 
-import { findMats, getPathsFromStr, Mat, traverseEdges, toScaleAxis } from 'flo-mat';
+import { findMats, getPathsFromStr, Mat, traverseEdges, toScaleAxis, getCurveToNext, isTerminating } from 'flo-mat';
 
 const NS = 'http://www.w3.org/2000/svg'; // Svg namespace
 
@@ -207,7 +207,7 @@ function main() {
 
     // Get the SAT (at scale 1.5) of the MATs (of which there is only 1)
     let sats = mats.map(mat => toScaleAxis(mat, 1.5));
-    
+
     drawMats(sats, $svg, 'sat');
 }
 
@@ -222,7 +222,7 @@ function main() {
 function drawMats(
         mats: Mat[],
         svg: SVGSVGElement,
-        type: string /* 'mat' | 'sat' */) {
+        type: 'mat' | 'sat') {
 
     mats.forEach(f);
 
@@ -237,8 +237,8 @@ function drawMats(
         let fs = [,,getLinePathStr, getQuadBezierPathStr, getCubicBezierPathStr];
 
         traverseEdges(cpNode, function(cpNode) {
-            if (cpNode.isTerminating()) { return; }
-            let bezier = cpNode.matCurveToNextVertex;
+            if (isTerminating(cpNode)) { return; }
+            let bezier = getCurveToNext(cpNode);
             if (!bezier) { return; }
 
             let $path = document.createElementNS(NS, 'path');
