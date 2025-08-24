@@ -6,15 +6,15 @@ import { Loop } from 'flo-boolean';
  * @internal
  * Helper function.
  * @internal
- * @param f
+ * @param totalByF
  */
-function getTotalBy(f: (curve: Curve) => number) {
+function getTotalBy(totalByF: (curve: Curve) => number) {
 	
 	return function(loop: Loop) {
 		let node = loop.curves[0];
 		let total = 0;
 		do {
-			total += f(node);
+			total += totalByF(node);
 			
 			node = node.next;
 		} while (node !== loop.curves[0]);

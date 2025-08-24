@@ -9,10 +9,8 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getShapeBounds } from '../svg/get-shape-bounds.js';
 import { find2Prong } from './find-2-prong.js';
 import { add2Prong } from './add-2-prong.js';
-import { isPosDullCorner } from '../point-on-shape/is-pos-dull-corner.js';
-import { getCornerAtEnd } from '../curve/curve.js';
 import { getCorner } from '../corner/get-corner.js';
-import { rotate90Degrees, rotateNeg90Degrees } from 'flo-vector2d';
+import { rotateNeg90Degrees } from 'flo-vector2d';
 
 
 const { PI, atan2 } = Math;

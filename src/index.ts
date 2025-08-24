@@ -5,7 +5,6 @@ import { Loop } from 'flo-boolean';
 import { Curve } from './curve/curve.js';
 import {
 	CpNode,
-	matCurveToNextVertex,
 	getChildren,
 	vertexChildren,
 	getAllOnLoop,
@@ -83,7 +82,6 @@ export {
 
 	// CpNode
 	createCpNode,
-	matCurveToNextVertex,
 	getChildren,
 	vertexChildren,
 	getAllOnLoop,

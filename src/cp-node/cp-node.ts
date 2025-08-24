@@ -5,7 +5,6 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug } from '../debug/debug.js';
 import { ContactPoint, compareCps } from '../contact-point/contact-point.js';
 import { removeCpNode } from './remove.js';
-import { getCurveToNext } from './get-curve-to-next.js';
 import { createCpNode } from './create-cp-node.js';
 
 
@@ -96,18 +95,6 @@ interface CpNode {
 	 * @param nextOnCircle The next [[CpNode]] (going anti-clockwise around 
 	 * the inscribed circle defined by the maximal disk).
 	 */
-}
-
-
-/**
- * Returns the bezier curve from the maximal disk of this [[CpNode]] to the 
- * next [[CpNode]]'s maximal disk and thus directly represents a piece of the 
- * medial axis.
- * @deprecated Use [[getCurveToNext]] instead
- * @param cpNode 
- */
-function matCurveToNextVertex(cpNode: CpNode) {
-	return getCurveToNext(cpNode);
 }
 
 
@@ -300,9 +287,8 @@ function isTerminating(cpNode: CpNode) {
  */
 function isFullyTerminating(cpNode:CpNode) {
 	const otherOnCircle = getCpNodesOnCircle(cpNode.prevOnCircle, true);
-	const isFullyTerminating = otherOnCircle.every(cpn => isTerminating(cpn));
 
-	return isFullyTerminating;
+	return otherOnCircle.every(cpn => isTerminating(cpn));
 }
 
 
@@ -403,7 +389,6 @@ function isOneProng(cpNode: CpNode) {
 
 export {
 	CpNode,
-	matCurveToNextVertex,
 	getChildren,
 	vertexChildren,
 	getAllOnLoop,

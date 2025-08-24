@@ -47,7 +47,6 @@ const { sqrt, abs, sin, cos } = Math;
  * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
  * @param k The loop array index
  */
-
 function find2Prong(
 		angle: number,
 		loops: Loop[],
@@ -104,11 +103,13 @@ function find2Prong(
 	let z: PointOnShape = undefined!;
 	let bezierPieces_ = bezierPieces;
 
+	if (typeof _debug_ !== 'undefined') { xs.push({ x, y, z: undefined!, t: y.t }); }
+
 	let i = 0;
 	while (i < MAX_ITERATIONS) {
 		const xy = squaredDistanceBetweenDd(x, y.p);
 
-		if (i < 5) { bezierPieces_ = cullBezierPieces2(bezierPieces_, x, xy); }
+		if (i < 2) { bezierPieces_ = cullBezierPieces2(bezierPieces_, x, xy); }
 
 		zs = getCloseBoundaryPointsCertified(
 			bezierPieces_, x, y.curve, y.t,
@@ -132,7 +133,6 @@ function find2Prong(
 				add1Prong(rO, xO, cpTrees, y);
 				return undefined;
 			}
-			// return undefined;
 		}
 		
 		if (typeof _debug_ !== 'undefined') { xs.push({ x, y, z: createPos(z.curve, z.t, false), t: y.t }); }

@@ -8,13 +8,13 @@ import { CpNode, getCpNodesOnCircle, isTerminating, vertexChildren } from './cp-
  * It is usually preferable to use [[traverseEdges]] as it allows for the 
  * traversal of all the smooth curves representing the MAT.
  * @param cpNode Any [[CpNode]] representing the start vertex.
- * @param f A callback function taking a single [[CpNode]] as parameter.
+ * @param traverseVerticesCallback A callback function taking a single [[CpNode]] as parameter.
  */
 function traverseVertices(
 		cpNode: CpNode, 
-		f: (cpNode: CpNode) => void) {
+		traverseVerticesCallback: (cpNode: CpNode) => void) {
 
-	f(cpNode);
+	traverseVerticesCallback(cpNode);
 
 	// Since the tree is unrooted we must iterate in all directions from the
 	// given cpNode.	
@@ -27,7 +27,7 @@ function traverseVertices(
 		const cps = [cpNode];
 		while (cps.length) {
 			const cp = cps.pop()!;
-			f(cp);
+			traverseVerticesCallback(cp);
 			cps.push(...vertexChildren(cp));
 		}
 	}

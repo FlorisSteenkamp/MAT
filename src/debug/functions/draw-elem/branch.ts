@@ -13,7 +13,6 @@ function drawBranch(g: SVGGElement, branch: CpNode[], delay?: number) {
 
     for (const cpNode of branch) {
         if (isTerminating(cpNode)) { continue; }
-        //let bezier = cpNode.matCurveToNextVertex;
         const bezier = getCurveToNext(cpNode);
         if (!bezier) { continue; }
         i++;

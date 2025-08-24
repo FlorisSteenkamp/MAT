@@ -16,34 +16,23 @@ function reduceRadius(
 
     const TOLERANCE = 1 + 2**-10;
 
-    let prevP: number[] | undefined = undefined;
     let minRadius = Number.POSITIVE_INFINITY;
     for (let i=0; i<bezierPieces.length; i++) {
         const bezierPiece = bezierPieces[i];
 
         const ps = bezierPiece.curve.ps;
 
-        let r1 = Number.POSITIVE_INFINITY;
-        const p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
-
-        // Prevent evaluating the same points twice
-        if (!prevP || prevP[0] !== p1[0] || prevP[1] !== p1[1]) {
-            const cc1 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p1);
-            if (cc1) { r1 = squaredDistanceBetween(p, cc1);	}
-        }
-        
-        let r2 = Number.POSITIVE_INFINITY;
-        const p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
-
-        const cc2 = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p2);
-        if (cc2) { r2 = squaredDistanceBetween(p, cc2);	}
-        
-        prevP = p2;
-        
-        const d = Math.min(r1, r2); 
-        
-        if (d < minRadius) {
-            minRadius = d;  
+        // let min = Number.POSITIVE_INFINITY;
+        const num = 2;
+        for (let j=0; j<(num + 1); j++) {
+            const p_ = evalDeCasteljau(ps, bezierPiece.ts[j/num]);
+            const cc = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p_);
+            if (cc) {
+                let r = squaredDistanceBetween(p, cc);
+                if (r < minRadius) {
+                    minRadius = r;
+                }
+            }
         }
     }
 

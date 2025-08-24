@@ -184,7 +184,6 @@ function add2Prong(
 
 		const elem = elems[elems.length-1];
 
-		if (!newCpSource) { console.log('asas')}
 		elem.cpNode = newCpSource;
 	}
 
