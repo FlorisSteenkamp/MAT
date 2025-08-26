@@ -1,6 +1,5 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
 import { CpNode } from '../cp-node/cp-node.js';
-import { Loop } from 'flo-boolean';
+import { MatMeta } from './mat-meta.js';
 /**
  * Represents a complete Medial Axis Transform (MAT).
  *
@@ -13,10 +12,11 @@ interface Mat {
     /** A complete representation of the MAT. See [[CpNode]]. */
     cpNode: CpNode;
     /**
-     * Primarily for internal use. A tree structure storing the
-     * [[CpNode]]s of the MAT by their compare order, i.e. their cyclic order
-     * around the shape boundary.
+     * Stores additional info about the shape that could be useful for various
+     * purposes in post-processing.
+     *
+     * Most meta items have a CpNode property to link back to the MAT.
      */
-    cpTrees: Map<Loop, LlRbTree<CpNode>>;
+    meta: MatMeta;
 }
 export { Mat };

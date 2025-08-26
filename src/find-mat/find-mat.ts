@@ -5,16 +5,17 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug } from '../debug/debug.js';
 import { CpNode } from '../cp-node/cp-node.js';
 import { Loop } from 'flo-boolean';
-import { Mat } from '../mat/mat.js';
-import { findAndAddAll3Prongs } from '../find-3-prong.ts/find-and-add-all-3-prongs.js';
-import { createInitialCpGraph } from './create-initial-cp-graph.js';
-import { addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './add-debug-info.js';
+import { findAndAdd3ProngsOnLoop } from '../find-3-prong.ts/find-and-add-3-prongs-on-loop.js';
+import { createInitialCpTree } from './create-initial-cp-tree.js';
+import { getMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
 import { getSharpCornersOnLoop } from './get-sharp-corners.js';
-import { getDullCornersOnLoop } from './get-dull-corners.js';
-import { findAndAdd2ProngsOnAllPaths } from '../find-2-prong/find-and-add-2-prongs-on-all-paths.js';
+import { getDullCornersOnLoop } from './get-dull-corners-on-loop.js';
+import { findAndAdd2ProngsOnAllLoops } from '../find-2-prong/find-and-add-2-prongs-on-all-loops.js';
 import { getFor2ProngsOnLoop } from './get-for-2-prongs-on-loop.js';
 import { getFor1ProngsOnLoop } from './get-for-1-prongs-on-loop.js';
 import { findAndAddHoleClosing2Prongs } from '../find-2-prong/find-and-add-hole-closing-2-prongs.js';
+import { getShapeBounds } from '../svg/get-shape-bounds.js';
+import { MatOptions } from './mat-options.js';
 
 
 /**
@@ -25,65 +26,76 @@ import { findAndAddHoleClosing2Prongs } from '../find-2-prong/find-and-add-hole-
  */
 function findMat(
         loops: Loop[], 
-        minBezLength: number,
-        maxCurviness: number,
-        maxLength: number,
-        maxCoordinate: number): Mat {
+        maxCoordinate: number,
+        options: Required<MatOptions>) {
 
-    addDebugInfo1(loops);
-        
+    const { minBezLength, maxCurviness, maxLength, angleIncrement } = options;
+
     const getSharpCornersOnLoop_ = getSharpCornersOnLoop(minBezLength);
     const getDullCornersOnLoop_ = getDullCornersOnLoop(minBezLength);
+    const getFor2ProngsOnLoop_ = getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength);
+    const getFor1ProngsOnLoop_ = getFor1ProngsOnLoop(minBezLength);
+
     const sharpCornersPerLoop = loops.map(getSharpCornersOnLoop_);
-    const dullCornersPerLoop = loops.map(getDullCornersOnLoop_);
 
     const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
-    createInitialCpGraph(loops, cpTrees, sharpCornersPerLoop);
+    createInitialCpTree(loops, cpTrees, sharpCornersPerLoop);
 
-    findAndAddHoleClosing2Prongs(loops, cpTrees, maxCoordinate);
+    const bounds = getShapeBounds(loops);
+    const squaredDiagonalLength = 
+        (bounds.maxX.p[0] - bounds.minX.p[0])**2 +
+        (bounds.maxY.p[1] - bounds.minY.p[1])**2;
+
+    const meta = getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees);
+
+    let cpNode: CpNode | undefined;
+
+    cpNode = findAndAddHoleClosing2Prongs(meta);
 
     if (typeof _debug_ !== 'undefined') {
-        if (_debug_.directives.stopAfterHoleClosers) { return undefined!; }
+        if (_debug_.directives.stopAfterHoleClosers) { return { cpNode: cpNode!, meta }; }
     }
     addDebugInfo2();
 
-    const for1ProngsPerLoop = loops.map(
-        getFor1ProngsOnLoop(minBezLength)
-    );
-    const for2ProngsPerLoop = loops.map(
-        getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength)
-    );
+    const dullCornersPerLoop = loops.map(getDullCornersOnLoop_);
+    cpNode = findAndAdd2ProngsOnAllLoops(meta, angleIncrement, dullCornersPerLoop, false) || cpNode;
 
-    let cpNode: CpNode | undefined;
-    cpNode = findAndAdd2ProngsOnAllPaths(
-        cpNode, loops, cpTrees, dullCornersPerLoop, maxCoordinate, false
-    );
-    cpNode = findAndAdd2ProngsOnAllPaths(
-        cpNode, loops, cpTrees, for1ProngsPerLoop, maxCoordinate, true
-    );
-    cpNode = findAndAdd2ProngsOnAllPaths(
-        cpNode, loops, cpTrees, for2ProngsPerLoop, maxCoordinate, false
-    );
+    const for1ProngsPerLoop = loops.map(getFor1ProngsOnLoop_);
+    cpNode = findAndAdd2ProngsOnAllLoops(meta, angleIncrement, for1ProngsPerLoop, true) || cpNode;
+
+    const for2ProngsPerLoop = loops.map(getFor2ProngsOnLoop_);
+    cpNode = findAndAdd2ProngsOnAllLoops(meta, angleIncrement, for2ProngsPerLoop, false) || cpNode;
 
     addDebugInfo3();
+
     if (typeof _debug_ !== 'undefined') {
-        if (_debug_.directives.stopAfterTwoProngs) { return undefined!; }
+        if (_debug_.directives.stopAfterTwoProngs) { return { cpNode: cpNode!, meta }; }
     }
+
+    cpNode = findAndAdd3ProngsOnLoop(meta, cpNode);
 
     if (cpNode === undefined) { return undefined!; }
 
-    findAndAddAll3Prongs(cpTrees, cpNode, maxCoordinate);
-
     if (typeof _debug_ !== 'undefined') {
-        if (_debug_.directives.stopAfterThreeProngs) { return undefined!; }
+        if (_debug_.directives.stopAfterThreeProngs) { return { cpNode: cpNode!, meta }; }
     }
 
-    const mat = { cpNode, cpTrees };
+    // if (cpNode !== undefined) { add2rongsByError(options, 0.1, meta, cpNode); }
 
-    addDebugInfo4(mat);
+    // if (cpNode !== undefined) { checkOrdering(cpTrees, cpNode); }
+
+    const mat = { cpNode, meta };
+
+    addDebugInfo4();
 
     return mat;
 }
 
 
 export { findMat }
+
+
+
+/** Curvilinear Shape Features (CSFs) */
+// const csfs = getCsfs(meta, minBezLength, loops);
+// const ligatures = getLigatures(meta, csfs);

@@ -1,4 +1,4 @@
-import { Corner } from "./corner";
+import { Corner } from "./corner.js";
 /**
  * @internal
  * Returns a new corner with properties.

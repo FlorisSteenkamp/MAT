@@ -1,22 +1,21 @@
-/** @internal */
-declare const _debug_: Debug;
-
 import { 
     fromTo, circumCenter, len, distanceBetween, toUnitVector, rotate90Degrees,
     cross 
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { Debug } from '../debug/debug.js';
-import { CpNode, isSharp } from '../cp-node/cp-node.js';
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CpNode } from '../cp-node/cp-node.js';
+import { CpNodeFs } from '../cp-node/cp-node-fs.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { isPosDullCorner } from '../point-on-shape/is-pos-dull-corner.js';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
-import { getCornerAtEnd } from '../curve/curve.js';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
-import { createPos } from '../point-on-shape/create-pos.js';
+import { getCorner } from '../corner/get-corner.js';
+import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
+import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
+
+const { isSharp } = CpNodeFs;
 
 
 /** @internal */
@@ -29,21 +28,21 @@ const calcVectorToZeroV_StraightToIt = fromTo;
  * @param δs The boundary pieces
  * @param idx δ identifier
  * @param bezierPiecess
- * @param extreme The maximum coordinate value used to calculate floating point
+ * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
 function find3ProngForDelta3s(
         δs: CpNode[][], 
         idx: number, 
         k: number,
-        bezierPiecess: BezierPiece[][],
-        extreme: number) {
+        bezierPiecess: CurvePiece[][],
+        maxCoordinate: number) {
 
-    const TOLERANCE = 2**-32*extreme;
+    const TOLERANCE = 2**-32*maxCoordinate;
     const MAX_ITERATIONS = 10;
 
     const δs_ = [
-        δs[0], 
+        δs[0],
         δs[idx], 
         δs[δs.length-1]
     ];
@@ -73,23 +72,16 @@ function find3ProngForDelta3s(
     if (isSharp(δ3s[0][0])) { return undefined; }
 
 
-    let ps: (PointOnShape | undefined)[];
+    let poss: PointOnShape[] = undefined!;
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(δ3s, bezierPiece3s);
-
-    if (typeof _debug_ !== 'undefined') { 
-        const threeProngs = _debug_.generated.elems.threeProng;
-        const d = threeProngs[threeProngs.length-1];
-        const trace = d.traces[d.traces.length-1];
-        trace.push(x);
-    }
+    let x = calcInitial3ProngCenter(maxCoordinate, δ3s, bezierPiece3s);
 
     let tolerance = Number.POSITIVE_INFINITY;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) { 
         j++;
         
-        ps = getClosestPoints(x, bezierPiece3s);
+        poss = getClosestPoints(x, bezierPiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
 
             // TODO - the code can be cleaned up and sped up a lot if we don't
@@ -99,7 +91,7 @@ function find3ProngForDelta3s(
             return undefined;
         }
 
-        circumCenter_ = circumCenter(ps.map(x => x!.p));
+        circumCenter_ = circumCenter(poss.map(x => x!.p));
 
         const vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter_);
 
@@ -113,23 +105,16 @@ function find3ProngForDelta3s(
         }
         const upds = calcBetterX(bezierPiece3s, x, vectorToZeroV);
         x = upds.newX;
-        ps = upds.newPs;
-
-        if (typeof _debug_ !== 'undefined') { 
-            const threeProngs = _debug_.generated.elems.threeProng;
-            const d = threeProngs[threeProngs.length-1];
-            const trace = d.traces[d.traces.length-1];
-            trace.push(x);
-        }
+        poss = upds.newPoss;
 
         const V = len(vectorToZeroV); // The 'potential'
         
         tolerance = Math.abs(V - upds.newV);
     }
 
-    const radius = (distanceBetween(x, ps![0]!.p) + 
-                    distanceBetween(x, ps![1]!.p) + 
-                    distanceBetween(x, ps![2]!.p)) / 3;
+    const radius = (distanceBetween(x, poss[0].p) + 
+                    distanceBetween(x, poss[1].p) + 
+                    distanceBetween(x, poss[2].p)) / 3;
 
     const circle = { center: x, radius };
 
@@ -140,19 +125,19 @@ function find3ProngForDelta3s(
     //-------------------------------------------------------------------------
     let totalAngleError = 0;
     for (let i=0; i<3; i++) {
-        const p = ps![i];
+        const pos = poss![i];
         //----------------------------
         // Tangent of circle at point
         //----------------------------
-        const v = toUnitVector(fromTo(p!.p, x));
+        const v = toUnitVector(fromTo(pos!.p, x));
         const v1 = rotate90Degrees(v);
         
         
         //-----------------------------------
         // Check if point is on dull crorner
         //-----------------------------------
-        if (isPosDullCorner(p!)) {
-            const corner = getCornerAtEnd(p!.curve);
+        if (isPosCorner(pos!) && getPosCorner(pos!).isDull) {
+            const corner = getCorner(pos!.curve.ps, pos!.curve.next.ps);
             const tans = corner.tangents;
             const perps = tans.map( rotate90Degrees );
                 
@@ -168,7 +153,7 @@ function find3ProngForDelta3s(
             //---------------------------
             // Tangent of curve at point
             //---------------------------
-            const v2 = toUnitVector( tangent(p!.curve.ps, p!.t) );
+            const v2 = toUnitVector( tangent(pos!.curve.ps, pos!.t) );
             
             // Cross is more numerically stable than Vector.dot at angles a
             // multiple of Math.PI **and** is close to the actual angle value
@@ -190,6 +175,7 @@ function find3ProngForDelta3s(
     const closestDs = [];
     for (let i=0; i<bezierPiecess.length; i++) {
         const p = getCloseBoundaryPointsCertified(
+            5,  // TODO - see find-2-prong
             bezierPiecess[i], x
         )[0];
 
@@ -203,7 +189,7 @@ function find3ProngForDelta3s(
     const W2 = 1;
     const error = W1*radiusDelta + W2*totalAngleError;
 
-    return { ps: ps!, circle, error, δ3s };
+    return { poss: poss!, circle, error, δ3s };
 }
 
 

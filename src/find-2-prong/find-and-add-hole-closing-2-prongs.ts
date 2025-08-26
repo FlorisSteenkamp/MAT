@@ -5,6 +5,7 @@ import { getShapeBounds } from '../svg/get-shape-bounds.js';
 import { getMinYPos } from '../svg/get-min-y-pos.js';
 import { find2Prong } from './find-2-prong.js';
 import { add2Prong } from './add-2-prong.js';
+import { MatMeta } from '../mat/mat-meta.js';
 
 
 /**
@@ -13,28 +14,25 @@ import { add2Prong } from './add-2-prong.js';
  * @param loops The loops (that as a precondition must be ordered from 
  * highest (i.e. smallest y-value) topmost point loops to lowest)
  * @param cpTrees
- * @param extreme The maximum coordinate value used to calculate floating point
+ * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
 function findAndAddHoleClosing2Prongs(
-        loops: Loop[],
-        cpTrees: Map<Loop,LlRbTree<CpNode>>,
-        extreme: number) {
+        meta: MatMeta) {
 
-    const bounds = getShapeBounds(loops);
-    const squaredDiagonalLength = 
-        (bounds.maxX.p[0] - bounds.minX.p[0])**2 +
-        (bounds.maxY.p[1] - bounds.minY.p[1])**2;
+    const { loops } = meta;
 
     // Find the topmost points on each loop.
     const minYs = loops.map(getMinYPos);
+
+    let cpNode: CpNode | undefined;
 
     // We start at 1 since 0 is the outer (root) loop
     for (let k=1; k<minYs.length; k++) {
         const posSource = minYs[k];
         
         const holeClosingTwoProng = find2Prong(
-            0, loops, extreme, squaredDiagonalLength, cpTrees, posSource, true, k, false
+            meta, true, false, 0, posSource
         );
 
         if (!holeClosingTwoProng) { 
@@ -45,8 +43,12 @@ function findAndAddHoleClosing2Prongs(
         // - currently we only handle case of single antipode (the general case)
         const { circle, zs: posAntipodes } = holeClosingTwoProng;
 
-        add2Prong(cpTrees, circle, posSource, [posAntipodes[0]], true, extreme);
-    }	
+        const _cpNode = add2Prong(meta, circle, [posSource, posAntipodes[0]], true);
+
+        cpNode = cpNode === undefined ? _cpNode : cpNode;
+    }
+
+    return cpNode;
 }
 
 

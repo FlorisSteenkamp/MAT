@@ -1,4 +1,4 @@
-import { Curve } from "../curve/curve";
+import { Curve } from "../curve/curve.js";
 type FootAndEndpointInfo = {
     curve: Curve;
     p: number[];

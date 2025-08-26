@@ -1,10 +1,11 @@
 /** @internal */
 import { circumCenter } from 'flo-vector2d';
 import { CpNode      } from '../cp-node/cp-node.js';
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 import { createPos } from '../point-on-shape/create-pos.js';
 
+const { max, ceil, log2 } = Math;
 
 /**
  * @internal
@@ -16,12 +17,16 @@ import { createPos } from '../point-on-shape/create-pos.js';
  * @param extreme 
  */
 function calcInitial3ProngCenter(
+        maxCoordinate: number,
         δ3s: CpNode[][], 
-        bezierPiece3s: BezierPiece[][]) {
+        bezierPiece3s: CurvePiece[][]) {
 
-    const twoProngCircleCenter = δ3s[0][0].cp.circle.center;
+    const circle = δ3s[0][0].cp.circle;
+    const twoProngCircleCenter = circle.center;
 
+    const pow = max(0,ceil(log2(maxCoordinate/circle.radius))) + 1;  // determines accuracy;
     const pos = getCloseBoundaryPointsCertified(
+        pow,
         bezierPiece3s[1],
         twoProngCircleCenter
     )[0];

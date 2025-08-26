@@ -1,36 +1,44 @@
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { TwoProngForDebugging } from './two-prong-for-debugging.js';
-import { ThreeProngForDebugging } from './three-prong-for-debugging.js';
-import { Curve } from '../curve/curve.js';
 import { Mat } from '../mat/mat.js';
 import { CpNode } from '../cp-node/cp-node.js';
-import { Circle } from '../geometry/circle.js';
-import { ICpNodeForDebugging } from './cp-node-for-debugging.js';
+
+
+type DebugElemKey = keyof typeof emptyDebugElems;
+
+
+const emptyDebugElems = {
+    oneProng: [] as CpNode[][],
+    // oneProngAtDullCorner: [] as PointOnShape[],
+    twoProng: [] as CpNode[],
+    threeProng: [] as CpNode[],
+    looseBoundingBox: [] as number[][][],
+    tightBoundingBox: [] as number[][][],
+    boundingHull: [] as number[][][],
+    // sharpCorner: [] as Curve[],
+    // dullCorner: [] as Curve[],
+    vertex: [] as CpNode[],
+    mat: [] as Mat[],
+    maxVertex: [] as CpNode[],
+    leaves: [] as CpNode[][],
+    cull: [] as number[][],
+    cpNode: [] as CpNode[],
+    branch: [] as CpNode[][],
+    holeCloser: [] as CpNode[],
+    speed: [] as CpNode[]
+} as const;
+
+
+const debugElemNames = 
+    Object.keys(emptyDebugElems) as Array<keyof typeof emptyDebugElems>;
 
 
 /** @internal */
-interface IDebugElems {
-    oneProng: CpNode[];
-    oneProngAtDullCorner: PointOnShape;    
-    twoProng_regular: TwoProngForDebugging;
-	twoProng_failed: TwoProngForDebugging;
-	twoProng_notAdded: TwoProngForDebugging;
-	twoProng_deleted: TwoProngForDebugging;
-    twoProng_holeClosing: TwoProngForDebugging;
-    threeProng: ThreeProngForDebugging;
-    looseBoundingBox: number[][];
-    tightBoundingBox: number[][];
-    boundingHull: number[][];
-    sharpCorner: Curve
-    dullCorner: Curve;
-    vertex: CpNode;
-    mat: Mat;
-    sat: Mat;
-    maxVertex: CpNode;
-    leaves: CpNode[];
-    culls: Circle[];
-    cpNode: ICpNodeForDebugging;
+type DebugElems = typeof emptyDebugElems;
+
+type DebugElem = { [T in keyof DebugElems]: DebugElems[T][number]; }
+
+
+export {
+    DebugElems, DebugElemKey, DebugElem,
+    emptyDebugElems, debugElemNames,
 }
 
-
-export { IDebugElems }

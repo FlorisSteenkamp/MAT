@@ -16,28 +16,34 @@ const { sqrt } = Math;
 
 /**
  * @internal
+ * 
+ * @param pow
  * @param curve The curve
  * @param x The point from which to check
  * @param tRange The allowed t range
  * @param touchedCurve The bezier on which p is located
  * @param t The t value of the bezier that locates p
+ * @param for1Prong defaults to `false;
+ * @param angle defaults to `0`;
  */
 function getPotentialClosestPointsOnCurveCertified(
+        pow: number,
         curve: Curve, 
         x: number[], 
-        [tS,tE]: number[] = [0,1], 
+        tRange: number[] = [0,1], 
         touchedCurve: Curve | undefined = undefined,
         t: number | undefined = undefined,
         for1Prong = false,
         angle = 0): FootAndEndpointInfo[] {
 
+    const [tS,tE] = tRange;
     const ps = curve.ps;
 
     const shouldDeflate = angle === 0 && curve === touchedCurve;
 
     let { polyDd: polyDdO, polyE: polyEO, getPolyExact: getPolyExactO } =
         getFootPointsOnBezierPolysCertified(ps, x);
-    
+
     const def = shouldDeflate
             ? ddDeflateWithRunningError(polyDdO, polyEO.map(e => e/γγ3), t!)
             : undefined;
@@ -52,10 +58,22 @@ function getPotentialClosestPointsOnCurveCertified(
     
     const { polyDd, polyE, getPolyExact } = 
               def3 !== undefined
-            ? { polyDd: def3.coeffs, polyE: def3.errBound.map(e => e/γγ3), getPolyExact:  () => eDeflate(eDeflate(eDeflate(getPolyExactO(), t!), t!), t!) }
+            ? {
+                polyDd: def3.coeffs,
+                polyE: def3.errBound,
+                getPolyExact:  () => eDeflate(eDeflate(eDeflate(getPolyExactO(), t!), t!), t!)
+            }
             : def !== undefined
-            ? { polyDd: def.coeffs, polyE: def.errBound.map(e => e/γγ3), getPolyExact: () => eDeflate(getPolyExactO(), t!) }
-            : { polyDd: polyDdO, polyE: polyEO, getPolyExact: getPolyExactO };
+            ? {
+                polyDd: def.coeffs,
+                polyE: def.errBound,
+                getPolyExact: () => eDeflate(getPolyExactO(), t!)
+            }
+            : {
+                polyDd: polyDdO,
+                polyE: polyEO,
+                getPolyExact: getPolyExactO
+            };
     
     const ris = allRootsCertified(polyDd, tS, tE, polyE, getPolyExact);
 
@@ -98,7 +116,7 @@ function getPotentialClosestPointsOnCurveCertified(
         const box = getIntervalBox(ps, [ts, te]);
         const p_ = getPFromBox(box);
         
-        const dSquaredI = rootIntervalToDistanceSquaredInterval(box, x);
+        const dSquaredI = rootIntervalToDistanceSquaredInterval(pow, box, x);
 
         const t_ = t === 0 ? 1 : t;
         const curve_ = t === 0 ? curve.prev : curve;

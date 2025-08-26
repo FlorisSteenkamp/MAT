@@ -1,7 +1,7 @@
 import { Mat } from './mat.js';
 import { createNewCpTree } from './create-new-cp-tree.js';
 import { cullNonCycles } from '../sat/cull-non-cycles.js';
-import { clone } from '../cp-node/clone.js';
+import { clone } from '../cp-node/fs/clone.js';
 
 
 /**
@@ -14,7 +14,13 @@ function trimMat(mat: Mat): Mat {
 
     if (!cpNode) { return undefined!; }
 
-    return { cpNode, cpTrees: createNewCpTree(cpNode) };
+    return {
+        cpNode,
+        meta: {
+            ...mat.meta,
+            cpTrees: createNewCpTree(cpNode)
+        }
+    }
 }
 
 

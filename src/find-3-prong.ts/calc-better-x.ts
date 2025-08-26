@@ -1,6 +1,6 @@
 import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { BezierPiece  } from '../mat/bezier-piece.js';
+import { CurvePiece  } from '../mat/curve-piece.js';
 import { getClosestPoints } from './get-closest-points.js';
 
 
@@ -16,7 +16,7 @@ import { getClosestPoints } from './get-closest-points.js';
  * @param extreme
  */
 function calcBetterX(
-        bezierPiece3s: BezierPiece[][], 
+        bezierPiece3s: CurvePiece[][], 
         x: number[], 
         vectorToZeroV: number[]) {
 
@@ -25,7 +25,7 @@ function calcBetterX(
     let nu = 1;
     let better;
     let newX;
-    let newPs: (PointOnShape | undefined)[];
+    let newPoss: PointOnShape[];
     let newV;
     let i = 0; // Safeguard
     do { 
@@ -33,10 +33,10 @@ function calcBetterX(
         newX = translate(shift, x); 
         
         
-        newPs = getClosestPoints(newX, bezierPiece3s);
-                    
+        newPoss = getClosestPoints(newX, bezierPiece3s);
+
         // Point of zero V
-        const newCircleCenter = circumCenter(newPs.map(pos => pos!.p)); 
+        const newCircleCenter = circumCenter(newPoss.map(pos => pos!.p)); 
         const newVectorToZeroV = fromTo(newX, newCircleCenter);
         newV = len(newVectorToZeroV);
         
@@ -47,7 +47,7 @@ function calcBetterX(
         i++;
     } while (!better && i < 3);
 
-    return { newX, newV, newPs } 
+    return { newX, newV, newPoss } 
 }
 
 

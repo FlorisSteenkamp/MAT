@@ -1,4 +1,4 @@
-import { getCurvatureExtremaDd, getCurvatureExtremaE, controlPointLinesLength, getCurvatureExtrema } from 'flo-bezier3';
+import { getCurvatureExtremaDd, controlPointLinesLength } from 'flo-bezier3';
 import { Loop } from 'flo-boolean';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { createPos } from '../point-on-shape/create-pos.js';
@@ -17,6 +17,26 @@ function getFor1ProngsOnLoop(
     return function(loop: Loop) {
         const for1Prongs: PointOnShape[] = [];
 
+        const poss = getCurvatureExtremaPoss(minBezLength)(loop);
+        for1Prongs.push(...poss.minima, ...poss.maxima);
+
+        return for1Prongs;
+    }
+}
+
+
+function getCurvatureExtremaPoss(
+        minBezLength: number) {
+
+    return function(loop: Loop) {
+        const poss: {
+            minima: PointOnShape[],
+            maxima: PointOnShape[]
+        } = {
+            minima: [],
+            maxima: []
+        };
+
         for (let i=0; i<loop.curves.length; i++) {
             const curve = loop.curves[i];
 
@@ -24,15 +44,14 @@ function getFor1ProngsOnLoop(
                 continue;
             }
             
-            // const { minima, maxima } = getCurvatureExtrema(curve.ps);
             const { minima, maxima } = getCurvatureExtremaDd(curve.ps);
-            // const { minima, maxima } = getCurvatureExtremaE(curve.ps);
-            const maxAbsCurvatures = [...minima, ...maxima].map(t => createPos(curve, t, true));
+            // const maxAbsCurvatures = [...minima, ...maxima].map(t => createPos(curve, t, true));
 
-            for1Prongs.push(...maxAbsCurvatures);
+            poss.minima.push(...minima.map(t => createPos(curve, t, true)));
+            poss.maxima.push(...maxima.map(t => createPos(curve, t, true)));
         }
 
-        return for1Prongs;
+        return poss;
     }
 }
 

@@ -1,2 +1,2 @@
-declare const getBoundingBox_: (a: number[][]) => number[][];
-export { getBoundingBox_ };
+declare const getBoundingBox$: (a: number[][]) => number[][];
+export { getBoundingBox$ };

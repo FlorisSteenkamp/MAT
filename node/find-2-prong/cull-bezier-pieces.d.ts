@@ -1,4 +1,4 @@
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/bezier-piece.js';
 /**
  * @internal
  * Cull all bezierPieces not within given radius of a given point.
@@ -7,5 +7,5 @@ import { BezierPiece } from '../mat/bezier-piece.js';
  * @param p
  * @param rSquared
  */
-declare function cullBezierPieces2(bezierPieces: BezierPiece[], p: number[], rSquared: number): BezierPiece[];
+declare function cullBezierPieces2(bezierPieces: CurvePiece[], p: number[], rSquared: number): CurvePiece[];
 export { cullBezierPieces2 };

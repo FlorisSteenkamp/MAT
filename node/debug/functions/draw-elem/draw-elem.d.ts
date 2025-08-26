@@ -1,8 +1,10 @@
-import { IDebugElems } from '../../debug-elem-types.js';
+import { DebugElem, DebugElemKey } from '../../debug-elem-types.js';
+type DrawElemFunction<T extends DebugElemKey> = (g: SVGGElement, elem: DebugElem[T], classes?: string, delay?: number, scaleFactor?: number, options?: any) => SVGElement[];
 /** @internal */
-type TDrawElemFunctions = {
-    [T in keyof IDebugElems]: (g: SVGGElement, elem: IDebugElems[T], classes?: string, delay?: number, scaleFactor?: number) => SVGElement[];
+type DrawElemFunctions = {
+    [T in DebugElemKey]: DrawElemFunction<T>;
 };
 /** @internal */
-declare const drawElemFunctions: TDrawElemFunctions;
-export { drawElemFunctions, TDrawElemFunctions };
+declare const drawElemFs: DrawElemFunctions;
+declare const drawElemFsDetailed: DrawElemFunctions;
+export { drawElemFs, drawElemFsDetailed, DrawElemFunctions };

@@ -6,11 +6,13 @@ import { PointOnShape } from "./point-on-shape.js";
 /**
  * @internal
  */
-const isPosDullCorner = memoize((pos: PointOnShape) => {
-    if (!isPosCorner(pos)) { return false; }
+// const isPosDullCorner = memoize(
+    function isPosDullCorner(pos: PointOnShape) {
+        if (!isPosCorner(pos)) { return false; }
 
-    return getPosCorner(pos).isDull;
-});
+        return getPosCorner(pos).isDull;
+    }
+// );
 
 
 export { isPosDullCorner }

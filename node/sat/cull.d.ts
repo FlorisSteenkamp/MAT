@@ -1,5 +1,5 @@
-import { Circle } from '../geometry/circle.js';
 import { CpNode } from '../cp-node/cp-node.js';
+import { DualSet } from '../utils/dual-set.js';
 /**
  * @internal
  * Returns the set of Vertices passing the following test: walk the MAT tree and
@@ -8,5 +8,5 @@ import { CpNode } from '../cp-node/cp-node.js';
  * @param culls The CpNodes (referred to by circles) that should be culled.
  * @param maxCpNode The start CpNode which must reprsesent the maximal vertex.
  */
-declare function cull(culls: Set<Circle>, maxCpNode: CpNode): void;
+declare function cull(culls: DualSet<number, number>, maxCpNode: CpNode): void;
 export { cull };

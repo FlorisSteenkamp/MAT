@@ -10,7 +10,6 @@ interface Corner {
      */
     tangents: number[][];
     /** The cross of the unit tangents. */
-    crossTangents: number;
     /**
      * True if the corner is sharp, i.e. > 0 radians as one goes in a positive
      * direction around the shape boundary.

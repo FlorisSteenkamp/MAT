@@ -1,4 +1,5 @@
 import { Mat } from '../mat/mat.js';
+import { MatOptions } from './mat-options.js';
 /**
  * Finds and returns the Medial Axis Transforms (MATs) from the given array of
  * bezier loops representing shape boundaries.
@@ -14,7 +15,8 @@ import { Mat } from '../mat/mat.js';
  * before an additional MAT point is inserted in between. Defaults to 0.4.
  * (Curviness is measured as the total angle in radians between the consecutive
  * vectors formed by the ordered control points of th bezier curve). The value
- * is clipped in the range `[0.05,3]`.
+ * is clipped in the range `[0.01,3]`.
+ *
  * @param maxLength The maximum length a curve can have before an additional MAT
  * point is inserted. This value is scaled to a reference 1024 x 1024
  * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the value will be
@@ -22,5 +24,5 @@ import { Mat } from '../mat/mat.js';
  * tolerance for the accuracy of the MAT. Defaults to 4. The value is clipped
  * in [1,100].
  */
-declare function findMats(bezierLoops: number[][][][], maxCurviness?: number, maxLength?: number): Mat[];
+declare function findMats(bezierLoops: number[][][][], options?: MatOptions): Mat[];
 export { findMats };

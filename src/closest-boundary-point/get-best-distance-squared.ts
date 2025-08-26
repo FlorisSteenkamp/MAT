@@ -1,6 +1,6 @@
 import { evalDeCasteljau } from 'flo-bezier3';
 import { squaredDistanceBetween } from 'flo-vector2d';
-import { BezierPiece } from "../mat/bezier-piece.js";
+import { CurvePiece } from "../mat/curve-piece.js";
 
 
 /**
@@ -9,7 +9,7 @@ import { BezierPiece } from "../mat/bezier-piece.js";
  * this distance away.
  */ 
 function getBestDistanceSquared(
-        bezierPieces: BezierPiece[], 
+        bezierPieces: CurvePiece[], 
         p: number[]) {
 
     let bestSquaredDistance = Number.POSITIVE_INFINITY;

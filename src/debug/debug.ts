@@ -1,11 +1,8 @@
 import { generalDebugFunctions } from './functions/general.js';
 import { IGeneralDebugFunctions } from './functions/general.js'; 
-import { twoProngDebugFunctions } from './functions/two-prong.js';
-import { ITwoProngDebugFunctions } from './functions/two-prong.js';
-import { threeProngDebugFunctions } from './functions/three-prong.js';
-import { IThreeProngDebugFunctions } from './functions/three-prong.js';
-import { drawElemFunctions, TDrawElemFunctions } from './functions/draw-elem/draw-elem.js';
-import { IDebugElems } from './debug-elem-types.js';
+import { DrawElemFunctions } from './functions/draw-elem/draw-elem.js';
+import { DebugElems } from './debug-elem-types.js';
+import { drawElemFs } from './functions/draw-elem/draw-elem.js';
 
 
 /** @internal */
@@ -22,7 +19,7 @@ interface Debug {
 
 
 /** @internal */
-type GeneratedElems = { [T in keyof IDebugElems]: IDebugElems[T][] };
+type GeneratedElems = { [T in keyof DebugElems]: DebugElems[T][] };
 
 
 /** @internal */
@@ -46,10 +43,7 @@ interface Generated {
 
 /** @internal */
 interface IDebugFunctions extends IGeneralDebugFunctions {
-    //draw       : IDrawFunctions,
-    twoProng   : ITwoProngDebugFunctions,
-    threeProng : IThreeProngDebugFunctions,
-    drawElem   : TDrawElemFunctions,
+    drawElem   : DrawElemFunctions,
 }
 
 
@@ -77,29 +71,31 @@ function enableDebugForMat(debugOn: boolean) {
         generated: { 
             //...debug?.generated,
             ...(!debug ? {} : !debug.generated ? {} : debug.generated),
+            // @ts-ignore
             elems: { 
                 //...debug?.generated?.elems,
                 ...(!debug ? {} : !debug.generated ? {} : !debug.generated.elems ? {} : debug.generated.elems),
                 oneProng             : [],
-                oneProngAtDullCorner : [],
-                twoProng_regular     : [],
-                twoProng_failed      : [],
-                twoProng_notAdded    : [],
-                twoProng_deleted     : [],
-                twoProng_holeClosing : [],
+                // oneProngAtDullCorner : [],
+                twoProng             : [],
+                // twoProng_regular     : [],
+                // twoProng_failed      : [],
+                // twoProng_notAdded    : [],
+                // twoProng_deleted     : [],
+                // twoProng_holeClosing : [],
                 looseBoundingBox     : [],
                 tightBoundingBox     : [],
-                sharpCorner          : [],
-                dullCorner           : [],
+                // sharpCorner          : [],
+                // dullCorner           : [],
                 vertex               : [],
                 threeProng           : [],
                 boundingHull         : [],
                 mat                  : [],
-                sat                  : [],
+                // sat                  : [],
                 cpNode               : [],
                 maxVertex            : [],
                 leaves               : [],
-                culls                : [],
+                // culls                : [],
             },
             timing: {
                 //...debug?.generated?.timing,
@@ -114,14 +110,13 @@ function enableDebugForMat(debugOn: boolean) {
         fs: {
             //...debug?.fs,
             ...(!debug ? {} : !debug.fs ? {} : debug.fs),
+            // @ts-ignore
             drawElem: {
                 //...debug?.fs?.drawElem,
                 ...(!debug ? {} : !debug.fs ? {} : !debug.fs.drawElem ? {} : debug.fs.drawElem),
-                ...drawElemFunctions
+                ...drawElemFs
             },
-            ...generalDebugFunctions,
-            twoProng: twoProngDebugFunctions,
-            threeProng: threeProngDebugFunctions, 
+            ...generalDebugFunctions
         },
         directives: {
             //...debug?.directives,

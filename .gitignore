@@ -3,5 +3,6 @@ coverage/
 .npm-debug.log
 node_modules
 c.bat
+d.bat
 papers
 notes.txt

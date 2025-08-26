@@ -1,5 +1,4 @@
 import { Loop } from 'flo-boolean';
-import { getCorner } from '../corner/get-corner.js';
 /**
  * Represents a bezier curve on the shape boundary / loop.
  */
@@ -24,10 +23,4 @@ interface Curve {
     next: Curve;
     idx: number;
 }
-/**
- * @internal
- * Returns information about the corner created at the end of this curve
- * (at t === 1) and the start of the next curve (at t === 0).
- */
-declare const getCornerAtEnd: (a: Curve) => import("../corner/corner.js").Corner;
-export { Curve, getCorner, getCornerAtEnd };
+export { Curve };

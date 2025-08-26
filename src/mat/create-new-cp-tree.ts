@@ -1,6 +1,9 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode, cpNodeComparator, getAllOnLoop } from '../cp-node/cp-node.js';
 import { Loop } from 'flo-boolean';
+import { CpNode } from '../cp-node/cp-node.js';
+import { CpNodeFs } from '../cp-node/cp-node-fs.js';
+
+const { cpNodeComparator, getAllOnLoop } = CpNodeFs;
 
 
 /**

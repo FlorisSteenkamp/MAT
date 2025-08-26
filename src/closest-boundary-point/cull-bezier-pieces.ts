@@ -1,4 +1,4 @@
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 import { getBestDistanceSquared } from './get-best-distance-squared.js';
 import { cullByLooseBoundingBox } from './cull-by-loose-bounding-box.js';
 import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
@@ -11,7 +11,7 @@ import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
  * @param extreme
  */
 function cullBezierPieces1(
-        bezierPieces: BezierPiece[],
+        bezierPieces: CurvePiece[],
         p: number[]) {
 
     const bestSquaredDistance = getBestDistanceSquared(

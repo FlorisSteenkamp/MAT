@@ -1,11 +1,11 @@
-/** @internal */
-declare const _debug_: Debug; 
-
 import { beziersToSvgPathStr, simplifyPaths } from 'flo-boolean';
-import { Debug } from '../debug/debug.js';
+import { getLoopsMetrics } from '../loop/get-max-coordinate.js';
 import { Mat } from '../mat/mat.js';
+import { simplifyMat } from '../mat/simplify-mat.js';
+import { toScaleAxis } from '../sat/to-scale-axis.js';
+import { clipOptions } from './clip-options.js';
 import { findMat  } from './find-mat.js';
-import { getSizeParams } from './get-size-params.js';
+import { defaultMatOptions, MatOptions } from './mat-options.js';
 
 
 /**
@@ -23,7 +23,8 @@ import { getSizeParams } from './get-size-params.js';
  * before an additional MAT point is inserted in between. Defaults to 0.4. 
  * (Curviness is measured as the total angle in radians between the consecutive 
  * vectors formed by the ordered control points of th bezier curve). The value
- * is clipped in the range `[0.05,3]`.
+ * is clipped in the range `[0.01,3]`.
+ * 
  * @param maxLength The maximum length a curve can have before an additional MAT 
  * point is inserted. This value is scaled to a reference 1024 x 1024 
  * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the value will be 
@@ -32,35 +33,51 @@ import { getSizeParams } from './get-size-params.js';
  * in [1,100].
  */
 function findMats(
-		bezierLoops: number[][][][], 
-		maxCurviness = 0.4,
-        maxLength = 4): Mat[] {
+		bezierLoops: number[][][][],
+		options?: MatOptions): Mat[] {
 
 	// if (typeof _debug_ !== 'undefined') { var timingStart = performance.now(); }
+	const { maxCoordinate, maxRadius } = getLoopsMetrics(bezierLoops);
 
-	let maxCoordinate: number;
-	let minBezLength: number;
-	({ maxCurviness, maxLength, maxCoordinate, minBezLength } = 
-		getSizeParams(bezierLoops, maxCurviness, maxLength));
+	const options_: Required<MatOptions> = clipOptions(
+		maxCoordinate,
+		maxRadius, {
+		...defaultMatOptions,
+		...(options || {})
+	});
+
+	const {
+		applySat, simplify,
+		satScale, simplifyTolerance
+	} = options_;
+
 
 	const loopss = simplifyPaths(bezierLoops);
+	// console.log(loopsToSvgPathStr(bezierLoops));
+	// const loopss = [bezierLoops.map(loop => loopFromBeziers(loop,0))];
 	// console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => v.map(v => v*2**4))))));
+	// console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => [-v[0],v[1]])))));
 	// console.log(loopsToSvgPathStr(loopss[0].map(loop => loop.beziers)));
 
 	const mats: Mat[] = [];
 	for (const loops of loopss) {
-		const mat = findMat(
-			loops, 
-			minBezLength, 
-			maxCurviness, 
-			maxLength,
-			maxCoordinate
-		);
-		if (mat) { mats.push(mat); }
-	}
+		let mat = findMat(loops, maxCoordinate, options_);
+		if (mat === undefined) { continue; }
 
+		if (applySat) {
+			mat = toScaleAxis(mat, satScale);
+		}
+
+		if (simplify) {
+			mat = simplifyMat(mat, simplifyTolerance, 50)
+		}
+
+		mats.push(mat);
+	}
+	
 	return mats;
 }
+
 
 
 /**

@@ -10,7 +10,7 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
  */
 declare function find3Prong(δs: CpNode[][], extreme: number): {
     circle: Circle;
-    ps: PointOnShape[];
+    poss: PointOnShape[];
     δ3s: CpNode[][];
 };
 export { find3Prong };

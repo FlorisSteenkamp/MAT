@@ -1,5 +1,5 @@
 import { CpNode } from '../cp-node/cp-node.js';
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/bezier-piece.js';
 /**
  * @internal
  * Finds an initial 3-prong circle center point from which to iterate. The point
@@ -9,5 +9,5 @@ import { BezierPiece } from '../mat/bezier-piece.js';
  * @param bezierPiece3s
  * @param extreme
  */
-declare function calcInitial3ProngCenter(δ3s: CpNode[][], bezierPiece3s: BezierPiece[][]): number[];
+declare function calcInitial3ProngCenter(maxCoordinate: number, δ3s: CpNode[][], bezierPiece3s: CurvePiece[][]): number[];
 export { calcInitial3ProngCenter };

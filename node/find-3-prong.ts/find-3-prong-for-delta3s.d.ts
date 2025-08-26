@@ -1,5 +1,5 @@
 import { CpNode } from '../cp-node/cp-node.js';
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/bezier-piece.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
  * @internal
@@ -7,11 +7,11 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
  * @param δs The boundary pieces
  * @param idx δ identifier
  * @param bezierPiecess
- * @param extreme The maximum coordinate value used to calculate floating point
+ * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
-declare function find3ProngForDelta3s(δs: CpNode[][], idx: number, k: number, bezierPiecess: BezierPiece[][], extreme: number): {
-    ps: (PointOnShape | undefined)[];
+declare function find3ProngForDelta3s(δs: CpNode[][], idx: number, k: number, bezierPiecess: CurvePiece[][], maxCoordinate: number): {
+    poss: PointOnShape[];
     circle: {
         center: number[];
         radius: number;

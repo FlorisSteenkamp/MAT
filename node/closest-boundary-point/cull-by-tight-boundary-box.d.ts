@@ -1,4 +1,4 @@
-import { BezierPiece } from "../mat/bezier-piece.js";
+import { CurvePiece } from "../mat/bezier-piece.js";
 /**
  * @internal
  * When checking distances, ignore all those with closest possible distance
@@ -7,5 +7,5 @@ import { BezierPiece } from "../mat/bezier-piece.js";
  * @param p
  * @param bestSquaredDistance
  */
-declare function cullByTightBoundingBox(bezierPieces: BezierPiece[], p: number[], bestSquaredDistance: number): BezierPiece[];
+declare function cullByTightBoundingBox(bezierPieces: CurvePiece[], p: number[], bestSquaredDistance: number): CurvePiece[];
 export { cullByTightBoundingBox };

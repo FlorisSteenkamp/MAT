@@ -1,6 +1,6 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from '../cp-node/cp-node.js';
 import { Loop } from 'flo-boolean';
+import { CpNode } from '../cp-node/cp-node.js';
 /**
  * @internal
  * @param cpNode

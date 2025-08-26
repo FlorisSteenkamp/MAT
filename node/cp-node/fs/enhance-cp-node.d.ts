@@ -1,0 +1,34 @@
+import { CpNode } from "../cp-node.js";
+declare function enhanceCpNode(cpNode: CpNode): {
+    pos: import("../../index.js").PointOnShape;
+    p: number[];
+    t: number;
+    isTerminating: boolean;
+    isFullyTerminating: boolean;
+    isSharp: boolean;
+    prongCount: number;
+    getRealProngCount: number;
+    ordering: {
+        idx: number;
+        t: number;
+        order: number;
+        order2: number;
+    };
+    curve: import("../../index.js").Curve;
+    loop: import("flo-boolean").Loop;
+    cp: import("../../index.js").ContactPoint;
+    isHoleClosing: boolean;
+    isIntersection: boolean;
+    prev: CpNode;
+    next: CpNode;
+    prevOnCircle: CpNode;
+    nextOnCircle: CpNode;
+    holeCloserNext?: CpNode | undefined;
+    holeCloserPrev?: CpNode | undefined;
+    id?: number;
+    children?: number[];
+    isRoot?: boolean;
+    parentId?: number;
+    childId?: number;
+};
+export { enhanceCpNode };

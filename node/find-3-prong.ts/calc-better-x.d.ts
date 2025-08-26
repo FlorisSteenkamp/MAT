@@ -1,5 +1,5 @@
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/bezier-piece.js';
 /**
  * @internal
  * Find new x and ps that are a better estimate of the 3-prong circle.
@@ -11,9 +11,9 @@ import { BezierPiece } from '../mat/bezier-piece.js';
  * @param vectorToZeroV
  * @param extreme
  */
-declare function calcBetterX(bezierPiece3s: BezierPiece[][], x: number[], vectorToZeroV: number[]): {
+declare function calcBetterX(bezierPiece3s: CurvePiece[][], x: number[], vectorToZeroV: number[]): {
     newX: number[];
     newV: number;
-    newPs: (PointOnShape | undefined)[];
+    newPoss: PointOnShape[];
 };
 export { calcBetterX };

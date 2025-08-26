@@ -1,16 +1,7 @@
-/** @internal */
-declare const _debug_: Debug;
-
-import { Debug } from '../debug/debug.js';
-import { LlRbTree } from 'flo-ll-rb-tree';
 import { distanceBetween, fromTo, interpolate, rotate, translate } from 'flo-vector2d';
-import { CpNode } from '../cp-node/cp-node.js';
-import { Loop } from 'flo-boolean';
 import { Circle } from '../geometry/circle.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getOsculatingCircle } from '../point-on-shape/get-osculating-circle.js';
-import { addDebugInfo } from './add-debug-info.js';
-import { TXForDebugging } from './x-for-debugging.js';
 import { findEquidistantPointOnLineDd } from './find-equidistant-point-on-line-dd.js';
 import { getInitialBezierPieces } from './get-initial-bezier-pieces.js';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
@@ -19,9 +10,11 @@ import { squaredDistanceBetweenDd } from './squared-distance-between-dd.js';
 import { cullBezierPieces2 } from './cull-bezier-pieces.js';
 import { add1Prong } from './add-1-prong.js';
 import { createPos } from '../point-on-shape/create-pos.js';
+import { MatMeta } from '../mat/mat-meta.js';
+import { calcSeperationTolerance } from './calc-seperation-tolerance.js';
 
 
-const { sqrt, abs, sin, cos } = Math;
+const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
 
 
 /**
@@ -40,105 +33,110 @@ const { sqrt, abs, sin, cos } = Math;
  *    d of dΩ as in Fig. 19."
  * In fact, we (and they) start by fixing one point on the boundary beforehand. 
  * @param loops A shape represented by path loops
- * @param extreme The extreme coordinate value of the shape
+ * @param maxCoordinate The extreme coordinate value of the shape
  * @param squaredDiagonalLength The squared diagonal length of the shape 
  * bounding box.
  * @param y The source point of the 2-prong to be found
  * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
- * @param k The loop array index
+ * @param loopIdx The loop array index
  */
 function find2Prong(
-		angle: number,
-		loops: Loop[],
-		extreme: number,
-		squaredDiagonalLength: number,
-		cpTrees: Map<Loop,LlRbTree<CpNode>>,
-        y: PointOnShape,
+		meta: MatMeta,
 		isHoleClosing: boolean,
-		k: number,
-		for1Prong: boolean): { circle: Circle,	zs: PointOnShape[] } | undefined {
+		for1Prong: boolean,
+		angle: number,
+        y: PointOnShape): { circle: Circle,	zs: PointOnShape[] } | undefined {
+
+	const { loops, maxCoordinate, squaredDiagonalLength, cpTrees } = meta;
+
+	const loop = y.curve.loop;
 
 	const MAX_ITERATIONS = 25;
-	const squaredSeperationTolerance = ((2**-21)*extreme)**2;
-	const errorTolerance = (2**-46)*extreme;
+	const minSquaredSeperationTolerance = ((2**-21)*maxCoordinate)**2;
+	const errorTolerance = (2**-46)*maxCoordinate;
+	// const errorTolerance = (2**-28)*maxCoordinate;
 	const maxOsculatingCircleRadius = sqrt(squaredDiagonalLength);
 	const minCurvature = 1/maxOsculatingCircleRadius;
+	const oneProngTolerance = (2**-16)*maxCoordinate;
 
-	let xO: number[];  // the original x to mitigate drift
+	const [xO,rO] = getO(
+		angle, isHoleClosing, maxOsculatingCircleRadius, minCurvature, y
+	);
+
 	const p = y.p;
-	let rO: number;
-	if (isHoleClosing) {
-		xO = [p[0], p[1] - maxOsculatingCircleRadius];
-		rO = maxOsculatingCircleRadius;
-	} else {
-		if (angle === 0) {
-			({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y));
-		} else {
-			({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y, true));
-			const v = fromTo(y.p, xO);
-			const v_ = rotate(sin(angle), cos(angle))(v);
-			xO = translate(y.p)(v_);
-		}
-	}
 
 	// The boundary piece that should contain the other point of 
 	// the 2-prong circle. (Defined by start and end points).
-	const { bezierPieces, δ } = getInitialBezierPieces(
-		angle, isHoleClosing, k, loops, cpTrees, y, { center: xO, radius: rO }
+	let bezierPieces = getInitialBezierPieces(
+		angle, isHoleClosing, loop, loops, cpTrees, y, { center: xO, radius: rO }
 	);
 
 	/** The center of the two-prong (successively refined) */
 	let x = xO;
 
 	// The lines below is an optimization.
-	const r_ = sqrt(reduceRadius(extreme, bezierPieces, p, xO));
+	const r_ = sqrt(reduceRadius(maxCoordinate, bezierPieces, p, xO));
 	if (rO > r_) {
 		x = interpolate(p, xO, r_/rO);
 	}
 
-	/** Trace the convergence (for debugging). */
-	const xs: TXForDebugging[] = []; 
 	/** The antipode of the two-prong (successively refined) */
 	let zs: PointOnShape[] = undefined!;
 	let z: PointOnShape = undefined!;
-	let bezierPieces_ = bezierPieces;
-
-	if (typeof _debug_ !== 'undefined') { xs.push({ x, y, z: undefined!, t: y.t }); }
 
 	let i = 0;
 	while (i < MAX_ITERATIONS) {
 		const xy = squaredDistanceBetweenDd(x, y.p);
 
-		if (i < 2) { bezierPieces_ = cullBezierPieces2(bezierPieces_, x, xy); }
-
-		zs = getCloseBoundaryPointsCertified(
-			bezierPieces_, x, y.curve, y.t,
+		if (i < 2) { bezierPieces = cullBezierPieces2(bezierPieces, x, xy); }
+		const pow = max(0,ceil(log2(maxCoordinate/xy))) + 1;  // determines accuracy
+		// console.log(pow);
+		const _zs = getCloseBoundaryPointsCertified(
+			pow, bezierPieces, x, y.curve, y.t,
 			for1Prong && i == 0 && rO !== 1/minCurvature,
 			angle
 		).map(info => createPos(info.curve, info.t, false));
 
-		z = zs[0];
+		let maxD = Number.NEGATIVE_INFINITY;
+		let maxPos: PointOnShape = undefined!;
+		zs = [];
+		for (const z of _zs) {
+			if (z === undefined) { continue; }
+			const _yz = squaredDistanceBetweenDd(y.p, z.p);
+			if (_yz > maxD) {
+				maxD = _yz;
+				maxPos = z;
+			}
+			if (_yz !== 0) {
+				zs.push(z);
+			}
+		}
+		// z = zs[0];
+		const yz = maxD;
+		z = maxPos;
 
-		if (z === undefined) {
-			addDebugInfo2(isHoleClosing);
+		if (z === undefined || yz === 0) {
+			// addDebugInfo2(isHoleClosing);
 			return undefined;
 		}
 
 		const xz = squaredDistanceBetweenDd(x, z.p);
-		const yz = squaredDistanceBetweenDd(y.p, z.p);
 
 		// if on first try
 		if (i === 0) {
-			if (rO < (1 - 2**-6)*sqrt(xz)) {
-				add1Prong(rO, xO, cpTrees, y);
+			if (rO < (1 - oneProngTolerance)*sqrt(xz)) {
+				add1Prong(meta, rO, xO, y);
 				return undefined;
 			}
 		}
 		
-		if (typeof _debug_ !== 'undefined') { xs.push({ x, y, z: createPos(z.curve, z.t, false), t: y.t }); }
+		// if (typeof _debug_ !== 'undefined') { xs.push({ x, y, z: createPos(z.curve, z.t, false), t: y.t }); }
 
 	
 		if (!isHoleClosing) {
+			const squaredSeperationTolerance = max(calcSeperationTolerance(
+				rO, sqrt(xz), 2**2*errorTolerance
+			), minSquaredSeperationTolerance);
 			if (yz <= squaredSeperationTolerance) {
 				// if (typeof _debug_ !== 'undefined') { console.log(`failed: seperation too small - ${sqrt(yz)}`); }
 				return undefined;
@@ -161,26 +159,48 @@ function find2Prong(
 		
 		if (i === MAX_ITERATIONS) {
 			// Convergence was too slow.
-			if (typeof _debug_ !== 'undefined') { console.log('failed (slow): max iterations reached'); }
+			// if (typeof _debug_ !== 'undefined') { console.log('failed (slow): max iterations reached'); }
 			return undefined;
 		}
 	}
 
 	const circle = { center: x, radius: distanceBetween(x, z.p) };
 
-	if (typeof _debug_ !== 'undefined') { addDebugInfo(bezierPieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
-	
+	// if (typeof _debug_ !== 'undefined') { addDebugInfo(bezierPieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
+
+	// return { circle, zs };
+	zs = zs.filter(z => z !== undefined)
+	// return { circle, zs };
 	return { circle, zs: [z] };
 }
 
 
-function addDebugInfo2(isHoleClosing: boolean) {
-	if (typeof _debug_ !== 'undefined') {
-		const elems = _debug_.generated.elems;
-		const elem = isHoleClosing  ? elems.twoProng_holeClosing : elems.twoProng_regular
-		const elemStr = isHoleClosing ? 'hole-closing: ' + elem.length : 'regular: ' + elem.length;
-		console.log('failed: no closest point - ' + elemStr);
+function getO(
+		angle: number,
+		isHoleClosing: boolean,
+		maxOsculatingCircleRadius: number,
+		minCurvature: number,
+		y: PointOnShape) {
+
+	let xO: number[];  // the original x to mitigate drift
+	const p = y.p;
+	let rO: number;
+	if (isHoleClosing) {
+		xO = [p[0], p[1] - maxOsculatingCircleRadius];
+		rO = maxOsculatingCircleRadius;
+	} else {
+		if (angle === 0) {
+			({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y));
+		} else {
+			({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y, true));
+			const v = fromTo(y.p, xO);
+			const v_ = rotate(sin(angle), cos(angle))(v);
+			xO = translate(y.p)(v_);
+		}
 	}
+
+	return [xO,rO] as [number[],number];
 }
+
 
 export { find2Prong }

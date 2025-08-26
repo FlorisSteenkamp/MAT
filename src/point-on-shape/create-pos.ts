@@ -6,14 +6,13 @@ import { PointOnShape } from "./point-on-shape.js"
 function createPos(
         curve: Curve,
         t: number,
-        source: boolean): PointOnShape {
+        isSource?: boolean): PointOnShape {
 
     return {
         curve,
         t,
         p: evalDeCasteljauDd(curve.ps, [0,t]).map(c => c[1]),
-        // angle
-        source
+        isSource: isSource === undefined ? false : isSource
     }
 }
 

@@ -1,7 +1,7 @@
 import { allRoots, deflate } from 'flo-poly';
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect.js';
-import { getBoundingBox_ } from '../geometry/get-bounding-box-.js';
+import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 
 
 /**
@@ -13,7 +13,7 @@ import { getBoundingBox_ } from '../geometry/get-bounding-box-.js';
  * @param dSquared 
  */
 function cullByLooseBoundingBox(
-        bezierPieces: BezierPiece[],
+        bezierPieces: CurvePiece[],
         p: number[],
         dSquared: number) {
 
@@ -23,7 +23,7 @@ function cullByLooseBoundingBox(
         const bezierPiece = bezierPieces[i];
         const ps = bezierPiece.curve.ps;
         
-        const boundingBox = getBoundingBox_(ps);
+        const boundingBox = getBoundingBox$(ps);
         
         const d = getClosestSquareDistanceToRect(
             boundingBox,

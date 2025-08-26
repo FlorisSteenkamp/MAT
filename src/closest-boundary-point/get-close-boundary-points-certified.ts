@@ -1,4 +1,4 @@
-import { BezierPiece  } from '../mat/bezier-piece.js';
+import { CurvePiece  } from '../mat/curve-piece.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
 import { cullBezierPieces1 } from './cull-bezier-pieces.js';
 import { Curve } from '../curve/curve.js';
@@ -11,14 +11,18 @@ import { createPos } from '../point-on-shape/create-pos.js';
  * @internal
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
+ * 
+ * @param pow
  * @param bezierPieces
  * @param x
  * @param touchedCurve
  * @param t
- * @param extreme
+ * @param for1Prong defaults to `false`;
+ * @param angle defaults to `0`
  */
 function getCloseBoundaryPointsCertified(
-        bezierPieces: BezierPiece[], 
+		pow: number,
+        bezierPieces: CurvePiece[], 
         x: number[], 
 		touchedCurve: Curve | undefined = undefined,
 		t: number | undefined = undefined,
@@ -32,6 +36,7 @@ function getCloseBoundaryPointsCertified(
 		const bezierPiece = bezierPieces[i];
 
 		const pInfos = getPotentialClosestPointsOnCurveCertified(
+			pow,
 			bezierPiece.curve, 
 			x, 
 			bezierPiece.ts, 

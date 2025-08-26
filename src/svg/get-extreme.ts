@@ -1,4 +1,4 @@
-import { Loop } from '../loop.js';
+import { Loop } from 'flo-boolean';
 import { getShapeBounds } from './get-shape-bounds.js';
 
 

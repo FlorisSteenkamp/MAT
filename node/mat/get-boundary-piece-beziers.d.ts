@@ -1,5 +1,5 @@
 import { CpNode } from '../cp-node/cp-node.js';
-import { BezierPiece } from './bezier-piece.js';
+import { CurvePiece } from './bezier-piece.js';
 /**
  * @internal
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)
@@ -7,5 +7,5 @@ import { BezierPiece } from './bezier-piece.js';
  * @param cpNodes - An ordered pair that represents the start and end points of
  * the boundary piece
  */
-declare function getBoundaryPieceBeziers(cpNodes: CpNode[]): BezierPiece[];
+declare function getBoundaryPieceBeziers(cpNodes: CpNode[]): CurvePiece[];
 export { getBoundaryPieceBeziers };

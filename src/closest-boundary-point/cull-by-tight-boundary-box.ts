@@ -1,6 +1,6 @@
 import { getBoundingBoxTight } from "flo-bezier3";
 import { memoize } from "flo-memoize";
-import { BezierPiece } from "../mat/bezier-piece.js";
+import { CurvePiece } from "../mat/curve-piece.js";
 import { getClosestSquaredDistanceToRotatedRect } from '../geometry/get-closest-squared-distance-to-rotated-rect.js';
 
 
@@ -16,7 +16,7 @@ const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
  * @param bestSquaredDistance 
  */
 function cullByTightBoundingBox(
-        bezierPieces: BezierPiece[], 
+        bezierPieces: CurvePiece[], 
         p: number[],
         bestSquaredDistance: number) {
 

@@ -8,7 +8,7 @@ interface PointOnShape {
     t: number;
     p: number[];
     /** just for debugging */
-    source: boolean;  
+    isSource?: boolean;
 }
 
 

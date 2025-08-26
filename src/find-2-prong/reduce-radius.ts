@@ -1,6 +1,6 @@
 import { evalDeCasteljau } from "flo-bezier3";
 import { dot, lineLineIntersection, squaredDistanceBetween } from "flo-vector2d";
-import { BezierPiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 
 
 /**
@@ -10,7 +10,7 @@ import { BezierPiece } from '../mat/bezier-piece.js';
  */
 function reduceRadius(
         extreme: number,
-        bezierPieces: BezierPiece[], 
+        bezierPieces: CurvePiece[], 
         p: number[],
         x: number[]) {
 

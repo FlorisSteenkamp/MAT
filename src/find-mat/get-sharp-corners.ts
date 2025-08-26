@@ -1,8 +1,8 @@
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { Loop } from 'flo-boolean';
 import { createPos } from '../point-on-shape/create-pos.js';
-import { getCornerAtEnd } from '../curve/curve.js';
 import { controlPointLinesLength } from 'flo-bezier3';
+import { getCorner } from '../corner/get-corner.js';
 
 
 /** @internal */
@@ -19,7 +19,7 @@ function getSharpCornersOnLoop(
                 continue;
             }
             
-            if (getCornerAtEnd(curve).isQuiteSharp) {
+            if (getCorner(curve.ps, curve.next.ps).isQuiteSharp) {
                 sharpCorners.push(createPos(curve, 1, true));
             }
         }
