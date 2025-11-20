@@ -1,7 +1,4 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from 'flo-boolean';
 import { CpNode } from '../cp-node/cp-node.js';
-import { getShapeBounds } from '../svg/get-shape-bounds.js';
 import { getMinYPos } from '../svg/get-min-y-pos.js';
 import { find2Prong } from './find-2-prong.js';
 import { add2Prong } from './add-2-prong.js';

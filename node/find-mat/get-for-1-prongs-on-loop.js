@@ -10,18 +10,28 @@ import { createPos } from '../point-on-shape/create-pos.js';
 function getFor1ProngsOnLoop(minBezLength) {
     return function (loop) {
         const for1Prongs = [];
+        const poss = getCurvatureExtremaPoss(minBezLength)(loop);
+        for1Prongs.push(...poss.minima, ...poss.maxima);
+        return for1Prongs;
+    };
+}
+function getCurvatureExtremaPoss(minBezLength) {
+    return function (loop) {
+        const poss = {
+            minima: [],
+            maxima: []
+        };
         for (let i = 0; i < loop.curves.length; i++) {
             const curve = loop.curves[i];
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
             }
-            // const { minima, maxima } = getCurvatureExtrema(curve.ps);
             const { minima, maxima } = getCurvatureExtremaDd(curve.ps);
-            // const { minima, maxima } = getCurvatureExtremaE(curve.ps);
-            const maxAbsCurvatures = [...minima, ...maxima].map(t => createPos(curve, t, true));
-            for1Prongs.push(...maxAbsCurvatures);
+            // const maxAbsCurvatures = [...minima, ...maxima].map(t => createPos(curve, t, true));
+            poss.minima.push(...minima.map(t => createPos(curve, t, true)));
+            poss.maxima.push(...maxima.map(t => createPos(curve, t, true)));
         }
-        return for1Prongs;
+        return poss;
     };
 }
 export { getFor1ProngsOnLoop };

@@ -1,9 +1,12 @@
-import { twoDiff, eEstimate, eMult, eAdd } from 'big-float-ts';
+import { twoDiff, eEstimate } from 'big-float-ts';
+import { ddMultDd, ddAddDd } from 'double-double';
 // We *have* to do the below to improve performance with bundlers❗ The assignee is a getter❗ The assigned is a pure function❗
 const estimate = eEstimate;
 const td = twoDiff;
-const emult = eMult;
-const eadd = eAdd;
+// const emult = eMult;
+// const eadd = eAdd;
+const qmq = ddMultDd;
+const qaq = ddAddDd;
 const eps = Number.EPSILON;
 /**
  * Returns the distance interval squared given the root interval (currently
@@ -16,7 +19,7 @@ const eps = Number.EPSILON;
  *
  * @internal
  */
-function rootIntervalToDistanceSquaredInterval(box, p) {
+function rootIntervalToDistanceSquaredInterval(pow, box, p) {
     const bl = box[0];
     const tr = box[1];
     const minX = bl[0];
@@ -41,10 +44,12 @@ function rootIntervalToDistanceSquaredInterval(box, p) {
         /** distance to 1st corner of interval box - `distance² = x² + y²` */
         const ax = td(a, x); // a - x
         const by = td(b, y); // b - y
-        const dc1Exact = eadd(emult(ax, ax), emult(by, by)); // ax**2 + bx**2
-        const dc1 = estimate(dc1Exact);
-        const dc1Min = dc1 * (1 - eps); // distance minus max error
-        const dc1Max = dc1 * (1 + eps); // distance plus max error
+        // const dc1Exact = eadd(emult(ax,ax),emult(by,by));  // ax**2 + bx**2
+        // const dc1 = estimate(dc1Exact);
+        const dc1Dd = qaq(qmq(ax, ax), qmq(by, by)); // ax**2 + bx**2
+        const dc1 = dc1Dd[1];
+        const dc1Min = dc1 * (1 - 2 ** pow * eps); // distance minus max error
+        const dc1Max = dc1 * (1 + 2 ** pow * eps); // distance plus max error
         if (dc1Min <= minDSquared) {
             minDSquared = dc1Min;
         }

@@ -1,46 +1,43 @@
-import { drawOneProng } from './one-prong.js';
-import { twoProng } from './two-prong.js';
-import { threeProng } from './three-prong.js';
-import { vertex } from './vertex.js';
+import { drawOneProng } from './draw-one-prong.js';
+import { drawTwoProng } from './draw-two-prong.js';
+import { drawThreeProng } from './draw-three-prong.js';
+import { vertex } from './draw-vertex.js';
 import { boundingHull } from './bounding-hull.js';
-import { looseBoundingBox } from './loose-bounding-box.js';
-import { tightBoundingBox } from './tight-bounding-box.js';
-import { sharpCorner } from './sharp-corner.js';
-import { dullCorner } from './dull-corner.js';
-import { drawMat } from './mat.js';
-import { maxVertex } from './max-vertex.js';
-import { leaves } from './leaves.js';
-import { culls } from './culls.js';
-import { oneProngAtDullCorner } from './one-prong-at-dull-corner.js';
+import { looseBoundingBox } from './draw-loose-bounding-box.js';
+import { tightBoundingBox } from './draw-tight-bounding-box.js';
+import { drawMat } from './draw-mat.js';
+import { maxVertex } from './draw-max-vertex.js';
+import { drawLeaves } from './draw-leaves.js';
+import { drawCull } from './draw-cull.js';
+import { drawBranch } from './draw-branch.js';
+import { drawCpNode } from './draw-cp-node.js';
+import { drawSpeed } from './draw-speed.js';
 /** @internal */
-function notImplementedYet(g, elem) {
-    return [];
-}
-/** @internal */
-const drawElemFunctions = {
+const drawElemFs = {
     oneProng: drawOneProng,
-    oneProngAtDullCorner,
-    twoProng_regular: twoProng,
-    twoProng_failed: twoProng,
-    twoProng_notAdded: twoProng,
-    twoProng_deleted: twoProng,
-    twoProng_holeClosing: twoProng,
-    threeProng,
-    //minY,
+    // oneProngAtDullCorner,
+    // csf,
+    twoProng: drawTwoProng(false, true),
+    threeProng: drawThreeProng,
     boundingHull,
     looseBoundingBox,
     tightBoundingBox,
-    sharpCorner,
-    dullCorner,
+    // sharpCorner,
+    // dullCorner,
     vertex,
-    mat: drawMat('mat'),
-    sat: drawMat('sat'),
-    //loop,
-    //loops,
+    mat: drawMat,
+    // sat: drawMat('sat'),
     maxVertex,
-    leaves,
-    culls,
-    cpNode: notImplementedYet
+    leaves: drawLeaves,
+    cull: drawCull,
+    cpNode: drawCpNode,
+    branch: drawBranch,
+    holeCloser: drawTwoProng(false, false),
+    speed: drawSpeed
 };
-export { drawElemFunctions };
+const drawElemFsDetailed = {
+    ...drawElemFs,
+    twoProng: drawTwoProng(true, true),
+};
+export { drawElemFs, drawElemFsDetailed };
 //# sourceMappingURL=draw-elem.js.map

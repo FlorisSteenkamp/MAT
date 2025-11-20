@@ -70,6 +70,7 @@ function find2Prong(
 	let bezierPieces = getInitialBezierPieces(
 		angle, isHoleClosing, loop, loops, cpTrees, y, { center: xO, radius: rO }
 	);
+	// console.log(bezierPieces.length);
 
 	/** The center of the two-prong (successively refined) */
 	let x = xO;
@@ -125,6 +126,7 @@ function find2Prong(
 		// if on first try
 		if (i === 0) {
 			if (rO < (1 - oneProngTolerance)*sqrt(xz)) {
+				// console.log('1prong');
 				add1Prong(meta, rO, xO, y);
 				return undefined;
 			}
@@ -169,8 +171,7 @@ function find2Prong(
 	// if (typeof _debug_ !== 'undefined') { addDebugInfo(bezierPieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
 
 	// return { circle, zs };
-	zs = zs.filter(z => z !== undefined)
-	// return { circle, zs };
+	// zs = zs.filter(z => z !== undefined)
 	return { circle, zs: [z] };
 }
 

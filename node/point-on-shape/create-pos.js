@@ -1,11 +1,10 @@
 import { evalDeCasteljauDd } from "flo-bezier3";
-function createPos(curve, t, source) {
+function createPos(curve, t, isSource) {
     return {
         curve,
         t,
         p: evalDeCasteljauDd(curve.ps, [0, t]).map(c => c[1]),
-        // angle
-        source
+        isSource: isSource === undefined ? false : isSource
     };
 }
 export { createPos };

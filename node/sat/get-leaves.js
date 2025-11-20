@@ -1,10 +1,12 @@
-import { getAllOnLoop, isTerminating } from '../cp-node/cp-node.js';
+import { CpNodeFs } from '../cp-node/cp-node-fs.js';
+import { isFullyTerminating } from '../cp-node/fs/is-fully-terminating.js';
+const { getAllOnLoop } = CpNodeFs;
 /** @internal */
 function getLeaves(cpNode) {
     const leaves = [];
     const cps = getAllOnLoop(cpNode);
     for (const cp of cps) {
-        if (isTerminating(cp)) {
+        if (isFullyTerminating(cp) && !cp.isHoleClosing) {
             leaves.push(cp);
         }
     }

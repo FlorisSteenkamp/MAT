@@ -1,145 +1,66 @@
-import { insertCpNode } from '../cp-node/cp-node.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { createPos } from '../point-on-shape/create-pos.js';
-import { isAnotherCpCloseby } from '../mat/is-another-cp-closeby.js';
-import { getNeighbouringPoints } from '../mat/get-neighboring-cps.js';
+import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
+import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
+import { addToCpTree } from '../mat/add-to-cp-tree.js';
+import { removeCpNode } from '../cp-node/fs/remove-cp-node.js';
 /**
  * @internal
  * Adds a 2-prong contact circle to the shape.
- * @param cpGraphs
+ *
+ * @param cpTrees
  * @param circle Circle containing the 2 contact points
  * @param posSource The source point on shape
  * @param posAntipode The found antipodal point on shape
- * @param holeClosing True if this is a hole-closing 2-prong, false otherwise
- * @param extreme The maximum coordinate value used to calculate floating point
+ * @param isHoleClosing True if this is a hole-closing 2-prong, false otherwise
+ * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
-function add2Prong(cpGraphs, circle, posSource, posAntipodes, holeClosing, extreme) {
-    let t_s = posSource.t;
-    if (t_s === 0) {
-        t_s = 1;
-        posSource = createPos(posSource.curve.prev, t_s, true);
-    }
-    const orderSource = calcPosOrder(circle, posSource);
-    const orderAntipodes = posAntipodes.map(posAntipode => calcPosOrder(circle, posAntipode));
+function add2Prong(meta, circle, poss, isHoleClosing) {
+    const { cpTrees } = meta;
+    poss[0] = poss[0].t === 0
+        ? createPos(poss[0].curve.prev, 1, true)
+        : poss[0];
+    const orders = poss.map(pos => calcPosOrder(circle, pos));
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
-    let isCloseByAntipodes = false;
-    for (let i = 0; i < posAntipodes.length; i++) {
-        const posAntipode = posAntipodes[i];
-        const orderAntipode = orderAntipodes[i];
-        if (!!isAnotherCpCloseby(cpGraphs, posAntipode, circle, orderAntipode, 0, extreme)) {
-            isCloseByAntipodes = true;
-            break;
+    for (let i = 0; i < poss.length; i++) {
+        if (!!getCloseByCpIfExist(meta, poss[i], circle, orders[i], 0, 2)) {
+            return undefined;
         }
     }
-    if (!!isAnotherCpCloseby(cpGraphs, posSource, circle, orderSource, 0, extreme) ||
-        isCloseByAntipodes) {
-        if (typeof _debug_ !== 'undefined') {
-            if (holeClosing) {
-                _debug_.generated.elems['twoProng_holeClosing'].pop();
+    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, orders, cpTrees, poss);
+    if (anyFailed) {
+        cpNodes.forEach(cpNode => {
+            if (cpNode !== undefined) {
+                removeCpNode(cpNode, cpTrees);
             }
-            else {
-                _debug_.generated.elems['twoProng_regular'].pop();
-            }
-        }
-        return;
+        });
+        return undefined;
     }
-    // Antipode
-    const newCpAntipodes = [];
-    const cpAntipodes = [];
-    const cpTreeAntipodes = [];
-    const deltaAntipodes = [];
-    const loopAntipodes = [];
-    for (let i = 0; i < posAntipodes.length; i++) {
-        const posAntipode = posAntipodes[i];
-        const orderAntipode = orderAntipodes[i];
-        const cpAntipode = {
-            pointOnShape: posAntipode, circle, order: orderAntipode, order2: 0
-        };
-        cpAntipodes.push(cpAntipode);
-        const loopAntipode = posAntipode.curve.loop;
-        loopAntipodes.push(loopAntipode);
-        const cpTreeAntipode = cpGraphs.get(loopAntipode);
-        cpTreeAntipodes.push(cpTreeAntipode);
-        const deltaAntipode = getNeighbouringPoints(cpTreeAntipode, posAntipode, orderAntipode, 0);
-        deltaAntipodes.push(deltaAntipode);
-        newCpAntipodes.push(insertCpNode(holeClosing, false, cpTreeAntipode, cpAntipode, deltaAntipode[0]));
+    // Get points ordered according to their angle with the x-axis
+    // joinSpokes(circle, cpNodes);
+    if (isHoleClosing) {
+        closeHole(cpTrees, cpNodes);
     }
-    // Source
-    const cpSource = { pointOnShape: posSource, circle, order: orderSource, order2: 0 };
-    const loopSource = posSource.curve.loop;
-    const cpTreeSource = cpGraphs.get(loopSource);
-    const deltaSource = getNeighbouringPoints(cpTreeSource, posSource, orderSource, 0);
-    const newCpSource = insertCpNode(holeClosing, false, cpTreeSource, cpSource, deltaSource[0]);
-    // Connect graph
-    if (newCpAntipodes.length === 1) {
-        newCpSource.prevOnCircle = newCpAntipodes[0];
-        newCpSource.nextOnCircle = newCpAntipodes[0];
-        newCpAntipodes[0].prevOnCircle = newCpSource;
-        newCpAntipodes[0].nextOnCircle = newCpSource;
-    }
-    else {
-        const cpNodes = newCpAntipodes.slice();
-        cpNodes.push(newCpSource);
-        // Order points according to their angle with the x-axis
-        cpNodes.sort(byAngle(circle));
-        for (let i = 0; i < cpNodes.length; i++) {
-            const iNext = (i + 1 === cpNodes.length) ? 0 : i + 1;
-            const iPrev = (i === 0) ? cpNodes.length - 1 : i - 1;
-            const cpNodeCurr = cpNodes[i];
-            const cpNodeNext = cpNodes[iNext];
-            const cpNodePrev = cpNodes[iPrev];
-            cpNodeCurr.nextOnCircle = cpNodeNext;
-            cpNodeCurr.prevOnCircle = cpNodePrev;
-        }
-    }
-    if (holeClosing) {
-        // TODO - take care of case where there are more than 1 antipode
-        // Duplicate ContactPoints
-        const cpB2 = { pointOnShape: posAntipodes[0], circle, order: cpAntipodes[0].order, order2: +1 };
-        const newCpB2Node = insertCpNode(true, false, cpTreeAntipodes[0], cpB2, newCpAntipodes[0]);
-        const cpB1 = { pointOnShape: posSource, circle, order: cpSource.order, order2: -1 };
-        const newCpB1Node = insertCpNode(true, false, cpTreeSource, cpB1, newCpSource.prev);
-        // Connect graph
-        newCpB1Node.prevOnCircle = newCpB2Node;
-        newCpB1Node.nextOnCircle = newCpB2Node;
-        newCpB2Node.prevOnCircle = newCpB1Node;
-        newCpB2Node.nextOnCircle = newCpB1Node;
-        newCpAntipodes[0].next = newCpSource;
-        newCpSource.prev = newCpAntipodes[0];
-        newCpB1Node.next = newCpB2Node;
-        newCpB2Node.prev = newCpB1Node;
-    }
-    if (typeof _debug_ !== 'undefined') {
-        let elems;
-        if (holeClosing) {
-            elems = _debug_.generated.elems['twoProng_holeClosing'];
-        }
-        else {
-            elems = _debug_.generated.elems['twoProng_regular'];
-        }
-        const elem = elems[elems.length - 1];
-        if (!newCpSource) {
-            console.log('asas');
-        }
-        elem.cpNode = newCpSource;
-    }
-    return newCpSource;
+    return cpNodes[0]; // return the source `CpNode`
 }
-/** @internal */
-function byAngle(circle) {
-    const c = circle.center;
-    return function (_a, _b) {
-        let a = _a.cp.pointOnShape.p;
-        let b = _b.cp.pointOnShape.p;
-        // Move onto origin
-        a = [a[0] - c[0], a[1] - c[1]];
-        b = [b[0] - c[0], b[1] - c[1]];
-        const a_ = Math.atan2(a[1], a[0]);
-        const b_ = Math.atan2(b[1], b[0]);
-        return b_ - a_;
-    };
+function closeHole(cpTrees, cpNodes) {
+    const [cpNodeA, cpNodeB] = cpNodes;
+    // Duplicate ContactPoints
+    // const antipodeCpNode = cpNodeB[0];
+    const cpAntipode = cpNodeB.cp;
+    const cpNodeB2 = insertCpNode(true, true, false, cpTrees.get(cpAntipode.pointOnShape.curve.loop), { ...cpAntipode, order2: +1 }, cpNodeB);
+    const cpNodeB1 = insertCpNode(true, true, false, cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop), { ...cpNodeA.cp, order2: -1 }, cpNodeA.prev);
+    // Connect graph
+    cpNodeB1.prevOnCircle = cpNodeB2;
+    cpNodeB1.nextOnCircle = cpNodeB2;
+    cpNodeB2.prevOnCircle = cpNodeB1;
+    cpNodeB2.nextOnCircle = cpNodeB1;
+    cpNodeB.next = cpNodeA;
+    cpNodeA.prev = cpNodeB;
+    cpNodeB1.next = cpNodeB2;
+    cpNodeB2.prev = cpNodeB1;
 }
 export { add2Prong };
 //# sourceMappingURL=add-2-prong.js.map

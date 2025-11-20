@@ -1,4 +1,4 @@
-import { CurvePiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 /**
  * @internal
  * Cull all bezierPieces not within given radius of a given point.

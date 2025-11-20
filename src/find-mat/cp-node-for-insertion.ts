@@ -1,5 +1,5 @@
 import { LlRbTree } from "flo-ll-rb-tree";
-import { CpNode } from "../cp-node/cp-node";
+import { CpNode } from "../cp-node/cp-node.js";
 
 
 interface CpNodeForInsertion {

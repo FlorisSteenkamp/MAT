@@ -1,4 +1,4 @@
-import { CurvePiece } from "../mat/bezier-piece.js";
+import { CurvePiece } from "../mat/curve-piece.js";
 /**
  * @internal
  * When checking distances, ignore all those with closest possible distance

@@ -24,6 +24,7 @@ function getSharpCornersOnLoop(
             }
         }
 
+        // console.log(sharpCorners)
         return sharpCorners;
     }
 }

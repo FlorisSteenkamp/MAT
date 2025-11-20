@@ -1,12 +1,12 @@
 import { totalAbsoluteCurvature, totalCurvature, totalLength } from "flo-bezier3";
 import { memoize } from "flo-memoize";
-import { totalCurvature$ } from "../../bezier/total-curvature";
-import { totalLength$ } from "../../bezier/total-length";
-import { memoizePrimitive } from "../../memoize-primitive";
-import { CpNode } from "../cp-node";
-import { getAvgSpeed, getAvgSpeed$ } from "./get-avg-speed";
-import { getMatCurveToNext, getMatCurveToNext$ } from "./get-mat-curve-to-next";
-import { getSpeed } from "./get-speed";
+import { totalCurvature$ } from "../../bezier/total-curvature.js";
+import { totalLength$ } from "../../bezier/total-length.js";
+import { memoizePrimitive } from "../../memoize-primitive.js";
+import { CpNode } from "../cp-node.js";
+import { getAvgSpeed, getAvgSpeed$ } from "./get-avg-speed.js";
+import { getMatCurveToNext, getMatCurveToNext$ } from "./get-mat-curve-to-next.js";
+import { getSpeed } from "./get-speed.js";
 
 
 const getSmoothed$ = memoizePrimitive(

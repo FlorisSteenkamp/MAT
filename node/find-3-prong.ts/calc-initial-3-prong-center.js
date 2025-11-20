@@ -1,6 +1,7 @@
 /** @internal */
 import { circumCenter } from 'flo-vector2d';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
+const { max, ceil, log2 } = Math;
 /**
  * @internal
  * Finds an initial 3-prong circle center point from which to iterate. The point
@@ -10,9 +11,11 @@ import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-c
  * @param bezierPiece3s
  * @param extreme
  */
-function calcInitial3ProngCenter(δ3s, bezierPiece3s) {
-    const twoProngCircleCenter = δ3s[0][0].cp.circle.center;
-    const pos = getCloseBoundaryPointsCertified(bezierPiece3s[1], twoProngCircleCenter)[0];
+function calcInitial3ProngCenter(maxCoordinate, δ3s, bezierPiece3s) {
+    const circle = δ3s[0][0].cp.circle;
+    const twoProngCircleCenter = circle.center;
+    const pow = max(0, ceil(log2(maxCoordinate / circle.radius))) + 1; // determines accuracy;
+    const pos = getCloseBoundaryPointsCertified(pow, bezierPiece3s[1], twoProngCircleCenter)[0];
     const meanPoints = [
         δ3s[0][0].cp.pointOnShape.p,
         pos.p,

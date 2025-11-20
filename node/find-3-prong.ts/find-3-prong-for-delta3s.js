@@ -1,12 +1,14 @@
 import { fromTo, circumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { isSharp } from '../cp-node/cp-node.js';
-import { isPosDullCorner } from '../point-on-shape/is-pos-dull-corner.js';
+import { CpNodeFs } from '../cp-node/cp-node-fs.js';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
-import { getCornerAtEnd } from '../curve/curve.js';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
+import { getCorner } from '../corner/get-corner.js';
+import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
+import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
+const { isSharp } = CpNodeFs;
 /** @internal */
 const calcVectorToZeroV_StraightToIt = fromTo;
 /**
@@ -15,11 +17,11 @@ const calcVectorToZeroV_StraightToIt = fromTo;
  * @param δs The boundary pieces
  * @param idx δ identifier
  * @param bezierPiecess
- * @param extreme The maximum coordinate value used to calculate floating point
+ * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
-function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
-    const TOLERANCE = 2 ** -32 * extreme;
+function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
+    const TOLERANCE = 2 ** -32 * maxCoordinate;
     const MAX_ITERATIONS = 10;
     const δs_ = [
         δs[0],
@@ -46,20 +48,14 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     if (isSharp(δ3s[0][0])) {
         return undefined;
     }
-    let ps;
+    let poss = undefined;
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(δ3s, bezierPiece3s);
-    if (typeof _debug_ !== 'undefined') {
-        const threeProngs = _debug_.generated.elems.threeProng;
-        const d = threeProngs[threeProngs.length - 1];
-        const trace = d.traces[d.traces.length - 1];
-        trace.push(x);
-    }
+    let x = calcInitial3ProngCenter(maxCoordinate, δ3s, bezierPiece3s);
     let tolerance = Number.POSITIVE_INFINITY;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
         j++;
-        ps = getClosestPoints(x, bezierPiece3s);
+        poss = getClosestPoints(x, bezierPiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
             // TODO - the code can be cleaned up and sped up a lot if we don't
             // use this function as is but instead use δs[0] and δs[2] as is
@@ -67,7 +63,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        circumCenter_ = circumCenter(ps.map(x => x.p));
+        circumCenter_ = circumCenter(poss.map(x => x.p));
         const vectorToZeroV = calcVectorToZeroV_StraightToIt(x, circumCenter_);
         if (!Number.isFinite(vectorToZeroV[0]) || !Number.isFinite(vectorToZeroV[1])) {
             // TODO - the code can be cleaned up and sped up a lot if we don't
@@ -78,19 +74,13 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
         }
         const upds = calcBetterX(bezierPiece3s, x, vectorToZeroV);
         x = upds.newX;
-        ps = upds.newPs;
-        if (typeof _debug_ !== 'undefined') {
-            const threeProngs = _debug_.generated.elems.threeProng;
-            const d = threeProngs[threeProngs.length - 1];
-            const trace = d.traces[d.traces.length - 1];
-            trace.push(x);
-        }
+        poss = upds.newPoss;
         const V = len(vectorToZeroV); // The 'potential'
         tolerance = Math.abs(V - upds.newV);
     }
-    const radius = (distanceBetween(x, ps[0].p) +
-        distanceBetween(x, ps[1].p) +
-        distanceBetween(x, ps[2].p)) / 3;
+    const radius = (distanceBetween(x, poss[0].p) +
+        distanceBetween(x, poss[1].p) +
+        distanceBetween(x, poss[2].p)) / 3;
     const circle = { center: x, radius };
     //-------------------------------------------------------------------------
     // Calculate the unit tangent vector at 3-prong circle points - they should 
@@ -99,17 +89,17 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     //-------------------------------------------------------------------------
     let totalAngleError = 0;
     for (let i = 0; i < 3; i++) {
-        const p = ps[i];
+        const pos = poss[i];
         //----------------------------
         // Tangent of circle at point
         //----------------------------
-        const v = toUnitVector(fromTo(p.p, x));
+        const v = toUnitVector(fromTo(pos.p, x));
         const v1 = rotate90Degrees(v);
         //-----------------------------------
         // Check if point is on dull crorner
         //-----------------------------------
-        if (isPosDullCorner(p)) {
-            const corner = getCornerAtEnd(p.curve);
+        if (isPosCorner(pos) && getPosCorner(pos).isDull) {
+            const corner = getCorner(pos.curve.ps, pos.curve.next.ps);
             const tans = corner.tangents;
             const perps = tans.map(rotate90Degrees);
             const angleError1 = Math.asin(cross(perps[0], v));
@@ -127,7 +117,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
             //---------------------------
             // Tangent of curve at point
             //---------------------------
-            const v2 = toUnitVector(tangent(p.curve.ps, p.t));
+            const v2 = toUnitVector(tangent(pos.curve.ps, pos.t));
             // Cross is more numerically stable than Vector.dot at angles a
             // multiple of Math.PI **and** is close to the actual angle value
             // and can thus just be added to cone method of looking at 
@@ -144,7 +134,8 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     //-------------------------------------------------------------------------
     const closestDs = [];
     for (let i = 0; i < bezierPiecess.length; i++) {
-        const p = getCloseBoundaryPointsCertified(bezierPiecess[i], x)[0];
+        const p = getCloseBoundaryPointsCertified(5, // TODO - see find-2-prong
+        bezierPiecess[i], x)[0];
         closestDs.push(distanceBetween(p.p, x));
     }
     const closestD = Math.min(...closestDs);
@@ -153,7 +144,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, extreme) {
     const W1 = 1;
     const W2 = 1;
     const error = W1 * radiusDelta + W2 * totalAngleError;
-    return { ps: ps, circle, error, δ3s };
+    return { poss: poss, circle, error, δ3s };
 }
 export { find3ProngForDelta3s };
 //# sourceMappingURL=find-3-prong-for-delta3s.js.map

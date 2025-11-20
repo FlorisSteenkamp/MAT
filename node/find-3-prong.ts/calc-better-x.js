@@ -16,22 +16,22 @@ function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
     let nu = 1;
     let better;
     let newX;
-    let newPs;
+    let newPoss;
     let newV;
     let i = 0; // Safeguard
     do {
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x);
-        newPs = getClosestPoints(newX, bezierPiece3s);
+        newPoss = getClosestPoints(newX, bezierPiece3s);
         // Point of zero V
-        const newCircleCenter = circumCenter(newPs.map(pos => pos.p));
+        const newCircleCenter = circumCenter(newPoss.map(pos => pos.p));
         const newVectorToZeroV = fromTo(newX, newCircleCenter);
         newV = len(newVectorToZeroV);
         better = newV < V;
         nu = nu / 2;
         i++;
     } while (!better && i < 3);
-    return { newX, newV, newPs };
+    return { newX, newV, newPoss };
 }
 export { calcBetterX };
 //# sourceMappingURL=calc-better-x.js.map

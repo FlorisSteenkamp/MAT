@@ -1,5 +1,5 @@
 import { CpNode } from '../cp-node/cp-node.js';
-import { CurvePiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
  * @internal

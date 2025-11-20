@@ -1,7 +1,7 @@
 import { totalLength } from "flo-bezier3";
-import { sum } from "../../utils/sum";
-import { CpNode } from "../cp-node";
-import { getBoundaryBeziersBetween } from "./get-boundary-beziers-between";
+import { sum } from "../../utils/sum.js";
+import { CpNode } from "../cp-node.js";
+import { getBoundaryBeziersBetween } from "./get-boundary-beziers-between.js";
 
 
 function getBoundaryDistanceToNext(

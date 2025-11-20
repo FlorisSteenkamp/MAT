@@ -1,6 +1,5 @@
 import { dot, fromTo, rotateNeg90Degrees, toUnitVector } from "flo-vector2d";
 import { isPosCorner } from './is-pos-corner.js';
-import { isPosDullCorner } from "./is-pos-dull-corner.js";
 import { getPosCorner } from './get-pos-corner.js';
 /**
  * @internal
@@ -15,7 +14,7 @@ function calcPosOrder(circle, pos) {
     if (!isPosCorner(pos)) {
         return 0;
     }
-    if (!isPosDullCorner(pos)) {
+    if (!getPosCorner(pos).isDull) {
         return 0;
     }
     const corner = getPosCorner(pos);

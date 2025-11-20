@@ -1,0 +1,1 @@
+{"version":3,"file":"is-trivial.js","sourceRoot":"","sources":["../../../src/cp-node/fs/is-trivial.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAE,MAAM,wBAAwB,CAAC;AACxD,OAAO,EAAE,aAAa,EAAE,MAAM,qBAAqB,CAAC;AAGpD;;GAEG;AACH,SAAS,SAAS,CACV,MAAc;IAElB,OAAO,cAAc,CAAC,MAAM,CAAC,CAAC,KAAK,CAAC,aAAa,CAAC,CAAC;AACvD,CAAC;AAGD,OAAO,EAAE,SAAS,EAAE,CAAA"}

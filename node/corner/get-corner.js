@@ -1,4 +1,4 @@
-import { cross, dot, toUnitVector } from "flo-vector2d";
+import { cross, toUnitVector } from "flo-vector2d";
 import { getInterfaceCcw } from './get-interface-ccw.js';
 /**
  * @internal
@@ -30,32 +30,20 @@ const DEGREE_LIMIT = DEGREES[4];
 function getCorner(psI, psO) {
     // getInterfaceCcw must return a number !== 0 if psI and psO are not the
     // same as seen as a curve extension with t ∈ [-∞,+∞]
-    const ccw = getInterfaceCcw(psI, psO);
+    const { ccw, tangentI, tangentO, dotTangents } = getInterfaceCcw(psI, psO);
     const isSharp = ccw < 0;
     const isDull = ccw > 0;
-    // Find (non-normalized) tangent of curve.ps at t === 1
-    const p0E = psI[psI.length - 2];
-    const p1E = psI[psI.length - 1];
-    const xE = p1E[0] - p0E[0];
-    const yE = p1E[1] - p0E[1];
-    const tangentAtEnd = [xE, yE];
-    // Find (non-normalized) tangent of curve.next.ps at t === 0
-    const p0S = psO[0];
-    const p1S = psO[1];
-    const xS = p1S[0] - p0S[0];
-    const yS = p1S[1] - p0S[1];
-    const tangentAtStart = [xS, yS];
     // These use square root and are thus not exact
-    const tangents_ = [
-        toUnitVector(tangentAtEnd),
-        toUnitVector(tangentAtStart),
+    const unitTangents = [
+        toUnitVector(tangentI.map(v => v[1])),
+        toUnitVector(tangentO.map(v => v[1])),
     ];
     // The cross calculated below should be exact due to beziers having been
     // normalized!
-    const crossTangents = cross(tangents_[0], tangents_[1]);
+    const crossTangents = cross(unitTangents[0], unitTangents[1]);
     let isQuiteSharp;
     let isQuiteDull;
-    const dotTangents = dot(tangentAtEnd, tangentAtStart);
+    // const dotTangents = dot(tangentAtIncoming, tangentAtOutgoing);
     if (dotTangents > 0) {
         // Curves go in same direction
         isQuiteSharp = crossTangents < -DEGREE_LIMIT;
@@ -66,8 +54,8 @@ function getCorner(psI, psO) {
         isQuiteDull = isDull;
     }
     return {
-        tangents: tangents_,
-        crossTangents,
+        tangents: unitTangents,
+        // crossTangents, 
         isSharp,
         isDull,
         isQuiteSharp,

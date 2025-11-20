@@ -1,5 +1,5 @@
 import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect.js';
-import { getBoundingBox_ } from '../geometry/get-bounding-box-.js';
+import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 /**
  * @internal
  * Cull all bezierPieces not within given radius of a given point.
@@ -16,7 +16,7 @@ function cullBezierPieces2(bezierPieces, p, rSquared) {
     const newPieces = [];
     for (const bezierPiece of bezierPieces) {
         const ps = bezierPiece.curve.ps;
-        const rect = getBoundingBox_(ps);
+        const rect = getBoundingBox$(ps);
         const bd = getClosestSquareDistanceToRect(rect, p);
         if (bd <= TOLERANCE * rSquared) {
             newPieces.push(bezierPiece);

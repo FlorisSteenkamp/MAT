@@ -1,11 +1,15 @@
 import { tangentExact, ddCurvature } from 'flo-bezier3';
 /**
  * Returns the osculating circle at this point of the curve.
- * @param maxOsculatingCircleRadius If not Number.POSITIVE_INFINITY then the
+ *
+ * @param minCurvature If not Number.POSITIVE_INFINITY then the
  * circle radius will be limited to this value.
  * @param pos The [[PointOnShape]] identifying the point.
+ * @param useMaxRadius
  */
-function getOsculatingCircle(minCurvature, pos, useMaxRadius = false) {
+function getOsculatingCircle(minCurvature, pos, 
+// pos: { p: number[], t: number },
+useMaxRadius = false) {
     const ps = pos.curve.ps;
     const { p, t } = pos;
     let k = -ddCurvature(ps, t);

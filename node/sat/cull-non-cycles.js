@@ -1,5 +1,6 @@
 import { getLeaves } from './get-leaves.js';
-import { getProngCount, isOnSameCircle, isTerminating } from '../cp-node/cp-node.js';
+import { CpNodeFs } from '../cp-node/cp-node-fs.js';
+const { getProngCount, isOnSameCircle, isTerminating } = CpNodeFs;
 /**
  * @internal
  * Cull all edges not part of a cycle in the MAT planar graph.
@@ -23,7 +24,6 @@ function cullNonCycles(cpStart) {
             if (getProngCount(cpNode) > 2) {
                 //const cp2 = cp1.prevOnCircle;
                 const cp2 = cpNode.nextOnCircle;
-                //if (cpStart === cpNode || cpStart === cp1 || cpStart === cp2) {
                 if (isOnSameCircle(cpNode, cpStart)) {
                     cut = true; // We are at the max disk - cut whole edge
                 }

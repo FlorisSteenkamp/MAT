@@ -1,5 +1,5 @@
 import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect.js';
-import { getBoundingBox_ } from '../geometry/get-bounding-box-.js';
+import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 /**
  * @internal
  * When checking distances, ignore all those with closest possible distance
@@ -13,7 +13,7 @@ function cullByLooseBoundingBox(bezierPieces, p, dSquared) {
     for (let i = 0; i < bezierPieces.length; i++) {
         const bezierPiece = bezierPieces[i];
         const ps = bezierPiece.curve.ps;
-        const boundingBox = getBoundingBox_(ps);
+        const boundingBox = getBoundingBox$(ps);
         const d = getClosestSquareDistanceToRect(boundingBox, p);
         if (d <= dSquared) {
             candidateBezierPieces.push(bezierPiece);

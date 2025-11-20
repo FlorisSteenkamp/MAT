@@ -1,0 +1,1 @@
+{"version":3,"file":"is-vertex.js","sourceRoot":"","sources":["../../../src/cp-node/fs/is-vertex.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAE,MAAM,wBAAwB,CAAC;AAGxD,SAAS,QAAQ,CACT,CAA8B;IAElC,OAAO,CAAC,MAAc,EAAE,EAAE,CAAC,cAAc,CAAC,MAAM,CAAC,CAAC,IAAI,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC;AAGD,OAAO,EAAE,QAAQ,EAAE,CAAA"}

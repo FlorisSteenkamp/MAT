@@ -1,5 +1,5 @@
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { CurvePiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 /**
  * @internal
  * Find new x and ps that are a better estimate of the 3-prong circle.

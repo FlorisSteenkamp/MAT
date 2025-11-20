@@ -1,5 +1,27 @@
 import { getLeaves } from './get-leaves.js';
-import { isOnSameCircle } from '../cp-node/cp-node.js';
+import { CpNodeFs } from '../cp-node/cp-node-fs.js';
+import { isTerminating } from '../cp-node/fs/is-terminating.js';
+import { DualSetFs } from '../utils/dual-set.js';
+const { isOnSameCircle } = CpNodeFs;
+/**
+ *
+ * @param cpStart
+ */
+function getNonTrivialForwardEdges(cpStart) {
+    let cpNode = cpStart;
+    let cpEnd = cpStart.prevOnCircle;
+    while (isTerminating(cpEnd)) {
+        cpEnd = cpEnd.prevOnCircle;
+    }
+    const cps = [];
+    do {
+        if (!isTerminating(cpNode)) {
+            cps.push(cpNode);
+        }
+        cpNode = cpNode.nextOnCircle;
+    } while (cpNode !== cpEnd);
+    return cps;
+}
 /**
  * @internal
  * Returns the set of Vertices passing the following test: walk the MAT tree and
@@ -10,52 +32,45 @@ import { isOnSameCircle } from '../cp-node/cp-node.js';
  */
 function cull(culls, maxCpNode) {
     const leaves = getLeaves(maxCpNode);
-    function getNonTrivialEdges(cpStart) {
-        let cp = cpStart;
-        const cps = [];
-        do {
-            if (cp.next !== cp.nextOnCircle) {
-                cps.push(cp);
-            }
-            cp = cp.nextOnCircle;
-        } while (cp !== cpStart.prevOnCircle);
-        return cps;
-    }
     while (leaves.length) {
         const leaf = leaves.pop();
-        // Preserve topology.
-        if (leaf.isHoleClosing || leaf.isIntersection) {
+        const { center: c } = leaf.cp.circle;
+        if (!DualSetFs.has(culls, c[0], c[1]) ||
+            // Preserve topology.
+            leaf.isIntersection) {
             continue;
         }
-        if (!culls.has(leaf.cp.circle)) {
-            continue;
-        }
-        let cpNode = leaf.next; // Turn around
-        while (true) {
+        let cpNode = leaf.prevOnCircle; // Turn around
+        let cut = false;
+        while (!cut) {
             cpNode = cpNode.next;
-            let cut = false;
-            const cp1 = cpNode.prevOnCircle;
-            if (!culls.has(cpNode.cp.circle)) {
+            const { center: c } = cpNode.cp.circle;
+            if (!DualSetFs.has(culls, c[0], c[1])) {
                 // Cut off the edge once a non-cull has been reached.
+                while (isTerminating(cpNode.prevOnCircle)) {
+                    cpNode = cpNode.prevOnCircle;
+                }
                 cut = true;
             }
             else if (isOnSameCircle(cpNode, maxCpNode)) {
                 cut = true; // We are at the max disk - cut whole edge
             }
             else {
-                const cps = getNonTrivialEdges(cpNode);
+                const cps = getNonTrivialForwardEdges(cpNode);
                 if (cps.length === 1) {
-                    cpNode = cps[0];
+                    continue;
                 }
                 else {
                     cut = true;
                 }
             }
-            if (cut) {
-                cp1.next = cpNode;
-                cpNode.prev = cp1;
-                break;
-            }
+        }
+        if (cut) {
+            const cp1 = cpNode.prevOnCircle;
+            cp1.next = cpNode;
+            cpNode.prev = cp1;
+            cp1.nextOnCircle = cpNode;
+            cpNode.prevOnCircle = cp1;
         }
     }
 }

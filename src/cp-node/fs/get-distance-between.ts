@@ -1,5 +1,5 @@
-import { CpNode } from "../cp-node";
-import { getMatDistanceToNext$ } from "./get-distance-to-next";
+import { CpNode } from "../cp-node.js";
+import { getMatDistanceToNext$ } from "./get-distance-to-next.js";
 
 
 // const dMap = new WeakMap<CpNode>

@@ -1,5 +1,5 @@
 import { rotate } from "flo-vector2d";
-import { degToRad } from "./deg-to-rad";
+import { degToRad } from "./deg-to-rad.js";
 
 const { sin, cos } = Math;
 

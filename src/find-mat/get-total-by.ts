@@ -1,5 +1,5 @@
-import { Curve } from '../curve/curve.js';
-import { Loop } from 'flo-boolean';
+import type { Loop } from 'flo-boolean';
+import type { Curve } from '../curve/curve.js';
 
 
 /**

@@ -1,6 +1,6 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Loop } from 'flo-boolean';
-import { CurvePiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 import { CpNode } from '../cp-node/cp-node.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { Circle } from '../geometry/circle.js';

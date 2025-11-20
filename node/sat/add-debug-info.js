@@ -2,11 +2,10 @@
  * @internal
  * @param sat
  */
-function addDebugInfo(sat, timingStart) {
+function addDebugInfo(timingStart) {
     if (typeof _debug_ === 'undefined') {
         return;
     }
-    _debug_.generated.elems.sat.push(sat);
     const timing = _debug_.generated.timing;
     timing.sats = performance.now() - timingStart;
 }

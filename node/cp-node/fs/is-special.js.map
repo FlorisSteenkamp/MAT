@@ -1,0 +1,1 @@
+{"version":3,"file":"is-special.js","sourceRoot":"","sources":["../../../src/cp-node/fs/is-special.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,iBAAiB,EAAE,MAAM,2BAA2B,CAAC;AAG9D,SAAS,SAAS,CACV,MAAc;IAElB,OAAO,CACH,CAAC,iBAAiB,CAAC,MAAM,CAAC,KAAK,CAAC,CAAC;QACjC,CAAC,MAAM,CAAC,aAAa,CAAA,qCAAqC;IAC1D,kEAAkE;KACrE,CAAA;AACL,CAAC;AAGD,OAAO,EAAE,SAAS,EAAE,CAAA"}

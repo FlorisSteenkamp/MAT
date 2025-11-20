@@ -1,9 +1,9 @@
 import { totalAbsoluteCurvature, totalLength } from "flo-bezier3";
 import { memoize } from "flo-memoize";
-import { totalCurvature$ } from "../../bezier/total-curvature";
-import { CpNode } from "../cp-node";
-import { getMatCurveToNext } from "./get-mat-curve-to-next";
-import { getRealProngCount } from "./get-real-prong-count";
+import { totalCurvature$ } from "../../bezier/total-curvature.js";
+import { CpNode } from "../cp-node.js";
+import { getMatCurveToNext } from "./get-mat-curve-to-next.js";
+import { getRealProngCount } from "./get-real-prong-count.js";
 
 const { min, abs } = Math;
 

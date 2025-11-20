@@ -5,6 +5,9 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
  * @internal
  * Creates the initial ContactPoint loops from the given sharp corners.
+ *
+ * * modifies `cpTrees`
+ *
  * @param shape
  * @param sharpCornerss
  */

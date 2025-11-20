@@ -1,5 +1,5 @@
 import { CpNode } from '../cp-node/cp-node.js';
-import { CurvePiece } from '../mat/bezier-piece.js';
+import { CurvePiece } from '../mat/curve-piece.js';
 /**
  * @internal
  * Finds an initial 3-prong circle center point from which to iterate. The point

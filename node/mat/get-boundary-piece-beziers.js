@@ -4,6 +4,7 @@ import { compareCps } from '../contact-point/contact-point.js';
  * @internal
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)
  * from the given boundary piece.
+ *
  * @param cpNodes - An ordered pair that represents the start and end points of
  * the boundary piece
  */
@@ -23,8 +24,6 @@ function getBoundaryPieceBeziers(cpNodes) {
         const posThis = cpThis.cp.pointOnShape;
         const posNext = cpThis.next.cp.pointOnShape;
         if (posNext.curve === posThis.curve &&
-            //PointOnShape.isQuiteSharpCorner(posThis) && 
-            //PointOnShape.isQuiteSharpCorner(posNext)) {
             isPosQuiteSharpCorner(posThis) &&
             isPosQuiteSharpCorner(posNext)) {
             // Do nothing
@@ -35,7 +34,7 @@ function getBoundaryPieceBeziers(cpNodes) {
         }
         else {
             bezierPieces.push({ curve: posThis.curve, ts: [posThis.t, 1] });
-            if (cpThis.cp.pointOnShape.curve.loop === cpThis.next.cp.pointOnShape.curve.loop) {
+            if (posThis.curve.loop === posNext.curve.loop) {
                 addSkippedBeziers(bezierPieces, posThis.curve, posNext.curve, posNext.t);
             }
         }

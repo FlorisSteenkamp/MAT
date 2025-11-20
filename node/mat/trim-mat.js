@@ -1,6 +1,6 @@
 import { createNewCpTree } from './create-new-cp-tree.js';
 import { cullNonCycles } from '../sat/cull-non-cycles.js';
-import { clone } from '../cp-node/clone.js';
+import { clone } from '../cp-node/fs/clone.js';
 /**
  * Trims the given Medial Axis Transform so that only cycles remain. Similar to
  * toScaleAxis(mat, Number.POSITIVE_INFINITY).
@@ -11,7 +11,13 @@ function trimMat(mat) {
     if (!cpNode) {
         return undefined;
     }
-    return { cpNode, cpTrees: createNewCpTree(cpNode) };
+    return {
+        cpNode,
+        meta: {
+            ...mat.meta,
+            cpTrees: createNewCpTree(cpNode)
+        }
+    };
 }
 export { trimMat };
 //# sourceMappingURL=trim-mat.js.map
