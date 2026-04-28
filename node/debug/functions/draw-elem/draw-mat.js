@@ -8,7 +8,7 @@ const altClasses = [
     'thin10 red nofill'
 ];
 /** @internal */
-/*async */ function drawMat(g, mat, classes_, delay = 0, scaleFactor = 1) {
+function drawMat(g, mat, classes_, delay = 0, scaleFactor = 1) {
     let cpNode = mat.cpNode;
     if (!cpNode) {
         return [];
@@ -18,8 +18,7 @@ const altClasses = [
     }
     const $svgs = [];
     let i = 0;
-    traverseEdges(cpNode, async (cpNode) => {
-        // await sleep(50);
+    traverseEdges(cpNode, cpNode => {
         if (isTerminating(cpNode)) {
             return;
         }
@@ -31,8 +30,6 @@ const altClasses = [
         i++;
     });
     return $svgs;
-}
-function drawCurve() {
 }
 export { drawMat };
 //# sourceMappingURL=draw-mat.js.map

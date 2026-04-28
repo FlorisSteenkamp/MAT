@@ -1,13 +1,14 @@
 {
     "compilerOptions": {
         "strict": true,
-        "module": "es2022",
-        "target": "es2022",
+        "module": "esnext",
+        "target": "esnext",
         "declaration": true,
         "noEmitOnError": true,
         "sourceMap": true,
-        "outDir": "node",
-        "moduleResolution": "node"
+        "rootDir": "./src",
+        "outDir": "./node",
+        "moduleResolution": "bundler"
     },
     "include": [
         "src/index.ts"

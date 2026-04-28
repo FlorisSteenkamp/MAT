@@ -1,10 +1,9 @@
 import { drawFs } from 'flo-draw';
 import { Mat } from '../../../mat/mat.js';
-import { $traverseEdges, traverseEdges, traverseEdges$$ } from '../../../cp-node/fs/traverse-edges.js';
+import { traverseEdges } from '../../../cp-node/fs/traverse-edges.js';
 import { getMatCurveToNext } from '../../../cp-node/fs/get-mat-curve-to-next.js';
 import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
-import { drawCpNode } from './draw-cp-node.js';
-import { sleep } from '../../../utils/sleep.js';
+
 
 const { isTerminating } = CpNodeFs;
 
@@ -15,12 +14,12 @@ const altClasses = [
 ];
 
 /** @internal */
-/*async */function drawMat(
+function drawMat(
         g: SVGGElement,
         mat: Mat,
         classes_?: string,
         delay = 0,
-        scaleFactor = 1): /*Promise<*/SVGElement[]/*>*/ {
+        scaleFactor = 1): SVGElement[] {
 
     let cpNode = mat.cpNode;
     if (!cpNode) { return []; }
@@ -30,8 +29,7 @@ const altClasses = [
     const $svgs: SVGElement[] = [];
 
     let i = 0;
-    traverseEdges(cpNode, async cpNode => {
-        // await sleep(50);
+    traverseEdges(cpNode, cpNode => {
         if (isTerminating(cpNode)) { return; }
 
         const bezier = getMatCurveToNext(cpNode);
@@ -42,11 +40,6 @@ const altClasses = [
     });
 
     return $svgs;
-}
-
-
-function drawCurve() {
-
 }
 
 
