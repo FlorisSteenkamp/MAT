@@ -1,4 +1,4 @@
-import { memoize } from "flo-memoize";
+// import { memoize } from "flo-memoize";
 import { getPosCorner } from "./get-pos-corner.js";
 import { isPosCorner } from "./is-pos-corner.js";
 import { PointOnShape } from "./point-on-shape.js";

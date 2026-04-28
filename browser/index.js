@@ -566,6 +566,7 @@ function parseNumber(source) {
     }
     // Read the decimals.
     if (ci < source._endIndex && source._string[ci] === ".") {
+        source._currentIndex += 1;
         ci += 1;
         if (ci >= source._endIndex ||
             source._string[ci] < "0" ||
@@ -11042,37 +11043,10 @@ function getBoundingBox(ps) {
 }
 
 //# sourceMappingURL=get-bounding-box.js.map
-;// ./node_modules/flo-boolean/node_modules/flo-memoize/node/memoize.js
-/**
- * Memoize (by reference on the input parameter) the given arity 1 function.
- *
- * * the input parameter must be an `object` (so it can be used as a key to
- * `WeakMap` and thus garbage collected later; this is especially important
- * in functional programming where a lot of garbage collection takes place;
- *
- * * use `memoizePrimitive` instead if it is not important that the keys
- * will *never* be garbage collected
- */
-function memoize_memoize(f) {
-    const results = new WeakMap();
-    return function (t) {
-        let r = results.get(t);
-        if (r !== undefined) {
-            //console.log('cache hit');
-            return r;
-        }
-        //console.log('cache miss');
-        r = f(t);
-        results.set(t, r);
-        return r;
-    };
-}
-
-//# sourceMappingURL=memoize.js.map
 ;// ./node_modules/flo-boolean/node/get-bounding-box-.js
 
 
-const getBoundingBox$ = memoize_memoize(getBoundingBox);
+const getBoundingBox$ = memoize(getBoundingBox);
 
 //# sourceMappingURL=get-bounding-box-.js.map
 ;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-bounds.js
@@ -11146,7 +11120,7 @@ function getBounds(ps) {
 ;// ./node_modules/flo-boolean/node/get-bounds-.js
 
 
-const getBounds$ = memoize_memoize(getBounds);
+const getBounds$ = memoize(getBounds);
 
 //# sourceMappingURL=get-bounds-.js.map
 ;// ./node_modules/flo-boolean/node/calc-paths/get-shape-bounds.js
@@ -18797,6 +18771,7 @@ function getInOutsViaSides(container, ioIdx) {
 //# sourceMappingURL=get-in-outs-via-sides.js.map
 ;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-container-in-outs.js
 
+// import { getInOutsViaCrossing } from "./get-in-outs-via-crossing/get-in-outs-via-crossing.js";
 /**
  * * **warning** ioIdx will be modified by this function
  *
@@ -22503,7 +22478,7 @@ function getExcessiveCurvatures(expMax, loops) {
 /**
  *
  */
-const get_min_y_getMinY = memoize_memoize(function (loop) {
+const get_min_y_getMinY = memoize(function (loop) {
     const { curves } = loop;
     let bestY = getYBoundsTight(curves[0].ps).minY;
     let bestCurve = curves[0];
@@ -22683,7 +22658,9 @@ function filterContainers(containers) {
 
 
 
+// import { compareInOut } from './get-container-in-outs/get-in-outs-via-sides/compare-in-out.js';
 
+// import { orderInOuts } from './order-in-outs.js';
 /**
  *
  * @param containerDim
@@ -23301,7 +23278,7 @@ function scrambleLoops(loops, maxBitLength, expMax, mult = 0.02) {
  * Returns the maximum control point coordinate value (x or y) within any loop.
  * @param loops The array of loops
  */
-const getMaxCoordinate = memoize_memoize((loops) => {
+const getMaxCoordinate = memoize((loops) => {
     let max = 0;
     for (const loop of loops) {
         for (const ps of loop) {
