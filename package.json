@@ -38,7 +38,7 @@
         "flo-draw": "^2.0.5",
         "flo-gauss-quadrature": "^2.1.4",
         "flo-ll-rb-tree": "^0.3.4",
-        "flo-memoize": "^1.1.1",
+        "flo-memoize": "^2.0.1",
         "flo-poly": "^7.0.2",
         "flo-vector2d": "^4.0.6"
     },
