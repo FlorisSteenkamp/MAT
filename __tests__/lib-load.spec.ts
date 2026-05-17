@@ -1,9 +1,8 @@
-import { describe } from 'mocha';
-import { assert, expect } from 'chai';
+import { expect, test } from '@jest/globals';
 import { findMats } from '../node/index.js';
 
 
-describe('node require', function() {
+test('node require', function() {
     let bezierLoops = [
         [
             [[50.000, 95.000],[92.797, 63.905]], 
@@ -14,12 +13,12 @@ describe('node require', function() {
         ]
     ];
 
-	it('should load the library correctly by running a simple test', 
-	function() {
+	// it should load the library correctly by running a simple test
+	(function() {
         let result = findMats(bezierLoops);
-        expect(result).to.be.an('array');
-        expect(result[0]).to.be.an('object');
-        expect(result[0].cpNode).to.be.an('object');
-        expect(result[0].cpNode.cp).to.be.an('object');
-	});
+        expect(result).toBeInstanceOf(Array);
+        expect(result[0]).toBeInstanceOf(Object);
+        expect(result[0].cpNode).toBeInstanceOf(Object);
+        expect(result[0].cpNode.cp).toBeInstanceOf(Object);
+	})();
 });

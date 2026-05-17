@@ -19,7 +19,7 @@ interface MatMeta {
     
     /** 
      * Primarily for internal use. A tree structure storing the
-     * [[CpNode]]s of the MAT by their compare order, i.e. their cyclic order
+     * `CpNode`s of the MAT by their compare order, i.e. their cyclic order
      * around the shape boundary.
      */
     readonly cpTrees: Map<Loop, LlRbTree<CpNode>>;

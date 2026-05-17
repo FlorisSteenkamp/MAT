@@ -1,4 +1,5 @@
-import { CpNode } from "../cp-node.js";
+import type { BezierPiece } from "flo-bezier3";
+import type { CpNode } from "../cp-node.js";
 import { cpNodesToBoundaryBeziers } from "./cp-nodes-to-boundary-beziers.js";
 import { getAllBetween } from "./get-all-between.js";
 
@@ -17,7 +18,10 @@ import { getAllBetween } from "./get-all-between.js";
 function getBoundaryBeziersBetween(
         cpNode1: CpNode,
         cpNode2: CpNode,
-        inclAllIfEqual = true) {
+        inclAllIfEqual = true): {
+            pss: number[][][],
+            hasHoleCloser: boolean
+        } {
 
     const allBetween = getAllBetween(cpNode1,cpNode2,inclAllIfEqual);
 

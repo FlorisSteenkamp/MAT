@@ -1,17 +1,19 @@
-import { CpNode } from "../cp-node.js";
+import type { CpNode } from "../cp-node.js";
 
 
-function getAllOnLoop(cpNode: CpNode) {
-	const cpStart = cpNode;
-	const cpNodes: CpNode[] = [cpStart];
-	let cpNode_ = cpNode.next;
+function getAllOnLoop(
+		cpNode: CpNode) {
 
-	while (cpNode_ !== cpStart) {
-		cpNodes.push(cpNode_);
-		cpNode_ = cpNode_.next;
-	}
+    const cpStart = cpNode;
+    const cpNodes: CpNode[] = [cpStart];
+    let cpNode_ = cpNode.next;
 
-	return cpNodes;
+    while (cpNode_ !== cpStart) {
+        cpNodes.push(cpNode_);
+        cpNode_ = cpNode_.next;
+    }
+
+    return cpNodes;
 }
 
 

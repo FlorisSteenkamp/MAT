@@ -1,5 +1,4 @@
 import { eAdd, eCompress, eEstimate, eMult, eNegativeOf, eProduct, orient2d, twoDiff } from 'big-float-ts';
-// import { dot } from "flo-vector2d";
 import { compareCurvaturesAtInterface } from "./compare-curvatures-at-interface.js";
 
 

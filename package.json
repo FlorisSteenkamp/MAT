@@ -43,9 +43,13 @@
         "flo-vector2d": "^4.0.6"
     },
     "devDependencies": {
-        "@types/chai": "^5.2.3",
-        "@types/mocha": "^10.0.10",
-        "@types/node": "^25.6.0",
+        "@jest/globals": "^30.4.1",
+        "@swc/core": "^1.15.33",
+        "@swc/jest": "^0.2.39",
+        "@types/jest": "^30.0.0",
+        "@types/node": "^25.6.2",
+        "jest": "^30.4.2",
+        "jest-ts-webcompat-resolver": "^1.0.1",
         "c8": "^11.0.0",
         "chai": "^6.2.2",
         "circular-dependency-plugin": "^5.2.2",
@@ -62,8 +66,7 @@
         "build": "npm run build-browser && npm run build-node",
         "build-node": "rimraf node && tsc",
         "build-browser": "rimraf browser && webpack --mode production",
-        "test": "mocha",
-        "coverage": "c8 mocha",
+        "test": "jest",
         "test-package": "npm pack"
     }
 }

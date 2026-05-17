@@ -1,9 +1,20 @@
-import { BezierPiece } from 'flo-bezier3';
-import { CpNode } from '../cp-node.js';
-import { Curve  } from '../../curve/curve.js';
+import type { BezierPiece } from 'flo-bezier3';
+import type { CpNode } from '../cp-node.js';
+import type { Curve  } from '../../curve/curve.js';
 
 
-function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] {
+/**
+ * Returns the boundary beziers pieces between this `CpNode` and the next
+ * one.
+ * 
+ * * returns `undefined` if the next `CpNode` is on a different loop,
+ * as this is a hole-closer and there are no boundary beziers between them.
+ * 
+ * @param cpNode 
+ */
+function getBoundaryBezierPartsToNext(
+        cpNode: CpNode): BezierPiece[] | undefined {
+
     const cpThis = cpNode; 
     const cpNext = cpNode.next;
 
@@ -16,29 +27,35 @@ function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] {
     if (curveThis.loop !== curveNext.loop) {
         // It is a hole-closer going over to the other loop - a kind of terminal
         // CpNode.
-        return undefined!;
+        return undefined;
     }
     
-    const bezierParts: BezierPiece[] = [];
+    const bezierPieces: BezierPiece[] = [];
 
     if (curveNext === curveThis) {
-        bezierParts.push(
-            { ps: posThis.curve.ps, ts: [posThis.t, posNext.t] }
+        bezierPieces.push(
+            {
+                ps: posThis.curve.ps,
+                ts: [posThis.t, posNext.t]
+            }
         );
     } else {
-        bezierParts.push(
-            { ps: posThis.curve.ps, ts: [posThis.t, 1] }
+        bezierPieces.push(
+            {
+                ps: posThis.curve.ps,
+                ts: [posThis.t, 1]
+            }
         );
         
         addSkippedBeziers(
-                bezierParts,
-                posThis.curve, 
-                posNext.curve,
-                posNext.t
+            bezierPieces,
+            posThis.curve,
+            posNext.curve,
+            posNext.t
         );
-    }				
-        
-    return bezierParts;
+    }
+
+    return bezierPieces;
 }
 
 
@@ -47,10 +64,10 @@ function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] {
  * Adds pieces of skipped beziers.
  */
 function addSkippedBeziers(
-        bezierParts: { ps: number[][]; ts: number[] }[], 
-        curveStart : Curve, 
-        curveEnd   : Curve, 
-        t1         : number) {
+        bezierPieces: BezierPiece[],
+        curveStart: Curve,
+        curveEnd: Curve,
+        t1: number) {
 
     let curveThis = curveStart;
     do {
@@ -59,7 +76,7 @@ function addSkippedBeziers(
             ? { ps: curveThis.ps, ts: [0, t1] }
             : { ps: curveThis.ps, ts: [0, 1] }
 
-        bezierParts.push(bezierPart);
+        bezierPieces.push(bezierPart);
     } while (curveThis !== curveEnd);
 }
 

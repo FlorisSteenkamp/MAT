@@ -3,7 +3,9 @@ import { CpNode } from '../cp-node.js';
 import { Curve  } from '../../curve/curve.js';
 
 
-function getBoundaryBeziersToNext(cpNode: CpNode): number[][][] {
+function getBoundaryBeziersToNext(
+        cpNode: CpNode): number[][][] {
+
     const cpThis = cpNode; 
     const cpNext = cpNode.next;
 
@@ -19,7 +21,7 @@ function getBoundaryBeziersToNext(cpNode: CpNode): number[][][] {
         // return undefined!;
         return [];
     }
-    
+
     const beziers = [];
 
     if (curveNext === curveThis) {
@@ -37,8 +39,8 @@ function getBoundaryBeziersToNext(cpNode: CpNode): number[][][] {
                 posNext.curve,
                 posNext.t
         );
-    }				
-        
+    }
+
     return beziers;
 }
 

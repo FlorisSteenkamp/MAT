@@ -1,6 +1,5 @@
 import { CpNode } from "../cp-node.js";
 import { getCpNodeOrdering } from './get-cp-node-ordering.js';
-import { CpNodeFs } from '../cp-node-fs.js';
 import { getProngCount } from './get-prong-count.js';
 import { getRealProngCount } from "./get-real-prong-count.js";
 import { isFullyTerminating } from "./is-fully-terminating.js";

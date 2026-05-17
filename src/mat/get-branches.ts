@@ -3,44 +3,51 @@ import { getBranch } from '../cp-node/fs/get-branch.js';
 import { getNonTerminatingOnCircle } from '../cp-node/fs/get-non-terminating-on-circle.js';
 
 
+/**
+ * Returns all branches associated with the give cpNode.
+ * 
+ * * the final `CpNode` of each branch is not returned to improve symmetry
+ * 
+ * @param cpNode `CpNode` representing the start vertex.
+ */
 function getBranches(
-		cpNode: CpNode): CpNode[][] {
+        cpNode: CpNode): CpNode[][] {
 
-	const branches: CpNode[][] = [];
-	const cpNodeStack: CpNode[] = [cpNode];
-	const takenBranches: Set<CpNode> = new Set();
-	while (cpNodeStack.length > 0) {
-		const cpNode = cpNodeStack.pop()!;
-		const branch = getBranch(cpNode);
+    const branches: CpNode[][] = [];
+    const cpNodeStack: CpNode[] = [cpNode];
+    const takenBranches: Set<CpNode> = new Set();
+    while (cpNodeStack.length > 0) {
+        const cpNode = cpNodeStack.pop()!;
+        const branch = getBranch(cpNode);
 
-		if (branch.length === 0) {
-			continue;
-		}
+        if (branch.length === 0) {
+            continue;
+        }
 
-		branches.push(branch);
+        branches.push(branch);
 
-		const cpNodeS = branch[0];
-		const cpNodeE = branch[branch.length-1].next.prevOnCircle;
+        const cpNodeS = branch[0];
+        const cpNodeE = branch[branch.length-1].next.prevOnCircle;
 
-		takenBranches.add(cpNodeS);
-		takenBranches.add(cpNodeE);
+        takenBranches.add(cpNodeS);
+        takenBranches.add(cpNodeE);
 
-		const _cpNodesS = getNonTerminatingOnCircle(cpNodeS, true);
-		const _cpNodesE = getNonTerminatingOnCircle(cpNodeE, true);
-		const cpNodesS = _cpNodesS.filter(cpNode => !takenBranches.has(cpNode));
-		const cpNodesE = _cpNodesE.filter(cpNode => !takenBranches.has(cpNode));
+        const _cpNodesS = getNonTerminatingOnCircle(cpNodeS, true);
+        const _cpNodesE = getNonTerminatingOnCircle(cpNodeE, true);
+        const cpNodesS = _cpNodesS.filter(cpNode => !takenBranches.has(cpNode));
+        const cpNodesE = _cpNodesE.filter(cpNode => !takenBranches.has(cpNode));
 
-		for (const cpNode of cpNodesS) {
-			takenBranches.add(cpNode);
-		}
-		for (const cpNode of cpNodesE) {
-			takenBranches.add(cpNode);
-		}
+        for (const cpNode of cpNodesS) {
+            takenBranches.add(cpNode);
+        }
+        for (const cpNode of cpNodesE) {
+            takenBranches.add(cpNode);
+        }
 
-		cpNodeStack.push(...cpNodesS, ...cpNodesE);
-	}
+        cpNodeStack.push(...cpNodesS, ...cpNodesE);
+    }
 
-	return branches;
+    return branches;
 }
 
 
