@@ -122,4 +122,10 @@ function addDebugInfo4() {
 }
 
 
-export { getPointToCpNode, getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 }
+export {
+    getPointToCpNode,
+    getPartialMeta,
+    addDebugInfo2,
+    addDebugInfo3,
+    addDebugInfo4
+}

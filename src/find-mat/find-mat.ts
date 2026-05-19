@@ -54,6 +54,12 @@ function findMat(
         maxCoordinate, squaredDiagonalLength, loops, cpTrees, pointToCpNode,
         lastInsertId, ..._meta
     };
+    // const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
+    // const lastInsertId = { id: 0 };
+    // createInitialCpTree(loops, cpTrees, sharpCornersPerLoop, lastInsertId);
+
+    // const meta = getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees, lastInsertId);
+
 
     let cpNode: CpNode | undefined;
 
