@@ -17,7 +17,6 @@ import { removeCpNode } from '../cp-node/fs/remove-cp-node.js';
  * tolerances.
  */
 function add2Prong(meta, circle, poss, isHoleClosing) {
-    const { cpTrees } = meta;
     poss[0] = poss[0].t === 0
         ? createPos(poss[0].curve.prev, 1, true)
         : poss[0];
@@ -29,11 +28,11 @@ function add2Prong(meta, circle, poss, isHoleClosing) {
             return undefined;
         }
     }
-    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, orders, cpTrees, poss);
+    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, orders, meta, poss);
     if (anyFailed) {
         cpNodes.forEach(cpNode => {
             if (cpNode !== undefined) {
-                removeCpNode(cpNode, cpTrees);
+                removeCpNode(cpNode, meta);
             }
         });
         return undefined;
@@ -41,17 +40,20 @@ function add2Prong(meta, circle, poss, isHoleClosing) {
     // Get points ordered according to their angle with the x-axis
     // joinSpokes(circle, cpNodes);
     if (isHoleClosing) {
-        closeHole(cpTrees, cpNodes);
+        closeHole(meta, cpNodes);
     }
     return cpNodes[0]; // return the source `CpNode`
 }
-function closeHole(cpTrees, cpNodes) {
+function closeHole(meta, 
+// cpTrees: Map<Loop, LlRbTree<CpNode>>,
+cpNodes) {
+    const { cpTrees } = meta;
     const [cpNodeA, cpNodeB] = cpNodes;
     // Duplicate ContactPoints
     // const antipodeCpNode = cpNodeB[0];
     const cpAntipode = cpNodeB.cp;
-    const cpNodeB2 = insertCpNode(true, true, false, cpTrees.get(cpAntipode.pointOnShape.curve.loop), { ...cpAntipode, order2: +1 }, cpNodeB);
-    const cpNodeB1 = insertCpNode(true, true, false, cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop), { ...cpNodeA.cp, order2: -1 }, cpNodeA.prev);
+    const cpNodeB2 = insertCpNode(true, true, false, cpTrees.get(cpAntipode.pointOnShape.curve.loop), { ...cpAntipode, order2: +1 }, cpNodeB, meta.lastInsertId);
+    const cpNodeB1 = insertCpNode(true, true, false, cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop), { ...cpNodeA.cp, order2: -1 }, cpNodeA.prev, meta.lastInsertId);
     // Connect graph
     cpNodeB1.prevOnCircle = cpNodeB2;
     cpNodeB1.nextOnCircle = cpNodeB2;

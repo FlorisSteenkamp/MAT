@@ -6,12 +6,14 @@ const { cpNodeComparator } = CpNodeFs;
  * @internal
  * Creates the initial ContactPoint loops from the given sharp corners.
  *
- * * modifies `cpTrees`
+ * * modifies `cpTrees` and `lastInsertId` of `meta`
  *
- * @param shape
+ * @param loops
+ * @param cpTrees
  * @param sharpCornerss
+ * @param lastInsertId
  */
-function createInitialCpTree(loops, cpTrees, sharpCornerss) {
+function createInitialCpTree(loops, cpTrees, sharpCornerss, lastInsertId) {
     let cpNode;
     for (let k = 0; k < sharpCornerss.length; k++) {
         const sharpCorners = sharpCornerss[k];
@@ -22,8 +24,8 @@ function createInitialCpTree(loops, cpTrees, sharpCornerss) {
             const circle = { center: pos.p, radius: 0 };
             const cp1 = { pointOnShape: pos, circle, order: -1, order2: 0 };
             const cp2 = { pointOnShape: pos, circle, order: +1, order2: 0 };
-            cpNode1 = insertCpNode(true, false, false, cpTree, cp1, cpNode2);
-            cpNode2 = insertCpNode(true, false, false, cpTree, cp2, cpNode1);
+            cpNode1 = insertCpNode(true, false, false, cpTree, cp1, cpNode2, lastInsertId);
+            cpNode2 = insertCpNode(true, false, false, cpTree, cp2, cpNode1, lastInsertId);
             cpNode1.prevOnCircle = cpNode2;
             cpNode2.prevOnCircle = cpNode1;
             cpNode1.nextOnCircle = cpNode2;

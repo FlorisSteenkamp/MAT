@@ -47,7 +47,7 @@ function find2Prong(
 		angle: number,
         y: PointOnShape): { circle: Circle,	zs: PointOnShape[] } | undefined {
 
-	const { loops, maxCoordinate, squaredDiagonalLength, cpTrees } = meta;
+	const { loops, maxCoordinate, squaredDiagonalLength } = meta;
 
 	const loop = y.curve.loop;
 
@@ -68,7 +68,7 @@ function find2Prong(
 	// The boundary piece that should contain the other point of 
 	// the 2-prong circle. (Defined by start and end points).
 	let bezierPieces = getInitialBezierPieces(
-		angle, isHoleClosing, loop, loops, cpTrees, y, { center: xO, radius: rO }
+		angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO }
 	);
 	// console.log(bezierPieces.length);
 

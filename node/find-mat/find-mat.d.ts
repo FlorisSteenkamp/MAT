@@ -1,6 +1,7 @@
 import { CpNode } from '../cp-node/cp-node.js';
 import { Loop } from 'flo-boolean';
 import { MatOptions } from './mat-options.js';
+import { MatMeta } from '../mat/mat-meta.js';
 /**
  * @internal
  * Find the MAT of the given loops.
@@ -9,7 +10,7 @@ import { MatOptions } from './mat-options.js';
  */
 declare function findMat(loops: Loop[], maxCoordinate: number, options: Required<MatOptions>): {
     cpNode: CpNode;
-    meta: import("../index.js").MatMeta;
+    meta: MatMeta;
 };
 export { findMat };
 /** Curvilinear Shape Features (CSFs) */

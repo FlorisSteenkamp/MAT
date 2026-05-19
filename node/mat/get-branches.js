@@ -1,5 +1,12 @@
 import { getBranch } from '../cp-node/fs/get-branch.js';
 import { getNonTerminatingOnCircle } from '../cp-node/fs/get-non-terminating-on-circle.js';
+/**
+ * Returns all branches associated with the give cpNode.
+ *
+ * * the final `CpNode` of each branch is not returned to improve symmetry
+ *
+ * @param cpNode `CpNode` representing the start vertex.
+ */
 function getBranches(cpNode) {
     const branches = [];
     const cpNodeStack = [cpNode];

@@ -1,6 +1,9 @@
 import { findAndAdd3Prongs } from './find-and-add-3-prongs.js';
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 import { removeVertex } from '../vertex/remove-vertex.js';
+// import { LlRbTree } from 'flo-ll-rb-tree';
+// import { Loop } from 'flo-boolean';
+// import { drawFs } from 'flo-draw';
 import { getAllOnCircle } from '../cp-node/fs/get-all-on-circle.js';
 /**
  * @internal
@@ -28,7 +31,7 @@ function findAndAdd3ProngsOnLoop(meta, cpStart) {
             }
             else {
                 reLoop = true;
-                replaceCloseBys(meta.cpTrees, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet);
+                replaceCloseBys(meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet);
             }
             addedCpNodes.forEach(cpNodes => cpNodes.forEach(cpNode => cpNodeGoodSet.add(cpNode)));
         }
@@ -50,13 +53,15 @@ function getLastItemOfSet(set) {
     for (item of set) { }
     return item;
 }
-function replaceCloseBys(cpTrees, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
+function replaceCloseBys(
+// cpTrees: Map<Loop,LlRbTree<CpNode>>,
+meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
     for (const closeBy of [closeBysFor3Prong[0]]) {
         getAllOnCircle(closeBy).forEach(v => {
             cpNodeSet.delete(v);
             cpNodeGoodSet.delete(v);
         });
-        removeVertex(closeBy, cpTrees);
+        removeVertex(closeBy, meta);
     }
 }
 export { findAndAdd3ProngsOnLoop };

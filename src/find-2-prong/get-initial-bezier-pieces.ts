@@ -9,6 +9,7 @@ import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { Circle } from '../geometry/circle.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
 import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
+import { MatMeta } from '../index.js';
 
 
 /** @internal */
@@ -17,9 +18,12 @@ function getInitialBezierPieces(
         isHoleClosing: boolean,
         loop: Loop,
         loops: Loop[],
-        cpTrees: Map<Loop,LlRbTree<CpNode>>,
+        // cpTrees: Map<Loop,LlRbTree<CpNode>>,
+        meta: MatMeta,
         y: PointOnShape,
         circle: Circle): CurvePiece[] {
+
+    const { cpTrees } = meta;
 
     if (isHoleClosing) {
         return loops

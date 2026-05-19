@@ -35,7 +35,7 @@ function findAndAdd3Prong(meta, visitedCps) {
         }
     }
     const cpNodes = closeBysFor3Prong.length === 0
-        ? addToCpTree(true, false, circle, orders, meta.cpTrees, poss, δ3s.map(v => v[0])).cpNodes
+        ? addToCpTree(true, false, circle, orders, meta, poss, δ3s.map(v => v[0])).cpNodes
         : [];
     return { closeBysFor3Prong, cpNodes: cpNodes };
 }

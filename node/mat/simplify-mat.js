@@ -58,7 +58,7 @@ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
     for (const cpNode of canDeletes) {
         if (!isVertex(cpNode => (getProngCount(cpNode) !== 2) &&
             !cpNode.isHoleClosing)(cpNode)) {
-            removeVertex(cpNode, mat.meta.cpTrees);
+            removeVertex(cpNode, mat.meta);
         }
     }
     return {

@@ -4,14 +4,9 @@ import { TriMapFs } from '../utils/tri-map.js';
 import { getCorner } from '../corner/get-corner.js';
 let timingStart;
 /** @internal */
-function getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees) {
+function getPointToCpNode(loops, cpTrees) {
     timingStart = performance.now();
     const pointToCpNode = new Map();
-    const looseBoundingBoxes = [];
-    const tightBoundingBoxes = [];
-    const boundingHulls = [];
-    const sharpCorners = [];
-    const dullCorners = [];
     for (const loop of loops) {
         // Populate `posMap`
         const cpTree = cpTrees.get(loop);
@@ -20,7 +15,18 @@ function getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees) {
             const { p, t } = cpNode.cp.pointOnShape;
             TriMapFs.set(pointToCpNode, loop, p[0], p[1], cpNode);
         }
-        for (let curve of loop.curves) {
+    }
+    return pointToCpNode;
+}
+/** @internal */
+function getPartialMeta(loops) {
+    const looseBoundingBoxes = [];
+    const tightBoundingBoxes = [];
+    const boundingHulls = [];
+    const sharpCorners = [];
+    const dullCorners = [];
+    for (const loop of loops) {
+        for (const curve of loop.curves) {
             const ps = curve.ps;
             const hull = getBoundingHull(ps, true);
             boundingHulls.push(hull);
@@ -38,16 +44,11 @@ function getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees) {
         }
     }
     return {
-        maxCoordinate,
-        squaredDiagonalLength,
         looseBoundingBoxes,
         tightBoundingBoxes,
         boundingHulls,
         sharpCorners,
-        dullCorners,
-        loops,
-        cpTrees,
-        pointToCpNode
+        dullCorners
     };
 }
 /** @internal */
@@ -78,5 +79,5 @@ function addDebugInfo4() {
     const timing = generated.timing;
     timing.threeProngs += performance.now() - timingStart;
 }
-export { getMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 };
+export { getPointToCpNode, getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 };
 //# sourceMappingURL=get-meta.js.map

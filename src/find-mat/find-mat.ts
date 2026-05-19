@@ -7,7 +7,7 @@ import { CpNode } from '../cp-node/cp-node.js';
 import { Loop } from 'flo-boolean';
 import { findAndAdd3ProngsOnLoop } from '../find-3-prong.ts/find-and-add-3-prongs-on-loop.js';
 import { createInitialCpTree } from './create-initial-cp-tree.js';
-import { getMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
+import { getPointToCpNode, getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
 import { getSharpCornersOnLoop } from './get-sharp-corners.js';
 import { getDullCornersOnLoop } from './get-dull-corners-on-loop.js';
 import { findAndAdd2ProngsOnAllLoops } from '../find-2-prong/find-and-add-2-prongs-on-all-loops.js';
@@ -16,6 +16,7 @@ import { getFor1ProngsOnLoop } from './get-for-1-prongs-on-loop.js';
 import { findAndAddHoleClosing2Prongs } from '../find-2-prong/find-and-add-hole-closing-2-prongs.js';
 import { getShapeBounds } from '../svg/get-shape-bounds.js';
 import { MatOptions } from './mat-options.js';
+import { MatMeta } from '../mat/mat-meta.js';
 
 
 /**
@@ -38,15 +39,21 @@ function findMat(
 
     const sharpCornersPerLoop = loops.map(getSharpCornersOnLoop_);
 
-    const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
-    createInitialCpTree(loops, cpTrees, sharpCornersPerLoop);
-
     const bounds = getShapeBounds(loops);
     const squaredDiagonalLength = 
         (bounds.maxX.p[0] - bounds.minX.p[0])**2 +
         (bounds.maxY.p[1] - bounds.minY.p[1])**2;
 
-    const meta = getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees);
+    const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
+    const lastInsertId = { id: 0 };
+    createInitialCpTree(loops, cpTrees, sharpCornersPerLoop, lastInsertId);
+
+    const _meta = getPartialMeta(loops);
+    const pointToCpNode = getPointToCpNode(loops, cpTrees);
+    const meta: MatMeta = {
+        maxCoordinate, squaredDiagonalLength, loops, cpTrees, pointToCpNode,
+        lastInsertId, ..._meta
+    };
 
     let cpNode: CpNode | undefined;
 

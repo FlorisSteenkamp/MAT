@@ -34,7 +34,7 @@ import { getInitialDegAngleBetweenMatCurves } from "./fs/get-angle-between-mat-c
 import { getAllVertices } from "./fs/get-all-vertices.js";
 declare const CpNodeFs: {
     /**
-     * Returns the children of this [[CpNode]] when seen as a MAT edge. Only
+     * Returns the children of this `CpNode` when seen as a MAT edge. Only
      * children in a 'forward' direction are returned. These include all edges
      * except the 'backward' edge given by [[prevOnCircle]], even terminating
      * edges.
@@ -42,7 +42,7 @@ declare const CpNodeFs: {
     getChildren: typeof getChildren;
     /**
      * Similar to [[getChildren]] but returns the child nodes of the tree when
-     * [[CpNode]] is seen as a MAT vertex point (as opposed to edge). In this
+     * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this
      * way the dual graph of the tree can easily be traversed - see e.g.
      * [[traverseVertices]]. Generally, however, traversing the edges is
      * preferred as it returns the entire Medial Axis (by utilizing
@@ -50,7 +50,7 @@ declare const CpNodeFs: {
      */
     getVertexForwardChildren: typeof getVertexForwardChildren;
     /**
-     * Returns all [[CpNode]]s on the MAT that this [[CpNode]] is part of
+     * Returns all `CpNode`s on the MAT that this `CpNode` is part of
      * starting from the current one and going anti-clockwise around the shape.
      */
     getAllOnLoop: typeof getAllOnLoop;
@@ -58,18 +58,18 @@ declare const CpNodeFs: {
      * Return this (except if exclThis is truthy) and the the other CpNodes
      * around the maximal disk vertex circle in an anti-clockwise order.
      * @param exclThis If true the returned array does not include this
-     * [[CpNode]].
+     * `CpNode`.
      */
     getAllOnCircle: typeof getAllOnCircle;
     /**
-     * Returns true if the 2 given [[CpNode]]s are on the same maximal disk
+     * Returns true if the 2 given `CpNode`s are on the same maximal disk
      * circle.
-     * @param cpNode1 A [[CpNode]].
-     * @param cpNode2 Another [[CpNode]]
+     * @param cpNode1 A `CpNode`.
+     * @param cpNode2 Another `CpNode`
      */
     isOnSameCircle: typeof isOnSameCircle;
     /**
-     * Returns true if this [[CpNode]] is terminating, i.e. implies a leaf MAT
+     * Returns true if this `CpNode` is terminating, i.e. implies a leaf MAT
      * vertex.
      *
      * This is always the case for sharp corners and maximal disks with
@@ -77,7 +77,7 @@ declare const CpNodeFs: {
      * two contact points stored (sitting 'on top' of each other) for the
      * maximal disk. It can be seen as a limiting case of a two-prong where the
      * distance between two of the contact points tend to zero. One point
-     * (represented by a [[CpNode]] of course) will be terminating with the
+     * (represented by a `CpNode` of course) will be terminating with the
      * other point being its [[next]], whereas the other point will *not* be
      * terminating and 'points' back into the shape.
      */
@@ -88,30 +88,30 @@ declare const CpNodeFs: {
      */
     isFullyTerminating: typeof isFullyTerminating;
     /**
-     * Returns the first [[CpNode]] (from this one by successively applying
+     * Returns the first `CpNode` (from this one by successively applying
      * .nextOnCircle) that exits the circle.
      */
     getFirstExit: typeof getFirstExit;
     /**
-     * Returns true if this [[CpNode]] represents a sharp corner, i.e. the
+     * Returns true if this `CpNode` represents a sharp corner, i.e. the
      * limiting case of a two-prong having zero radius.
      *
-     * Note that two [[CpNode]]s are stored for each sharp corner, one being
+     * Note that two `CpNode`s are stored for each sharp corner, one being
      * terminating and one not. See [[isTerminating]] for more details.
      */
     isSharp: typeof isSharp;
     /**
-     * Returns true if this [[CpNode]]'s maximal disk has only one contact point
+     * Returns true if this `CpNode`'s maximal disk has only one contact point
      * on the shape boundary (up to planar coordinates). These includes sharp
      * corners.
      *
-     * Note, however, that two [[CpNode]]s are stored for each such point to
+     * Note, however, that two `CpNode`s are stored for each such point to
      * preserve symmetry - see [[isTerminating]] for more details.
      */
     isOneProng: typeof isOneProng;
     /**
      * Returns the number of contact points on the maximal disk circle implied
-     * by this [[CpNode]].
+     * by this `CpNode`.
      *
      * Note, however, that even one-prongs and sharp corners will return 2 (see
      * [[isTerminating]] for more details); if this is not desired use
@@ -120,7 +120,7 @@ declare const CpNodeFs: {
     getProngCount: typeof getProngCount;
     /**
      * Returns the number of contact points (up to planar coordinates) on the
-     * maximal disk circle implied by this [[CpNode]].
+     * maximal disk circle implied by this `CpNode`.
      *
      * See also [[getProngCount]].
      */
@@ -128,8 +128,8 @@ declare const CpNodeFs: {
     /**
      * Primarily for internal use.
      *
-     * Compares the order of two [[CpNode]]s. The order is cyclic and depends
-     * on a [[CpNode]]'s relative position along the shape boundary.
+     * Compares the order of two `CpNode`s. The order is cyclic and depends
+     * on a `CpNode`'s relative position along the shape boundary.
      */
     cpNodeComparator: (a: CpNode, b: CpNode) => number;
     /**
@@ -149,26 +149,26 @@ declare const CpNodeFs: {
     traverseCp: typeof traverseCp;
     /**
      * Traverses all edges (depth first) of the given MAT tree starting at the given
-     * vertex (represented by a [[CpNode]]).
-     * @param cpNode Any [[CpNode]] representing the start vertex.
+     * vertex (represented by a `CpNode`).
+     * @param cpNode Any `CpNode` representing the start vertex.
      * @param traverseEdgesCallback A callback function for each CpNode representing the vertex at the
      * start of an edge.
      */
     traverseEdges: typeof traverseEdges;
     /**
      * Traverses the MAT tree and calls the given callback function for each vertex
-     * (represented by a [[CpNode]]) on the MAT.
+     * (represented by a `CpNode`) on the MAT.
      *
      * It is usually preferable to use [[traverseEdges]] as it allows for the
      * traversal of all the smooth curves representing the MAT.
-     * @param cpNode Any [[CpNode]] representing the start vertex.
-     * @param traverseVerticesCallback A callback function taking a single [[CpNode]] as parameter.
+     * @param cpNode Any `CpNode` representing the start vertex.
+     * @param traverseVerticesCallback A callback function taking a single `CpNode` as parameter.
      */
     traverseVertices: typeof traverseVertices;
     /**
-     * Returns a deep clone of this [[CpNode]]. Can be used to copy the MAT
-     * since cloning a single [[CpNode]] necessarily implies cloning all
-     * [[CpNode]]s on the same MAT tree.
+     * Returns a deep clone of this `CpNode`. Can be used to copy the MAT
+     * since cloning a single `CpNode` necessarily implies cloning all
+     * `CpNode`s on the same MAT tree.
      */
     clone: typeof clone;
     /**
@@ -185,13 +185,13 @@ declare const CpNodeFs: {
     getBoundaryBeziersToNext: typeof getBoundaryBeziersToNext;
     /**
      * Removes a cpNode from the MAT.
-     * @param cpTree The tree graph holding the [[CpNodes]] of the MAT.
-     * @param cpNode The [[CpNode]] to remove.
+     * @param cpTree The tree graph holding the `CpNodes` of the MAT.
+     * @param cpNode The `CpNode` to remove.
      */
     removeVertex: typeof removeVertex;
     /**
-     * Returns the bezier curve from the maximal disk of the given [[CpNode]] to the
-     * next [[CpNode]]'s maximal disk and thus directly represents a piece of the
+     * Returns the bezier curve from the maximal disk of the given `CpNode` to the
+     * next `CpNode`'s maximal disk and thus directly represents a piece of the
      * medial axis.
      * @param cpNode
      */
@@ -201,8 +201,8 @@ declare const CpNodeFs: {
     getBranchBeziers: typeof getBranchBeziers;
     getSalience: typeof getSalience;
     /**
-     * Returns the bezier curve from the maximal disk of one [[CpNode]] to another
-     * [[CpNode]]'s maximal disk.
+     * Returns the bezier curve from the maximal disk of one `CpNode` to another
+     * `CpNode`'s maximal disk.
      * @param cpNodeFrom
      * @param cpNodeTo
      */

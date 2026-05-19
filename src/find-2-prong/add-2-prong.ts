@@ -25,85 +25,90 @@ import { removeCpNode } from '../cp-node/fs/remove-cp-node.js';
  * tolerances.
  */
 function add2Prong(
-		meta: MatMeta,
+        meta: MatMeta,
         circle: Circle,
-		poss: PointOnShape[],
-		isHoleClosing: boolean): CpNode | undefined {
+        poss: PointOnShape[],
+        isHoleClosing: boolean): CpNode | undefined {
 
-	const { cpTrees } = meta;
+    poss[0] = poss[0].t === 0
+        ? createPos(poss[0].curve.prev, 1, true)
+        : poss[0];
 
-	poss[0] = poss[0].t === 0
-		? createPos(poss[0].curve.prev, 1, true)
-		: poss[0];
+    const orders = poss.map(pos => calcPosOrder(circle, pos));
 
-	const orders = poss.map(pos => calcPosOrder(circle, pos));
+    // Make sure there isn't already a ContactPoint close by - it can cause
+    // floating point stability issues.
+    for (let i=0; i<poss.length; i++) {
+        if (!!getCloseByCpIfExist(meta, poss[i], circle, orders[i], 0, 2)) {
+            return undefined;
+        }
+    }
 
-	// Make sure there isn't already a ContactPoint close by - it can cause
-	// floating point stability issues.
-	for (let i=0; i<poss.length; i++) {
-		if (!!getCloseByCpIfExist(meta, poss[i], circle, orders[i], 0, 2)) {
-			return undefined;
-		}
-	}
+    const { anyFailed, cpNodes } = addToCpTree(
+        isHoleClosing, isHoleClosing, circle, orders, meta, poss
+    );
 
-	const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, orders, cpTrees, poss);
+    if (anyFailed) {
+        cpNodes.forEach(cpNode => {
+            if (cpNode !== undefined) {
+                removeCpNode(cpNode, meta);
+            }
+        });
+        return undefined;
+    }
 
-	if (anyFailed) {
-		cpNodes.forEach(cpNode => {
-			if (cpNode !== undefined) {
-				removeCpNode(cpNode, cpTrees);
-			}
-		});
-		return undefined;
-	}
+    // Get points ordered according to their angle with the x-axis
+    // joinSpokes(circle, cpNodes);
 
-	// Get points ordered according to their angle with the x-axis
-	// joinSpokes(circle, cpNodes);
+    if (isHoleClosing) { 
+        closeHole(meta, cpNodes as CpNode[]);
+    }
 
-	if (isHoleClosing) { 
-		closeHole(cpTrees, cpNodes as CpNode[]);
-	}
-
-	return cpNodes[0];  // return the source `CpNode`
+    return cpNodes[0];  // return the source `CpNode`
 }
 
 
 function closeHole(
-		cpTrees: Map<Loop, LlRbTree<CpNode>>,
-		cpNodes: CpNode[]) {
+        meta: MatMeta,
+        // cpTrees: Map<Loop, LlRbTree<CpNode>>,
+        cpNodes: CpNode[]) {
 
-	const [cpNodeA, cpNodeB] = cpNodes;
-	// Duplicate ContactPoints
-	// const antipodeCpNode = cpNodeB[0];
-	const cpAntipode = cpNodeB.cp;
+    const { cpTrees } = meta;
 
-	const cpNodeB2 = insertCpNode(
-		true,
-		true, false,
-		cpTrees.get(cpAntipode.pointOnShape.curve.loop)!,
-		{ ...cpAntipode, order2: +1 },
-		cpNodeB
-	)!;
+    const [cpNodeA, cpNodeB] = cpNodes;
+    // Duplicate ContactPoints
+    // const antipodeCpNode = cpNodeB[0];
+    const cpAntipode = cpNodeB.cp;
 
-	const cpNodeB1 = insertCpNode(
-		true,
-		true, false,
-		cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop)!,
-		{ ...cpNodeA.cp, order2: -1 },
-		cpNodeA.prev
-	)!;
+    const cpNodeB2 = insertCpNode(
+        true,
+        true, false,
+        cpTrees.get(cpAntipode.pointOnShape.curve.loop)!,
+        { ...cpAntipode, order2: +1 },
+        cpNodeB,
+        meta.lastInsertId
+    )!;
 
-	// Connect graph
-	cpNodeB1.prevOnCircle = cpNodeB2;
-	cpNodeB1.nextOnCircle = cpNodeB2;
-	cpNodeB2.prevOnCircle = cpNodeB1;
-	cpNodeB2.nextOnCircle = cpNodeB1;
+    const cpNodeB1 = insertCpNode(
+        true,
+        true, false,
+        cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop)!,
+        { ...cpNodeA.cp, order2: -1 },
+        cpNodeA.prev,
+        meta.lastInsertId
+    )!;
 
-	cpNodeB.next = cpNodeA;
-	cpNodeA.prev = cpNodeB;
+    // Connect graph
+    cpNodeB1.prevOnCircle = cpNodeB2;
+    cpNodeB1.nextOnCircle = cpNodeB2;
+    cpNodeB2.prevOnCircle = cpNodeB1;
+    cpNodeB2.nextOnCircle = cpNodeB1;
 
-	cpNodeB1.next = cpNodeB2;
-	cpNodeB2.prev = cpNodeB1;
+    cpNodeB.next = cpNodeA;
+    cpNodeA.prev = cpNodeB;
+
+    cpNodeB1.next = cpNodeB2;
+    cpNodeB2.prev = cpNodeB1;
 }
 
 

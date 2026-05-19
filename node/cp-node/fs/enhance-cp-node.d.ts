@@ -25,10 +25,6 @@ declare function enhanceCpNode(cpNode: CpNode): {
     nextOnCircle: CpNode;
     holeCloserNext?: CpNode | undefined;
     holeCloserPrev?: CpNode | undefined;
-    id?: number;
-    children?: number[];
-    isRoot?: boolean;
-    parentId?: number;
-    childId?: number;
+    id: number;
 };
 export { enhanceCpNode };

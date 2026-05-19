@@ -18,15 +18,38 @@ let timingStart: number;
 
 
 /** @internal */
-function getMeta(
-        maxCoordinate: number,
-        squaredDiagonalLength: number,
+function getPointToCpNode(
         loops: Loop[],
-        cpTrees: Map<Loop, LlRbTree<CpNode>>): MatMeta {
+        cpTrees: Map<Loop, LlRbTree<CpNode>>): TriMap<Loop,number,number,CpNode> {
 
     timingStart = performance.now();
 
     const pointToCpNode: TriMap<Loop,number,number,CpNode> = new Map();
+        for (const loop of loops) {
+        // Populate `posMap`
+        const cpTree = cpTrees.get(loop)!;
+        const cpNodes = cpTree.toArrayInOrder();
+        for (const cpNode of cpNodes) {
+            const { p, t } = cpNode.cp.pointOnShape;
+            TriMapFs.set(pointToCpNode,loop,p[0],p[1],cpNode);
+        }
+    }
+
+    return pointToCpNode;
+}
+
+
+/** @internal */
+function getPartialMeta(
+        loops: Loop[]): Omit<
+            MatMeta,
+            | 'cpTrees'
+            | 'pointToCpNode'
+            | 'loops'
+            | 'maxCoordinate'
+            | 'squaredDiagonalLength'
+            | 'lastInsertId'
+        > {
 
     const looseBoundingBoxes: number[][][] = [];
     const tightBoundingBoxes: number[][][] = [];
@@ -35,15 +58,7 @@ function getMeta(
     const dullCorners: Curve[] = [];
 
     for (const loop of loops) {
-        // Populate `posMap`
-        const cpTree = cpTrees.get(loop)!;
-        const cpNodes = cpTree.toArrayInOrder();
-        for (const cpNode of cpNodes) {
-            const { p, t } = cpNode.cp.pointOnShape;
-            TriMapFs.set(pointToCpNode,loop,p[0],p[1],cpNode);
-        }
-
-        for (let curve of loop.curves) {
+        for (const curve of loop.curves) {
             const ps = curve.ps;
             const hull = getBoundingHull(ps, true)!;
 
@@ -65,16 +80,11 @@ function getMeta(
     }
 
     return {
-        maxCoordinate,
-        squaredDiagonalLength,
         looseBoundingBoxes,
         tightBoundingBoxes,
         boundingHulls,
         sharpCorners,
-        dullCorners,
-        loops,
-        cpTrees,
-        pointToCpNode
+        dullCorners
     }
 }
 
@@ -112,4 +122,4 @@ function addDebugInfo4() {
 }
 
 
-export { getMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 }
+export { getPointToCpNode, getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 }

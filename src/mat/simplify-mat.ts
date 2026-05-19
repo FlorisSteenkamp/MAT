@@ -75,7 +75,7 @@ function simplifyMat(
                 !cpNode.isHoleClosing
             )(cpNode)) {
 
-            removeVertex(cpNode, mat.meta.cpTrees);
+            removeVertex(cpNode, mat.meta);
         }
     }
 

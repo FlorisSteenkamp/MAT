@@ -10,7 +10,8 @@ function insertCpNode(
         isIntersection: boolean,
         cpTree: LlRbTree<CpNode>,
         cp: ContactPoint, 
-        _prev: CpNode | undefined) {
+        _prev: CpNode | undefined,
+        lastInsertId: { id: number }): CpNode | undefined {
 
     if (_prev !== undefined &&
         !isOrderCorrect(cpTree, cp, _prev.next)) {
@@ -21,7 +22,17 @@ function insertCpNode(
         }
     }
 
-    const cpNode = { cp, isHoleClosing, isIntersection } as CpNode;
+    const cpNode: CpNode = {
+        cp,
+        isHoleClosing,
+        isIntersection,
+        id: lastInsertId.id,
+        next: undefined!,
+        prev: undefined!,
+        nextOnCircle: undefined!,
+        prevOnCircle: undefined!
+    };
+    lastInsertId.id++;
 
     const prev = _prev === undefined ? cpNode : _prev;
     const next = _prev === undefined ? cpNode : prev.next;

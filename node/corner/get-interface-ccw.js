@@ -1,5 +1,4 @@
 import { eAdd, eEstimate, eMult, eNegativeOf, twoDiff } from 'big-float-ts';
-// import { dot } from "flo-vector2d";
 import { compareCurvaturesAtInterface } from "./compare-curvatures-at-interface.js";
 /**
  * Returns a positive value if the second bezier (of order 1, 2 or 3) curves

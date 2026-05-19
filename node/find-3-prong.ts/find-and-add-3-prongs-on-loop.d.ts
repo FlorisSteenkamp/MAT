@@ -1,5 +1,5 @@
-import { CpNode } from '../cp-node/cp-node.js';
-import { MatMeta } from '../mat/mat-meta.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 /**
  * @internal
  * Finds and adds all 3-prongs on a loop.

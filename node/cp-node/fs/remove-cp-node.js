@@ -1,4 +1,6 @@
-function removeCpNode(cpNode, cpTrees) {
+function removeCpNode(cpNode, meta) {
+    // cpTrees: Map<Loop, LlRbTree<CpNode>>): void {
+    const { cpTrees } = meta;
     const prev = cpNode.prev;
     const next = cpNode.next;
     prev.next = next;

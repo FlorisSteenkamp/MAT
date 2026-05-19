@@ -34,7 +34,7 @@ const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
  * @param loopIdx The loop array index
  */
 function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
-    const { loops, maxCoordinate, squaredDiagonalLength, cpTrees } = meta;
+    const { loops, maxCoordinate, squaredDiagonalLength } = meta;
     const loop = y.curve.loop;
     const MAX_ITERATIONS = 25;
     const minSquaredSeperationTolerance = ((2 ** -21) * maxCoordinate) ** 2;
@@ -47,7 +47,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
     const p = y.p;
     // The boundary piece that should contain the other point of 
     // the 2-prong circle. (Defined by start and end points).
-    let bezierPieces = getInitialBezierPieces(angle, isHoleClosing, loop, loops, cpTrees, y, { center: xO, radius: rO });
+    let bezierPieces = getInitialBezierPieces(angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO });
     // console.log(bezierPieces.length);
     /** The center of the two-prong (successively refined) */
     let x = xO;

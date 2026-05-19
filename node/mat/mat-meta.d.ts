@@ -14,11 +14,18 @@ interface MatMeta {
     readonly loops: Loop[];
     /**
      * Primarily for internal use. A tree structure storing the
-     * [[CpNode]]s of the MAT by their compare order, i.e. their cyclic order
+     * `CpNode`s of the MAT by their compare order, i.e. their cyclic order
      * around the shape boundary.
      */
     readonly cpTrees: Map<Loop, LlRbTree<CpNode>>;
     /** A map from a bezier and t value to a `PointOnShape` */
     readonly pointToCpNode: TriMap<Loop, number, number, CpNode>;
+    /**
+     * Stores the last insert id so each `CpNode` can have a unique id for
+     * debugging purposes
+     */
+    readonly lastInsertId: {
+        id: number;
+    };
 }
 export { MatMeta };

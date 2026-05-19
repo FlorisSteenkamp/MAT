@@ -1,5 +1,5 @@
 import { isOrderCorrect } from "./is-order-correct.js";
-function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, cp, _prev) {
+function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, cp, _prev, lastInsertId) {
     if (_prev !== undefined &&
         !isOrderCorrect(cpTree, cp, _prev.next)) {
         // console.log(compareCps(cp,_prev!.next.cp))
@@ -7,7 +7,17 @@ function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree,
             return undefined;
         }
     }
-    const cpNode = { cp, isHoleClosing, isIntersection };
+    const cpNode = {
+        cp,
+        isHoleClosing,
+        isIntersection,
+        id: lastInsertId.id,
+        next: undefined,
+        prev: undefined,
+        nextOnCircle: undefined,
+        prevOnCircle: undefined
+    };
+    lastInsertId.id++;
     const prev = _prev === undefined ? cpNode : _prev;
     const next = _prev === undefined ? cpNode : prev.next;
     next.prev = cpNode;

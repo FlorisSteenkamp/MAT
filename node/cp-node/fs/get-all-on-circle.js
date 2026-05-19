@@ -1,13 +1,17 @@
+/**
+ * Returns all the `CpNode`s on the same circle.
+ *
+ * @param cpNode
+ * @param exclThis
+ */
 function getAllOnCircle(cpNode, exclThis = false) {
     const startCpNode = cpNode;
-    let cpNode_ = startCpNode;
-    const cpNodes = [];
-    do {
-        if (!(exclThis && cpNode_ === startCpNode)) {
-            cpNodes.push(cpNode_);
-        }
+    const cpNodes = exclThis ? [] : [cpNode];
+    let cpNode_ = cpNode.nextOnCircle;
+    while (cpNode_ !== startCpNode) {
+        cpNodes.push(cpNode_);
         cpNode_ = cpNode_.nextOnCircle;
-    } while (cpNode_ !== startCpNode);
+    }
     return cpNodes;
 }
 export { getAllOnCircle };

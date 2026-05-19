@@ -33,7 +33,7 @@ function add1Prong(meta, radius, center, pos) {
     if (getCloseByCpIfExist(meta, pos, circle, order, 0, 1)) {
         return;
     }
-    const { anyFailed, cpNodes } = addToCpTree(false, false, circle, [-0.5, +0.5], meta.cpTrees, [pos, pos]);
+    const { anyFailed, cpNodes } = addToCpTree(false, false, circle, [-0.5, +0.5], meta, [pos, pos]);
     // if (typeof _debug_ !== 'undefined') { 
     //     _debug_.generated.elems.oneProng.push(cpNodes);
     // }

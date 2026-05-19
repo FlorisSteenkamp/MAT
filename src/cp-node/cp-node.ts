@@ -11,41 +11,41 @@ import { ContactPoint } from '../contact-point/contact-point.js';
  * represents the entire MAT.
  * 
  * To get the maximal disk circle (of which the center is on the medial axis)
- * use [[cp]].circle.
+ * use `cp.circle`.
  * 
- * To get the boundary point, use [[cp]].pointOnShape.
+ * To get the boundary point, use `cp.pointOnShape`.
  * 
- * The edge [[next]] (resp. [[prev]]) allows one to move anti-clockwise (resp.
+ * The edge `next` (resp. `prev`) allows one to move anti-clockwise (resp.
  * clockwise) on the shape boundary to the next `CpNode`. This also imposes a 
  * direction of traversal of the MAT edges and vertices. 
  * 
- * The edge [[nextOnCircle]] (resp. [[prevOnCircle]]) allows one to go 
+ * The edge `nextOnCircle` (resp. `prevOnCircle`) allows one to go 
  * anti-clockwise (resp. clockwise) around the maximal disks implied by
  * the CpNode to the next maximal disk contact point. This is equivalent to 
  * following other branches on the MAT.
  * 
- * Call [[getMatCurveBetween]](cpNodeFrom, cpNodeTo) or getMatCurveToNext(cpNode) 
- * (replacing the older CpNode.[[matCurveToNextVertex]]) to get a bezier curve 
+ * Call `getMatCurveBetween(cpNodeFrom, cpNodeTo)` or `getMatCurveToNext(cpNode)` 
+ * (replacing the older CpNode.`matCurveToNextVertex`) to get a bezier curve 
  * from the maximal disk of this `CpNode` to the next `CpNode`'s 
  * maximal disk and thus directly representing a piece of the medial axis.
  * 
- * The function, [[getChildren]], returns the children of this `CpNode` when
+ * The function, `getChildren`, returns the children of this `CpNode` when
  * seen as a MAT edge. Only children in a 'forward' direction are returned. These
- * include all edges except the 'backward' edge given by [[prevOnCircle]]. For
+ * include all edges except the 'backward' edge given by `prevOnCircle`. For
  * `CpNode`s having a maximal disk with 2 contact points (a 2-prong, the usual 
- * case) the children will be the single edge [[next]]. For a 3-prong this will
- * be the edges [[next]] and [[nextOnCircle]], etc. [[getChildren]] allows one to
- * easily traverse the MAT tree - see e.g. the implementation of [[traverseEdges]].
+ * case) the children will be the single edge `next`. For a 3-prong this will
+ * be the edges `next` and `nextOnCircle`, etc. `getChildren` allows one to
+ * easily traverse the MAT tree - see e.g. the implementation of `traverseEdges`.
  * 
- * The getter, [[getVertexForwardChildren]], is similar to [[getChildren]] but returns the 
+ * The getter, `getVertexForwardChildren`, is similar to `getChildren` but returns the 
  * child nodes of the tree when `CpNode` is seen as a MAT vertex point (as 
  * opposed to edge). In this way the dual graph of the tree can easily be 
- * traversed - see e.g. [[traverseVertices]]. Generally, however, traversing the 
+ * traversed - see e.g. `traverseVertices`. Generally, however, traversing the 
  * edges is preferred as it returns the entire Medial Axis (by utilizing 
- * [[getMatCurveToNext]] on each returned edge).
+ * `getMatCurveToNext` on each returned edge).
  * 
  * It may be worth mentioning that by traversing from the CpNode by following
- * [[next]] repeatedly until one is back at the same CpNode allows one
+ * `next` repeatedly until one is back at the same CpNode allows one
  * to 'go around' the shape boundary and at the same time traverse the MAT twice 
  * in opposite directions.
  */
@@ -80,19 +80,7 @@ interface CpNode {
 	holeCloserPrev?: CpNode | undefined;
 
 	/** Only used in export */
-	id?: number;
-
-	/** Only used in export */
-	children?: number[];
-
-	/** Only used in export */
-	isRoot?: boolean;
-
-	/** Only used in export */
-	parentId?: number;
-
-	/** Only used in export */
-	childId?: number;
+	id: number;
 }
 
 

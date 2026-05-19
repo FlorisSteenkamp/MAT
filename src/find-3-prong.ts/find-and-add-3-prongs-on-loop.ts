@@ -1,11 +1,11 @@
-import { CpNode } from '../cp-node/cp-node.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { findAndAdd3Prongs } from './find-and-add-3-prongs.js';
-import { MatMeta } from '../mat/mat-meta.js';
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 import { removeVertex } from '../vertex/remove-vertex.js';
-import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from 'flo-boolean';
-import { drawFs } from 'flo-draw';
+// import { LlRbTree } from 'flo-ll-rb-tree';
+// import { Loop } from 'flo-boolean';
+// import { drawFs } from 'flo-draw';
 import { getAllOnCircle } from '../cp-node/fs/get-all-on-circle.js';
 
 
@@ -38,7 +38,7 @@ function findAndAdd3ProngsOnLoop(
                 cpNodeGoodSet.add(cpNode);
             } else {
                 reLoop = true;
-                replaceCloseBys(meta.cpTrees, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet);
+                replaceCloseBys(meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet);
             }
 
             addedCpNodes.forEach(cpNodes => cpNodes.forEach(cpNode => cpNodeGoodSet.add(cpNode)));
@@ -71,7 +71,8 @@ function getLastItemOfSet<T>(set: Set<T>) {
 
 
 function replaceCloseBys(
-        cpTrees: Map<Loop,LlRbTree<CpNode>>,
+        // cpTrees: Map<Loop,LlRbTree<CpNode>>,
+        meta: MatMeta,
         closeBysFor3Prong: CpNode[],
         cpNodeSet: Set<CpNode>,
         cpNodeGoodSet: Set<CpNode>) {
@@ -81,7 +82,7 @@ function replaceCloseBys(
             cpNodeSet.delete(v);
             cpNodeGoodSet.delete(v);
         });
-        removeVertex(closeBy, cpTrees);
+        removeVertex(closeBy, meta);
     }
 }
 

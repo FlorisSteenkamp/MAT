@@ -6,10 +6,14 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
  * @internal
  * Creates the initial ContactPoint loops from the given sharp corners.
  *
- * * modifies `cpTrees`
+ * * modifies `cpTrees` and `lastInsertId` of `meta`
  *
- * @param shape
+ * @param loops
+ * @param cpTrees
  * @param sharpCornerss
+ * @param lastInsertId
  */
-declare function createInitialCpTree(loops: Loop[], cpTrees: Map<Loop, LlRbTree<CpNode>>, sharpCornerss: PointOnShape[][]): CpNode | undefined;
+declare function createInitialCpTree(loops: Loop[], cpTrees: Map<Loop, LlRbTree<CpNode>>, sharpCornerss: PointOnShape[][], lastInsertId: {
+    id: number;
+}): CpNode | undefined;
 export { createInitialCpTree };

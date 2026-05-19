@@ -5,6 +5,7 @@ import { CpNodeFs } from '../cp-node/cp-node-fs.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { ContactPoint } from '../contact-point/contact-point.js';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
+import { MatMeta } from '../index.js';
 
 const { cpNodeComparator } = CpNodeFs;
 
@@ -13,17 +14,20 @@ const { cpNodeComparator } = CpNodeFs;
  * @internal
  * Creates the initial ContactPoint loops from the given sharp corners.
  * 
- * * modifies `cpTrees`
+ * * modifies `cpTrees` and `lastInsertId` of `meta`
  * 
- * @param shape
+ * @param loops
+ * @param cpTrees
  * @param sharpCornerss
+ * @param lastInsertId
  */
 function createInitialCpTree(
         loops: Loop[], 
         cpTrees: Map<Loop, LlRbTree<CpNode>>,
-        sharpCornerss: PointOnShape[][]) {
+        sharpCornerss: PointOnShape[][],
+        lastInsertId: { id: number }) {
 
-    let cpNode;
+    let cpNode: CpNode | undefined;
     for (let k=0; k<sharpCornerss.length; k++) {
         const sharpCorners = sharpCornerss[k];
 
@@ -37,8 +41,8 @@ function createInitialCpTree(
             const cp1: ContactPoint = { pointOnShape: pos, circle, order: -1, order2: 0 };
             const cp2: ContactPoint = { pointOnShape: pos, circle, order: +1, order2: 0 };
 
-            cpNode1 = insertCpNode(true, false, false, cpTree, cp1, cpNode2)!;
-            cpNode2 = insertCpNode(true, false, false, cpTree, cp2, cpNode1)!;
+            cpNode1 = insertCpNode(true, false, false, cpTree, cp1, cpNode2, lastInsertId)!;
+            cpNode2 = insertCpNode(true, false, false, cpTree, cp2, cpNode1, lastInsertId)!;
             
             cpNode1.prevOnCircle = cpNode2; 
             cpNode2.prevOnCircle = cpNode1; 

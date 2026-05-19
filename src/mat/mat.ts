@@ -5,7 +5,7 @@ import { MatMeta } from './mat-meta.js';
 /**
  * Represents a complete Medial Axis Transform (MAT).
  * 
- * The MAT is fully described through its `CpNode` property. The [[cpTrees]]
+ * The MAT is fully described through its `CpNode` property. The `cpTrees`
  * property is only added to facilitate extension of the MAT, e.g. by adding
  * extra maximal disks and is typically not used. See `CpNode` for more
  * details.

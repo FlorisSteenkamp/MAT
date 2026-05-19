@@ -1,5 +1,6 @@
-import { Loop } from "flo-boolean";
-import { LlRbTree } from "flo-ll-rb-tree";
+import type { Loop } from "flo-boolean";
+import type { LlRbTree } from "flo-ll-rb-tree";
+import type { MatMeta } from "../../mat/mat-meta.js";
 import { compareCps } from "../../contact-point/contact-point.js";
 import { CpNode } from "../../cp-node/cp-node.js";
 import { getAllOnLoop } from "../../cp-node/fs/get-all-on-loop.js";
@@ -8,8 +9,11 @@ import { isOrderCorrect } from "../../cp-node/fs/is-order-correct.js";
 
 
 function checkOrdering(
-        cpTrees: Map<Loop,LlRbTree<CpNode>>,
+        // cpTrees: Map<Loop,LlRbTree<CpNode>>,
+        meta: MatMeta,
         cpStart: CpNode) {
+
+    const { cpTrees } = meta;
 
     const cpNodes = getAllOnLoop(cpStart);
 

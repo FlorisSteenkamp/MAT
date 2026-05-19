@@ -4,7 +4,10 @@ import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
 import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
 /** @internal */
-function getInitialBezierPieces(angle, isHoleClosing, loop, loops, cpTrees, y, circle) {
+function getInitialBezierPieces(angle, isHoleClosing, loop, loops, 
+// cpTrees: Map<Loop,LlRbTree<CpNode>>,
+meta, y, circle) {
+    const { cpTrees } = meta;
     if (isHoleClosing) {
         return loops
             .filter(_loop => _loop !== loop)

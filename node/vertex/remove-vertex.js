@@ -1,12 +1,13 @@
 import { getAllOnCircle } from '../cp-node/fs/get-all-on-circle.js';
 import { getProngCount } from '../cp-node/fs/get-prong-count.js';
 import { removeCpNode } from '../cp-node/fs/remove-cp-node.js';
-function removeVertex(cpNode, cpTrees) {
+function removeVertex(cpNode, meta) {
+    // cpTrees: Map<Loop, LlRbTree<CpNode>>): void {
     const prongCount = getProngCount(cpNode);
     if (prongCount !== 2) {
         throw new Error(`Cannot delete \`CpNode\` on ${prongCount}-prong`);
     }
-    getAllOnCircle(cpNode).forEach(cpNode => removeCpNode(cpNode, cpTrees));
+    getAllOnCircle(cpNode).forEach(cpNode => removeCpNode(cpNode, meta));
 }
 export { removeVertex };
 //# sourceMappingURL=remove-vertex.js.map

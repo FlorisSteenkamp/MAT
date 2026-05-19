@@ -1,4 +1,4 @@
-import { CpNode } from "../cp-node.js";
+import type { CpNode } from "../cp-node.js";
 /**
  * Returns all `CpNode`s between the two given ones (inclusive).
  *

@@ -1,9 +1,9 @@
 /** @internal */
 const EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
 /**
- * Returns a deep clone of this [[CpNode]]. Can be used to copy the MAT
- * since cloning a single [[CpNode]] necessarily implies cloning all
- * [[CpNode]]s on the same MAT tree.
+ * Returns a deep clone of this `CpNode`. Can be used to copy the MAT
+ * since cloning a single `CpNode` necessarily implies cloning all
+ * `CpNode`s on the same MAT tree.
  */
 function clone(cpNode) {
     // Don't change this function to be recursive, the call stack may 

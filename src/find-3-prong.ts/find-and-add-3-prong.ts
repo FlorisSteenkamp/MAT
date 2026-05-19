@@ -50,7 +50,7 @@ function findAndAdd3Prong(
 
 	const cpNodes = closeBysFor3Prong.length === 0
 		? addToCpTree(
-			true, false, circle, orders, meta.cpTrees, poss, δ3s.map(v => v[0])
+			true, false, circle, orders, meta, poss, δ3s.map(v => v[0])
 		).cpNodes
 		: [];
 
