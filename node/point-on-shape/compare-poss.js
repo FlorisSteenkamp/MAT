@@ -1,8 +1,8 @@
 /**
- * Compares two [[PointOnShape]]s according to their cyclic ordering imposed
+ * Compares two `PointOnShape`s according to their cyclic ordering imposed
  * by their relative positions on the shape boundary.
- * @param a The first [[PointOnShape]].
- * @param b The second [[PointOnShape]].
+ * @param a The first `PointOnShape`.
+ * @param b The second `PointOnShape`.
  * @internal
  */
 function comparePoss(a, b) {

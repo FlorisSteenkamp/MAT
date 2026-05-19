@@ -5,7 +5,7 @@ import { PointOnShape } from './point-on-shape.js';
  *
  * @param minCurvature If not Number.POSITIVE_INFINITY then the
  * circle radius will be limited to this value.
- * @param pos The [[PointOnShape]] identifying the point.
+ * @param pos The `PointOnShape` identifying the point.
  * @param useMaxRadius
  */
 declare function getOsculatingCircle(minCurvature: number, pos: PointOnShape, useMaxRadius?: boolean): Circle;

@@ -1,5 +1,5 @@
 /**
- * Returns a human-readable string of the given [[PointOnShape]].
+ * Returns a human-readable string of the given `PointOnShape`.
  * For debugging only.
  * @internal
  */

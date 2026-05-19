@@ -46,4 +46,5 @@ export { getSharpCornersOnLoop } from './find-mat/get-sharp-corners.js';
 export { getFor2ProngsOnLoop } from './find-mat/get-for-2-prongs-on-loop.js';
 export { getPotentialClosestPointsOnCurveCertified } from './closest-boundary-point/get-potential-closest-points-on-curve-certified.js';
 export { getCloseBoundaryPointsCertified } from './closest-boundary-point/get-close-boundary-points-certified.js';
+export { getPartialMeta, getPointToCpNode } from './find-mat/get-meta.js';
 export { findAndAddHoleClosing2Prongs } from './find-2-prong/find-and-add-hole-closing-2-prongs.js';

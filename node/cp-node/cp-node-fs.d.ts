@@ -36,17 +36,17 @@ declare const CpNodeFs: {
     /**
      * Returns the children of this `CpNode` when seen as a MAT edge. Only
      * children in a 'forward' direction are returned. These include all edges
-     * except the 'backward' edge given by [[prevOnCircle]], even terminating
+     * except the 'backward' edge given by `prevOnCircle`, even terminating
      * edges.
      */
     getChildren: typeof getChildren;
     /**
-     * Similar to [[getChildren]] but returns the child nodes of the tree when
+     * Similar to `getChildren` but returns the child nodes of the tree when
      * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this
      * way the dual graph of the tree can easily be traversed - see e.g.
-     * [[traverseVertices]]. Generally, however, traversing the edges is
+     * `traverseVertices`. Generally, however, traversing the edges is
      * preferred as it returns the entire Medial Axis (by utilizing
-     * [[getMatCurveToNext]] on each returned edge).
+     * `getMatCurveToNext` on each returned edge).
      */
     getVertexForwardChildren: typeof getVertexForwardChildren;
     /**
@@ -78,7 +78,7 @@ declare const CpNodeFs: {
      * maximal disk. It can be seen as a limiting case of a two-prong where the
      * distance between two of the contact points tend to zero. One point
      * (represented by a `CpNode` of course) will be terminating with the
-     * other point being its [[next]], whereas the other point will *not* be
+     * other point being its `next`, whereas the other point will *not* be
      * terminating and 'points' back into the shape.
      */
     isTerminating: typeof isTerminating;
@@ -97,7 +97,7 @@ declare const CpNodeFs: {
      * limiting case of a two-prong having zero radius.
      *
      * Note that two `CpNode`s are stored for each sharp corner, one being
-     * terminating and one not. See [[isTerminating]] for more details.
+     * terminating and one not. See `isTerminating` for more details.
      */
     isSharp: typeof isSharp;
     /**
@@ -106,7 +106,7 @@ declare const CpNodeFs: {
      * corners.
      *
      * Note, however, that two `CpNode`s are stored for each such point to
-     * preserve symmetry - see [[isTerminating]] for more details.
+     * preserve symmetry - see `isTerminating` for more details.
      */
     isOneProng: typeof isOneProng;
     /**
@@ -114,15 +114,15 @@ declare const CpNodeFs: {
      * by this `CpNode`.
      *
      * Note, however, that even one-prongs and sharp corners will return 2 (see
-     * [[isTerminating]] for more details); if this is not desired use
-     * [[getRealProngCount]] instead which will return 1 in these cases.
+     * `isTerminating` for more details); if this is not desired use
+     * `getRealProngCount` instead which will return 1 in these cases.
      */
     getProngCount: typeof getProngCount;
     /**
      * Returns the number of contact points (up to planar coordinates) on the
      * maximal disk circle implied by this `CpNode`.
      *
-     * See also [[getProngCount]].
+     * See also `getProngCount`.
      */
     getRealProngCount: typeof getRealProngCount;
     /**
@@ -159,7 +159,7 @@ declare const CpNodeFs: {
      * Traverses the MAT tree and calls the given callback function for each vertex
      * (represented by a `CpNode`) on the MAT.
      *
-     * It is usually preferable to use [[traverseEdges]] as it allows for the
+     * It is usually preferable to use `traverseEdges` as it allows for the
      * traversal of all the smooth curves representing the MAT.
      * @param cpNode Any `CpNode` representing the start vertex.
      * @param traverseVerticesCallback A callback function taking a single `CpNode` as parameter.

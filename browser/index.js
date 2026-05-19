@@ -916,10 +916,10 @@ function floydWarshall(graph) {
 
 ;// ./src/point-on-shape/compare-poss.ts
 /**
- * Compares two [[PointOnShape]]s according to their cyclic ordering imposed
+ * Compares two `PointOnShape`s according to their cyclic ordering imposed
  * by their relative positions on the shape boundary.
- * @param a The first [[PointOnShape]].
- * @param b The second [[PointOnShape]].
+ * @param a The first `PointOnShape`.
+ * @param b The second `PointOnShape`.
  * @internal
  */
 function comparePoss(a, b) {
@@ -7217,17 +7217,17 @@ const CpNodeFs = {
     /**
      * Returns the children of this `CpNode` when seen as a MAT edge. Only
      * children in a 'forward' direction are returned. These include all edges
-     * except the 'backward' edge given by [[prevOnCircle]], even terminating
+     * except the 'backward' edge given by `prevOnCircle`, even terminating
      * edges.
      */
     getChildren: getChildren,
     /**
-     * Similar to [[getChildren]] but returns the child nodes of the tree when
+     * Similar to `getChildren` but returns the child nodes of the tree when
      * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this
      * way the dual graph of the tree can easily be traversed - see e.g.
-     * [[traverseVertices]]. Generally, however, traversing the edges is
+     * `traverseVertices`. Generally, however, traversing the edges is
      * preferred as it returns the entire Medial Axis (by utilizing
-     * [[getMatCurveToNext]] on each returned edge).
+     * `getMatCurveToNext` on each returned edge).
      */
     getVertexForwardChildren: getVertexForwardChildren,
     /**
@@ -7259,7 +7259,7 @@ const CpNodeFs = {
      * maximal disk. It can be seen as a limiting case of a two-prong where the
      * distance between two of the contact points tend to zero. One point
      * (represented by a `CpNode` of course) will be terminating with the
-     * other point being its [[next]], whereas the other point will *not* be
+     * other point being its `next`, whereas the other point will *not* be
      * terminating and 'points' back into the shape.
      */
     isTerminating: isTerminating,
@@ -7278,7 +7278,7 @@ const CpNodeFs = {
      * limiting case of a two-prong having zero radius.
      *
      * Note that two `CpNode`s are stored for each sharp corner, one being
-     * terminating and one not. See [[isTerminating]] for more details.
+     * terminating and one not. See `isTerminating` for more details.
      */
     isSharp: isSharp,
     /**
@@ -7287,7 +7287,7 @@ const CpNodeFs = {
      * corners.
      *
      * Note, however, that two `CpNode`s are stored for each such point to
-     * preserve symmetry - see [[isTerminating]] for more details.
+     * preserve symmetry - see `isTerminating` for more details.
      */
     isOneProng: isOneProng,
     /**
@@ -7295,15 +7295,15 @@ const CpNodeFs = {
      * by this `CpNode`.
      *
      * Note, however, that even one-prongs and sharp corners will return 2 (see
-     * [[isTerminating]] for more details); if this is not desired use
-     * [[getRealProngCount]] instead which will return 1 in these cases.
+     * `isTerminating` for more details); if this is not desired use
+     * `getRealProngCount` instead which will return 1 in these cases.
      */
     getProngCount: getProngCount,
     /**
      * Returns the number of contact points (up to planar coordinates) on the
      * maximal disk circle implied by this `CpNode`.
      *
-     * See also [[getProngCount]].
+     * See also `getProngCount`.
      */
     getRealProngCount: getRealProngCount,
     /**
@@ -7340,7 +7340,7 @@ const CpNodeFs = {
      * Traverses the MAT tree and calls the given callback function for each vertex
      * (represented by a `CpNode`) on the MAT.
      *
-     * It is usually preferable to use [[traverseEdges]] as it allows for the
+     * It is usually preferable to use `traverseEdges` as it allows for the
      * traversal of all the smooth curves representing the MAT.
      * @param cpNode Any `CpNode` representing the start vertex.
      * @param traverseVerticesCallback A callback function taking a single `CpNode` as parameter.
@@ -25741,7 +25741,7 @@ function getSatCulls(cpNode, s) {
  * boundary of the shape. The SAT is a simplification of the MAT that preserves
  * less detail the higher the applied scale factor. The severity at which noise
  * are removed depends on the local scale of the shape.
- * @param mat The Medial Axis Transform ([[Mat]]) on which to apply the SAT.
+ * @param mat The Medial Axis Transform (`Mat`) on which to apply the SAT.
  * @param s The scale factor >= 1 (e.g. 1.3)
  */
 function toScaleAxis(mat, s) {
@@ -27714,7 +27714,7 @@ function tangentExact(ps, t) {
  *
  * @param minCurvature If not Number.POSITIVE_INFINITY then the
  * circle radius will be limited to this value.
- * @param pos The [[PointOnShape]] identifying the point.
+ * @param pos The `PointOnShape` identifying the point.
  * @param useMaxRadius
  */
 function getOsculatingCircle(minCurvature, pos, 
@@ -29055,6 +29055,10 @@ function findMat(loops, maxCoordinate, options) {
         maxCoordinate, squaredDiagonalLength, loops, cpTrees, pointToCpNode,
         lastInsertId, ..._meta
     };
+    // const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
+    // const lastInsertId = { id: 0 };
+    // createInitialCpTree(loops, cpTrees, sharpCornersPerLoop, lastInsertId);
+    // const meta = getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees, lastInsertId);
     let cpNode;
     cpNode = findAndAddHoleClosing2Prongs(meta);
     if (typeof _debug_ !== 'undefined') {
@@ -29251,7 +29255,7 @@ function trimMat(mat) {
 
 ;// ./src/point-on-shape/pos-to-human-string.ts
 /**
- * Returns a human-readable string of the given [[PointOnShape]].
+ * Returns a human-readable string of the given `PointOnShape`.
  * For debugging only.
  * @internal
  */
@@ -30730,7 +30734,7 @@ function holeCloserNext(pairs, holeCloser) {
 
 
 
-// export { getMeta } from './find-mat/get-meta.js';
 
 
-export { CpNodeFs, beziersToSvgPathStr, connectHoleClosers, createInitialCpTree, createPos, debugElemNames, drawBeziersAsSinglePath, drawBranch, drawElemFs, drawElemFsDetailed, drawMat, emptyDebugElems, enableDebugForMat, find2Prong, findAndAdd2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranches, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getFor2ProngsOnLoop, getGraph, getImpliedBoundaryBezierBetween, getPathsFromStr, getPotentialClosestPointsOnCurveCertified, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, isVertexSpecial, loopFromBeziers, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, trimMat };
+
+export { CpNodeFs, beziersToSvgPathStr, connectHoleClosers, createInitialCpTree, createPos, debugElemNames, drawBeziersAsSinglePath, drawBranch, drawElemFs, drawElemFsDetailed, drawMat, emptyDebugElems, enableDebugForMat, find2Prong, findAndAdd2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranches, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getFor2ProngsOnLoop, getGraph, getImpliedBoundaryBezierBetween, getPartialMeta, getPathsFromStr, getPointToCpNode, getPotentialClosestPointsOnCurveCertified, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, isVertexSpecial, loopFromBeziers, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, trimMat };
