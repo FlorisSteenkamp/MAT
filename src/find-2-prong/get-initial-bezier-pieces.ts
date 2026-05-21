@@ -13,7 +13,7 @@ import { MatMeta } from '../index.js';
 
 
 /** @internal */
-function getInitialBezierPieces(
+function getInitialCurvePieces(
         angle: number,
         isHoleClosing: boolean,
         loop: Loop,
@@ -54,4 +54,4 @@ function getInitialBezierPieces(
 }
 
 
-export { getInitialBezierPieces }
+export { getInitialCurvePieces }

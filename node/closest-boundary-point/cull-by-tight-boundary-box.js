@@ -6,22 +6,22 @@ const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
  * @internal
  * When checking distances, ignore all those with closest possible distance
  * further than 'bestSquaredDistance', i.e. cull them.
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param bestSquaredDistance
  */
-function cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance) {
-    const candidateBezierPieces = [];
-    for (let i = 0; i < bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
-        const ps = bezierPiece.curve.ps;
+function cullByTightBoundingBox(curvePieces, p, bestSquaredDistance) {
+    const candidateCurvePieces = [];
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
+        const ps = curvePiece.curve.ps;
         const tightBoundingBox = getBoundingBoxTight_(ps);
         const d = getClosestSquaredDistanceToRotatedRect(tightBoundingBox, p);
         if (d <= bestSquaredDistance) {
-            candidateBezierPieces.push(bezierPiece);
+            candidateCurvePieces.push(curvePiece);
         }
     }
-    return candidateBezierPieces;
+    return candidateCurvePieces;
 }
 export { cullByTightBoundingBox };
 //# sourceMappingURL=cull-by-tight-boundary-box.js.map

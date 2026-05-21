@@ -6,11 +6,11 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
- * @param bezierPiecess
+ * @param curvePiecess
  * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
-declare function find3ProngForDelta3s(δs: CpNode[][], idx: number, k: number, bezierPiecess: CurvePiece[][], maxCoordinate: number): {
+declare function find3ProngForDelta3s(δs: CpNode[][], idx: number, k: number, curvePiecess: CurvePiece[][], maxCoordinate: number): {
     poss: PointOnShape[];
     circle: {
         center: number[];

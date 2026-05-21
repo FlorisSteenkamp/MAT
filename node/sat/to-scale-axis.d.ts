@@ -8,8 +8,9 @@ import { Mat } from '../mat/mat.js';
  * boundary of the shape. The SAT is a simplification of the MAT that preserves
  * less detail the higher the applied scale factor. The severity at which noise
  * are removed depends on the local scale of the shape.
- * @param mat The Medial Axis Transform (`Mat`) on which to apply the SAT.
- * @param s The scale factor >= 1 (e.g. 1.3)
+ *
+ * @param mat the Medial Axis Transform (MAT) on which to apply the SAT
+ * @param s the scale factor >= 1 (e.g. 1.3)
  */
 declare function toScaleAxis(mat: Mat, s: number): Mat;
 export { toScaleAxis };

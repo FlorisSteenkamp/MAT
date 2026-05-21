@@ -1,6 +1,6 @@
 import { CurvePiece  } from '../mat/curve-piece.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
-import { cullBezierPieces1 } from './cull-bezier-pieces.js';
+import { cullCurvePieces1 } from './cull-bezier-pieces.js';
 import { Curve } from '../curve/curve.js';
 import { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
 import { PointOnShape } from '../point-on-shape/point-on-shape.js';
@@ -13,7 +13,7 @@ import { createPos } from '../point-on-shape/create-pos.js';
  * bezier pieces, including the beziers actually checked after culling.
  * 
  * @param pow
- * @param bezierPieces
+ * @param curvePieces
  * @param x
  * @param touchedCurve
  * @param t
@@ -22,24 +22,24 @@ import { createPos } from '../point-on-shape/create-pos.js';
  */
 function getCloseBoundaryPointsCertified(
 		pow: number,
-        bezierPieces: CurvePiece[], 
+        curvePieces: CurvePiece[], 
         x: number[], 
 		touchedCurve: Curve | undefined = undefined,
 		t: number | undefined = undefined,
 		for1Prong = false,
 		angle = 0): PointOnShape[] {
 	
-	bezierPieces = cullBezierPieces1(bezierPieces, x);
+	curvePieces = cullCurvePieces1(curvePieces, x);
  
 	const pInfoss: FootAndEndpointInfo[] = [];
-	for (let i=0; i<bezierPieces.length; i++) {
-		const bezierPiece = bezierPieces[i];
+	for (let i=0; i<curvePieces.length; i++) {
+		const curvePiece = curvePieces[i];
 
 		const pInfos = getPotentialClosestPointsOnCurveCertified(
 			pow,
-			bezierPiece.curve, 
+			curvePiece.curve, 
 			x, 
-			bezierPiece.ts, 
+			curvePiece.ts, 
 			touchedCurve, 
 			t,
 			for1Prong,

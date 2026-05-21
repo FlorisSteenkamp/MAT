@@ -1,11 +1,11 @@
 import { distanceBetween, fromTo, interpolate, rotate, translate } from 'flo-vector2d';
 import { getOsculatingCircle } from '../point-on-shape/get-osculating-circle.js';
 import { findEquidistantPointOnLineDd } from './find-equidistant-point-on-line-dd.js';
-import { getInitialBezierPieces } from './get-initial-bezier-pieces.js';
+import { getInitialCurvePieces } from './get-initial-bezier-pieces.js';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 import { reduceRadius } from './reduce-radius.js';
 import { squaredDistanceBetweenDd } from './squared-distance-between-dd.js';
-import { cullBezierPieces2 } from './cull-bezier-pieces.js';
+import { cullCurvePieces2 } from './cull-bezier-pieces.js';
 import { add1Prong } from './add-1-prong.js';
 import { createPos } from '../point-on-shape/create-pos.js';
 import { calcSeperationTolerance } from './calc-seperation-tolerance.js';
@@ -47,12 +47,12 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
     const p = y.p;
     // The boundary piece that should contain the other point of 
     // the 2-prong circle. (Defined by start and end points).
-    let bezierPieces = getInitialBezierPieces(angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO });
-    // console.log(bezierPieces.length);
+    let curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO });
+    // console.log(curvePieces.length);
     /** The center of the two-prong (successively refined) */
     let x = xO;
     // The lines below is an optimization.
-    const r_ = sqrt(reduceRadius(maxCoordinate, bezierPieces, p, xO));
+    const r_ = sqrt(reduceRadius(maxCoordinate, curvePieces, p, xO));
     if (rO > r_) {
         x = interpolate(p, xO, r_ / rO);
     }
@@ -63,11 +63,11 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
     while (i < MAX_ITERATIONS) {
         const xy = squaredDistanceBetweenDd(x, y.p);
         if (i < 2) {
-            bezierPieces = cullBezierPieces2(bezierPieces, x, xy);
+            curvePieces = cullCurvePieces2(curvePieces, x, xy);
         }
         const pow = max(0, ceil(log2(maxCoordinate / xy))) + 1; // determines accuracy
         // console.log(pow);
-        const _zs = getCloseBoundaryPointsCertified(pow, bezierPieces, x, y.curve, y.t, for1Prong && i == 0 && rO !== 1 / minCurvature, angle).map(info => createPos(info.curve, info.t, false));
+        const _zs = getCloseBoundaryPointsCertified(pow, curvePieces, x, y.curve, y.t, for1Prong && i == 0 && rO !== 1 / minCurvature, angle).map(info => createPos(info.curve, info.t, false));
         let maxD = Number.NEGATIVE_INFINITY;
         let maxPos = undefined;
         zs = [];
@@ -125,7 +125,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
         }
     }
     const circle = { center: x, radius: distanceBetween(x, z.p) };
-    // if (typeof _debug_ !== 'undefined') { addDebugInfo(bezierPieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
+    // if (typeof _debug_ !== 'undefined') { addDebugInfo(curvePieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
     // return { circle, zs };
     // zs = zs.filter(z => z !== undefined)
     return { circle, zs: [z] };

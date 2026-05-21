@@ -4,7 +4,7 @@ import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
 import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
 /** @internal */
-function getInitialBezierPieces(angle, isHoleClosing, loop, loops, 
+function getInitialCurvePieces(angle, isHoleClosing, loop, loops, 
 // cpTrees: Map<Loop,LlRbTree<CpNode>>,
 meta, y, circle) {
     const { cpTrees } = meta;
@@ -31,5 +31,5 @@ meta, y, circle) {
     }
     return getBoundaryPieceBeziers([cpNode, cpNode]);
 }
-export { getInitialBezierPieces };
+export { getInitialCurvePieces };
 //# sourceMappingURL=get-initial-bezier-pieces.js.map

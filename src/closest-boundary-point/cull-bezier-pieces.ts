@@ -5,31 +5,32 @@ import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
 
 
 /**
- * @internal
- * @param bezierPieces 
+ * @param curvePieces 
  * @param p 
  * @param extreme
+ * 
+ * @internal
  */
-function cullBezierPieces1(
-        bezierPieces: CurvePiece[],
+function cullCurvePieces1(
+        curvePieces: CurvePiece[],
         p: number[]) {
 
     const bestSquaredDistance = getBestDistanceSquared(
-        bezierPieces, p
+        curvePieces, p
     );
-    bezierPieces = cullByLooseBoundingBox(
-        bezierPieces, p,
+    curvePieces = cullByLooseBoundingBox(
+        curvePieces, p,
         bestSquaredDistance
     );
     
-    bezierPieces = cullByTightBoundingBox(
-        bezierPieces, p,
+    curvePieces = cullByTightBoundingBox(
+        curvePieces, p,
         bestSquaredDistance
     );
 
 
-    return bezierPieces;
+    return curvePieces;
 }
 
 
-export { cullBezierPieces1 }
+export { cullCurvePieces1 }

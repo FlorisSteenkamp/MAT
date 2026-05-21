@@ -16,11 +16,11 @@ const calcVectorToZeroV_StraightToIt = fromTo;
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
- * @param bezierPiecess
+ * @param curvePiecess
  * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
-function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
+function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordinate) {
     const TOLERANCE = 2 ** -32 * maxCoordinate;
     const MAX_ITERATIONS = 10;
     const δs_ = [
@@ -28,34 +28,34 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
         δs[idx],
         δs[δs.length - 1]
     ];
-    const bezierPieces_ = [
-        bezierPiecess[0],
-        bezierPiecess[idx],
-        bezierPiecess[δs.length - 1]
+    const curvePieces_ = [
+        curvePiecess[0],
+        curvePiecess[idx],
+        curvePiecess[δs.length - 1]
     ];
     const δ3ss = [
         [δs_[0], δs_[1], δs_[2]],
         [δs_[1], δs_[2], δs_[0]],
         [δs_[2], δs_[0], δs_[1]],
     ];
-    const bezierPiecess_ = [
-        [bezierPieces_[0], bezierPieces_[1], bezierPieces_[2]],
-        [bezierPieces_[1], bezierPieces_[2], bezierPieces_[0]],
-        [bezierPieces_[2], bezierPieces_[0], bezierPieces_[1]],
+    const curvePiecess_ = [
+        [curvePieces_[0], curvePieces_[1], curvePieces_[2]],
+        [curvePieces_[1], curvePieces_[2], curvePieces_[0]],
+        [curvePieces_[2], curvePieces_[0], curvePieces_[1]],
     ];
     const δ3s = δ3ss[k];
-    const bezierPiece3s = bezierPiecess_[k];
+    const curvePiece3s = curvePiecess_[k];
     if (isSharp(δ3s[0][0])) {
         return undefined;
     }
     let poss = undefined;
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(maxCoordinate, δ3s, bezierPiece3s);
+    let x = calcInitial3ProngCenter(maxCoordinate, δ3s, curvePiece3s);
     let tolerance = Number.POSITIVE_INFINITY;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
         j++;
-        poss = getClosestPoints(x, bezierPiece3s);
+        poss = getClosestPoints(x, curvePiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
             // TODO - the code can be cleaned up and sped up a lot if we don't
             // use this function as is but instead use δs[0] and δs[2] as is
@@ -72,7 +72,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const upds = calcBetterX(bezierPiece3s, x, vectorToZeroV);
+        const upds = calcBetterX(curvePiece3s, x, vectorToZeroV);
         x = upds.newX;
         poss = upds.newPoss;
         const V = len(vectorToZeroV); // The 'potential'
@@ -133,9 +133,9 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
     // candidate for the 3-prong.
     //-------------------------------------------------------------------------
     const closestDs = [];
-    for (let i = 0; i < bezierPiecess.length; i++) {
+    for (let i = 0; i < curvePiecess.length; i++) {
         const p = getCloseBoundaryPointsCertified(5, // TODO - see find-2-prong
-        bezierPiecess[i], x)[0];
+        curvePiecess[i], x)[0];
         closestDs.push(distanceBetween(p.p, x));
     }
     const closestD = Math.min(...closestDs);

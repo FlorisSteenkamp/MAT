@@ -1,25 +1,3 @@
-/******/ // The require scope
-/******/ var __webpack_require__ = {};
-/******/ 
-/************************************************************************/
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter functions for harmony exports
-/******/ 	__webpack_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
-/************************************************************************/
 
 ;// ./node_modules/flo-boolean/node/loop/loop-from-beziers.js
 /**
@@ -3167,7 +3145,7 @@ const cubicDegenPoint = { order: 3, realOrder: 0, collinear: true, nodeType: 'n/
  * possible planar polynomial bezier curves (of order <= 3) are represented and
  * all options are mutually exclusive.
  */
-const classifications = {
+const classifications = (/* unused pure expression or super */ null && ({
     point,
     lineGeneral,
     lineDegenPoint,
@@ -3184,7 +3162,7 @@ const classifications = {
     cubicDegenCollinearQuad,
     cubicDegenLine,
     cubicDegenPoint
-};
+}));
 function classify_isPoint(ps) {
     return classify(ps) === point;
 }
@@ -3233,7 +3211,7 @@ function isCubicDegenLine(ps) {
 function isCubicDegenPoint(ps) {
     return classify(ps) === cubicDegenPoint;
 }
-const classification = {
+const classification = (/* unused pure expression or super */ null && ({
     isPoint: classify_isPoint,
     isLineGeneral,
     isLineDegenPoint,
@@ -3250,7 +3228,7 @@ const classification = {
     isCubicDegenCollinearQuad,
     isCubicDegenLine,
     isCubicDegenPoint,
-};
+}));
 /**
  * Returns a classification of the given bezier curve.
  *
@@ -6454,7 +6432,6 @@ function getRealProngCount(cpNode) {
 
 
 
-const { min, abs: get_speed_abs } = Math;
 const getSpeed$ = memoize(getSpeed);
 function getSpeed(cpNode) {
     if (getRealProngCount(cpNode) !== 2) {
@@ -6820,79 +6797,109 @@ function getBoundaryBezierPartsToNext(cpNode) {
     if (curveThis.loop !== curveNext.loop) {
         // It is a hole-closer going over to the other loop - a kind of terminal
         // CpNode.
-        return undefined;
+        // return undefined;
+        return [];
     }
     const bezierPieces = [];
     if (curveNext === curveThis) {
-        bezierPieces.push({
-            ps: posThis.curve.ps,
-            ts: [posThis.t, posNext.t]
-        });
+        bezierPieces.push({ ps: posThis.curve.ps, ts: [posThis.t, posNext.t] });
     }
     else {
-        bezierPieces.push({
-            ps: posThis.curve.ps,
-            ts: [posThis.t, 1]
-        });
-        addSkippedBeziers(bezierPieces, posThis.curve, posNext.curve, posNext.t);
+        bezierPieces.push({ ps: posThis.curve.ps, ts: [posThis.t, 1] });
+        addSkippedBezierPiecess(bezierPieces, posThis.curve, posNext.curve, posNext.t);
     }
     return bezierPieces;
 }
 /**
- * @internal
  * Adds pieces of skipped beziers.
+ * @internal
  */
-function addSkippedBeziers(bezierPieces, curveStart, curveEnd, t1) {
+function addSkippedBezierPiecess(bezierPieces, curveStart, curveEnd, t1) {
     let curveThis = curveStart;
     do {
         curveThis = curveThis.next;
-        const bezierPart = curveThis === curveEnd
-            ? { ps: curveThis.ps, ts: [0, t1] }
-            : { ps: curveThis.ps, ts: [0, 1] };
-        bezierPieces.push(bezierPart);
+        const tEnd = curveThis === curveEnd ? t1 : 1;
+        bezierPieces.push({
+            ps: curveThis.ps, ts: [0, tEnd]
+        });
     } while (curveThis !== curveEnd);
 }
 
 
 ;// ./src/cp-node/fs/get-boundary-beziers-to-next.ts
 
-function getBoundaryBeziersToNext(cpNode) {
-    const cpThis = cpNode;
-    const cpNext = cpNode.next;
-    const posThis = cpThis.cp.pointOnShape;
-    const posNext = cpNext.cp.pointOnShape;
-    const curveThis = posThis.curve;
-    const curveNext = posNext.curve;
-    if (curveThis.loop !== curveNext.loop) {
-        // It is a hole-closer going over to the other loop - a kind of terminal
-        // CpNode.
-        // return undefined!;
-        return [];
-    }
-    const beziers = [];
-    if (curveNext === curveThis) {
-        beziers.push(fromTo(posThis.curve.ps, posThis.t, posNext.t));
-    }
-    else {
-        beziers.push(fromTo(posThis.curve.ps, posThis.t, 1));
-        get_boundary_beziers_to_next_addSkippedBeziers(beziers, posThis.curve, posNext.curve, posNext.t);
-    }
-    return beziers;
-}
+
 /**
- * Adds pieces of skipped beziers.
- * @internal
- */
-function get_boundary_beziers_to_next_addSkippedBeziers(beziers, curveStart, curveEnd, t1) {
-    let curveThis = curveStart;
-    do {
-        curveThis = curveThis.next;
-        const tEnd = curveThis === curveEnd ? t1 : 1;
-        beziers.push(
-        // qqq from0ToT(curveThis.ps, tEnd) 
-        fromTo(curveThis.ps, 0, tEnd));
-    } while (curveThis !== curveEnd);
+//  * Returns the boundary beziers between this `CpNode` and the next
+//  * one.
+//  *
+//  * * returns `[]` if the next `CpNode` is on a different loop,
+//  * as this is a hole-closer and there are no boundary beziers between them.
+//  *
+//  * @param cpNode
+//  */
+function getBoundaryBeziersToNext(cpNode) {
+    return getBoundaryBezierPartsToNext(cpNode).map(bp => fromTo(bp.ps, bp.ts[0], bp.ts[1]));
 }
+// /**
+//  * Returns the boundary beziers between this `CpNode` and the next
+//  * one.
+//  * 
+//  * * returns `[]` if the next `CpNode` is on a different loop,
+//  * as this is a hole-closer and there are no boundary beziers between them.
+//  * 
+//  * @param cpNode 
+//  */
+// function getBoundaryBeziersToNext(
+//         cpNode: CpNode): number[][][] {
+//     const cpThis = cpNode; 
+//     const cpNext = cpNode.next;
+//     const posThis = cpThis.cp.pointOnShape;
+//     const posNext = cpNext.cp.pointOnShape;
+//     const curveThis = posThis.curve;
+//     const curveNext = posNext.curve;
+//     if (curveThis.loop !== curveNext.loop) {
+//         // It is a hole-closer going over to the other loop - a kind of terminal
+//         // CpNode.
+//         // return undefined!;
+//         return [];
+//     }
+//     const beziers: number[][][] = [];
+//     if (curveNext === curveThis) {
+//         beziers.push(
+//             fromTo(posThis.curve.ps, posThis.t, posNext.t)
+//         );
+//     } else {
+//         beziers.push(
+//             fromTo(posThis.curve.ps, posThis.t, 1)
+//         );
+//         addSkippedBeziers(
+//             beziers,
+//             posThis.curve,
+//             posNext.curve,
+//             posNext.t
+//         );
+//     }
+//     return beziers;
+// }
+// /**
+//  * Adds pieces of skipped beziers.
+//  * @internal
+//  */
+// function addSkippedBeziers(
+//         beziers: number[][][],
+//         curveStart: Curve,
+//         curveEnd: Curve,
+//         t1: number) {
+//     let curveThis = curveStart;
+//     do {
+//         curveThis = curveThis.next;
+//         const tEnd = curveThis === curveEnd ? t1 : 1;
+//         beziers.push( 
+//             fromTo(curveThis.ps, 0, tEnd)
+//         );
+//     } while (curveThis !== curveEnd);
+// }
 
 
 ;// ./src/cp-node/fs/remove-cp-node.ts
@@ -7039,13 +7046,6 @@ function getBranchBeziers(cpNode) {
 }
 
 
-;// ./src/cp-node/fs/cp-nodes-to-boundary-beziers.ts
-
-function cpNodesToBoundaryBeziers(cpNodes) {
-    return cpNodes.flatMap(getBoundaryBeziersToNext);
-}
-
-
 ;// ./src/cp-node/fs/get-all-between.ts
 /**
  * Returns all `CpNode`s between the two given ones (excluding the last one).
@@ -7093,11 +7093,9 @@ function getAllBetween(cpNodeS, cpNodeE, inclAllIfEqual = true) {
  * include all `CpNode`s around the loop, otherwise include none.
  */
 function getBoundaryBeziersBetween(cpNode1, cpNode2, inclAllIfEqual = true) {
-    const allBetween = getAllBetween(cpNode1, cpNode2, inclAllIfEqual);
-    return {
-        pss: cpNodesToBoundaryBeziers(allBetween.cpNodes),
-        hasHoleCloser: allBetween.hasHoleCloser
-    };
+    const { cpNodes, hasHoleCloser } = getAllBetween(cpNode1, cpNode2, inclAllIfEqual);
+    const pss = cpNodes.flatMap(getBoundaryBeziersToNext);
+    return { pss, hasHoleCloser };
 }
 
 
@@ -7126,8 +7124,8 @@ function getSalience(cpNode) {
     const bp1 = cpNode1.cp.pointOnShape.p;
     const bp2 = cpNode2.cp.pointOnShape.p;
     const d = distanceBetween(bp1, bp2);
-    const { pss: bps, hasHoleCloser } = getBoundaryBeziersBetween(cpNode1, cpNode2);
-    const s = sum(bps.map(ps => totalLength(ps)));
+    const { pss, hasHoleCloser } = getBoundaryBeziersBetween(cpNode1, cpNode2);
+    const s = sum(pss.map(ps => totalLength(ps)));
     return hasHoleCloser ? Number.POSITIVE_INFINITY : s / d;
 }
 
@@ -8263,7 +8261,7 @@ const all_roots_certified_eEstimate = eEstimate;
 const all_roots_certified_hornerWithRunningError = hornerWithRunningError;
 const all_roots_certified_eSign = eSign;
 const all_roots_certified_max = Math.max;
-const all_roots_certified_min = Math.min;
+const min = Math.min;
 const all_roots_certified_abs = Math.abs;
 const all_roots_certified_eps = Number.EPSILON;
 const onePlusEps = 1 + all_roots_certified_eps;
@@ -8639,7 +8637,7 @@ function allRootsCertified(p, lb = 0, ub = 1, pE, getPExact, returnUndefinedForZ
                 mult *= d * onePlusEps;
             }
             // maxDdP is now calculated
-            const AMinMax = A_ > 0 ? all_roots_certified_min(_A, A_) : all_roots_certified_max(_A, A_);
+            const AMinMax = A_ > 0 ? min(_A, A_) : all_roots_certified_max(_A, A_);
             const δ = 2 * Number.EPSILON * all_roots_certified_max(1, all_roots_certified_abs(a_));
             const dMax = maxDdP * (2 * δ); // since the first derivative === 0 somewhere in [_a,a_]
             const yShift = A_ > 0 ? -dMax * 2 * δ : dMax * 2 * δ;
@@ -25567,8 +25565,9 @@ const DualSetFs = { has, add: dual_set_add, remove };
 
 const { isOnSameCircle: cull_isOnSameCircle } = CpNodeFs;
 /**
+ * Returns the set of non-trivial forward edges starting from the given `CpNode`.
  *
- * @param cpStart
+ * @param cpStart the start `CpNode`
  */
 function getNonTrivialForwardEdges(cpStart) {
     let cpNode = cpStart;
@@ -25586,12 +25585,14 @@ function getNonTrivialForwardEdges(cpStart) {
     return cps;
 }
 /**
- * @internal
  * Returns the set of Vertices passing the following test: walk the MAT tree and
  * keep all Vertices not in the current cull set and any Vertices that have a
  * non-culled node further down the line toward the tree leaves.
- * @param culls The CpNodes (referred to by circles) that should be culled.
- * @param maxCpNode The start CpNode which must reprsesent the maximal vertex.
+ *
+ * @param culls the `CpNode`s (referred to by circles) that should be culled
+ * @param maxCpNode the start `CpNode` which must represent the maximal vertex
+ *
+ * @internal
  */
 function cull(culls, maxCpNode) {
     const leaves = getLeaves(maxCpNode);
@@ -25741,8 +25742,9 @@ function getSatCulls(cpNode, s) {
  * boundary of the shape. The SAT is a simplification of the MAT that preserves
  * less detail the higher the applied scale factor. The severity at which noise
  * are removed depends on the local scale of the shape.
- * @param mat The Medial Axis Transform (`Mat`) on which to apply the SAT.
- * @param s The scale factor >= 1 (e.g. 1.3)
+ *
+ * @param mat the Medial Axis Transform (MAT) on which to apply the SAT
+ * @param s the scale factor >= 1 (e.g. 1.3)
  */
 function toScaleAxis(mat, s) {
     let timingStart = 0;
@@ -26254,13 +26256,13 @@ function getPotentialClosestPointsOnCurveCertified(pow, curve, x, tRange = [0, 1
  * Finds an initial distance such that the closest point can not be further than
  * this distance away.
  */
-function getBestDistanceSquared(bezierPieces, p) {
+function getBestDistanceSquared(curvePieces, p) {
     let bestSquaredDistance = Number.POSITIVE_INFINITY;
-    for (let i = 0; i < bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
-        const ps = bezierPiece.curve.ps;
-        const p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
-        const p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
+        const ps = curvePiece.curve.ps;
+        const p1 = evalDeCasteljau(ps, curvePiece.ts[0]);
+        const p2 = evalDeCasteljau(ps, curvePiece.ts[1]);
         const d = Math.min(squaredDistanceBetween(p, p1), squaredDistanceBetween(p, p2));
         if (d < bestSquaredDistance) {
             bestSquaredDistance = d;
@@ -26335,22 +26337,22 @@ const get_bounding_box_getBoundingBox$ = memoize(getBoundingBox);
  * @internal
  * When checking distances, ignore all those with closest possible distance
  * further than 'bestSquaredDistance', i.e. cull them.
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param dSquared
  */
-function cullByLooseBoundingBox(bezierPieces, p, dSquared) {
-    const candidateBezierPieces = [];
-    for (let i = 0; i < bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
-        const ps = bezierPiece.curve.ps;
+function cullByLooseBoundingBox(curvePieces, p, dSquared) {
+    const candidateCurvePieces = [];
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
+        const ps = curvePiece.curve.ps;
         const boundingBox = get_bounding_box_getBoundingBox$(ps);
         const d = getClosestSquareDistanceToRect(boundingBox, p);
         if (d <= dSquared) {
-            candidateBezierPieces.push(bezierPiece);
+            candidateCurvePieces.push(curvePiece);
         }
     }
-    return candidateBezierPieces;
+    return candidateCurvePieces;
 }
 
 
@@ -26402,22 +26404,22 @@ const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
  * @internal
  * When checking distances, ignore all those with closest possible distance
  * further than 'bestSquaredDistance', i.e. cull them.
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param bestSquaredDistance
  */
-function cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance) {
-    const candidateBezierPieces = [];
-    for (let i = 0; i < bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
-        const ps = bezierPiece.curve.ps;
+function cullByTightBoundingBox(curvePieces, p, bestSquaredDistance) {
+    const candidateCurvePieces = [];
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
+        const ps = curvePiece.curve.ps;
         const tightBoundingBox = getBoundingBoxTight_(ps);
         const d = getClosestSquaredDistanceToRotatedRect(tightBoundingBox, p);
         if (d <= bestSquaredDistance) {
-            candidateBezierPieces.push(bezierPiece);
+            candidateCurvePieces.push(curvePiece);
         }
     }
-    return candidateBezierPieces;
+    return candidateCurvePieces;
 }
 
 
@@ -26426,16 +26428,17 @@ function cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance) {
 
 
 /**
- * @internal
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param extreme
+ *
+ * @internal
  */
-function cullBezierPieces1(bezierPieces, p) {
-    const bestSquaredDistance = getBestDistanceSquared(bezierPieces, p);
-    bezierPieces = cullByLooseBoundingBox(bezierPieces, p, bestSquaredDistance);
-    bezierPieces = cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance);
-    return bezierPieces;
+function cullCurvePieces1(curvePieces, p) {
+    const bestSquaredDistance = getBestDistanceSquared(curvePieces, p);
+    curvePieces = cullByLooseBoundingBox(curvePieces, p, bestSquaredDistance);
+    curvePieces = cullByTightBoundingBox(curvePieces, p, bestSquaredDistance);
+    return curvePieces;
 }
 
 
@@ -26449,19 +26452,19 @@ function cullBezierPieces1(bezierPieces, p) {
  * bezier pieces, including the beziers actually checked after culling.
  *
  * @param pow
- * @param bezierPieces
+ * @param curvePieces
  * @param x
  * @param touchedCurve
  * @param t
  * @param for1Prong defaults to `false`;
  * @param angle defaults to `0`
  */
-function getCloseBoundaryPointsCertified(pow, bezierPieces, x, touchedCurve = undefined, t = undefined, for1Prong = false, angle = 0) {
-    bezierPieces = cullBezierPieces1(bezierPieces, x);
+function getCloseBoundaryPointsCertified(pow, curvePieces, x, touchedCurve = undefined, t = undefined, for1Prong = false, angle = 0) {
+    curvePieces = cullCurvePieces1(curvePieces, x);
     const pInfoss = [];
-    for (let i = 0; i < bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
-        const pInfos = getPotentialClosestPointsOnCurveCertified(pow, bezierPiece.curve, x, bezierPiece.ts, touchedCurve, t, for1Prong, angle);
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
+        const pInfos = getPotentialClosestPointsOnCurveCertified(pow, curvePiece.curve, x, curvePiece.ts, touchedCurve, t, for1Prong, angle);
         pInfoss.push(...pInfos);
     }
     /** the minimum max interval value */
@@ -26494,14 +26497,14 @@ const { max: calc_initial_3_prong_center_max, ceil, log2 } = Math;
  * must be within the shape.
  * @param δ3s - The three boundary pieces of which we need to find the three
  * 3-prong points.
- * @param bezierPiece3s
+ * @param curvePiece3s
  * @param extreme
  */
-function calcInitial3ProngCenter(maxCoordinate, δ3s, bezierPiece3s) {
+function calcInitial3ProngCenter(maxCoordinate, δ3s, curvePiece3s) {
     const circle = δ3s[0][0].cp.circle;
     const twoProngCircleCenter = circle.center;
     const pow = calc_initial_3_prong_center_max(0, ceil(log2(maxCoordinate / circle.radius))) + 1; // determines accuracy;
-    const pos = getCloseBoundaryPointsCertified(pow, bezierPiece3s[1], twoProngCircleCenter)[0];
+    const pos = getCloseBoundaryPointsCertified(pow, curvePiece3s[1], twoProngCircleCenter)[0];
     const meanPoints = [
         δ3s[0][0].cp.pointOnShape.p,
         pos.p,
@@ -26516,13 +26519,13 @@ function calcInitial3ProngCenter(maxCoordinate, δ3s, bezierPiece3s) {
 /**
  * @internal
  * @param x
- * @param bezierPiece3s
+ * @param curvePiece3s
  * @param extreme
  */
-function getClosestPoints(x, bezierPiece3s) {
-    return bezierPiece3s.map(bezierPieces => {
+function getClosestPoints(x, curvePiece3s) {
+    return curvePiece3s.map(curvePieces => {
         return getCloseBoundaryPointsCertified(5, // TODO - see find-2-prong
-        bezierPieces, x)[0];
+        curvePieces, x)[0];
     });
 }
 
@@ -26546,13 +26549,13 @@ function scale(p, c) {
  * Find new x and ps that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong
  * circle center.
- * @param bezierPiece3s The three boundary pieces, each of which should contain
+ * @param curvePiece3s The three boundary pieces, each of which should contain
  * a point of the 3-prong to be found.
  * @param x The currently best guess at the center of the 3-prong circle.
  * @param vectorToZeroV
  * @param extreme
  */
-function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
+function calcBetterX(curvePiece3s, x, vectorToZeroV) {
     const V = len(vectorToZeroV);
     let nu = 1;
     let better;
@@ -26563,7 +26566,7 @@ function calcBetterX(bezierPiece3s, x, vectorToZeroV) {
     do {
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x);
-        newPoss = getClosestPoints(newX, bezierPiece3s);
+        newPoss = getClosestPoints(newX, curvePiece3s);
         // Point of zero V
         const newCircleCenter = circumCenter(newPoss.map(pos => pos.p));
         const newVectorToZeroV = from_to_fromTo(newX, newCircleCenter);
@@ -26595,11 +26598,11 @@ const calcVectorToZeroV_StraightToIt = from_to_fromTo;
  * Finds a 3-prong using only the 3 given δs.
  * @param δs The boundary pieces
  * @param idx δ identifier
- * @param bezierPiecess
+ * @param curvePiecess
  * @param maxCoordinate The maximum coordinate value used to calculate floating point
  * tolerances.
  */
-function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
+function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordinate) {
     const TOLERANCE = 2 ** -32 * maxCoordinate;
     const MAX_ITERATIONS = 10;
     const δs_ = [
@@ -26607,34 +26610,34 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
         δs[idx],
         δs[δs.length - 1]
     ];
-    const bezierPieces_ = [
-        bezierPiecess[0],
-        bezierPiecess[idx],
-        bezierPiecess[δs.length - 1]
+    const curvePieces_ = [
+        curvePiecess[0],
+        curvePiecess[idx],
+        curvePiecess[δs.length - 1]
     ];
     const δ3ss = [
         [δs_[0], δs_[1], δs_[2]],
         [δs_[1], δs_[2], δs_[0]],
         [δs_[2], δs_[0], δs_[1]],
     ];
-    const bezierPiecess_ = [
-        [bezierPieces_[0], bezierPieces_[1], bezierPieces_[2]],
-        [bezierPieces_[1], bezierPieces_[2], bezierPieces_[0]],
-        [bezierPieces_[2], bezierPieces_[0], bezierPieces_[1]],
+    const curvePiecess_ = [
+        [curvePieces_[0], curvePieces_[1], curvePieces_[2]],
+        [curvePieces_[1], curvePieces_[2], curvePieces_[0]],
+        [curvePieces_[2], curvePieces_[0], curvePieces_[1]],
     ];
     const δ3s = δ3ss[k];
-    const bezierPiece3s = bezierPiecess_[k];
+    const curvePiece3s = curvePiecess_[k];
     if (find_3_prong_for_delta3s_isSharp(δ3s[0][0])) {
         return undefined;
     }
     let poss = undefined;
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(maxCoordinate, δ3s, bezierPiece3s);
+    let x = calcInitial3ProngCenter(maxCoordinate, δ3s, curvePiece3s);
     let tolerance = Number.POSITIVE_INFINITY;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
         j++;
-        poss = getClosestPoints(x, bezierPiece3s);
+        poss = getClosestPoints(x, curvePiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
             // TODO - the code can be cleaned up and sped up a lot if we don't
             // use this function as is but instead use δs[0] and δs[2] as is
@@ -26651,7 +26654,7 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const upds = calcBetterX(bezierPiece3s, x, vectorToZeroV);
+        const upds = calcBetterX(curvePiece3s, x, vectorToZeroV);
         x = upds.newX;
         poss = upds.newPoss;
         const V = len(vectorToZeroV); // The 'potential'
@@ -26712,9 +26715,9 @@ function find3ProngForDelta3s(δs, idx, k, bezierPiecess, maxCoordinate) {
     // candidate for the 3-prong.
     //-------------------------------------------------------------------------
     const closestDs = [];
-    for (let i = 0; i < bezierPiecess.length; i++) {
+    for (let i = 0; i < curvePiecess.length; i++) {
         const p = getCloseBoundaryPointsCertified(5, // TODO - see find-2-prong
-        bezierPiecess[i], x)[0];
+        curvePiecess[i], x)[0];
         closestDs.push(distanceBetween(p.p, x));
     }
     const closestD = Math.min(...closestDs);
@@ -26756,7 +26759,7 @@ const isPosQuiteSharpCorner = memoize((pos) => {
 function getBoundaryPieceBeziers(cpNodes) {
     let cpThis = cpNodes[0];
     const cpEnd = cpNodes[1];
-    const bezierPieces = [];
+    const curvePieces = [];
     // As opposed to going around the circle and taking the last exit
     let goStraight = true;
     do {
@@ -26775,28 +26778,28 @@ function getBoundaryPieceBeziers(cpNodes) {
         }
         else if (posNext.curve === posThis.curve &&
             compareCps(cpThis.next.cp, cpThis.cp) > 0) {
-            bezierPieces.push({ curve: posThis.curve, ts: [posThis.t, posNext.t] });
+            curvePieces.push({ curve: posThis.curve, ts: [posThis.t, posNext.t] });
         }
         else {
-            bezierPieces.push({ curve: posThis.curve, ts: [posThis.t, 1] });
+            curvePieces.push({ curve: posThis.curve, ts: [posThis.t, 1] });
             if (posThis.curve.loop === posNext.curve.loop) {
-                get_boundary_piece_beziers_addSkippedBeziers(bezierPieces, posThis.curve, posNext.curve, posNext.t);
+                addSkippedBeziers(curvePieces, posThis.curve, posNext.curve, posNext.t);
             }
         }
         cpThis = cpThis.next;
     } while (cpThis !== cpEnd);
-    return bezierPieces;
+    return curvePieces;
 }
 /**
  * @internal
  * Adds pieces of skipped beziers
  */
-function get_boundary_piece_beziers_addSkippedBeziers(bezierPieces, curveStart, curveEnd, t1) {
+function addSkippedBeziers(curvePieces, curveStart, curveEnd, t1) {
     let curveThis = curveStart;
     do {
         curveThis = curveThis.next;
         const tEnd = curveThis === curveEnd ? t1 : 1;
-        bezierPieces.push({ curve: curveThis, ts: [0, tEnd] });
+        curvePieces.push({ curve: curveThis, ts: [0, tEnd] });
     } while (curveThis !== curveEnd);
 }
 
@@ -26812,13 +26815,13 @@ function get_boundary_piece_beziers_addSkippedBeziers(bezierPieces, curveStart, 
  * tolerances.
  */
 function find3Prong(δs, extreme) {
-    const bezierPiecess = δs.map(getBoundaryPieceBeziers);
+    const curvePiecess = δs.map(getBoundaryPieceBeziers);
     // The best candidate amongst the different 'permutations' of the given δs.
     let threeProng;
     let smallestError = Number.POSITIVE_INFINITY;
     for (let i = 1; i < δs.length - 1; i++) {
         for (let k = 0; k < 3; k++) {
-            const threeProngInfo = find3ProngForDelta3s(δs, i, k, bezierPiecess, extreme);
+            const threeProngInfo = find3ProngForDelta3s(δs, i, k, curvePiecess, extreme);
             if (!threeProngInfo) {
                 continue;
             }
@@ -27801,7 +27804,7 @@ function findEquidistantPointOnLineDd(x, y, z) {
 
 
 /** @internal */
-function getInitialBezierPieces(angle, isHoleClosing, loop, loops, 
+function getInitialCurvePieces(angle, isHoleClosing, loop, loops, 
 // cpTrees: Map<Loop,LlRbTree<CpNode>>,
 meta, y, circle) {
     const { cpTrees } = meta;
@@ -27838,16 +27841,16 @@ meta, y, circle) {
  *
  * Reduces the circle radius initially as an optimization step.
  */
-function reduceRadius(extreme, bezierPieces, p, x) {
+function reduceRadius(extreme, curvePieces, p, x) {
     const TOLERANCE = 1 + 2 ** -10;
     let minRadius = Number.POSITIVE_INFINITY;
-    for (let i = 0; i < bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
-        const ps = bezierPiece.curve.ps;
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
+        const ps = curvePiece.curve.ps;
         // let min = Number.POSITIVE_INFINITY;
         const num = 2;
         for (let j = 0; j < (num + 1); j++) {
-            const p_ = evalDeCasteljau(ps, bezierPiece.ts[j / num]);
+            const p_ = evalDeCasteljau(ps, curvePiece.ts[j / num]);
             const cc = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p_);
             if (cc) {
                 let r = squaredDistanceBetween(p, cc);
@@ -27917,24 +27920,24 @@ function squaredDistanceBetweenDd(x, y) {
 
 /**
  * @internal
- * Cull all bezierPieces not within given radius of a given point.
+ * Cull all curvePieces not within given radius of a given point.
  * @param extreme
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param rSquared
  */
-function cullBezierPieces2(bezierPieces, p, rSquared) {
+function cullCurvePieces2(curvePieces, p, rSquared) {
     const TOLERANCE = 1 + 2 ** -10;
-    if (bezierPieces.length <= 1) {
-        return bezierPieces;
+    if (curvePieces.length <= 1) {
+        return curvePieces;
     }
     const newPieces = [];
-    for (const bezierPiece of bezierPieces) {
-        const ps = bezierPiece.curve.ps;
+    for (const curvePiece of curvePieces) {
+        const ps = curvePiece.curve.ps;
         const rect = get_bounding_box_getBoundingBox$(ps);
         const bd = getClosestSquareDistanceToRect(rect, p);
         if (bd <= TOLERANCE * rSquared) {
-            newPieces.push(bezierPiece);
+            newPieces.push(curvePiece);
         }
     }
     return newPieces;
@@ -28138,12 +28141,12 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
     const p = y.p;
     // The boundary piece that should contain the other point of 
     // the 2-prong circle. (Defined by start and end points).
-    let bezierPieces = getInitialBezierPieces(angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO });
-    // console.log(bezierPieces.length);
+    let curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO });
+    // console.log(curvePieces.length);
     /** The center of the two-prong (successively refined) */
     let x = xO;
     // The lines below is an optimization.
-    const r_ = find_2_prong_sqrt(reduceRadius(maxCoordinate, bezierPieces, p, xO));
+    const r_ = find_2_prong_sqrt(reduceRadius(maxCoordinate, curvePieces, p, xO));
     if (rO > r_) {
         x = interpolate(p, xO, r_ / rO);
     }
@@ -28154,11 +28157,11 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
     while (i < MAX_ITERATIONS) {
         const xy = squaredDistanceBetweenDd(x, y.p);
         if (i < 2) {
-            bezierPieces = cullBezierPieces2(bezierPieces, x, xy);
+            curvePieces = cullCurvePieces2(curvePieces, x, xy);
         }
         const pow = find_2_prong_max(0, find_2_prong_ceil(find_2_prong_log2(maxCoordinate / xy))) + 1; // determines accuracy
         // console.log(pow);
-        const _zs = getCloseBoundaryPointsCertified(pow, bezierPieces, x, y.curve, y.t, for1Prong && i == 0 && rO !== 1 / minCurvature, angle).map(info => createPos(info.curve, info.t, false));
+        const _zs = getCloseBoundaryPointsCertified(pow, curvePieces, x, y.curve, y.t, for1Prong && i == 0 && rO !== 1 / minCurvature, angle).map(info => createPos(info.curve, info.t, false));
         let maxD = Number.NEGATIVE_INFINITY;
         let maxPos = undefined;
         zs = [];
@@ -28216,7 +28219,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
         }
     }
     const circle = { center: x, radius: distanceBetween(x, z.p) };
-    // if (typeof _debug_ !== 'undefined') { addDebugInfo(bezierPieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
+    // if (typeof _debug_ !== 'undefined') { addDebugInfo(curvePieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
     // return { circle, zs };
     // zs = zs.filter(z => z !== undefined)
     return { circle, zs: [z] };

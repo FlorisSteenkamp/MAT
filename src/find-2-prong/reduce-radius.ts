@@ -10,22 +10,22 @@ import { CurvePiece } from '../mat/curve-piece.js';
  */
 function reduceRadius(
         extreme: number,
-        bezierPieces: CurvePiece[], 
+        curvePieces: CurvePiece[], 
         p: number[],
         x: number[]) {
 
     const TOLERANCE = 1 + 2**-10;
 
     let minRadius = Number.POSITIVE_INFINITY;
-    for (let i=0; i<bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
+    for (let i=0; i<curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
 
-        const ps = bezierPiece.curve.ps;
+        const ps = curvePiece.curve.ps;
 
         // let min = Number.POSITIVE_INFINITY;
         const num = 2;
         for (let j=0; j<(num + 1); j++) {
-            const p_ = evalDeCasteljau(ps, bezierPiece.ts[j/num]);
+            const p_ = evalDeCasteljau(ps, curvePiece.ts[j/num]);
             const cc = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p_);
             if (cc) {
                 let r = squaredDistanceBetween(p, cc);

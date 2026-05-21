@@ -2,8 +2,8 @@ import { CurvePiece } from '../mat/curve-piece.js';
 /**
  * @internal
  * @param x
- * @param bezierPiece3s
+ * @param curvePiece3s
  * @param extreme
  */
-declare function getClosestPoints(x: number[], bezierPiece3s: CurvePiece[][]): import("../index.js").PointOnShape[];
+declare function getClosestPoints(x: number[], curvePiece3s: CurvePiece[][]): import("../index.js").PointOnShape[];
 export { getClosestPoints };

@@ -9,5 +9,5 @@ import type { CpNode } from '../cp-node.js';
  *
  * @param cpNode
  */
-declare function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[] | undefined;
+declare function getBoundaryBezierPartsToNext(cpNode: CpNode): BezierPiece[];
 export { getBoundaryBezierPartsToNext };

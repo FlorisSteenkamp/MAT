@@ -7,12 +7,12 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
  * bezier pieces, including the beziers actually checked after culling.
  *
  * @param pow
- * @param bezierPieces
+ * @param curvePieces
  * @param x
  * @param touchedCurve
  * @param t
  * @param for1Prong defaults to `false`;
  * @param angle defaults to `0`
  */
-declare function getCloseBoundaryPointsCertified(pow: number, bezierPieces: CurvePiece[], x: number[], touchedCurve?: Curve | undefined, t?: number | undefined, for1Prong?: boolean, angle?: number): PointOnShape[];
+declare function getCloseBoundaryPointsCertified(pow: number, curvePieces: CurvePiece[], x: number[], touchedCurve?: Curve | undefined, t?: number | undefined, for1Prong?: boolean, angle?: number): PointOnShape[];
 export { getCloseBoundaryPointsCertified };

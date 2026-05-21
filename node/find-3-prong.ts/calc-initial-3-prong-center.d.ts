@@ -6,8 +6,8 @@ import { CurvePiece } from '../mat/curve-piece.js';
  * must be within the shape.
  * @param δ3s - The three boundary pieces of which we need to find the three
  * 3-prong points.
- * @param bezierPiece3s
+ * @param curvePiece3s
  * @param extreme
  */
-declare function calcInitial3ProngCenter(maxCoordinate: number, δ3s: CpNode[][], bezierPiece3s: CurvePiece[][]): number[];
+declare function calcInitial3ProngCenter(maxCoordinate: number, δ3s: CpNode[][], curvePiece3s: CurvePiece[][]): number[];
 export { calcInitial3ProngCenter };

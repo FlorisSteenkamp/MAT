@@ -1,18 +1,18 @@
-import { drawFs } from "flo-draw";
+// import { drawFs } from "flo-draw";
 import { closestPointOnBezier } from "flo-bezier3";
 import { CpNode } from "../cp-node/cp-node.js";
 import { findAndAdd2Prong } from "../find-2-prong/find-and-add-2-prong.js";
 import { MatMeta } from "../mat/mat-meta.js";
 import { getHalfAngle } from "./get-half-angles.js";
 import { getMatCurveToNext } from "../cp-node/fs/get-mat-curve-to-next.js";
-import { getAllOnCircle } from "../cp-node/fs/get-all-on-circle.js";
+// import { getAllOnCircle } from "../cp-node/fs/get-all-on-circle.js";
 import { isTerminating } from "../cp-node/fs/is-terminating.js";
-import { findAndAdd3Prongs } from "../find-3-prong.ts/find-and-add-3-prongs.js";
-import { getBoundaryBezierPartsToNext } from "../cp-node/fs/get-boundary-bezier-parts-to-next.js";
-import { drawBezierPieces } from "../debug/functions/draw/draw-bezier-pieces.js";
+// import { findAndAdd3Prongs } from "../find-3-prong.ts/find-and-add-3-prongs.js";
+// import { getBoundaryBezierPartsToNext } from "../cp-node/fs/get-boundary-bezier-parts-to-next.js";
+// import { drawBezierPieces } from "../debug/functions/draw/draw-bezier-pieces.js";
 import { getAllOnLoop } from "../cp-node/fs/get-all-on-loop.js";
-import { PointOnShape } from "../point-on-shape/point-on-shape.js";
-import { getBoundaryBeziersToNext } from "../cp-node/fs/get-boundary-beziers-to-next.js";
+// import { PointOnShape } from "../point-on-shape/point-on-shape.js";
+// import { getBoundaryBeziersToNext } from "../cp-node/fs/get-boundary-beziers-to-next.js";
 import { isPosQuiteDullCorner } from "../point-on-shape/is-pos-quite-dull-corner.js";
 import { MatOptions } from "./mat-options.js";
 

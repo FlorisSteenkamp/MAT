@@ -1,13 +1,13 @@
-import { TwoProngForDebugging } from '../debug/two-prong-for-debugging.js';
-import { ElemType_TwoProng } from './elem-type-two-prong.js';
+// import { TwoProngForDebugging } from '../debug/two-prong-for-debugging.js';
+// import { ElemType_TwoProng } from './elem-type-two-prong.js';
 
 
-/** @internal */
-function getTwoProngType(e: TwoProngForDebugging): ElemType_TwoProng {
-	if (e.holeClosing) { return 'twoProng_holeClosing' }
+// /** @internal */
+// function getTwoProngType(e: TwoProngForDebugging): ElemType_TwoProng {
+// 	if (e.holeClosing) { return 'twoProng_holeClosing' }
 	
-	return 'twoProng_regular';
-}
+// 	return 'twoProng_regular';
+// }
 
 
-export { getTwoProngType }
+// export { getTwoProngType }

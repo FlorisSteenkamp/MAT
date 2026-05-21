@@ -2,7 +2,6 @@ import { totalAbsoluteCurvature, totalLength } from "flo-bezier3";
 import { memoize } from "flo-memoize";
 import { getMatCurveToNext } from "./get-mat-curve-to-next.js";
 import { getRealProngCount } from "./get-real-prong-count.js";
-const { min, abs } = Math;
 const getSpeed$ = memoize(getSpeed);
 function getSpeed(cpNode) {
     if (getRealProngCount(cpNode) !== 2) {

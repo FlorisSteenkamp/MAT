@@ -9,17 +9,17 @@ import { CurvePiece } from "../mat/curve-piece.js";
  * this distance away.
  */ 
 function getBestDistanceSquared(
-        bezierPieces: CurvePiece[], 
+        curvePieces: CurvePiece[], 
         p: number[]) {
 
     let bestSquaredDistance = Number.POSITIVE_INFINITY;
-    for (let i=0; i<bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
+    for (let i=0; i<curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
 
-        const ps = bezierPiece.curve.ps;
+        const ps = curvePiece.curve.ps;
         
-        const p1 = evalDeCasteljau(ps, bezierPiece.ts[0]);
-        const p2 = evalDeCasteljau(ps, bezierPiece.ts[1]);
+        const p1 = evalDeCasteljau(ps, curvePiece.ts[0]);
+        const p2 = evalDeCasteljau(ps, curvePiece.ts[1]);
         
         const d = Math.min(
             squaredDistanceBetween(p, p1),

@@ -1,5 +1,5 @@
-import { cpNodesToBoundaryBeziers } from "./cp-nodes-to-boundary-beziers.js";
 import { getAllBetween } from "./get-all-between.js";
+import { getBoundaryBeziersToNext } from "./get-boundary-beziers-to-next.js";
 /**
  * Returns all `CpNode`s between the two given ones (inclusive).
  *
@@ -12,11 +12,9 @@ import { getAllBetween } from "./get-all-between.js";
  * include all `CpNode`s around the loop, otherwise include none.
  */
 function getBoundaryBeziersBetween(cpNode1, cpNode2, inclAllIfEqual = true) {
-    const allBetween = getAllBetween(cpNode1, cpNode2, inclAllIfEqual);
-    return {
-        pss: cpNodesToBoundaryBeziers(allBetween.cpNodes),
-        hasHoleCloser: allBetween.hasHoleCloser
-    };
+    const { cpNodes, hasHoleCloser } = getAllBetween(cpNode1, cpNode2, inclAllIfEqual);
+    const pss = cpNodes.flatMap(getBoundaryBeziersToNext);
+    return { pss, hasHoleCloser };
 }
 export { getBoundaryBeziersBetween };
 //# sourceMappingURL=get-boundary-beziers-between.js.map

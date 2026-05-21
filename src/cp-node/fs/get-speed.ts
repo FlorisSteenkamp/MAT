@@ -1,13 +1,8 @@
-import { curvature, totalAbsoluteCurvature, totalLength } from "flo-bezier3";
+import { totalAbsoluteCurvature, totalLength } from "flo-bezier3";
 import { memoize } from "flo-memoize";
-import { sum } from "../../utils/sum.js";
 import { CpNode } from "../cp-node.js";
-import { getBoundaryBeziersToNext } from "./get-boundary-beziers-to-next.js";
 import { getMatCurveToNext } from "./get-mat-curve-to-next.js";
 import { getRealProngCount } from "./get-real-prong-count.js";
-
-const { min, abs } = Math;
-
 
 const getSpeed$ = memoize(getSpeed);
 

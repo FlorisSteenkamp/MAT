@@ -17,7 +17,7 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): CurvePiece[] {
     let cpThis = cpNodes[0]; 
     const cpEnd  = cpNodes[1];
     
-    const bezierPieces: CurvePiece[] = [];
+    const curvePieces: CurvePiece[] = [];
 
     // As opposed to going around the circle and taking the last exit
     let goStraight = true; 
@@ -41,17 +41,17 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): CurvePiece[] {
         } else if (posNext.curve === posThis.curve &&
                    compareCps(cpThis.next.cp, cpThis.cp) > 0) {
                 
-            bezierPieces.push(
+            curvePieces.push(
                 { curve: posThis.curve, ts: [posThis.t, posNext.t] }
             );
         } else {
-            bezierPieces.push(
+            curvePieces.push(
                 { curve: posThis.curve, ts: [posThis.t, 1] }
             );
             
             if (posThis.curve.loop === posNext.curve.loop) {
                 addSkippedBeziers(
-                        bezierPieces, 
+                        curvePieces, 
                         posThis.curve, 
                         posNext.curve,
                         posNext.t
@@ -63,7 +63,7 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): CurvePiece[] {
     } while (cpThis !== cpEnd);
 
 
-    return bezierPieces;
+    return curvePieces;
 }
 
 
@@ -72,7 +72,7 @@ function getBoundaryPieceBeziers(cpNodes: CpNode[]): CurvePiece[] {
  * Adds pieces of skipped beziers
  */
 function addSkippedBeziers(
-        bezierPieces: CurvePiece[], 
+        curvePieces: CurvePiece[], 
         curveStart: Curve, 
         curveEnd: Curve, 
         t1: number) {
@@ -81,7 +81,7 @@ function addSkippedBeziers(
     do {
         curveThis = curveThis.next;
         const tEnd = curveThis === curveEnd ? t1 : 1;
-        bezierPieces.push({ curve: curveThis, ts: [0, tEnd] });
+        curvePieces.push({ curve: curveThis, ts: [0, tEnd] });
     } while (curveThis !== curveEnd);
 }
 

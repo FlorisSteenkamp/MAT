@@ -5,17 +5,17 @@ import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-c
 /**
  * @internal
  * @param x 
- * @param bezierPiece3s 
+ * @param curvePiece3s 
  * @param extreme 
  */
 function getClosestPoints(
         x: number[], 
-        bezierPiece3s: CurvePiece[][]) {
+        curvePiece3s: CurvePiece[][]) {
 
-    return bezierPiece3s.map(bezierPieces => {
+    return curvePiece3s.map(curvePieces => {
         return getCloseBoundaryPointsCertified(
             5,  // TODO - see find-2-prong
-            bezierPieces, x
+            curvePieces, x
         )[0];
     });
 }

@@ -4,22 +4,22 @@ import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
  * @internal
  * When checking distances, ignore all those with closest possible distance
  * further than 'bestSquaredDistance', i.e. cull them.
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param dSquared
  */
-function cullByLooseBoundingBox(bezierPieces, p, dSquared) {
-    const candidateBezierPieces = [];
-    for (let i = 0; i < bezierPieces.length; i++) {
-        const bezierPiece = bezierPieces[i];
-        const ps = bezierPiece.curve.ps;
+function cullByLooseBoundingBox(curvePieces, p, dSquared) {
+    const candidateCurvePieces = [];
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
+        const ps = curvePiece.curve.ps;
         const boundingBox = getBoundingBox$(ps);
         const d = getClosestSquareDistanceToRect(boundingBox, p);
         if (d <= dSquared) {
-            candidateBezierPieces.push(bezierPiece);
+            candidateCurvePieces.push(curvePiece);
         }
     }
-    return candidateBezierPieces;
+    return candidateCurvePieces;
 }
 export { cullByLooseBoundingBox };
 //# sourceMappingURL=cull-by-loose-bounding-box.js.map

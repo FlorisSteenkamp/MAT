@@ -2,16 +2,17 @@ import { getBestDistanceSquared } from './get-best-distance-squared.js';
 import { cullByLooseBoundingBox } from './cull-by-loose-bounding-box.js';
 import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';
 /**
- * @internal
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param extreme
+ *
+ * @internal
  */
-function cullBezierPieces1(bezierPieces, p) {
-    const bestSquaredDistance = getBestDistanceSquared(bezierPieces, p);
-    bezierPieces = cullByLooseBoundingBox(bezierPieces, p, bestSquaredDistance);
-    bezierPieces = cullByTightBoundingBox(bezierPieces, p, bestSquaredDistance);
-    return bezierPieces;
+function cullCurvePieces1(curvePieces, p) {
+    const bestSquaredDistance = getBestDistanceSquared(curvePieces, p);
+    curvePieces = cullByLooseBoundingBox(curvePieces, p, bestSquaredDistance);
+    curvePieces = cullByTightBoundingBox(curvePieces, p, bestSquaredDistance);
+    return curvePieces;
 }
-export { cullBezierPieces1 };
+export { cullCurvePieces1 };
 //# sourceMappingURL=cull-bezier-pieces.js.map

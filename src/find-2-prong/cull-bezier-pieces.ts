@@ -5,32 +5,32 @@ import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 
 /**
  * @internal
- * Cull all bezierPieces not within given radius of a given point.
+ * Cull all curvePieces not within given radius of a given point.
  * @param extreme
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param rSquared
  */
-function cullBezierPieces2(
-        bezierPieces: CurvePiece[], 
+function cullCurvePieces2(
+        curvePieces: CurvePiece[], 
         p: number[], 
         rSquared: number) {
 
     const TOLERANCE = 1 + 2**-10;
 
-    if (bezierPieces.length <= 1) {
-        return bezierPieces;
+    if (curvePieces.length <= 1) {
+        return curvePieces;
     }
 
 
     const newPieces = [];
-    for (const bezierPiece of bezierPieces) {
-        const ps = bezierPiece.curve.ps;
+    for (const curvePiece of curvePieces) {
+        const ps = curvePiece.curve.ps;
         
         const rect = getBoundingBox$(ps);
         const bd = getClosestSquareDistanceToRect(rect, p);
         if (bd <= TOLERANCE*rSquared) {
-            newPieces.push(bezierPiece);
+            newPieces.push(curvePiece);
         } 
     }
 
@@ -38,4 +38,4 @@ function cullBezierPieces2(
 }
 
 
-export { cullBezierPieces2 }
+export { cullCurvePieces2 }

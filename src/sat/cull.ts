@@ -1,16 +1,17 @@
-import { Circle } from '../geometry/circle.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { DualSet } from '../utils/dual-set.js';
 import { getLeaves } from './get-leaves.js';
-import { CpNode } from '../cp-node/cp-node.js';
 import { CpNodeFs } from '../cp-node/cp-node-fs.js';
 import { isTerminating } from '../cp-node/fs/is-terminating.js';
-import { DualSet, DualSetFs } from '../utils/dual-set.js';
+import { DualSetFs } from '../utils/dual-set.js';
 
 const { isOnSameCircle } = CpNodeFs;
 
 
 /**
+ * Returns the set of non-trivial forward edges starting from the given `CpNode`.
  * 
- * @param cpStart 
+ * @param cpStart the start `CpNode`
  */
 function getNonTrivialForwardEdges(cpStart: CpNode) {
     let cpNode = cpStart;
@@ -32,12 +33,14 @@ function getNonTrivialForwardEdges(cpStart: CpNode) {
 
 
 /**
- * @internal
  * Returns the set of Vertices passing the following test: walk the MAT tree and 
  * keep all Vertices not in the current cull set and any Vertices that have a 
  * non-culled node further down the line toward the tree leaves.
- * @param culls The CpNodes (referred to by circles) that should be culled.
- * @param maxCpNode The start CpNode which must reprsesent the maximal vertex.
+ * 
+ * @param culls the `CpNode`s (referred to by circles) that should be culled
+ * @param maxCpNode the start `CpNode` which must represent the maximal vertex
+ * 
+ * @internal
  */
 function cull(
         culls: DualSet<number, number>,

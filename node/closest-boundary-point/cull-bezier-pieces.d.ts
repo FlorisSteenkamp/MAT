@@ -1,9 +1,10 @@
 import { CurvePiece } from '../mat/curve-piece.js';
 /**
- * @internal
- * @param bezierPieces
+ * @param curvePieces
  * @param p
  * @param extreme
+ *
+ * @internal
  */
-declare function cullBezierPieces1(bezierPieces: CurvePiece[], p: number[]): CurvePiece[];
-export { cullBezierPieces1 };
+declare function cullCurvePieces1(curvePieces: CurvePiece[], p: number[]): CurvePiece[];
+export { cullCurvePieces1 };

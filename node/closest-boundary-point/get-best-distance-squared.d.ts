@@ -4,5 +4,5 @@ import { CurvePiece } from "../mat/curve-piece.js";
  * Finds an initial distance such that the closest point can not be further than
  * this distance away.
  */
-declare function getBestDistanceSquared(bezierPieces: CurvePiece[], p: number[]): number;
+declare function getBestDistanceSquared(curvePieces: CurvePiece[], p: number[]): number;
 export { getBestDistanceSquared };

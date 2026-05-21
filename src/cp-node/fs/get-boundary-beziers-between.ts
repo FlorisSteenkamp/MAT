@@ -1,7 +1,6 @@
-import type { BezierPiece } from "flo-bezier3";
 import type { CpNode } from "../cp-node.js";
-import { cpNodesToBoundaryBeziers } from "./cp-nodes-to-boundary-beziers.js";
 import { getAllBetween } from "./get-all-between.js";
+import { getBoundaryBeziersToNext } from "./get-boundary-beziers-to-next.js";
 
 
 /**
@@ -23,12 +22,12 @@ function getBoundaryBeziersBetween(
             hasHoleCloser: boolean
         } {
 
-    const allBetween = getAllBetween(cpNode1,cpNode2,inclAllIfEqual);
+    const { cpNodes, hasHoleCloser } =
+        getAllBetween(cpNode1,cpNode2,inclAllIfEqual);
 
-    return {
-        pss: cpNodesToBoundaryBeziers(allBetween.cpNodes),
-        hasHoleCloser: allBetween.hasHoleCloser
-    }
+    const pss = cpNodes.flatMap(getBoundaryBeziersToNext);
+
+    return { pss, hasHoleCloser }
 }
 
 
