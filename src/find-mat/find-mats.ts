@@ -33,49 +33,49 @@ import { defaultMatOptions, MatOptions } from './mat-options.js';
  * in [1,100].
  */
 function findMats(
-		bezierLoops: number[][][][],
-		options?: MatOptions): Mat[] {
+        bezierLoops: number[][][][],
+        options?: MatOptions): Mat[] {
 
-	// if (typeof _debug_ !== 'undefined') { var timingStart = performance.now(); }
-	const { maxCoordinate, maxRadius } = getLoopsMetrics(bezierLoops);
+    // if (typeof _debug_ !== 'undefined') { var timingStart = performance.now(); }
+    const { maxCoordinate, maxRadius } = getLoopsMetrics(bezierLoops);
 
-	const options_: Required<MatOptions> = clipOptions(
-		maxCoordinate,
-		maxRadius, {
-		...defaultMatOptions,
-		...(options || {})
-	});
+    const options_: Required<MatOptions> = clipOptions(
+        maxCoordinate,
+        maxRadius, {
+        ...defaultMatOptions,
+        ...(options || {})
+    });
 
-	const {
-		applySat, simplify,
-		satScale, simplifyTolerance
-	} = options_;
+    const {
+        applySat, simplify,
+        satScale, simplifyTolerance
+    } = options_;
 
 
-	const loopss = simplifyPaths(bezierLoops);
-	// console.log(loopsToSvgPathStr(bezierLoops));
-	// const loopss = [bezierLoops.map(loop => loopFromBeziers(loop,0))];
-	// console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => v.map(v => v*2**4))))));
-	// console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => [-v[0],v[1]])))));
-	// console.log(loopsToSvgPathStr(loopss[0].map(loop => loop.beziers)));
+    const loopss = simplifyPaths(bezierLoops);
+    // console.log(loopsToSvgPathStr(bezierLoops));
+    // const loopss = [bezierLoops.map(loop => loopFromBeziers(loop,0))];
+    // console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => v.map(v => v*2**4))))));
+    // console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => [-v[0],v[1]])))));
+    // console.log(loopsToSvgPathStr(loopss[0].map(loop => loop.beziers)));
 
-	const mats: Mat[] = [];
-	for (const loops of loopss) {
-		let mat = findMat(loops, maxCoordinate, options_);
-		if (mat === undefined) { continue; }
+    const mats: Mat[] = [];
+    for (const loops of loopss) {
+        let mat = findMat(loops, maxCoordinate, options_);
+        if (mat === undefined) { continue; }
 
-		if (applySat) {
-			mat = toScaleAxis(mat, satScale);
-		}
+        if (applySat) {
+            mat = toScaleAxis(mat, satScale);
+        }
 
-		if (simplify) {
-			mat = simplifyMat(mat, simplifyTolerance, 50)
-		}
+        if (simplify) {
+            mat = simplifyMat(mat, simplifyTolerance, 50)
+        }
 
-		mats.push(mat);
-	}
-	
-	return mats;
+        mats.push(mat);
+    }
+    
+    return mats;
 }
 
 
@@ -86,14 +86,14 @@ function findMats(
  * an array of control points.
  */
 function loopsToSvgPathStr(
-		loops: number[][][][]) {
+        loops: number[][][][]) {
 
-	let str = '';
-	for (const loop of loops) {
-		str = str + beziersToSvgPathStr(loop) + '\n';
-	}
+    let str = '';
+    for (const loop of loops) {
+        str = str + beziersToSvgPathStr(loop) + '\n';
+    }
 
-	return str;
+    return str;
 }
 
 

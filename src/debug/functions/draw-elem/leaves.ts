@@ -3,7 +3,7 @@ import { drawCirclePercent } from './draw-circle-percent.js';
 
 
 /** @internal */
-function leaves(g: SVGGElement, leaves: CpNode[]) {	
+function leaves(g: SVGGElement, leaves: CpNode[]) {    
     const $elems: SVGElement[] = [];
 
     for (const cpNode of leaves) {
@@ -13,7 +13,7 @@ function leaves(g: SVGGElement, leaves: CpNode[]) {
         $elems.push(drawCirclePercent(g, p, 0.5, 'pinker thin5 nofill'));
     }
     
-	return $elems;
+    return $elems;
 }
 
 

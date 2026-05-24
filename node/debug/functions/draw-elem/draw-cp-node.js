@@ -18,7 +18,7 @@ function drawCpNode(g, cpNode, classes = 'blue thin2 nofill', delay = 0, scaleFa
     }
     const $cross = crossHair(g, c, 'orange thin10 nofill', 2 * scaleFactor, delay);
     // if (r === 0) {
-    // 	const $cross = crossHair(g, circle.center, 'red thin2 nofill', 0.02*scaleFactor, delay);
+    //     const $cross = crossHair(g, circle.center, 'red thin2 nofill', 0.02*scaleFactor, delay);
     // }
     return [...$cps, ...$ls, ...$circle, ...$cross];
 }

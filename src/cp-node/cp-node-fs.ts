@@ -1,4 +1,3 @@
-import { compareCps } from "../contact-point/contact-point.js";
 import { CpNode } from "./cp-node.js";
 import { getHoleClosers } from "./fs/get-hole-closers.js";
 import { getSpeed } from "./fs/get-speed.js";
@@ -34,111 +33,109 @@ import { getBoundaryBeziersBetween } from './fs/get-boundary-beziers-between.js'
 import { getMatCurvesBetween } from './fs/get-mat-curves-between.js';
 import { getInitialDegAngleBetweenMatCurves } from "./fs/get-angle-between-mat-curves.js";
 import { getAllVertices } from "./fs/get-all-vertices.js";
-
-
-const cpNodeComparator = (a: CpNode, b: CpNode) => compareCps(a.cp, b.cp);
+import { cpNodeComparator } from './fs/cp-node-comparator.js';
 
 
 const CpNodeFs = {
-	/**
-	 * Returns the children of this `CpNode` when seen as a MAT edge. Only 
-	 * children in a 'forward' direction are returned. These include all edges 
-	 * except the 'backward' edge given by `prevOnCircle`, even terminating
-	 * edges.
-	 */
-	getChildren,
-	/**
-	 * Similar to `getChildren` but returns the child nodes of the tree when 
-	 * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this 
-	 * way the dual graph of the tree can easily be traversed - see e.g. 
-	 * `traverseVertices`. Generally, however, traversing the edges is 
-	 * preferred as it returns the entire Medial Axis (by utilizing 
-	 * `getMatCurveToNext` on each returned edge).
-	 */
-	getVertexForwardChildren,
-	/**
-	 * Returns all `CpNode`s on the MAT that this `CpNode` is part of 
-	 * starting from the current one and going anti-clockwise around the shape.
-	 */
-	getAllOnLoop,
-	/**
-	 * Return this (except if exclThis is truthy) and the the other CpNodes 
-	 * around the maximal disk vertex circle in an anti-clockwise order.
-	 * @param exclThis If true the returned array does not include this 
-	 * `CpNode`.
-	 */
-	getAllOnCircle,
-	/**
-	 * Returns true if the 2 given `CpNode`s are on the same maximal disk 
-	 * circle.
-	 * @param cpNode1 A `CpNode`.
-	 * @param cpNode2 Another `CpNode`
-	 */
-	isOnSameCircle,
-	/**
-	 * Returns true if this `CpNode` is terminating, i.e. implies a leaf MAT 
-	 * vertex.
-	 * 
-	 * This is always the case for sharp corners and maximal disks with
-	 * a single contact point. Note, however, that even in these cases there are
-	 * two contact points stored (sitting 'on top' of each other) for the 
-	 * maximal disk. It can be seen as a limiting case of a two-prong where the
-	 * distance between two of the contact points tend to zero. One point 
-	 * (represented by a `CpNode` of course) will be terminating with the 
-	 * other point being its `next`, whereas the other point will *not* be 
-	 * terminating and 'points' back into the shape.
-	 */
-	isTerminating,
-	/**
-	 * Like isTerminating() but only returns true if all cpNodes on the circle
-	 * (except this.prevOnCircle) is terminating.
-	 */
-	isFullyTerminating,
-	/**
-	 * Returns the first `CpNode` (from this one by successively applying 
-	 * .nextOnCircle) that exits the circle.
-	 */
-	getFirstExit,
-	/**
-	 * Returns true if this `CpNode` represents a sharp corner, i.e. the 
-	 * limiting case of a two-prong having zero radius. 
-	 * 
-	 * Note that two `CpNode`s are stored for each sharp corner, one being
-	 * terminating and one not. See `isTerminating` for more details.
-	 */
-	isSharp,
-	/**
-	 * Returns true if this `CpNode`'s maximal disk has only one contact point
-	 * on the shape boundary (up to planar coordinates). These includes sharp 
-	 * corners.
-	 * 
-	 * Note, however, that two `CpNode`s are stored for each such point to
-	 * preserve symmetry - see `isTerminating` for more details.
-	 */
-	isOneProng,
-	/**
-	 * Returns the number of contact points on the maximal disk circle implied
-	 * by this `CpNode`. 
-	 * 
-	 * Note, however, that even one-prongs and sharp corners will return 2 (see
-	 * `isTerminating` for more details); if this is not desired use 
-	 * `getRealProngCount` instead which will return 1 in these cases.
-	 */
-	getProngCount,
-	/**
-	 * Returns the number of contact points (up to planar coordinates) on the 
-	 * maximal disk circle implied by this `CpNode`. 
-	 * 
-	 * See also `getProngCount`.
-	 */
-	getRealProngCount,
-	/**
-	 * Primarily for internal use.
-	 * 
-	 * Compares the order of two `CpNode`s. The order is cyclic and depends
-	 * on a `CpNode`'s relative position along the shape boundary.
-	 */
-	cpNodeComparator,
+    /**
+     * Returns the children of this `CpNode` when seen as a MAT edge. Only 
+     * children in a 'forward' direction are returned. These include all edges 
+     * except the 'backward' edge given by `prevOnCircle`, even terminating
+     * edges.
+     */
+    getChildren,
+    /**
+     * Similar to `getChildren` but returns the child nodes of the tree when 
+     * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this 
+     * way the dual graph of the tree can easily be traversed - see e.g. 
+     * `traverseVertices`. Generally, however, traversing the edges is 
+     * preferred as it returns the entire Medial Axis (by utilizing 
+     * `getMatCurveToNext` on each returned edge).
+     */
+    getVertexForwardChildren,
+    /**
+     * Returns all `CpNode`s on the MAT that this `CpNode` is part of 
+     * starting from the current one and going anti-clockwise around the shape.
+     */
+    getAllOnLoop,
+    /**
+     * Return this (except if exclThis is truthy) and the the other CpNodes 
+     * around the maximal disk vertex circle in an anti-clockwise order.
+     * @param exclThis If true the returned array does not include this 
+     * `CpNode`.
+     */
+    getAllOnCircle,
+    /**
+     * Returns true if the 2 given `CpNode`s are on the same maximal disk 
+     * circle.
+     * @param cpNode1 A `CpNode`.
+     * @param cpNode2 Another `CpNode`
+     */
+    isOnSameCircle,
+    /**
+     * Returns true if this `CpNode` is terminating, i.e. implies a leaf MAT 
+     * vertex.
+     * 
+     * This is always the case for sharp corners and maximal disks with
+     * a single contact point. Note, however, that even in these cases there are
+     * two contact points stored (sitting 'on top' of each other) for the 
+     * maximal disk. It can be seen as a limiting case of a two-prong where the
+     * distance between two of the contact points tend to zero. One point 
+     * (represented by a `CpNode` of course) will be terminating with the 
+     * other point being its `next`, whereas the other point will *not* be 
+     * terminating and 'points' back into the shape.
+     */
+    isTerminating,
+    /**
+     * Like isTerminating() but only returns true if all cpNodes on the circle
+     * (except this.prevOnCircle) is terminating.
+     */
+    isFullyTerminating,
+    /**
+     * Returns the first `CpNode` (from this one by successively applying 
+     * .nextOnCircle) that exits the circle.
+     */
+    getFirstExit,
+    /**
+     * Returns true if this `CpNode` represents a sharp corner, i.e. the 
+     * limiting case of a two-prong having zero radius. 
+     * 
+     * Note that two `CpNode`s are stored for each sharp corner, one being
+     * terminating and one not. See `isTerminating` for more details.
+     */
+    isSharp,
+    /**
+     * Returns true if this `CpNode`'s maximal disk has only one contact point
+     * on the shape boundary (up to planar coordinates). These includes sharp 
+     * corners.
+     * 
+     * Note, however, that two `CpNode`s are stored for each such point to
+     * preserve symmetry - see `isTerminating` for more details.
+     */
+    isOneProng,
+    /**
+     * Returns the number of contact points on the maximal disk circle implied
+     * by this `CpNode`. 
+     * 
+     * Note, however, that even one-prongs and sharp corners will return 2 (see
+     * `isTerminating` for more details); if this is not desired use 
+     * `getRealProngCount` instead which will return 1 in these cases.
+     */
+    getProngCount,
+    /**
+     * Returns the number of contact points (up to planar coordinates) on the 
+     * maximal disk circle implied by this `CpNode`. 
+     * 
+     * See also `getProngCount`.
+     */
+    getRealProngCount,
+    /**
+     * Primarily for internal use.
+     * 
+     * Compares the order of two `CpNode`s. The order is cyclic and depends
+     * on a `CpNode`'s relative position along the shape boundary.
+     */
+    cpNodeComparator,
     /**
      * For debugging
      * @param cpNode 
@@ -196,38 +193,38 @@ const CpNodeFs = {
      * @param cpNode The `CpNode` to remove.
      */
     removeVertex,
-	/**
-	 * Returns the bezier curve from the maximal disk of the given `CpNode` to the 
-	 * next `CpNode`'s maximal disk and thus directly represents a piece of the 
-	 * medial axis.
-	 * @param cpNode 
-	 */
-	getMatCurveToNext,
-	isTwoProng,
-	getBranch,
-	getBranchBeziers,
-	getSalience,
-	/**
-	 * Returns the bezier curve from the maximal disk of one `CpNode` to another
-	 * `CpNode`'s maximal disk.
-	 * @param cpNodeFrom 
-	 * @param cpNodeTo 
-	 */
-	getMatCurveBetween,
-	/**
-	 * @internal
-	 * Returns a line segment of unit length starting in the given Vertex center and
-	 * pointing in the direction of the medial axis (viewed as a rooted tree).
-	 * @param cpNode 
-	 */
-	getEdgeDirection,
-	getBoundaryBeziersBetween,
-	getMatCurvesBetween,
-	getHoleClosers,
-	getSpeed,
-	getSmoothedSpeed$,
-	getInitialDegAngleBetweenMatCurves,
-	getAllVertices
+    /**
+     * Returns the bezier curve from the maximal disk of the given `CpNode` to the 
+     * next `CpNode`'s maximal disk and thus directly represents a piece of the 
+     * medial axis.
+     * @param cpNode 
+     */
+    getMatCurveToNext,
+    isTwoProng,
+    getBranch,
+    getBranchBeziers,
+    getSalience,
+    /**
+     * Returns the bezier curve from the maximal disk of one `CpNode` to another
+     * `CpNode`'s maximal disk.
+     * @param cpNodeFrom 
+     * @param cpNodeTo 
+     */
+    getMatCurveBetween,
+    /**
+     * @internal
+     * Returns a line segment of unit length starting in the given Vertex center and
+     * pointing in the direction of the medial axis (viewed as a rooted tree).
+     * @param cpNode 
+     */
+    getEdgeDirection,
+    getBoundaryBeziersBetween,
+    getMatCurvesBetween,
+    getHoleClosers,
+    getSpeed,
+    getSmoothedSpeed$,
+    getInitialDegAngleBetweenMatCurves,
+    getAllVertices
 }
 
 

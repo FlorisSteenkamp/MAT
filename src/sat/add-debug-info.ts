@@ -8,12 +8,12 @@ import { Debug } from '../debug/debug.js';
  * @param sat 
  */
 function addDebugInfo(
-		timingStart: number) {
+        timingStart: number) {
 
-	if (typeof _debug_ === 'undefined') { return; }
+    if (typeof _debug_ === 'undefined') { return; }
 
-	const timing = _debug_.generated.timing;
-	timing.sats = performance.now() - timingStart;
+    const timing = _debug_.generated.timing;
+    timing.sats = performance.now() - timingStart;
 }
 
 

@@ -21,53 +21,53 @@ import { createPos } from '../point-on-shape/create-pos.js';
  * @param angle defaults to `0`
  */
 function getCloseBoundaryPointsCertified(
-		pow: number,
+        pow: number,
         curvePieces: CurvePiece[], 
         x: number[], 
-		touchedCurve: Curve | undefined = undefined,
-		t: number | undefined = undefined,
-		for1Prong = false,
-		angle = 0): PointOnShape[] {
-	
-	curvePieces = cullCurvePieces1(curvePieces, x);
+        touchedCurve: Curve | undefined = undefined,
+        t: number | undefined = undefined,
+        for1Prong = false,
+        angle = 0): PointOnShape[] {
+    
+    curvePieces = cullCurvePieces1(curvePieces, x);
  
-	const pInfoss: FootAndEndpointInfo[] = [];
-	for (let i=0; i<curvePieces.length; i++) {
-		const curvePiece = curvePieces[i];
+    const pInfoss: FootAndEndpointInfo[] = [];
+    for (let i=0; i<curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
 
-		const pInfos = getPotentialClosestPointsOnCurveCertified(
-			pow,
-			curvePiece.curve, 
-			x, 
-			curvePiece.ts, 
-			touchedCurve, 
-			t,
-			for1Prong,
-			angle
-		);
+        const pInfos = getPotentialClosestPointsOnCurveCertified(
+            pow,
+            curvePiece.curve, 
+            x, 
+            curvePiece.ts, 
+            touchedCurve, 
+            t,
+            for1Prong,
+            angle
+        );
 
-		pInfoss.push(...pInfos);
-	}
+        pInfoss.push(...pInfos);
+    }
 
-	/** the minimum max interval value */
-	let minMax = Number.POSITIVE_INFINITY;
-	for (let i=0; i<pInfoss.length; i++) {
-		const diMax = pInfoss[i].dSquaredI[1];
-		if (diMax < minMax) {
-			minMax = diMax;
-		}
-	}
+    /** the minimum max interval value */
+    let minMax = Number.POSITIVE_INFINITY;
+    for (let i=0; i<pInfoss.length; i++) {
+        const diMax = pInfoss[i].dSquaredI[1];
+        if (diMax < minMax) {
+            minMax = diMax;
+        }
+    }
 
-	const closestPointInfos: FootAndEndpointInfo[] = [];
+    const closestPointInfos: FootAndEndpointInfo[] = [];
 
-	for (let i=0; i<pInfoss.length; i++) {
-		const info = pInfoss[i];
-		if (info.dSquaredI[0] <= minMax) {
-			closestPointInfos.push(info);
-		}
-	}
+    for (let i=0; i<pInfoss.length; i++) {
+        const info = pInfoss[i];
+        if (info.dSquaredI[0] <= minMax) {
+            closestPointInfos.push(info);
+        }
+    }
 
-	return closestPointInfos.map(info => createPos(info.curve, info.t, false));
+    return closestPointInfos.map(info => createPos(info.curve, info.t, false));
 }
 
 

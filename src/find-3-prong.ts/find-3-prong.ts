@@ -13,35 +13,35 @@ import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
  * tolerances.
  */ 
 function find3Prong(
-		δs: CpNode[][], extreme: number) {
+        δs: CpNode[][], extreme: number) {
 
-	const curvePiecess = δs.map(getBoundaryPieceBeziers);
+    const curvePiecess = δs.map(getBoundaryPieceBeziers);
 
-	// The best candidate amongst the different 'permutations' of the given δs.
-	let threeProng: { 
+    // The best candidate amongst the different 'permutations' of the given δs.
+    let threeProng: { 
         circle: Circle, 
         poss: PointOnShape[], 
         δ3s: CpNode[][] 
     };
-	let smallestError = Number.POSITIVE_INFINITY;
-	for (let i=1; i<δs.length-1; i++) {
-		for (let k=0; k<3; k++) {
-			const threeProngInfo = 
-				find3ProngForDelta3s(δs, i, k, curvePiecess, extreme);
-			if (!threeProngInfo) { continue; }
+    let smallestError = Number.POSITIVE_INFINITY;
+    for (let i=1; i<δs.length-1; i++) {
+        for (let k=0; k<3; k++) {
+            const threeProngInfo = 
+                find3ProngForDelta3s(δs, i, k, curvePiecess, extreme);
+            if (!threeProngInfo) { continue; }
 
-			const { circle, poss: poss, error, δ3s } = threeProngInfo;
-			
-			if (error < smallestError) {
-				smallestError = error;
-				
-				threeProng = { circle, poss: poss as PointOnShape[], δ3s };
-			}
-		}
-	}
-	
+            const { circle, poss: poss, error, δ3s } = threeProngInfo;
+            
+            if (error < smallestError) {
+                smallestError = error;
+                
+                threeProng = { circle, poss: poss as PointOnShape[], δ3s };
+            }
+        }
+    }
+    
 
-	return threeProng!;
+    return threeProng!;
 }
 
 

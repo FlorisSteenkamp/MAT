@@ -34,14 +34,14 @@ const γγ3 = γγ(3);
  * @doc
  */
 function ddDeflateWithRunningError(
-		p: number[][],
-		pE: number[],
-		t: number): {
-			coeffs: number[][];
-			errBound: number[];
-		} {
+        p: number[][],
+        pE: number[],
+        t: number): {
+            coeffs: number[][];
+            errBound: number[];
+        } {
 
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     // `var` -> a variable
     // `$var` -> the double precision approximation to `var`
     // `_var` -> the absolute value of $var (a prefix underscore on a variable means absolute value)
@@ -56,29 +56,29 @@ function ddDeflateWithRunningError(
     //   due to multiplication by 3*γ² and not 3*u²
     //--------------------------------------------------------------------------
     const d = p.length - 1;
-	const bs = [p[0]];    // coefficients
+    const bs = [p[0]];    // coefficients
     let b_ = pE[0];       // running error
-	const bEs = [b_];     // coefficient-wise error bound
+    const bEs = [b_];     // coefficient-wise error bound
 
-	for (let i=1; i<d; i++) {
+    for (let i=1; i<d; i++) {
         // p[i] + t*bs[i-1];
 
-		const a = bs[i-1];
-		const $m = t*a[1];
-		const _t = abs(t);
-		const m_ = _t*b_ + abs($m);
+        const a = bs[i-1];
+        const $m = t*a[1];
+        const _t = abs(t);
+        const m_ = _t*b_ + abs($m);
 
-		const pi = p[i];
-		const p_ = pE[i];
-		b_ = p_ + m_ + abs(pi[1] + $m);
+        const pi = p[i];
+        const p_ = pE[i];
+        b_ = p_ + m_ + abs(pi[1] + $m);
 
-		const b = qaq(pi,qmd(t,a));
+        const b = qaq(pi,qmd(t,a));
 
-		bs.push(b);
-		bEs.push(b_);
-	}
+        bs.push(b);
+        bEs.push(b_);
+    }
 
-	return {
+    return {
         coeffs: bs,
         errBound: bEs.map(e => γγ3*e)
     };

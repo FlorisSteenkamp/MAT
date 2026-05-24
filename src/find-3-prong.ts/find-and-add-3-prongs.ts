@@ -25,36 +25,36 @@ let ii = 0;
  * @internal
  */
 function findAndAdd3Prongs(
-		meta: MatMeta,
-		cpStart: CpNode) {
+        meta: MatMeta,
+        cpStart: CpNode) {
 
-	if (isPosSharpCorner(cpStart.cp.pointOnShape)) {
-		return { closeBysFor3Prong: undefined, addedCpNodes: [] };
-	}
+    if (isPosSharpCorner(cpStart.cp.pointOnShape)) {
+        return { closeBysFor3Prong: undefined, addedCpNodes: [] };
+    }
 
-	const addedCpNodes: CpNode[][] = [];
-	let closeBysFor3Prong: CpNode[] | undefined = undefined;
-	do {
-		if (cpStart === undefined) { continue; }
-		const visitedCps = traverseCp(cpStart);
-	
-		if (visitedCps.length <= 2) { break; }
+    const addedCpNodes: CpNode[][] = [];
+    let closeBysFor3Prong: CpNode[] | undefined = undefined;
+    do {
+        if (cpStart === undefined) { continue; }
+        const visitedCps = traverseCp(cpStart);
+    
+        if (visitedCps.length <= 2) { break; }
 
-		const { closeBysFor3Prong, cpNodes } = findAndAdd3Prong(meta, visitedCps);
+        const { closeBysFor3Prong, cpNodes } = findAndAdd3Prong(meta, visitedCps);
 
-		addedCpNodes.push(cpNodes);
-		if (closeBysFor3Prong.length > 0) {
-			return { closeBysFor3Prong, addedCpNodes };
-		}
+        addedCpNodes.push(cpNodes);
+        if (closeBysFor3Prong.length > 0) {
+            return { closeBysFor3Prong, addedCpNodes };
+        }
 
-		if (typeof _debug_ !== 'undefined') {
-			if (++ii === _debug_.directives.stopAfterThreeProngsNum) {
-				return undefined!;
-			}
-		}
-	} while (true);
+        if (typeof _debug_ !== 'undefined') {
+            if (++ii === _debug_.directives.stopAfterThreeProngsNum) {
+                return undefined!;
+            }
+        }
+    } while (true);
 
-	return { closeBysFor3Prong, addedCpNodes };
+    return { closeBysFor3Prong, addedCpNodes };
 }
 
 

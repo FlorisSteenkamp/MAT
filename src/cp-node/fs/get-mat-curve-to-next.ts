@@ -4,7 +4,7 @@ import { getMatCurveBetween } from './get-mat-curve-between.js';
 
 
 function getMatCurveToNext(cpNode: CpNode) {
-	return getMatCurveBetween(cpNode, cpNode.next);
+    return getMatCurveBetween(cpNode, cpNode.next);
 }
 
 

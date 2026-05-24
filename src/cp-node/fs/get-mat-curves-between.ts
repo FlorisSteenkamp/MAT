@@ -9,7 +9,7 @@ function getMatCurvesBetween(
     let cpNode = cpNodeS;
     const pss: number[][][] = [];
     while (cpNode !== cpNodeE) {
-	    const ps = getMatCurveBetween(cpNode, cpNode.next);
+        const ps = getMatCurveBetween(cpNode, cpNode.next);
         pss.push(ps);
 
         cpNode = cpNode.next;

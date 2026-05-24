@@ -4,9 +4,9 @@ import { CpNode } from "../cp-node.js";
 /** @internal */
 type Edge =
     | 'prev'
-	| 'next'
-	| 'prevOnCircle'
-	| 'nextOnCircle';
+    | 'next'
+    | 'prevOnCircle'
+    | 'nextOnCircle';
 
 /** @internal */
 const EDGES: Edge[] = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
@@ -38,7 +38,7 @@ function clone(cpNode: CpNode): CpNode {
         for (const edge of EDGES) {
             const node = cpNode[edge];
             let newNode = nodeMap.get(node);
-            if (!newNode) {	
+            if (!newNode) {    
                 newNode = cloneWithoutLinks(node);
                 
                 nodeMap.set(node, newNode);

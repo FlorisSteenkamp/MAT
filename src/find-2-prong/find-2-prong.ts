@@ -41,166 +41,166 @@ const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
  * @param loopIdx The loop array index
  */
 function find2Prong(
-		meta: MatMeta,
-		isHoleClosing: boolean,
-		for1Prong: boolean,
-		angle: number,
-        y: PointOnShape): { circle: Circle,	zs: PointOnShape[] } | undefined {
+        meta: MatMeta,
+        isHoleClosing: boolean,
+        for1Prong: boolean,
+        angle: number,
+        y: PointOnShape): { circle: Circle,    zs: PointOnShape[] } | undefined {
 
-	const { loops, maxCoordinate, squaredDiagonalLength } = meta;
+    const { loops, maxCoordinate, squaredDiagonalLength } = meta;
 
-	const loop = y.curve.loop;
+    const loop = y.curve.loop;
 
-	const MAX_ITERATIONS = 25;
-	const minSquaredSeperationTolerance = ((2**-21)*maxCoordinate)**2;
-	const errorTolerance = (2**-46)*maxCoordinate;
-	// const errorTolerance = (2**-28)*maxCoordinate;
-	const maxOsculatingCircleRadius = sqrt(squaredDiagonalLength);
-	const minCurvature = 1/maxOsculatingCircleRadius;
-	const oneProngTolerance = (2**-16)*maxCoordinate;
+    const MAX_ITERATIONS = 25;
+    const minSquaredSeperationTolerance = ((2**-21)*maxCoordinate)**2;
+    const errorTolerance = (2**-46)*maxCoordinate;
+    // const errorTolerance = (2**-28)*maxCoordinate;
+    const maxOsculatingCircleRadius = sqrt(squaredDiagonalLength);
+    const minCurvature = 1/maxOsculatingCircleRadius;
+    const oneProngTolerance = (2**-16)*maxCoordinate;
 
-	const [xO,rO] = getO(
-		angle, isHoleClosing, maxOsculatingCircleRadius, minCurvature, y
-	);
+    const [xO,rO] = getO(
+        angle, isHoleClosing, maxOsculatingCircleRadius, minCurvature, y
+    );
 
-	const p = y.p;
+    const p = y.p;
 
-	// The boundary piece that should contain the other point of 
-	// the 2-prong circle. (Defined by start and end points).
-	let curvePieces = getInitialCurvePieces(
-		angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO }
-	);
-	// console.log(curvePieces.length);
+    // The boundary piece that should contain the other point of 
+    // the 2-prong circle. (Defined by start and end points).
+    let curvePieces = getInitialCurvePieces(
+        angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO }
+    );
+    // console.log(curvePieces.length);
 
-	/** The center of the two-prong (successively refined) */
-	let x = xO;
+    /** The center of the two-prong (successively refined) */
+    let x = xO;
 
-	// The lines below is an optimization.
-	const r_ = sqrt(reduceRadius(maxCoordinate, curvePieces, p, xO));
-	if (rO > r_) {
-		x = interpolate(p, xO, r_/rO);
-	}
+    // The lines below is an optimization.
+    const r_ = sqrt(reduceRadius(maxCoordinate, curvePieces, p, xO));
+    if (rO > r_) {
+        x = interpolate(p, xO, r_/rO);
+    }
 
-	/** The antipode of the two-prong (successively refined) */
-	let zs: PointOnShape[] = undefined!;
-	let z: PointOnShape = undefined!;
+    /** The antipode of the two-prong (successively refined) */
+    let zs: PointOnShape[] = undefined!;
+    let z: PointOnShape = undefined!;
 
-	let i = 0;
-	while (i < MAX_ITERATIONS) {
-		const xy = squaredDistanceBetweenDd(x, y.p);
+    let i = 0;
+    while (i < MAX_ITERATIONS) {
+        const xy = squaredDistanceBetweenDd(x, y.p);
 
-		if (i < 2) { curvePieces = cullCurvePieces2(curvePieces, x, xy); }
-		const pow = max(0,ceil(log2(maxCoordinate/xy))) + 1;  // determines accuracy
-		// console.log(pow);
-		const _zs = getCloseBoundaryPointsCertified(
-			pow, curvePieces, x, y.curve, y.t,
-			for1Prong && i == 0 && rO !== 1/minCurvature,
-			angle
-		).map(info => createPos(info.curve, info.t, false));
+        if (i < 2) { curvePieces = cullCurvePieces2(curvePieces, x, xy); }
+        const pow = max(0,ceil(log2(maxCoordinate/xy))) + 1;  // determines accuracy
+        // console.log(pow);
+        const _zs = getCloseBoundaryPointsCertified(
+            pow, curvePieces, x, y.curve, y.t,
+            for1Prong && i == 0 && rO !== 1/minCurvature,
+            angle
+        ).map(info => createPos(info.curve, info.t, false));
 
-		let maxD = Number.NEGATIVE_INFINITY;
-		let maxPos: PointOnShape = undefined!;
-		zs = [];
-		for (const z of _zs) {
-			if (z === undefined) { continue; }
-			const _yz = squaredDistanceBetweenDd(y.p, z.p);
-			if (_yz > maxD) {
-				maxD = _yz;
-				maxPos = z;
-			}
-			if (_yz !== 0) {
-				zs.push(z);
-			}
-		}
-		// z = zs[0];
-		const yz = maxD;
-		z = maxPos;
+        let maxD = Number.NEGATIVE_INFINITY;
+        let maxPos: PointOnShape = undefined!;
+        zs = [];
+        for (const z of _zs) {
+            if (z === undefined) { continue; }
+            const _yz = squaredDistanceBetweenDd(y.p, z.p);
+            if (_yz > maxD) {
+                maxD = _yz;
+                maxPos = z;
+            }
+            if (_yz !== 0) {
+                zs.push(z);
+            }
+        }
+        // z = zs[0];
+        const yz = maxD;
+        z = maxPos;
 
-		if (z === undefined || yz === 0) {
-			// addDebugInfo2(isHoleClosing);
-			return undefined;
-		}
+        if (z === undefined || yz === 0) {
+            // addDebugInfo2(isHoleClosing);
+            return undefined;
+        }
 
-		const xz = squaredDistanceBetweenDd(x, z.p);
+        const xz = squaredDistanceBetweenDd(x, z.p);
 
-		// if on first try
-		if (i === 0) {
-			if (rO < (1 - oneProngTolerance)*sqrt(xz)) {
-				// console.log('1prong');
-				add1Prong(meta, rO, xO, y);
-				return undefined;
-			}
-		}
-		
-		// if (typeof _debug_ !== 'undefined') { xs.push({ x, y, z: createPos(z.curve, z.t, false), t: y.t }); }
+        // if on first try
+        if (i === 0) {
+            if (rO < (1 - oneProngTolerance)*sqrt(xz)) {
+                // console.log('1prong');
+                add1Prong(meta, rO, xO, y);
+                return undefined;
+            }
+        }
+        
+        // if (typeof _debug_ !== 'undefined') { xs.push({ x, y, z: createPos(z.curve, z.t, false), t: y.t }); }
 
-	
-		if (!isHoleClosing) {
-			const squaredSeperationTolerance = max(calcSeperationTolerance(
-				rO, sqrt(xz), 2**2*errorTolerance
-			), minSquaredSeperationTolerance);
-			if (yz <= squaredSeperationTolerance) {
-				// if (typeof _debug_ !== 'undefined') { console.log(`failed: seperation too small - ${sqrt(yz)}`); }
-				return undefined;
-			} 
-		}
+    
+        if (!isHoleClosing) {
+            const squaredSeperationTolerance = max(calcSeperationTolerance(
+                rO, sqrt(xz), 2**2*errorTolerance
+            ), minSquaredSeperationTolerance);
+            if (yz <= squaredSeperationTolerance) {
+                // if (typeof _debug_ !== 'undefined') { console.log(`failed: seperation too small - ${sqrt(yz)}`); }
+                return undefined;
+            } 
+        }
 
-		// Find the point on the line connecting y with x that is  
-		// equidistant from y and z. This will be our next x.
-		const nextX = findEquidistantPointOnLineDd(x, y.p, z.p);
-		const error = abs(sqrt(xy) - sqrt(xz));
-		// if (xy < xz) { return undefined; }
-		
-		x = nextX;
+        // Find the point on the line connecting y with x that is  
+        // equidistant from y and z. This will be our next x.
+        const nextX = findEquidistantPointOnLineDd(x, y.p, z.p);
+        const error = abs(sqrt(xy) - sqrt(xz));
+        // if (xy < xz) { return undefined; }
+        
+        x = nextX;
 
-		if (error < errorTolerance) {
-			break;
-		} 
+        if (error < errorTolerance) {
+            break;
+        } 
 
-		i++;
-		
-		if (i === MAX_ITERATIONS) {
-			// Convergence was too slow.
-			// if (typeof _debug_ !== 'undefined') { console.log('failed (slow): max iterations reached'); }
-			return undefined;
-		}
-	}
+        i++;
+        
+        if (i === MAX_ITERATIONS) {
+            // Convergence was too slow.
+            // if (typeof _debug_ !== 'undefined') { console.log('failed (slow): max iterations reached'); }
+            return undefined;
+        }
+    }
 
-	const circle = { center: x, radius: distanceBetween(x, z.p) };
+    const circle = { center: x, radius: distanceBetween(x, z.p) };
 
-	// if (typeof _debug_ !== 'undefined') { addDebugInfo(curvePieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
+    // if (typeof _debug_ !== 'undefined') { addDebugInfo(curvePieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
 
-	// return { circle, zs };
-	// zs = zs.filter(z => z !== undefined)
-	return { circle, zs: [z] };
+    // return { circle, zs };
+    // zs = zs.filter(z => z !== undefined)
+    return { circle, zs: [z] };
 }
 
 
 function getO(
-		angle: number,
-		isHoleClosing: boolean,
-		maxOsculatingCircleRadius: number,
-		minCurvature: number,
-		y: PointOnShape) {
+        angle: number,
+        isHoleClosing: boolean,
+        maxOsculatingCircleRadius: number,
+        minCurvature: number,
+        y: PointOnShape) {
 
-	let xO: number[];  // the original x to mitigate drift
-	const p = y.p;
-	let rO: number;
-	if (isHoleClosing) {
-		xO = [p[0], p[1] - maxOsculatingCircleRadius];
-		rO = maxOsculatingCircleRadius;
-	} else {
-		if (angle === 0) {
-			({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y));
-		} else {
-			({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y, true));
-			const v = fromTo(y.p, xO);
-			const v_ = rotate(sin(angle), cos(angle))(v);
-			xO = translate(y.p)(v_);
-		}
-	}
+    let xO: number[];  // the original x to mitigate drift
+    const p = y.p;
+    let rO: number;
+    if (isHoleClosing) {
+        xO = [p[0], p[1] - maxOsculatingCircleRadius];
+        rO = maxOsculatingCircleRadius;
+    } else {
+        if (angle === 0) {
+            ({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y));
+        } else {
+            ({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, y, true));
+            const v = fromTo(y.p, xO);
+            const v_ = rotate(sin(angle), cos(angle))(v);
+            xO = translate(y.p)(v_);
+        }
+    }
 
-	return [xO,rO] as [number[],number];
+    return [xO,rO] as [number[],number];
 }
 
 

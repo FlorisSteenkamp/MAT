@@ -8,7 +8,7 @@ import { getLoopBounds } from './get-loop-bounds.js';
  * Get topmost PointOnShape of the given loop.
  */
 function getMinYPos(loop: Loop) {
-	return getLoopBounds(loop).minY;
+    return getLoopBounds(loop).minY;
 }
 
 

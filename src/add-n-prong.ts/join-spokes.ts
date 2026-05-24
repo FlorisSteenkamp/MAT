@@ -18,21 +18,21 @@ function joinSpokes(
 
 /** @internal */
 function byAngle(circle: Circle) {
-	const c = circle.center;
+    const c = circle.center;
 
-	return function(_a: CpNode, _b: CpNode) {
-		let a = _a.cp.pointOnShape.p;
-		let b = _b.cp.pointOnShape.p;
+    return function(_a: CpNode, _b: CpNode) {
+        let a = _a.cp.pointOnShape.p;
+        let b = _b.cp.pointOnShape.p;
 
-		// Move onto origin
-		a = [a[0] - c[0], a[1] - c[1]];
-		b = [b[0] - c[0], b[1] - c[1]];
+        // Move onto origin
+        a = [a[0] - c[0], a[1] - c[1]];
+        b = [b[0] - c[0], b[1] - c[1]];
 
-		const a_ = Math.atan2(a[1], a[0]);
-		const b_ = Math.atan2(b[1], b[0]);
+        const a_ = Math.atan2(a[1], a[0]);
+        const b_ = Math.atan2(b[1], b[0]);
 
-		return b_ - a_;
-	}
+        return b_ - a_;
+    }
 }
 
 

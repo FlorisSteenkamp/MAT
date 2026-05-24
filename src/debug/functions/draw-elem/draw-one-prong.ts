@@ -16,7 +16,7 @@ function drawOneProng(
     const $circle = drawFs.dot(g, circle.center, 0.05*scaleFactor, 'deeppink', delay);
     const $pos    = drawFs.circle(g, circle, 'deeppink thin5 nofill', delay);
 
-	return [...$center, ...$circle, ...$pos];
+    return [...$center, ...$circle, ...$pos];
 }
 
 

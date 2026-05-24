@@ -892,48 +892,6 @@ function floydWarshall(graph) {
 // INF INF INF 0
 // floydWarshall(graph);//?
 
-;// ./src/point-on-shape/compare-poss.ts
-/**
- * Compares two `PointOnShape`s according to their cyclic ordering imposed
- * by their relative positions on the shape boundary.
- * @param a The first `PointOnShape`.
- * @param b The second `PointOnShape`.
- * @internal
- */
-function comparePoss(a, b) {
-    let res;
-    res = a.curve.idx - b.curve.idx;
-    if (res !== 0) {
-        return res;
-    }
-    res = a.t - b.t;
-    return res;
-}
-
-
-;// ./src/contact-point/contact-point.ts
-
-/**
- * Primarily for internal use.
- *
- * Compares the two contact points according to their order along the shape
- * boundary. Returns > 0 if a > b, < 0 if a < b or 0 if a === b.
- * @param a The first contact point.
- * @param b The second contact point.
- */
-function compareCps(a, b) {
-    let res = comparePoss(a.pointOnShape, b.pointOnShape);
-    if (res !== 0) {
-        return res;
-    }
-    res = a.order - b.order;
-    if (res !== 0) {
-        return res;
-    }
-    return a.order2 - b.order2;
-}
-
-
 ;// ./src/cp-node/fs/get-all-on-loop.ts
 function getAllOnLoop(cpNode) {
     const cpStart = cpNode;
@@ -7174,6 +7132,55 @@ function getAllVertices(cpNode) {
 }
 
 
+;// ./src/point-on-shape/compare-poss.ts
+/**
+ * Compares two `PointOnShape`s according to their cyclic ordering imposed
+ * by their relative positions on the shape boundary.
+ * @param a The first `PointOnShape`.
+ * @param b The second `PointOnShape`.
+ * @internal
+ */
+function comparePoss(a, b) {
+    let res;
+    res = a.curve.idx - b.curve.idx;
+    if (res !== 0) {
+        return res;
+    }
+    res = a.t - b.t;
+    return res;
+}
+
+
+;// ./src/contact-point/contact-point.ts
+
+/**
+ * Primarily for internal use.
+ *
+ * Compares the two contact points according to their order along the shape
+ * boundary. Returns > 0 if a > b, < 0 if a < b or 0 if a === b.
+ * @param a The first contact point.
+ * @param b The second contact point.
+ */
+function compareCps(a, b) {
+    let res = comparePoss(a.pointOnShape, b.pointOnShape);
+    if (res !== 0) {
+        return res;
+    }
+    res = a.order - b.order;
+    if (res !== 0) {
+        return res;
+    }
+    return a.order2 - b.order2;
+}
+
+
+;// ./src/cp-node/fs/cp-node-comparator.ts
+
+function cpNodeComparator(a, b) {
+    return compareCps(a.cp, b.cp);
+}
+
+
 ;// ./src/cp-node/cp-node-fs.ts
 
 
@@ -7210,7 +7217,6 @@ function getAllVertices(cpNode) {
 
 
 
-const cpNodeComparator = (a, b) => compareCps(a.cp, b.cp);
 const CpNodeFs = {
     /**
      * Returns the children of this `CpNode` when seen as a MAT edge. Only
@@ -7310,7 +7316,7 @@ const CpNodeFs = {
      * Compares the order of two `CpNode`s. The order is cyclic and depends
      * on a `CpNode`'s relative position along the shape boundary.
      */
-    cpNodeComparator,
+    cpNodeComparator: cpNodeComparator,
     /**
      * For debugging
      * @param cpNode
@@ -30261,7 +30267,7 @@ function drawCpNode(g, cpNode, classes = 'blue thin2 nofill', delay = 0, scaleFa
     }
     const $cross = crossHair(g, c, 'orange thin10 nofill', 2 * scaleFactor, delay);
     // if (r === 0) {
-    // 	const $cross = crossHair(g, circle.center, 'red thin2 nofill', 0.02*scaleFactor, delay);
+    //     const $cross = crossHair(g, circle.center, 'red thin2 nofill', 0.02*scaleFactor, delay);
     // }
     return [...$cps, ...$ls, ...$circle, ...$cross];
 }
@@ -30738,6 +30744,41 @@ function holeCloserNext(pairs, holeCloser) {
 
 
 
+// CpNodeFs functions
 
 
-export { CpNodeFs, beziersToSvgPathStr, connectHoleClosers, createInitialCpTree, createPos, debugElemNames, drawBeziersAsSinglePath, drawBranch, drawElemFs, drawElemFsDetailed, drawMat, emptyDebugElems, enableDebugForMat, find2Prong, findAndAdd2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranches, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getFor2ProngsOnLoop, getGraph, getImpliedBoundaryBezierBetween, getPartialMeta, getPathsFromStr, getPointToCpNode, getPotentialClosestPointsOnCurveCertified, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, isVertexSpecial, loopFromBeziers, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, trimMat };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export { CpNodeFs, beziersToSvgPathStr, clone, connectHoleClosers, cpNodeComparator, createInitialCpTree, createPos, debugElemNames, drawBeziersAsSinglePath, drawBranch, drawElemFs, drawElemFsDetailed, drawMat, emptyDebugElems, enableDebugForMat, enhanceCpNode, find2Prong, findAndAdd2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getAllOnCircle, getAllOnLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getPartialMeta, getPathsFromStr, getPointToCpNode, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getSmoothedSpeed$, getSpeed, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOneProng, isSharp, isTerminating, isTwoProng, isVertexSpecial, loopFromBeziers, removeVertex, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, traverseCp, traverseEdges, traverseVertices, trimMat };

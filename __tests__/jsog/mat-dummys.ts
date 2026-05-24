@@ -1,41 +1,14 @@
-import { findMats } from "../../../src/find-mat/find-mats.js";
+import { findMats } from "../../src/find-mat/find-mats.js";
+import { Mat } from "../../src/index.js";
+import { decodeJSOG } from "./decode-jsog.js";
+import { getMats1 } from "./get-mats1.js";
+import { toJsogBreathFirst } from "./to-jsog-breath-first.js";
 
 
-/** mat-demo: "achispado" font, "comma" glyph */
-const loops1 = [
-    [
-        [[139, 8], [82, -101]],
-        [[82, -101], [24, 8]],
-        [[24, 8], [46, 8]],
-        [[46, 8], [46, 54]],
-        [[46, 54], [117, 54]],
-        [[117, 54], [117, 8]],
-        [[117, 8], [139, 8]],
-        [[139, 8], [139, 8]]
-    ]
-];
+toJsogBreathFirst(getMats1()); //?
 
 
-let mats_calc1: any;
-function getMats_calc1() {
-    if (!mats_calc1) {
-        mats_calc1 = findMats(loops1, {
-            applySat: false,
-            simplify: true,
-            satScale: 1.675,
-            maxCurviness: 0.05,
-            maxLength: 40,
-            // maxCurviness: 5,
-            // maxLength: 4000,
-            angleIncrement: 15,
-            simplifyTolerance: 2**-1
-        });
-    }
-    return mats_calc1;
-}
-
-
-const mats_jsog1: any = [
+const mats1Jsog: any = [
   {
     "@id": "1",
     "cpNode": {
@@ -49,76 +22,13 @@ const mats_jsog1: any = [
             "loop": {
               "@id": "6",
               "beziers": [
-                [
-                  [
-                    82,
-                    -101
-                  ],
-                  [
-                    24,
-                    8
-                  ]
-                ],
-                [
-                  [
-                    24,
-                    8
-                  ],
-                  [
-                    46,
-                    8
-                  ]
-                ],
-                [
-                  [
-                    46,
-                    8
-                  ],
-                  [
-                    46,
-                    54
-                  ]
-                ],
-                [
-                  [
-                    46,
-                    54
-                  ],
-                  [
-                    117,
-                    54
-                  ]
-                ],
-                [
-                  [
-                    117,
-                    54
-                  ],
-                  [
-                    117,
-                    8
-                  ]
-                ],
-                [
-                  [
-                    117,
-                    8
-                  ],
-                  [
-                    139,
-                    8
-                  ]
-                ],
-                [
-                  [
-                    139,
-                    8
-                  ],
-                  [
-                    82,
-                    -101
-                  ]
-                ]
+                [[82,-101],[24,8]],
+                [[24,8],[46,8]],
+                [[46,8],[46,54]],
+                [[46,54],[117,54]],
+                [[117,54],[117,8]],
+                [[117,8],[139,8]],
+                [[139,8],[82,-101]]
               ],
               "curves": [
                 {
@@ -130,14 +40,8 @@ const mats_jsog1: any = [
                     "@ref": "6"
                   },
                   "ps": [
-                    [
-                      24,
-                      8
-                    ],
-                    [
-                      46,
-                      8
-                    ]
+                    [24,8],
+                    [46,8]
                   ],
                   "prev": {
                     "@ref": "5"
@@ -148,14 +52,8 @@ const mats_jsog1: any = [
                       "@ref": "6"
                     },
                     "ps": [
-                      [
-                        46,
-                        8
-                      ],
-                      [
-                        46,
-                        54
-                      ]
+                      [46,8],
+                      [46,54]
                     ],
                     "prev": {
                       "@ref": "7"
@@ -166,14 +64,8 @@ const mats_jsog1: any = [
                         "@ref": "6"
                       },
                       "ps": [
-                        [
-                          46,
-                          54
-                        ],
-                        [
-                          117,
-                          54
-                        ]
+                        [46,54],
+                        [117,54]
                       ],
                       "prev": {
                         "@ref": "8"
@@ -184,14 +76,8 @@ const mats_jsog1: any = [
                           "@ref": "6"
                         },
                         "ps": [
-                          [
-                            117,
-                            54
-                          ],
-                          [
-                            117,
-                            8
-                          ]
+                          [117,54],
+                          [117,8]
                         ],
                         "prev": {
                           "@ref": "9"
@@ -202,14 +88,8 @@ const mats_jsog1: any = [
                             "@ref": "6"
                           },
                           "ps": [
-                            [
-                              117,
-                              8
-                            ],
-                            [
-                              139,
-                              8
-                            ]
+                            [117,8],
+                            [139,8]
                           ],
                           "prev": {
                             "@ref": "10"
@@ -220,14 +100,8 @@ const mats_jsog1: any = [
                               "@ref": "6"
                             },
                             "ps": [
-                              [
-                                139,
-                                8
-                              ],
-                              [
-                                82,
-                                -101
-                              ]
+                              [139,8],
+                              [82,-101]
                             ],
                             "prev": {
                               "@ref": "11"
@@ -266,14 +140,8 @@ const mats_jsog1: any = [
               "idx": 0
             },
             "ps": [
-              [
-                82,
-                -101
-              ],
-              [
-                24,
-                8
-              ]
+              [82,-101],
+              [24,8]
             ],
             "prev": {
               "@ref": "12"
@@ -1069,276 +937,31 @@ const mats_jsog1: any = [
       "maxCoordinate": 139,
       "squaredDiagonalLength": 37250,
       "looseBoundingBoxes": [
-        [
-          [
-            24,
-            -101
-          ],
-          [
-            82,
-            8
-          ]
-        ],
-        [
-          [
-            24,
-            8
-          ],
-          [
-            46,
-            8
-          ]
-        ],
-        [
-          [
-            46,
-            8
-          ],
-          [
-            46,
-            54
-          ]
-        ],
-        [
-          [
-            46,
-            54
-          ],
-          [
-            117,
-            54
-          ]
-        ],
-        [
-          [
-            117,
-            8
-          ],
-          [
-            117,
-            54
-          ]
-        ],
-        [
-          [
-            117,
-            8
-          ],
-          [
-            139,
-            8
-          ]
-        ],
-        [
-          [
-            82,
-            -101
-          ],
-          [
-            139,
-            8
-          ]
-        ]
+        [[24,-101],[82,8]],
+        [[24,8],[46,8]],
+        [[46,8],[46,54]],
+        [[46,54],[117,54]],
+        [[117,8],[117,54]],
+        [[117,8],[139,8]],
+        [[82,-101],[139,8]]
       ],
       "tightBoundingBoxes": [
-        [
-          [
-            82,
-            -101
-          ],
-          [
-            24.000000000000007,
-            7.999999999999986
-          ],
-          [
-            24.000000000000007,
-            7.999999999999986
-          ],
-          [
-            82,
-            -101
-          ]
-        ],
-        [
-          [
-            24,
-            8
-          ],
-          [
-            46,
-            8
-          ],
-          [
-            46,
-            8
-          ],
-          [
-            24,
-            8
-          ]
-        ],
-        [
-          [
-            46,
-            8
-          ],
-          [
-            46,
-            54
-          ],
-          [
-            46,
-            54
-          ],
-          [
-            46,
-            8
-          ]
-        ],
-        [
-          [
-            46,
-            54
-          ],
-          [
-            117,
-            54
-          ],
-          [
-            117,
-            54
-          ],
-          [
-            46,
-            54
-          ]
-        ],
-        [
-          [
-            117,
-            54
-          ],
-          [
-            117,
-            8
-          ],
-          [
-            117,
-            8
-          ],
-          [
-            117,
-            54
-          ]
-        ],
-        [
-          [
-            117,
-            8
-          ],
-          [
-            139,
-            8
-          ],
-          [
-            139,
-            8
-          ],
-          [
-            117,
-            8
-          ]
-        ],
-        [
-          [
-            139,
-            8
-          ],
-          [
-            82,
-            -100.99999999999999
-          ],
-          [
-            82,
-            -100.99999999999999
-          ],
-          [
-            139,
-            8
-          ]
-        ]
+        [[82,-101],[24.000000000000007,7.999999999999986],[24.000000000000007,7.999999999999986],[82,-101]],
+        [[24,8],[46,8],[46,8],[24,8]],
+        [[46,8],[46,54],[46,54],[46,8]],
+        [[46,54],[117,54],[117,54],[46,54]],
+        [[117,54],[117,8],[117,8],[117,54]],
+        [[117,8],[139,8],[139,8],[117,8]],
+        [[139,8],[82,-100.99999999999999],[82,-100.99999999999999],[139,8]]
       ],
       "boundingHulls": [
-        [
-          [
-            82,
-            -101
-          ],
-          [
-            24,
-            8
-          ]
-        ],
-        [
-          [
-            24,
-            8
-          ],
-          [
-            46,
-            8
-          ]
-        ],
-        [
-          [
-            46,
-            8
-          ],
-          [
-            46,
-            54
-          ]
-        ],
-        [
-          [
-            46,
-            54
-          ],
-          [
-            117,
-            54
-          ]
-        ],
-        [
-          [
-            117,
-            8
-          ],
-          [
-            117,
-            54
-          ]
-        ],
-        [
-          [
-            117,
-            8
-          ],
-          [
-            139,
-            8
-          ]
-        ],
-        [
-          [
-            82,
-            -101
-          ],
-          [
-            139,
-            8
-          ]
-        ]
+        [[82,-101],[24,8]],
+        [[24,8],[46,8]],
+        [[46,8],[46,54]],
+        [[46,54],[117,54]],
+        [[117,8],[117,54]],
+        [[117,8],[139,8]],
+        [[82,-101],[139,8]]
       ],
       "sharpCorners": [
         {
@@ -6573,144 +6196,8 @@ const mats_jsog1: any = [
   }
 ];
 
-/*
-Copy/paste this IIFE into the Chrome console to serialize an object to JSOG
-and copy the result to clipboard. Replace `temp1` with your root object.
 
-(function () {
-    const seen = new Map();
-    let nextId = 1;
-
-    function encode(obj) {
-        if (obj === null || typeof obj !== 'object') return obj;
-
-        if (seen.has(obj)) {
-            return { '@ref': seen.get(obj) };
-        }
-
-        // Arrays are encoded by value only because JSON drops custom array props
-        // like "@id" during stringify.
-        if (Array.isArray(obj)) {
-            return obj.map(encode);
-        }
-
-        const id = String(nextId++);
-        seen.set(obj, id);
-
-        if (obj instanceof Map) {
-            return {
-                '@id': id,
-                '@type': 'Map',
-                entries: [...obj.entries()].map(([k, v]) => [encode(k), encode(v)])
-            };
-        }
-
-        if (obj instanceof Set) {
-            return {
-                '@id': id,
-                '@type': 'Set',
-                values: [...obj.values()].map(v => encode(v))
-            };
-        }
-
-        const result = { '@id': id };
-        for (const [key, value] of Object.entries(obj)) {
-            result[key] = encode(value);
-        }
-        return result;
-    }
-
-    copy(JSON.stringify(encode(temp1), null, 2));
-    console.log('JSOG copied to clipboard.');
-})();
-*/
+const mats1_ = decodeJSOG(mats1Jsog);
 
 
-
-/**
- * Decodes a JSOG-encoded object back into a live circular graph.
- */
-function decodeJSOG(jsog: any) {
-    const idMap = new Map<string, any>();
-
-    // Pass 1: catalog all objects that have an @id.
-    function findIds(obj: any) {
-        if (!obj || typeof obj !== 'object') return;
-
-        if (Array.isArray(obj)) {
-            obj.forEach(findIds);
-            return;
-        }
-
-        if (obj['@id'] !== undefined) {
-            const id = String(obj['@id']);
-            if (!idMap.has(id)) {
-                if (obj['@type'] === 'Map') {
-                    idMap.set(id, new Map());
-                } else if (obj['@type'] === 'Set') {
-                    idMap.set(id, new Set());
-                } else {
-                    idMap.set(id, {});
-                }
-            }
-        }
-
-        Object.entries(obj).forEach(([key, val]) => {
-            if (key !== '@ref') {
-                findIds(val);
-            }
-        });
-    }
-
-    // Pass 2: reconstruct the graph by swapping @ref for the actual object.
-    function resolve(obj: any): any {
-        if (!obj || typeof obj !== 'object') return obj;
-
-        if (Array.isArray(obj)) {
-            return obj.map(resolve);
-        }
-
-        if (obj['@ref'] !== undefined) {
-            const refId = String(obj['@ref']);
-            if (!idMap.has(refId)) {
-                throw new Error(`Invalid JSOG: missing @id for @ref "${refId}".`);
-            }
-            return idMap.get(refId);
-        }
-
-        const result = obj['@id'] !== undefined
-            ? idMap.get(String(obj['@id']))
-            : {};
-
-        if (obj['@type'] === 'Map') {
-            for (const pair of obj.entries ?? []) {
-                if (!Array.isArray(pair) || pair.length !== 2) continue;
-                result.set(resolve(pair[0]), resolve(pair[1]));
-            }
-            return result;
-        }
-
-        if (obj['@type'] === 'Set') {
-            for (const value of obj.values ?? []) {
-                result.add(resolve(value));
-            }
-            return result;
-        }
-
-        for (const key in obj) {
-            if (key === '@id' || key === '@type') continue;
-            result[key] = resolve(obj[key]);
-        }
-
-        return result;
-    }
-
-    findIds(jsog);
-    return resolve(jsog);
-}
-
-
-const mats_obj1 = decodeJSOG(mats_jsog1);//?
-
-
-export { mats_obj1, getMats_calc1 };
+export { mats1_, getMats1 };

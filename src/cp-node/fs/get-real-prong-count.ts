@@ -4,10 +4,10 @@ import { isTerminating } from "./is-terminating.js";
 
 
 function getRealProngCount(cpNode: CpNode) {
-	const nonTerminatingCpNodes = getAllOnCircle(cpNode)
-	.filter(cpNode => !isTerminating(cpNode));
+    const nonTerminatingCpNodes = getAllOnCircle(cpNode)
+    .filter(cpNode => !isTerminating(cpNode));
 
-	return nonTerminatingCpNodes.length;
+    return nonTerminatingCpNodes.length;
 }
 
 

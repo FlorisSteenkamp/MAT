@@ -3,15 +3,15 @@
 
 
 // /** @internal */
-// function getEdgesAsArray(cpNode: CpNode) {	
-// 	const cpNodes: CpNode[] = [];
-	
-// 	traverseEdges(
-// 		cpNode, 
-// 		function(cpNode) { cpNodes.push(cpNode) }
-// 	);
-	
-// 	return cpNodes;
+// function getEdgesAsArray(cpNode: CpNode) {    
+//     const cpNodes: CpNode[] = [];
+    
+//     traverseEdges(
+//         cpNode, 
+//         function(cpNode) { cpNodes.push(cpNode) }
+//     );
+    
+//     return cpNodes;
 // }
 
 

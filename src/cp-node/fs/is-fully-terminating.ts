@@ -1,4 +1,4 @@
-import { CpNode } from "../cp-node.js";
+import type { CpNode } from "../cp-node.js";
 import { getAllOnCircle } from "./get-all-on-circle.js";
 import { isTerminating } from "./is-terminating.js";
 
@@ -11,9 +11,9 @@ import { isTerminating } from "./is-terminating.js";
  * @param cpNode 
  */
 function isFullyTerminating(cpNode: CpNode) {
-	const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
+    const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
 
-	return otherOnCircle.every(isTerminating);
+    return otherOnCircle.every(isTerminating);
 }
 
 

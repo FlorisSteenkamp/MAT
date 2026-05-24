@@ -75,7 +75,7 @@ function cullBySalience(
         cpNode: cpNodeT,
         meta: {
             ...mat.meta,
-			cpTrees: createNewCpTree(cpNodeT)
+            cpTrees: createNewCpTree(cpNodeT)
         }
     };
 

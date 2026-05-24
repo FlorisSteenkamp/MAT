@@ -10,21 +10,21 @@
  * prevent garbage collection, rather use `memoize` instead
  */
 function memoizePrimitive<T, U>(f: (a: T) => U): (a: T) => U {
-	const results = new Map<T,U>();
-	
-	return function(a: T): U {
-		let result = results.get(a);
-		if (result !== undefined) {
-			//console.log('cache hit');
-			return result; 
-		}
+    const results = new Map<T,U>();
+    
+    return function(a: T): U {
+        let result = results.get(a);
+        if (result !== undefined) {
+            //console.log('cache hit');
+            return result; 
+        }
 
-		//console.log('cache miss');
-		result = f(a);
-		results.set(a, result);
-		
-		return result;
-	}
+        //console.log('cache miss');
+        result = f(a);
+        results.set(a, result);
+        
+        return result;
+    }
 }
 
 

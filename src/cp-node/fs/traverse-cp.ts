@@ -2,25 +2,27 @@ import { CpNode } from "../cp-node.js";
 import { isTerminating } from "./is-terminating.js";
 
 
-function traverseCp(cpStart: CpNode) {
-	let cpNode = cpStart;
+function traverseCp(
+        cpStart: CpNode) {
 
-	if (isTerminating(cpNode)) {
-		return [cpNode];  // one-sharp corner
-	}
+    let cpNode = cpStart;
 
-	const visitedCps: CpNode[] = [];
-	do {
-		visitedCps.push(cpNode);
-	
-		const next = cpNode.next.prevOnCircle;
-		cpNode = cpNode === next
-				? cpNode = cpNode.next.next // Terminal vertex
-				: cpNode = next         // Take last exit
-	
-	} while (cpNode !== cpStart); 
-	
-	return visitedCps;
+    if (isTerminating(cpNode)) {
+        return [cpNode];  // one-sharp corner
+    }
+
+    const visitedCps: CpNode[] = [];
+    do {
+        visitedCps.push(cpNode);
+    
+        const next = cpNode.next.prevOnCircle;
+        cpNode = cpNode === next
+                ? cpNode = cpNode.next.next // Terminal vertex
+                : cpNode = next         // Take last exit
+    
+    } while (cpNode !== cpStart); 
+    
+    return visitedCps;
 }
 
 

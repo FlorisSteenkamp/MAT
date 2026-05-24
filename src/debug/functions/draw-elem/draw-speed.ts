@@ -11,7 +11,7 @@ function drawSpeed(
         cpNode: CpNode,
         classes_?: string,
         delay = 0,
-        scaleFactor = 1) {	
+        scaleFactor = 1) {    
 
     const $elems: SVGElement[] = [];
 
@@ -28,7 +28,7 @@ function drawSpeed(
     const n = toLength(normal(ps,t), ss);
     $elems.push(...drawFs.line(g, [p,translate(p,n)], 'red thin5', delay));
     
-	return $elems;
+    return $elems;
 }
 
 

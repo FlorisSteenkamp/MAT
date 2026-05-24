@@ -10,7 +10,7 @@ function drawLeaves(
         leaves: CpNode[],
         classes = 'thin10 deeppink nofill',
         delay = 0,
-        scaleFactor = 1) {	
+        scaleFactor = 1) {    
 
     const $elems: SVGElement[] = [];
     const { line, dot, circle: drawCircle } = drawFs;
@@ -32,19 +32,19 @@ function drawLeaves(
             $cps.push(...dot(g, p, 0.01*(i+1)*scaleFactor, 'pinker', delay));
             $ls.push(...line(g, [p, c], 'thin5 red', delay));
         }
-		
-		const $circle = drawCircle(g, circle, classes, delay); 
-		// const $cp = dot(g, p, 0.005*scaleFactor, 'pinker', delay);
+        
+        const $circle = drawCircle(g, circle, classes, delay); 
+        // const $cp = dot(g, p, 0.005*scaleFactor, 'pinker', delay);
 
-		$elems.push(...[
-			...$circle,
-			...$cps,
-			...$ls,
-			...$center
-		]);
+        $elems.push(...[
+            ...$circle,
+            ...$cps,
+            ...$ls,
+            ...$center
+        ]);
     }
     
-	return $elems;
+    return $elems;
 }
 
 

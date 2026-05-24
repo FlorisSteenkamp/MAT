@@ -2,7 +2,7 @@ import { Circle } from '../../../geometry/circle.js';
 
 
 /** @internal */
-function culls(g: SVGGElement, culls: Circle[]) {	
+function culls(g: SVGGElement, culls: Circle[]) {    
     const $elems: SVGElement[] = [];
 
     for (const circle of culls) {
@@ -11,7 +11,7 @@ function culls(g: SVGGElement, culls: Circle[]) {
         $elems.push(drawCircle(g, p, 0.4, 'cyan thin5 nofill'));
     }
     
-	return $elems;
+    return $elems;
 }
 
 

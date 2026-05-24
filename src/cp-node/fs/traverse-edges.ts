@@ -4,18 +4,18 @@ import { getAllOnLoop } from './get-all-on-loop.js';
 
 
 function traverseEdges(
-		cpNode: CpNode,
-		traverseEdgesCallback: (cpNode: CpNode) => void) {
+        cpNode: CpNode,
+        traverseEdgesCallback: (cpNode: CpNode) => void) {
 
-	const cpNodes = getAllOnLoop(cpNode);
-	const seen = new Set<CpNode>();
+    const cpNodes = getAllOnLoop(cpNode);
+    const seen = new Set<CpNode>();
 
-	for (cpNode of cpNodes) {
-		if (!isTerminating(cpNode) && !seen.has(cpNode.next.prevOnCircle)) {
-			traverseEdgesCallback(cpNode);
-		}
-		seen.add(cpNode);
-	}
+    for (cpNode of cpNodes) {
+        if (!isTerminating(cpNode) && !seen.has(cpNode.next.prevOnCircle)) {
+            traverseEdgesCallback(cpNode);
+        }
+        seen.add(cpNode);
+    }
 }
 
 

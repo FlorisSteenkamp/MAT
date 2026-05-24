@@ -43,7 +43,7 @@ function cmpCpOnδ(
     } 
 
     if (cmpPrev === 0 || cmpNext === 0) {
-        // console.log('2-PRONG orders are equal.');	
+        // console.log('2-PRONG orders are equal.');    
         return 0;
     }
 

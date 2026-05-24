@@ -39,7 +39,7 @@ function getCurveBetween(
         const a = fromTo(fromCc, mid);
         const b = fromTo(toCc,   mid);
         
-        twisted = dot(a,c) < 0 || dot(b,c) > 0;			
+        twisted = dot(a,c) < 0 || dot(b,c) > 0;            
     }
     
     if (!twisted) {

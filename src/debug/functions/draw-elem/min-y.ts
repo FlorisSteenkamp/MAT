@@ -9,8 +9,8 @@ function minY(g: SVGGElement, pos: PointOnShape) {
 
     const $elems = drawFs.crossHair( 
             g, p, 'red thin10 nofill'
-	);  
-	
+    );  
+    
     return $elems;
 }
 

@@ -13,7 +13,7 @@ import { isTrivial } from './is-trivial.js';
  * @param cpNode `CpNode` representing the start vertex.
  */
 function getBranch(
-		cpNode: CpNode): CpNode[] {
+        cpNode: CpNode): CpNode[] {
 
     if (isTrivial(cpNode)) {
         return [];

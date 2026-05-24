@@ -10,7 +10,7 @@ import { clone } from '../cp-node/fs/clone.js';
  * @param mat The MAT to trim.
  */
 function trimMat(mat: Mat): Mat {
-	const cpNode = cullNonCycles(clone(mat.cpNode));
+    const cpNode = cullNonCycles(clone(mat.cpNode));
 
     if (!cpNode) { return undefined!; }
 

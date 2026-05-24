@@ -2,7 +2,7 @@ import { CpNode } from "../cp-node.js";
 
 
 function isSharp(cpNode: CpNode) {
-	return cpNode.cp.circle.radius === 0;
+    return cpNode.cp.circle.radius === 0;
 }
 
 

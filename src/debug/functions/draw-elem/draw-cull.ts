@@ -6,7 +6,7 @@ function drawCull(
         cull: number[],
         classes = 'thin10 cyan nofill',
         delay = 0,
-        scaleFactor = 1) {	
+        scaleFactor = 1) {    
 
     const $elems: SVGElement[] = [];
 
@@ -14,7 +14,7 @@ function drawCull(
         g, cull, classes, 0.1*scaleFactor, delay)
     )
     
-	return $elems;
+    return $elems;
 }
 
 

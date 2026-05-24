@@ -50,37 +50,37 @@ import { ContactPoint } from '../contact-point/contact-point.js';
  * in opposite directions.
  */
 interface CpNode {
-	/** The shape boundary contact point, i.e. a `CpNode` without its edges. */
-	cp: ContactPoint;
-	/** If true, this `CpNode` belongs to a hole-closing maximal disk. */
-	isHoleClosing: boolean;
-	/** true if this cpNode is at a shape boundary intersection point, false otherwise */
-	isIntersection: boolean;
-	/** The previous (going clockwise around the boundary) contact point (`CpNode`).*/
-	prev: CpNode;
-	/** The next (going anti-clockwise around the boundary) contact point (`CpNode`). */
-	next: CpNode;
-	/**
-	 * The previous `CpNode` (going clockwise around the inscribed circle
-	 * defined by the maximal disk).
-	 */
-	prevOnCircle: CpNode;
-	/**
-	 * The next `CpNode` (going anti-clockwise around 
-	 * the inscribed circle defined by the maximal disk).
-	 */
-	nextOnCircle: CpNode;
-	/**
-	 * For hole closers only - the next `CpNode` ignoring the hole closer
-	 */
-	holeCloserNext?: CpNode | undefined;
-	/**
-	 * For hole closers only - the prev `CpNode` ignoring the hole closer
-	 */
-	holeCloserPrev?: CpNode | undefined;
+    /** The shape boundary contact point, i.e. a `CpNode` without its edges. */
+    cp: ContactPoint;
+    /** If true, this `CpNode` belongs to a hole-closing maximal disk. */
+    isHoleClosing: boolean;
+    /** true if this cpNode is at a shape boundary intersection point, false otherwise */
+    isIntersection: boolean;
+    /** The previous (going clockwise around the boundary) contact point (`CpNode`).*/
+    prev: CpNode;
+    /** The next (going anti-clockwise around the boundary) contact point (`CpNode`). */
+    next: CpNode;
+    /**
+     * The previous `CpNode` (going clockwise around the inscribed circle
+     * defined by the maximal disk).
+     */
+    prevOnCircle: CpNode;
+    /**
+     * The next `CpNode` (going anti-clockwise around 
+     * the inscribed circle defined by the maximal disk).
+     */
+    nextOnCircle: CpNode;
+    /**
+     * For hole closers only - the next `CpNode` ignoring the hole closer
+     */
+    holeCloserNext?: CpNode | undefined;
+    /**
+     * For hole closers only - the prev `CpNode` ignoring the hole closer
+     */
+    holeCloserPrev?: CpNode | undefined;
 
-	/** Only used in export */
-	id: number;
+    /** Only used in export */
+    id: number;
 }
 
 

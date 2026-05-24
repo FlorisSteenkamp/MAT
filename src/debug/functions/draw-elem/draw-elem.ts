@@ -22,12 +22,12 @@ import { drawSpeed } from './draw-speed.js';
 
 
 type DrawElemFunction<T extends DebugElemKey> = (
-	g: SVGGElement,
-	elem: DebugElem[T],
-	classes?: string,
-	delay?: number,
-	scaleFactor?: number,
-	options?: any) => SVGElement[];
+    g: SVGGElement,
+    elem: DebugElem[T],
+    classes?: string,
+    delay?: number,
+    scaleFactor?: number,
+    options?: any) => SVGElement[];
 
 
 /** @internal */
@@ -36,32 +36,32 @@ type DrawElemFunctions = { [T in DebugElemKey]: DrawElemFunction<T> }
 
 /** @internal */
 const drawElemFs: DrawElemFunctions = {
-	oneProng: drawOneProng,
-	// oneProngAtDullCorner,
-	// csf,
-	twoProng: drawTwoProng(false, true),
-	threeProng: drawThreeProng,
-	boundingHull,
-	looseBoundingBox,
-	tightBoundingBox,
-	// sharpCorner,
-	// dullCorner,
-	vertex,
-	mat: drawMat,
-	// sat: drawMat('sat'),
-	maxVertex,
-	leaves: drawLeaves,
-	cull: drawCull,
-	cpNode: drawCpNode,
-	branch: drawBranch,
-	holeCloser: drawTwoProng(false, false),
-	speed: drawSpeed
+    oneProng: drawOneProng,
+    // oneProngAtDullCorner,
+    // csf,
+    twoProng: drawTwoProng(false, true),
+    threeProng: drawThreeProng,
+    boundingHull,
+    looseBoundingBox,
+    tightBoundingBox,
+    // sharpCorner,
+    // dullCorner,
+    vertex,
+    mat: drawMat,
+    // sat: drawMat('sat'),
+    maxVertex,
+    leaves: drawLeaves,
+    cull: drawCull,
+    cpNode: drawCpNode,
+    branch: drawBranch,
+    holeCloser: drawTwoProng(false, false),
+    speed: drawSpeed
 }
 
 
 const drawElemFsDetailed: DrawElemFunctions = {
-	...drawElemFs,
-	twoProng: drawTwoProng(true, true),
+    ...drawElemFs,
+    twoProng: drawTwoProng(true, true),
 }
 
 

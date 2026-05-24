@@ -8,14 +8,14 @@ import { Circle } from '../geometry/circle.js';
  * calculated.  
  */
 interface ContactPoint {
-	/** Identifies the point on the shape boundary. */
-	pointOnShape: PointOnShape;
-	/** The maximal disk circle touching this point. */
-	circle: Circle;
-	/** Internally used to order two points lying at the same planar point. */
-	order: number;
-	/** Internally used to order two points lying at the same planar point. */
-	order2: number;
+    /** Identifies the point on the shape boundary. */
+    pointOnShape: PointOnShape;
+    /** The maximal disk circle touching this point. */
+    circle: Circle;
+    /** Internally used to order two points lying at the same planar point. */
+    order: number;
+    /** Internally used to order two points lying at the same planar point. */
+    order2: number;
 }
 
 
@@ -28,14 +28,14 @@ interface ContactPoint {
  * @param b The second contact point.
  */
 function compareCps(a: ContactPoint, b: ContactPoint) {
-	let res = comparePoss(a.pointOnShape, b.pointOnShape);
+    let res = comparePoss(a.pointOnShape, b.pointOnShape);
 
-	if (res !== 0) { return res; }
+    if (res !== 0) { return res; }
 
-	res = a.order - b.order;
-	if (res !== 0) { return res; }
+    res = a.order - b.order;
+    if (res !== 0) { return res; }
 
-	return a.order2 - b.order2;
+    return a.order2 - b.order2;
 } 
 
 

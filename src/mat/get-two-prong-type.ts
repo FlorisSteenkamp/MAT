@@ -4,9 +4,9 @@
 
 // /** @internal */
 // function getTwoProngType(e: TwoProngForDebugging): ElemType_TwoProng {
-// 	if (e.holeClosing) { return 'twoProng_holeClosing' }
-	
-// 	return 'twoProng_regular';
+//     if (e.holeClosing) { return 'twoProng_holeClosing' }
+    
+//     return 'twoProng_regular';
 // }
 
 

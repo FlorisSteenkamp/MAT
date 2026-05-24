@@ -32,6 +32,7 @@ import { getBoundaryBeziersBetween } from './fs/get-boundary-beziers-between.js'
 import { getMatCurvesBetween } from './fs/get-mat-curves-between.js';
 import { getInitialDegAngleBetweenMatCurves } from "./fs/get-angle-between-mat-curves.js";
 import { getAllVertices } from "./fs/get-all-vertices.js";
+import { cpNodeComparator } from './fs/cp-node-comparator.js';
 declare const CpNodeFs: {
     /**
      * Returns the children of this `CpNode` when seen as a MAT edge. Only
@@ -131,7 +132,7 @@ declare const CpNodeFs: {
      * Compares the order of two `CpNode`s. The order is cyclic and depends
      * on a `CpNode`'s relative position along the shape boundary.
      */
-    cpNodeComparator: (a: CpNode, b: CpNode) => number;
+    cpNodeComparator: typeof cpNodeComparator;
     /**
      * For debugging
      * @param cpNode

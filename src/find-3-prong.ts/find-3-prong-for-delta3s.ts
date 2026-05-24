@@ -164,7 +164,7 @@ function find3ProngForDelta3s(
             const cross_ = Math.abs( Math.asin( cross(v1, v2) ) );
             
             totalAngleError += cross_;
-        }		
+        }        
     }
 
     //-------------------------------------------------------------------------

@@ -19,7 +19,7 @@ function oneProngAtDullCorner(
     const $circle = drawFs.dot(g, oCircle.center, 0.25, 'orange');
     const $pos    = drawFs.circle(g, oCircle, 'orange thin10 nofill');
         
-	return [...$center, ...$circle, ...$pos];
+    return [...$center, ...$circle, ...$pos];
 }
 
 

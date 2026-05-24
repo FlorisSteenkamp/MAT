@@ -6,26 +6,26 @@ import { getVertexForwardChildren } from './get-vertex-forward-children.js';
 
 
 function traverseVertices(
-		cpStart: CpNode, 
-		traverseVerticesCallback: (cpNode: CpNode) => void) {
+        cpStart: CpNode, 
+        traverseVerticesCallback: (cpNode: CpNode) => void) {
 
-	traverseVerticesCallback(cpStart);
+    traverseVerticesCallback(cpStart);
 
-	// Since the tree is unrooted we must iterate in all directions from the
-	// given cpNode.
-	const cpNodes = 
-		getAllOnCircle(cpStart)
-		.filter(cpNode => !isTerminating(cpNode))
-		.map(cpNode => cpNode.next);
+    // Since the tree is unrooted we must iterate in all directions from the
+    // given cpNode.
+    const cpNodes = 
+        getAllOnCircle(cpStart)
+        .filter(cpNode => !isTerminating(cpNode))
+        .map(cpNode => cpNode.next);
 
-	for (const cpNode of cpNodes) {
-		const cps = [cpNode];
-		while (cps.length) {
-			const cp = cps.pop()!;
-			traverseVerticesCallback(cp);
-			cps.push(...getVertexForwardChildren(cp));
-		}
-	}
+    for (const cpNode of cpNodes) {
+        const cps = [cpNode];
+        while (cps.length) {
+            const cp = cps.pop()!;
+            traverseVerticesCallback(cp);
+            cps.push(...getVertexForwardChildren(cp));
+        }
+    }
 }
 
 

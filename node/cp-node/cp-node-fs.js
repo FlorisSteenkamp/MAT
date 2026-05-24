@@ -1,4 +1,3 @@
-import { compareCps } from "../contact-point/contact-point.js";
 import { getHoleClosers } from "./fs/get-hole-closers.js";
 import { getSpeed } from "./fs/get-speed.js";
 import { getSmoothedSpeed$ } from "./fs/get-smoothed-speed.js";
@@ -33,7 +32,7 @@ import { getBoundaryBeziersBetween } from './fs/get-boundary-beziers-between.js'
 import { getMatCurvesBetween } from './fs/get-mat-curves-between.js';
 import { getInitialDegAngleBetweenMatCurves } from "./fs/get-angle-between-mat-curves.js";
 import { getAllVertices } from "./fs/get-all-vertices.js";
-const cpNodeComparator = (a, b) => compareCps(a.cp, b.cp);
+import { cpNodeComparator } from './fs/cp-node-comparator.js';
 const CpNodeFs = {
     /**
      * Returns the children of this `CpNode` when seen as a MAT edge. Only

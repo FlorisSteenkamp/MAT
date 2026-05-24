@@ -48,8 +48,8 @@ function getInterfaceCcw(
     const crossTangents = crossPrecise(p0,p1,p2);  // sign will be correct
 
     const xI = twoDiff(p1[0],p0[0]);  // tangent x-coordinate
-	const yI = twoDiff(p1[1],p0[1]);  // tangent y-coordinate
-	const xO = twoDiff(p2[0],p1[0]);  // tangent x-coordinate
+    const yI = twoDiff(p1[1],p0[1]);  // tangent y-coordinate
+    const xO = twoDiff(p2[0],p1[0]);  // tangent x-coordinate
     const yO = twoDiff(p2[1],p1[1]);  // tangent y-coordinate
 
     const tangentI = [xI,yI];
@@ -57,7 +57,7 @@ function getInterfaceCcw(
     const dotTangents = dotPrecise(tangentI,tangentO);
 
     if (crossTangents !== 0 || dotTangents > 0) {
-		return {
+        return {
             ccw: crossTangents,
             tangentI,
             tangentO,

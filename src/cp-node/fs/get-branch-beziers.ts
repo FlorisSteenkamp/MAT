@@ -9,7 +9,7 @@ import { getMatCurveToNext } from './get-mat-curve-to-next.js';
  * @param cpNode `CpNode` representing the start vertex.
  */
 function getBranchBeziers(
-		cpNode: CpNode): number[][][] {
+        cpNode: CpNode): number[][][] {
 
     return getBranch(cpNode).map(b => getMatCurveToNext(b));
 }

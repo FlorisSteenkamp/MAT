@@ -9,9 +9,9 @@ function boundingHull(
         delay = 0,
         scaleFactor = 1) {
             
-	const $polygon = drawFs.polygon(g, hull, classes, delay);
+    const $polygon = drawFs.polygon(g, hull, classes, delay);
 
-	return $polygon;
+    return $polygon;
 }
 
 

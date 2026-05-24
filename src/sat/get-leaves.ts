@@ -1,7 +1,6 @@
 import { CpNode } from '../cp-node/cp-node.js';
 import { CpNodeFs } from '../cp-node/cp-node-fs.js';
 import { isFullyTerminating } from '../cp-node/fs/is-fully-terminating.js';
-import { getRealProngCount } from '../cp-node/fs/get-real-prong-count.js';
 
 const { getAllOnLoop } = CpNodeFs;
 

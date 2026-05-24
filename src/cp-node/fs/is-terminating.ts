@@ -2,7 +2,7 @@ import type { CpNode } from "../cp-node.js";
 
 
 function isTerminating(cpNode: CpNode) {
-	return cpNode === cpNode.next.prevOnCircle;
+    return cpNode === cpNode.next.prevOnCircle;
 }
 
 

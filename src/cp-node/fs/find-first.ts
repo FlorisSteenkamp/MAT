@@ -10,15 +10,15 @@ function findFirst(
 
     if (f(cpStart)) { return cpStart; }
 
-	let cpNode_ = cpNode.next;
-	while (cpNode_ !== cpStart) {
-		if (f(cpNode_)) {
+    let cpNode_ = cpNode.next;
+    while (cpNode_ !== cpStart) {
+        if (f(cpNode_)) {
             return cpNode_;
         }
-		cpNode_ = cpNode_.next;
-	}
+        cpNode_ = cpNode_.next;
+    }
 
-	return undefined;
+    return undefined;
 }
 
 

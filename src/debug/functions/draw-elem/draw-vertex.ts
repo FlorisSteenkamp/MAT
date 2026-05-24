@@ -7,23 +7,23 @@ const { getAllOnCircle } = CpNodeFs;
 
 /** @internal */
 function vertex(
-		g: SVGGElement,
-		cpNode: CpNode,
-		classes?: string,
-		delay = 0,
-		scaleFactor = 1) {
+        g: SVGGElement,
+        cpNode: CpNode,
+        classes?: string,
+        delay = 0,
+        scaleFactor = 1) {
 
-	const circle = cpNode.cp.circle;
+    const circle = cpNode.cp.circle;
 
-	let $svgs: SVGElement[] = [];
+    let $svgs: SVGElement[] = [];
 
-	// const $circle = drawFs.circle(g, circle, 'red ' + THIN + ' nofill ', delay);
-	// const $crossHair = drawFs.crossHair(g, circle.center, 'red ' + THIN + ' nofill ', 3, delay);
-	const $dot = drawFs.dot(g, circle.center, 0.01*scaleFactor, 'darkgreen', delay);
+    // const $circle = drawFs.circle(g, circle, 'red ' + THIN + ' nofill ', delay);
+    // const $crossHair = drawFs.crossHair(g, circle.center, 'red ' + THIN + ' nofill ', 3, delay);
+    const $dot = drawFs.dot(g, circle.center, 0.01*scaleFactor, 'darkgreen', delay);
 
-	$svgs = [...$dot];
+    $svgs = [...$dot];
 
-	return $svgs;
+    return $svgs;
 }
 
 

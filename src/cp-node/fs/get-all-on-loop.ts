@@ -2,7 +2,7 @@ import type { CpNode } from "../cp-node.js";
 
 
 function getAllOnLoop(
-		cpNode: CpNode) {
+        cpNode: CpNode) {
 
     const cpStart = cpNode;
     const cpNodes: CpNode[] = [cpStart];

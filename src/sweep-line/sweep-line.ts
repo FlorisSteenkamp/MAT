@@ -33,42 +33,42 @@ function sweepLine<T>(
 
     // Initialize event queue to contain all endpoints.
     const events: IEvent<T>[] = [];
-	for (const item of items) {
-		events.push({ 
+    for (const item of items) {
+        events.push({ 
             type: EVENT_LEFT, 
             item, 
             x: getLeftmost(item)
         });
-		events.push({ 
+        events.push({ 
             type: EVENT_RIGHT, 
             item, 
             x: getRightmost(item)
         });
-	}
+    }
 
-	events.sort(compare);
-	
-	const activeItems = new Set<T>();
+    events.sort(compare);
+    
+    const activeItems = new Set<T>();
     
     /** A list of pairs of items that passed the predicate */
-	const pairedItems: [T,T][] = [];
-	for (const event of events) {
-    	const { item } = event;
-    	
-   		if (event.type === EVENT_LEFT) {
-   			for (const activeItem of activeItems.values()) {
-   				if (predicate(item, activeItem)) { 
+    const pairedItems: [T,T][] = [];
+    for (const event of events) {
+        const { item } = event;
+        
+           if (event.type === EVENT_LEFT) {
+               for (const activeItem of activeItems.values()) {
+                   if (predicate(item, activeItem)) { 
                     pairedItems.push([item, activeItem]);
-   				}
-   			}
+                   }
+               }
 
-   			activeItems.add(item);
-   		} else if (event.type === EVENT_RIGHT) {
-   			activeItems.delete(event.item);
-   		}
-	}
-	
-	return pairedItems;
+               activeItems.add(item);
+           } else if (event.type === EVENT_RIGHT) {
+               activeItems.delete(event.item);
+           }
+    }
+    
+    return pairedItems;
 }
 
 /** @internal */
