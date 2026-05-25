@@ -7,6 +7,10 @@ import { isSharp } from "./is-sharp.js";
 import { isTerminating } from "./is-terminating.js";
 
 
+/**
+ * For debugging
+ * @param cpNode 
+ */
 function enhanceCpNode(cpNode: CpNode) {
     const cp = cpNode.cp;
     const pos = cp.pointOnShape;

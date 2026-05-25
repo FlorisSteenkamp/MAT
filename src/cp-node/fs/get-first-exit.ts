@@ -1,6 +1,10 @@
 import { CpNode } from "../cp-node.js";
 
 
+/**
+ * Returns the first `CpNode` (from this one by successively applying 
+ * .nextOnCircle) that exits the circle.
+ */
 function getFirstExit(cpNode: CpNode) {
     // const startNode = this as CpNode;
     const startNode = cpNode;

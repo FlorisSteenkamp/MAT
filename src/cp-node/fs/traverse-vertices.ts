@@ -5,6 +5,15 @@ import { isTerminating } from './is-terminating.js';
 import { getVertexForwardChildren } from './get-vertex-forward-children.js';
 
 
+/**
+ * Traverses the MAT tree and calls the given callback function for each vertex
+ * (represented by a `CpNode`) on the MAT.
+ * 
+ * It is usually preferable to use `traverseEdges` as it allows for the 
+ * traversal of all the smooth curves representing the MAT.
+ * @param cpNode Any `CpNode` representing the start vertex.
+ * @param traverseVerticesCallback A callback function taking a single `CpNode` as parameter.
+ */
 function traverseVertices(
         cpStart: CpNode, 
         traverseVerticesCallback: (cpNode: CpNode) => void) {

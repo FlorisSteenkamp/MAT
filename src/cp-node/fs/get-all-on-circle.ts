@@ -2,10 +2,10 @@ import type { CpNode } from "../cp-node.js";
 
 
 /**
- * Returns all the `CpNode`s on the same circle.
- * 
- * @param cpNode 
- * @param exclThis 
+ * Return this (except if exclThis is truthy) and the the other CpNodes 
+ * around the maximal disk vertex circle in an anti-clockwise order.
+ * @param exclThis If true the returned array does not include this 
+ * `CpNode`.
  */
 function getAllOnCircle(
         cpNode: CpNode,

@@ -1,4 +1,4 @@
-import { CpNode } from "../cp-node/cp-node.js";
+import type { CpNode } from "../cp-node/cp-node.js";
 import { getAllOnCircle } from "../cp-node/fs/get-all-on-circle.js";
 import { getMatDistanceToNext$ } from "../cp-node/fs/get-distance-to-next.js";
 import { isOnSameCircle } from "../cp-node/fs/is-on-same-circle.js";
@@ -36,7 +36,7 @@ function getGraph(
                     }
                     if (child.isHoleClosing) {
                         // Hole closer found - don't go around loop 
-                        child = holeCloserNext(pairs, child);
+                        child = getHoleCloserNext(pairs, child);
                         continue;
                     }
                     if (isVertexSpecial(child)) {
@@ -62,7 +62,7 @@ function getGraph(
 }
 
 
-function holeCloserNext(
+function getHoleCloserNext(
         pairs: Map<CpNode,CpNode>,
         holeCloser: CpNode) {
 

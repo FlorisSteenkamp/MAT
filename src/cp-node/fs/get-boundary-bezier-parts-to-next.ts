@@ -4,13 +4,14 @@ import type { Curve  } from '../../curve/curve.js';
 
 
 /**
- * Returns the boundary beziers pieces between this `CpNode` and the next
- * one.
+ * Returns the ordered `BezierPiece`s from this `CpNode` to the next `CpNode` 
+ * on the boundary.
  * 
- * * returns `undefined` if the next `CpNode` is on a different loop,
- * as this is a hole-closer and there are no boundary beziers between them.
+ * * returns `[]` if (and only if) the next `CpNode` is on a different loop;
+ * this differs from "returns `[]` if (and only if) the next `CpNode` is a
+ * hole-closer" as half of hole-closers are on the same loop.
  * 
- * @param cpNode 
+ * @param cpNode
  */
 function getBoundaryBezierPartsToNext(
         cpNode: CpNode): BezierPiece[] {

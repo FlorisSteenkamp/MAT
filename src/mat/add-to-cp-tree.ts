@@ -22,10 +22,9 @@ function addToCpTree(
         isHoleClosing: boolean,
         circle: Circle, 
         orders: number[],
-        // cpTrees: Map<Loop,LlRbTree<CpNode>>,
         meta: MatMeta,
         poss: PointOnShape[],
-        neighbors? : CpNode[]): { anyFailed: boolean, cpNodes: (CpNode | undefined) [] } {
+        neighbors?: CpNode[]): { anyFailed: boolean, cpNodes: (CpNode | undefined) [] } {
 
     const { cpTrees } = meta;
 

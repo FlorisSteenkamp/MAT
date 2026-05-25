@@ -54,11 +54,11 @@ interface CpNode {
     cp: ContactPoint;
     /** If true, this `CpNode` belongs to a hole-closing maximal disk. */
     isHoleClosing: boolean;
-    /** true if this cpNode is at a shape boundary intersection point, false otherwise */
+    /** true if this `CpNode` is at a shape boundary intersection point, false otherwise */
     isIntersection: boolean;
-    /** The previous (going clockwise around the boundary) contact point (`CpNode`).*/
+    /** The previous (going clockwise around the boundary) contact point `CpNode`. */
     prev: CpNode;
-    /** The next (going anti-clockwise around the boundary) contact point (`CpNode`). */
+    /** The next (going anti-clockwise around the boundary) contact point `CpNode`. */
     next: CpNode;
     /**
      * The previous `CpNode` (going clockwise around the inscribed circle
@@ -71,15 +71,13 @@ interface CpNode {
      */
     nextOnCircle: CpNode;
     /**
-     * For hole closers only - the next `CpNode` ignoring the hole closer
+     * For hole closers only - the twin `CpNode` at the same point, e.g.
+     * use `cpNode.holeCloserTwin.next` to skip the hole closer and get to the
+     * next `CpNode` on the same loop.
      */
-    holeCloserNext?: CpNode | undefined;
-    /**
-     * For hole closers only - the prev `CpNode` ignoring the hole closer
-     */
-    holeCloserPrev?: CpNode | undefined;
+    holeCloserTwin?: CpNode | undefined;
 
-    /** Only used in export */
+    /** For debugging / easy identification only */
     id: number;
 }
 

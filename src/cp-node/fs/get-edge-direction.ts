@@ -7,6 +7,12 @@ import { isPosSharpCorner } from '../../point-on-shape/is-pos-sharp-corner.js';
 import { Curve } from '../../curve/curve.js';
 
 
+/**
+ * @internal
+ * Returns a line segment of unit length starting in the given Vertex center and
+ * pointing in the direction of the medial axis (viewed as a rooted tree).
+ * @param cpNode 
+ */
 function getEdgeDirection(cpNode: CpNode) {
     const circleCenter = cpNode.cp.circle.center;
 

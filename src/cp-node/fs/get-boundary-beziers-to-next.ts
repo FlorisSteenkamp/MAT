@@ -4,14 +4,10 @@ import { getBoundaryBezierPartsToNext } from './get-boundary-bezier-parts-to-nex
 
 
 /**
-//  * Returns the boundary beziers between this `CpNode` and the next
-//  * one.
-//  * 
-//  * * returns `[]` if the next `CpNode` is on a different loop,
-//  * as this is a hole-closer and there are no boundary beziers between them.
-//  * 
-//  * @param cpNode 
-//  */
+ * Returns the ordered bezier curves from this `CpNode` to the next `CpNode` 
+ * on the boundary.
+ * @param cpNode
+ */
 function getBoundaryBeziersToNext(
         cpNode: CpNode): number[][][] {
 

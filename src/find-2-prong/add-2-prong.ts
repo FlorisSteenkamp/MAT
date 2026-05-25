@@ -70,7 +70,6 @@ function add2Prong(
 
 function closeHole(
         meta: MatMeta,
-        // cpTrees: Map<Loop, LlRbTree<CpNode>>,
         cpNodes: CpNode[]) {
 
     const { cpTrees } = meta;
@@ -88,6 +87,8 @@ function closeHole(
         cpNodeB,
         meta.lastInsertId
     )!;
+    cpNodeB2.holeCloserTwin = cpNodeB;
+    cpNodeB.holeCloserTwin = cpNodeB2;
 
     const cpNodeB1 = insertCpNode(
         true,
@@ -97,6 +98,8 @@ function closeHole(
         cpNodeA.prev,
         meta.lastInsertId
     )!;
+    cpNodeB1.holeCloserTwin = cpNodeA;
+    cpNodeA.holeCloserTwin = cpNodeB1;
 
     // Connect graph
     cpNodeB1.prevOnCircle = cpNodeB2;
