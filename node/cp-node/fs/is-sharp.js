@@ -1,3 +1,10 @@
+/**
+ * Returns true if this `CpNode` represents a sharp corner, i.e. the
+ * limiting case of a two-prong having zero radius.
+ *
+ * Note that two `CpNode`s are stored for each sharp corner, one being
+ * terminating and one not. See `isTerminating` for more details.
+ */
 function isSharp(cpNode) {
     return cpNode.cp.circle.radius === 0;
 }

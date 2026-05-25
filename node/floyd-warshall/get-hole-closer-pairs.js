@@ -1,3 +1,11 @@
+/**
+ *
+ * @param holeClosers
+ * @returns
+ */
+// TODO - this function is currently O(n^2) but could be made O(n).
+// TODO - only `pointOnShape.p` is checked but `pointOnShape.t` should also be checked
+// or better yet, `CpNode.cp.order` and `CpNode.cp.order2`, etc.
 function getHoleCloserPairs(holeClosers) {
     const pairs = new Map();
     for (let hcA of holeClosers) {

@@ -1,4 +1,8 @@
 import { CpNode } from "../cp-node.js";
+/**
+ * For debugging
+ * @param cpNode
+ */
 declare function enhanceCpNode(cpNode: CpNode): {
     pos: import("../../index.js").PointOnShape;
     p: number[];
@@ -23,8 +27,7 @@ declare function enhanceCpNode(cpNode: CpNode): {
     next: CpNode;
     prevOnCircle: CpNode;
     nextOnCircle: CpNode;
-    holeCloserNext?: CpNode | undefined;
-    holeCloserPrev?: CpNode | undefined;
+    holeCloserTwin?: CpNode | undefined;
     id: number;
 };
 export { enhanceCpNode };

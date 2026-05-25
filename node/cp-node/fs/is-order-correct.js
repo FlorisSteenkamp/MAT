@@ -1,8 +1,5 @@
 import { compareCps } from "../../contact-point/contact-point.js";
-function isOrderCorrect(
-// isHoleClosing: boolean,
-cpTree, cp, next) {
-    // if (isHoleClosing) { return true; }
+function isOrderCorrect(cpTree, cp, next) {
     // TODO2
     const c = compareCps(cp, next.cp);
     if (c < 0) {

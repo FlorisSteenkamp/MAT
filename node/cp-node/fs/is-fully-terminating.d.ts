@@ -1,10 +1,7 @@
 import type { CpNode } from "../cp-node.js";
 /**
- * Returns `true` if this `CpNode` is fully terminating, meaning that all
- * `CpNode`s (except `CpNode.prevOnCircle`) on the same circle are terminating,
- * `false` otherwise.
- *
- * @param cpNode
+ * Like isTerminating() but only returns true if all cpNodes on the circle
+ * (except this.prevOnCircle) is terminating.
  */
 declare function isFullyTerminating(cpNode: CpNode): boolean;
 export { isFullyTerminating };

@@ -44,16 +44,18 @@ function add2Prong(meta, circle, poss, isHoleClosing) {
     }
     return cpNodes[0]; // return the source `CpNode`
 }
-function closeHole(meta, 
-// cpTrees: Map<Loop, LlRbTree<CpNode>>,
-cpNodes) {
+function closeHole(meta, cpNodes) {
     const { cpTrees } = meta;
     const [cpNodeA, cpNodeB] = cpNodes;
     // Duplicate ContactPoints
     // const antipodeCpNode = cpNodeB[0];
     const cpAntipode = cpNodeB.cp;
     const cpNodeB2 = insertCpNode(true, true, false, cpTrees.get(cpAntipode.pointOnShape.curve.loop), { ...cpAntipode, order2: +1 }, cpNodeB, meta.lastInsertId);
+    cpNodeB2.holeCloserTwin = cpNodeB;
+    cpNodeB.holeCloserTwin = cpNodeB2;
     const cpNodeB1 = insertCpNode(true, true, false, cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop), { ...cpNodeA.cp, order2: -1 }, cpNodeA.prev, meta.lastInsertId);
+    cpNodeB1.holeCloserTwin = cpNodeA;
+    cpNodeA.holeCloserTwin = cpNodeB1;
     // Connect graph
     cpNodeB1.prevOnCircle = cpNodeB2;
     cpNodeB1.nextOnCircle = cpNodeB2;

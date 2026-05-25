@@ -1,11 +1,8 @@
 import { getAllOnCircle } from "./get-all-on-circle.js";
 import { isTerminating } from "./is-terminating.js";
 /**
- * Returns `true` if this `CpNode` is fully terminating, meaning that all
- * `CpNode`s (except `CpNode.prevOnCircle`) on the same circle are terminating,
- * `false` otherwise.
- *
- * @param cpNode
+ * Like isTerminating() but only returns true if all cpNodes on the circle
+ * (except this.prevOnCircle) is terminating.
  */
 function isFullyTerminating(cpNode) {
     const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);

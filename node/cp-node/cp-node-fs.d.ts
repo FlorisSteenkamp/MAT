@@ -173,20 +173,20 @@ declare const CpNodeFs: {
      */
     clone: typeof clone;
     /**
-     * Returns the ordered bezier curves from this CpNode to the next CpNode
+     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
      * on the boundary.
      * @param cpNode
      */
     getBoundaryBezierPartsToNext: typeof getBoundaryBezierPartsToNext;
     /**
-     * Returns the ordered bezier curves from this CpNode to the next CpNode
+     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
      * on the boundary.
      * @param cpNode
      */
     getBoundaryBeziersToNext: typeof getBoundaryBeziersToNext;
     /**
-     * Removes a cpNode from the MAT.
-     * @param cpTree The tree graph holding the `CpNodes` of the MAT.
+     * Removes a `CpNode` from the MAT.
+     * @param cpTree The tree graph holding the `CpNode`s of the MAT.
      * @param cpNode The `CpNode` to remove.
      */
     removeVertex: typeof removeVertex;

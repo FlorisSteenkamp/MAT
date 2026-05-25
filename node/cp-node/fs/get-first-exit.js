@@ -1,3 +1,7 @@
+/**
+ * Returns the first `CpNode` (from this one by successively applying
+ * .nextOnCircle) that exits the circle.
+ */
 function getFirstExit(cpNode) {
     // const startNode = this as CpNode;
     const startNode = cpNode;

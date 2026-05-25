@@ -10,9 +10,7 @@ import { joinSpokes } from '../add-n-prong.ts/join-spokes.js';
  *
  * @internal
  */
-function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, 
-// cpTrees: Map<Loop,LlRbTree<CpNode>>,
-meta, poss, neighbors) {
+function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, poss, neighbors) {
     const { cpTrees } = meta;
     let anyFailed = false;
     const cpNodes = poss.map((pos, i) => {

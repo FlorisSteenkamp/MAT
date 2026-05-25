@@ -26,7 +26,7 @@ function getGraph(specialVertices, holeClosers) {
                     }
                     if (child.isHoleClosing) {
                         // Hole closer found - don't go around loop 
-                        child = holeCloserNext(pairs, child);
+                        child = getHoleCloserNext(pairs, child);
                         continue;
                     }
                     if (isVertexSpecial(child)) {
@@ -47,7 +47,7 @@ function getGraph(specialVertices, holeClosers) {
     }
     return graph;
 }
-function holeCloserNext(pairs, holeCloser) {
+function getHoleCloserNext(pairs, holeCloser) {
     return pairs.get(holeCloser).next;
 }
 export { getGraph };

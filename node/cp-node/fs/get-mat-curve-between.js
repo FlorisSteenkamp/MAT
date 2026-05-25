@@ -4,6 +4,12 @@ import { getEdgeDirection } from './get-edge-direction.js';
 const TOLERANCE_ADD_2PRONG = 0.01;
 /** @internal */
 const TOLERANCE_USE_LINE = 0.0001; // else cubic
+/**
+ * Returns the bezier curve from the maximal disk of one `CpNode` to another
+ * `CpNode`'s maximal disk.
+ * @param cpNodeFrom
+ * @param cpNodeTo
+ */
 function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
     const fromCc = cpNodeFrom.cp.circle.center;
     const fromL = getEdgeDirection(cpNodeFrom);

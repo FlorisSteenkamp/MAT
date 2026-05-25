@@ -893,6 +893,10 @@ function floydWarshall(graph) {
 // floydWarshall(graph);//?
 
 ;// ./src/cp-node/fs/get-all-on-loop.ts
+/**
+ * Returns all `CpNode`s on the MAT that this `CpNode` is part of
+ * starting from the current one and going anti-clockwise around the shape.
+ */
 function getAllOnLoop(cpNode) {
     const cpStart = cpNode;
     const cpNodes = [cpStart];
@@ -6246,6 +6250,12 @@ const isPosSharpCorner = memoize((pos) => {
 
 
 
+/**
+ * @internal
+ * Returns a line segment of unit length starting in the given Vertex center and
+ * pointing in the direction of the medial axis (viewed as a rooted tree).
+ * @param cpNode
+ */
 function getEdgeDirection(cpNode) {
     const circleCenter = cpNode.cp.circle.center;
     const cp1 = cpNode;
@@ -6296,6 +6306,12 @@ function getEdgeDirection(cpNode) {
 const TOLERANCE_ADD_2PRONG = 0.01;
 /** @internal */
 const TOLERANCE_USE_LINE = 0.0001; // else cubic
+/**
+ * Returns the bezier curve from the maximal disk of one `CpNode` to another
+ * `CpNode`'s maximal disk.
+ * @param cpNodeFrom
+ * @param cpNodeTo
+ */
 function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
     const fromCc = cpNodeFrom.cp.circle.center;
     const fromL = getEdgeDirection(cpNodeFrom);
@@ -6344,6 +6360,12 @@ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
 ;// ./src/cp-node/fs/get-mat-curve-to-next.ts
 
 
+/**
+ * Returns the bezier curve from the maximal disk of the given `CpNode` to the
+ * next `CpNode`'s maximal disk and thus directly represents a piece of the
+ * medial axis.
+ * @param cpNode
+ */
 function getMatCurveToNext(cpNode) {
     return getMatCurveBetween(cpNode, cpNode.next);
 }
@@ -6352,10 +6374,10 @@ const getMatCurveToNext$ = memoize(getMatCurveToNext);
 
 ;// ./src/cp-node/fs/get-all-on-circle.ts
 /**
- * Returns all the `CpNode`s on the same circle.
- *
- * @param cpNode
- * @param exclThis
+ * Return this (except if exclThis is truthy) and the the other CpNodes
+ * around the maximal disk vertex circle in an anti-clockwise order.
+ * @param exclThis If true the returned array does not include this
+ * `CpNode`.
  */
 function getAllOnCircle(cpNode, exclThis = false) {
     const startCpNode = cpNode;
@@ -6370,6 +6392,28 @@ function getAllOnCircle(cpNode, exclThis = false) {
 
 
 ;// ./src/cp-node/fs/is-terminating.ts
+/**
+ * Returns `true` if this `CpNode` is terminating, i.e. implies a leaf MAT
+ * vertex.
+ *
+ * The following are some instances where this is the case:
+ *
+ * * Sharp corners.
+ *
+ * * Half of Hole-closers, i.e. `CpNode`s whose next `CpNode` is on a different
+ * loop
+ *
+ * * Maximal disks with a single contact point.
+ *   Note, however, that even in these cases there are two contact points stored
+ *   (sitting 'on top' of each other) for the maximal disk. It can be seen as a
+ *   limiting case of a two-prong where the distance between two of the contact
+ *   points tend to zero. One point (represented by a `CpNode` of course) will
+ *   be terminating with the other point being its `next`, whereas the other
+ *   point will *not* be terminating and 'points' back into the shape.
+ *
+ * * Some 3-prongs may also become terminating if the Scale Axis Transform is
+ * applied to the shape.
+ */
 function isTerminating(cpNode) {
     return cpNode === cpNode.next.prevOnCircle;
 }
@@ -6378,6 +6422,12 @@ function isTerminating(cpNode) {
 ;// ./src/cp-node/fs/get-real-prong-count.ts
 
 
+/**
+ * Returns the number of contact points (up to planar coordinates) on the
+ * maximal disk circle implied by this `CpNode`.
+ *
+ * See also `getProngCount`.
+ */
 function getRealProngCount(cpNode) {
     const nonTerminatingCpNodes = getAllOnCircle(cpNode)
         .filter(cpNode => !isTerminating(cpNode));
@@ -6467,11 +6517,8 @@ function memoizePrimitive(f) {
 
 
 /**
- * Returns `true` if this `CpNode` is fully terminating, meaning that all
- * `CpNode`s (except `CpNode.prevOnCircle`) on the same circle are terminating,
- * `false` otherwise.
- *
- * @param cpNode
+ * Like isTerminating() but only returns true if all cpNodes on the circle
+ * (except this.prevOnCircle) is terminating.
  */
 function isFullyTerminating(cpNode) {
     const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
@@ -6573,6 +6620,14 @@ function getCpNodeOrdering(cpNode) {
 
 
 ;// ./src/cp-node/fs/get-prong-count.ts
+/**
+ * Returns the number of contact points on the maximal disk circle implied
+ * by this `CpNode`.
+ *
+ * Note, however, that even one-prongs and sharp corners will return 2 (see
+ * `isTerminating` for more details); if this is not desired use
+ * `getRealProngCount` instead which will return 1 in these cases.
+ */
 function getProngCount(cpNode) {
     const startCpNode = cpNode;
     let cpNode_ = startCpNode;
@@ -6586,6 +6641,13 @@ function getProngCount(cpNode) {
 
 
 ;// ./src/cp-node/fs/is-sharp.ts
+/**
+ * Returns true if this `CpNode` represents a sharp corner, i.e. the
+ * limiting case of a two-prong having zero radius.
+ *
+ * Note that two `CpNode`s are stored for each sharp corner, one being
+ * terminating and one not. See `isTerminating` for more details.
+ */
 function isSharp(cpNode) {
     return cpNode.cp.circle.radius === 0;
 }
@@ -6598,6 +6660,10 @@ function isSharp(cpNode) {
 
 
 
+/**
+ * For debugging
+ * @param cpNode
+ */
 function enhanceCpNode(cpNode) {
     const cp = cpNode.cp;
     const pos = cp.pointOnShape;
@@ -6621,6 +6687,15 @@ function enhanceCpNode(cpNode) {
 
 ;// ./src/cp-node/fs/traverse-cp.ts
 
+/**
+ * @internal
+ *
+ * Traverses the shape from the given `CpNode` going around the shortest path
+ * so that only a piece of the shape is traversed and returns the visited
+ * `CpNode`s (starting from the given `CpNode`).
+ *
+ * @param cpStart The `CpNode` from where to start the traversal.
+ */
 function traverseCp(cpStart) {
     let cpNode = cpStart;
     if (isTerminating(cpNode)) {
@@ -6641,6 +6716,13 @@ function traverseCp(cpStart) {
 ;// ./src/cp-node/fs/traverse-edges.ts
 
 
+/**
+ * Traverses all edges (depth first) of the given MAT tree starting at the given
+ * vertex (represented by a `CpNode`).
+ * @param cpNode Any `CpNode` representing the start vertex.
+ * @param traverseEdgesCallback A callback function for each CpNode representing the vertex at the
+ * start of an edge.
+ */
 function traverseEdges(cpNode, traverseEdgesCallback) {
     const cpNodes = getAllOnLoop(cpNode);
     const seen = new Set();
@@ -6655,6 +6737,14 @@ function traverseEdges(cpNode, traverseEdgesCallback) {
 
 ;// ./src/cp-node/fs/get-vertex-forward-children.ts
 
+/**
+ * Similar to `getChildren` but returns the child nodes of the tree when
+ * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this
+ * way the dual graph of the tree can easily be traversed - see e.g.
+ * `traverseVertices`. Generally, however, traversing the edges is
+ * preferred as it returns the entire Medial Axis (by utilizing
+ * `getMatCurveToNext` on each returned edge).
+ */
 function getVertexForwardChildren(cpNode) {
     const children = [];
     const cpStart = cpNode;
@@ -6673,6 +6763,15 @@ function getVertexForwardChildren(cpNode) {
 
 
 
+/**
+ * Traverses the MAT tree and calls the given callback function for each vertex
+ * (represented by a `CpNode`) on the MAT.
+ *
+ * It is usually preferable to use `traverseEdges` as it allows for the
+ * traversal of all the smooth curves representing the MAT.
+ * @param cpNode Any `CpNode` representing the start vertex.
+ * @param traverseVerticesCallback A callback function taking a single `CpNode` as parameter.
+ */
 function traverseVertices(cpStart, traverseVerticesCallback) {
     traverseVerticesCallback(cpStart);
     // Since the tree is unrooted we must iterate in all directions from the
@@ -6737,11 +6836,12 @@ function cloneWithoutLinks(cpNode) {
 
 ;// ./src/cp-node/fs/get-boundary-bezier-parts-to-next.ts
 /**
- * Returns the boundary beziers pieces between this `CpNode` and the next
- * one.
+ * Returns the ordered `BezierPiece`s from this `CpNode` to the next `CpNode`
+ * on the boundary.
  *
- * * returns `undefined` if the next `CpNode` is on a different loop,
- * as this is a hole-closer and there are no boundary beziers between them.
+ * * returns `[]` if (and only if) the next `CpNode` is on a different loop;
+ * this differs from "returns `[]` if (and only if) the next `CpNode` is a
+ * hole-closer" as half of hole-closers are on the same loop.
  *
  * @param cpNode
  */
@@ -6788,14 +6888,10 @@ function addSkippedBezierPiecess(bezierPieces, curveStart, curveEnd, t1) {
 
 
 /**
-//  * Returns the boundary beziers between this `CpNode` and the next
-//  * one.
-//  *
-//  * * returns `[]` if the next `CpNode` is on a different loop,
-//  * as this is a hole-closer and there are no boundary beziers between them.
-//  *
-//  * @param cpNode
-//  */
+ * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
+ * on the boundary.
+ * @param cpNode
+ */
 function getBoundaryBeziersToNext(cpNode) {
     return getBoundaryBezierPartsToNext(cpNode).map(bp => fromTo(bp.ps, bp.ts[0], bp.ts[1]));
 }
@@ -6877,6 +6973,11 @@ function removeCpNode(cpNode, meta) {
 
 
 
+/**
+ * Removes a cpNode from the MAT.
+ * @param cpTree The tree graph holding the `CpNodes` of the MAT.
+ * @param cpNode The `CpNode` to remove.
+ */
 function removeVertex(cpNode, meta) {
     // cpTrees: Map<Loop, LlRbTree<CpNode>>): void {
     const prongCount = getProngCount(cpNode);
@@ -6888,6 +6989,12 @@ function removeVertex(cpNode, meta) {
 
 
 ;// ./src/cp-node/fs/get-children.ts
+/**
+ * Returns the children of this `CpNode` when seen as a MAT edge. Only
+ * children in a 'forward' direction are returned. These include all edges
+ * except the 'backward' edge given by `prevOnCircle`, even terminating
+ * edges.
+ */
 function getChildren(cpNode) {
     const children = [];
     const cp = cpNode.next;
@@ -6901,6 +7008,10 @@ function getChildren(cpNode) {
 
 
 ;// ./src/cp-node/fs/get-first-exit.ts
+/**
+ * Returns the first `CpNode` (from this one by successively applying
+ * .nextOnCircle) that exits the circle.
+ */
 function getFirstExit(cpNode) {
     // const startNode = this as CpNode;
     const startNode = cpNode;
@@ -6918,6 +7029,12 @@ function getFirstExit(cpNode) {
 
 ;// ./src/cp-node/fs/is-on-same-circle.ts
 
+/**
+ * Returns true if the 2 given `CpNode`s are on the same maximal disk
+ * circle.
+ * @param cpNode1 A `CpNode`.
+ * @param cpNode2 Another `CpNode`
+ */
 function isOnSameCircle(cpNode1, cpNode2) {
     // const cpNodes = getAllOnCircle(cpNode1, true);
     const cpNodes = getAllOnCircle(cpNode1);
@@ -6926,6 +7043,14 @@ function isOnSameCircle(cpNode1, cpNode2) {
 
 
 ;// ./src/cp-node/fs/is-one-prong.ts
+/**
+ * Returns true if this `CpNode`'s maximal disk has only one contact point
+ * on the shape boundary (up to planar coordinates). These includes sharp
+ * corners.
+ *
+ * Note, however, that two `CpNode`s are stored for each such point to
+ * preserve symmetry - see `isTerminating` for more details.
+ */
 // TODO2 - remove - or replace with `getRealProngCount === 1`
 function isOneProng(cpNode) {
     const cp1 = cpNode;
@@ -7176,6 +7301,12 @@ function compareCps(a, b) {
 
 ;// ./src/cp-node/fs/cp-node-comparator.ts
 
+/**
+ * Primarily for internal use.
+ *
+ * Compares the order of two `CpNode`s. The order is cyclic and depends
+ * on a `CpNode`'s relative position along the shape boundary.
+ */
 function cpNodeComparator(a, b) {
     return compareCps(a.cp, b.cp);
 }
@@ -7357,20 +7488,20 @@ const CpNodeFs = {
      */
     clone: clone,
     /**
-     * Returns the ordered bezier curves from this CpNode to the next CpNode
+     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
      * on the boundary.
      * @param cpNode
      */
     getBoundaryBezierPartsToNext: getBoundaryBezierPartsToNext,
     /**
-     * Returns the ordered bezier curves from this CpNode to the next CpNode
+     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
      * on the boundary.
      * @param cpNode
      */
     getBoundaryBeziersToNext: getBoundaryBeziersToNext,
     /**
-     * Removes a cpNode from the MAT.
-     * @param cpTree The tree graph holding the `CpNodes` of the MAT.
+     * Removes a `CpNode` from the MAT.
+     * @param cpTree The tree graph holding the `CpNode`s of the MAT.
      * @param cpNode The `CpNode` to remove.
      */
     removeVertex: removeVertex,
@@ -7413,9 +7544,7 @@ const CpNodeFs = {
 
 function isSpecial(cpNode) {
     return ((getRealProngCount(cpNode) !== 2) &&
-        !cpNode.isHoleClosing /* && cpNode.cp.circle.radius !== 0*/
-    // !cpNode.isHoleClosing && cpNode.cp.circle.radius !== 0 // TODO2
-    );
+        !cpNode.isHoleClosing);
 }
 
 
@@ -26874,10 +27003,7 @@ function getCpNodeToLeftOrSame(cpTree, pos, order, order2) {
 
 ;// ./src/cp-node/fs/is-order-correct.ts
 
-function isOrderCorrect(
-// isHoleClosing: boolean,
-cpTree, cp, next) {
-    // if (isHoleClosing) { return true; }
+function isOrderCorrect(cpTree, cp, next) {
     // TODO2
     const c = compareCps(cp, next.cp);
     if (c < 0) {
@@ -26969,9 +27095,7 @@ function byAngle(circle) {
  *
  * @internal
  */
-function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, 
-// cpTrees: Map<Loop,LlRbTree<CpNode>>,
-meta, poss, neighbors) {
+function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, poss, neighbors) {
     const { cpTrees } = meta;
     let anyFailed = false;
     const cpNodes = poss.map((pos, i) => {
@@ -28301,16 +28425,18 @@ function add2Prong(meta, circle, poss, isHoleClosing) {
     }
     return cpNodes[0]; // return the source `CpNode`
 }
-function closeHole(meta, 
-// cpTrees: Map<Loop, LlRbTree<CpNode>>,
-cpNodes) {
+function closeHole(meta, cpNodes) {
     const { cpTrees } = meta;
     const [cpNodeA, cpNodeB] = cpNodes;
     // Duplicate ContactPoints
     // const antipodeCpNode = cpNodeB[0];
     const cpAntipode = cpNodeB.cp;
     const cpNodeB2 = insertCpNode(true, true, false, cpTrees.get(cpAntipode.pointOnShape.curve.loop), { ...cpAntipode, order2: +1 }, cpNodeB, meta.lastInsertId);
+    cpNodeB2.holeCloserTwin = cpNodeB;
+    cpNodeB.holeCloserTwin = cpNodeB2;
     const cpNodeB1 = insertCpNode(true, true, false, cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop), { ...cpNodeA.cp, order2: -1 }, cpNodeA.prev, meta.lastInsertId);
+    cpNodeB1.holeCloserTwin = cpNodeA;
+    cpNodeA.holeCloserTwin = cpNodeB1;
     // Connect graph
     cpNodeB1.prevOnCircle = cpNodeB2;
     cpNodeB1.nextOnCircle = cpNodeB2;
@@ -30637,6 +30763,14 @@ const getMatDistanceToNext$ = memoize(getMatDistanceToNext);
 
 
 ;// ./src/floyd-warshall/get-hole-closer-pairs.ts
+/**
+ *
+ * @param holeClosers
+ * @returns
+ */
+// TODO - this function is currently O(n^2) but could be made O(n).
+// TODO - only `pointOnShape.p` is checked but `pointOnShape.t` should also be checked
+// or better yet, `CpNode.cp.order` and `CpNode.cp.order2`, etc.
 function getHoleCloserPairs(holeClosers) {
     const pairs = new Map();
     for (let hcA of holeClosers) {
@@ -30685,7 +30819,7 @@ function getGraph(specialVertices, holeClosers) {
                     }
                     if (child.isHoleClosing) {
                         // Hole closer found - don't go around loop 
-                        child = holeCloserNext(pairs, child);
+                        child = getHoleCloserNext(pairs, child);
                         continue;
                     }
                     if (isVertexSpecial(child)) {
@@ -30706,7 +30840,7 @@ function getGraph(specialVertices, holeClosers) {
     }
     return graph;
 }
-function holeCloserNext(pairs, holeCloser) {
+function getHoleCloserNext(pairs, holeCloser) {
     return pairs.get(holeCloser).next;
 }
 
