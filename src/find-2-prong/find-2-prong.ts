@@ -31,7 +31,8 @@ const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
  *   "The starting point of this algorithm is a choice of a circle Br(x)
  *    centered at an interior point x which contains two boundary portions c and
  *    d of dΩ as in Fig. 19."
- * In fact, we (and they) start by fixing one point on the boundary beforehand. 
+ * In fact, we (and they) start by fixing one point on the boundary beforehand.
+ * 
  * @param loops A shape represented by path loops
  * @param maxCoordinate The extreme coordinate value of the shape
  * @param squaredDiagonalLength The squared diagonal length of the shape 
@@ -45,7 +46,7 @@ function find2Prong(
         isHoleClosing: boolean,
         for1Prong: boolean,
         angle: number,
-        y: PointOnShape): { circle: Circle,    zs: PointOnShape[] } | undefined {
+        y: PointOnShape): { circle: Circle, zs: PointOnShape[] } | undefined {
 
     const { loops, maxCoordinate, squaredDiagonalLength } = meta;
 
@@ -145,7 +146,7 @@ function find2Prong(
             } 
         }
 
-        // Find the point on the line connecting y with x that is  
+        // Find the point on the line connecting y with x that is
         // equidistant from y and z. This will be our next x.
         const nextX = findEquidistantPointOnLineDd(x, y.p, z.p);
         const error = abs(sqrt(xy) - sqrt(xz));

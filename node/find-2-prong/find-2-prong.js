@@ -25,6 +25,7 @@ const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
  *    centered at an interior point x which contains two boundary portions c and
  *    d of dΩ as in Fig. 19."
  * In fact, we (and they) start by fixing one point on the boundary beforehand.
+ *
  * @param loops A shape represented by path loops
  * @param maxCoordinate The extreme coordinate value of the shape
  * @param squaredDiagonalLength The squared diagonal length of the shape
@@ -108,7 +109,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
                 return undefined;
             }
         }
-        // Find the point on the line connecting y with x that is  
+        // Find the point on the line connecting y with x that is
         // equidistant from y and z. This will be our next x.
         const nextX = findEquidistantPointOnLineDd(x, y.p, z.p);
         const error = abs(sqrt(xy) - sqrt(xz));

@@ -24,7 +24,7 @@ const matOptionRanges = {
         range: [1, Number.POSITIVE_INFINITY],
     },
     simplifyTolerance: {
-        range: [2 ** -10, 1024],
+        range: [2 ** -20, 2 ** 20],
         scaleByMaxCoordinate: true
     },
     minBezLength: {

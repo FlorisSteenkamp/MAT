@@ -33,7 +33,7 @@
     "dependencies": {
         "big-float-ts": "^4.0.2",
         "double-double": "^3.0.4",
-        "flo-bezier3": "^6.0.8",
+        "flo-bezier3": "^6.0.10",
         "flo-boolean": "^5.0.3",
         "flo-draw": "^2.0.5",
         "flo-gauss-quadrature": "^2.1.4",
@@ -59,7 +59,7 @@
         "ts-loader": "^9.5.7",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3",
-        "webpack": "^5.107.1",
+        "webpack": "^5.107.2",
         "webpack-cli": "^7.0.2"
     },
     "scripts": {

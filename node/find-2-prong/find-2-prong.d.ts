@@ -16,6 +16,7 @@ import { MatMeta } from '../mat/mat-meta.js';
  *    centered at an interior point x which contains two boundary portions c and
  *    d of dΩ as in Fig. 19."
  * In fact, we (and they) start by fixing one point on the boundary beforehand.
+ *
  * @param loops A shape represented by path loops
  * @param maxCoordinate The extreme coordinate value of the shape
  * @param squaredDiagonalLength The squared diagonal length of the shape

@@ -8804,18 +8804,18 @@ const eval_de_casteljau_error_abs = Math.abs;
  * ```
  * // for cubic bezier curves
  * return [
- * 	x_,  // <E> === 3T + 9
- * 	y_   // <E> === 3T + 9
+ *     x_,  // <E> === 3T + 9
+ *     y_   // <E> === 3T + 9
  * ];
  * // for quadratic bezier curves
  * return [
- * 	x_,  // <E> === 2T + 6
- * 	y_   // <E> === 2T + 6
+ *     x_,  // <E> === 2T + 6
+ *     y_   // <E> === 2T + 6
  * ];
  * // for linear bezier curves (i.e. lines)
  * return [
- * 	x_,  // <E> === T + 3
- * 	y_   // <E> === T + 3
+ *     x_,  // <E> === T + 3
+ *     y_   // <E> === T + 3
  * ];
  * ```
  *
@@ -19221,44 +19221,44 @@ const to_power_basis_error_counters_abs = Math.abs;
  * ```
  * // for cubic bezier curves
  * return [
- * 	[
- * 		x3,  // <E> === 3
- * 		x2,  // <E> === 3
- * 		x1,  // <E> === 2
- * 		0,
- * 	],
- * 	[
- * 		y3,  // <E> === 3
- * 		y2,  // <E> === 3
- * 		y1,  // <E> === 2
- * 		0,
- * 	]
+ *     [
+ *         x3,  // <E> === 3
+ *         x2,  // <E> === 3
+ *         x1,  // <E> === 2
+ *         0,
+ *     ],
+ *     [
+ *         y3,  // <E> === 3
+ *         y2,  // <E> === 3
+ *         y1,  // <E> === 2
+ *         0,
+ *     ]
  * ]
  *
  * // for quadratic bezier curves
  * return [
- * 	[
- * 		x2,  // <E> === 2
- * 		x1,  // <E> === 1
- * 		0,
- * 	],
- * 	[
- * 		y2,  // <E> === 2
- * 		y1,  // <E> === 1
- * 		0,
- * 	]
+ *     [
+ *         x2,  // <E> === 2
+ *         x1,  // <E> === 1
+ *         0,
+ *     ],
+ *     [
+ *         y2,  // <E> === 2
+ *         y1,  // <E> === 1
+ *         0,
+ *     ]
  * ];
  *
  * // for linear bezier curves (i.e. lines)
  * return [
- * 	[
- * 		x1_,  // <E> === 1
- * 		x0_   // <E> === 0
- * 	],
- * 	[
- * 		y1_,  // <E> === 1
- * 		y0_   // <E> === 0
- * 	]
+ *     [
+ *         x1_,  // <E> === 1
+ *         x0_   // <E> === 0
+ *     ],
+ *     [
+ *         y1_,  // <E> === 1
+ *         y0_   // <E> === 0
+ *     ]
  * ];
  * ```
  *
@@ -25799,7 +25799,7 @@ const matOptionRanges = {
         range: [1, Number.POSITIVE_INFINITY],
     },
     simplifyTolerance: {
-        range: [2 ** -10, 1024],
+        range: [2 ** -20, 2 ** 20],
         scaleByMaxCoordinate: true
     },
     minBezLength: {
@@ -28125,6 +28125,7 @@ const { ceil: find_2_prong_ceil, log2: find_2_prong_log2, max: find_2_prong_max,
  *    centered at an interior point x which contains two boundary portions c and
  *    d of dΩ as in Fig. 19."
  * In fact, we (and they) start by fixing one point on the boundary beforehand.
+ *
  * @param loops A shape represented by path loops
  * @param maxCoordinate The extreme coordinate value of the shape
  * @param squaredDiagonalLength The squared diagonal length of the shape
@@ -28208,7 +28209,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
                 return undefined;
             }
         }
-        // Find the point on the line connecting y with x that is  
+        // Find the point on the line connecting y with x that is
         // equidistant from y and z. This will be our next x.
         const nextX = findEquidistantPointOnLineDd(x, y.p, z.p);
         const error = find_2_prong_abs(find_2_prong_sqrt(xy) - find_2_prong_sqrt(xz));
