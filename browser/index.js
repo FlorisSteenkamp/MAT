@@ -6792,7 +6792,7 @@ function traverseVertices(cpStart, traverseVerticesCallback) {
 
 ;// ./src/cp-node/fs/clone.ts
 /** @internal */
-const EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
+const EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle', 'holeCloserTwin'];
 /**
  * Returns a deep clone of this `CpNode`. Can be used to copy the MAT
  * since cloning a single `CpNode` necessarily implies cloning all
@@ -6802,32 +6802,36 @@ function clone(cpNode) {
     // Don't change this function to be recursive, the call stack may 
     // overflow if there are too many CpNodes.
     const nodeMap = new Map();
-    const newCpNode = cloneWithoutLinks(cpNode);
+    const newCpNode = cloneWithoutEdges(cpNode);
     nodeMap.set(cpNode, newCpNode);
     const cpStack = [{ cpNode, newCpNode }];
     while (cpStack.length) {
         const { cpNode, newCpNode } = cpStack.pop();
         for (const edge of EDGES) {
             const node = cpNode[edge];
-            let newNode = nodeMap.get(node);
-            if (!newNode) {
-                newNode = cloneWithoutLinks(node);
-                nodeMap.set(node, newNode);
-                cpStack.push({ cpNode: node, newCpNode: newNode });
+            if (node === undefined) {
+                continue;
             }
-            newCpNode[edge] = newNode;
+            let node_ = nodeMap.get(node);
+            if (!node_) {
+                node_ = cloneWithoutEdges(node);
+                nodeMap.set(node, node_);
+                cpStack.push({ cpNode: node, newCpNode: node_ });
+            }
+            newCpNode[edge] = node_;
         }
     }
     return newCpNode;
 }
-function cloneWithoutLinks(cpNode) {
+function cloneWithoutEdges(cpNode) {
     const newNode = {
         ...cpNode,
         ...{
             prev: undefined,
             next: undefined,
             prevOnCircle: undefined,
-            nextOnCircle: undefined
+            nextOnCircle: undefined,
+            holeCloserTwin: undefined
         }
     };
     return newNode;
