@@ -9,7 +9,7 @@ function getAllOnLoop(
         cpNode: CpNode) {
 
     const cpStart = cpNode;
-    const cpNodes: CpNode[] = [cpStart];
+    const cpNodes = [cpStart];
     let cpNode_ = cpNode.next;
 
     while (cpNode_ !== cpStart) {

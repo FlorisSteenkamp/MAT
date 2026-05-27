@@ -1,4 +1,4 @@
-import { CpNode } from "../cp-node.js";
+import type { CpNode } from "../cp-node.js";
 
 
 /** @internal */
@@ -6,14 +6,15 @@ type Edge =
     | 'prev'
     | 'next'
     | 'prevOnCircle'
-    | 'nextOnCircle';
+    | 'nextOnCircle'
+    | 'holeCloserTwin';
 
 /** @internal */
-const EDGES: Edge[] = ['prev', 'next', 'prevOnCircle', 'nextOnCircle'];
+const EDGES: Edge[] = ['prev', 'next', 'prevOnCircle', 'nextOnCircle', 'holeCloserTwin'];
 
 
 type CpNodeWithoutEdges = 
-    Omit<CpNode, 'prev' | 'next' | 'prevOnCircle' | 'nextOnCircle'>;
+    Omit<CpNode, 'prev' | 'next' | 'prevOnCircle' | 'nextOnCircle' | 'holeCloserTwin'>;
 
 
 /**
@@ -21,13 +22,15 @@ type CpNodeWithoutEdges =
  * since cloning a single `CpNode` necessarily implies cloning all 
  * `CpNode`s on the same MAT tree.
  */
-function clone(cpNode: CpNode): CpNode {
+function clone(
+        cpNode: CpNode): CpNode {
+
     // Don't change this function to be recursive, the call stack may 
     // overflow if there are too many CpNodes.
 
     const nodeMap: Map<CpNode, CpNodeWithoutEdges> = new Map();
 
-    const newCpNode: CpNodeWithoutEdges = cloneWithoutLinks(cpNode);
+    const newCpNode: CpNodeWithoutEdges = cloneWithoutEdges(cpNode);
 
     nodeMap.set(cpNode, newCpNode);
     const cpStack = [{ cpNode, newCpNode }];
@@ -37,14 +40,16 @@ function clone(cpNode: CpNode): CpNode {
 
         for (const edge of EDGES) {
             const node = cpNode[edge];
-            let newNode = nodeMap.get(node);
-            if (!newNode) {    
-                newNode = cloneWithoutLinks(node);
+            if (node === undefined) { continue; }
+
+            let node_ = nodeMap.get(node);
+            if (!node_) {
+                node_ = cloneWithoutEdges(node);
                 
-                nodeMap.set(node, newNode);
-                cpStack.push({cpNode: node, newCpNode: newNode });
+                nodeMap.set(node, node_);
+                cpStack.push({ cpNode: node, newCpNode: node_ });
             }
-            (newCpNode as CpNode)[edge] = newNode as CpNode;
+            (newCpNode as CpNode)[edge] = node_ as CpNode;
         }
     }
 
@@ -52,14 +57,15 @@ function clone(cpNode: CpNode): CpNode {
 }
 
 
-function cloneWithoutLinks(cpNode: CpNode) {
+function cloneWithoutEdges(cpNode: CpNode) {
     const newNode = {
         ...cpNode,
         ...{
             prev: undefined,
             next: undefined,
             prevOnCircle: undefined,
-            nextOnCircle: undefined
+            nextOnCircle: undefined,
+            holeCloserTwin: undefined
         }
     };
 
