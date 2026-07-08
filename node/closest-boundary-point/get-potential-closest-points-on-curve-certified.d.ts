@@ -1,5 +1,5 @@
-import { Curve } from "../curve/curve.js";
-import { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
+import type { Curve } from "flo-boolean";
+import type { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
 /**
  * @internal
  *

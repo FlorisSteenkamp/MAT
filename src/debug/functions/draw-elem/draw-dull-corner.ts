@@ -1,5 +1,5 @@
+import type { Curve } from 'flo-boolean';
 import { drawFs } from 'flo-draw';
-import { Curve } from '../../../curve/curve.js';
 
 
 /** @internal */
@@ -11,7 +11,7 @@ function dullCorner(
         scaleFactor = 1) {
 
     const ps = curve.ps; 
-    const p = curve.ps[ps.length-1];
+    const p = ps[ps.length-1];
     const $pos = drawFs.dot(g, p, 0.1*0.5*scaleFactor, classes, delay);
     
     return $pos;

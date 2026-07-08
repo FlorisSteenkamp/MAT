@@ -1,5 +1,5 @@
-import { CpNode } from '../cp-node/cp-node.js';
-import { CurvePiece } from './curve-piece.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { CurvePiece } from './curve-piece.js';
 /**
  * @internal
  * Returns the ordered cubic bezier pieces (i.e a bezier with a t range)

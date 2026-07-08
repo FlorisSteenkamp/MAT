@@ -1,6 +1,6 @@
-import { evalDeCasteljauDd } from "flo-bezier3"
-import { Curve } from "../curve/curve.js"
-import { PointOnShape } from "./point-on-shape.js"
+import type { Curve } from "flo-boolean";
+import type { PointOnShape } from "./point-on-shape.js";
+import { evalDeCasteljauDd } from "flo-bezier3";
 
 
 function createPos(

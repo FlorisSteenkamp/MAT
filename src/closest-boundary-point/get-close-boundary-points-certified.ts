@@ -1,10 +1,10 @@
-import { CurvePiece  } from '../mat/curve-piece.js';
+import type { Curve } from 'flo-boolean';
+import type { CurvePiece  } from '../mat/curve-piece.js';
+import type { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
+import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { createPos } from '../point-on-shape/create-pos.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
 import { cullCurvePieces1 } from './cull-bezier-pieces.js';
-import { Curve } from '../curve/curve.js';
-import { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { createPos } from '../point-on-shape/create-pos.js';
 
 
 /**

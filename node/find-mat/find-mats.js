@@ -37,10 +37,15 @@ function findMats(bezierLoops, options) {
         ...(options || {})
     });
     const { applySat, simplify, satScale, simplifyTolerance } = options_;
-    const loopss = simplifyPaths(bezierLoops);
+    const loopss = simplifyPaths(bezierLoops, undefined, { forceOrientationNegative: true });
     // console.log(loopsToSvgPathStr(bezierLoops));
+    // console.log(loopsToSvgPathStr(loopss[0].map(loop => loop.beziers.map(ps => ps.map(p => p.map(c => Math.round(c*1)/1))))));
+    // console.log(loopsToSvgPathStr(loopss[1].map(loop => loop.beziers.map(ps => ps.map(p => p.map(c => Math.round(c*1)/1))))));
+    // console.log(loopsToSvgPathStr(loopss[0].map(loop => loop.beziers.map(ps => ps.map(p => p.map(c => Math.round(c*1000)/1000))))));
+    // console.log(loopsToSvgPathStr(loopss[1].map(loop => loop.beziers.map(ps => ps.map(p => p.map(c => Math.round(c*1000)/1000))))));
+    // console.log(loopss.map(loops => loops.map(loop => loop.beziers)));
+    // console.log(loopss.map(loops => loopsToSvgPathStr(loops.map(loop => loop.beziers))));
     // const loopss = [bezierLoops.map(loop => loopFromBeziers(loop,0))];
-    // console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => v.map(v => v*2**4))))));
     // console.log(loopsToSvgPathStr(bezierLoops.map(v => v.map(v => v.map(v => [-v[0],v[1]])))));
     // console.log(loopsToSvgPathStr(loopss[0].map(loop => loop.beziers)));
     const mats = [];

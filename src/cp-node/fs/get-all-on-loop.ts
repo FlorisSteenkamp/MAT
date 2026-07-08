@@ -9,13 +9,12 @@ function getAllOnLoop(
         cpNode: CpNode) {
 
     const cpStart = cpNode;
-    const cpNodes = [cpStart];
-    let cpNode_ = cpNode.next;
+    const cpNodes: CpNode[] = [];
 
-    while (cpNode_ !== cpStart) {
-        cpNodes.push(cpNode_);
-        cpNode_ = cpNode_.next;
-    }
+    do {
+        cpNodes.push(cpNode);
+        cpNode = cpNode.next;
+    } while (cpNode !== cpStart);
 
     return cpNodes;
 }

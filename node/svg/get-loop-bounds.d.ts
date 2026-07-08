@@ -1,5 +1,5 @@
-import { Loop } from 'flo-boolean';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Loop } from 'flo-boolean';
+import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
  * @internal
  */

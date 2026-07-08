@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node.js';
+import type { CpNode } from '../cp-node.js';
 /**
  * @internal
  * Returns a line segment of unit length starting in the given Vertex center and

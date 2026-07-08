@@ -2,8 +2,8 @@
  * Canonical circle representation.
  */
 interface Circle {
-    center: number[];
-    radius: number;
+    readonly center: number[];
+    readonly radius: number;
 }
 /**
  * Returns a scaled version of the given circle without changing its center.
@@ -17,4 +17,5 @@ declare function scaleCircle(circle: Circle, s: number): Circle;
  * @param c2
  */
 declare function engulfsCircle(c1: Circle, c2: Circle): boolean;
-export { Circle, scaleCircle, engulfsCircle };
+export type { Circle };
+export { scaleCircle, engulfsCircle };

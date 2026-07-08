@@ -1,5 +1,5 @@
 // import { RootInterval } from "flo-poly";
-import { Curve } from "../curve/curve.js";
+import { Curve } from "flo-boolean";
 
 
 type FootAndEndpointInfo = {

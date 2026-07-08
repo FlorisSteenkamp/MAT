@@ -26,7 +26,7 @@ function clone(
         cpNode: CpNode): CpNode {
 
     // Don't change this function to be recursive, the call stack may 
-    // overflow if there are too many CpNodes.
+    // overflow if there are too many `CpNode`s.
 
     const nodeMap: Map<CpNode, CpNodeWithoutEdges> = new Map();
 
@@ -58,7 +58,7 @@ function clone(
 
 
 function cloneWithoutEdges(cpNode: CpNode) {
-    const newNode = {
+    const cpNode_ = {
         ...cpNode,
         ...{
             prev: undefined,
@@ -69,7 +69,7 @@ function cloneWithoutEdges(cpNode: CpNode) {
         }
     };
 
-    return newNode;
+    return cpNode_;
 }
 
 

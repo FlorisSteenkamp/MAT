@@ -1,10 +1,8 @@
-import { 
-    toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse, dot
-} from 'flo-vector2d';
+import type { Curve } from 'flo-boolean';
+import type { CpNode } from '../cp-node.js';
+import { toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse, dot } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { CpNode } from '../cp-node.js';
 import { isPosSharpCorner } from '../../point-on-shape/is-pos-sharp-corner.js';
-import { Curve } from '../../curve/curve.js';
 
 
 /**

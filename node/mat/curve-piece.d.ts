@@ -1,12 +1,12 @@
-import { Curve } from '../curve/curve.js';
+import type { Curve } from 'flo-boolean';
 /**
  * @internal
  * Represents a part of a bezier within the shape boundary.
  */
 interface CurvePiece {
     /** A bezier curve within the shape boundary. */
-    curve: Curve;
+    readonly curve: Curve;
     /** The start and end t parameter values of the bezier curve. */
-    ts: number[];
+    readonly ts: number[];
 }
 export { CurvePiece };

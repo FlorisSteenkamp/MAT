@@ -5,8 +5,8 @@ import { squaredDistanceBetween } from 'flo-vector2d';
  * Canonical circle representation.
  */
 interface Circle {
-    center: number[];
-    radius: number;
+    readonly center: number[];
+    readonly radius: number;
 }
 
 
@@ -29,7 +29,7 @@ function engulfsCircle(c1: Circle, c2: Circle) {
     if (c1.radius <= c2.radius) { 
         return false; 
     }
-    
+
     const d = squaredDistanceBetween(c1.center, c2.center);
     const dr = c1.radius - c2.radius; 
     const δ = dr*dr;
@@ -38,12 +38,5 @@ function engulfsCircle(c1: Circle, c2: Circle) {
 }
 
 
-/**
- * Returns a human-readable string description of the given circle.
- * @param circle
- */
-function toString(circle: Circle): string {
-    return 'c: ' + circle.center + ' r: ' + circle.radius;
-}
-
-export { Circle, scaleCircle, engulfsCircle }
+export type { Circle }
+export { scaleCircle, engulfsCircle }

@@ -1,15 +1,15 @@
-import { Curve } from '../curve/curve.js';
+import type { Curve } from 'flo-boolean';
 
 
 interface PointOnShape {
     /** The `Curve` on the shape boundary this points belong to. */
-    curve: Curve;
+    readonly curve: Curve;
     /** The bezier parameter value on the curve identifying the point coordinates. */
-    t: number;
-    p: number[];
+    readonly t: number;
+    readonly p: number[];
     /** just for debugging */
-    isSource?: boolean;
+    readonly isSource?: boolean;
 }
 
 
-export { PointOnShape }
+export type { PointOnShape }

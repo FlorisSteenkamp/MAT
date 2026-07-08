@@ -1,5 +1,5 @@
 import { expect, test } from '@jest/globals';
-import { mats_obj1, getMats_calc1 } from './mat-dummys.js';
+import { getMats1 } from '../../get-mats1.js';
 import { getAllOnCircle } from '../../../src/cp-node/fs/get-all-on-circle.js';
 import { getAllOnLoop } from '../../../src/cp-node/fs/get-all-on-loop.js';
 import { isTerminating } from '../../../src/cp-node/fs/is-terminating.js';
@@ -12,7 +12,7 @@ test('CpNodeFs -> getAllOnCircle', function() {
     // expect(mats_obj1).toEqual(mats_calc1);
     
     // const { cpNode } = mats_calc1[0];
-    const { cpNode } = mats_obj1[0];
+    const { cpNode } = getMats1()[0];
 
     const cpNode_ = cpNode.nextOnCircle;
 

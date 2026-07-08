@@ -1,6 +1,6 @@
-import { CurvePiece } from '../mat/curve-piece.js';
-import { Curve } from '../curve/curve.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Curve } from 'flo-boolean';
+import type { CurvePiece } from '../mat/curve-piece.js';
+import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
  * @internal
  * Returns the closest boundary point to the given point, limited to the given

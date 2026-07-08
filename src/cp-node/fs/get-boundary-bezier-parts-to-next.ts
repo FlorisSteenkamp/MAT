@@ -1,6 +1,6 @@
 import type { BezierPiece } from 'flo-bezier3';
+import type { Curve } from 'flo-boolean';
 import type { CpNode } from '../cp-node.js';
-import type { Curve  } from '../../curve/curve.js';
 
 
 /**

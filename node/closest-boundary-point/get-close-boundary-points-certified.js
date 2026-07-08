@@ -1,6 +1,6 @@
+import { createPos } from '../point-on-shape/create-pos.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
 import { cullCurvePieces1 } from './cull-bezier-pieces.js';
-import { createPos } from '../point-on-shape/create-pos.js';
 /**
  * @internal
  * Returns the closest boundary point to the given point, limited to the given

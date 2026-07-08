@@ -1,7 +1,7 @@
 import { allRootsCertified } from 'flo-poly';
+import { eDeflate } from 'flo-poly';
 import { getFootPointsOnBezierPolysCertified, getIntervalBox } from 'flo-bezier3';
 import { ddDeflateWithRunningError } from './dd-deflate-with-running-error.js';
-import { eDeflate } from 'flo-poly';
 import { γγ } from '../error-analysis/gamma.js';
 import { rootIntervalToDistanceSquaredInterval } from './root-interval-to-distance-squared-interval.js';
 import { getPFromBox } from './get-p-from-box.js';
@@ -57,29 +57,29 @@ function getPotentialClosestPointsOnCurveCertified(pow, curve, x, tRange = [0, 1
         (t === 1 && curve === touchedCurve));
     if (tS === 0) {
         if (!dontPush0) {
-            ris.push({ tS: 0, tE: 0, multiplicity: 1 });
+            ris.push({ t: 0, tS: 0, tE: 0, multiplicity: 1 });
         }
     }
     else if (tS === 1) {
         if (!dontPush1) {
-            ris.push({ tS: 1, tE: 1, multiplicity: 1 });
+            ris.push({ t: 1, tS: 1, tE: 1, multiplicity: 1 });
         }
     }
     else {
-        ris.push({ tS: tS, tE: tS, multiplicity: 1 });
+        ris.push({ t: tS, tS: tS, tE: tS, multiplicity: 1 });
     }
     if (tE === 0) {
         if (!dontPush0) {
-            ris.push({ tS: 0, tE: 0, multiplicity: 1 });
+            ris.push({ t: 0, tS: 0, tE: 0, multiplicity: 1 });
         }
     }
     else if (tE === 1) {
         if (!dontPush1) {
-            ris.push({ tS: 1, tE: 1, multiplicity: 1 });
+            ris.push({ t: 1, tS: 1, tE: 1, multiplicity: 1 });
         }
     }
     else {
-        ris.push({ tS: tE, tE: tE, multiplicity: 1 });
+        ris.push({ t: tE, tS: tE, tE: tE, multiplicity: 1 });
     }
     const infos = ris
         .map(ri => {

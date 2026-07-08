@@ -1,10 +1,10 @@
+import type { Mat } from './mat.js';
+import type { CpNode } from '../cp-node/cp-node.js';
 import { hausdorffDistanceOneSided } from 'flo-bezier3';
-import { CpNode } from '../cp-node/cp-node.js';
 import { removeVertex } from '../vertex/remove-vertex.js';
 import { getBranches } from './get-branches.js';
 import { getMatCurveToNext } from '../cp-node/fs/get-mat-curve-to-next.js';
 import { getMatCurveBetween } from '../cp-node/fs/get-mat-curve-between.js';
-import { Mat } from './mat.js';
 import { createNewCpTree } from './create-new-cp-tree.js';
 import { clone } from '../cp-node/fs/clone.js';
 import { findFirst } from '../cp-node/fs/find-first.js';
@@ -16,15 +16,17 @@ import { getProngCount } from '../cp-node/fs/get-prong-count.js';
 
 // TODO2 could be made faster by binary "search" on hausdorff curves
 /**
- * Simplifies the given MAT by replacing the piecewise quad beziers composing 
- * the MAT with fewer ones to within a given tolerance.
- * @param cpNode A representation of the MAT
- * @param anlgeTolerance Tolerance given as the degrees difference of the unit 
+ * Returns a new simplified MAT of the given one by replacing the piecewise
+ * quad beziers composing the MAT with fewer ones to within a given tolerance.
+ * 
+ * @param cpNode a representation of the MAT
+ * @param anlgeTolerance tolerance given as the degrees difference of the unit
  * direction vectors at the interface between curves. A tolerance of zero means
- * perfect smoothness is required - defaults to 15.
- * @param hausdorffTolerance The approximate maximum Hausdorff Distance tolerance -
+ * perfect smoothness is required - defaults to 15
+ * @param hausdorffTolerance the approximate maximum Hausdorff Distance tolerance -
  * defaults to `2**-3`
- * @param maxIterations The max iterations, defaults to `50`
+ * @param maxIterations the max iterations of the Hausdorff Distance calculation,
+ * defaults to `50`
  */
 function simplifyMat(
         mat: Mat,
@@ -60,14 +62,14 @@ function simplifyMat(
                 }
             }
 
-            if (i+1 === j) { 
-                // no simplification occured
-                continue;
+            if (i+1 === j) {
+                continue;  // no simplification occured
             }
         }
     }
 
-    cpNode = findFirst(cpNode_ => isTerminating(cpNode_) ? cpNode_ : undefined, cpNode)!;
+    // cpNode = findFirst(cpNode_ => isTerminating(cpNode_) ? cpNode_ : undefined, cpNode)!;
+    cpNode = findFirst(isTerminating, cpNode)!;
 
     for (const cpNode of canDeletes) {
         if (!isVertex(cpNode =>

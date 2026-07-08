@@ -1,8 +1,8 @@
-import { Loop } from 'flo-boolean';
+import type { Loop } from 'flo-boolean';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { TriMap } from '../utils/tri-map.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from '../cp-node/cp-node.js';
-import { TriMap } from '../utils/tri-map.js';
-import { MatMeta } from '../mat/mat-meta.js';
 /** @internal */
 declare function getPointToCpNode(loops: Loop[], cpTrees: Map<Loop, LlRbTree<CpNode>>): TriMap<Loop, number, number, CpNode>;
 /** @internal */

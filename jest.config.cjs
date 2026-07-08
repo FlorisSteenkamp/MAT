@@ -23,6 +23,7 @@ module.exports = {
     collectCoverage: false,  // Make true again!
     coverageProvider: 'v8',
     testTimeout: 15000,
+    passWithNoTests: true,
     transform: {
         "^.+\\.(t|j)sx?$": "@swc/jest"
     },

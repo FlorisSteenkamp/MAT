@@ -1,12 +1,13 @@
+import type { Debug }   from '../debug/debug.js';
+import type { Loop } from 'flo-boolean';
+import type { Curve } from 'flo-boolean';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { TriMap } from '../utils/tri-map.js';
+import type { MatMeta } from '../mat/mat-meta.js';
+import { TriMapFs } from '../utils/tri-map.js';
 import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
-import { Debug }   from '../debug/debug.js';
-import { Loop } from 'flo-boolean';
-import { Curve } from '../curve/curve.js';
 import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNode } from '../cp-node/cp-node.js';
-import { TriMap, TriMapFs } from '../utils/tri-map.js';
-import { MatMeta } from '../mat/mat-meta.js';
 import { getCorner } from '../corner/get-corner.js';
 
 

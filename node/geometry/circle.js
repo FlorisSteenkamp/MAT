@@ -21,12 +21,5 @@ function engulfsCircle(c1, c2) {
     const δ = dr * dr;
     return δ > d;
 }
-/**
- * Returns a human-readable string description of the given circle.
- * @param circle
- */
-function toString(circle) {
-    return 'c: ' + circle.center + ' r: ' + circle.radius;
-}
 export { scaleCircle, engulfsCircle };
 //# sourceMappingURL=circle.js.map

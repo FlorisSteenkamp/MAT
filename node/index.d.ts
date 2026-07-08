@@ -1,8 +1,7 @@
+export type { Curve, Loop } from 'flo-boolean';
 export { loopFromBeziers, beziersToSvgPathStr, getPathsFromStr } from 'flo-boolean';
 export type { MatMeta } from './mat/mat-meta.js';
-export type { Loop } from 'flo-boolean';
 export type { Mat } from './mat/mat.js';
-export type { Curve } from './curve/curve.js';
 export type { CpNode } from './cp-node/cp-node.js';
 export type { PointOnShape } from './point-on-shape/point-on-shape.js';
 export type { Circle } from './geometry/circle.js';
@@ -82,3 +81,4 @@ export { getSpeed } from './cp-node/fs/get-speed.js';
 export { getSmoothedSpeed$ } from './cp-node/fs/get-smoothed-speed.js';
 export { getInitialDegAngleBetweenMatCurves } from './cp-node/fs/get-angle-between-mat-curves.js';
 export { getAllVertices } from './cp-node/fs/get-all-vertices.js';
+export { isTrivial } from './cp-node/fs/is-trivial.js';

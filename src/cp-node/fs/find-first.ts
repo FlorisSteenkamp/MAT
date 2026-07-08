@@ -1,22 +1,25 @@
-import { CpNode } from "../cp-node.js";
-import { CpNodeFs } from "../cp-node-fs.js";
+import type { CpNode } from "../cp-node.js";
 
 
+/**
+ * Finds the first `CpNode` in the same MAT tree for which `f` returns a
+ * truthy value. Returns `undefined` if no such `CpNode` exists.
+ * 
+ * @param f a function that takes a `CpNode` and returns a `CpNode` or `undefined`
+ * @param cpNode a `CpNode` on the MAT tree to search from
+ */
 function findFirst(
-        f: (cpNode: CpNode) => CpNode | undefined,
+        f: (cpNode: CpNode) => boolean,
         cpNode: CpNode): CpNode | undefined { 
 
     const cpStart = cpNode;
 
-    if (f(cpStart)) { return cpStart; }
-
-    let cpNode_ = cpNode.next;
-    while (cpNode_ !== cpStart) {
-        if (f(cpNode_)) {
-            return cpNode_;
+    do {
+        if (f(cpNode)) {
+            return cpNode;
         }
-        cpNode_ = cpNode_.next;
-    }
+        cpNode = cpNode.next;
+    } while (cpNode !== cpStart);
 
     return undefined;
 }

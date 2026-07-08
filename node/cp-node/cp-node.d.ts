@@ -48,6 +48,8 @@ import { ContactPoint } from '../contact-point/contact-point.js';
  * in opposite directions.
  */
 interface CpNode {
+    /** For debugging / easy identification only */
+    id: number;
     /** The shape boundary contact point, i.e. a `CpNode` without its edges. */
     cp: ContactPoint;
     /** If true, this `CpNode` belongs to a hole-closing maximal disk. */
@@ -74,7 +76,5 @@ interface CpNode {
      * next `CpNode` on the same loop.
      */
     holeCloserTwin?: CpNode | undefined;
-    /** For debugging / easy identification only */
-    id: number;
 }
 export { CpNode };

@@ -1,8 +1,8 @@
+import type { Loop } from 'flo-boolean';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { Curve } from 'flo-boolean';
+import type { TriMap } from '../utils/tri-map.js';
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from 'flo-boolean';
-import { CpNode } from '../cp-node/cp-node.js';
-import { Curve } from '../curve/curve.js';
-import { TriMap } from '../utils/tri-map.js';
 interface MatMeta {
     readonly maxCoordinate: number;
     readonly squaredDiagonalLength: number;

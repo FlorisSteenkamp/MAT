@@ -18,8 +18,9 @@ declare function enhanceCpNode(cpNode: CpNode): {
         order: number;
         order2: number;
     };
-    curve: import("../../index.js").Curve;
+    curve: import("flo-boolean").Curve;
     loop: import("flo-boolean").Loop;
+    id: number;
     cp: import("../../index.js").ContactPoint;
     isHoleClosing: boolean;
     isIntersection: boolean;
@@ -28,6 +29,5 @@ declare function enhanceCpNode(cpNode: CpNode): {
     prevOnCircle: CpNode;
     nextOnCircle: CpNode;
     holeCloserTwin?: CpNode | undefined;
-    id: number;
 };
 export { enhanceCpNode };

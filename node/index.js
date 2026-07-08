@@ -67,4 +67,5 @@ export { getSpeed } from './cp-node/fs/get-speed.js';
 export { getSmoothedSpeed$ } from './cp-node/fs/get-smoothed-speed.js';
 export { getInitialDegAngleBetweenMatCurves } from './cp-node/fs/get-angle-between-mat-curves.js';
 export { getAllVertices } from './cp-node/fs/get-all-vertices.js';
+export { isTrivial } from './cp-node/fs/is-trivial.js';
 //# sourceMappingURL=index.js.map

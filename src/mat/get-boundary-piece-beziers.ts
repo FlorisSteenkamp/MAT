@@ -1,6 +1,6 @@
-import { CpNode } from '../cp-node/cp-node.js';
-import { Curve } from '../curve/curve.js';
-import { CurvePiece } from './curve-piece.js';
+import type { Curve } from 'flo-boolean';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { CurvePiece } from './curve-piece.js';
 import { isPosQuiteSharpCorner } from '../point-on-shape/is-pos-quite-sharp-corner.js';
 import { compareCps } from '../contact-point/contact-point.js';
 
