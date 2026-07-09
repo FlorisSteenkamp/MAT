@@ -28,8 +28,8 @@ function rootIntervalToDistanceSquaredInterval(pow, box, p) {
     const maxY = tr[1];
     const x = p[0]; // <0>
     const y = p[1]; // <0>
-    let minDSquared = Number.POSITIVE_INFINITY;
-    let maxDSquared = Number.NEGATIVE_INFINITY;
+    let minDSquared = +Infinity;
+    let maxDSquared = -Infinity;
     // for each corner of the interval box
     for (const [a, b] of [[minX, minY], [minX, maxY], [maxX, minY], [maxX, maxY]]) {
         /*

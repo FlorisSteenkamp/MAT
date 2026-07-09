@@ -30,13 +30,13 @@ const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
  * @param maxCoordinate The extreme coordinate value of the shape
  * @param squaredDiagonalLength The squared diagonal length of the shape
  * bounding box.
- * @param y The source point of the 2-prong to be found
- * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
- * @param loopIdx The loop array index
+ * @param yPos the source point of the 2-prong to be found
+ * @param isHoleClosing `true` if this is a hole-closing two-prong, `false` otherwise
+ * @param loopIdx the loop array index
  */
-function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
+function find2Prong(meta, isHoleClosing, for1Prong, angle, yPos) {
     const { loops, maxCoordinate, squaredDiagonalLength } = meta;
-    const loop = y.curve.loop;
+    const loop = yPos.curve.loop;
     const MAX_ITERATIONS = 25;
     const minSquaredSeperationTolerance = ((2 ** -21) * maxCoordinate) ** 2;
     const errorTolerance = (2 ** -46) * maxCoordinate;
@@ -44,11 +44,11 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
     const maxOsculatingCircleRadius = sqrt(squaredDiagonalLength);
     const minCurvature = 1 / maxOsculatingCircleRadius;
     const oneProngTolerance = (2 ** -16) * maxCoordinate;
-    const [xO, rO] = getO(angle, isHoleClosing, maxOsculatingCircleRadius, minCurvature, y);
-    const p = y.p;
+    const [xO, rO] = getO(angle, isHoleClosing, maxOsculatingCircleRadius, minCurvature, yPos);
+    const p = yPos.p;
     // The boundary piece that should contain the other point of 
     // the 2-prong circle. (Defined by start and end points).
-    let curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, y, { center: xO, radius: rO });
+    let curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, { center: xO, radius: rO });
     // console.log(curvePieces.length);
     /** The center of the two-prong (successively refined) */
     let x = xO;
@@ -62,21 +62,23 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
     let z = undefined;
     let i = 0;
     while (i < MAX_ITERATIONS) {
-        const xy = squaredDistanceBetweenDd(x, y.p);
+        const xy = squaredDistanceBetweenDd(x, yPos.p);
         if (i < 2) {
             curvePieces = cullCurvePieces2(curvePieces, x, xy);
         }
         const pow = max(0, ceil(log2(maxCoordinate / xy))) + 1; // determines accuracy
         // console.log(pow);
-        const _zs = getCloseBoundaryPointsCertified(pow, curvePieces, x, y.curve, y.t, for1Prong && i == 0 && rO !== 1 / minCurvature, angle).map(info => createPos(info.curve, info.t, false));
-        let maxD = Number.NEGATIVE_INFINITY;
+        const _zs = getCloseBoundaryPointsCertified(pow, curvePieces, x, yPos.curve, // source point curve
+        yPos.t, // source point `t` value
+        for1Prong && i == 0 && rO !== 1 / minCurvature, angle).map(info => createPos(info.curve, info.t, false));
+        let maxD = -Infinity;
         let maxPos = undefined;
         zs = [];
         for (const z of _zs) {
             if (z === undefined) {
                 continue;
             }
-            const _yz = squaredDistanceBetweenDd(y.p, z.p);
+            const _yz = squaredDistanceBetweenDd(yPos.p, z.p);
             if (_yz > maxD) {
                 maxD = _yz;
                 maxPos = z;
@@ -97,7 +99,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
         if (i === 0) {
             if (rO < (1 - oneProngTolerance) * sqrt(xz)) {
                 // console.log('1prong');
-                add1Prong(meta, rO, xO, y);
+                add1Prong(meta, rO, xO, yPos);
                 return undefined;
             }
         }
@@ -111,7 +113,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
         }
         // Find the point on the line connecting y with x that is
         // equidistant from y and z. This will be our next x.
-        const nextX = findEquidistantPointOnLineDd(x, y.p, z.p);
+        const nextX = findEquidistantPointOnLineDd(x, yPos.p, z.p);
         const error = abs(sqrt(xy) - sqrt(xz));
         // if (xy < xz) { return undefined; }
         x = nextX;
@@ -125,6 +127,7 @@ function find2Prong(meta, isHoleClosing, for1Prong, angle, y) {
             return undefined;
         }
     }
+    // console.log(i);
     const circle = { center: x, radius: distanceBetween(x, z.p) };
     // if (typeof _debug_ !== 'undefined') { addDebugInfo(curvePieces, false, x, y, z, circle!, δ!, xs, isHoleClosing); }
     // return { circle, zs };

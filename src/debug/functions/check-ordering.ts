@@ -68,7 +68,7 @@ function checkOrdering(
     }
 
     for (const [loop,wrongs] of wrongsPerLoop) {
-        let maxOrder = Number.NEGATIVE_INFINITY;
+        let maxOrder = -Infinity;
         let max: Order | undefined = undefined;
         for (const wrong of wrongs) {
             const A = wrong[0];

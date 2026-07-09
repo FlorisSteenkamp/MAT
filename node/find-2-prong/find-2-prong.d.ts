@@ -21,11 +21,11 @@ import { MatMeta } from '../mat/mat-meta.js';
  * @param maxCoordinate The extreme coordinate value of the shape
  * @param squaredDiagonalLength The squared diagonal length of the shape
  * bounding box.
- * @param y The source point of the 2-prong to be found
- * @param isHoleClosing True if this is a hole-closing two-prong, false otherwise
- * @param loopIdx The loop array index
+ * @param yPos the source point of the 2-prong to be found
+ * @param isHoleClosing `true` if this is a hole-closing two-prong, `false` otherwise
+ * @param loopIdx the loop array index
  */
-declare function find2Prong(meta: MatMeta, isHoleClosing: boolean, for1Prong: boolean, angle: number, y: PointOnShape): {
+declare function find2Prong(meta: MatMeta, isHoleClosing: boolean, for1Prong: boolean, angle: number, yPos: PointOnShape): {
     circle: Circle;
     zs: PointOnShape[];
 } | undefined;

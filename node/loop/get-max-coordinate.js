@@ -7,10 +7,10 @@ const abs = Math.abs;
  */
 function getLoopsMetrics(loops) {
     let maxCoordinate = 0;
-    let minX = Number.POSITIVE_INFINITY;
-    let maxX = Number.NEGATIVE_INFINITY;
-    let minY = Number.POSITIVE_INFINITY;
-    let maxY = Number.NEGATIVE_INFINITY;
+    let minX = +Infinity;
+    let maxX = -Infinity;
+    let minY = +Infinity;
+    let maxY = -Infinity;
     for (const loop of loops) {
         for (const ps of loop) {
             for (const p of ps) {

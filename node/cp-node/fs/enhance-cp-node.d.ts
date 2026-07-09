@@ -4,6 +4,15 @@ import { CpNode } from "../cp-node.js";
  * @param cpNode
  */
 declare function enhanceCpNode(cpNode: CpNode): {
+    id: number;
+    cp: import("../../index.js").ContactPoint;
+    isHoleClosing: boolean;
+    isIntersection: boolean;
+    prev: CpNode;
+    next: CpNode;
+    prevOnCircle: CpNode;
+    nextOnCircle: CpNode;
+    holeCloserTwin?: CpNode | undefined;
     pos: import("../../index.js").PointOnShape;
     p: number[];
     t: number;
@@ -20,14 +29,5 @@ declare function enhanceCpNode(cpNode: CpNode): {
     };
     curve: import("flo-boolean").Curve;
     loop: import("flo-boolean").Loop;
-    id: number;
-    cp: import("../../index.js").ContactPoint;
-    isHoleClosing: boolean;
-    isIntersection: boolean;
-    prev: CpNode;
-    next: CpNode;
-    prevOnCircle: CpNode;
-    nextOnCircle: CpNode;
-    holeCloserTwin?: CpNode | undefined;
 };
 export { enhanceCpNode };

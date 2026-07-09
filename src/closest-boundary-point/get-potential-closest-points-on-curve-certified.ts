@@ -1,15 +1,15 @@
 import type { Curve } from "flo-boolean";
 import type { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
-import { allRootsCertified } from 'flo-poly';
+import { createRootExact, roots } from 'flo-poly';
 import { eDeflate } from 'flo-poly';
 import { getFootPointsOnBezierPolysCertified, getIntervalBox } from 'flo-bezier3';
 import { ddDeflateWithRunningError } from './dd-deflate-with-running-error.js';
-import { γγ } from '../error-analysis/gamma.js';
+// import { γγ } from '../error-analysis/gamma.js';
 import { rootIntervalToDistanceSquaredInterval } from './root-interval-to-distance-squared-interval.js';
 import { getPFromBox } from './get-p-from-box.js';
 
 
-const γγ3 = γγ(3);
+// const γγ3 = γγ(3);
 
 const { sqrt } = Math;
 
@@ -45,37 +45,37 @@ function getPotentialClosestPointsOnCurveCertified(
         getFootPointsOnBezierPolysCertified(ps, x);
 
     const def = shouldDeflate
-            ? ddDeflateWithRunningError(polyDdO, polyEO.map(e => e/γγ3), t!)
+            ? ddDeflateWithRunningError(polyDdO, polyEO, t!)
             : undefined;
     
     const def2 = for1Prong && shouldDeflate
-            ? ddDeflateWithRunningError(def!.coeffs, def!.errBound.map(e => e/γγ3), t!)
+            ? ddDeflateWithRunningError(def!.coeffs, def!.errBound, t!)
             : undefined;
 
     const def3 = for1Prong && shouldDeflate
-            ? ddDeflateWithRunningError(def2!.coeffs, def2!.errBound.map(e => e/γγ3), t!)
+            ? ddDeflateWithRunningError(def2!.coeffs, def2!.errBound, t!)
             : undefined;
     
-    const { polyDd, polyE, getPolyExact } = 
+    const { pDd, pDd_, getPolyExact } = 
               def3 !== undefined
             ? {
-                polyDd: def3.coeffs,
-                polyE: def3.errBound,
-                getPolyExact:  () => eDeflate(eDeflate(eDeflate(getPolyExactO(), t!), t!), t!)
+                pDd: def3.coeffs,
+                pDd_: def3.errBound,
+                getPolyExact: () => eDeflate(eDeflate(eDeflate(getPolyExactO(), t!), t!), t!)
             }
             : def !== undefined
             ? {
-                polyDd: def.coeffs,
-                polyE: def.errBound,
+                pDd: def.coeffs,
+                pDd_: def.errBound,
                 getPolyExact: () => eDeflate(getPolyExactO(), t!)
             }
             : {
-                polyDd: polyDdO,
-                polyE: polyEO,
+                pDd: polyDdO,
+                pDd_: polyEO,
                 getPolyExact: getPolyExactO
             };
     
-    const ris = allRootsCertified(polyDd, tS, tE, polyE, getPolyExact);
+    const ris = roots(pDd, tS, tE, pDd_, getPolyExact) || [];
 
     const dontPush0 = (
         (t === 1 && curve === touchedCurve!.next) ||
@@ -87,19 +87,19 @@ function getPotentialClosestPointsOnCurveCertified(
     );
 
     if (tS === 0) {
-        if (!dontPush0) { ris.push({ t: 0, tS: 0, tE: 0, multiplicity: 1 }); }
+        if (!dontPush0) { ris.push(createRootExact(0)); }
     } else if (tS === 1) {
-        if (!dontPush1) { ris.push({ t: 1, tS: 1, tE: 1, multiplicity: 1 }); }
+        if (!dontPush1) { ris.push(createRootExact(1)); }
     } else {
-        ris.push({ t: tS, tS: tS, tE: tS, multiplicity: 1 });
+        ris.push(createRootExact(tS));
     }
 
     if (tE === 0) {
-        if (!dontPush0) { ris.push({ t: 0, tS: 0, tE: 0, multiplicity: 1 }); }
+        if (!dontPush0) { ris.push(createRootExact(0)); }
     } else if (tE === 1) {
-        if (!dontPush1) { ris.push({ t: 1, tS: 1, tE: 1, multiplicity: 1 }); }
+        if (!dontPush1) { ris.push(createRootExact(1)); }
     } else {
-        ris.push({ t: tE, tS: tE, tE: tE, multiplicity: 1 });
+        ris.push(createRootExact(tE));
     }
 
     const infos = ris

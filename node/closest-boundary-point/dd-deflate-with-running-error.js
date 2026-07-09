@@ -61,7 +61,8 @@ function ddDeflateWithRunningError(p, pE, t) {
     }
     return {
         coeffs: bs,
-        errBound: bEs.map(e => γγ3 * e)
+        // errBound: bEs.map(e => γγ3*e)
+        errBound: bEs
     };
 }
 export { ddDeflateWithRunningError };

@@ -1,5 +1,4 @@
-import { allRoots, deflate } from 'flo-poly';
-import { CurvePiece } from '../mat/curve-piece.js';
+import type { CurvePiece } from '../mat/curve-piece.js';
 import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect.js';
 import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 
