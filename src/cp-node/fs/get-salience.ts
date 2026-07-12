@@ -21,7 +21,7 @@ function getSalience(cpNode: CpNode) {
 
     const s = sum(pss.map(ps => totalLength(ps)));
 
-    return hasHoleCloser ? Number.POSITIVE_INFINITY : s/d;
+    return hasHoleCloser ? Infinity : s/d;
 }
 
 

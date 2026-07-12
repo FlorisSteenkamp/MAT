@@ -1,4 +1,4 @@
-import { CurvePiece } from '../mat/curve-piece.js';
+import type { CurvePiece } from '../mat/curve-piece.js';
 /**
  * @param curvePieces
  * @param p

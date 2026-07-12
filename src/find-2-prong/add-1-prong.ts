@@ -43,7 +43,7 @@ function add1Prong(
     
     const circle: Circle = { radius, center };
     
-    const order = calcPosOrder(circle, pos);
+    const order = calcPosOrder(circle.center, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
     if (getCloseByCpIfExist(meta, pos, circle, order, 0, 1)) {

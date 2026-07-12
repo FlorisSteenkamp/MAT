@@ -34,7 +34,7 @@ function add2Prong(
         ? createPos(poss[0].curve.prev, 1, true)
         : poss[0];
 
-    const orders = poss.map(pos => calcPosOrder(circle, pos));
+    const orders = poss.map(pos => calcPosOrder(circle.center, pos));
 
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.

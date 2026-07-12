@@ -17,7 +17,7 @@ const { asin, acos, cos, sqrt, PI: π } = Math;
 function calcSeperationTolerance(R, r, δ) {
     const a = r + δ;
     if (a >= R) {
-        return Number.POSITIVE_INFINITY;
+        return Infinity;
     }
     const R_r_ = twoDiff(R, r);
     const A_ = qmd(r, R_r_);
@@ -51,7 +51,7 @@ export { calcSeperationTolerance };
 //         δ: number) {
 //     const a = r + δ;
 //     if (a >= R) {
-//         return Number.POSITIVE_INFINITY;
+//         return Infinity;
 //     }
 //     const b = R - r;
 //     const c = R;    

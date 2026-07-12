@@ -6,11 +6,12 @@ import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
 
 
 /**
- * @internal
  * Find and return a 3-prong from the given boundary piece.
  * @param δs A boundary piece
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.
+ * 
+ * @internal
  */ 
 function find3Prong(
         δs: CpNode[][], extreme: number) {
@@ -23,11 +24,12 @@ function find3Prong(
         poss: PointOnShape[], 
         δ3s: CpNode[][] 
     };
-    let smallestError = Number.POSITIVE_INFINITY;
+    let smallestError = Infinity;
     for (let i=1; i<δs.length-1; i++) {
         for (let k=0; k<3; k++) {
             const threeProngInfo = 
                 find3ProngForDelta3s(δs, i, k, curvePiecess, extreme);
+
             if (!threeProngInfo) { continue; }
 
             const { circle, poss: poss, error, δ3s } = threeProngInfo;

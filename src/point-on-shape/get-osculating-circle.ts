@@ -1,41 +1,38 @@
-import { tangentExact, ddCurvature } from 'flo-bezier3';
-import { Circle } from '../geometry/circle.js';
-import { PointOnShape } from './point-on-shape.js';
+import type { PointOnShape } from './point-on-shape.js';
+import { ddCurvature } from 'flo-bezier3';
 
+const { sqrt } = Math;
 
 
 /**
  * Returns the osculating circle at this point of the curve.
  * 
- * @param minCurvature If not Number.POSITIVE_INFINITY then the
- * circle radius will be limited to this value.
- * @param pos The `PointOnShape` identifying the point.
+ * @param minCurvature if not `Infinity` then the circle radius will be limited
+ * to this value
+ * @param pos the `PointOnShape` identifying the point
  * @param useMaxRadius
  */
 function getOsculatingCircle(
-        minCurvature: number, 
+        maxOsculatingCircleRadius: number, 
         pos: PointOnShape,
-        // pos: { p: number[], t: number },
-        useMaxRadius = false): Circle {
+        norm: number[]): [number[],number] {
 
-    const ps = pos.curve.ps;
-    const { p, t } = pos;
+    const { curve, p, t } = pos;
+    const { ps } = curve;
 
-    let k = -ddCurvature(ps, t);
+    const minCurvature = 1/maxOsculatingCircleRadius;
 
-    if (k < minCurvature || useMaxRadius) {
-        k = minCurvature;
-    }
+    const k_ = -(ddCurvature(ps, t)[1]);
+    const k = k_ < minCurvature ? minCurvature : k_;
 
-    const tangent_ = tangentExact(ps,t).map(c => c[c.length-1]);
-    const normal_ = [-tangent_[1],tangent_[0]];
-    const l = Math.sqrt(normal_[0]**2 + normal_[1]**2);
-    const circleCenter = [
-        p[0] - normal_[0]/(k*l),
-        p[1] - normal_[1]/(k*l)
+    const [tx, ty] = norm;
+    const l = sqrt(tx*tx + ty*ty);
+    const scale = l*k;
+
+    return [
+        [p[0] + tx/scale, p[1] + ty/scale],
+        1/k
     ];
-
-    return { center: circleCenter, radius: 1/k };
 }
 
 

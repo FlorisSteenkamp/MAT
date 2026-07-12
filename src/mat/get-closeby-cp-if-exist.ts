@@ -50,6 +50,7 @@ function getCloseByCpIfExist(
         if (d > DISTANCE_THRESHOLD) {
             continue;
         }
+        // return cpNode;
 
         const v1 = toUnitVector(fromTo(p2, cpNode.cp.circle.center));
         const v2 = toUnitVector(fromTo(p, circle.center));

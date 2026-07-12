@@ -1,6 +1,6 @@
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Circle } from '../geometry/circle.js';
 import { comparePoss } from '../point-on-shape/compare-poss.js';
-import { Circle } from '../geometry/circle.js';
 
 
 /**
@@ -9,13 +9,17 @@ import { Circle } from '../geometry/circle.js';
  */
 interface ContactPoint {
     /** Identifies the point on the shape boundary. */
-    pointOnShape: PointOnShape;
-    /** The maximal disk circle touching this point. */
-    circle: Circle;
+    readonly pointOnShape: PointOnShape;
+    /**
+     * The maximal disk circle touching this point.
+     * Calculated from `curve` and `t` (if 2-prong source point, else
+     * from `curve` and `t` of the antipodal 2-prong point).
+     */
+    readonly circle: Circle;
     /** Internally used to order two points lying at the same planar point. */
-    order: number;
+    readonly order: number;
     /** Internally used to order two points lying at the same planar point. */
-    order2: number;
+    readonly order2: number;
 }
 
 
@@ -27,7 +31,10 @@ interface ContactPoint {
  * @param a The first contact point.
  * @param b The second contact point.
  */
-function compareCps(a: ContactPoint, b: ContactPoint) {
+function compareCps(
+        a: ContactPoint,
+        b: ContactPoint) {
+
     let res = comparePoss(a.pointOnShape, b.pointOnShape);
 
     if (res !== 0) { return res; }

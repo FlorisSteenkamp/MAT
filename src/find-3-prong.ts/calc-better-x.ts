@@ -5,8 +5,7 @@ import { getClosestPoints } from './get-closest-points.js';
 
 
 /**
- * @internal
- * Find new x and ps that are a better estimate of the 3-prong circle.
+ * Find new `x` and `ps` that are a better estimate of the 3-prong circle.
  * The potential function, V, is defined as the distance to the actual 3 prong 
  * circle center.
  * @param curvePiece3s The three boundary pieces, each of which should contain 
@@ -14,11 +13,17 @@ import { getClosestPoints } from './get-closest-points.js';
  * @param x The currently best guess at the center of the 3-prong circle.
  * @param vectorToZeroV
  * @param extreme
+ * 
+ * @internal
  */
 function calcBetterX(
         curvePiece3s: CurvePiece[][], 
         x: number[], 
-        vectorToZeroV: number[]) {
+        vectorToZeroV: number[]): {
+            newX: number[];
+            newV: number;
+            newPoss: PointOnShape[];
+        } {
 
     const V = len(vectorToZeroV);
 
@@ -31,8 +36,7 @@ function calcBetterX(
     do { 
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x); 
-        
-        
+
         newPoss = getClosestPoints(newX, curvePiece3s);
 
         // Point of zero V

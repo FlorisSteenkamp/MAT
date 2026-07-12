@@ -95,6 +95,7 @@ function pointsEqual(
     return p1[0] === p2[0] && p1[1] === p2[1];
 }
 
+
 /**
  * The input is two exact double-double coefficient vectors
  * 

@@ -16,7 +16,7 @@ import { getPosCorner } from './get-pos-corner.js';
  * @param pos
  */
 function calcPosOrder(
-        circle: Circle, 
+        circleCenter: number[], 
         pos: PointOnShape): number {
 
     if (!isPosCorner(pos)) { return 0; }
@@ -25,7 +25,7 @@ function calcPosOrder(
     const corner = getPosCorner(pos);
 
     const n = rotateNeg90Degrees(corner.tangents[0]);
-    const v = toUnitVector( fromTo(pos.p, circle.center) );
+    const v = toUnitVector( fromTo(pos.p, circleCenter) );
 
     return -dot(n, v);
 }

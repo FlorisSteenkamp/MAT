@@ -28,7 +28,10 @@ import { MatMeta } from '../mat/mat-meta.js';
 function findMat(
         loops: Loop[], 
         maxCoordinate: number,
-        options: Required<MatOptions>) {
+        options: Required<MatOptions>): {
+            cpNode: CpNode;
+            meta: MatMeta;
+        } {
 
     const { minBezLength, maxCurviness, maxLength, angleIncrement } = options;
 

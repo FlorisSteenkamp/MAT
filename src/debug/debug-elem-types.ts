@@ -6,7 +6,7 @@ type DebugElemKey = keyof typeof emptyDebugElems;
 
 
 const emptyDebugElems = {
-    oneProng: [] as CpNode[][],
+    oneProng: [] as CpNode[],
     // oneProngAtDullCorner: [] as PointOnShape[],
     twoProng: [] as CpNode[],
     threeProng: [] as CpNode[],

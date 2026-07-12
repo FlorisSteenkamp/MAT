@@ -12,7 +12,7 @@ function getBestDistanceSquared(
         curvePieces: CurvePiece[], 
         p: number[]) {
 
-    let bestSquaredDistance = Number.POSITIVE_INFINITY;
+    let bestSquaredDistance = Infinity;
     for (let i=0; i<curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
 

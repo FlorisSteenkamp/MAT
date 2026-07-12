@@ -37,8 +37,6 @@ type DrawElemFunctions = { [T in DebugElemKey]: DrawElemFunction<T> }
 /** @internal */
 const drawElemFs: DrawElemFunctions = {
     oneProng: drawOneProng,
-    // oneProngAtDullCorner,
-    // csf,
     twoProng: drawTwoProng(false, true),
     threeProng: drawThreeProng,
     boundingHull,

@@ -11,7 +11,7 @@ function find3Prong(δs, extreme) {
     const curvePiecess = δs.map(getBoundaryPieceBeziers);
     // The best candidate amongst the different 'permutations' of the given δs.
     let threeProng;
-    let smallestError = Number.POSITIVE_INFINITY;
+    let smallestError = Infinity;
     for (let i = 1; i < δs.length - 1; i++) {
         for (let k = 0; k < 3; k++) {
             const threeProngInfo = find3ProngForDelta3s(δs, i, k, curvePiecess, extreme);

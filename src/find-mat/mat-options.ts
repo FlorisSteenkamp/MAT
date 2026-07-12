@@ -37,7 +37,7 @@ interface MatOptions {
      * 
      * * Only applies if `applySat` is `true`
      * * Defaults to 2
-     * * The value is clipped in `[1,Number.POSITIVE_INFINITY]`
+     * * The value is clipped in `[1,Infinity]`
      * * Should be larger than one to have an effect
      */
     satScale?: number;
@@ -124,7 +124,7 @@ const matOptionRanges: Partial<{ [K in keyof MatOptions]: MatOptionMeta }> = {
         range: [0.1, 360]
     },
     satScale: {
-        range: [1, Number.POSITIVE_INFINITY],
+        range: [1, Infinity],
     },
     simplifyTolerance: {
         range: [2**-20,2**20],

@@ -14,13 +14,10 @@ function getClosestSquareDistanceToRect(
     const x0 = p0[0];
     const y0 = p0[1];
     const x1 = p1[0];
-    const y1 = p1[1];    
+    const y1 = p1[1];
     const xp = p[0];
     const yp = p[1];
 
-    //let [[x0,y0],[x1,y1]] = box;
-    //let [xp,yp] = p;
-    
     if (xp < x0) {
         if (yp < y0) {
             return squaredDistanceBetween(box[0], p);
@@ -43,7 +40,7 @@ function getClosestSquareDistanceToRect(
         } else if (yp > y1) {
             return (yp - y1)**2;
         } 
-            
+
         return 0;
     }
 }

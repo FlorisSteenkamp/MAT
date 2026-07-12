@@ -21,7 +21,7 @@ const matOptionRanges = {
         range: [0.1, 360]
     },
     satScale: {
-        range: [1, Number.POSITIVE_INFINITY],
+        range: [1, Infinity],
     },
     simplifyTolerance: {
         range: [2 ** -20, 2 ** 20],

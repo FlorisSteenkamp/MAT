@@ -3,7 +3,7 @@ import { cullNonCycles } from '../sat/cull-non-cycles.js';
 import { clone } from '../cp-node/fs/clone.js';
 /**
  * Trims the given Medial Axis Transform so that only cycles remain. Similar to
- * toScaleAxis(mat, Number.POSITIVE_INFINITY).
+ * toScaleAxis(mat, Infinity).
  * @param mat The MAT to trim.
  */
 function trimMat(mat) {

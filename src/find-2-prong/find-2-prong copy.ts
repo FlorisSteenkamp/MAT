@@ -83,7 +83,6 @@ function find2Prong(
     }
 
     /** The antipode of the two-prong (successively refined) */
-    let zs: PointOnShape[] = undefined!;
     let z: PointOnShape = undefined!;
 
     let i = 0;
@@ -101,7 +100,6 @@ function find2Prong(
 
         let maxD = -Infinity;
         let maxPos: PointOnShape = undefined!;
-        zs = [];
         for (const z of _zs) {
             if (z === undefined) { continue; }
             const _yz = squaredDistanceBetweenDd(y.p, z.p);
@@ -109,11 +107,7 @@ function find2Prong(
                 maxD = _yz;
                 maxPos = z;
             }
-            if (_yz !== 0) {
-                zs.push(z);
-            }
         }
-        // z = zs[0];
         const yz = maxD;
         z = maxPos;
 

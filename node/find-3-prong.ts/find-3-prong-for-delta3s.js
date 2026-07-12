@@ -52,7 +52,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordinate) {
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
     let x = calcInitial3ProngCenter(maxCoordinate, δ3s, curvePiece3s);
-    let tolerance = Number.POSITIVE_INFINITY;
+    let tolerance = Infinity;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
         j++;
         poss = getClosestPoints(x, curvePiece3s);

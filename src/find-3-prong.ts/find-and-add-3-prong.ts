@@ -32,7 +32,7 @@ function findAndAdd3Prong(
     
     const orders: number[] = [];
     for (let i=0; i<3; i++) {
-        orders.push(calcPosOrder(circle, poss[i]));
+        orders.push(calcPosOrder(circle.center, poss[i]));
     }
 
     const closeBysFor3Prong: CpNode[] = [];

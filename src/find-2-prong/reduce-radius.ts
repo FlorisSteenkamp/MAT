@@ -1,37 +1,39 @@
 import { evalDeCasteljau } from "flo-bezier3";
-import { dot, lineLineIntersection, squaredDistanceBetween } from "flo-vector2d";
+import { dot, lengthSquared } from "flo-vector2d";
 import { CurvePiece } from '../mat/curve-piece.js';
 
 
+// TODO - must improve this
 /**
- * @internal
- * 
  * Reduces the circle radius initially as an optimization step.
+ * 
+ * @internal
  */
 function reduceRadius(
         extreme: number,
         curvePieces: CurvePiece[], 
         p: number[],
-        x: number[]) {
+        nnorm: number[]): number {
 
-    const TOLERANCE = 1 + 2**-10;
+    const TOLERANCE = 1 + 2**-16;
 
-    let minRadius = Number.POSITIVE_INFINITY;
+    let minRadius = Infinity;
     for (let i=0; i<curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
 
-        const ps = curvePiece.curve.ps;
+        const { curve, ts } = curvePiece;
+        const { ps } = curve;
 
-        // let min = Number.POSITIVE_INFINITY;
         const num = 2;
         for (let j=0; j<(num + 1); j++) {
-            const p_ = evalDeCasteljau(ps, curvePiece.ts[j/num]);
-            const cc = getCircleCenterFrom2PointsAndNormal(extreme, p, x, p_);
-            if (cc) {
-                let r = squaredDistanceBetween(p, cc);
-                if (r < minRadius) {
-                    minRadius = r;
-                }
+            const p_ = evalDeCasteljau(ps, ts[j/num]);
+            const n = getCircleCenterFrom2PointsAndNormal(extreme, p, nnorm, p_);
+            if (n === undefined) {
+                continue;
+            }
+            let r = lengthSquared(n);
+            if (r < minRadius) {
+                minRadius = r;
             }
         }
     }
@@ -42,45 +44,40 @@ function reduceRadius(
 
 
 /**
- * @internal
- * @param p A point on the circle with normal pointing to x towards the center
- * of the circle.
+ * @param p1 a point on the circle with normal pointing to `x` towards the center
+ * of the circle
  * @param x
- * @param p1 Another point on the circle.
+ * @param p2 another point on the circle
+ * 
+ * @internal
  */
 function getCircleCenterFrom2PointsAndNormal(
         extreme: number, 
-        p: number[], 
-        x: number[],
-        p1: number[]) {
+        p1: number[], 
+        nnorm: number[],
+        p2: number[]): number[] | undefined {
 
     const TOLERANCE = (2**-14*extreme)**2;
+    const chord = [p2[0] - p1[0], p2[1] - p1[1]];
 
-    // Ignore if p and p1 are too close together
-    if (squaredDistanceBetween(p,p1) < TOLERANCE) {
+    // Ignore if p1 and p2 are too close together
+    if (dot(chord, chord) < TOLERANCE) {
         return undefined;
     }
 
-    /** The perpindicular bisector between the two given points on the circle */
-    const pb = [
-        (p[0] + p1[0]) / 2,
-        (p[1] + p1[1]) / 2,
-    ];
-    const tan = [p1[0] - p[0], p1[1] - p[1]];
-    const norm  = [-tan[1], tan[0]]; // Rotate by 90 degrees
-    const pb2 = [pb[0] + norm[0], pb[1] + norm[1]];
+    const denom = dot(nnorm, chord);
 
-    const res = lineLineIntersection([p,x], [pb, pb2]);
-
-    if (!res) { return undefined; }
-
-    const resO = [res[0] - p[0], res[1] - p[1]];
-    const xO = [x[0] - p[0], x[1] - p[1]];
-    if (dot(resO, xO) < 0) {
+    // If the ray from p1 to x is parallel to the perpendicular bisector,
+    // there is no finite center on that ray.
+    if (denom <= 0) {
         return undefined;
     }
 
-    return res;
+    const scale = dot(chord, chord) / (2*denom);
+
+    const n = [scale*nnorm[0], scale*nnorm[1]];
+
+    return n;
 }
 
 

@@ -6,7 +6,7 @@ import { squaredDistanceBetween } from 'flo-vector2d';
  * this distance away.
  */
 function getBestDistanceSquared(curvePieces, p) {
-    let bestSquaredDistance = Number.POSITIVE_INFINITY;
+    let bestSquaredDistance = Infinity;
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
         const ps = curvePiece.curve.ps;

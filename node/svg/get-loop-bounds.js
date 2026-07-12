@@ -2,7 +2,7 @@ import { memoize } from 'flo-memoize';
 import { getBounds } from 'flo-bezier3';
 import { createPos } from '../point-on-shape/create-pos.js';
 /** @internal */
-const INF = Number.POSITIVE_INFINITY;
+const INF = Infinity;
 /**
  * @internal
  */

@@ -1,4 +1,4 @@
-import { CurvePiece } from '../mat/curve-piece.js';
+import type { CurvePiece } from '../mat/curve-piece.js';
 import { getBestDistanceSquared } from './get-best-distance-squared.js';
 import { cullByLooseBoundingBox } from './cull-by-loose-bounding-box.js';
 import { cullByTightBoundingBox } from './cull-by-tight-boundary-box.js';

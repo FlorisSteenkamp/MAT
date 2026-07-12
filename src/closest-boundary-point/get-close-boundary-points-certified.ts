@@ -50,7 +50,7 @@ function getCloseBoundaryPointsCertified(
     }
 
     /** the minimum max interval value */
-    let minMax = Number.POSITIVE_INFINITY;
+    let minMax = Infinity;
     for (let i=0; i<pInfoss.length; i++) {
         const diMax = pInfoss[i].dSquaredI[1];
         if (diMax < minMax) {

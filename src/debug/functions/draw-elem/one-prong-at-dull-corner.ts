@@ -12,8 +12,8 @@ function oneProngAtDullCorner(
         delay = 1000,
         scaleFactor = 1) {
 
-    //let oCircle = PointOnShape.getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
-    const oCircle = getOsculatingCircle(Number.POSITIVE_INFINITY, pos);
+    //let oCircle = PointOnShape.getOsculatingCircle(Infinity, pos);
+    const oCircle = getOsculatingCircle(Infinity, pos);
 
     const $center = drawFs.dot(g, pos.p, 0.1, 'orange');
     const $circle = drawFs.dot(g, oCircle.center, 0.25, 'orange');

@@ -14,7 +14,7 @@ function getSalience(cpNode) {
     const d = distanceBetween(bp1, bp2);
     const { pss, hasHoleCloser } = getBoundaryBeziersBetween(cpNode1, cpNode2);
     const s = sum(pss.map(ps => totalLength(ps)));
-    return hasHoleCloser ? Number.POSITIVE_INFINITY : s / d;
+    return hasHoleCloser ? Infinity : s / d;
 }
 export { getSalience };
 //# sourceMappingURL=get-salience.js.map

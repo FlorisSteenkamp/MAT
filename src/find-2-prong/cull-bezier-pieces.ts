@@ -2,39 +2,43 @@ import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-d
 import { CurvePiece } from '../mat/curve-piece.js';
 import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 
+const { sqrt } = Math;
 
+
+// TODO - must improve this
 /**
- * @internal
- * Cull all curvePieces not within given radius of a given point.
+ * Cull all `curvePieces` not within the given radius of a given point.
+ * 
  * @param extreme
  * @param curvePieces
  * @param p
  * @param rSquared
+ * 
+ * @internal
  */
 function cullCurvePieces2(
         curvePieces: CurvePiece[], 
         p: number[], 
         rSquared: number) {
 
-    const TOLERANCE = 1 + 2**-10;
+    const TOLERANCE = 1 + 2**-20;
 
     if (curvePieces.length <= 1) {
         return curvePieces;
     }
 
-
-    const newPieces = [];
+    const curvePieces_: CurvePiece[] = [];
     for (const curvePiece of curvePieces) {
-        const ps = curvePiece.curve.ps;
+        const { ps } = curvePiece.curve;
         
         const rect = getBoundingBox$(ps);
         const bd = getClosestSquareDistanceToRect(rect, p);
         if (bd <= TOLERANCE*rSquared) {
-            newPieces.push(curvePiece);
+            curvePieces_.push(curvePiece);
         } 
     }
 
-    return newPieces;
+    return curvePieces_;
 }
 
 

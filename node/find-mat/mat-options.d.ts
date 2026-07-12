@@ -33,7 +33,7 @@ interface MatOptions {
      *
      * * Only applies if `applySat` is `true`
      * * Defaults to 2
-     * * The value is clipped in `[1,Number.POSITIVE_INFINITY]`
+     * * The value is clipped in `[1,Infinity]`
      * * Should be larger than one to have an effect
      */
     satScale?: number;

@@ -16,7 +16,7 @@ function getGraph(specialVertices, holeClosers) {
                 row.push(0);
                 continue;
             }
-            let minD = Number.POSITIVE_INFINITY;
+            let minD = Infinity;
             for (const toChild of getAllOnCircle(cpNodeA)) {
                 let d = getMatDistanceToNext$(toChild);
                 let child = toChild.next;
@@ -31,7 +31,7 @@ function getGraph(specialVertices, holeClosers) {
                     }
                     if (isVertexSpecial(child)) {
                         // we only find the immediate next special ones
-                        d = Number.POSITIVE_INFINITY;
+                        d = Infinity;
                         break; // Next special vertex found but it's not B
                     }
                     d += getMatDistanceToNext$(child);

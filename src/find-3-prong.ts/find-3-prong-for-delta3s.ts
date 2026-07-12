@@ -77,7 +77,7 @@ function find3ProngForDelta3s(
     let j = 0; // Safeguard for slow convergence
     let x = calcInitial3ProngCenter(maxCoordinate, δ3s, curvePiece3s);
 
-    let tolerance = Number.POSITIVE_INFINITY;
+    let tolerance = Infinity;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) { 
         j++;
         

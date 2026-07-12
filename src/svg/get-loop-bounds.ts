@@ -6,7 +6,7 @@ import { createPos } from '../point-on-shape/create-pos.js';
 
 
 /** @internal */
-const INF = Number.POSITIVE_INFINITY;
+const INF = Infinity;
 
 
 /** 

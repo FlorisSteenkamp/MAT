@@ -1,4 +1,4 @@
-// import { RootInterval } from "flo-poly";
+import { RootInterval } from "flo-poly";
 import { Curve } from "flo-boolean";
 
 
@@ -8,8 +8,9 @@ type FootAndEndpointInfo = {
     t: number;
     d: number;
     box: number[][];
-    // ri: RootInterval;
+    ri: RootInterval;
     dSquaredI: number[];
+    x: number[];
 }
 
 

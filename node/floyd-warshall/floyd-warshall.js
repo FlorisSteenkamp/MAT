@@ -52,7 +52,7 @@ export { floydWarshall };
 //    \|/           |
 //    (1)--------->(2)
 //           3
-// const INF = Number.POSITIVE_INFINITY;
+// const INF = Infinity;
 // const graph = [
 //     [0, 5, INF, 10],
 //     [INF, 0, 3, INF],

@@ -18,10 +18,9 @@ function getInitialCurvePieces(
         isHoleClosing: boolean,
         loop: Loop,
         loops: Loop[],
-        // cpTrees: Map<Loop,LlRbTree<CpNode>>,
         meta: MatMeta,
         y: PointOnShape,
-        circle: Circle): CurvePiece[] {
+        xO: number[]): CurvePiece[] {
 
     const { cpTrees } = meta;
 
@@ -32,22 +31,22 @@ function getInitialCurvePieces(
             .map(curve => ({ curve, ts: [0,1] })));
     }
 
-    const order = isPosCorner(y) && getPosCorner(y).isDull
-        ? y.t === 1 && angle === 0
-            ? -1 
-            : y.t === 0
-            ? +1
-            : calcPosOrder(circle, y)
-        : 0;
+    const order =
+        isPosCorner(y) && getPosCorner(y).isDull
+            ? y.t === 1 && angle === 0
+                ? -1 
+                : y.t === 0
+                ? +1
+                : calcPosOrder(xO, y)
+            : 0;
 
     const cpNode = getCpNodeToLeftOrSame(cpTrees.get(loop)!, y, order, 0);
     if (!cpNode || 
         // The special case if there is only a single sharp corner or 
         // two-way terminating 2-prong currently in the MAT. Don't remove!
-        (cpNode === cpNode.next.next) 
-    ) {
-        return loop.curves
-        .map(curve => ({ curve, ts: [0,1] }));
+        (cpNode === cpNode.next.next)) {
+
+        return loop.curves.map(curve => ({ curve, ts: [0,1] }));
     }
 
     return getBoundaryPieceBeziers([cpNode, cpNode]);

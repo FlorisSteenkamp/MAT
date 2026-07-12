@@ -33,7 +33,7 @@
     "dependencies": {
         "big-float-ts": "^4.0.3",
         "double-double": "^3.0.4",
-        "flo-bezier3": "^7.0.3",
+        "flo-bezier3": "^8.0.1",
         "flo-boolean": "^5.0.5",
         "flo-draw": "^2.0.5",
         "flo-gauss-quadrature": "^2.1.4",

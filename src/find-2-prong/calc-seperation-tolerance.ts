@@ -25,7 +25,7 @@ function calcSeperationTolerance(
 
     const a = r + δ;
     if (a >= R) {
-        return Number.POSITIVE_INFINITY;
+        return Infinity;
     }
 
 
@@ -70,7 +70,7 @@ export { calcSeperationTolerance }
 
 //     const a = r + δ;
 //     if (a >= R) {
-//         return Number.POSITIVE_INFINITY;
+//         return Infinity;
 //     }
 
 //     const b = R - r;
