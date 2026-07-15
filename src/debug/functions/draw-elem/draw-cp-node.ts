@@ -14,13 +14,13 @@ function drawCpNode(
         scaleFactor = 1) {
 
     const circle = scaleCircle(
-        cpNode.cp.circle,
+        cpNode.pointOnShape.circle,
         1
     );
     const { center: c, radius: r } = circle;
     
     const poss = CpNodeFs.getAllOnCircle(cpNode)
-        .map(cpNode => cpNode.cp.pointOnShape)
+        .map(cpNode => cpNode.pointOnShape)
 
     const { dot, circle: drawCircle, crossHair } = drawFs;
 

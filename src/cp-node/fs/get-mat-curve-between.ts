@@ -22,10 +22,10 @@ function getMatCurveBetween(
         cpNodeFrom: CpNode, 
         cpNodeTo: CpNode): number[][] {
 
-    const fromCc = cpNodeFrom.cp.circle.center;
+    const fromCc = cpNodeFrom.pointOnShape.circle.center;
     const fromL = getEdgeDirection(cpNodeFrom);
 
-    const toCc = cpNodeTo.cp.circle.center;
+    const toCc = cpNodeTo.pointOnShape.circle.center;
     const toL = getEdgeDirection(cpNodeTo.prevOnCircle);
 
     const mid = lineLineIntersection(fromL, toL);

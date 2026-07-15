@@ -16,7 +16,7 @@ function createNewCpTree(cpNode: CpNode) {
     getAllOnLoop(cpNode).forEach(createNewCpTree_);
 
     function createNewCpTree_(cpNode: CpNode) {
-        const loop = cpNode.cp.pointOnShape.curve.loop;
+        const loop = cpNode.pointOnShape.curve.loop;
         let cpTree = newCpTrees.get(loop);
         if (!cpTree) { 
             cpTree = new LlRbTree(cpNodeComparator, false); 

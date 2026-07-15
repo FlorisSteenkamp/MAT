@@ -13,7 +13,7 @@ function vertex(
         delay = 0,
         scaleFactor = 1) {
 
-    const circle = cpNode.cp.circle;
+    const circle = cpNode.pointOnShape.circle;
 
     let $svgs: SVGElement[] = [];
 

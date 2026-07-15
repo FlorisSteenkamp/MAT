@@ -30,7 +30,7 @@ function nameObj(o: any, pre = '') {
  */
 function δToString(cpNodes: CpNode[]) {
     return cpNodes.map(
-        cpNode => posToHumanString(cpNode.cp.pointOnShape)
+        cpNode => posToHumanString(cpNode.pointOnShape)
     );
 }
 

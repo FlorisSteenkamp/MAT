@@ -22,8 +22,7 @@ const emptyDebugElems = {
     cull: [] as number[][],
     cpNode: [] as CpNode[],
     branch: [] as CpNode[][],
-    holeCloser: [] as CpNode[],
-    speed: [] as CpNode[]
+    holeCloser: [] as CpNode[]
 } as const;
 
 

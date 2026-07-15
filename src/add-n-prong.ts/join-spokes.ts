@@ -1,5 +1,6 @@
-import { CpNode } from "../cp-node/cp-node.js";
-import { Circle } from "../geometry/circle.js";
+import type { CpNode } from "../cp-node/cp-node.js";
+import type { Circle } from "../geometry/circle.js";
+import type { Mutable } from "../utils/mutable.js";
 
 
 function joinSpokes(
@@ -10,8 +11,9 @@ function joinSpokes(
 
     const len = cpNodes.length;
     for (let i=0; i<len; i++) {
-        cpNodes[i].nextOnCircle = cpNodes[(i + 1)%len];
-        cpNodes[i].prevOnCircle = cpNodes[(i - 1 + len)%len];
+        const cpNode = cpNodes[i] as Mutable<CpNode>;
+        cpNode.nextOnCircle = cpNodes[(i + 1)%len];
+        cpNode.prevOnCircle = cpNodes[(i - 1 + len)%len];
     }
 }
 
@@ -21,8 +23,8 @@ function byAngle(circle: Circle) {
     const c = circle.center;
 
     return function(_a: CpNode, _b: CpNode) {
-        let a = _a.cp.pointOnShape.p;
-        let b = _b.cp.pointOnShape.p;
+        let a = _a.pointOnShape.p;
+        let b = _b.pointOnShape.p;
 
         // Move onto origin
         a = [a[0] - c[0], a[1] - c[1]];

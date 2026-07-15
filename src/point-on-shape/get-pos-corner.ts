@@ -1,15 +1,19 @@
 import type { Corner } from "../corner/corner.js";
-import type { PointOnShape } from "./point-on-shape.js";
+import type { Curve } from "flo-boolean";
 import { getCorner } from "../corner/get-corner.js";
 
 
 /**
  * @internal
  */
-function getPosCorner(pos: PointOnShape): Corner {
+function getPosCorner(
+        pos: { t: number, curve: Curve}): Corner {
+
+    const { t, curve } = pos;
+
     return getCorner(
-        pos.t === 1 ? pos.curve.ps : pos.curve.prev.ps,
-        pos.t === 1 ? pos.curve.next.ps : pos.curve.ps,
+        t === 1 ? curve.ps : curve.prev.ps,
+        t === 1 ? curve.next.ps : curve.ps,
     );
 }
 

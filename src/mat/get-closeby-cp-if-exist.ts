@@ -2,7 +2,7 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
 import { Loop } from 'flo-boolean';
 import { CpNode } from '../cp-node/cp-node.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { Circle } from '../geometry/circle.js';
 import { getCpNodeToLeftOrSame } from './get-cp-node-to-left-or-same.js';
 import { MatMeta } from './mat-meta.js';
@@ -26,16 +26,16 @@ const ANGLE_THRESHOLD = Math.cos(DEGREES * (Math.PI / 180));
  */
 function getCloseByCpIfExist(
         meta: MatMeta,
-        pos: PointOnShape,
+        pos: PrePointOnShape,
         circle: Circle,
         order: number,
         order2: number,
         forProngCount?: number): CpNode | undefined {
 
-    const { cpTrees, maxCoordinate } = meta;
+    const { cpTrees, maxCoordPowerOf2 } = meta;
 
-    const DISTANCE_THRESHOLD = maxCoordinate * 2e-14;
-    const DISTANCE_THRESHOLD_2 = DISTANCE_THRESHOLD * 2e-2;
+    const DISTANCE_THRESHOLD = 2**(maxCoordPowerOf2 - 40);  // approx. 1e-9 for 1024 x 1024 shapes
+    const DISTANCE_THRESHOLD_2 = 2**(maxCoordPowerOf2 - 46);
 
     const cpTree = cpTrees.get(pos.curve.loop)!;
     const cur = getCpNodeToLeftOrSame(cpTree, pos, order, order2);
@@ -44,7 +44,7 @@ function getCloseByCpIfExist(
 
     const { p, t } = pos;
     for (const cpNode of cpNodes) {
-        const pos2 = cpNode.cp.pointOnShape;
+        const pos2 = cpNode.pointOnShape;
         const p2 = pos2.p;
         const d = distanceBetween(p,p2);
         if (d > DISTANCE_THRESHOLD) {
@@ -52,7 +52,7 @@ function getCloseByCpIfExist(
         }
         // return cpNode;
 
-        const v1 = toUnitVector(fromTo(p2, cpNode.cp.circle.center));
+        const v1 = toUnitVector(fromTo(p2, cpNode.pointOnShape.circle.center));
         const v2 = toUnitVector(fromTo(p, circle.center));
         const cosTheta = dot(v1,v2);
 

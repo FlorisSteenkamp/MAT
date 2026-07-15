@@ -1,5 +1,4 @@
-const max = Math.max;
-const abs = Math.abs;
+const { max, abs } = Math;
 
 
 /**
@@ -9,7 +8,8 @@ const abs = Math.abs;
  */
 function getLoopsMetrics(loops: number[][][][]): { 
         maxCoordinate: number,
-        maxRadius: number } {
+        width: number,
+        height: number } {
 
     let maxCoordinate = 0;
     let minX = +Infinity;
@@ -30,9 +30,8 @@ function getLoopsMetrics(loops: number[][][][]): {
 
     const width  = maxX - minX;
     const height = maxY - minY;
-    const maxRadius = max(width, height);
 
-    return { maxCoordinate, maxRadius };
+    return { maxCoordinate, width, height };
 }
 
 

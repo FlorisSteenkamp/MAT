@@ -1,6 +1,6 @@
 import { CpNode } from "../cp-node/cp-node.js";
 import { MatMeta } from "../mat/mat-meta.js";
-import { PointOnShape } from "../point-on-shape/point-on-shape.js";
+import { PointOnShape, PrePointOnShape } from "../point-on-shape/point-on-shape.js";
 import { add2Prong } from "./add-2-prong.js";
 import { find2Prong } from "./find-2-prong.js";
 
@@ -13,15 +13,15 @@ import { find2Prong } from "./find-2-prong.js";
  */
 function findAndAdd2Prong(
         meta: MatMeta,
-        y: PointOnShape): CpNode | undefined {
+        y: PrePointOnShape): CpNode | undefined {
 
     const twoProngInfo = find2Prong(meta, false, false, 0, y);
     if (twoProngInfo === undefined) {
         return undefined;
     }
 
-    const { circle, zs } = twoProngInfo;
-    const cpNode = add2Prong(meta, circle, [y, ...zs], false);
+    const { circle, z } = twoProngInfo;
+    const cpNode = add2Prong(meta, circle, y, z, false);
 
     return cpNode;
 }

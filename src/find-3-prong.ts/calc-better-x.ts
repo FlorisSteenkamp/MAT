@@ -1,5 +1,5 @@
 import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { CurvePiece  } from '../mat/curve-piece.js';
 import { getClosestPoints } from './get-closest-points.js';
 
@@ -22,7 +22,7 @@ function calcBetterX(
         vectorToZeroV: number[]): {
             newX: number[];
             newV: number;
-            newPoss: PointOnShape[];
+            newPoss: PrePointOnShape[];
         } {
 
     const V = len(vectorToZeroV);
@@ -30,7 +30,7 @@ function calcBetterX(
     let nu = 1;
     let better;
     let newX;
-    let newPoss: PointOnShape[];
+    let newPoss: PrePointOnShape[];
     let newV;
     let i = 0; // Safeguard
     do { 

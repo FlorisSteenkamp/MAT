@@ -1,12 +1,10 @@
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { CurvePiece } from '../mat/curve-piece.js';
 import { 
     fromTo, circumCenter, len, distanceBetween, toUnitVector, rotate90Degrees,
     cross 
 } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
-import { CpNode } from '../cp-node/cp-node.js';
-import { CpNodeFs } from '../cp-node/cp-node-fs.js';
-import { CurvePiece } from '../mat/curve-piece.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
@@ -14,31 +12,30 @@ import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-c
 import { getCorner } from '../corner/get-corner.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
 import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
-
-const { isSharp } = CpNodeFs;
-
+import { isSharp } from '../cp-node/fs/is-sharp.js';
 
 /** @internal */
 const calcVectorToZeroV_StraightToIt = fromTo;
 
 
 /**
- * @internal
  * Finds a 3-prong using only the 3 given δs.
+ * 
  * @param δs The boundary pieces
  * @param idx δ identifier
  * @param curvePiecess
- * @param maxCoordinate The maximum coordinate value used to calculate floating point
- * tolerances.
+ * @param maxCoordPowerOf2
+ * 
+ * @internal
  */
 function find3ProngForDelta3s(
         δs: CpNode[][], 
         idx: number, 
         k: number,
         curvePiecess: CurvePiece[][],
-        maxCoordinate: number) {
+        maxCoordPowerOf2: number) {
 
-    const TOLERANCE = 2**-32*maxCoordinate;
+    const TOLERANCE = 2**(maxCoordPowerOf2 - 32);
     const MAX_ITERATIONS = 10;
 
     const δs_ = [
@@ -72,10 +69,10 @@ function find3ProngForDelta3s(
     if (isSharp(δ3s[0][0])) { return undefined; }
 
 
-    let poss: PointOnShape[] = undefined!;
+    let poss: ReturnType<typeof getClosestPoints> = undefined!;
     let circumCenter_;
     let j = 0; // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(maxCoordinate, δ3s, curvePiece3s);
+    let x = calcInitial3ProngCenter(maxCoordPowerOf2, δ3s, curvePiece3s);
 
     let tolerance = Infinity;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) { 
@@ -174,12 +171,12 @@ function find3ProngForDelta3s(
     //-------------------------------------------------------------------------
     const closestDs = [];
     for (let i=0; i<curvePiecess.length; i++) {
-        const p = getCloseBoundaryPointsCertified(
+        const pos = getCloseBoundaryPointsCertified(
             5,  // TODO - see find-2-prong
             curvePiecess[i], x
         )[0];
 
-        closestDs.push( distanceBetween(p.p, x) );
+        closestDs.push( distanceBetween(pos.p, x) );
     }
     const closestD = Math.min(...closestDs);
     const radiusDelta = Math.abs(radius - closestD);

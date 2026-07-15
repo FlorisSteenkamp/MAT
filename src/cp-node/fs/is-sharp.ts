@@ -9,7 +9,7 @@ import { CpNode } from "../cp-node.js";
  * terminating and one not. See `isTerminating` for more details.
  */
 function isSharp(cpNode: CpNode) {
-    return cpNode.cp.circle.radius === 0;
+    return cpNode.pointOnShape.circle.radius === 0;
 }
 
 

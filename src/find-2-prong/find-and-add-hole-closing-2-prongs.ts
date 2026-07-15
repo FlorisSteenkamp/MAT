@@ -6,13 +6,11 @@ import { MatMeta } from '../mat/mat-meta.js';
 
 
 /**
+ * Find and add two-prongs that close any holes in the shape.
+ * 
+ * @param meta
+ * 
  * @internal
- * Find and add two-prongs that remove any holes in the shape.
- * @param loops The loops (that as a precondition must be ordered from 
- * highest (i.e. smallest y-value) topmost point loops to lowest)
- * @param cpTrees
- * @param maxCoordinate The maximum coordinate value used to calculate floating point
- * tolerances.
  */
 function findAndAddHoleClosing2Prongs(
         meta: MatMeta) {
@@ -26,21 +24,21 @@ function findAndAddHoleClosing2Prongs(
 
     // We start at 1 since 0 is the outer (root) loop
     for (let k=1; k<minYs.length; k++) {
-        const posSource = minYs[k];
+        const pposSource = minYs[k];
         
-        const holeClosingTwoProng = find2Prong(
-            meta, true, false, 0, posSource
+        const posAntipode = find2Prong(
+            meta, true, false, 0, pposSource
         );
 
-        if (!holeClosingTwoProng) { 
+        if (!posAntipode) { 
             throw new Error(`Unable to find hole-closing 2-prong`);
         } 
 
         // TODO important - handle case of n-prong, i.e. more than one antipode
         // - currently we only handle case of single antipode (the general case)
-        const { circle, zs: posAntipodes } = holeClosingTwoProng;
+        const { circle, z } = posAntipode;
 
-        const _cpNode = add2Prong(meta, circle, [posSource, posAntipodes[0]], true);
+        const _cpNode = add2Prong(meta, circle, pposSource, z, true);
 
         cpNode = cpNode === undefined ? _cpNode : cpNode;
     }

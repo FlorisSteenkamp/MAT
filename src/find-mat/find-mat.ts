@@ -27,7 +27,7 @@ import { MatMeta } from '../mat/mat-meta.js';
  */
 function findMat(
         loops: Loop[], 
-        maxCoordinate: number,
+        maxCoordPowerOf2: number,
         options: Required<MatOptions>): {
             cpNode: CpNode;
             meta: MatMeta;
@@ -40,29 +40,21 @@ function findMat(
     const getFor2ProngsOnLoop_ = getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength);
     const getFor1ProngsOnLoop_ = getFor1ProngsOnLoop(minBezLength);
 
-    const sharpCornersPerLoop = loops.map(getSharpCornersOnLoop_);
-
     const bounds = getShapeBounds(loops);
     const squaredDiagonalLength = 
         (bounds.maxX.p[0] - bounds.minX.p[0])**2 +
         (bounds.maxY.p[1] - bounds.minY.p[1])**2;
 
-    const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
+    const sharpCornersPerLoop = loops.map(getSharpCornersOnLoop_);
     const lastInsertId = { id: 0 };
-    createInitialCpTree(loops, cpTrees, sharpCornersPerLoop, lastInsertId);
+    const cpTrees = createInitialCpTree(loops, sharpCornersPerLoop, lastInsertId);
 
     const _meta = getPartialMeta(loops);
     const pointToCpNode = getPointToCpNode(loops, cpTrees);
     const meta: MatMeta = {
-        maxCoordinate, squaredDiagonalLength, loops, cpTrees, pointToCpNode,
+        maxCoordPowerOf2, squaredDiagonalLength, loops, cpTrees, pointToCpNode,
         lastInsertId, ..._meta
     };
-    // const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
-    // const lastInsertId = { id: 0 };
-    // createInitialCpTree(loops, cpTrees, sharpCornersPerLoop, lastInsertId);
-
-    // const meta = getMeta(maxCoordinate, squaredDiagonalLength, loops, cpTrees, lastInsertId);
-
 
     let cpNode: CpNode | undefined;
 

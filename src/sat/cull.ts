@@ -1,11 +1,10 @@
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { DualSet } from '../utils/dual-set.js';
+import type { Mutable } from '../utils/mutable.js';
 import { getLeaves } from './get-leaves.js';
-import { CpNodeFs } from '../cp-node/cp-node-fs.js';
 import { isTerminating } from '../cp-node/fs/is-terminating.js';
 import { DualSetFs } from '../utils/dual-set.js';
-
-const { isOnSameCircle } = CpNodeFs;
+import { isOnSameCircle } from '../cp-node/fs/is-on-same-circle.js';
 
 
 /**
@@ -51,7 +50,7 @@ function cull(
     while (leaves.length) {
         const leaf = leaves.pop()!;
 
-        const { center: c } = leaf.cp.circle;
+        const { center: c } = leaf.pointOnShape.circle;
         if (!DualSetFs.has(culls, c[0], c[1]) ||
             // Preserve topology.
             leaf.isIntersection) {
@@ -64,7 +63,7 @@ function cull(
         while (!cut) {
             cpNode = cpNode.next;
 
-            const { center: c } = cpNode.cp.circle;
+            const { center: c } = cpNode.pointOnShape.circle;
             if (!DualSetFs.has(culls, c[0], c[1])) {
                 // Cut off the edge once a non-cull has been reached.
                 while (isTerminating(cpNode.prevOnCircle)) {
@@ -85,12 +84,12 @@ function cull(
         }
 
         if (cut) {
-            const cp1 = cpNode.prevOnCircle;
+            const cp1 = cpNode.prevOnCircle as Mutable<CpNode>;
             cp1.next = cpNode;
-            cpNode.prev = cp1;
+            (cpNode as Mutable<CpNode>).prev = cp1;
 
             cp1.nextOnCircle = cpNode;
-            cpNode.prevOnCircle = cp1;
+            (cpNode as Mutable<CpNode>).prevOnCircle = cp1;
         }
     }
 }

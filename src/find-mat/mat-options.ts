@@ -9,7 +9,7 @@ interface MatOptions {
      * * Defaults to `0.05`.
      * * The value is clipped in the range `[0.01,3]`.
      */
-    maxCurviness?: number;
+    readonly maxCurviness?: number;
 
     /**
      * The maximum length a curve can have before an additional MAT 
@@ -21,7 +21,7 @@ interface MatOptions {
      * * Defaults to `40`.
      * * The value is clipped in `[1,1024]`.
      */
-    maxLength?: number;
+    readonly maxLength?: number;
 
     /**
      * If `true` then `toScaleAxis` will be applied to the MAT (and before
@@ -29,7 +29,7 @@ interface MatOptions {
      * 
      * * Defaults to `true`
      */
-    applySat?: boolean;
+    readonly applySat?: boolean;
 
     /**
      * The higher this value, the more aggresively the
@@ -40,7 +40,7 @@ interface MatOptions {
      * * The value is clipped in `[1,Infinity]`
      * * Should be larger than one to have an effect
      */
-    satScale?: number;
+    readonly satScale?: number;
 
     /**
      * If `true` then the `simplyfiMats` will be applied which will replace
@@ -50,7 +50,7 @@ interface MatOptions {
      * 
      * * Defaults to `true`
      */
-    simplify?: boolean;
+    readonly simplify?: boolean;
 
     /**
      * The tolerance, given as the Hausdorff distance between curves, to
@@ -65,7 +65,7 @@ interface MatOptions {
      * 512x400 then the accuracy is scaled to `1/2` a pixel. This ensures
      * scale invariance on the accuracy.
      */
-    simplifyTolerance?: number;
+    readonly simplifyTolerance?: number;
 
     /**
      * Minimum bezier length before no `CpNode` will attach to it.
@@ -74,7 +74,7 @@ interface MatOptions {
      * * scaled to a 1024x1024 vector image size
      * * Defaults to `1/16`
      */
-    minBezLength?: number;
+    readonly minBezLength?: number;
 
     /**
      * Angle (in degrees) increments around sharp obtuse corners. The lower the
@@ -82,7 +82,7 @@ interface MatOptions {
      * 
      * * Defaults to `15`
      */
-    angleIncrement?: number;
+    readonly angleIncrement?: number;
 
     /**
      * If `true` then 2-prongs will be inserted apatively according to the
@@ -106,25 +106,27 @@ const defaultMatOptions: Required<MatOptions> = {
 
 
 type MatOptionMeta = {
-    range: [number,number],
-    scaleByMaxCoordinate?: boolean | undefined,
-    scaleByMaxRadius?: boolean | undefined
+    readonly range: [number,number],
+    readonly scaleByMaxCoordinate: boolean,
 }
 
 
-const matOptionRanges: Partial<{ [K in keyof MatOptions]: MatOptionMeta }> = {
+const matOptionRanges: Omit<Required<{ [K in keyof MatOptions]: MatOptionMeta }>, 'applySat' | 'simplify'> = {
     maxCurviness: {
-        range: [0.01,3]
+        range: [0.01,3],
+        scaleByMaxCoordinate: false
     },
     maxLength: {
         range: [1,1024],
-        scaleByMaxRadius: true
+        scaleByMaxCoordinate: true
     },
     angleIncrement: {
-        range: [0.1, 360]
+        range: [0.1, 360],
+        scaleByMaxCoordinate: false
     },
     satScale: {
         range: [1, Infinity],
+        scaleByMaxCoordinate: false
     },
     simplifyTolerance: {
         range: [2**-20,2**20],
@@ -134,7 +136,8 @@ const matOptionRanges: Partial<{ [K in keyof MatOptions]: MatOptionMeta }> = {
         range: [2**-20,2],
         scaleByMaxCoordinate: true
     }
-}
+};
 
 
-export { MatOptions, MatOptionMeta, defaultMatOptions, matOptionRanges }
+export type { MatOptions, MatOptionMeta }
+export {defaultMatOptions, matOptionRanges }

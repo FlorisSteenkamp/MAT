@@ -26,7 +26,7 @@ function findAndAdd3Prong(
         δs.push([visitedCp, visitedCp.next]);
     }
     
-    const threeProngInfo = find3Prong(δs, meta.maxCoordinate);
+    const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
 
     const { circle, poss, δ3s } = threeProngInfo;
     

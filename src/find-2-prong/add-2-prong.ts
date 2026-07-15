@@ -2,50 +2,63 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { Loop } from 'flo-boolean';
 import { CpNode } from '../cp-node/cp-node.js';
 import { Circle } from '../geometry/circle.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
-import { createPos } from '../point-on-shape/create-pos.js';
+// import { createPos } from '../point-on-shape/create-pos.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
 import { MatMeta } from '../mat/mat-meta.js';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
 import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { removeCpNode } from '../cp-node/fs/remove-cp-node.js';
+import { Mutable } from '../utils/mutable.js';
 
 
 /**
  * @internal
  * Adds a 2-prong contact circle to the shape.
  *
- * @param cpTrees
+ * @param meta
  * @param circle Circle containing the 2 contact points
- * @param posSource The source point on shape
- * @param posAntipode The found antipodal point on shape
+ * @param pposSource The source point on shape
+ * @param pposAntipode The found antipodal point on shape
  * @param isHoleClosing True if this is a hole-closing 2-prong, false otherwise
- * @param maxCoordinate The maximum coordinate value used to calculate floating point
- * tolerances.
  */
 function add2Prong(
         meta: MatMeta,
         circle: Circle,
-        poss: PointOnShape[],
+        pposSource: PrePointOnShape,
+        pposAntipode: PrePointOnShape,
         isHoleClosing: boolean): CpNode | undefined {
 
-    poss[0] = poss[0].t === 0
-        ? createPos(poss[0].curve.prev, 1, true)
-        : poss[0];
+    pposSource = pposSource.t === 0
+        // ? createPos(posSource.curve.prev, 1, true)
+        ? { ...pposSource, curve: pposSource.curve.prev, t: 1 }
+        : pposSource;
 
-    const orders = poss.map(pos => calcPosOrder(circle.center, pos));
+    const orderSource = calcPosOrder(circle.center, pposSource);
+    const orderAntipode = calcPosOrder(circle.center, pposAntipode);
+
+    const posAntipode: PointOnShape = {
+        ...pposAntipode, circle, order: orderAntipode, order2: 0
+    };
+    const posSource: PointOnShape = {
+        ...pposSource, circle, order: orderSource, order2: 0
+    }
 
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
-    for (let i=0; i<poss.length; i++) {
-        if (!!getCloseByCpIfExist(meta, poss[i], circle, orders[i], 0, 2)) {
-            return undefined;
-        }
+    if (!!getCloseByCpIfExist(meta, pposSource, circle, orderSource, 0, 2)) {
+        return undefined;
+    }
+    if (!!getCloseByCpIfExist(meta, pposAntipode, circle, orderAntipode, 0, 2)) {
+        return undefined;
     }
 
     const { anyFailed, cpNodes } = addToCpTree(
-        isHoleClosing, isHoleClosing, circle, orders, meta, poss
+        isHoleClosing, isHoleClosing, circle,
+        [orderSource, orderAntipode],
+        meta,
+        [posSource, posAntipode]
     );
 
     if (anyFailed) {
@@ -74,44 +87,43 @@ function closeHole(
 
     const { cpTrees } = meta;
 
-    const [cpNodeA, cpNodeB] = cpNodes;
-    // Duplicate ContactPoints
-    // const antipodeCpNode = cpNodeB[0];
-    const cpAntipode = cpNodeB.cp;
+    const [cpNodeSource, cpNodeAntipode] = cpNodes as Mutable<CpNode>[];
 
-    const cpNodeB2 = insertCpNode(
-        true,
-        true, false,
-        cpTrees.get(cpAntipode.pointOnShape.curve.loop)!,
-        { ...cpAntipode, order2: +1 },
-        cpNodeB,
+    // Antipode - create and insert twin
+    const posAntipode = cpNodeAntipode.pointOnShape;
+    const cpNodeAntipodeTwin = insertCpNode(
+        true, true, false,
+        cpTrees.get(posAntipode.curve.loop)!,
+        { ...posAntipode, order2: +1 },
+        cpNodeAntipode,
         meta.lastInsertId
-    )!;
-    cpNodeB2.holeCloserTwin = cpNodeB;
-    cpNodeB.holeCloserTwin = cpNodeB2;
+    )! as Mutable<CpNode>;
+    cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
+    cpNodeAntipode.holeCloserTwin = cpNodeAntipodeTwin;
 
-    const cpNodeB1 = insertCpNode(
-        true,
-        true, false,
-        cpTrees.get(cpNodeA.cp.pointOnShape.curve.loop)!,
-        { ...cpNodeA.cp, order2: -1 },
-        cpNodeA.prev,
+    // Source - create and insert twin
+    const posSource = cpNodeSource.pointOnShape;
+    const cpNodeSourceTwin = insertCpNode(
+        true, true, false,
+        cpTrees.get(posSource.curve.loop)!,
+        { ...cpNodeSource.pointOnShape!, order2: -1 },
+        cpNodeSource.prev,
         meta.lastInsertId
-    )!;
-    cpNodeB1.holeCloserTwin = cpNodeA;
-    cpNodeA.holeCloserTwin = cpNodeB1;
+    )! as Mutable<CpNode>;
+    cpNodeSourceTwin.holeCloserTwin = cpNodeSource;
+    cpNodeSource.holeCloserTwin = cpNodeSourceTwin;
 
     // Connect graph
-    cpNodeB1.prevOnCircle = cpNodeB2;
-    cpNodeB1.nextOnCircle = cpNodeB2;
-    cpNodeB2.prevOnCircle = cpNodeB1;
-    cpNodeB2.nextOnCircle = cpNodeB1;
+    cpNodeSourceTwin.prevOnCircle = cpNodeAntipodeTwin;
+    cpNodeSourceTwin.nextOnCircle = cpNodeAntipodeTwin;
+    cpNodeAntipodeTwin.prevOnCircle = cpNodeSourceTwin;
+    cpNodeAntipodeTwin.nextOnCircle = cpNodeSourceTwin;
 
-    cpNodeB.next = cpNodeA;
-    cpNodeA.prev = cpNodeB;
+    cpNodeAntipode.next = cpNodeSource;
+    cpNodeSource.prev = cpNodeAntipode;
 
-    cpNodeB1.next = cpNodeB2;
-    cpNodeB2.prev = cpNodeB1;
+    cpNodeSourceTwin.next = cpNodeAntipodeTwin;
+    cpNodeAntipodeTwin.prev = cpNodeSourceTwin;
 }
 
 

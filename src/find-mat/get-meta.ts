@@ -31,7 +31,7 @@ function getPointToCpNode(
         const cpTree = cpTrees.get(loop)!;
         const cpNodes = cpTree.toArrayInOrder();
         for (const cpNode of cpNodes) {
-            const { p, t } = cpNode.cp.pointOnShape;
+            const { p, t } = cpNode.pointOnShape;
             TriMapFs.set(pointToCpNode,loop,p[0],p[1],cpNode);
         }
     }
@@ -47,7 +47,7 @@ function getPartialMeta(
             | 'cpTrees'
             | 'pointToCpNode'
             | 'loops'
-            | 'maxCoordinate'
+            | 'maxCoordPowerOf2'
             | 'squaredDiagonalLength'
             | 'lastInsertId'
         > {

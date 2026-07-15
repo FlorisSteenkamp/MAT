@@ -1,6 +1,7 @@
 import { getLeaves } from './get-leaves.js';
 import { CpNode } from '../cp-node/cp-node.js';
 import { CpNodeFs } from '../cp-node/cp-node-fs.js';
+import { Mutable } from '../utils/mutable.js';
 
 const { getProngCount, isOnSameCircle, isTerminating } = CpNodeFs;
 
@@ -48,8 +49,8 @@ function cullNonCycles(cpStart: CpNode) {
             }
 
             if (cut) {
-                cp1.next = cpNode;
-                cpNode.prev = cp1;
+                (cp1 as Mutable<CpNode>).next = cpNode;
+                (cpNode as Mutable<CpNode>).prev = cp1;
 
                 cpNodeKept = cpNode;
                 break;

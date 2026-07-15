@@ -10,8 +10,9 @@ function drawOneProng(
         delay = 0,
         scaleFactor = 1) {
 
-    const cp = cpNode.cp;
-    const { circle, pointOnShape: pos } = cp;
+    // const cp = cpNode.cp;
+    const { pointOnShape: pos } = cpNode;
+    const { circle } = pos;
 
     const $posP = drawFs.dot(g, pos.p, 0.02*scaleFactor, 'deeppink', delay);
     const $circleCenter = drawFs.dot(g, circle.center, 0.01*scaleFactor, 'deeppink', delay);

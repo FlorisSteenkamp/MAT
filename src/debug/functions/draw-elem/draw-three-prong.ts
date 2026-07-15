@@ -14,14 +14,14 @@ function drawThreeProng(
         scaleFactor = 1) {
 
     const circle = scaleCircle(
-        threeProng.cp.circle,
+        threeProng.pointOnShape.circle,
         1
     );
     const { center: c, radius: r } = circle;
     
     // const poss = threeProng.poss;
     const poss = CpNodeFs.getAllOnCircle(threeProng)
-        .map(cpNode => cpNode.cp.pointOnShape)
+        .map(cpNode => cpNode.pointOnShape)
 
     const { dot, circle: drawCircle, crossHair } = drawFs;
 

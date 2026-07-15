@@ -10,8 +10,8 @@ import { CurvePiece } from '../mat/curve-piece.js';
  * @internal
  */
 function reduceRadius(
-        extreme: number,
-        curvePieces: CurvePiece[], 
+        maxCoordPowerOf2: number,
+        curvePieces: (CurvePiece | undefined)[], 
         p: number[],
         nnorm: number[]): number {
 
@@ -21,13 +21,15 @@ function reduceRadius(
     for (let i=0; i<curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
 
+        if (curvePiece === undefined) { continue; }
+
         const { curve, ts } = curvePiece;
         const { ps } = curve;
 
         const num = 2;
         for (let j=0; j<(num + 1); j++) {
             const p_ = evalDeCasteljau(ps, ts[j/num]);
-            const n = getCircleCenterFrom2PointsAndNormal(extreme, p, nnorm, p_);
+            const n = getCircleCenterFrom2PointsAndNormal(maxCoordPowerOf2, p, nnorm, p_);
             if (n === undefined) {
                 continue;
             }
@@ -52,12 +54,12 @@ function reduceRadius(
  * @internal
  */
 function getCircleCenterFrom2PointsAndNormal(
-        extreme: number, 
+        maxCoordPowerOf2: number, 
         p1: number[], 
         nnorm: number[],
         p2: number[]): number[] | undefined {
 
-    const TOLERANCE = (2**-14*extreme)**2;
+    const TOLERANCE = (2**(maxCoordPowerOf2 - 14))**2;
     const chord = [p2[0] - p1[0], p2[1] - p1[1]];
 
     // Ignore if p1 and p2 are too close together

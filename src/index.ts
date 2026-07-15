@@ -6,7 +6,7 @@ export type { Mat } from './mat/mat.js';
 export type { CpNode  } from './cp-node/cp-node.js';
 export type { PointOnShape } from './point-on-shape/point-on-shape.js';
 export type { Circle } from './geometry/circle.js';
-export type { ContactPoint } from './contact-point/contact-point.js';
+// export type { ContactPoint } from './contact-point/contact-point.js';
 export type { CurvePiece } from './mat/curve-piece.js';
 export type { DrawElemFunctions } from './debug/functions/draw-elem/draw-elem.js';
 export type { ICpNodeForDebugging } from './debug/cp-node-for-debugging.js';
@@ -20,7 +20,7 @@ export { drawBeziersAsSinglePath } from './debug/functions/draw/draw-beziers-as-
 export { floydWarshall } from './floyd-warshall/floyd-warshall.js';
 export { CpNodeFs } from './cp-node/cp-node-fs.js';
 export { isVertexSpecial } from './cp-node/fs/is-vertex-special.js';
-export { createPos } from './point-on-shape/create-pos.js';
+// export { createPos } from './point-on-shape/create-pos.js';
 export { findMats } from './find-mat/find-mats.js';
 export { trimMat } from './mat/trim-mat.js';
 export { toScaleAxis } from './sat/to-scale-axis.js';
@@ -83,7 +83,6 @@ export { getBoundaryBeziersBetween } from './cp-node/fs/get-boundary-beziers-bet
 export { getMatCurvesBetween } from './cp-node/fs/get-mat-curves-between.js';
 export { getHoleClosers } from './cp-node/fs/get-hole-closers.js';
 export { getSpeed } from './cp-node/fs/get-speed.js';
-export { getSmoothedSpeed$ } from './cp-node/fs/get-smoothed-speed.js';
 export { getInitialDegAngleBetweenMatCurves } from './cp-node/fs/get-angle-between-mat-curves.js';
 export { getAllVertices } from './cp-node/fs/get-all-vertices.js';
 export { isTrivial } from './cp-node/fs/is-trivial.js';

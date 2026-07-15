@@ -1,10 +1,10 @@
 import type { Curve } from 'flo-boolean';
 import type { CurvePiece  } from '../mat/curve-piece.js';
 import type { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
-import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { createPos } from '../point-on-shape/create-pos.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
 import { cullCurvePieces1 } from './cull-bezier-pieces.js';
+import { evalDeCasteljauDd } from 'flo-bezier3';
+import { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 
 
 /**
@@ -21,13 +21,13 @@ import { cullCurvePieces1 } from './cull-bezier-pieces.js';
  * @param angle defaults to `0`
  */
 function getCloseBoundaryPointsCertified(
-        pow: number,
+        maxCoordPowerOf2: number,
         curvePieces: CurvePiece[], 
         x: number[], 
         touchedCurve: Curve | undefined = undefined,
         t: number | undefined = undefined,
         for1Prong = false,
-        angle = 0): PointOnShape[] {
+        angle = 0): PrePointOnShape[] {
     
     curvePieces = cullCurvePieces1(curvePieces, x);
  
@@ -36,7 +36,7 @@ function getCloseBoundaryPointsCertified(
         const curvePiece = curvePieces[i];
 
         const pInfos = getPotentialClosestPointsOnCurveCertified(
-            pow,
+            maxCoordPowerOf2,
             curvePiece.curve, 
             x, 
             curvePiece.ts, 
@@ -67,7 +67,16 @@ function getCloseBoundaryPointsCertified(
         }
     }
 
-    return closestPointInfos.map(info => createPos(info.curve, info.t, false));
+    return closestPointInfos.map(info => {
+        // createPos(info.curve, info.t, 0,0, false)
+        const { curve, t } = info;
+        const { ps } = curve;
+        const p = evalDeCasteljauDd(ps, [0,t]).map(c => c[1]);
+        
+        return {
+            p, t, curve, isSource: false
+        };
+    });
 }
 
 

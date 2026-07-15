@@ -1,5 +1,5 @@
-import { CpNode } from '../../cp-node/cp-node.js';
-import { ContactPoint, compareCps } from '../../contact-point/contact-point.js';
+import type { CpNode } from '../../cp-node/cp-node.js';
+import { PointOnShape } from '../../point-on-shape/point-on-shape.js';
 
 
 /**
@@ -17,7 +17,7 @@ import { ContactPoint, compareCps } from '../../contact-point/contact-point.js';
  */
 function cmpCpOnδ(
         δ: CpNode[], 
-        cp: ContactPoint) {
+        cp: PointOnShape) {
 
     if (δ[0] === undefined) { 
         return 1;

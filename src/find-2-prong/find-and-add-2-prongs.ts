@@ -2,7 +2,7 @@
 declare const _debug_: Debug;
 
 import { Debug } from '../debug/debug.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { find2Prong } from './find-2-prong.js';
 import { add2Prong } from './add-2-prong.js';
 import { rotateNeg90Degrees } from 'flo-vector2d';
@@ -25,40 +25,24 @@ const { PI, atan2 } = Math;
 function findAndAdd2Prongs(
         meta: MatMeta,
         angleIncrement: number,
-        for2Prongs: PointOnShape[],
+        for2Prongs: PrePointOnShape[],
         for1Prong: boolean) {
 
     let cpNode_;
 
     const angleIncrement_ = angleIncrement*PI/180;
     for (let i=0; i<for2Prongs.length; i++) {
-        const angles = [0];
         const pos = for2Prongs[i];
-        if (pos.t === 1) {
-            const { curve } = pos;
-            const corner = getCorner(curve.ps, curve.next.ps);
-            if (corner.isQuiteDull) {
-                const tangentI = rotateNeg90Degrees(corner.tangents[0]);
-                const tangentO = rotateNeg90Degrees(corner.tangents[1]);
-                // const tangentI = corner.tangents[0];
-                // const tangentO = corner.tangents[1];
-                const a1 = (atan2(tangentI[1], tangentI[0]) + 2*PI)%(2*PI);
-                const a2 = (atan2(tangentO[1], tangentO[0]) + 2*PI)%(2*PI);
-                const a3 = ((a2 - a1) + 2*PI)%(2*PI);
-                let angle = angleIncrement_;
-                while (angle <= a3 - (angleIncrement_/2)) {
-                    angles.push(angle);
-                    angle += angleIncrement_;
-                }
-            }
-        }
+
+        const angles = getValidAngles(angleIncrement_, pos);
+
         for (let angle of angles) {
             const twoProngInfo = find2Prong(
                 meta, false, for1Prong, angle, pos
             );
             if (twoProngInfo) {
-                const { circle, zs } = twoProngInfo;
-                const cpNode = add2Prong(meta, circle, [pos, ...zs], false);
+                const { circle, z } = twoProngInfo;
+                const cpNode = add2Prong(meta, circle, pos, z, false);
                 cpNode_ = cpNode_ || cpNode;
             }
 
@@ -69,6 +53,33 @@ function findAndAdd2Prongs(
     }
 
     return cpNode_;
+}
+
+
+function getValidAngles(
+        angleIncrement_: number,
+        ppos: PrePointOnShape) {
+
+    const angles = [0];
+    if (ppos.t === 1) {
+        const { curve } = ppos;
+        const corner = getCorner(curve.ps, curve.next.ps);
+        if (corner.isQuiteDull) {
+            const tangentI = rotateNeg90Degrees(corner.tangents[0]);
+            const tangentO = rotateNeg90Degrees(corner.tangents[1]);
+
+            const a1 = (atan2(tangentI[1], tangentI[0]) + 2*PI)%(2*PI);
+            const a2 = (atan2(tangentO[1], tangentO[0]) + 2*PI)%(2*PI);
+            const a3 = ((a2 - a1) + 2*PI)%(2*PI);
+            let angle = angleIncrement_;
+            while (angle <= a3 - (angleIncrement_/2)) {
+                angles.push(angle);
+                angle += angleIncrement_;
+            }
+        }
+    }
+
+    return angles;
 }
 
 

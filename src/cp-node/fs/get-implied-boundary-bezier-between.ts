@@ -16,8 +16,8 @@ function getImpliedBoundaryBezierBetween(
         cpNodeA: CpNode,
         cpNodeB: CpNode): number[][] | undefined {
 
-    const posA = cpNodeA.cp.pointOnShape;
-    const posB = cpNodeB.cp.pointOnShape;
+    const posA = cpNodeA.pointOnShape;
+    const posB = cpNodeB.pointOnShape;
 
     let { curve: curveA, p: pA, t: tA } = posA;
     let { curve: curveB, p: pB, t: tB } = posB;

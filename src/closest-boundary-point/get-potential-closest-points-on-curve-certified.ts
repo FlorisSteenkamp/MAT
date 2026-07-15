@@ -27,7 +27,7 @@ const { sqrt } = Math;
  * @param angle defaults to `0`;
  */
 function getPotentialClosestPointsOnCurveCertified(
-        pow: number,
+        maxCoordPowerOf2: number,
         curve: Curve, 
         x: number[], 
         tRange: number[] = [0,1], 
@@ -116,7 +116,7 @@ function getPotentialClosestPointsOnCurveCertified(
         const box = getIntervalBox(ps, [ts, te]);
         const p_ = getPFromBox(box);
         
-        const dSquaredI = rootIntervalToDistanceSquaredInterval(pow, box, x);
+        const dSquaredI = rootIntervalToDistanceSquaredInterval(maxCoordPowerOf2, box, x);
 
         const t_ = t === 0 ? 1 : t;
         const curve_ = t === 0 ? curve.prev : curve;

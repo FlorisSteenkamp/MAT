@@ -6,14 +6,14 @@ import { CpNode } from '../cp-node.js';
  * @param cpNode 
  */
 function getCpNodeOrdering(cpNode: CpNode) {
-    const cp = cpNode.cp;
-    const pos = cp.pointOnShape;
+    // const cp = cpNode.cp;
+    const pos = cpNode.pointOnShape;
 
     return {
         'idx': pos.curve.idx,
         't': pos.t,
-        'order': cp.order,
-        'order2': cp.order2
+        'order': pos.order,
+        'order2': pos.order2
     };
 }
 

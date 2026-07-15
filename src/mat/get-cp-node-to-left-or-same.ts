@@ -1,5 +1,5 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { CpNode } from '../cp-node/cp-node.js';
 
 
@@ -18,12 +18,13 @@ import { CpNode } from '../cp-node/cp-node.js';
  */
 function getCpNodeToLeftOrSame(
         cpTree: LlRbTree<CpNode>,
-        pos: PointOnShape,
+        pos: PrePointOnShape,
         order: number,
         order2: number): CpNode | undefined {
 
-    const cp = { pointOnShape: pos, order, order2 };
-    const cps = cpTree.findBounds({ cp } as unknown as CpNode);
+    // const cp = { pointOnShape: pos, order, order2 };  // TODO - remove ref to cp
+    const pointOnShape = { ...pos, order, order2 };
+    const cps = cpTree.findBounds({ pointOnShape } as CpNode);
 
     if (cps[0] === undefined && cps[1] === undefined) { 
         // The tree is still empty

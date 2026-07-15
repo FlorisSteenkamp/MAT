@@ -6,7 +6,8 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 
 
 interface MatMeta {
-    readonly maxCoordinate: number;
+    /** The minimum power of 2 such that `2**maxCoordPowerOf2 >= "the max coordinate"` */
+    readonly maxCoordPowerOf2: number;
     readonly squaredDiagonalLength: number;
     readonly looseBoundingBoxes: number[][][];
     readonly tightBoundingBoxes: number[][][];

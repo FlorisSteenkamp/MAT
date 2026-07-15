@@ -12,7 +12,7 @@ function getSpeed(cpNode: CpNode): number | undefined {
         return 0;
     }
 
-    const { radius: r } = cpNode.cp.circle;
+    const { radius: r } = cpNode.pointOnShape.circle;
     const matPs = getMatCurveToNext(cpNode);
     const absK = totalAbsoluteCurvature(matPs, [0,1]);
     const l = totalLength(matPs);

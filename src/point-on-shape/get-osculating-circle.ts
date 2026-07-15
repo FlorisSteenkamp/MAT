@@ -1,4 +1,4 @@
-import type { PointOnShape } from './point-on-shape.js';
+import type { PointOnShape, PrePointOnShape } from './point-on-shape.js';
 import { ddCurvature } from 'flo-bezier3';
 
 const { sqrt } = Math;
@@ -14,7 +14,7 @@ const { sqrt } = Math;
  */
 function getOsculatingCircle(
         maxOsculatingCircleRadius: number, 
-        pos: PointOnShape,
+        pos: PrePointOnShape,
         norm: number[]): [number[],number] {
 
     const { curve, p, t } = pos;

@@ -1,15 +1,16 @@
 import type { CpNode } from "../cp-node.js";
 import { LlRbTree } from "flo-ll-rb-tree";
-import { compareCps, ContactPoint } from "../../contact-point/contact-point.js";
+import { PointOnShape } from "../../point-on-shape/point-on-shape.js";
+import { comparePoss } from "../../point-on-shape/compare-poss.js";
 
 
 function isOrderCorrect(
         cpTree: LlRbTree<CpNode>,
-        cp: ContactPoint,
+        pos: PointOnShape,
         next: CpNode): boolean {
 
     // TODO2
-    const c = compareCps(cp,next.cp);
+    const c = comparePoss(pos, next.pointOnShape);
     if (c < 0) { return true; }
     if (c === 0) {
         // TODO2
@@ -26,7 +27,7 @@ function isOrderCorrect(
     const max = cpTree.getMaxNode()!.datum;
 
     // larger than all -> crossing zero on loop
-    return (compareCps(max.cp,cp) < 0 && min === next);
+    return (comparePoss(max.pointOnShape!, pos) < 0 && min === next);
 }
 
 

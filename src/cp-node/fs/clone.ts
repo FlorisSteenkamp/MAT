@@ -1,3 +1,4 @@
+import { Mutable } from "../../utils/mutable.js";
 import type { CpNode } from "../cp-node.js";
 
 
@@ -49,7 +50,7 @@ function clone(
                 nodeMap.set(node, node_);
                 cpStack.push({ cpNode: node, newCpNode: node_ });
             }
-            (newCpNode as CpNode)[edge] = node_ as CpNode;
+            (newCpNode as Mutable<CpNode>)[edge] = node_ as CpNode;
         }
     }
 

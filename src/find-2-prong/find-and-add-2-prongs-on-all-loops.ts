@@ -1,7 +1,7 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
 import { Loop } from 'flo-boolean';
 import { CpNode } from '../cp-node/cp-node.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { findAndAdd2Prongs } from './find-and-add-2-prongs.js';
 import { MatMeta } from '../mat/mat-meta.js';
 
@@ -18,7 +18,7 @@ import { MatMeta } from '../mat/mat-meta.js';
 function findAndAdd2ProngsOnAllLoops(
         meta: MatMeta,
         angleIncrement: number,
-        for2Prongss: PointOnShape[][],
+        for2Prongss: PrePointOnShape[][],
         for1Prongs: boolean) {
 
     let cpNode: CpNode | undefined;

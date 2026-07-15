@@ -28,7 +28,7 @@ function findAndAdd3Prongs(
         meta: MatMeta,
         cpStart: CpNode) {
 
-    if (isPosSharpCorner(cpStart.cp.pointOnShape)) {
+    if (isPosSharpCorner(cpStart.pointOnShape)) {
         return { closeBysFor3Prong: undefined, addedCpNodes: [] };
     }
 

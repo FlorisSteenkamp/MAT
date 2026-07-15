@@ -4,7 +4,7 @@ import { getCpNodeToLeftOrSame } from '../mat/get-cp-node-to-left-or-same.js';
 import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
 import { CurvePiece  } from '../mat/curve-piece.js';
 import { CpNode } from '../cp-node/cp-node.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { Circle } from '../geometry/circle.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
@@ -19,8 +19,9 @@ function getInitialCurvePieces(
         loop: Loop,
         loops: Loop[],
         meta: MatMeta,
-        y: PointOnShape,
-        xO: number[]): CurvePiece[] {
+        yPos: PrePointOnShape,
+        xO: number[],
+        test: boolean): (CurvePiece | undefined)[] {
 
     const { cpTrees } = meta;
 
@@ -32,15 +33,15 @@ function getInitialCurvePieces(
     }
 
     const order =
-        isPosCorner(y) && getPosCorner(y).isDull
-            ? y.t === 1 && angle === 0
+        isPosCorner(yPos) && getPosCorner(yPos).isDull
+            ? yPos.t === 1 && angle === 0
                 ? -1 
-                : y.t === 0
+                : yPos.t === 0
                 ? +1
-                : calcPosOrder(xO, y)
+                : calcPosOrder(xO, yPos)
             : 0;
 
-    const cpNode = getCpNodeToLeftOrSame(cpTrees.get(loop)!, y, order, 0);
+    const cpNode = getCpNodeToLeftOrSame(cpTrees.get(loop)!, yPos, order, 0);
     if (!cpNode || 
         // The special case if there is only a single sharp corner or 
         // two-way terminating 2-prong currently in the MAT. Don't remove!
@@ -49,7 +50,7 @@ function getInitialCurvePieces(
         return loop.curves.map(curve => ({ curve, ts: [0,1] }));
     }
 
-    return getBoundaryPieceBeziers([cpNode, cpNode]);
+    return getBoundaryPieceBeziers([cpNode, cpNode], test);
 }
 
 

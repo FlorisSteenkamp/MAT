@@ -17,18 +17,20 @@ const { sqrt } = Math;
  * @internal
  */
 function cullCurvePieces2(
-        curvePieces: CurvePiece[], 
+        curvePieces: (CurvePiece | undefined)[], 
         p: number[], 
-        rSquared: number) {
+        rSquared: number): CurvePiece[] {
 
     const TOLERANCE = 1 + 2**-20;
 
     if (curvePieces.length <= 1) {
-        return curvePieces;
+        return curvePieces as CurvePiece[];
     }
 
     const curvePieces_: CurvePiece[] = [];
     for (const curvePiece of curvePieces) {
+        if (curvePiece === undefined) { continue; }
+
         const { ps } = curvePiece.curve;
         
         const rect = getBoundingBox$(ps);

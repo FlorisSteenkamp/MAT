@@ -1,4 +1,4 @@
-import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getOsculatingCircle } from '../point-on-shape/get-osculating-circle.js';
 
 const { sqrt } = Math;
@@ -17,7 +17,7 @@ function getInitialX(
         angle: number,
         isHoleClosing: boolean,
         maxOscRadius: number,
-        yPos: PointOnShape,
+        yPos: PrePointOnShape,
         nnorm: number[]): [number[],number] {
 
     let xO: number[];

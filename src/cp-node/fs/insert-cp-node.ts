@@ -1,6 +1,7 @@
+import type { CpNode } from "../cp-node.js";
+import type { PointOnShape } from "../../point-on-shape/point-on-shape.js";
+import type { Mutable } from "../../utils/mutable.js";
 import { LlRbTree } from "flo-ll-rb-tree";
-import { compareCps, ContactPoint } from "../../contact-point/contact-point.js";
-import { CpNode } from "../cp-node.js";
 import { isOrderCorrect } from "./is-order-correct.js";
 
 
@@ -9,21 +10,20 @@ function insertCpNode(
         isHoleClosing: boolean,
         isIntersection: boolean,
         cpTree: LlRbTree<CpNode>,
-        cp: ContactPoint, 
+        pos: PointOnShape,
         _prev: CpNode | undefined,
         lastInsertId: { id: number }): CpNode | undefined {
 
     if (_prev !== undefined &&
-        !isOrderCorrect(cpTree, cp, _prev.next)) {
+        !isOrderCorrect(cpTree, pos, _prev.next)) {
 
-        // console.log(compareCps(cp,_prev!.next.cp))
         if (!insertIfOrderWrong) {
             return undefined;
         }
     }
 
-    const cpNode: CpNode = {
-        cp,
+    const cpNode: Mutable<CpNode> = {
+        pointOnShape: pos,
         isHoleClosing,
         isIntersection,
         id: lastInsertId.id,
@@ -37,14 +37,14 @@ function insertCpNode(
     const prev = _prev === undefined ? cpNode : _prev;
     const next = _prev === undefined ? cpNode : prev.next;
 
-    next.prev = cpNode;
-    prev.next = cpNode;
+    (next as Mutable<CpNode>).prev = cpNode;
+    (prev as Mutable<CpNode>).next = cpNode;
     cpNode.prev = prev;
     cpNode.next = next;
 
     cpTree.insert(cpNode);
 
-    return cpNode;
+    return cpNode as CpNode;
 }
 
 

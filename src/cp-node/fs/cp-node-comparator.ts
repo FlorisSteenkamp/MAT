@@ -1,5 +1,5 @@
 import type { CpNode } from "../cp-node.js";
-import { compareCps } from "../../contact-point/contact-point.js";
+import { comparePoss } from "../../point-on-shape/compare-poss.js";
 
 
 /**
@@ -12,7 +12,7 @@ function cpNodeComparator(
         a: CpNode,
         b: CpNode) {
 
-    return compareCps(a.cp, b.cp);
+    return comparePoss(a.pointOnShape, b.pointOnShape);
 }
 
 

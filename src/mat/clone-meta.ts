@@ -5,7 +5,7 @@ function cloneMeta(meta: MatMeta): MatMeta {
     // const {
     //     boundingHulls, cpTrees, dullCorners,
     //     loops, looseBoundingBoxes, pointToCpNode, sharpCorners,
-    //     tightBoundingBoxes, salientCulls, satCulls, maxCoordinate,
+    //     tightBoundingBoxes, salientCulls, satCulls, maxCoordPowerOf2,
     //     squaredDiagonalLength
     // } = meta;
 

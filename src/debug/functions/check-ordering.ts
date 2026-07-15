@@ -1,15 +1,14 @@
 import type { Loop } from "flo-boolean";
 import type { LlRbTree } from "flo-ll-rb-tree";
 import type { MatMeta } from "../../mat/mat-meta.js";
-import { compareCps } from "../../contact-point/contact-point.js";
 import { CpNode } from "../../cp-node/cp-node.js";
 import { getAllOnLoop } from "../../cp-node/fs/get-all-on-loop.js";
 import { getProngCount } from "../../cp-node/fs/get-prong-count.js";
 import { isOrderCorrect } from "../../cp-node/fs/is-order-correct.js";
+import { comparePoss } from "../../point-on-shape/compare-poss.js";
 
 
 function checkOrdering(
-        // cpTrees: Map<Loop,LlRbTree<CpNode>>,
         meta: MatMeta,
         cpStart: CpNode) {
 
@@ -21,22 +20,20 @@ function checkOrdering(
     for (const cpNodeA of cpNodes) {
         const cpNodeB = cpNodeA.next;
 
-        const cpA = cpNodeA.cp;
-        const posA = cpA.pointOnShape;
+        const posA = cpNodeA.pointOnShape;
         const idxA = posA.curve.idx;
         const pA = posA.p;
         const loopA = posA.curve.loop;
         const cpTreeA = cpTrees.get(loopA)!;
 
-        const cpB = cpNodeB.cp;
-        const posB = cpB.pointOnShape;
+        const posB = cpNodeB.pointOnShape;
         const idxB = posB.curve.idx;
         const pB = posB.p;
         // const loopB = posB.curve.loop;
         // const cpTreeB = cpTrees.get(loopB)!;
         
         const orderCorrect = isOrderCorrect(
-            cpTreeA, cpA, cpNodeB
+            cpTreeA, posA, cpNodeB
         )
         if (!orderCorrect) {
             const A: Order = {
@@ -44,20 +41,20 @@ function checkOrdering(
                 p: pA,
                 cpNode: cpNodeA,
                 curveIdx: idxA,
-                t: cpA.pointOnShape.t,
-                order: cpA.order,
-                order2: cpA.order2
+                t: posA.t,
+                order: posA.order,
+                order2: posA.order2
             }
             const B: Order = {
                 prongCount: getProngCount(cpNodeB),
                 p: pB,
                 cpNode: cpNodeB,
                 curveIdx: idxB,
-                t: cpB.pointOnShape.t,
-                order: cpB.order,
-                order2: cpB.order2
+                t: posB.t,
+                order: posB.order,
+                order2: posB.order2
             }
-            const loopA = A.cpNode.cp.pointOnShape.curve.loop;
+            const loopA = A.cpNode.pointOnShape.curve.loop;
             let wrongs = wrongsPerLoop.get(loopA);
             if (wrongs === undefined) {
                 wrongs = [];
@@ -73,7 +70,7 @@ function checkOrdering(
         for (const wrong of wrongs) {
             const A = wrong[0];
             const B = wrong[1];
-            const c = compareCps(A.cpNode.cp,B.cpNode.cp);
+            const c = comparePoss(A.cpNode.pointOnShape, B.cpNode.pointOnShape);
             if (c > maxOrder) { 
                 
             }

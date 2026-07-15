@@ -3,6 +3,7 @@ import { Circle } from "../geometry/circle.js";
 import { PointOnShape } from "./point-on-shape.js";
 import { isPosCorner } from './is-pos-corner.js';
 import { getPosCorner } from './get-pos-corner.js';
+import { Curve } from "flo-boolean";
 
 
 
@@ -17,7 +18,7 @@ import { getPosCorner } from './get-pos-corner.js';
  */
 function calcPosOrder(
         circleCenter: number[], 
-        pos: PointOnShape): number {
+        pos: { t: number, curve: Curve, p: number[] }): number {
 
     if (!isPosCorner(pos)) { return 0; }
     if (!getPosCorner(pos).isDull) { return 0; }

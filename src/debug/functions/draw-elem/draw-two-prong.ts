@@ -29,11 +29,12 @@ function drawTwoProng(
             }        
         }
 
-        const cp = twoProng.cp;
-        const { circle, pointOnShape: pos } = cp;
+        // const cp = twoProng.cp;
+        const { pointOnShape: pos } = twoProng;
+        const { circle } = pos;
         const { center: c, radius: r } = circle;
         const { isSource, p } = pos;
-        const p2 = twoProng.nextOnCircle.cp.pointOnShape.p;
+        const p2 = twoProng.nextOnCircle.pointOnShape.p;
         const pS = isSource ? p : p2;
         const pA = isSource ? p2 : p;
         

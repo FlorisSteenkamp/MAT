@@ -18,7 +18,6 @@ import { drawCull } from './draw-cull.js';
 import { drawBranch } from './draw-branch.js';
 import { oneProngAtDullCorner } from './draw-one-prong-at-dull-corner.js';
 import { drawCpNode } from './draw-cp-node.js';
-import { drawSpeed } from './draw-speed.js';
 
 
 type DrawElemFunction<T extends DebugElemKey> = (
@@ -52,8 +51,7 @@ const drawElemFs: DrawElemFunctions = {
     cull: drawCull,
     cpNode: drawCpNode,
     branch: drawBranch,
-    holeCloser: drawTwoProng(false, false),
-    speed: drawSpeed
+    holeCloser: drawTwoProng(false, false)
 }
 
 

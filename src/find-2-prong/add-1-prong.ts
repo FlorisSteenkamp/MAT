@@ -1,6 +1,6 @@
 import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { Circle } from '../geometry/circle.js';
 import { MatMeta } from '../mat/mat-meta.js';
@@ -18,7 +18,7 @@ function add1Prong(
         meta: MatMeta,
         radius: number,
         center: number[],
-        pos: PointOnShape) {
+        pos: PrePointOnShape) {
 
     if (isPosCorner(pos) && getPosCorner(pos).isDull) {
         // This is a 1-prong at a dull corner.

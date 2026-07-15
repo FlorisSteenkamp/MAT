@@ -7,7 +7,7 @@ function getLargestVertex(cpNode: CpNode) {
     const cpNodes = getAllOnLoop(cpNode);
 
     return cpNodes.reduce(function(maxCpNode: CpNode, cpNode: CpNode) {
-        return maxCpNode.cp.circle.radius >= cpNode.cp.circle.radius
+        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius
             ? maxCpNode
             : cpNode
     }, cpNodes[0]);

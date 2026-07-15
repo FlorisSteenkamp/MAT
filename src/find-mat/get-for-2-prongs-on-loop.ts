@@ -1,8 +1,7 @@
-import { splitByCurvatureAndLength, controlPointLinesLength, fitQuadsToCubic, getInflections } from 'flo-bezier3';
-import { Loop } from 'flo-boolean';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { createPos } from '../point-on-shape/create-pos.js';
-import { fitQuadsToCubicTsOnly } from '../bezier/fit-quads-to-cubic.js';
+import type { Loop } from 'flo-boolean';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import { splitByCurvatureAndLength, controlPointLinesLength, getInflections } from 'flo-bezier3';
+import { toP } from '../point-on-shape/create-pos.js';
 
 
 /**
@@ -18,7 +17,7 @@ function getFor2ProngsOnLoop(
         maxLength: number) {
 
     return function(loop: Loop) {
-        const for2Prongs: PointOnShape[] = [];
+        const for2Prongs: PrePointOnShape[] = [];
 
         const curves = loop.curves;
         for (let i=0; i<curves.length; i++) {
@@ -30,16 +29,13 @@ function getFor2ProngsOnLoop(
             }
             
             let ts = splitByCurvatureAndLength(ps, maxCurviness, maxLength);
-            // let ts = [0,0.25,0.5,0.75,1];
-            // let ts = [0,0.5 + 2**-20,1];
-            // let ts = ps.length <= 3 ? [0,1] : fitQuadsToCubicTsOnly(ps, 1);
 
             ts = ts.length === 2 ? [0.5] : ts;
             ts.push(...getInflections(ps));
             ts = ts.filter(t => t !== 0 && t !== 1);
 
-            const byCurvatureAndLength = 
-                ts.map(t => createPos(curve, t, true));
+            const byCurvatureAndLength: PrePointOnShape[] = 
+                ts.map(t => ({ curve, t, isSource: true, p: toP(curve.ps, t) }));
 
             for2Prongs.push(...byCurvatureAndLength);
         }

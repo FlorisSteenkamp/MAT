@@ -25,7 +25,7 @@ const eps = Number.EPSILON;
  * @internal
  */
 function rootIntervalToDistanceSquaredInterval(
-        pow: number,
+        maxCoordPowerOf2: number,
         box: number[][], 
         p: number[]) {
 
@@ -62,8 +62,8 @@ function rootIntervalToDistanceSquaredInterval(
         const dc1Dd = qaq(qmq(ax,ax),qmq(by,by));  // ax**2 + bx**2
         const dc1 = dc1Dd[1];
 
-        const dc1Min = dc1*(1 - 2**pow*eps);  // distance minus max error
-        const dc1Max = dc1*(1 + 2**pow*eps);  // distance plus max error
+        const dc1Min = dc1*(1 - 2**maxCoordPowerOf2*eps);  // distance minus max error
+        const dc1Max = dc1*(1 + 2**maxCoordPowerOf2*eps);  // distance plus max error
         
         if (dc1Min <= minDSquared) {
             minDSquared = dc1Min;
