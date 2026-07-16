@@ -9,13 +9,10 @@ function isOrderCorrect(
         pos: PointOnShape,
         next: CpNode): boolean {
 
-    // TODO2
     const c = comparePoss(pos, next.pointOnShape);
     if (c < 0) { return true; }
     if (c === 0) {
-        // TODO2
-        // console.log('c === 0');
-        return true;
+        return false;
     }
 
     const minNode = cpTree.getMinNode();

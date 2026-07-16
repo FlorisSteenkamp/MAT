@@ -1,9 +1,7 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from 'flo-boolean';
-import { CpNode } from '../cp-node/cp-node.js';
-import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { findAndAdd2Prongs } from './find-and-add-2-prongs.js';
-import { MatMeta } from '../mat/mat-meta.js';
 
 
 /** 

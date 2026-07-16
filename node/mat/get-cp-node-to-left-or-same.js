@@ -12,8 +12,8 @@
  * @param order2
  */
 function getCpNodeToLeftOrSame(cpTree, pos, order, order2) {
-    const cp = { pointOnShape: pos, order, order2 };
-    const cps = cpTree.findBounds({ cp });
+    const pointOnShape = { ...pos, order, order2 };
+    const cps = cpTree.findBounds({ pointOnShape });
     if (cps[0] === undefined && cps[1] === undefined) {
         // The tree is still empty
         return undefined;

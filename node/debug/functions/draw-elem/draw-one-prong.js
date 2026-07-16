@@ -1,12 +1,13 @@
 import { drawFs } from 'flo-draw';
 /** @hidden */
-function drawOneProng(g, cpNodes, classes, delay = 0, scaleFactor = 1) {
-    const cp = cpNodes[0].cp;
-    const { circle, pointOnShape: pos } = cp;
-    const $center = drawFs.dot(g, pos.p, 0.02 * scaleFactor, 'deeppink', delay);
-    const $circle = drawFs.dot(g, circle.center, 0.05 * scaleFactor, 'deeppink', delay);
-    const $pos = drawFs.circle(g, circle, 'deeppink thin5 nofill', delay);
-    return [...$center, ...$circle, ...$pos];
+function drawOneProng(g, cpNode, classes, delay = 0, scaleFactor = 1) {
+    // const cp = cpNode.cp;
+    const { pointOnShape: pos } = cpNode;
+    const { circle } = pos;
+    const $posP = drawFs.dot(g, pos.p, 0.02 * scaleFactor, 'deeppink', delay);
+    const $circleCenter = drawFs.dot(g, circle.center, 0.01 * scaleFactor, 'deeppink', delay);
+    const $circle = drawFs.circle(g, circle, 'deeppink thin5 nofill', delay);
+    return [...$posP, ...$circleCenter, ...$circle];
 }
 export { drawOneProng };
 //# sourceMappingURL=draw-one-prong.js.map

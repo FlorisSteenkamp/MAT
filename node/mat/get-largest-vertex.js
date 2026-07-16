@@ -3,7 +3,7 @@ import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 function getLargestVertex(cpNode) {
     const cpNodes = getAllOnLoop(cpNode);
     return cpNodes.reduce(function (maxCpNode, cpNode) {
-        return maxCpNode.cp.circle.radius >= cpNode.cp.circle.radius
+        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius
             ? maxCpNode
             : cpNode;
     }, cpNodes[0]);

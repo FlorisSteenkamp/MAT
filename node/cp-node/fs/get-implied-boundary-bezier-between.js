@@ -5,8 +5,8 @@ const TOLERANCE_ADD_2PRONG = 0.01;
 /** @internal */
 const TOLERANCE_USE_LINE = 0.0001; // else cubic
 function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
-    const posA = cpNodeA.cp.pointOnShape;
-    const posB = cpNodeB.cp.pointOnShape;
+    const posA = cpNodeA.pointOnShape;
+    const posB = cpNodeB.pointOnShape;
     let { curve: curveA, p: pA, t: tA } = posA;
     let { curve: curveB, p: pB, t: tB } = posB;
     if (pA[0] === pB[0] && pA[1] === pB[1]) {

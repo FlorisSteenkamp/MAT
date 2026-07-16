@@ -18,10 +18,10 @@ test('CpNodeFs -> getAllOnCircle', function() {
 
     expect(cpNode === cpNode_.nextOnCircle).toBe(true);
 
-    expect(cpNode_.cp.pointOnShape.p).toEqual([24,8]);
-    expect(cpNode_.cp.pointOnShape.t).toEqual(1);
-    expect(cpNode_.cp.pointOnShape.isSource).toEqual(true);
-    expect(cpNode_.cp.circle).toEqual({ center: [ 24, 8 ], radius: 0 });
+    expect(cpNode_.pointOnShape.p).toEqual([24,8]);
+    expect(cpNode_.pointOnShape.t).toEqual(1);
+    expect(cpNode_.pointOnShape.isSource).toEqual(true);
+    expect(cpNode_.pointOnShape.circle).toEqual({ center: [ 24, 8 ], radius: 0 });
 
     // Real test starts here...
 
@@ -79,14 +79,14 @@ test('CpNodeFs -> getAllOnCircle', function() {
 
         const cpNodes = getAllOnCircle(cpNode1);
         expect(cpNodes.length).toBe(2);
-        expect(cpNodes[0].cp.pointOnShape.p).toEqual([24,8]);
-        expect(cpNodes[1].cp.pointOnShape.p).toEqual([24,8]);
+        expect(cpNodes[0].pointOnShape.p).toEqual([24,8]);
+        expect(cpNodes[1].pointOnShape.p).toEqual([24,8]);
 
         const cpNodesExcl = getAllOnCircle(cpNode1, true);
         expect(cpNodesExcl.length).toBe(1);
         expect(cpNodesExcl[0] === cpNode1).toBe(false);
-        expect(cpNodesExcl[0].cp.pointOnShape.p).toEqual([24,8]);
+        expect(cpNodesExcl[0].pointOnShape.p).toEqual([24,8]);
 
-        expect(cpNodes[0].cp.circle.radius).toBe(0);
+        expect(cpNodes[0].pointOnShape.circle.radius).toBe(0);
     }
 });

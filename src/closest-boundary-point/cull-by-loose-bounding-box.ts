@@ -4,36 +4,38 @@ import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 
 
 /**
- * @internal
  * When checking distances, ignore all those with closest possible distance 
  * further than 'bestSquaredDistance', i.e. cull them.
+ * 
  * @param curvePieces 
- * @param p 
- * @param dSquared 
+ * @param xO 
+ * @param xy2 
+ * 
+ * @internal
  */
 function cullByLooseBoundingBox(
         curvePieces: CurvePiece[],
-        p: number[],
-        dSquared: number) {
+        xO: number[],
+        xy2: number) {
 
-    const candidateCurvePieces = [];
+    const curvePieces_ = [];
 
     for (let i=0; i<curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
-        const ps = curvePiece.curve.ps;
+        const { ps } = curvePiece.curve;
         
         const boundingBox = getBoundingBox$(ps);
         
         const d = getClosestSquareDistanceToRect(
             boundingBox,
-            p
+            xO
         );
-        if (d <= dSquared) {
-            candidateCurvePieces.push(curvePiece);
-        } 
+        if (d <= xy2) {
+            curvePieces_.push(curvePiece);
+        }
     }
 
-    return candidateCurvePieces;
+    return curvePieces_;
 }
 
 

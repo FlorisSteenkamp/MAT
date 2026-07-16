@@ -1,5 +1,5 @@
 import { getLargestVertex } from '../mat/get-largest-vertex.js';
-import { createNewCpTree } from '../mat/create-new-cp-tree.js';
+import { createNewCpTrees } from '../mat/create-new-cp-trees.js';
 import { cull } from './cull.js';
 import { addDebugInfo } from './add-debug-info.js';
 import { clone } from '../cp-node/fs/clone.js';
@@ -29,7 +29,7 @@ function toScaleAxis(mat, s) {
         cpNode: cpNode,
         meta: {
             ...mat.meta,
-            cpTrees: createNewCpTree(cpNode)
+            cpTrees: createNewCpTrees(cpNode)
         }
     };
     addDebugInfo(timingStart);

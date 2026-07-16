@@ -1,28 +1,24 @@
-import type { Curve, Loop } from 'flo-boolean';
+import type { Curve } from 'flo-boolean';
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { CurvePiece } from './curve-piece.js';
-import { isPosQuiteSharpCorner } from '../point-on-shape/is-pos-quite-sharp-corner.js';
 import { comparePoss } from '../point-on-shape/compare-poss.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { isPosSharpCorner } from '../point-on-shape/is-pos-sharp-corner.js';
 
 
 /**
- * @internal
- * Returns the ordered cubic bezier pieces (i.e a bezier with a t range) 
- * from the given boundary piece.
+ * Returns the ordered bezier pieces between from the given boundary piece.
  * 
  * @param cpNodes - An ordered pair that represents the start and end points of 
  * the boundary piece
+ * 
+ * @internal
  */
 function getBoundaryPieceBeziers(
-        cpNodes: CpNode[],
-        test: boolean): (CurvePiece | undefined)[] {
+        cpNodes: CpNode[]): CurvePiece[] {
 
     let cpThis = cpNodes[0]; 
     const cpEnd  = cpNodes[1];
     
-    const curvePieces: (CurvePiece | undefined)[] = [];
+    const curvePieces: CurvePiece[] = [];
 
     // NOTE❗ Currently removed stichables; we're just checking for duplicates
     // later in `find2Prong`; KEEP for possible future use.
@@ -67,29 +63,28 @@ function getBoundaryPieceBeziers(
 
             // cpThis = cpPrevOnCircle;  // take last exit
             cpThis = cpThis.prevOnCircle;  // take last exit
-
             continue;
         }
 
         goStraight = false;
 
-        if (curveNext === curveThis) {
-            if (comparePoss(posNext, posThis) > 0) {
-                // The boundary stays on the same curve segment *and* the next pos
-                // is further along the *linear* boundary. If it is *not* further
-                // on the *linear* boundary then this pos precedes the abrupt break
-                // in the ordering and next pos comes after the break so the code in
-                // the next `else` statement is called to skip over the break.
-                // The other case in which `comparePoss(posNext, posThis) <= 0` is
-                // possible for hole closers where the oderering of this and next
-                // are the same except for `order2`
-                curvePieces.push({
-                    curve: curveThis, ts: [posThis.t, posNext.t]
-                });
+        if (curveNext === curveThis &&
+            comparePoss(posNext, posThis) > 0) {
 
-                cpThis = cpThis.next;
-                continue;
-            }
+            // The boundary stays on the same curve segment *and* the next pos
+            // is further along the *linear* boundary. If it is *not* further
+            // on the *linear* boundary then this pos precedes the abrupt break
+            // in the ordering and next pos comes after the break so the code in
+            // the next `else` statement is called to skip over the break.
+            // The other case in which `comparePoss(posNext, posThis) <= 0` is
+            // possible for hole closers where the oderering of this and next
+            // are the same except for `order2`
+            curvePieces.push({
+                curve: curveThis, ts: [posThis.t, posNext.t]
+            });
+
+            cpThis = cpThis.next;
+            continue;
         }
 
         // The segment crosses a curve boundary because either:
@@ -98,19 +93,13 @@ function getBoundaryPieceBeziers(
         // so split at t = 1.
 
         if (curveThis.loop === curveNext.loop) {
-            // if (posThis.t !== 1) {
-                const initialCurvePiece = {
-                    curve: curveThis, ts: [posThis.t, 1]
-                };
-                curvePieces.push(initialCurvePiece);
-            // }
+            const initialCurvePiece = {
+                curve: curveThis, ts: [posThis.t, 1]
+            };
+            curvePieces.push(initialCurvePiece);
+
             // Fill in any curves skipped between the two points.
-            addSkippedBeziers(
-                    curvePieces, 
-                    curveThis, 
-                    curveNext,
-                    posNext.t
-            );
+            addSkippedBeziers(curvePieces, curveThis, curveNext, posNext.t);
 
             // NOTE❗ Currently removed stichables; we're just checking for duplicates
             // later in `find2Prong`; KEEP for possible future use.

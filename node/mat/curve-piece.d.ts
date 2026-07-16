@@ -9,4 +9,4 @@ interface CurvePiece {
     /** The start and end t parameter values of the bezier curve. */
     readonly ts: number[];
 }
-export { CurvePiece };
+export type { CurvePiece };

@@ -8,11 +8,11 @@ import { isPosSharpCorner } from '../../point-on-shape/is-pos-sharp-corner.js';
  * @param cpNode
  */
 function getEdgeDirection(cpNode) {
-    const circleCenter = cpNode.cp.circle.center;
+    const circleCenter = cpNode.pointOnShape.circle.center;
     const cp1 = cpNode;
     const cp2 = cpNode.nextOnCircle;
-    const pos1 = cp1.cp.pointOnShape;
-    const pos2 = cp2.cp.pointOnShape;
+    const pos1 = cp1.pointOnShape;
+    const pos2 = cp2.pointOnShape;
     const p1 = pos1.p;
     const p2 = pos2.p;
     let vDir;

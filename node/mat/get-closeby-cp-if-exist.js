@@ -15,9 +15,9 @@ const ANGLE_THRESHOLD = Math.cos(DEGREES * (Math.PI / 180));
  * @param order2
  */
 function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
-    const { cpTrees, maxCoordinate } = meta;
-    const DISTANCE_THRESHOLD = maxCoordinate * 2e-14;
-    const DISTANCE_THRESHOLD_2 = DISTANCE_THRESHOLD * 2e-2;
+    const { cpTrees, maxCoordPowerOf2 } = meta;
+    const DISTANCE_THRESHOLD = 2 ** (maxCoordPowerOf2 - 40); // approx. 1e-9 for 1024 x 1024 shapes
+    const DISTANCE_THRESHOLD_2 = 2 ** (maxCoordPowerOf2 - 46);
     const cpTree = cpTrees.get(pos.curve.loop);
     const cur = getCpNodeToLeftOrSame(cpTree, pos, order, order2);
     if (!cur) {
@@ -26,13 +26,14 @@ function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
     const cpNodes = [cur, cur.next];
     const { p, t } = pos;
     for (const cpNode of cpNodes) {
-        const pos2 = cpNode.cp.pointOnShape;
+        const pos2 = cpNode.pointOnShape;
         const p2 = pos2.p;
         const d = distanceBetween(p, p2);
         if (d > DISTANCE_THRESHOLD) {
             continue;
         }
-        const v1 = toUnitVector(fromTo(p2, cpNode.cp.circle.center));
+        // return cpNode;
+        const v1 = toUnitVector(fromTo(p2, cpNode.pointOnShape.circle.center));
         const v2 = toUnitVector(fromTo(p, circle.center));
         const cosTheta = dot(v1, v2);
         if (cosTheta > ANGLE_THRESHOLD ||

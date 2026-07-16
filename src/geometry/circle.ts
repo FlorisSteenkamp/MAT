@@ -22,6 +22,7 @@ function scaleCircle(circle: Circle, s: number): Circle {
 
 /**
  * Returns true if the first circle engulfs the second.
+ * 
  * @param c1 
  * @param c2 
  */

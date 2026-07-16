@@ -1,16 +1,13 @@
-import { RootInterval } from "flo-poly";
-import { Curve } from "flo-boolean";
+import type { Curve } from "flo-boolean";
 
 
-type FootAndEndpointInfo = {
-    curve: Curve;
-    p: number[];
-    t: number;
-    d: number;
-    box: number[][];
-    ri: RootInterval;
-    dSquaredI: number[];
-    x: number[];
+interface FootAndEndpointInfo {
+    readonly curve: Curve;
+    readonly p: number[];
+    readonly t: number;
+    readonly d: number;
+    readonly box: number[][];
+    readonly dSquaredI: number[];
 }
 
 

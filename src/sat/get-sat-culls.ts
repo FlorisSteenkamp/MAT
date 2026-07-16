@@ -1,9 +1,10 @@
+import type { DualSet } from "../utils/dual-set.js";
+import type { CpNode } from "../cp-node/cp-node.js";
 import { length } from "flo-bezier3";
-import { CpNode } from "../cp-node/cp-node.js";
 import { getAllOnCircle } from "../cp-node/fs/get-all-on-circle.js";
 import { getMatCurveToNext } from "../cp-node/fs/get-mat-curve-to-next.js";
 import { traverseEdges } from "../cp-node/fs/traverse-edges.js";
-import { DualSet, DualSetFs } from "../utils/dual-set.js";
+import { DualSetFs } from "../utils/dual-set.js";
 
 
 function getSatCulls(

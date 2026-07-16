@@ -3,14 +3,10 @@ import type { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
 /**
  * @internal
  *
- * @param pow
- * @param curve The curve
- * @param x The point from which to check
+ * @param maxCoordPowerOf2
+ * @param curve the curve
+ * @param x the point from which to check
  * @param tRange The allowed t range
- * @param touchedCurve The bezier on which p is located
- * @param t The t value of the bezier that locates p
- * @param for1Prong defaults to `false;
- * @param angle defaults to `0`;
  */
-declare function getPotentialClosestPointsOnCurveCertified(pow: number, curve: Curve, x: number[], tRange?: number[], touchedCurve?: Curve | undefined, t?: number | undefined, for1Prong?: boolean, angle?: number): FootAndEndpointInfo[];
+declare function getPotentialClosestPointsOnCurveCertified(maxCoordPowerOf2: number, curve: Curve, x: number[], tRange: [number, number]): FootAndEndpointInfo[];
 export { getPotentialClosestPointsOnCurveCertified };

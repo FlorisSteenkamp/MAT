@@ -19,14 +19,16 @@ function compareCpNodesByValue(
         reachCpNodes1.add(cpNode1);
         reachCpNodes2.add(cpNode2);
 
-        if (!comparePossByValue(cpNode1.cp.pointOnShape, cpNode2.cp.pointOnShape)) {
+        if (!comparePossByValue(cpNode1.pointOnShape, cpNode2.pointOnShape)) {
             return false;
         }
         
-        cpNode2.cp.pointOnShape;
+        cpNode2.pointOnShape;
     }
 
-    if (reachCpNodes1.size !== reachCpNodes2.size) { return false; }
+    if (reachCpNodes1.size !== reachCpNodes2.size) {
+        return false;
+    }
 
     return true;
 }

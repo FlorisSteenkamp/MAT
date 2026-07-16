@@ -1,15 +1,12 @@
 import { matOptionRanges } from './mat-options.js';
-function clipOptions(maxCoordinate, maxRadius, options) {
-    const expMaxCoord = Math.ceil(Math.log2(maxCoordinate));
-    const expMaxRadius = Math.ceil(Math.log2(maxRadius));
+function clipOptions(maxCoordPowerOf2, options) {
     const scaleSigBits = 10; // 1024 x 1024
     const options_ = { ...options };
     for (const k in matOptionRanges) {
-        // @ts-ignore
-        let o = options_[k];
-        // @ts-ignore
-        const c = matOptionRanges[k];
-        const { range, scaleByMaxCoordinate, scaleByMaxRadius } = c;
+        const key = k;
+        let o = options_[key];
+        const c = matOptionRanges[key];
+        const { range, scaleByMaxCoordinate } = c;
         if (o < range[0]) {
             o = range[0];
         }
@@ -18,13 +15,9 @@ function clipOptions(maxCoordinate, maxRadius, options) {
         }
         // Adjust length tolerance according to a reference max coordinate
         if (!!scaleByMaxCoordinate) {
-            o = o * (2 ** expMaxCoord * 2 ** (-scaleSigBits));
+            o *= 2 ** (maxCoordPowerOf2 - scaleSigBits);
         }
-        else if (!!scaleByMaxRadius) {
-            o = o * (2 ** expMaxRadius * 2 ** (-scaleSigBits));
-        }
-        // @ts-ignore
-        options_[k] = o;
+        options_[key] = o;
     }
     return options_;
 }

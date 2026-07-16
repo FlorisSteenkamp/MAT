@@ -25,18 +25,20 @@ function getPointToCpNode(
 
     timingStart = performance.now();
 
-    const pointToCpNode: TriMap<Loop,number,number,CpNode> = new Map();
-        for (const loop of loops) {
-        // Populate `posMap`
-        const cpTree = cpTrees.get(loop)!;
-        const cpNodes = cpTree.toArrayInOrder();
-        for (const cpNode of cpNodes) {
-            const { p, t } = cpNode.pointOnShape;
-            TriMapFs.set(pointToCpNode,loop,p[0],p[1],cpNode);
-        }
-    }
+    // const pointToCpNode: TriMap<Loop,number,number,CpNode> = new Map();
 
-    return pointToCpNode;
+    // for (const loop of loops) {
+    //     // Populate `posMap`
+    //     const cpTree = cpTrees.get(loop)!;
+    //     const cpNodes = cpTree.toArrayInOrder();
+    //     for (const cpNode of cpNodes) {
+    //         const { p, t } = cpNode.pointOnShape;
+    //         TriMapFs.set(pointToCpNode,loop,p[0],p[1],cpNode);
+    //     }
+    // }
+
+    // return pointToCpNode;
+    return undefined!
 }
 
 
@@ -45,7 +47,7 @@ function getPartialMeta(
         loops: Loop[]): Omit<
             MatMeta,
             | 'cpTrees'
-            | 'pointToCpNode'
+            // | 'pointToCpNode'
             | 'loops'
             | 'maxCoordPowerOf2'
             | 'squaredDiagonalLength'

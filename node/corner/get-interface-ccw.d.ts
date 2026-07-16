@@ -11,8 +11,8 @@
  * Preconditions (for robustness):
  * * The bezier does not have infinite curvature at either endpoint
  *
- * @param psI The incoming bezier that ends at the interface
- * @param psO The outgoing bezier that starts at the interface
+ * @param psI the incoming bezier that ends at the interface
+ * @param psO the outgoing bezier that starts at the interface
  */
 declare function getInterfaceCcw(psI: number[][], psO: number[][]): {
     ccw: number;

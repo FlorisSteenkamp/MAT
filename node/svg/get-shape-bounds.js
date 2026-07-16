@@ -1,5 +1,5 @@
 import { memoize } from 'flo-memoize';
-import { getLoopBounds } from './get-loop-bounds.js';
+import { getLoopBounds$ } from './get-loop-bounds.js';
 /** @internal */
 const getShapeBounds = memoize(function (loops) {
     let minX_ = +Infinity;
@@ -11,7 +11,7 @@ const getShapeBounds = memoize(function (loops) {
     let minY;
     let maxY;
     for (const loop of loops) {
-        const bounds = getLoopBounds(loop);
+        const bounds = getLoopBounds$(loop);
         if (bounds.minX.p[0] < minX_) {
             minX = bounds.minX;
             minX_ = bounds.minX.p[0];

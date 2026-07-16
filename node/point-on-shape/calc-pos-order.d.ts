@@ -1,13 +1,16 @@
-import { Circle } from "../geometry/circle.js";
-import { PointOnShape } from "./point-on-shape.js";
+import type { Curve } from "flo-boolean";
 /**
- * @internal
- *
  * Calculates the order (to distinguish between points lying on top of each
  * other) of the contact point if it is a dull corner.
  *
  * @param circle
  * @param pos
+ *
+ * @internal
  */
-declare function calcPosOrder(circle: Circle, pos: PointOnShape): number;
+declare function calcPosOrder(circleCenter: number[], pos: {
+    t: number;
+    curve: Curve;
+    p: number[];
+}): number;
 export { calcPosOrder };

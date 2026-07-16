@@ -1,8 +1,6 @@
-import { CpNode } from '../cp-node/cp-node.js';
-import { CpNodeFs } from '../cp-node/cp-node-fs.js';
+import type { CpNode } from '../cp-node/cp-node.js';
 import { isFullyTerminating } from '../cp-node/fs/is-fully-terminating.js';
-
-const { getAllOnLoop } = CpNodeFs;
+import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 
 
 /** @internal */

@@ -1,6 +1,4 @@
-import { squaredDistanceBetween as squaredDistanceBetween_ } from 'flo-vector2d';
-
-const squaredDistanceBetween = squaredDistanceBetween_;
+import { squaredDistanceBetween } from 'flo-vector2d';
 
 
 /**

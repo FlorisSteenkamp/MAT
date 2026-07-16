@@ -1,43 +1,40 @@
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { CpNodeFs } from '../cp-node/cp-node-fs.js';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
-const { cpNodeComparator } = CpNodeFs;
+import { cpNodeComparator } from '../cp-node/fs/cp-node-comparator.js';
 /**
- * @internal
  * Creates the initial ContactPoint loops from the given sharp corners.
  *
- * * modifies `cpTrees` and `lastInsertId` of `meta`
+ * * ❗Modifies❗`cpTrees` and `lastInsertId`
  *
  * @param loops
  * @param cpTrees
  * @param sharpCornerss
  * @param lastInsertId
+ *
+ * @internal
  */
-function createInitialCpTree(loops, cpTrees, sharpCornerss, lastInsertId) {
-    let cpNode;
+function createInitialCpTree(loops, sharpCornerss, lastInsertId) {
+    const cpTrees = new Map();
     for (let k = 0; k < sharpCornerss.length; k++) {
-        const sharpCorners = sharpCornerss[k];
         const cpTree = new LlRbTree(cpNodeComparator, false);
+        cpTrees.set(loops[k], cpTree);
+        const sharpCorners = sharpCornerss[k];
         let cpNode1 = undefined;
         let cpNode2 = undefined;
-        for (const pos of sharpCorners) {
-            const circle = { center: pos.p, radius: 0 };
-            const cp1 = { pointOnShape: pos, circle, order: -1, order2: 0 };
-            const cp2 = { pointOnShape: pos, circle, order: +1, order2: 0 };
-            cpNode1 = insertCpNode(true, false, false, cpTree, cp1, cpNode2, lastInsertId);
-            cpNode2 = insertCpNode(true, false, false, cpTree, cp2, cpNode1, lastInsertId);
+        for (const ppos of sharpCorners) {
+            const circle = { center: ppos.p, radius: 0 };
+            const { curve } = ppos;
+            const pos1 = { ...ppos, curve, t: 1, circle, order: -1, order2: 0 };
+            const pos2 = { ...ppos, curve: curve.next, t: 0, circle, order: +1, order2: 0 };
+            cpNode1 = insertCpNode(true, false, false, cpTree, pos1, cpNode2, lastInsertId);
+            cpNode2 = insertCpNode(true, false, false, cpTree, pos2, cpNode1, lastInsertId);
             cpNode1.prevOnCircle = cpNode2;
             cpNode2.prevOnCircle = cpNode1;
             cpNode1.nextOnCircle = cpNode2;
             cpNode2.nextOnCircle = cpNode1;
         }
-        if (!cpNode) {
-            cpNode = cpNode1;
-        }
-        const loop = loops[k];
-        cpTrees.set(loop, cpTree);
     }
-    return cpNode;
+    return cpTrees;
 }
 export { createInitialCpTree };
 //# sourceMappingURL=create-initial-cp-tree.js.map

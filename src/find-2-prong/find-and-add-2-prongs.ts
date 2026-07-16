@@ -1,12 +1,12 @@
 /** @internal */
 declare const _debug_: Debug;
 
-import { Debug } from '../debug/debug.js';
-import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Debug } from '../debug/debug.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { find2Prong } from './find-2-prong.js';
 import { add2Prong } from './add-2-prong.js';
 import { rotateNeg90Degrees } from 'flo-vector2d';
-import { MatMeta } from '../mat/mat-meta.js';
 import { getCorner } from '../corner/get-corner.js';
 
 
@@ -15,12 +15,13 @@ const { PI, atan2 } = Math;
 
 
 /**
- * @internal
  * Find and add two-prongs.
  * @param meta 
  * @param angleIncrement 
  * @param for2Prongs 
  * @param for1Prong
+ * 
+ * @internal
  */
 function findAndAdd2Prongs(
         meta: MatMeta,
@@ -30,16 +31,19 @@ function findAndAdd2Prongs(
 
     let cpNode_;
 
+    const find2Prong_ = find2Prong(meta);
+
     const angleIncrement_ = angleIncrement*PI/180;
     for (let i=0; i<for2Prongs.length; i++) {
         const pos = for2Prongs[i];
 
         const angles = getValidAngles(angleIncrement_, pos);
 
-        for (let angle of angles) {
-            const twoProngInfo = find2Prong(
-                meta, false, for1Prong, angle, pos
+        for (const angle of angles) {
+            const twoProngInfo = find2Prong_(
+                false, for1Prong, angle, pos
             );
+
             if (twoProngInfo) {
                 const { circle, z } = twoProngInfo;
                 const cpNode = add2Prong(meta, circle, pos, z, false);

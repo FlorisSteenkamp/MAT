@@ -19,17 +19,12 @@ const DEGREE_LIMIT = DEGREES[4];
  * @internal
  * Returns a new corner with properties.
  *
- * PRECONDITION: The beziers has control points with max bit-length of 26 and
- * aligned to a 'grid' to have the same exponent. This is so the vectors between
- * control points can be calculated exactly without resorting to adaptive
- * infinite precision floating point operations.
- *
  * @param psI The incoming bezier that ends in the corner
  * @param psO The outgoing bezier that starts at the corner
  */
 function getCorner(psI, psO) {
-    // getInterfaceCcw must return a number !== 0 if psI and psO are not the
-    // same as seen as a curve extension with t ∈ [-∞,+∞]
+    // `getInterfaceCcw` must return a number !== 0 if `psI` and `psO` are not
+    // the same up to a curve extension with `t ∈ [-∞,+∞]`
     const { ccw, tangentI, tangentO, dotTangents } = getInterfaceCcw(psI, psO);
     const isSharp = ccw < 0;
     const isDull = ccw > 0;
@@ -43,7 +38,6 @@ function getCorner(psI, psO) {
     const crossTangents = cross(unitTangents[0], unitTangents[1]);
     let isQuiteSharp;
     let isQuiteDull;
-    // const dotTangents = dot(tangentAtIncoming, tangentAtOutgoing);
     if (dotTangents > 0) {
         // Curves go in same direction
         isQuiteSharp = crossTangents < -DEGREE_LIMIT;
@@ -55,7 +49,6 @@ function getCorner(psI, psO) {
     }
     return {
         tangents: unitTangents,
-        // crossTangents, 
         isSharp,
         isDull,
         isQuiteSharp,

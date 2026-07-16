@@ -1,4 +1,4 @@
-import type { PointOnShape, PrePointOnShape } from './point-on-shape.js';
+import type { PrePointOnShape } from './point-on-shape.js';
 import { ddCurvature } from 'flo-bezier3';
 
 const { sqrt } = Math;

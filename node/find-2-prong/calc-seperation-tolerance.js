@@ -1,12 +1,9 @@
-import { ddAddDd, ddMultDd, twoSum, twoProduct, ddDiffDd, ddDivDd, twoDiff, ddMultDouble1 } from 'double-double';
-const ts = twoSum;
+import { ddAddDd, twoProduct, ddDiffDd, ddDivDd, twoDiff, ddMultDouble1 } from 'double-double';
 const tp = twoProduct;
-const td = twoDiff;
 const qaq = ddAddDd;
-const qmq = ddMultDd;
 const qdq = ddDiffDd;
 const qmd = ddMultDouble1;
-const { asin, acos, cos, sqrt, PI: π } = Math;
+const { acos } = Math;
 /**
  * Calculates and returns an appropriate seperation tolerance between `CpNode`s.
  *

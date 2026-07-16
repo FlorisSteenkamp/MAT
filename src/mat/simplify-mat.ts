@@ -5,16 +5,17 @@ import { removeVertex } from '../vertex/remove-vertex.js';
 import { getBranches } from './get-branches.js';
 import { getMatCurveToNext } from '../cp-node/fs/get-mat-curve-to-next.js';
 import { getMatCurveBetween } from '../cp-node/fs/get-mat-curve-between.js';
-import { createNewCpTree } from './create-new-cp-tree.js';
+import { createNewCpTrees } from './create-new-cp-trees.js';
 import { clone } from '../cp-node/fs/clone.js';
 import { findFirst } from '../cp-node/fs/find-first.js';
 import { isTerminating } from '../cp-node/fs/is-terminating.js';
 import { isVertex } from '../cp-node/fs/is-vertex.js';
 import { getProngCount } from '../cp-node/fs/get-prong-count.js';
 
+const { max } = Math;
 
 
-// TODO2 could be made faster by binary "search" on hausdorff curves
+// FUTURE could be made faster by binary "search" on hausdorff curves?
 /**
  * Returns a new simplified MAT of the given one by replacing the piecewise
  * quad beziers composing the MAT with fewer ones to within a given tolerance.
@@ -86,7 +87,7 @@ function simplifyMat(
         cpNode,
         meta: {
             ...mat.meta,
-            cpTrees: createNewCpTree(cpNode)
+            cpTrees: createNewCpTrees(cpNode)
         }
     }
 }
@@ -108,7 +109,7 @@ function getTotalHausdorffDistance(
         ));
     }
 
-    return Math.max(...hds);
+    return max(...hds);
 }
 
 

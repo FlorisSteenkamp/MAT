@@ -6,12 +6,12 @@ function drawLeaves(g, leaves, classes = 'thin10 deeppink nofill', delay = 0, sc
     const $elems = [];
     const { line, dot, circle: drawCircle } = drawFs;
     for (const cpNode of leaves) {
-        const cp = cpNode.cp;
+        const cp = cpNode.pointOnShape;
         const { circle } = cp;
         const { center: c, radius: r } = circle;
         const $center = [drawCirclePercent(g, c, 0.5, 'pinker thin5 nofill')];
         const poss = CpNodeFs.getAllOnCircle(cpNode)
-            .map(cpNode => cpNode.cp.pointOnShape);
+            .map(cpNode => cpNode.pointOnShape);
         const $ls = [];
         const $cps = [];
         for (let i = 0; i < poss.length; i++) {

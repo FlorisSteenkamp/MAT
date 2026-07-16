@@ -1,4 +1,4 @@
-import type { ContactPoint } from "../../contact-point/contact-point";
+import type { PointOnShape } from "../../point-on-shape/point-on-shape.js";
 import type { CpNode } from "../cp-node";
 import type { CpNodeStringifyable } from "./cp-node-stringifyable";
 import { EDGES } from "./cp-node-stringifyable";
@@ -16,22 +16,22 @@ function fromStringifyable(
     // Edges still hold number ids at this point.
     //--------------------------------------------------------------------------
     const cpNodes: CpNode[] = _cpNodes.map(cpNode_ => {
-        const { id, cp, isHoleClosing, isIntersection } = cpNode_;
-        const { circle, pointOnShape, order, order2 } = cp;
+        const { id, pointOnShape, isHoleClosing, isIntersection } = cpNode_;
+        const { circle, order, order2 } = pointOnShape;
         const { curveIdx, loopIdx, p, t, isSource } = pointOnShape;
 
         const curve = loops[loopIdx].curves[curveIdx];
 
-        const cp_: ContactPoint = {
+        const pointOnShape_: PointOnShape = {
             circle,
-            pointOnShape: { curve, p, t, isSource },
+            curve, p, t, isSource,
             order, order2
         };
 
         return {
             ...cpNode_,
             id, isHoleClosing, isIntersection,
-            cp: cp_
+            pointOnShape: pointOnShape_
         } as CpNode;
     });
 

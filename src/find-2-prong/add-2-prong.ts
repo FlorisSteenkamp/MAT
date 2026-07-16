@@ -1,20 +1,16 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from 'flo-boolean';
-import { CpNode } from '../cp-node/cp-node.js';
-import { Circle } from '../geometry/circle.js';
-import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { Circle } from '../geometry/circle.js';
+import type { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { MatMeta } from '../mat/mat-meta.js';
+import type { Mutable } from '../utils/mutable.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
-// import { createPos } from '../point-on-shape/create-pos.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
-import { MatMeta } from '../mat/mat-meta.js';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
 import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { removeCpNode } from '../cp-node/fs/remove-cp-node.js';
-import { Mutable } from '../utils/mutable.js';
 
 
 /**
- * @internal
  * Adds a 2-prong contact circle to the shape.
  *
  * @param meta
@@ -22,6 +18,8 @@ import { Mutable } from '../utils/mutable.js';
  * @param pposSource The source point on shape
  * @param pposAntipode The found antipodal point on shape
  * @param isHoleClosing True if this is a hole-closing 2-prong, false otherwise
+ * 
+ * @internal
  */
 function add2Prong(
         meta: MatMeta,
@@ -31,7 +29,6 @@ function add2Prong(
         isHoleClosing: boolean): CpNode | undefined {
 
     pposSource = pposSource.t === 0
-        // ? createPos(posSource.curve.prev, 1, true)
         ? { ...pposSource, curve: pposSource.curve.prev, t: 1 }
         : pposSource;
 
@@ -69,9 +66,6 @@ function add2Prong(
         });
         return undefined;
     }
-
-    // Get points ordered according to their angle with the x-axis
-    // joinSpokes(circle, cpNodes);
 
     if (isHoleClosing) { 
         closeHole(meta, cpNodes as CpNode[]);

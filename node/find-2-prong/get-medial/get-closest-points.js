@@ -1,139 +1,163 @@
-import { createRootExact, roots, deflate } from 'flo-poly';
-import { getIntervalBox } from 'flo-bezier3';
-import { fromTo as fromToVec } from "flo-vector2d";
-import { rootIntervalToDistanceSquaredInterval } from '../../closest-boundary-point/root-interval-to-distance-squared-interval.js';
-import { getPFromBox } from '../../closest-boundary-point/get-p-from-box.js';
-import { getMedialPointCoeffs } from './get-medial-points/get-medial-point-coeffs.js';
-const { sqrt } = Math;
+import { lengthSquared } from "flo-vector2d";
+import { roots, deflate, Horner } from 'flo-poly';
+import { evalDeCasteljau, getMedialPointCoeffs, getMedialPointCoeffsBez0 } from 'flo-bezier3';
+const { sqrt, abs, max } = Math;
 /**
- * @internal
- *
- * @param pow
- * @param curvePiece The curve piece
- * @param x The point from which to check
+ * @param maxCoordPowerOf2
+ * @param nnorm
  * @param yPos The point on the shape
  * @param for1Prong defaults to `false`;
  * @param angle defaults to `0`;
+ * @param curvePiece The curve piece
+ *
+ * @internal
  */
-function getClosestPoint(pow, curvePiece, x, 
-// touchedCurve: Curve | undefined = undefined,
-// t: number | undefined = undefined,
-yPos, for1Prong = false, angle = 0) {
+function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curvePiece) {
     const { curve, ts: [tS, tE] } = curvePiece;
     const { ps } = curve;
-    const { curve: touchedCurve, t, p } = yPos;
+    const { curve: touchedCurve, t, p: y } = yPos;
     const shouldDeflate = angle === 0 && curve === touchedCurve;
-    // let { polyDd: polyDdO, polyE: polyEO, getPolyExact: getPolyExactO } =
-    //     getFootPointsOnBezierPolysCertified(ps, x);
-    // const def = shouldDeflate
-    //         ? ddDeflateWithRunningError(polyDdO, polyEO, t!)
-    //         : undefined;
-    // const def2 = for1Prong && shouldDeflate
-    //         ? ddDeflateWithRunningError(def!.coeffs, def!.errBound, t!)
-    //         : undefined;
-    // const def3 = for1Prong && shouldDeflate
-    //         ? ddDeflateWithRunningError(def2!.coeffs, def2!.errBound, t!)
-    //         : undefined;
-    // const { pDd, pDd_, getPolyExact } = 
-    //           def3 !== undefined
-    //         ? {
-    //             pDd: def3.coeffs,
-    //             pDd_: def3.errBound,
-    //             getPolyExact: () => eDeflate(eDeflate(eDeflate(getPolyExactO(), t!), t!), t!)
-    //         }
-    //         : def !== undefined
-    //         ? {
-    //             pDd: def.coeffs,
-    //             pDd_: def.errBound,
-    //             getPolyExact: () => eDeflate(getPolyExactO(), t!)
-    //         }
-    //         : {
-    //             pDd: polyDdO,
-    //             pDd_: polyEO,
-    //             getPolyExact: getPolyExactO
-    //         };
-    // const ris = roots(pDd, tS, tE, pDd_, getPolyExact) || [];
-    //-----------------------
-    // let { polyDd: polyDdO, polyE: polyEO, getPolyExact: getPolyExactO } =
-    //     getFootPointsOnBezierPolysCertified(ps, x);
-    const v = fromToVec(p, x);
-    const { A, B, C, D, H } = getMedialPointCoeffs(x, v, ps);
-    const def = shouldDeflate
-        ? deflate(H, t)
-        : undefined;
-    const def2 = for1Prong && shouldDeflate
-        ? deflate(def, t)
-        : undefined;
-    const def3 = for1Prong && shouldDeflate
-        ? deflate(def2, t)
-        : undefined;
-    const { pDd } = def3 !== undefined
-        ? {
-            pDd: def3,
-        }
-        : def !== undefined
-            ? {
-                pDd: def,
+    const infos = [];
+    // let onePushed = false;
+    let startPushed = false;
+    let endPushed = false;
+    let ss;
+    if (tS !== tE) {
+        const { A, B, C, D, H } = getMedialPointCoeffs(y, nnorm, ps);
+        const def = shouldDeflate ? deflate(H, t) : undefined;
+        const def2 = for1Prong && shouldDeflate
+            ? deflate(def, t)
+            : undefined;
+        const def3 = for1Prong && shouldDeflate
+            ? deflate(def2, t)
+            : undefined;
+        const pDd = def3 ?? def ?? H;
+        ss = roots(pDd, tS, tE) || [];
+        //-----------------------
+        for (let i = 0; i < ss.length; i++) {
+            const ri = ss[i];
+            const { tS: sS, tE: sE, t: _s } = ri;
+            if (ri.multiplicity > 1) {
+                continue;
             }
-            : {
-                pDd: H,
+            if (sE < tS || sS > tE) {
+                continue;
+            } // outside curve piece
+            const s = _s < 0 ? 0 : _s > 1 ? 1 : _s; // clip to [0,1]
+            //-----------------------
+            const AS = Horner(A, s);
+            const BS = Horner(B, s);
+            const CS = Horner(C, s);
+            const DS = Horner(D, s);
+            const _AS = abs(AS);
+            const _CS = abs(CS);
+            if (max(_AS, _CS) < 2 ** -40) {
+                continue;
+            }
+            const w = _AS > _CS
+                ? -BS / AS
+                : -DS / CS; // alternative
+            if (w <= 0) {
+                // If `w` is negative the circle radius is negative -> discard
+                continue;
+            }
+            const V = [w * nnorm[0], w * nnorm[1]];
+            const d = sqrt(lengthSquared(V));
+            if (d <= 2 ** (maxCoordPowerOf2 - 40)) {
+                // If `w` <= 2**-40 -> discard
+                continue;
+            }
+            const x = [y[0] + V[0], y[1] + V[1]];
+            //-----------------------
+            if (ri.tS <= tS && ri.tE >= tS) {
+                startPushed = true;
+            }
+            if (ri.tS <= tE && ri.tE >= tE) {
+                endPushed = true;
+            }
+            // If the point is the first control point of the curve then we
+            // ensure the point becomes the last control point of the prior
+            // curve to induce some symmetery and simplify the algorithm.
+            const s_ = s === 0 ? 1 : s;
+            const curve_ = s === 0 ? curve.prev : curve;
+            const info = {
+                curve: curve_,
+                s: s_,
+                d, x
             };
-    const ris = roots(pDd, tS, tE) || [];
-    //-----------------------
-    const dontPush0 = ((t === 1 && curve === touchedCurve.next) ||
-        (t === 0 && curve === touchedCurve));
-    const dontPush1 = ((t === 0 && curve === touchedCurve.prev) ||
-        (t === 1 && curve === touchedCurve));
-    if (tS === 0) {
-        if (!dontPush0) {
-            ris.push(createRootExact(0));
+            infos.push(info);
         }
+    }
+    //------------------------------------------
+    const pLast = ps[ps.length - 1];
+    let dontPush1 = ((t === 0 && curve === touchedCurve.prev) ||
+        (t === 1 && curve === touchedCurve));
+    //--------------------------------------
+    // Also check curve start control point
+    //--------------------------------------
+    const PS = [];
+    if (tS === 0) {
+        // We never check points at `t === 0` since they are covered by the previous curve's endpoint
+        // which cannot be culled if this curve`s `t === 0` is included
     }
     else if (tS === 1) {
-        if (!dontPush1) {
-            ris.push(createRootExact(1));
+        if (!dontPush1 && !startPushed) {
+            PS.push({ P: pLast, t: 1 });
         }
     }
     else {
-        ris.push(createRootExact(tS));
-    }
-    if (tE === 0) {
-        if (!dontPush0) {
-            ris.push(createRootExact(0));
+        if (!startPushed) {
+            const pp = evalDeCasteljau(ps, tS);
+            PS.push({ P: pp, t: tS });
         }
     }
-    else if (tE === 1) {
-        if (!dontPush1) {
-            ris.push(createRootExact(1));
+    //--------------------------------------
+    // Also check curve end control point
+    //--------------------------------------
+    if (tS !== tE) {
+        if (tE === 0) {
+            // We never check points at `t === 0` since they are covered by the previous curve's endpoint
+            // which cannot be culled if this curve`s `t === 0` is included
+        }
+        else if (tE === 1) {
+            if (!dontPush1 && !endPushed) {
+                PS.push({ P: pLast, t: 1 });
+                dontPush1 = true;
+            }
+        }
+        else {
+            if (!endPushed) {
+                const pp = evalDeCasteljau(ps, tE);
+                PS.push({ P: pp, t: tE });
+            }
         }
     }
-    else {
-        ris.push(createRootExact(tE));
-    }
-    const infos = ris
-        .map(ri => {
-        const { tS: ts, tE: te } = ri;
-        if (te < tS || ts > tE) {
-            return undefined;
+    //------------------------------------------
+    for (let i = 0; i < PS.length; i++) {
+        //-----------------------
+        const { P, t: s } = PS[i];
+        const { a0, b0 } = getMedialPointCoeffsBez0(y, nnorm, P);
+        if (abs(a0) <= 2 ** -40 || abs(b0) <= 2 ** -40) {
+            continue;
         }
-        const _t = (ts + te) / 2;
-        const t = _t < 0 ? 0 : _t > 1 ? 1 : _t;
-        const box = getIntervalBox(ps, [ts, te]);
-        const p_ = getPFromBox(box);
-        const dSquaredI = rootIntervalToDistanceSquaredInterval(pow, box, x);
-        const t_ = t === 0 ? 1 : t;
-        const curve_ = t === 0 ? curve.prev : curve;
-        return {
+        const w = -b0 / a0;
+        // too close to point of origin *or* negative;
+        if (w < 2 ** -40) {
+            continue;
+        }
+        const V = [w * nnorm[0], w * nnorm[1]];
+        const d = sqrt(lengthSquared(V));
+        const x = [y[0] + V[0], y[1] + V[1]];
+        const s_ = s === 0 ? 1 : s;
+        const curve_ = s === 0 ? curve.prev : curve;
+        const info = {
             curve: curve_,
-            p: p_,
-            t: t_,
-            d: (sqrt(dSquaredI[0]) + sqrt(dSquaredI[1])) / 2,
-            dSquaredI,
-            box,
+            s: s_,
+            d, x
         };
-    });
-    const infos_ = infos.filter(info => info !== undefined);
-    return infos_;
+        infos.push(info);
+    }
+    return infos;
 }
 export { getClosestPoint };
 //# sourceMappingURL=get-closest-points.js.map

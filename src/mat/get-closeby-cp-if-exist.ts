@@ -1,11 +1,9 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Circle } from '../geometry/circle.js';
+import type { MatMeta } from './mat-meta.js';
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
-import { Loop } from 'flo-boolean';
-import { CpNode } from '../cp-node/cp-node.js';
-import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
-import { Circle } from '../geometry/circle.js';
 import { getCpNodeToLeftOrSame } from './get-cp-node-to-left-or-same.js';
-import { MatMeta } from './mat-meta.js';
 
 
 /** @internal */

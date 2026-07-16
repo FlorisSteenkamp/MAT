@@ -1,6 +1,7 @@
 /**
- * @internal
  * @param sat
+ *
+ * @internal
  */
 function addDebugInfo(timingStart) {
     if (typeof _debug_ === 'undefined') {

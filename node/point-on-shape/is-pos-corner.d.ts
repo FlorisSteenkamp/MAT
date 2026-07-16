@@ -1,6 +1,7 @@
-import { PointOnShape } from "./point-on-shape.js";
 /**
  * @internal
  */
-declare function isPosCorner(pos: PointOnShape): boolean;
+declare function isPosCorner(pos: {
+    t: number;
+}): boolean;
 export { isPosCorner };

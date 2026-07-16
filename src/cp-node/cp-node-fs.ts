@@ -1,6 +1,4 @@
-import { CpNode } from "./cp-node.js";
 import { getHoleClosers } from "./fs/get-hole-closers.js";
-import { getSpeed } from "./fs/get-speed.js";
 import { enhanceCpNode } from "./fs/enhance-cp-node.js";
 import { traverseCp } from './fs/traverse-cp.js';
 import { traverseEdges } from './fs/traverse-edges.js';
@@ -220,7 +218,6 @@ const CpNodeFs = {
     getBoundaryBeziersBetween,
     getMatCurvesBetween,
     getHoleClosers,
-    getSpeed,
     getInitialDegAngleBetweenMatCurves,
     getAllVertices
 }

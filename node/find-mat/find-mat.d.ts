@@ -8,7 +8,7 @@ import { MatMeta } from '../mat/mat-meta.js';
  * @param loops The loops (that as a precondition must be ordered from highest
  * (i.e. smallest y-value) topmost point loops to lowest)
  */
-declare function findMat(loops: Loop[], maxCoordinate: number, options: Required<MatOptions>): {
+declare function findMat(loops: Loop[], maxCoordPowerOf2: number, options: Required<MatOptions>): {
     cpNode: CpNode;
     meta: MatMeta;
 };

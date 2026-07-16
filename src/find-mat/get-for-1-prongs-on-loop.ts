@@ -1,43 +1,21 @@
+import type { Loop } from 'flo-boolean';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getCurvatureExtremaDd, controlPointLinesLength } from 'flo-bezier3';
-import { Loop } from 'flo-boolean';
-import { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
-import { toP } from '../point-on-shape/create-pos.js';
+import { toP } from '../point-on-shape/to-p.js';
 
 
 /**
- * @internal
- * Get useful points on the shape - these incude points of maximum curvature and 
- * points at the bezier-bezier interfaces.  
+ * Get points of maximum curvature.
+ * 
  * @param loop
- * @param additionalPointCount 
+ * 
+ * @internal
  */
 function getFor1ProngsOnLoop(
         minBezLength: number) {
 
     return function(loop: Loop) {
-        const for1Prongs: PrePointOnShape[] = [];
-
-        const poss = getCurvatureExtremaPoss(minBezLength)(loop);
-        // for1Prongs.push(...poss.minima, ...poss.maxima);
-        // for1Prongs.push(...poss.minima, ...poss.maxima);  // TODO - surely we don't need minima!
-        for1Prongs.push(...poss.maxima);  // TODO - surely we don't need minima!
-
-        return for1Prongs;
-    }
-}
-
-
-function getCurvatureExtremaPoss(
-        minBezLength: number) {
-
-    return function(loop: Loop) {
-        const poss: {
-            minima: PrePointOnShape[],
-            maxima: PrePointOnShape[]
-        } = {
-            minima: [],
-            maxima: []
-        };
+        const poss: PrePointOnShape[] = [];
 
         for (let i=0; i<loop.curves.length; i++) {
             const curve = loop.curves[i];
@@ -45,14 +23,10 @@ function getCurvatureExtremaPoss(
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
             }
-            
-            const { minima, maxima } = getCurvatureExtremaDd(curve.ps);
-            // const maxAbsCurvatures = [...minima, ...maxima].map(t => createPos(curve, t, true));
 
-            // poss.minima.push(...minima.map(t => createPos(curve, t, true)));
-            // poss.maxima.push(...maxima.map(t => createPos(curve, t, true)));
-            poss.minima.push(...minima.map(t => ({ curve, t, isSource: true, p: toP(curve.ps, t) })));
-            poss.maxima.push(...maxima.map(t => ({ curve, t, isSource: true, p: toP(curve.ps, t) })));
+            poss.push(...getCurvatureExtremaDd(curve.ps).maxima.map(t => ({
+                curve, t, isSource: true, p: toP(curve.ps, t)
+            })));
         }
 
         return poss;

@@ -1,4 +1,4 @@
-import type { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getOsculatingCircle } from '../point-on-shape/get-osculating-circle.js';
 
 const { sqrt } = Math;

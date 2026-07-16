@@ -1,6 +1,6 @@
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { CpNode } from '../cp-node/cp-node.js';
 import { LlRbTree } from 'flo-ll-rb-tree';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { CpNode } from '../cp-node/cp-node.js';
 /**
  * @internal
  *
@@ -14,5 +14,5 @@ import { CpNode } from '../cp-node/cp-node.js';
  * @param order
  * @param order2
  */
-declare function getCpNodeToLeftOrSame(cpTree: LlRbTree<CpNode>, pos: PointOnShape, order: number, order2: number): CpNode | undefined;
+declare function getCpNodeToLeftOrSame(cpTree: LlRbTree<CpNode>, pos: PrePointOnShape, order: number, order2: number): CpNode | undefined;
 export { getCpNodeToLeftOrSame };

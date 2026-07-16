@@ -7,10 +7,11 @@ import {
  * @internal
  */
 function getClosestSquaredDistanceToRotatedRect(ps: number[][], p: number[]) {
-    const ds = [0,1,2,3].map(i => squaredDistanceBetweenPointAndLineSegment(
+    const ds = [0,1,2,3]
+    .map(i => squaredDistanceBetweenPointAndLineSegment(
             p, 
             [ps[i], ps[(i + 1) % 4]]
-        )                
+        )
     );
     
     const width  = squaredDistanceBetween(ps[0], ps[1]);

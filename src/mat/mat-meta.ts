@@ -25,7 +25,7 @@ interface MatMeta {
      */
     readonly cpTrees: Map<Loop, LlRbTree<CpNode>>;
     /** A map from a bezier and t value to a `PointOnShape` */
-    readonly pointToCpNode: TriMap<Loop,number,number,CpNode>;
+    // readonly pointToCpNode: TriMap<Loop,number,number,CpNode>;
     /**
      * Stores the last insert id so each `CpNode` can have a unique id for
      * debugging purposes

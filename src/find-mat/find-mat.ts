@@ -5,9 +5,9 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 import { Debug } from '../debug/debug.js';
 import { CpNode } from '../cp-node/cp-node.js';
 import { Loop } from 'flo-boolean';
-import { findAndAdd3ProngsOnLoop } from '../find-3-prong.ts/find-and-add-3-prongs-on-loop.js';
+import { findAndAdd3ProngsOnLoop } from '../find-3-prong/find-and-add-3-prongs-on-loop.js';
 import { createInitialCpTree } from './create-initial-cp-tree.js';
-import { getPointToCpNode, getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
+import { /*getPointToCpNode,*/ getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4, getPointToCpNode } from './get-meta.js';
 import { getSharpCornersOnLoop } from './get-sharp-corners.js';
 import { getDullCornersOnLoop } from './get-dull-corners-on-loop.js';
 import { findAndAdd2ProngsOnAllLoops } from '../find-2-prong/find-and-add-2-prongs-on-all-loops.js';
@@ -52,7 +52,7 @@ function findMat(
     const _meta = getPartialMeta(loops);
     const pointToCpNode = getPointToCpNode(loops, cpTrees);
     const meta: MatMeta = {
-        maxCoordPowerOf2, squaredDiagonalLength, loops, cpTrees, pointToCpNode,
+        maxCoordPowerOf2, squaredDiagonalLength, loops, cpTrees,// pointToCpNode,
         lastInsertId, ..._meta
     };
 

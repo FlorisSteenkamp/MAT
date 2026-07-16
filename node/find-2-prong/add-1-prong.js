@@ -2,7 +2,7 @@ import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
-import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
+import { getPosCorner$ } from '../point-on-shape/get-pos-corner.js';
 /**
  * @hidden
  * Add a 1-prong to the MAT.
@@ -10,9 +10,9 @@ import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
  * @param pos
  */
 function add1Prong(meta, radius, center, pos) {
-    if (isPosCorner(pos) && getPosCorner(pos).isDull) {
+    if (isPosCorner(pos) && getPosCorner$(pos).isDull) {
         // This is a 1-prong at a dull corner.
-        // TODO IMPORTANT 
+        // FUTURE
         // Remove this line, uncomment piece below it and implement the 
         // following strategy to find the 3-prongs: if deltas are conjoined due 
         // to dull corner, split the conjoinment by inserting successively 
@@ -27,7 +27,7 @@ function add1Prong(meta, radius, center, pos) {
         return;
     }
     const circle = { radius, center };
-    const order = calcPosOrder(circle, pos);
+    const order = calcPosOrder(circle.center, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
     if (getCloseByCpIfExist(meta, pos, circle, order, 0, 1)) {

@@ -1,31 +1,43 @@
 import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect.js';
 import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
-// TODO - must improve this
+import { memoize } from 'flo-memoize';
+import { getBoundingBoxTight } from 'flo-bezier3';
+import { getClosestSquaredDistanceToRotatedRect } from '../geometry/get-closest-squared-distance-to-rotated-rect.js';
+const TOLERANCE = 1 + 2 ** -20;
+const getBoundingBoxTight$ = memoize(getBoundingBoxTight);
 /**
  * Cull all `curvePieces` not within the given radius of a given point.
  *
  * @param extreme
  * @param curvePieces
- * @param p
- * @param rSquared
+ * @param xO
+ * @param xy2
  *
  * @internal
  */
-function cullCurvePieces2(curvePieces, p, rSquared) {
-    const TOLERANCE = 1 + 2 ** -10;
-    if (curvePieces.length <= 1) {
+function cullCurvePieces(curvePieces, xO, xy2) {
+    if (curvePieces.length <= 2) {
+        // Curve pieces can never be less than 2 at this stage since a curve
+        // endpoint will be shared between 2 curves
         return curvePieces;
     }
-    const newPieces = [];
-    for (const curvePiece of curvePieces) {
+    let lastIdx = 0;
+    for (let i = 0; i < curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
         const { ps } = curvePiece.curve;
         const rect = getBoundingBox$(ps);
-        const bd = getClosestSquareDistanceToRect(rect, p);
-        if (bd <= TOLERANCE * rSquared) {
-            newPieces.push(curvePiece);
+        const d = getClosestSquareDistanceToRect(rect, xO);
+        if (d <= TOLERANCE * xy2) {
+            const tightBoundingBox = getBoundingBoxTight$(ps);
+            const d2 = getClosestSquaredDistanceToRotatedRect(tightBoundingBox, xO);
+            if (d2 <= TOLERANCE * xy2) {
+                curvePieces[lastIdx] = curvePiece;
+                lastIdx++;
+            }
         }
     }
-    return newPieces;
+    curvePieces.length = lastIdx;
+    return curvePieces;
 }
-export { cullCurvePieces2 };
+export { cullCurvePieces };
 //# sourceMappingURL=cull-bezier-pieces.js.map

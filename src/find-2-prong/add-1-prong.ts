@@ -1,11 +1,11 @@
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Circle } from '../geometry/circle.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
-import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
-import { Circle } from '../geometry/circle.js';
-import { MatMeta } from '../mat/mat-meta.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
-import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
+import { getPosCorner$ } from '../point-on-shape/get-pos-corner.js';
 
 
 /**
@@ -20,10 +20,10 @@ function add1Prong(
         center: number[],
         pos: PrePointOnShape) {
 
-    if (isPosCorner(pos) && getPosCorner(pos).isDull) {
+    if (isPosCorner(pos) && getPosCorner$(pos).isDull) {
         // This is a 1-prong at a dull corner.
         
-        // TODO IMPORTANT 
+        // FUTURE
         // Remove this line, uncomment piece below it and implement the 
         // following strategy to find the 3-prongs: if deltas are conjoined due 
         // to dull corner, split the conjoinment by inserting successively 

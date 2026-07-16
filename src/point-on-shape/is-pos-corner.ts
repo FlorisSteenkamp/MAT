@@ -1,6 +1,3 @@
-import { PointOnShape } from "./point-on-shape.js";
-
-
 /**
  * @internal
  */

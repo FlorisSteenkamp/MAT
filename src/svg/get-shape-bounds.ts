@@ -1,7 +1,7 @@
+import type { Loop } from 'flo-boolean';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { memoize } from 'flo-memoize';
-import { Loop } from 'flo-boolean';
-import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
-import { getLoopBounds } from './get-loop-bounds.js';
+import { getLoopBounds$ } from './get-loop-bounds.js';
 
 
 /** @internal */
@@ -17,7 +17,7 @@ const getShapeBounds = memoize(function(loops: Loop[]) {
     let maxY: PrePointOnShape;
 
     for (const loop of loops) {
-        const bounds = getLoopBounds(loop);
+        const bounds = getLoopBounds$(loop);
         if (bounds.minX.p[0] < minX_) {
             minX = bounds.minX;
             minX_ = bounds.minX.p[0];

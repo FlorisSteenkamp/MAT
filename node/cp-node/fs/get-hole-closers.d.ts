@@ -1,3 +1,3 @@
-import { CpNode } from "../cp-node.js";
+import type { CpNode } from "../cp-node.js";
 declare function getHoleClosers(cpNode: CpNode): CpNode[];
 export { getHoleClosers };

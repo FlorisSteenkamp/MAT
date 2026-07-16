@@ -9,5 +9,5 @@
  *
  * @internal
  */
-declare function rootIntervalToDistanceSquaredInterval(pow: number, box: number[][], p: number[]): number[];
+declare function rootIntervalToDistanceSquaredInterval(maxCoordPowerOf2: number, box: number[][], p: number[]): number[];
 export { rootIntervalToDistanceSquaredInterval };

@@ -1,8 +1,7 @@
-import type  { Circle } from '../geometry/circle.js';
-// import type  { ContactPoint } from '../contact-point/contact-point.js';
-import type  { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
-import type  { CpNode } from '../cp-node/cp-node.js';
-import type { MatMeta } from '../index.js';
+import type { Circle } from '../geometry/circle.js';
+import type { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { getCpNodeToLeftOrSame } from './get-cp-node-to-left-or-same.js';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
 import { joinSpokes } from '../add-n-prong.ts/join-spokes.js';

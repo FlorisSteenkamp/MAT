@@ -1,11 +1,11 @@
-import { Loop } from 'flo-boolean';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Loop } from 'flo-boolean';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
- * @internal
- * Get useful points on the shape - these incude points of maximum curvature and
- * points at the bezier-bezier interfaces.
+ * Get points of maximum curvature.
+ *
  * @param loop
- * @param additionalPointCount
+ *
+ * @internal
  */
-declare function getFor1ProngsOnLoop(minBezLength: number): (loop: Loop) => PointOnShape[];
+declare function getFor1ProngsOnLoop(minBezLength: number): (loop: Loop) => PrePointOnShape[];
 export { getFor1ProngsOnLoop };

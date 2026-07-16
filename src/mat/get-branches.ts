@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node/cp-node.js';
+import type { CpNode } from '../cp-node/cp-node.js';
 import { getBranch } from '../cp-node/fs/get-branch.js';
 import { getNonTerminatingOnCircle } from '../cp-node/fs/get-non-terminating-on-circle.js';
 

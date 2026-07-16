@@ -1,8 +1,7 @@
 import { getLeaves } from './get-leaves.js';
-import { CpNodeFs } from '../cp-node/cp-node-fs.js';
 import { isTerminating } from '../cp-node/fs/is-terminating.js';
 import { DualSetFs } from '../utils/dual-set.js';
-const { isOnSameCircle } = CpNodeFs;
+import { isOnSameCircle } from '../cp-node/fs/is-on-same-circle.js';
 /**
  * Returns the set of non-trivial forward edges starting from the given `CpNode`.
  *
@@ -37,7 +36,7 @@ function cull(culls, maxCpNode) {
     const leaves = getLeaves(maxCpNode);
     while (leaves.length) {
         const leaf = leaves.pop();
-        const { center: c } = leaf.cp.circle;
+        const { center: c } = leaf.pointOnShape.circle;
         if (!DualSetFs.has(culls, c[0], c[1]) ||
             // Preserve topology.
             leaf.isIntersection) {
@@ -47,7 +46,7 @@ function cull(culls, maxCpNode) {
         let cut = false;
         while (!cut) {
             cpNode = cpNode.next;
-            const { center: c } = cpNode.cp.circle;
+            const { center: c } = cpNode.pointOnShape.circle;
             if (!DualSetFs.has(culls, c[0], c[1])) {
                 // Cut off the edge once a non-cull has been reached.
                 while (isTerminating(cpNode.prevOnCircle)) {

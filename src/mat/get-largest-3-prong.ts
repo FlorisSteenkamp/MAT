@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node/cp-node.js';
+import type { CpNode } from '../cp-node/cp-node.js';
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 import { getRealProngCount } from '../cp-node/fs/get-real-prong-count.js';
 
@@ -11,7 +11,7 @@ function getLargest3Prong(cpNode: CpNode) {
     if (cpNodes.length === 0) { return undefined; }
 
     return cpNodes.reduce(function(maxCpNode: CpNode, cpNode: CpNode) {
-        return maxCpNode.cp.circle.radius >= cpNode.cp.circle.radius
+        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius
             ? maxCpNode
             : cpNode
     }, cpNodes[0]);

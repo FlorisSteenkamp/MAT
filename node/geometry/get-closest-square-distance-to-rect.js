@@ -1,5 +1,4 @@
-import { squaredDistanceBetween as squaredDistanceBetween_ } from 'flo-vector2d';
-const squaredDistanceBetween = squaredDistanceBetween_;
+import { squaredDistanceBetween } from 'flo-vector2d';
 /**
  * @internal
  */
@@ -12,8 +11,6 @@ function getClosestSquareDistanceToRect(box, p) {
     const y1 = p1[1];
     const xp = p[0];
     const yp = p[1];
-    //let [[x0,y0],[x1,y1]] = box;
-    //let [xp,yp] = p;
     if (xp < x0) {
         if (yp < y0) {
             return squaredDistanceBetween(box[0], p);

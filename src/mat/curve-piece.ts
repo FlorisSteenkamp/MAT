@@ -13,4 +13,4 @@ interface CurvePiece {
 }
 
 
-export { CurvePiece }
+export type { CurvePiece }

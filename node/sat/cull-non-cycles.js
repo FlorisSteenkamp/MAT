@@ -1,11 +1,13 @@
 import { getLeaves } from './get-leaves.js';
-import { CpNodeFs } from '../cp-node/cp-node-fs.js';
-const { getProngCount, isOnSameCircle, isTerminating } = CpNodeFs;
+import { getProngCount } from '../cp-node/fs/get-prong-count.js';
+import { isOnSameCircle } from '../cp-node/fs/is-on-same-circle.js';
+import { isTerminating } from '../cp-node/fs/is-terminating.js';
 /**
- * @internal
  * Cull all edges not part of a cycle in the MAT planar graph.
  * @param cpStart The start CpNode which must reprsesent the maximal 3-prong
  * vertex.
+ *
+ * @internal
  */
 function cullNonCycles(cpStart) {
     let cpNodeKept = cpStart;

@@ -1,4 +1,3 @@
-import { TriMapFs } from '../utils/tri-map.js';
 import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
 import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
 import { getCorner } from '../corner/get-corner.js';
@@ -6,17 +5,18 @@ let timingStart;
 /** @internal */
 function getPointToCpNode(loops, cpTrees) {
     timingStart = performance.now();
-    const pointToCpNode = new Map();
-    for (const loop of loops) {
-        // Populate `posMap`
-        const cpTree = cpTrees.get(loop);
-        const cpNodes = cpTree.toArrayInOrder();
-        for (const cpNode of cpNodes) {
-            const { p, t } = cpNode.cp.pointOnShape;
-            TriMapFs.set(pointToCpNode, loop, p[0], p[1], cpNode);
-        }
-    }
-    return pointToCpNode;
+    // const pointToCpNode: TriMap<Loop,number,number,CpNode> = new Map();
+    // for (const loop of loops) {
+    //     // Populate `posMap`
+    //     const cpTree = cpTrees.get(loop)!;
+    //     const cpNodes = cpTree.toArrayInOrder();
+    //     for (const cpNode of cpNodes) {
+    //         const { p, t } = cpNode.pointOnShape;
+    //         TriMapFs.set(pointToCpNode,loop,p[0],p[1],cpNode);
+    //     }
+    // }
+    // return pointToCpNode;
+    return undefined;
 }
 /** @internal */
 function getPartialMeta(loops) {

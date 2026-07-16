@@ -1,14 +1,11 @@
-import { ddAddDd, ddMultDd, twoSum, twoProduct, ddDiffDd, ddDivDd, twoDiff, ddMultDouble1 } from 'double-double';
+import { ddAddDd, twoProduct, ddDiffDd, ddDivDd, twoDiff, ddMultDouble1 } from 'double-double';
 
-const ts = twoSum;
 const tp = twoProduct;
-const td = twoDiff;
 const qaq = ddAddDd;
-const qmq = ddMultDd;
 const qdq = ddDiffDd;
 const qmd = ddMultDouble1;
 
-const { asin, acos, cos, sqrt, PI: π } = Math;
+const { acos } = Math;
 
 
 /**
@@ -27,7 +24,6 @@ function calcSeperationTolerance(
     if (a >= R) {
         return Infinity;
     }
-
 
     const R_r_ = twoDiff(R,r);
     const A_  = qmd(r,R_r_);  

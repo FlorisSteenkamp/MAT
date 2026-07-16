@@ -1,5 +1,5 @@
-import { CpNode } from '../cp-node/cp-node.js';
-import { MatMeta } from './mat-meta.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { MatMeta } from './mat-meta.js';
 /**
  * Represents a complete Medial Axis Transform (MAT).
  *
@@ -10,13 +10,13 @@ import { MatMeta } from './mat-meta.js';
  */
 interface Mat {
     /** A complete representation of the MAT. See `CpNode`. */
-    cpNode: CpNode;
+    readonly cpNode: CpNode;
     /**
      * Stores additional info about the shape that could be useful for various
      * purposes in post-processing.
      *
      * Most meta items have a CpNode property to link back to the MAT.
      */
-    meta: MatMeta;
+    readonly meta: MatMeta;
 }
-export { Mat };
+export type { Mat };

@@ -1,6 +1,6 @@
 
 function radToDeg(rad: number) {
-    return rad*360/2/Math.PI;
+    return rad*180/Math.PI;
 }
 
 

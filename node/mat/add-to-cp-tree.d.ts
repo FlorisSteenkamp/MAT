@@ -1,7 +1,7 @@
 import type { Circle } from '../geometry/circle.js';
-import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { CpNode } from '../cp-node/cp-node.js';
-import type { MatMeta } from '../index.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 /**
  * @param circle
  * @param orders
@@ -11,7 +11,7 @@ import type { MatMeta } from '../index.js';
  *
  * @internal
  */
-declare function addToCpTree(insertIfOrderIsWrong: boolean, isHoleClosing: boolean, circle: Circle, orders: number[], meta: MatMeta, poss: PointOnShape[], neighbors?: CpNode[]): {
+declare function addToCpTree(insertIfOrderIsWrong: boolean, isHoleClosing: boolean, circle: Circle, orders: number[], meta: MatMeta, poss: PrePointOnShape[], neighbors?: CpNode[]): {
     anyFailed: boolean;
     cpNodes: (CpNode | undefined)[];
 };

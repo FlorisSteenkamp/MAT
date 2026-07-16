@@ -1,4 +1,3 @@
-import { createPos } from '../point-on-shape/create-pos.js';
 import { controlPointLinesLength } from 'flo-bezier3';
 import { getCorner } from '../corner/get-corner.js';
 /** @internal */
@@ -10,9 +9,11 @@ function getDullCornersOnLoop(minBezLength) {
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
             }
-            if (getCorner(curve.ps, curve.next.ps).isQuiteDull) {
-                dullCorners.push(createPos(curve, 1, true));
-                dullCorners.push(createPos(curve.next, 0, true));
+            const { next, ps } = curve;
+            if (getCorner(ps, next.ps).isQuiteDull) {
+                const p = ps[ps.length - 1];
+                dullCorners.push({ curve, t: 1, isSource: true, p });
+                dullCorners.push({ curve: next, t: 0, isSource: true, p });
             }
         }
         return dullCorners;

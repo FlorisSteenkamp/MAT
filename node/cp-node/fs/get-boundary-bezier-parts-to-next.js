@@ -11,8 +11,8 @@
 function getBoundaryBezierPartsToNext(cpNode) {
     const cpThis = cpNode;
     const cpNext = cpNode.next;
-    const posThis = cpThis.cp.pointOnShape;
-    const posNext = cpNext.cp.pointOnShape;
+    const posThis = cpThis.pointOnShape;
+    const posNext = cpNext.pointOnShape;
     const curveThis = posThis.curve;
     const curveNext = posNext.curve;
     if (curveThis.loop !== curveNext.loop) {

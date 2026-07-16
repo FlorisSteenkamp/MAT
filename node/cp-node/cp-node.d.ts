@@ -1,4 +1,4 @@
-import { ContactPoint } from '../contact-point/contact-point.js';
+import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
  * The primary interface of the library.
  *
@@ -49,32 +49,32 @@ import { ContactPoint } from '../contact-point/contact-point.js';
  */
 interface CpNode {
     /** For debugging / easy identification only */
-    id: number;
+    readonly id: number;
     /** The shape boundary contact point, i.e. a `CpNode` without its edges. */
-    cp: ContactPoint;
+    readonly pointOnShape: PointOnShape;
     /** If true, this `CpNode` belongs to a hole-closing maximal disk. */
-    isHoleClosing: boolean;
+    readonly isHoleClosing: boolean;
     /** true if this `CpNode` is at a shape boundary intersection point, false otherwise */
-    isIntersection: boolean;
+    readonly isIntersection: boolean;
     /** The previous (going clockwise around the boundary) contact point `CpNode`. */
-    prev: CpNode;
+    readonly prev: CpNode;
     /** The next (going anti-clockwise around the boundary) contact point `CpNode`. */
-    next: CpNode;
+    readonly next: CpNode;
     /**
      * The previous `CpNode` (going clockwise around the inscribed circle
      * defined by the maximal disk).
      */
-    prevOnCircle: CpNode;
+    readonly prevOnCircle: CpNode;
     /**
      * The next `CpNode` (going anti-clockwise around
      * the inscribed circle defined by the maximal disk).
      */
-    nextOnCircle: CpNode;
+    readonly nextOnCircle: CpNode;
     /**
      * For hole closers only - the twin `CpNode` at the same point, e.g.
      * use `cpNode.holeCloserTwin.next` to skip the hole closer and get to the
      * next `CpNode` on the same loop.
      */
-    holeCloserTwin?: CpNode | undefined;
+    readonly holeCloserTwin?: CpNode | undefined;
 }
 export { CpNode };

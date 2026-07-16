@@ -5,6 +5,7 @@
  */
 declare function getLoopsMetrics(loops: number[][][][]): {
     maxCoordinate: number;
-    maxRadius: number;
+    width: number;
+    height: number;
 };
 export { getLoopsMetrics };

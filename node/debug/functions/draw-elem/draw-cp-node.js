@@ -3,10 +3,10 @@ import { scaleCircle } from '../../../geometry/circle.js';
 import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
 /** @internal */
 function drawCpNode(g, cpNode, classes = 'blue thin2 nofill', delay = 0, scaleFactor = 1) {
-    const circle = scaleCircle(cpNode.cp.circle, 1);
+    const circle = scaleCircle(cpNode.pointOnShape.circle, 1);
     const { center: c, radius: r } = circle;
     const poss = CpNodeFs.getAllOnCircle(cpNode)
-        .map(cpNode => cpNode.cp.pointOnShape);
+        .map(cpNode => cpNode.pointOnShape);
     const { dot, circle: drawCircle, crossHair } = drawFs;
     const $circle = drawCircle(g, circle, classes, delay);
     const $cps = [];

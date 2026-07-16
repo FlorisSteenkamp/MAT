@@ -1,4 +1,4 @@
-import { PointOnShape } from "./point-on-shape.js";
+import type { PointOnShape } from "./point-on-shape.js";
 /**
  * Returns a human-readable string of the given `PointOnShape`.
  * For debugging only.

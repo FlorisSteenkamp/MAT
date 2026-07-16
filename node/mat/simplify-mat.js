@@ -3,13 +3,14 @@ import { removeVertex } from '../vertex/remove-vertex.js';
 import { getBranches } from './get-branches.js';
 import { getMatCurveToNext } from '../cp-node/fs/get-mat-curve-to-next.js';
 import { getMatCurveBetween } from '../cp-node/fs/get-mat-curve-between.js';
-import { createNewCpTree } from './create-new-cp-tree.js';
+import { createNewCpTrees } from './create-new-cp-trees.js';
 import { clone } from '../cp-node/fs/clone.js';
 import { findFirst } from '../cp-node/fs/find-first.js';
 import { isTerminating } from '../cp-node/fs/is-terminating.js';
 import { isVertex } from '../cp-node/fs/is-vertex.js';
 import { getProngCount } from '../cp-node/fs/get-prong-count.js';
-// TODO2 could be made faster by binary "search" on hausdorff curves
+const { max } = Math;
+// FUTURE could be made faster by binary "search" on hausdorff curves?
 /**
  * Returns a new simplified MAT of the given one by replacing the piecewise
  * quad beziers composing the MAT with fewer ones to within a given tolerance.
@@ -67,7 +68,7 @@ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
         cpNode,
         meta: {
             ...mat.meta,
-            cpTrees: createNewCpTree(cpNode)
+            cpTrees: createNewCpTrees(cpNode)
         }
     };
 }
@@ -77,7 +78,7 @@ function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
     for (; i < j + 1; i++) {
         hds.push(hausdorffDistanceOneSided(getMatCurveToNext(branch[i]), longCurve, hausdorffSpacing));
     }
-    return Math.max(...hds);
+    return max(...hds);
 }
 export { simplifyMat };
 //# sourceMappingURL=simplify-mat.js.map

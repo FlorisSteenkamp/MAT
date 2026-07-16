@@ -1,4 +1,4 @@
-import { CpNode } from "../cp-node.js";
+import type { CpNode } from "../cp-node.js";
 /**
  * See https://research.gold.ac.uk/id/eprint/31944/
  * @param cpNode

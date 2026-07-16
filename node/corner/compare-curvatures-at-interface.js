@@ -10,7 +10,7 @@ const { sign } = Math;
  * Precondition: The point psI evaluated at zero must === the point psO
  * evaluated at zero.
  *
- * // TODO - is this correct?
+ * // FUTURE - is this correct?
  * Exact: Returns the exact result if the bithlength of all
  * coordinates <= 53 - 5 === 48 and are bit-aligned.
  *

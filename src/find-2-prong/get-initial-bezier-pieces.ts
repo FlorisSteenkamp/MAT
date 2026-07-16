@@ -1,15 +1,12 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
-import { Loop } from 'flo-boolean';
+import type { Loop } from 'flo-boolean';
+import type { CurvePiece  } from '../mat/curve-piece.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { getCpNodeToLeftOrSame } from '../mat/get-cp-node-to-left-or-same.js';
 import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
-import { CurvePiece  } from '../mat/curve-piece.js';
-import { CpNode } from '../cp-node/cp-node.js';
-import { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
-import { Circle } from '../geometry/circle.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
-import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
-import { MatMeta } from '../index.js';
+import { getPosCorner$ } from '../point-on-shape/get-pos-corner.js';
 
 
 /** @internal */
@@ -20,8 +17,7 @@ function getInitialCurvePieces(
         loops: Loop[],
         meta: MatMeta,
         yPos: PrePointOnShape,
-        xO: number[],
-        test: boolean): (CurvePiece | undefined)[] {
+        xO: number[]): CurvePiece[] {
 
     const { cpTrees } = meta;
 
@@ -29,11 +25,12 @@ function getInitialCurvePieces(
         return loops
         .filter(_loop => _loop !== loop)
         .flatMap(loop => loop.curves
-            .map(curve => ({ curve, ts: [0,1] })));
+            .map(curve => ({ curve, ts: [0,1] }))
+        );
     }
 
     const order =
-        isPosCorner(yPos) && getPosCorner(yPos).isDull
+        isPosCorner(yPos) && getPosCorner$(yPos).isDull
             ? yPos.t === 1 && angle === 0
                 ? -1 
                 : yPos.t === 0
@@ -50,7 +47,7 @@ function getInitialCurvePieces(
         return loop.curves.map(curve => ({ curve, ts: [0,1] }));
     }
 
-    return getBoundaryPieceBeziers([cpNode, cpNode], test);
+    return getBoundaryPieceBeziers([cpNode, cpNode]);
 }
 
 

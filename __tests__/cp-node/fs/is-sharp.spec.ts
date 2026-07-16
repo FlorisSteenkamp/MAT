@@ -9,6 +9,6 @@ test('isSharp', function() {
     const allOnLoop = getAllOnLoop(cpNode);
 
     for (const n of allOnLoop) {
-        expect(isSharp(n)).toBe(n.cp.circle.radius === 0);
+        expect(isSharp(n)).toBe(n.pointOnShape.circle.radius === 0);
     }
 });

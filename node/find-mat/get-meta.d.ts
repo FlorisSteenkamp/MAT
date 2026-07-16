@@ -6,7 +6,7 @@ import { LlRbTree } from 'flo-ll-rb-tree';
 /** @internal */
 declare function getPointToCpNode(loops: Loop[], cpTrees: Map<Loop, LlRbTree<CpNode>>): TriMap<Loop, number, number, CpNode>;
 /** @internal */
-declare function getPartialMeta(loops: Loop[]): Omit<MatMeta, 'cpTrees' | 'pointToCpNode' | 'loops' | 'maxCoordinate' | 'squaredDiagonalLength' | 'lastInsertId'>;
+declare function getPartialMeta(loops: Loop[]): Omit<MatMeta, 'cpTrees' | 'loops' | 'maxCoordPowerOf2' | 'squaredDiagonalLength' | 'lastInsertId'>;
 /** @internal */
 declare function addDebugInfo2(): void;
 declare function addDebugInfo3(): void;

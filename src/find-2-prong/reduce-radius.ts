@@ -1,9 +1,13 @@
-import { evalDeCasteljau } from "flo-bezier3";
-import { dot, lengthSquared } from "flo-vector2d";
-import { CurvePiece } from '../mat/curve-piece.js';
+import type { CurvePiece } from '../mat/curve-piece.js';
+import { getMedialPointCoeffsBez0 } from "flo-bezier3";
+import { lengthSquared, squaredDistanceBetween } from "flo-vector2d";
+
+const { abs } = Math;
 
 
-// TODO - must improve this
+const TOLERANCE = 1 + 2**-20;
+
+
 /**
  * Reduces the circle radius initially as an optimization step.
  * 
@@ -11,75 +15,49 @@ import { CurvePiece } from '../mat/curve-piece.js';
  */
 function reduceRadius(
         maxCoordPowerOf2: number,
-        curvePieces: (CurvePiece | undefined)[], 
-        p: number[],
+        curvePieces: CurvePiece[], 
+        y: number[],
         nnorm: number[]): number {
 
-    const TOLERANCE = 1 + 2**-16;
-
     let minRadius = Infinity;
+    let x = [y[0] + nnorm[0], y[1] + nnorm[1]];
+
     for (let i=0; i<curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
 
-        if (curvePiece === undefined) { continue; }
+        const { ps } = curvePiece.curve;
 
-        const { curve, ts } = curvePiece;
-        const { ps } = curve;
+        const pS = ps[0];
+        const pE = ps[ps.length - 1];
 
-        const num = 2;
-        for (let j=0; j<(num + 1); j++) {
-            const p_ = evalDeCasteljau(ps, ts[j/num]);
-            const n = getCircleCenterFrom2PointsAndNormal(maxCoordPowerOf2, p, nnorm, p_);
-            if (n === undefined) {
+        for (const P of [pS,pE]) {
+            if (squaredDistanceBetween(x,P) > minRadius) {
+                continue;  // short-circuit
+            }
+
+            const { a0, b0 } = getMedialPointCoeffsBez0(y, nnorm, P);
+
+            if (abs(a0) <= 2**-40 || abs(b0) <= 2**-40) {
                 continue;
             }
-            let r = lengthSquared(n);
+
+            const w = -b0 / a0;
+
+            // too close to point of origin *or* negative;
+            if (w < 2**-40) { continue; }
+
+            const N = [w*nnorm[0], w*nnorm[1]];
+            const r = lengthSquared(N);
+
             if (r < minRadius) {
                 minRadius = r;
+                x = [y[0] + N[0], y[1] + N[1]];
             }
         }
     }
 
     // The extra bit is to account for floating point precision.
     return TOLERANCE*minRadius;
-}
-
-
-/**
- * @param p1 a point on the circle with normal pointing to `x` towards the center
- * of the circle
- * @param x
- * @param p2 another point on the circle
- * 
- * @internal
- */
-function getCircleCenterFrom2PointsAndNormal(
-        maxCoordPowerOf2: number, 
-        p1: number[], 
-        nnorm: number[],
-        p2: number[]): number[] | undefined {
-
-    const TOLERANCE = (2**(maxCoordPowerOf2 - 14))**2;
-    const chord = [p2[0] - p1[0], p2[1] - p1[1]];
-
-    // Ignore if p1 and p2 are too close together
-    if (dot(chord, chord) < TOLERANCE) {
-        return undefined;
-    }
-
-    const denom = dot(nnorm, chord);
-
-    // If the ray from p1 to x is parallel to the perpendicular bisector,
-    // there is no finite center on that ray.
-    if (denom <= 0) {
-        return undefined;
-    }
-
-    const scale = dot(chord, chord) / (2*denom);
-
-    const n = [scale*nnorm[0], scale*nnorm[1]];
-
-    return n;
 }
 
 

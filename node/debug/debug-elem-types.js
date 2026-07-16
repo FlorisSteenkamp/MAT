@@ -15,8 +15,7 @@ const emptyDebugElems = {
     cull: [],
     cpNode: [],
     branch: [],
-    holeCloser: [],
-    speed: []
+    holeCloser: []
 };
 const debugElemNames = Object.keys(emptyDebugElems);
 export { emptyDebugElems, debugElemNames, };

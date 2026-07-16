@@ -1,6 +1,6 @@
+import type { CpNode } from "../cp-node.js";
 import { distanceBetween } from "flo-vector2d";
 import { totalLength } from "flo-bezier3";
-import { CpNode } from "../cp-node.js";
 import { getBoundaryBeziersBetween } from "./get-boundary-beziers-between.js";
 import { sum } from '../../utils/sum.js';
 

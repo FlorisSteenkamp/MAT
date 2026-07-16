@@ -1,13 +1,13 @@
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+// import { PointOnShape } from '../point-on-shape/point-on-shape.js';
 
 
-/** @internal */
-type TXForDebugging = { 
-    x: number[]; 
-    y: PointOnShape; 
-    z: PointOnShape; 
-    t: number; 
-}
+// /** @internal */
+// type TXForDebugging = { 
+//     x: number[]; 
+//     y: PointOnShape; 
+//     z: PointOnShape; 
+//     t: number; 
+// }
 
 
-export { TXForDebugging }
+// export { TXForDebugging }

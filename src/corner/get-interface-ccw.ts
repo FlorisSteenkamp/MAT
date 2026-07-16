@@ -15,8 +15,8 @@ import { compareCurvaturesAtInterface } from "./compare-curvatures-at-interface.
  * Preconditions (for robustness):
  * * The bezier does not have infinite curvature at either endpoint
  * 
- * @param psI The incoming bezier that ends at the interface
- * @param psO The outgoing bezier that starts at the interface
+ * @param psI the incoming bezier that ends at the interface
+ * @param psO the outgoing bezier that starts at the interface
  */
 function getInterfaceCcw(
         psI: number[][],
@@ -72,9 +72,9 @@ function getInterfaceCcw(
 
     // Look at curvature
 
-    // TODO2
+    // FUTURE
     // The line below is probably not working correctly for infinite
-    // curvature but it should be rare to get here - investiagte.
+    // curvature but it should be rare to get here - investigate.
     // Probably need to resort to length of tangents and then if this is
     // also the same simply look at the last point's ccw wrt the 1st or
     // the second?
@@ -82,7 +82,6 @@ function getInterfaceCcw(
         ccw: compareCurvaturesAtInterface(psI.slice().reverse(), psO),
         tangentI,
         tangentO,
-        // crossTangents,
         dotTangents
     }
 }

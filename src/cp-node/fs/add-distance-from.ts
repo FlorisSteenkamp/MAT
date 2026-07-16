@@ -3,7 +3,6 @@
 //------------------------------
 
 // import { getTAtLength, length } from "flo-bezier3";
-// import { createPos } from "../../point-on-shape/create-pos.js";
 // import { CpNode } from "../cp-node.js";
 
 
@@ -40,7 +39,7 @@
 
 //     const t = getTAtLength(curve.ps, l);
 
-//     const posE = createPos(curve, t);
+//     const posE: PrePointOnShape = { curve, t ;
 
 //     return posE;
 // }

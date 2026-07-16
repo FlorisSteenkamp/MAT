@@ -11,12 +11,9 @@ import { drawLeaves } from './draw-leaves.js';
 import { drawCull } from './draw-cull.js';
 import { drawBranch } from './draw-branch.js';
 import { drawCpNode } from './draw-cp-node.js';
-import { drawSpeed } from './draw-speed.js';
 /** @internal */
 const drawElemFs = {
     oneProng: drawOneProng,
-    // oneProngAtDullCorner,
-    // csf,
     twoProng: drawTwoProng(false, true),
     threeProng: drawThreeProng,
     boundingHull,
@@ -32,8 +29,7 @@ const drawElemFs = {
     cull: drawCull,
     cpNode: drawCpNode,
     branch: drawBranch,
-    holeCloser: drawTwoProng(false, false),
-    speed: drawSpeed
+    holeCloser: drawTwoProng(false, false)
 };
 const drawElemFsDetailed = {
     ...drawElemFs,

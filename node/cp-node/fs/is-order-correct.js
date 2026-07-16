@@ -1,14 +1,11 @@
-import { compareCps } from "../../contact-point/contact-point.js";
-function isOrderCorrect(cpTree, cp, next) {
-    // TODO2
-    const c = compareCps(cp, next.cp);
+import { comparePoss } from "../../point-on-shape/compare-poss.js";
+function isOrderCorrect(cpTree, pos, next) {
+    const c = comparePoss(pos, next.pointOnShape);
     if (c < 0) {
         return true;
     }
     if (c === 0) {
-        // TODO2
-        // console.log('c === 0');
-        return true;
+        return false;
     }
     const minNode = cpTree.getMinNode();
     if (minNode === undefined) { // if tree not empty
@@ -17,7 +14,7 @@ function isOrderCorrect(cpTree, cp, next) {
     const min = minNode.datum;
     const max = cpTree.getMaxNode().datum;
     // larger than all -> crossing zero on loop
-    return (compareCps(max.cp, cp) < 0 && min === next);
+    return (comparePoss(max.pointOnShape, pos) < 0 && min === next);
 }
 export { isOrderCorrect };
 //# sourceMappingURL=is-order-correct.js.map

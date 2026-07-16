@@ -6,7 +6,7 @@
  * terminating and one not. See `isTerminating` for more details.
  */
 function isSharp(cpNode) {
-    return cpNode.cp.circle.radius === 0;
+    return cpNode.pointOnShape.circle.radius === 0;
 }
 export { isSharp };
 //# sourceMappingURL=is-sharp.js.map

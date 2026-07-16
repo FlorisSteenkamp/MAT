@@ -1,47 +1,61 @@
+import type { CurvePiece } from '../mat/curve-piece.js';
 import { getClosestSquareDistanceToRect } from '../geometry/get-closest-square-distance-to-rect.js';
-import { CurvePiece } from '../mat/curve-piece.js';
 import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
+import { memoize } from 'flo-memoize';
+import { getBoundingBoxTight } from 'flo-bezier3';
+import { getClosestSquaredDistanceToRotatedRect } from '../geometry/get-closest-squared-distance-to-rotated-rect.js';
 
-const { sqrt } = Math;
+
+const TOLERANCE = 1 + 2**-20;
+const getBoundingBoxTight$ = memoize(getBoundingBoxTight);
 
 
-// TODO - must improve this
 /**
  * Cull all `curvePieces` not within the given radius of a given point.
  * 
  * @param extreme
  * @param curvePieces
- * @param p
- * @param rSquared
+ * @param xO
+ * @param xy2
  * 
  * @internal
  */
-function cullCurvePieces2(
-        curvePieces: (CurvePiece | undefined)[], 
-        p: number[], 
-        rSquared: number): CurvePiece[] {
+function cullCurvePieces(
+        curvePieces: CurvePiece[], 
+        xO: number[], 
+        xy2: number): CurvePiece[] {
 
-    const TOLERANCE = 1 + 2**-20;
-
-    if (curvePieces.length <= 1) {
+    if (curvePieces.length <= 2) {
+        // Curve pieces can never be less than 2 at this stage since a curve
+        // endpoint will be shared between 2 curves
         return curvePieces as CurvePiece[];
     }
 
-    const curvePieces_: CurvePiece[] = [];
-    for (const curvePiece of curvePieces) {
-        if (curvePiece === undefined) { continue; }
-
+    let lastIdx = 0;
+    for (let i=0; i<curvePieces.length; i++) {
+        const curvePiece = curvePieces[i];
         const { ps } = curvePiece.curve;
         
         const rect = getBoundingBox$(ps);
-        const bd = getClosestSquareDistanceToRect(rect, p);
-        if (bd <= TOLERANCE*rSquared) {
-            curvePieces_.push(curvePiece);
+        const d = getClosestSquareDistanceToRect(rect, xO);
+        if (d <= TOLERANCE*xy2) {
+            const tightBoundingBox = getBoundingBoxTight$(ps);
+            const d2 = getClosestSquaredDistanceToRotatedRect(
+                tightBoundingBox,
+                xO
+            );
+
+            if (d2 <= TOLERANCE*xy2) {
+                curvePieces[lastIdx] = curvePiece;
+                lastIdx++;
+            }
         } 
     }
 
-    return curvePieces_;
+    curvePieces.length = lastIdx;
+
+    return curvePieces;
 }
 
 
-export { cullCurvePieces2 }
+export { cullCurvePieces }

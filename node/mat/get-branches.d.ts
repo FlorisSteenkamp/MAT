@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node/cp-node.js';
+import type { CpNode } from '../cp-node/cp-node.js';
 /**
  * Returns all branches associated with the give cpNode.
  *

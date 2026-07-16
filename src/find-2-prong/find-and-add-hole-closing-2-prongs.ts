@@ -1,8 +1,8 @@
-import { CpNode } from '../cp-node/cp-node.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { getMinYPos } from '../svg/get-min-y-pos.js';
 import { find2Prong } from './find-2-prong.js';
 import { add2Prong } from './add-2-prong.js';
-import { MatMeta } from '../mat/mat-meta.js';
 
 
 /**
@@ -22,19 +22,21 @@ function findAndAddHoleClosing2Prongs(
 
     let cpNode: CpNode | undefined;
 
+    const find2Prong_ = find2Prong(meta);
+
     // We start at 1 since 0 is the outer (root) loop
     for (let k=1; k<minYs.length; k++) {
         const pposSource = minYs[k];
         
-        const posAntipode = find2Prong(
-            meta, true, false, 0, pposSource
+        const posAntipode = find2Prong_(
+            true, false, 0, pposSource
         );
 
         if (!posAntipode) { 
             throw new Error(`Unable to find hole-closing 2-prong`);
         } 
 
-        // TODO important - handle case of n-prong, i.e. more than one antipode
+        // FUTURE - handle case of n-prong, i.e. more than one antipode
         // - currently we only handle case of single antipode (the general case)
         const { circle, z } = posAntipode;
 

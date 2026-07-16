@@ -6,8 +6,8 @@ import type { CpNode } from "../cp-node/cp-node.js";
  * @param holeClosers 
  * @returns 
  */
-// TODO - this function is currently O(n^2) but could be made O(n).
-// TODO - only `pointOnShape.p` is checked but `pointOnShape.t` should also be checked
+// FUTURE - this function is currently O(n^2) but could be made O(n).
+// FUTURE - only `pointOnShape.p` is checked but `pointOnShape.t` should also be checked
 // or better yet, `CpNode.cp.order` and `CpNode.cp.order2`, etc.
 function getHoleCloserPairs(
         holeClosers: CpNode[]): Map<CpNode,CpNode> {

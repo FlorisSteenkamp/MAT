@@ -1,58 +1,46 @@
-import type { Curve } from 'flo-boolean';
 import type { CurvePiece  } from '../mat/curve-piece.js';
 import type { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
-import { cullCurvePieces1 } from './cull-bezier-pieces.js';
-import { evalDeCasteljauDd } from 'flo-bezier3';
-import { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import { cullCurvePieces1 } from './cull-bezier-pieces-1.js';
+import { toP } from '../point-on-shape/to-p.js';
 
 
 /**
- * @internal
  * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
  * 
- * @param pow
+ * @param maxCoordPowerOf2
  * @param curvePieces
  * @param x
- * @param touchedCurve
- * @param t
- * @param for1Prong defaults to `false`;
- * @param angle defaults to `0`
+ * 
+ * @internal
  */
 function getCloseBoundaryPointsCertified(
         maxCoordPowerOf2: number,
         curvePieces: CurvePiece[], 
-        x: number[], 
-        touchedCurve: Curve | undefined = undefined,
-        t: number | undefined = undefined,
-        for1Prong = false,
-        angle = 0): PrePointOnShape[] {
+        x: number[]): PrePointOnShape[] {
     
     curvePieces = cullCurvePieces1(curvePieces, x);
  
-    const pInfoss: FootAndEndpointInfo[] = [];
+    const pInfos: FootAndEndpointInfo[] = [];
     for (let i=0; i<curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
 
-        const pInfos = getPotentialClosestPointsOnCurveCertified(
+        const _pInfos = getPotentialClosestPointsOnCurveCertified(
             maxCoordPowerOf2,
             curvePiece.curve, 
             x, 
-            curvePiece.ts, 
-            touchedCurve, 
-            t,
-            for1Prong,
-            angle
+            curvePiece.ts as [number,number]
         );
 
-        pInfoss.push(...pInfos);
+        pInfos.push(..._pInfos);
     }
 
     /** the minimum max interval value */
     let minMax = Infinity;
-    for (let i=0; i<pInfoss.length; i++) {
-        const diMax = pInfoss[i].dSquaredI[1];
+    for (let i=0; i<pInfos.length; i++) {
+        const diMax = pInfos[i].dSquaredI[1];
         if (diMax < minMax) {
             minMax = diMax;
         }
@@ -60,18 +48,17 @@ function getCloseBoundaryPointsCertified(
 
     const closestPointInfos: FootAndEndpointInfo[] = [];
 
-    for (let i=0; i<pInfoss.length; i++) {
-        const info = pInfoss[i];
+    for (let i=0; i<pInfos.length; i++) {
+        const info = pInfos[i];
         if (info.dSquaredI[0] <= minMax) {
             closestPointInfos.push(info);
         }
     }
 
     return closestPointInfos.map(info => {
-        // createPos(info.curve, info.t, 0,0, false)
         const { curve, t } = info;
         const { ps } = curve;
-        const p = evalDeCasteljauDd(ps, [0,t]).map(c => c[1]);
+        const p = toP(ps, t);
         
         return {
             p, t, curve, isSource: false

@@ -1,6 +1,4 @@
-import { CpNode } from "./cp-node.js";
 import { getHoleClosers } from "./fs/get-hole-closers.js";
-import { getSpeed } from "./fs/get-speed.js";
 import { enhanceCpNode } from "./fs/enhance-cp-node.js";
 import { traverseCp } from './fs/traverse-cp.js';
 import { traverseEdges } from './fs/traverse-edges.js';
@@ -218,19 +216,6 @@ declare const CpNodeFs: {
     getBoundaryBeziersBetween: typeof getBoundaryBeziersBetween;
     getMatCurvesBetween: typeof getMatCurvesBetween;
     getHoleClosers: typeof getHoleClosers;
-    getSpeed: typeof getSpeed;
-    getSmoothedSpeed$: (a: number) => ((cpNode: CpNode) => number | undefined) & {
-        readonly weakMapS: WeakMap<object, {
-            readonly weakMap: WeakMap<object, any>;
-            readonly map: Map<object, any>;
-        }>;
-        readonly mapS: Map<object, {
-            readonly weakMap: WeakMap<object, any>;
-            readonly map: Map<object, any>;
-        }>;
-        readonly clearCache: () => void;
-        readonly addToCache: (r: unknown, ...args: any) => void;
-    };
     getInitialDegAngleBetweenMatCurves: typeof getInitialDegAngleBetweenMatCurves;
     getAllVertices: typeof getAllVertices;
 };

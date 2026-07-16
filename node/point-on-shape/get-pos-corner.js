@@ -1,11 +1,11 @@
+import { memoize } from 'flo-memoize';
 import { getCorner } from "../corner/get-corner.js";
 /**
  * @internal
  */
-// const getPosCorner$ = memoize(
-function getPosCorner(pos) {
-    return getCorner(pos.t === 1 ? pos.curve.ps : pos.curve.prev.ps, pos.t === 1 ? pos.curve.next.ps : pos.curve.ps);
-}
-// );
-export { getPosCorner };
+const getPosCorner$ = memoize(function (pos) {
+    const { t, curve } = pos;
+    return getCorner(t === 1 ? curve.ps : curve.prev.ps, t === 1 ? curve.next.ps : curve.ps);
+});
+export { getPosCorner$ };
 //# sourceMappingURL=get-pos-corner.js.map

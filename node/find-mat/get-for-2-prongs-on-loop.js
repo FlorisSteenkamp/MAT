@@ -1,11 +1,12 @@
 import { splitByCurvatureAndLength, controlPointLinesLength, getInflections } from 'flo-bezier3';
-import { createPos } from '../point-on-shape/create-pos.js';
+import { toP } from '../point-on-shape/to-p.js';
 /**
- * @internal
  * Get useful points on the shape - these incude points of maximum curvature and
  * points at the bezier-bezier interfaces.
  * @param loop
  * @param additionalPointCount
+ *
+ * @internal
  */
 function getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength) {
     return function (loop) {
@@ -18,13 +19,10 @@ function getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength) {
                 continue;
             }
             let ts = splitByCurvatureAndLength(ps, maxCurviness, maxLength);
-            // let ts = [0,0.25,0.5,0.75,1];
-            // let ts = [0,0.5 + 2**-20,1];
-            // let ts = ps.length <= 3 ? [0,1] : fitQuadsToCubicTsOnly(ps, 1);
             ts = ts.length === 2 ? [0.5] : ts;
             ts.push(...getInflections(ps));
             ts = ts.filter(t => t !== 0 && t !== 1);
-            const byCurvatureAndLength = ts.map(t => createPos(curve, t, true));
+            const byCurvatureAndLength = ts.map(t => ({ curve, t, isSource: true, p: toP(curve.ps, t) }));
             for2Prongs.push(...byCurvatureAndLength);
         }
         return for2Prongs;

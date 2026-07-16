@@ -1,11 +1,11 @@
-import { Loop } from 'flo-boolean';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { Loop } from 'flo-boolean';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 /** @internal */
 declare const getShapeBounds: ((loops: Loop[]) => {
-    minX: PointOnShape;
-    minY: PointOnShape;
-    maxX: PointOnShape;
-    maxY: PointOnShape;
+    minX: PrePointOnShape;
+    minY: PrePointOnShape;
+    maxX: PrePointOnShape;
+    maxY: PrePointOnShape;
 }) & {
     readonly weakMapS: WeakMap<object, {
         readonly weakMap: WeakMap<object, any>;

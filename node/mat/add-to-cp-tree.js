@@ -13,14 +13,14 @@ import { joinSpokes } from '../add-n-prong.ts/join-spokes.js';
 function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, poss, neighbors) {
     const { cpTrees } = meta;
     let anyFailed = false;
-    const cpNodes = poss.map((pos, i) => {
+    const cpNodes = poss.map((ppos, i) => {
         const order = orders[i];
-        const cpTree = cpTrees.get(pos.curve.loop);
-        const cp = { pointOnShape: pos, circle, order, order2: 0 };
+        const cpTree = cpTrees.get(ppos.curve.loop);
+        const pos = { ...ppos, circle, order, order2: 0 };
         const pred = neighbors === undefined
-            ? getCpNodeToLeftOrSame(cpTree, pos, order, 0)
+            ? getCpNodeToLeftOrSame(cpTree, ppos, order, 0)
             : neighbors[i];
-        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, cp, pred, meta.lastInsertId);
+        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, pos, pred, meta.lastInsertId);
         if (cpNode === undefined) {
             anyFailed = true;
         }

@@ -19,6 +19,6 @@ test('node require', function() {
         expect(result).toBeInstanceOf(Array);
         expect(result[0]).toBeInstanceOf(Object);
         expect(result[0].cpNode).toBeInstanceOf(Object);
-        expect(result[0].cpNode.cp).toBeInstanceOf(Object);
+        expect(result[0].cpNode.pointOnShape).toBeInstanceOf(Object);
 	})();
 });

@@ -1,7 +1,21 @@
-import { Corner } from "../corner/corner.js";
-import { PointOnShape } from "./point-on-shape.js";
+import type { Corner } from "../corner/corner.js";
+import type { Curve } from "flo-boolean";
 /**
  * @internal
  */
-declare function getPosCorner(pos: PointOnShape): Corner;
-export { getPosCorner };
+declare const getPosCorner$: ((pos: {
+    t: number;
+    curve: Curve;
+}) => Corner) & {
+    readonly weakMapS: WeakMap<object, {
+        readonly weakMap: WeakMap<object, any>;
+        readonly map: Map<object, any>;
+    }>;
+    readonly mapS: Map<object, {
+        readonly weakMap: WeakMap<object, any>;
+        readonly map: Map<object, any>;
+    }>;
+    readonly clearCache: () => void;
+    readonly addToCache: (r: unknown, ...args: any) => void;
+};
+export { getPosCorner$ };

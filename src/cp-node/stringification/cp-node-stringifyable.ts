@@ -1,5 +1,5 @@
-// import type { Loop } from "flo-boolean";
 import type { Circle } from "../../geometry/circle";
+import type { PointOnShape } from "../../point-on-shape/point-on-shape";
 import type { CpNode } from "../cp-node";
 import type { LoopStringifyable } from "./loop-stringifyable";
 
@@ -18,23 +18,14 @@ type Edge =
 
 
 /** @internal */
-type PointOnShapeSimplified = {
+type PointOnShapeSimplified = Omit<PointOnShape, 'curve'> & {
     readonly loopIdx: number;
     readonly curveIdx: number;
-    readonly p: number[];
-    readonly t: number;
-    readonly isSource?: boolean;
 }
+
 /** @internal */
-type ContactPointSimplified = {
-    readonly circle: Circle;
+type CpNodeSimplified = Omit<CpNode, 'pointOnShape'> & {
     readonly pointOnShape: PointOnShapeSimplified;
-    readonly order: number;
-    readonly order2: number;
-}
-/** @internal */
-type CpNodeSimplified = Omit<CpNode, 'cp'> & {
-    readonly cp: ContactPointSimplified;
 }
 
 /** @internal */
@@ -48,8 +39,8 @@ type CpNodeWithAnyEdges = PartialBy<
 
 
 interface CpNodeStringifyable {
-    cpNodes: CpNodeWithAnyEdges[];
-    loops: LoopStringifyable[];
+    readonly cpNodes: CpNodeWithAnyEdges[];
+    readonly loops: LoopStringifyable[];
 }
 
 
@@ -62,7 +53,7 @@ const EDGES: Edge[] = [
 
 export { EDGES }
 export type {
-    PointOnShapeSimplified, ContactPointSimplified,
+    PointOnShapeSimplified,
     CpNodeSimplified, CpNodeSimplifiedEdgeless,
     CpNodeStringifyable, CpNodeWithAnyEdges,
 }

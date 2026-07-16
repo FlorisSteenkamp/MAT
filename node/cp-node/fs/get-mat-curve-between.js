@@ -1,5 +1,6 @@
 import { fromTo, dot, cross, rotate90Degrees, interpolate, translate, lineLineIntersection } from 'flo-vector2d';
 import { getEdgeDirection } from './get-edge-direction.js';
+const { abs } = Math;
 /** @internal */
 const TOLERANCE_ADD_2PRONG = 0.01;
 /** @internal */
@@ -11,9 +12,9 @@ const TOLERANCE_USE_LINE = 0.0001; // else cubic
  * @param cpNodeTo
  */
 function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
-    const fromCc = cpNodeFrom.cp.circle.center;
+    const fromCc = cpNodeFrom.pointOnShape.circle.center;
     const fromL = getEdgeDirection(cpNodeFrom);
-    const toCc = cpNodeTo.cp.circle.center;
+    const toCc = cpNodeTo.pointOnShape.circle.center;
     const toL = getEdgeDirection(cpNodeTo.prevOnCircle);
     const mid = lineLineIntersection(fromL, toL);
     const c = fromTo(fromCc, toCc);
@@ -32,10 +33,10 @@ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
     const r = rotate90Degrees(c);
     const w1 = fromTo(fromL[0], fromL[1]); // This is a unit vector
     const w2 = fromTo(toL[0], toL[1]); // This is a unit vector
-    const d1 = Math.abs(cross(c, w1)) / (3 * 3);
-    const d2 = Math.abs(cross(c, w2)) / (3 * 3);
+    const d1 = abs(cross(c, w1)) / (3 * 3);
+    const d2 = abs(cross(c, w2)) / (3 * 3);
     if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
-        // TODO - not within tolerance - must add additional 2-prong
+        // FUTURE - not within tolerance - must add additional 2-prong
         return [fromCc, toCc];
     }
     if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {

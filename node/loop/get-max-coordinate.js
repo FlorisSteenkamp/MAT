@@ -1,5 +1,4 @@
-const max = Math.max;
-const abs = Math.abs;
+const { max, abs } = Math;
 /**
  * @internal
  * Returns the maximum control point coordinate value (x or y) within any loop.
@@ -37,8 +36,7 @@ function getLoopsMetrics(loops) {
     }
     const width = maxX - minX;
     const height = maxY - minY;
-    const maxRadius = max(width, height);
-    return { maxCoordinate, maxRadius };
+    return { maxCoordinate, width, height };
 }
 export { getLoopsMetrics };
 //# sourceMappingURL=get-max-coordinate.js.map

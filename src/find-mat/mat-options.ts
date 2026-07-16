@@ -140,4 +140,4 @@ const matOptionRanges: Omit<Required<{ [K in keyof MatOptions]: MatOptionMeta }>
 
 
 export type { MatOptions, MatOptionMeta }
-export {defaultMatOptions, matOptionRanges }
+export { defaultMatOptions, matOptionRanges }

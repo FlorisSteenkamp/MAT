@@ -1,4 +1,4 @@
-import { CpNode } from '../cp-node/cp-node.js';
+import type { CpNode } from '../cp-node/cp-node.js';
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 
 

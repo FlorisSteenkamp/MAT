@@ -2,9 +2,9 @@ import { getCpNodeToLeftOrSame } from '../mat/get-cp-node-to-left-or-same.js';
 import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
-import { getPosCorner } from '../point-on-shape/get-pos-corner.js';
+import { getPosCorner$ } from '../point-on-shape/get-pos-corner.js';
 /** @internal */
-function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, y, circle) {
+function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO) {
     const { cpTrees } = meta;
     if (isHoleClosing) {
         return loops
@@ -12,20 +12,19 @@ function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, y, circl
             .flatMap(loop => loop.curves
             .map(curve => ({ curve, ts: [0, 1] })));
     }
-    const order = isPosCorner(y) && getPosCorner(y).isDull
-        ? y.t === 1 && angle === 0
+    const order = isPosCorner(yPos) && getPosCorner$(yPos).isDull
+        ? yPos.t === 1 && angle === 0
             ? -1
-            : y.t === 0
+            : yPos.t === 0
                 ? +1
-                : calcPosOrder(circle, y)
+                : calcPosOrder(xO, yPos)
         : 0;
-    const cpNode = getCpNodeToLeftOrSame(cpTrees.get(loop), y, order, 0);
+    const cpNode = getCpNodeToLeftOrSame(cpTrees.get(loop), yPos, order, 0);
     if (!cpNode ||
         // The special case if there is only a single sharp corner or 
         // two-way terminating 2-prong currently in the MAT. Don't remove!
         (cpNode === cpNode.next.next)) {
-        return loop.curves
-            .map(curve => ({ curve, ts: [0, 1] }));
+        return loop.curves.map(curve => ({ curve, ts: [0, 1] }));
     }
     return getBoundaryPieceBeziers([cpNode, cpNode]);
 }

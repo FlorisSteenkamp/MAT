@@ -2,7 +2,7 @@ import { Mat } from '../mat/mat.js';
 import { CpNode } from '../cp-node/cp-node.js';
 type DebugElemKey = keyof typeof emptyDebugElems;
 declare const emptyDebugElems: {
-    readonly oneProng: CpNode[][];
+    readonly oneProng: CpNode[];
     readonly twoProng: CpNode[];
     readonly threeProng: CpNode[];
     readonly looseBoundingBox: number[][][];
@@ -16,7 +16,6 @@ declare const emptyDebugElems: {
     readonly cpNode: CpNode[];
     readonly branch: CpNode[][];
     readonly holeCloser: CpNode[];
-    readonly speed: CpNode[];
 };
 declare const debugElemNames: Array<keyof typeof emptyDebugElems>;
 /** @internal */

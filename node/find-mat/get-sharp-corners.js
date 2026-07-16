@@ -1,5 +1,5 @@
-import { createPos } from '../point-on-shape/create-pos.js';
 import { controlPointLinesLength } from 'flo-bezier3';
+import { toP } from '../point-on-shape/to-p.js';
 import { getCorner } from '../corner/get-corner.js';
 /** @internal */
 function getSharpCornersOnLoop(minBezLength) {
@@ -11,10 +11,9 @@ function getSharpCornersOnLoop(minBezLength) {
                 continue;
             }
             if (getCorner(curve.ps, curve.next.ps).isQuiteSharp) {
-                sharpCorners.push(createPos(curve, 1, true));
+                sharpCorners.push({ curve, t: 1, isSource: true, p: toP(curve.ps, 1) });
             }
         }
-        // console.log(sharpCorners)
         return sharpCorners;
     };
 }

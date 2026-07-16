@@ -1,85 +1,48 @@
 import { memoize } from 'flo-memoize';
 import { getBounds } from 'flo-bezier3';
-import { createPos } from '../point-on-shape/create-pos.js';
-/** @internal */
-const INF = Infinity;
+import { toP } from '../point-on-shape/to-p.js';
+function toPrePoint(extreme) {
+    return {
+        curve: extreme.curve,
+        t: extreme.t,
+        isSource: true,
+        p: toP(extreme.curve.ps, extreme.t)
+    };
+}
+function updateExtreme(extreme, curve, t, val, isMax) {
+    if ((isMax && (val > extreme.val || (val === extreme.val && t > extreme.t))) ||
+        (!isMax && (val < extreme.val || (val === extreme.val && t > extreme.t)))) {
+        extreme.curve = curve;
+        extreme.t = t;
+        extreme.val = val;
+    }
+}
 /**
  * @internal
  */
-const getLoopBounds = memoize(function (loop) {
-    const extremes = [
-        [
-            { bezier: undefined, t: undefined, val: INF },
-            { bezier: undefined, t: undefined, val: INF }
-        ],
-        [
-            { bezier: undefined, t: undefined, val: -INF },
-            { bezier: undefined, t: undefined, val: -INF }
-        ]
+const getLoopBounds$ = memoize(function (loop) {
+    const mins = [
+        { curve: undefined, t: undefined, val: Infinity },
+        { curve: undefined, t: undefined, val: Infinity }
+    ];
+    const maxs = [
+        { curve: undefined, t: undefined, val: -Infinity },
+        { curve: undefined, t: undefined, val: -Infinity }
     ];
     loop.curves.forEach(function (curve) {
         const ps = curve.ps;
-        // const bounds = getBounds_(ps);
         const bounds = getBounds(ps);
-        {
-            {
-                const v = bounds.box[0][0];
-                const x = extremes[0][0].val;
-                if (v < x || (v === x && bounds.ts[0][0] > extremes[0][0].t)) {
-                    extremes[0][0] = {
-                        bezier: curve,
-                        t: bounds.ts[0][0],
-                        val: v
-                    };
-                }
-            }
-            {
-                const v = bounds.box[0][1];
-                const x = extremes[0][1].val;
-                if (v < x || (v === x && bounds.ts[0][1] > extremes[0][1].t)) {
-                    extremes[0][1] = {
-                        bezier: curve,
-                        t: bounds.ts[0][1],
-                        val: v
-                    };
-                }
-            }
-        }
-        {
-            {
-                const v = bounds.box[1][0];
-                const x = extremes[1][0].val;
-                if (v > x || (v === x && bounds.ts[1][0] > extremes[1][0].t)) {
-                    extremes[1][0] = {
-                        bezier: curve,
-                        t: bounds.ts[1][0],
-                        val: v
-                    };
-                }
-            }
-            {
-                const v = bounds.box[1][1];
-                const x = extremes[1][1].val;
-                if (v > x || (v === x && bounds.ts[1][1] > extremes[1][1].t)) {
-                    extremes[1][1] = {
-                        bezier: curve,
-                        t: bounds.ts[1][1],
-                        val: v
-                    };
-                }
-            }
+        for (let axis = 0; axis < 2; axis++) {
+            updateExtreme(mins[axis], curve, bounds.ts[0][axis], bounds.box[0][axis], false);
+            updateExtreme(maxs[axis], curve, bounds.ts[1][axis], bounds.box[1][axis], true);
         }
     });
     return {
-        // minX : new PointOnShape(extremes[0][0].bezier, extremes[0][0].t),
-        // minY : new PointOnShape(extremes[0][1].bezier, extremes[0][1].t),
-        // maxX : new PointOnShape(extremes[1][0].bezier, extremes[1][0].t),
-        // maxY : new PointOnShape(extremes[1][1].bezier, extremes[1][1].t)
-        minY: createPos(extremes[0][1].bezier, extremes[0][1].t, true),
-        minX: createPos(extremes[0][0].bezier, extremes[0][0].t, true),
-        maxX: createPos(extremes[1][0].bezier, extremes[1][0].t, true),
-        maxY: createPos(extremes[1][1].bezier, extremes[1][1].t, true)
+        minX: toPrePoint(mins[0]),
+        minY: toPrePoint(mins[1]),
+        maxX: toPrePoint(maxs[0]),
+        maxY: toPrePoint(maxs[1])
     };
 });
-export { getLoopBounds };
+export { getLoopBounds$ };
 //# sourceMappingURL=get-loop-bounds.js.map

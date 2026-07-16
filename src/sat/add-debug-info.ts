@@ -1,11 +1,11 @@
 declare const _debug_: Debug; 
-
-import { Debug } from '../debug/debug.js';
+import type { Debug } from '../debug/debug.js';
 
 
 /**
- * @internal
  * @param sat 
+ * 
+ * @internal
  */
 function addDebugInfo(
         timingStart: number) {

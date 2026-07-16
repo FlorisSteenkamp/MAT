@@ -9,8 +9,8 @@ import { sum } from '../../utils/sum.js';
 function getSalience(cpNode) {
     const cpNode1 = cpNode;
     const cpNode2 = cpNode.nextOnCircle;
-    const bp1 = cpNode1.cp.pointOnShape.p;
-    const bp2 = cpNode2.cp.pointOnShape.p;
+    const bp1 = cpNode1.pointOnShape.p;
+    const bp2 = cpNode2.pointOnShape.p;
     const d = distanceBetween(bp1, bp2);
     const { pss, hasHoleCloser } = getBoundaryBeziersBetween(cpNode1, cpNode2);
     const s = sum(pss.map(ps => totalLength(ps)));

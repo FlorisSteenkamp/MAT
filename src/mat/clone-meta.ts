@@ -1,16 +1,28 @@
-import { MatMeta } from './mat-meta.js';
+import type { MatMeta } from './mat-meta.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import { createNewCpTrees } from './create-new-cp-trees.js';
 
 
-function cloneMeta(meta: MatMeta): MatMeta {
-    // const {
-    //     boundingHulls, cpTrees, dullCorners,
-    //     loops, looseBoundingBoxes, pointToCpNode, sharpCorners,
-    //     tightBoundingBoxes, salientCulls, satCulls, maxCoordPowerOf2,
-    //     squaredDiagonalLength
-    // } = meta;
+function cloneMeta(
+        cpNode: CpNode,
+        meta: MatMeta): MatMeta {
 
-    // TODO2
-    return { ...meta }
+    const {
+        // pointToCpNode,
+        lastInsertId,
+        cpTrees,
+        ...rest
+    } = meta;
+
+    const cpTrees_ = createNewCpTrees(cpNode);
+    const lastInsertId_ = { id: lastInsertId.id };
+
+    return {
+        cpTrees: cpTrees_,
+        lastInsertId: lastInsertId_,
+        // pointToCpNode,
+        ...rest
+    }
 }
 
 

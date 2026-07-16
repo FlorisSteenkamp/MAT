@@ -1,18 +1,14 @@
-import type { Curve } from 'flo-boolean';
 import type { CurvePiece } from '../mat/curve-piece.js';
-import type { PointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 /**
- * @internal
  * Returns the closest boundary point to the given point, limited to the given
  * bezier pieces, including the beziers actually checked after culling.
  *
- * @param pow
+ * @param maxCoordPowerOf2
  * @param curvePieces
  * @param x
- * @param touchedCurve
- * @param t
- * @param for1Prong defaults to `false`;
- * @param angle defaults to `0`
+ *
+ * @internal
  */
-declare function getCloseBoundaryPointsCertified(pow: number, curvePieces: CurvePiece[], x: number[], touchedCurve?: Curve | undefined, t?: number | undefined, for1Prong?: boolean, angle?: number): PointOnShape[];
+declare function getCloseBoundaryPointsCertified(maxCoordPowerOf2: number, curvePieces: CurvePiece[], x: number[]): PrePointOnShape[];
 export { getCloseBoundaryPointsCertified };

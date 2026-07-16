@@ -1,4 +1,4 @@
-import { Mat } from '../mat/mat.js';
+import type { Mat } from '../mat/mat.js';
 /**
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
  * the given MAT. The returned SAT is guaranteed to be a subset of the MAT and

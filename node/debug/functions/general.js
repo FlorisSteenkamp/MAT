@@ -14,7 +14,7 @@ function nameObj(o, pre = '') {
  * @param cpNodes A boundary piece given by two CpNodes.
  */
 function δToString(cpNodes) {
-    return cpNodes.map(cpNode => posToHumanString(cpNode.cp.pointOnShape));
+    return cpNodes.map(cpNode => posToHumanString(cpNode.pointOnShape));
 }
 /**
  * @internal

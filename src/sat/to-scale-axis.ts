@@ -1,10 +1,9 @@
 /** @internal */
 declare const _debug_: Debug;
-
-import { Debug } from '../debug/debug.js';
-import { Mat } from '../mat/mat.js';
+import type { Debug } from '../debug/debug.js';
+import type { Mat } from '../mat/mat.js';
 import { getLargestVertex } from '../mat/get-largest-vertex.js';
-import { createNewCpTree } from '../mat/create-new-cp-tree.js';
+import { createNewCpTrees } from '../mat/create-new-cp-trees.js';
 import { cull } from './cull.js';
 import { addDebugInfo } from './add-debug-info.js';
 import { clone } from '../cp-node/fs/clone.js';
@@ -42,7 +41,7 @@ function toScaleAxis(
         cpNode: cpNode,
         meta: {
             ...mat.meta,
-            cpTrees: createNewCpTree(cpNode)
+            cpTrees: createNewCpTrees(cpNode)
         }
     };
 

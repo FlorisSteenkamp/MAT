@@ -1,4 +1,4 @@
-import { compareCps } from "../../contact-point/contact-point.js";
+import { comparePoss } from "../../point-on-shape/compare-poss.js";
 /**
  * Primarily for internal use.
  *
@@ -6,7 +6,7 @@ import { compareCps } from "../../contact-point/contact-point.js";
  * on a `CpNode`'s relative position along the shape boundary.
  */
 function cpNodeComparator(a, b) {
-    return compareCps(a.cp, b.cp);
+    return comparePoss(a.pointOnShape, b.pointOnShape);
 }
 export { cpNodeComparator };
 //# sourceMappingURL=cp-node-comparator.js.map

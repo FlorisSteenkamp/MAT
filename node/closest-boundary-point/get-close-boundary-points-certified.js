@@ -1,43 +1,47 @@
-import { createPos } from '../point-on-shape/create-pos.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
-import { cullCurvePieces1 } from './cull-bezier-pieces.js';
+import { cullCurvePieces1 } from './cull-bezier-pieces-1.js';
+import { toP } from '../point-on-shape/to-p.js';
 /**
- * @internal
  * Returns the closest boundary point to the given point, limited to the given
  * bezier pieces, including the beziers actually checked after culling.
  *
- * @param pow
+ * @param maxCoordPowerOf2
  * @param curvePieces
  * @param x
- * @param touchedCurve
- * @param t
- * @param for1Prong defaults to `false`;
- * @param angle defaults to `0`
+ *
+ * @internal
  */
-function getCloseBoundaryPointsCertified(pow, curvePieces, x, touchedCurve = undefined, t = undefined, for1Prong = false, angle = 0) {
+function getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePieces, x) {
     curvePieces = cullCurvePieces1(curvePieces, x);
-    const pInfoss = [];
+    const pInfos = [];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
-        const pInfos = getPotentialClosestPointsOnCurveCertified(pow, curvePiece.curve, x, curvePiece.ts, touchedCurve, t, for1Prong, angle);
-        pInfoss.push(...pInfos);
+        const _pInfos = getPotentialClosestPointsOnCurveCertified(maxCoordPowerOf2, curvePiece.curve, x, curvePiece.ts);
+        pInfos.push(..._pInfos);
     }
     /** the minimum max interval value */
     let minMax = Infinity;
-    for (let i = 0; i < pInfoss.length; i++) {
-        const diMax = pInfoss[i].dSquaredI[1];
+    for (let i = 0; i < pInfos.length; i++) {
+        const diMax = pInfos[i].dSquaredI[1];
         if (diMax < minMax) {
             minMax = diMax;
         }
     }
     const closestPointInfos = [];
-    for (let i = 0; i < pInfoss.length; i++) {
-        const info = pInfoss[i];
+    for (let i = 0; i < pInfos.length; i++) {
+        const info = pInfos[i];
         if (info.dSquaredI[0] <= minMax) {
             closestPointInfos.push(info);
         }
     }
-    return closestPointInfos.map(info => createPos(info.curve, info.t, false));
+    return closestPointInfos.map(info => {
+        const { curve, t } = info;
+        const { ps } = curve;
+        const p = toP(ps, t);
+        return {
+            p, t, curve, isSource: false
+        };
+    });
 }
 export { getCloseBoundaryPointsCertified };
 //# sourceMappingURL=get-close-boundary-points-certified.js.map

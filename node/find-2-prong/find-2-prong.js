@@ -1,17 +1,16 @@
-import { distanceBetween, fromTo, interpolate, rotate, translate } from 'flo-vector2d';
-import { getOsculatingCircle } from '../point-on-shape/get-osculating-circle.js';
 import { getInitialCurvePieces } from './get-initial-bezier-pieces.js';
-import { getMedial } from './get-medial/get-medial.js';
+import { getAntipodalPoints } from './get-medial/get-antipodal-points.js';
 import { reduceRadius } from './reduce-radius.js';
 import { squaredDistanceBetweenDd } from './squared-distance-between-dd.js';
-import { cullCurvePieces2 } from './cull-bezier-pieces.js';
+import { cullCurvePieces } from './cull-bezier-pieces.js';
 import { add1Prong } from './add-1-prong.js';
-import { createPos } from '../point-on-shape/create-pos.js';
+import { toP } from '../point-on-shape/to-p.js';
 import { calcSeperationTolerance } from './calc-seperation-tolerance.js';
-import { cullCurvePieces1 } from '../closest-boundary-point/cull-bezier-pieces.js';
-const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
+import { getInitialX } from './get-initial-x.js';
+import { ddNormal } from 'flo-bezier3';
+import { rotate } from 'flo-vector2d';
+const { sin, cos, max, sqrt } = Math;
 /**
- * @internal
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
  *
@@ -26,117 +25,89 @@ const { ceil, log2, max, sqrt, abs, sin, cos } = Math;
  *    d of dΩ as in Fig. 19."
  * In fact, we (and they) start by fixing one point on the boundary beforehand.
  *
- * @param loops A shape represented by path loops
- * @param maxCoordinate The extreme coordinate value of the shape
- * @param squaredDiagonalLength The squared diagonal length of the shape
- * bounding box.
- * @param yPos the source point of the 2-prong to be found
+ * @param meta
  * @param isHoleClosing `true` if this is a hole-closing two-prong, `false` otherwise
- * @param loopIdx the loop array index
+ * @param for1Prong
+ * @param angle
+ * @param yPos the source point of the 2-prong to be found
+ *
+ * @internal
  */
-function find2Prong(meta, isHoleClosing, for1Prong, angle, yPos) {
-    const { loops, maxCoordinate, squaredDiagonalLength } = meta;
-    const { loop } = yPos.curve;
-    const minSquaredSeperationTolerance = ((2 ** -21) * maxCoordinate) ** 2;
-    const errorTolerance = (2 ** -46) * maxCoordinate;
+function find2Prong(meta) {
+    const { loops, maxCoordPowerOf2, squaredDiagonalLength } = meta;
+    //----------------------------
+    // Initialize some tolerances
+    //----------------------------
+    const minSquaredSeperationTolerance = (2 ** (maxCoordPowerOf2 - 21)) ** 2;
+    const errorTolerance = 2 ** (maxCoordPowerOf2 - 46);
     const maxOsculatingCircleRadius = sqrt(squaredDiagonalLength);
-    const minCurvature = 1 / maxOsculatingCircleRadius;
-    const oneProngTolerance = (2 ** -16) * maxCoordinate;
-    const [xO, rO] = getInitialX(angle, isHoleClosing, maxOsculatingCircleRadius, minCurvature, yPos);
-    // The boundary piece that should contain the other point of 
-    // the 2-prong circle. (Defined by start and end points).
-    let curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, { center: xO, radius: rO });
-    // console.log(curvePieces.length);
-    /** The center of the two-prong */
-    let _x = xO;
-    const y = yPos.p;
-    // The lines below is an optimization.
-    const xy = sqrt(reduceRadius(maxCoordinate, curvePieces, y, xO));
-    _x = interpolate(y, xO, xy / rO);
-    /** The antipode of the two-prong */
-    let z = undefined;
-    curvePieces = cullCurvePieces2(curvePieces, _x, xy);
-    curvePieces = cullCurvePieces1(curvePieces, _x);
-    const pow = max(0, ceil(log2(maxCoordinate / xy))) + 1; // determines accuracy
-    // console.log(pow);
-    const { xs, _zs: __zs } = getMedial(pow, curvePieces, _x, yPos, // source point
-    // for1Prong && i == 0 && rO !== 1/minCurvature,
-    for1Prong, angle);
-    const _zs = __zs.map(info => createPos(info.curve, info.t, false));
-    const x = xs[0];
-    // const _zs = getCloseBoundaryPointsCertified(
-    //     pow,
-    //     curvePieces,
-    //     x,
-    //     yPos.curve,  // source point curve
-    //     yPos.t,      // source point `t` value
-    //     // for1Prong && i == 0 && rO !== 1/minCurvature,
-    //     for1Prong,
-    //     angle
-    // ).map(info => createPos(info.curve, info.t, false));
-    z = _zs[0];
-    // let maxD = -Infinity;
-    // let maxPos: PointOnShape = undefined!;
-    // for (const z of _zs) {
-    //     if (z === undefined) { continue; }
-    //     const _yz = squaredDistanceBetweenDd(yPos.p, z.p);
-    //     if (_yz > maxD) {
-    //         maxD = _yz;
-    //         maxPos = z;
-    //     }
-    // }
-    // const yz = maxD;
-    // z = maxPos;
-    const yz = squaredDistanceBetweenDd(yPos.p, z.p);
-    if (z === undefined || yz === 0) {
-        return undefined;
-    }
-    const xz = squaredDistanceBetweenDd(x, z.p);
-    if (for1Prong) {
-        if (rO < (1 - oneProngTolerance) * sqrt(xz)) {
-            // console.log('1prong');
+    const oneProngTolerance = 2 ** (maxCoordPowerOf2 - 32);
+    return function find2ProngInner(isHoleClosing, for1Prong, angle, yPos) {
+        const { curve: { loop, ps }, t, p: y } = yPos;
+        const normDd = ddNormal(ps, t);
+        const _nnorm = [-normDd[0][1], -normDd[1][1]]; // Left-handed system (sorry)
+        const nnorm = isHoleClosing
+            ? [0, -maxOsculatingCircleRadius]
+            : (angle !== 0 ? rotate(sin(angle), cos(angle))(_nnorm) : _nnorm);
+        // Get initial kissing circle guess
+        let [xO, rO] = getInitialX(angle, isHoleClosing, maxOsculatingCircleRadius, yPos, nnorm);
+        // The boundary piece that should contain the other point of 
+        // the 2-prong circle. (Defined by start and end points).
+        const curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO);
+        // The lines below is an optimization.
+        const xy2 = reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm);
+        const xy = sqrt(xy2);
+        if (for1Prong && rO < (1 - oneProngTolerance) * xy) {
             add1Prong(meta, rO, xO, yPos);
             return undefined;
         }
-    }
-    if (!isHoleClosing) {
-        const squaredSeperationTolerance = max(calcSeperationTolerance(rO, sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeperationTolerance);
-        if (yz <= squaredSeperationTolerance) {
-            // if (typeof _debug_ !== 'undefined') { console.log(`failed: seperation too small - ${sqrt(yz)}`); }
-            return undefined;
+        const l = sqrt(nnorm[0] ** 2 + nnorm[1] ** 2);
+        xO = [y[0] + nnorm[0] / l * xy, y[1] + nnorm[1] / l * xy];
+        cullCurvePieces(curvePieces, xO, xy2);
+        const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curvePieces);
+        if (antipodalPoints.length !== 1) {
+            if (antipodalPoints.length === 0) {
+                return undefined;
+            }
+            if (!areAllAntipodesSame(antipodalPoints)) {
+                // At this point there is multiple antipodal points (zs) for the given
+                // source point so do not add the 2-prong, it will be caught when 
+                // adding 3+-prongs.
+                return undefined;
+            }
         }
-    }
-    // Find the point on the line connecting y with x that is
-    // equidistant from y and z. This will be our next x.
-    // const nextX = findEquidistantPointOnLineDd(x, yPos.p, z.p);
-    // const error = abs(sqrt(xy) - sqrt(xz));
-    // x = nextX;
-    const circle = { center: x, radius: distanceBetween(x, z.p) };
-    return { circle, zs: [z] };
+        const { x, d, curve, s } = antipodalPoints[0];
+        const z = {
+            curve, t: s, isSource: false,
+            p: toP(curve.ps, s)
+        };
+        const circle = { center: x, radius: d };
+        const yz = squaredDistanceBetweenDd(yPos.p, z.p);
+        const xz = squaredDistanceBetweenDd(x, z.p);
+        if (!isHoleClosing) {
+            if (yz === 0) {
+                return undefined;
+            }
+            // The lines below eliminate cases where the found 2-prong is too
+            // close to a one-prong
+            const squaredSeperationTolerance = max(calcSeperationTolerance(rO, sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeperationTolerance);
+            if (yz <= squaredSeperationTolerance) {
+                return undefined;
+            }
+        }
+        return { circle, z };
+    };
 }
-/**
- * @internal
-*/
-function getInitialX(angle, isHoleClosing, maxOsculatingCircleRadius, minCurvature, yPos) {
-    let xO; // the original x to mitigate drift
-    const p = yPos.p;
-    let rO;
-    if (isHoleClosing) {
-        xO = [p[0], p[1] - maxOsculatingCircleRadius];
-        rO = maxOsculatingCircleRadius;
-    }
-    else {
-        if (angle === 0) {
-            ({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, yPos));
-        }
-        else {
-            ({ center: xO, radius: rO } = getOsculatingCircle(minCurvature, yPos, true));
-            const v = fromTo(yPos.p, xO);
-            const v_ = rotate(sin(angle), cos(angle))(v);
-            xO = translate(yPos.p)(v_);
+/** @internal */
+function areAllAntipodesSame(app) {
+    const { curve, s: t } = app[0];
+    for (let i = 1; i < app.length; i++) {
+        const { curve: curve_, s: t_ } = app[i];
+        if (curve !== curve_ || t !== t_) {
+            return false;
         }
     }
-    return [xO, rO];
+    return true;
 }
 export { find2Prong };
 //# sourceMappingURL=find-2-prong.js.map

@@ -1,8 +1,7 @@
-import { Circle } from '../geometry/circle.js';
-import { PointOnShape } from '../point-on-shape/point-on-shape.js';
-import { MatMeta } from '../mat/mat-meta.js';
+import type { Circle } from '../geometry/circle.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 /**
- * @internal
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
  *
@@ -17,16 +16,16 @@ import { MatMeta } from '../mat/mat-meta.js';
  *    d of dΩ as in Fig. 19."
  * In fact, we (and they) start by fixing one point on the boundary beforehand.
  *
- * @param loops A shape represented by path loops
- * @param maxCoordinate The extreme coordinate value of the shape
- * @param squaredDiagonalLength The squared diagonal length of the shape
- * bounding box.
- * @param yPos the source point of the 2-prong to be found
+ * @param meta
  * @param isHoleClosing `true` if this is a hole-closing two-prong, `false` otherwise
- * @param loopIdx the loop array index
+ * @param for1Prong
+ * @param angle
+ * @param yPos the source point of the 2-prong to be found
+ *
+ * @internal
  */
-declare function find2Prong(meta: MatMeta, isHoleClosing: boolean, for1Prong: boolean, angle: number, yPos: PointOnShape): {
+declare function find2Prong(meta: MatMeta): (isHoleClosing: boolean, for1Prong: boolean, angle: number, yPos: PrePointOnShape) => {
     circle: Circle;
-    zs: PointOnShape[];
+    z: PrePointOnShape;
 } | undefined;
 export { find2Prong };

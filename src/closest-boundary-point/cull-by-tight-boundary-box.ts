@@ -4,7 +4,7 @@ import { CurvePiece } from "../mat/curve-piece.js";
 import { getClosestSquaredDistanceToRotatedRect } from '../geometry/get-closest-squared-distance-to-rotated-rect.js';
 
 
-const getBoundingBoxTight_ = memoize(getBoundingBoxTight);
+const getBoundingBoxTight$ = memoize(getBoundingBoxTight);
 
 
 /**
@@ -26,7 +26,7 @@ function cullByTightBoundingBox(
         const curvePiece = curvePieces[i];
         const ps = curvePiece.curve.ps;
         
-        const tightBoundingBox = getBoundingBoxTight_(ps);
+        const tightBoundingBox = getBoundingBoxTight$(ps);
         const d = getClosestSquaredDistanceToRotatedRect(
                 tightBoundingBox,
                 p

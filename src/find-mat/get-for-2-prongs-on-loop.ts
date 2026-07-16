@@ -1,15 +1,16 @@
 import type { Loop } from 'flo-boolean';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { splitByCurvatureAndLength, controlPointLinesLength, getInflections } from 'flo-bezier3';
-import { toP } from '../point-on-shape/create-pos.js';
+import { toP } from '../point-on-shape/to-p.js';
 
 
 /**
- * @internal
  * Get useful points on the shape - these incude points of maximum curvature and 
  * points at the bezier-bezier interfaces.  
  * @param loop
  * @param additionalPointCount 
+ * 
+ * @internal
  */
 function getFor2ProngsOnLoop(
         minBezLength: number,

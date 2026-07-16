@@ -11,17 +11,20 @@ const defaultMatOptions = {
 };
 const matOptionRanges = {
     maxCurviness: {
-        range: [0.01, 3]
+        range: [0.01, 3],
+        scaleByMaxCoordinate: false
     },
     maxLength: {
         range: [1, 1024],
-        scaleByMaxRadius: true
+        scaleByMaxCoordinate: true
     },
     angleIncrement: {
-        range: [0.1, 360]
+        range: [0.1, 360],
+        scaleByMaxCoordinate: false
     },
     satScale: {
         range: [1, Infinity],
+        scaleByMaxCoordinate: false
     },
     simplifyTolerance: {
         range: [2 ** -20, 2 ** 20],

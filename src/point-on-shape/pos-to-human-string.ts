@@ -1,4 +1,4 @@
-import { PointOnShape } from "./point-on-shape.js"
+import type { PointOnShape } from "./point-on-shape.js";
 
 
 /**
@@ -6,7 +6,9 @@ import { PointOnShape } from "./point-on-shape.js"
  * For debugging only.
  * @internal
  */
-function posToHumanString(pos: PointOnShape) {
+function posToHumanString(
+        pos: PointOnShape) {
+
     return '' + pos.p[0] + ', ' + pos.p[1] + 
         ' | bz: '   + pos.curve.idx + 
         ' | t: '    + pos.t 

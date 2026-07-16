@@ -1,6 +1,5 @@
 import type { Curve } from 'flo-boolean';
 import type { Circle } from '../geometry/circle.js';
-import { CurvePiece } from '../mat/curve-piece.js';
 
 
 /**
@@ -29,8 +28,6 @@ interface PrePointOnShape {
 
     /** The (cached) point on the shape boundary. */
     readonly p: number[];
-    angle?: number;  // TODO - remove
-    curvePieces?: CurvePiece[];  // TODO - remove
 }
 
 
