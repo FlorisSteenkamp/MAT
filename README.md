@@ -7,7 +7,7 @@ Bug reports, pull requests and ⭐⭐⭐⭐⭐s are welcome and appreciated!
 ---
 **[Demo](https://florissteenkamp.github.io/MAT-Demo/)**
 
-**[Full simple 140 Lines of Code live StackBlitz project](https://stackblitz.com/edit/typescript-yucdon)**
+**[Full simple 140 Lines of Code live StackBlitz project](https://stackblitz.com/edit/typescript-pheway51?file=index.ts)**
 
 **[GitHub](https://github.com/FlorisSteenkamp/MAT)**
 
