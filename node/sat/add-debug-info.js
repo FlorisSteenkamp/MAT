@@ -7,8 +7,7 @@ function addDebugInfo(timingStart) {
     if (typeof _debug_ === 'undefined') {
         return;
     }
-    const timing = _debug_.generated.timing;
-    timing.sats = performance.now() - timingStart;
+    _debug_.timing.sats = performance.now() - timingStart;
 }
 export { addDebugInfo };
 //# sourceMappingURL=add-debug-info.js.map

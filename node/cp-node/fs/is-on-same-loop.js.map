@@ -1,0 +1,1 @@
+{"version":3,"file":"is-on-same-loop.js","sourceRoot":"","sources":["../../../src/cp-node/fs/is-on-same-loop.ts"],"names":[],"mappings":"AAGA,SAAS,YAAY,CACb,OAAe,EACf,OAAe;IAEnB,OAAO,CACH,OAAO,CAAC,YAAY,CAAC,KAAK,CAAC,IAAI;QAC/B,OAAO,CAAC,YAAY,CAAC,KAAK,CAAC,IAAI,CAClC,CAAC;AACN,CAAC;AAGD,OAAO,EAAE,YAAY,EAAE,CAAA"}

@@ -12,8 +12,7 @@ function addDebugInfo(
 
     if (typeof _debug_ === 'undefined') { return; }
 
-    const timing = _debug_.generated.timing;
-    timing.sats = performance.now() - timingStart;
+    _debug_.timing.sats = performance.now() - timingStart;
 }
 
 

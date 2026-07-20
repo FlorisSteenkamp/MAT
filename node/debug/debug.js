@@ -1,4 +1,3 @@
-import { generalDebugFunctions } from './functions/general.js';
 import { drawElemFs } from './functions/draw-elem/draw-elem.js';
 function enableDebugForMat(debugOn) {
     if (!debugOn) {
@@ -8,59 +7,49 @@ function enableDebugForMat(debugOn) {
     let debug = window._debug_;
     debug = {
         ...debug,
-        generated: {
-            //...debug?.generated,
-            ...(!debug ? {} : !debug.generated ? {} : debug.generated),
+        elems: {
+            ...debug?.elems,
             // @ts-ignore
-            elems: {
-                //...debug?.generated?.elems,
-                ...(!debug ? {} : !debug.generated ? {} : !debug.generated.elems ? {} : debug.generated.elems),
-                oneProng: [],
-                // oneProngAtDullCorner : [],
-                twoProng: [],
-                // twoProng_regular     : [],
-                // twoProng_failed      : [],
-                // twoProng_notAdded    : [],
-                // twoProng_deleted     : [],
-                // twoProng_holeClosing : [],
-                looseBoundingBox: [],
-                tightBoundingBox: [],
-                // sharpCorner          : [],
-                // dullCorner           : [],
-                vertex: [],
-                threeProng: [],
-                boundingHull: [],
-                mat: [],
-                // sat                  : [],
-                cpNode: [],
-                maxVertex: [],
-                leaves: [],
-                // culls                : [],
-            },
-            timing: {
-                //...debug?.generated?.timing,
-                ...(!debug ? {} : !debug.generated ? {} : !debug.generated.timing ? {} : debug.generated.timing),
-                holeClosers: 0,
-                oneAnd2Prongs: 0,
-                threeProngs: 0,
-                sats: 0,
-                simplifyMat: 0,
-            }
+            oneProng: [],
+            // oneProngAtDullCorner : [],
+            twoProng: [],
+            // twoProng_regular     : [],
+            // twoProng_failed      : [],
+            // twoProng_notAdded    : [],
+            // twoProng_deleted     : [],
+            // twoProng_holeClosing : [],
+            looseBoundingBox: [],
+            tightBoundingBox: [],
+            // sharpCorner          : [],
+            // dullCorner           : [],
+            vertex: [],
+            threeProng: [],
+            boundingHull: [],
+            mat: [],
+            // sat                  : [],
+            cpNode: [],
+            maxVertex: [],
+            leaves: [],
+            // culls                : [],
+        },
+        timing: {
+            ...debug?.timing,
+            holeClosers: 0,
+            oneAnd2Prongs: 0,
+            threeProngs: 0,
+            sats: 0,
+            simplifyMat: 0,
         },
         fs: {
-            //...debug?.fs,
-            ...(!debug ? {} : !debug.fs ? {} : debug.fs),
-            // @ts-ignore
+            ...debug?.fs,
             drawElem: {
-                //...debug?.fs?.drawElem,
-                ...(!debug ? {} : !debug.fs ? {} : !debug.fs.drawElem ? {} : debug.fs.drawElem),
+                ...debug?.fs?.drawElem,
                 ...drawElemFs
-            },
-            ...generalDebugFunctions
+            }
         },
         directives: {
             //...debug?.directives,
-            ...(!debug ? {} : !debug.directives ? {} : debug.directives),
+            ...debug?.directives,
             stopAfterHoleClosers: false,
             stopAfterHoleClosersNum: undefined,
             stopAfterTwoProngs: false,

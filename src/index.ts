@@ -8,7 +8,7 @@ export type { PointOnShape } from './point-on-shape/point-on-shape.js';
 export type { Circle } from './geometry/circle.js';
 export type { CurvePiece } from './mat/curve-piece.js';
 export type { DrawElemFunctions } from './debug/functions/draw-elem/draw-elem.js';
-export type { ITiming } from './debug/debug.js';
+export type { Timing as ITiming } from './debug/debug.js';
 export type { DebugElems } from './debug/debug-elem-types.js';
 export type { Debug } from './debug/debug.js';
 export type { DebugElemKey } from './debug/debug-elem-types.js';
@@ -41,7 +41,7 @@ export { getSharpCornersOnLoop } from './find-mat/get-sharp-corners.js';
 export { getFor2ProngsOnLoop } from './find-mat/get-for-2-prongs-on-loop.js';
 export { getPotentialClosestPointsOnCurveCertified } from './closest-boundary-point/get-potential-closest-points-on-curve-certified.js';
 export { getCloseBoundaryPointsCertified } from './closest-boundary-point/get-close-boundary-points-certified.js';
-export { getPartialMeta, getPointToCpNode } from './find-mat/get-meta.js';
+export { getPartialMeta } from './find-mat/get-meta.js';
 export { findAndAddHoleClosing2Prongs } from './find-2-prong/find-and-add-hole-closing-2-prongs.js';
 
 
@@ -81,3 +81,5 @@ export { getInitialDegAngleBetweenMatCurves } from './cp-node/fs/get-angle-betwe
 export { getAllVertices } from './cp-node/fs/get-all-vertices.js';
 export { isTrivial } from './cp-node/fs/is-trivial.js';
 export { scaleCircle } from './geometry/circle.js';
+export { isOnSameLoop } from './cp-node/fs/is-on-same-loop.js';
+export { reconstructFromMats } from './reconstruct-from-mat/reconstruct-from-mat.js';

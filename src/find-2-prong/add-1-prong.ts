@@ -50,11 +50,7 @@ function add1Prong(
         return;
     }
 
-    const { anyFailed, cpNodes } = addToCpTree(false, false, circle, [-0.5, +0.5], meta, [pos, pos]); 
-    
-    // if (typeof _debug_ !== 'undefined') { 
-    //     _debug_.generated.elems.oneProng.push(cpNodes);
-    // }
+    addToCpTree(false, false, circle, [-0.5, +0.5], meta, [pos, pos]); 
 }
 
 

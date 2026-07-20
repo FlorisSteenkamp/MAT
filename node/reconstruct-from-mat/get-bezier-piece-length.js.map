@@ -1,0 +1,1 @@
+{"version":3,"file":"get-bezier-piece-length.js","sourceRoot":"","sources":["../../src/reconstruct-from-mat/get-bezier-piece-length.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,MAAM,EAAE,MAAM,aAAa,CAAC;AAGrC,SAAS,oBAAoB,CACrB,WAAwB;IAE5B,OAAO,MAAM,CAAC,WAAW,CAAC,EAAE,EAAE,WAAW,CAAC,EAAE,CAAC,CAAC;AAClD,CAAC;AAGD,OAAO,EAAE,oBAAoB,EAAE,CAAA"}

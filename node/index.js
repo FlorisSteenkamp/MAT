@@ -26,7 +26,7 @@ export { getSharpCornersOnLoop } from './find-mat/get-sharp-corners.js';
 export { getFor2ProngsOnLoop } from './find-mat/get-for-2-prongs-on-loop.js';
 export { getPotentialClosestPointsOnCurveCertified } from './closest-boundary-point/get-potential-closest-points-on-curve-certified.js';
 export { getCloseBoundaryPointsCertified } from './closest-boundary-point/get-close-boundary-points-certified.js';
-export { getPartialMeta, getPointToCpNode } from './find-mat/get-meta.js';
+export { getPartialMeta } from './find-mat/get-meta.js';
 export { findAndAddHoleClosing2Prongs } from './find-2-prong/find-and-add-hole-closing-2-prongs.js';
 // CpNodeFs functions
 export { getChildren } from './cp-node/fs/get-children.js';
@@ -64,4 +64,6 @@ export { getInitialDegAngleBetweenMatCurves } from './cp-node/fs/get-angle-betwe
 export { getAllVertices } from './cp-node/fs/get-all-vertices.js';
 export { isTrivial } from './cp-node/fs/is-trivial.js';
 export { scaleCircle } from './geometry/circle.js';
+export { isOnSameLoop } from './cp-node/fs/is-on-same-loop.js';
+export { reconstructFromMats } from './reconstruct-from-mat/reconstruct-from-mat.js';
 //# sourceMappingURL=index.js.map
