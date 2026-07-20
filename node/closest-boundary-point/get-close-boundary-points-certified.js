@@ -11,12 +11,12 @@ import { toP } from '../point-on-shape/to-p.js';
  *
  * @internal
  */
-function getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePieces, x) {
+function getCloseBoundaryPointsCertified(curvePieces, x) {
     curvePieces = cullCurvePieces1(curvePieces, x);
     const pInfos = [];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
-        const _pInfos = getPotentialClosestPointsOnCurveCertified(maxCoordPowerOf2, curvePiece.curve, x, curvePiece.ts);
+        const _pInfos = getPotentialClosestPointsOnCurveCertified(curvePiece.curve, x, curvePiece.ts);
         pInfos.push(..._pInfos);
     }
     /** the minimum max interval value */

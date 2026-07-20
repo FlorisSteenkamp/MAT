@@ -1,6 +1,6 @@
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { CpNode } from '../cp-node/cp-node.js';
-import { LlRbTree } from 'flo-ll-rb-tree';
+import { RbTree } from 'flo-ll-rb-tree';
 
 
 /**
@@ -17,7 +17,7 @@ import { LlRbTree } from 'flo-ll-rb-tree';
  * @param order2 
  */
 function getCpNodeToLeftOrSame(
-        cpTree: LlRbTree<CpNode>,
+        cpTree: RbTree<CpNode>,
         pos: PrePointOnShape,
         order: number,
         order2: number): CpNode | undefined {
@@ -33,7 +33,8 @@ function getCpNodeToLeftOrSame(
     if (cps[0] === undefined || cps[1] === undefined) { 
         // Smaller than all -> cptree.min() === cps[1].data OR
         // Larger  than all -> cptree.max() === cps[0].data
-        return cpTree.max(cpTree.root);
+        // return cpTree.max(cpTree.root);
+        return cpTree.getMaxNode()?.datum;
     }
 
     return cps[0].datum;

@@ -1,14 +1,13 @@
-import { CpNode } from '../cp-node/cp-node.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { find3Prong } from './find-3-prong.js';
-import { MatMeta } from '../mat/mat-meta.js';
 import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
-import { getRealProngCount } from '../cp-node/fs/get-real-prong-count.js';
-import { removeVertex } from '../vertex/remove-vertex.js';
 import { getProngCount } from '../cp-node/fs/get-prong-count.js';
 
 
+let ii = 0;
 /**
  * @internal
  * Finds and add a 3-prong MAT circle to the given shape.
@@ -25,6 +24,21 @@ function findAndAdd3Prong(
     for (const visitedCp of visitedCps) {
         δs.push([visitedCp, visitedCp.next]);
     }
+
+    // TODO - remove - debugging
+    //-------------------------
+    // ii++;
+    // if (ii === 13) {
+    //     //@ts-ignore
+    //     if (_debug_.temp === undefined) { _debug_.temp = []; }
+    //     //@ts-ignore
+    //     _debug_.temp.push(δs);
+    // }
+    // //@ts-ignore
+    // if (_debug_.temp2 === undefined) { _debug_.temp2 = []; }
+    // //@ts-ignore
+    // _debug_.temp2.push(δs.length);
+    //-------------------------
     
     const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
 

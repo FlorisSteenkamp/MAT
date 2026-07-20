@@ -4,7 +4,7 @@ import type { PrePointOnShape } from "../../point-on-shape/point-on-shape.js";
 import type { AntipodalPoint } from './antipodal-point.js';
 import { lengthSquared } from "flo-vector2d";
 import { roots, deflate, Horner } from 'flo-poly';
-import { evalDeCasteljau, getMedialPointCoeffs, getMedialPointCoeffsBez0 } from 'flo-bezier3';
+import { evalDeCasteljau, getMedialPointCoeffs, getMedialPointCoeffsBez0, getMedialPointCoeffsBez2_SameCurve, getMedialPointCoeffsBez3_SameCurve } from 'flo-bezier3';
 
 const { sqrt, abs, max } = Math;
 
@@ -31,30 +31,24 @@ function getClosestPoint(
     const { ps } = curve;
     const { curve: touchedCurve, t, p: y } = yPos;
 
-    const shouldDeflate = angle === 0 && curve === touchedCurve;
+    const isTouched = curve === touchedCurve;
+    const shouldDeflate = angle === 0 && isTouched;
 
     const infos: AntipodalPoint[] = [];
-    // let onePushed = false;
     let startPushed = false;
     let endPushed = false;
 
     let ss: RootInterval[];
-    if (tS !== tE) {
-        const { A, B, C, D, H } = getMedialPointCoeffs(y, nnorm, ps);
-
-        const def = shouldDeflate ? deflate(H, t!) : undefined;
+    if (tS !== tE &&
+        !(shouldDeflate && ps.length === 2) &&
+        !(isTouched && ps.length === 3 && for1Prong)) {
+        const { A, B, H } = shouldDeflate
+            ? ps.length === 3
+                ? getMedialPointCoeffsBez2_SameCurve(t,nnorm,ps)
+                : getMedialPointCoeffsBez3_SameCurve(t,nnorm,ps)
+            : getMedialPointCoeffs(y, nnorm, ps);
         
-        const def2 = for1Prong && shouldDeflate
-            ? deflate(def!, t!)
-            : undefined;
-
-        const def3 = for1Prong && shouldDeflate
-            ? deflate(def2!, t!)
-            : undefined;
-        
-        const pDd = def3 ?? def ?? H;
-        
-        ss = roots(pDd, tS, tE) || [];
+        ss = roots(H, tS, tE) || [];
         //-----------------------
 
         for (let i=0; i<ss.length; i++) {
@@ -65,23 +59,27 @@ function getClosestPoint(
             }
 
             if (sE < tS || sS > tE) { continue; }  // outside curve piece
+            if (sS < 0) { continue; }  // outside curve piece
 
-            const s = _s < 0 ? 0 : _s > 1 ? 1 : _s;  // clip to [0,1]
+            // clip to [0,1]
+            const s = sE > 1 ? 1 : _s;
 
             //-----------------------
             const AS = Horner(A, s);
             const BS = Horner(B, s);
-            const CS = Horner(C, s);
-            const DS = Horner(D, s);
+            // const CS = Horner(C, s);
+            // const DS = Horner(D, s);
 
             const _AS = abs(AS);
-            const _CS = abs(CS);
+            // const _CS = abs(CS);
 
-            if (max(_AS, _CS) < 2**-40) { continue; }
+            // if (max(_AS, _CS) < 2**-40) { continue; }
+            if (max(_AS) < 2**-40) { continue; }
 
-            const w = _AS > _CS
-                ? -BS / AS
-                : -DS / CS;  // alternative
+            // const w = _AS > _CS
+            //     ? -BS / AS
+            //     : -DS / CS;  // alternative
+            const w = -BS / AS;
 
             if (w <= 0) {
                 // If `w` is negative the circle radius is negative -> discard

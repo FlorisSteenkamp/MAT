@@ -1,6 +1,7 @@
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { CurvePiece } from '../mat/curve-piece.js';
-import { circumCenter } from 'flo-vector2d';
+// import { circumCenter } from 'flo-vector2d';
+import { circumCenter } from './timed-cc.js';  // TODO - testing - restore
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 
 
@@ -16,7 +17,6 @@ import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-c
  * @internal
  */
 function calcInitial3ProngCenter(
-        maxCoordPowerOf2: number,
         δ3s: CpNode[][], 
         curvePiece3s: CurvePiece[][]) {
 
@@ -24,7 +24,6 @@ function calcInitial3ProngCenter(
     const twoProngCircleCenter = circle.center;
 
     const pos = getCloseBoundaryPointsCertified(
-        maxCoordPowerOf2,
         curvePiece3s[1],
         twoProngCircleCenter
     )[0];

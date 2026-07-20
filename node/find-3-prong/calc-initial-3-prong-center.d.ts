@@ -11,5 +11,5 @@ import type { CurvePiece } from '../mat/curve-piece.js';
  *
  * @internal
  */
-declare function calcInitial3ProngCenter(maxCoordPowerOf2: number, δ3s: CpNode[][], curvePiece3s: CurvePiece[][]): number[];
+declare function calcInitial3ProngCenter(δ3s: CpNode[][], curvePiece3s: CurvePiece[][]): number[];
 export { calcInitial3ProngCenter };

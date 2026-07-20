@@ -10,13 +10,11 @@ import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-c
  * @internal
  */
 function getClosestPoints(
-        maxCoordPowerOf2: number,
         x: number[], 
         curvePiece3s: CurvePiece[][]) {
 
     return curvePiece3s.map(curvePieces => {
         return getCloseBoundaryPointsCertified(
-            maxCoordPowerOf2,
             curvePieces,
             x
         )[0];

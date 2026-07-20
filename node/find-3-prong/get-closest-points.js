@@ -6,9 +6,9 @@ import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-c
  *
  * @internal
  */
-function getClosestPoints(maxCoordPowerOf2, x, curvePiece3s) {
+function getClosestPoints(x, curvePiece3s) {
     return curvePiece3s.map(curvePieces => {
-        return getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePieces, x)[0];
+        return getCloseBoundaryPointsCertified(curvePieces, x)[0];
     });
 }
 export { getClosestPoints };

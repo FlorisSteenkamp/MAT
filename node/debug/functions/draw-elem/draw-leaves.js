@@ -1,6 +1,6 @@
 import { drawFs } from 'flo-draw';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
 import { drawCirclePercent } from './draw-circle-percent.js';
+import { getAllOnCircle } from '../../../cp-node/fs/get-all-on-circle.js';
 /** @internal */
 function drawLeaves(g, leaves, classes = 'thin10 deeppink nofill', delay = 0, scaleFactor = 1) {
     const $elems = [];
@@ -10,7 +10,7 @@ function drawLeaves(g, leaves, classes = 'thin10 deeppink nofill', delay = 0, sc
         const { circle } = cp;
         const { center: c, radius: r } = circle;
         const $center = [drawCirclePercent(g, c, 0.5, 'pinker thin5 nofill')];
-        const poss = CpNodeFs.getAllOnCircle(cpNode)
+        const poss = getAllOnCircle(cpNode)
             .map(cpNode => cpNode.pointOnShape);
         const $ls = [];
         const $cps = [];

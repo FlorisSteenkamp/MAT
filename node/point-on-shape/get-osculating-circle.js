@@ -12,7 +12,8 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
     const { curve, p, t } = pos;
     const { ps } = curve;
     const minCurvature = 1 / maxOsculatingCircleRadius;
-    const k_ = -(ddCurvature(ps, t)[1]);
+    const kDd = ddCurvature(ps, t);
+    const k_ = -(kDd[0] + kDd[1]);
     const k = k_ < minCurvature ? minCurvature : k_;
     const [tx, ty] = norm;
     const l = sqrt(tx * tx + ty * ty);

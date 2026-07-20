@@ -55,8 +55,8 @@ function findMats(bezierLoops, options) {
         }
         mats.push(mat);
     }
-    // console.log(structuredClone(find3Prong.getStats()));
-    // find3Prong.resetStats();
+    // console.log(structuredClone(circumCenter.getStats()));
+    // circumCenter.resetStats();
     return mats;
 }
 /**

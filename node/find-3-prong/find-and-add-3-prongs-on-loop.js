@@ -1,9 +1,6 @@
 import { findAndAdd3Prongs } from './find-and-add-3-prongs.js';
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 import { removeVertex } from '../vertex/remove-vertex.js';
-// import { LlRbTree } from 'flo-ll-rb-tree';
-// import { Loop } from 'flo-boolean';
-// import { drawFs } from 'flo-draw';
 import { getAllOnCircle } from '../cp-node/fs/get-all-on-circle.js';
 /**
  * @internal
@@ -37,7 +34,7 @@ function findAndAdd3ProngsOnLoop(meta, cpStart) {
         }
         cpStart = getFirstItemOfSet(cpNodeGoodSet);
     }
-    return getFirstItemOfSet(cpNodeGoodSet);
+    return cpStart;
 }
 // From https://stackoverflow.com/a/73281564/2010061
 function getFirstItemOfSet(set) {
@@ -46,23 +43,13 @@ function getFirstItemOfSet(set) {
     }
     return undefined;
 }
-// Unfortunately O(n) until Javascript gives us the simple ability to
-// retrieve the first or last item of a set
-function getLastItemOfSet(set) {
-    let item;
-    for (item of set) { }
-    return item;
-}
-function replaceCloseBys(
-// cpTrees: Map<Loop,LlRbTree<CpNode>>,
-meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
-    for (const closeBy of [closeBysFor3Prong[0]]) {
-        getAllOnCircle(closeBy).forEach(v => {
-            cpNodeSet.delete(v);
-            cpNodeGoodSet.delete(v);
-        });
-        removeVertex(closeBy, meta);
-    }
+function replaceCloseBys(meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
+    const closeBy = closeBysFor3Prong[0];
+    getAllOnCircle(closeBy).forEach(v => {
+        cpNodeSet.delete(v);
+        cpNodeGoodSet.delete(v);
+    });
+    removeVertex(closeBy, meta);
 }
 export { findAndAdd3ProngsOnLoop };
 //# sourceMappingURL=find-and-add-3-prongs-on-loop.js.map

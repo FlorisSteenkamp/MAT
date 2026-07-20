@@ -1,7 +1,7 @@
+import type { CpNode } from '../../../cp-node/cp-node.js';
 import { drawFs } from 'flo-draw';
 import { scaleCircle } from '../../../geometry/circle.js';
-import { CpNode } from '../../../cp-node/cp-node.js';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
+import { getAllOnCircle } from '../../../cp-node/fs/get-all-on-circle.js';
 
 
 /** @internal */
@@ -20,7 +20,7 @@ function drawThreeProng(
     const { center: c, radius: r } = circle;
     
     // const poss = threeProng.poss;
-    const poss = CpNodeFs.getAllOnCircle(threeProng)
+    const poss = getAllOnCircle(threeProng)
         .map(cpNode => cpNode.pointOnShape)
 
     const { dot, circle: drawCircle, crossHair } = drawFs;

@@ -6,6 +6,7 @@ export default function(wallaby) {
             'src/**/*.ts',
             'test/helpers/*.ts'
         ],
+
         tests: [
             'test/**/*.spec.ts'
         ],

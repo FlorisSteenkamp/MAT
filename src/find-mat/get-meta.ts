@@ -4,10 +4,10 @@ import type { Curve } from 'flo-boolean';
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { TriMap } from '../utils/tri-map.js';
 import type { MatMeta } from '../mat/mat-meta.js';
-import { TriMapFs } from '../utils/tri-map.js';
+// import { TriMapFs } from '../utils/tri-map.js';
 import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
 import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
-import { LlRbTree } from 'flo-ll-rb-tree';
+import { RbTree } from 'flo-ll-rb-tree';
 import { getCorner } from '../corner/get-corner.js';
 
 
@@ -21,7 +21,7 @@ let timingStart: number;
 /** @internal */
 function getPointToCpNode(
         loops: Loop[],
-        cpTrees: Map<Loop, LlRbTree<CpNode>>): TriMap<Loop,number,number,CpNode> {
+        cpTrees: Map<Loop, RbTree<CpNode>>): TriMap<Loop,number,number,CpNode> {
 
     timingStart = performance.now();
 

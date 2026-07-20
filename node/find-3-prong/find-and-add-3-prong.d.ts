@@ -1,5 +1,5 @@
-import { CpNode } from '../cp-node/cp-node.js';
-import { MatMeta } from '../mat/mat-meta.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 /**
  * @internal
  * Finds and add a 3-prong MAT circle to the given shape.

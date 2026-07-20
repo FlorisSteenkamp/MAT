@@ -21,7 +21,8 @@ function getCpNodeToLeftOrSame(cpTree, pos, order, order2) {
     if (cps[0] === undefined || cps[1] === undefined) {
         // Smaller than all -> cptree.min() === cps[1].data OR
         // Larger  than all -> cptree.max() === cps[0].data
-        return cpTree.max(cpTree.root);
+        // return cpTree.max(cpTree.root);
+        return cpTree.getMaxNode()?.datum;
     }
     return cps[0].datum;
 }

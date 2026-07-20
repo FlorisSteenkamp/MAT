@@ -2,7 +2,9 @@ import type { CpNode } from '../cp-node/cp-node.js';
 import type { CurvePiece } from '../mat/curve-piece.js';
 import type { ThreeProngInfo } from './three-prong-info.js';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
-import { fromTo, circumCenter as getCircumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
+// import { fromTo, circumCenter as getCircumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
+import { fromTo, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
+import { circumCenter as getCircumCenter } from './timed-cc.js';  // TODO - testing - restore
 import { tangent } from 'flo-bezier3';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
@@ -67,16 +69,33 @@ function find3ProngForDelta3s(
 
     if (isSharp(δ3s[0][0])) { return undefined; }
 
+    // TODO
+    //----------------------------
+    // const l1 = curvePiece3s[0].length;
+    // const l2 = curvePiece3s[1].length;
+    // const l3 = curvePiece3s[2].length;
+    // if (l1 === 1 && l2 == 1 && l3 === 1) {
+    //     // console.log('aaa');
+    //     const A = curvePiece3s[0][0].curve.ps;
+    //     const B = curvePiece3s[1][0].curve.ps;
+    //     const C = curvePiece3s[2][0].curve.ps;
+
+    //     console.log(A.length, B.length, C.length);
+    // } else {
+    //     // console.log('bbb');
+    // }
+    //----------------------------
+
 
     let poss: PrePointOnShape[] = undefined!;
     let j = 0;  // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(maxCoordPowerOf2, δ3s, curvePiece3s);
+    let x = calcInitial3ProngCenter(δ3s, curvePiece3s);
 
     let tolerance = Infinity;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) { 
         j++;
         
-        poss = getClosestPoints(maxCoordPowerOf2, x, curvePiece3s);
+        poss = getClosestPoints(x, curvePiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
 
             // FUTURE - the code can be cleaned up and sped up a lot if we don't
@@ -97,7 +116,7 @@ function find3ProngForDelta3s(
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const upds = calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV);
+        const upds = calcBetterX(curvePiece3s, x, vectorToZeroV);
         x = upds.newX;
         poss = upds.newPoss;
 
@@ -169,7 +188,6 @@ function find3ProngForDelta3s(
     const closestDs = [];
     for (let i=0; i<curvePiecess.length; i++) {
         const pos = getCloseBoundaryPointsCertified(
-            maxCoordPowerOf2,
             curvePiecess[i],
             x
         )[0];

@@ -1,4 +1,6 @@
-import { fromTo, circumCenter as getCircumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
+// import { fromTo, circumCenter as getCircumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
+import { fromTo, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
+import { circumCenter as getCircumCenter } from './timed-cc.js'; // TODO - testing - restore
 import { tangent } from 'flo-bezier3';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
@@ -48,13 +50,28 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     if (isSharp(δ3s[0][0])) {
         return undefined;
     }
+    // TODO
+    //----------------------------
+    // const l1 = curvePiece3s[0].length;
+    // const l2 = curvePiece3s[1].length;
+    // const l3 = curvePiece3s[2].length;
+    // if (l1 === 1 && l2 == 1 && l3 === 1) {
+    //     // console.log('aaa');
+    //     const A = curvePiece3s[0][0].curve.ps;
+    //     const B = curvePiece3s[1][0].curve.ps;
+    //     const C = curvePiece3s[2][0].curve.ps;
+    //     console.log(A.length, B.length, C.length);
+    // } else {
+    //     // console.log('bbb');
+    // }
+    //----------------------------
     let poss = undefined;
     let j = 0; // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(maxCoordPowerOf2, δ3s, curvePiece3s);
+    let x = calcInitial3ProngCenter(δ3s, curvePiece3s);
     let tolerance = Infinity;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
         j++;
-        poss = getClosestPoints(maxCoordPowerOf2, x, curvePiece3s);
+        poss = getClosestPoints(x, curvePiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
             // FUTURE - the code can be cleaned up and sped up a lot if we don't
             // use this function as is but instead use δs[0] and δs[2] as is
@@ -71,7 +88,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const upds = calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV);
+        const upds = calcBetterX(curvePiece3s, x, vectorToZeroV);
         x = upds.newX;
         poss = upds.newPoss;
         const V = len(vectorToZeroV); // The 'potential'
@@ -133,7 +150,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     //-------------------------------------------------------------------------
     const closestDs = [];
     for (let i = 0; i < curvePiecess.length; i++) {
-        const pos = getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePiecess[i], x)[0];
+        const pos = getCloseBoundaryPointsCertified(curvePiecess[i], x)[0];
         closestDs.push(distanceBetween(pos.p, x));
     }
     const closestD = min(...closestDs);

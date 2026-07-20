@@ -1,5 +1,4 @@
-import { CpNode } from '../cp-node.js';
-import { CpNodeFs } from '../cp-node-fs.js';
+import type { CpNode } from '../cp-node.js';
 import { getAllOnCircle } from './get-all-on-circle.js';
 import { isTerminating } from './is-terminating.js';
 import { getVertexForwardChildren } from './get-vertex-forward-children.js';

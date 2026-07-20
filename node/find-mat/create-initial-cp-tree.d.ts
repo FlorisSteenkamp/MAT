@@ -1,7 +1,7 @@
 import type { Loop } from 'flo-boolean';
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
-import { LlRbTree } from 'flo-ll-rb-tree';
+import { RbTree } from 'flo-ll-rb-tree';
 /**
  * Creates the initial ContactPoint loops from the given sharp corners.
  *
@@ -16,5 +16,5 @@ import { LlRbTree } from 'flo-ll-rb-tree';
  */
 declare function createInitialCpTree(loops: Loop[], sharpCornerss: PrePointOnShape[][], lastInsertId: {
     id: number;
-}): Map<Loop, LlRbTree<CpNode>>;
+}): Map<Loop, RbTree<CpNode>>;
 export { createInitialCpTree };

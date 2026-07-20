@@ -21,7 +21,6 @@ function findAndAdd3Prongs(meta, cpStart) {
         return { closeBysFor3Prong: undefined, addedCpNodes: [] };
     }
     const addedCpNodes = [];
-    let closeBysFor3Prong = undefined;
     do {
         if (cpStart === undefined) {
             continue;
@@ -41,7 +40,7 @@ function findAndAdd3Prongs(meta, cpStart) {
             }
         }
     } while (true);
-    return { closeBysFor3Prong, addedCpNodes };
+    return { closeBysFor3Prong: undefined, addedCpNodes };
 }
 export { findAndAdd3Prongs };
 //# sourceMappingURL=find-and-add-3-prongs.js.map

@@ -3,9 +3,6 @@ import type { MatMeta } from '../mat/mat-meta.js';
 import { findAndAdd3Prongs } from './find-and-add-3-prongs.js';
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 import { removeVertex } from '../vertex/remove-vertex.js';
-// import { LlRbTree } from 'flo-ll-rb-tree';
-// import { Loop } from 'flo-boolean';
-// import { drawFs } from 'flo-draw';
 import { getAllOnCircle } from '../cp-node/fs/get-all-on-circle.js';
 
 
@@ -28,7 +25,6 @@ function findAndAdd3ProngsOnLoop(
         reLoop = false;
         const cpNodeSet = new Set(getAllOnLoop(cpStart));
         for (const cpNode of cpNodeSet) {
-
             const { closeBysFor3Prong, addedCpNodes } = 
                 findAndAdd3Prongs(meta, cpNode);
 
@@ -46,7 +42,7 @@ function findAndAdd3ProngsOnLoop(
         cpStart = getFirstItemOfSet(cpNodeGoodSet)!;
     }
 
-    return getFirstItemOfSet(cpNodeGoodSet);
+    return cpStart;
 }
 
 
@@ -60,30 +56,18 @@ function getFirstItemOfSet<T>(set: Set<T>) {
 }
 
 
-// Unfortunately O(n) until Javascript gives us the simple ability to
-// retrieve the first or last item of a set
-function getLastItemOfSet<T>(set: Set<T>) {
-    let item;
-    for (item of set) {}
-
-    return item;
-}
-
-
 function replaceCloseBys(
-        // cpTrees: Map<Loop,LlRbTree<CpNode>>,
         meta: MatMeta,
         closeBysFor3Prong: CpNode[],
         cpNodeSet: Set<CpNode>,
         cpNodeGoodSet: Set<CpNode>) {
 
-    for (const closeBy of [closeBysFor3Prong[0]]) {
-        getAllOnCircle(closeBy).forEach(v => {
-            cpNodeSet.delete(v);
-            cpNodeGoodSet.delete(v);
-        });
-        removeVertex(closeBy, meta);
-    }
+    const closeBy = closeBysFor3Prong[0];
+    getAllOnCircle(closeBy).forEach(v => {
+        cpNodeSet.delete(v);
+        cpNodeGoodSet.delete(v);
+    });
+    removeVertex(closeBy, meta);
 }
 
 

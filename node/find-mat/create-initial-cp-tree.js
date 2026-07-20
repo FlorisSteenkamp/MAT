@@ -1,4 +1,4 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
+import { RbTree } from 'flo-ll-rb-tree';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
 import { cpNodeComparator } from '../cp-node/fs/cp-node-comparator.js';
 /**
@@ -16,7 +16,7 @@ import { cpNodeComparator } from '../cp-node/fs/cp-node-comparator.js';
 function createInitialCpTree(loops, sharpCornerss, lastInsertId) {
     const cpTrees = new Map();
     for (let k = 0; k < sharpCornerss.length; k++) {
-        const cpTree = new LlRbTree(cpNodeComparator, false);
+        const cpTree = new RbTree(cpNodeComparator);
         cpTrees.set(loops[k], cpTree);
         const sharpCorners = sharpCornerss[k];
         let cpNode1 = undefined;

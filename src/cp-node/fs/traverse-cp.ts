@@ -27,7 +27,7 @@ function traverseCp(
         const next = cpNode.next.prevOnCircle;
         cpNode = cpNode === next
                 ? cpNode = cpNode.next.next // Terminal vertex
-                : cpNode = next         // Take last exit
+                : cpNode = next             // Take last exit
     
     } while (cpNode !== cpStart); 
     

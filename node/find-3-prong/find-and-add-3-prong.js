@@ -3,6 +3,7 @@ import { find3Prong } from './find-3-prong.js';
 import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
 import { getProngCount } from '../cp-node/fs/get-prong-count.js';
+let ii = 0;
 /**
  * @internal
  * Finds and add a 3-prong MAT circle to the given shape.
@@ -16,6 +17,20 @@ function findAndAdd3Prong(meta, visitedCps) {
     for (const visitedCp of visitedCps) {
         δs.push([visitedCp, visitedCp.next]);
     }
+    // TODO - remove - debugging
+    //-------------------------
+    // ii++;
+    // if (ii === 13) {
+    //     //@ts-ignore
+    //     if (_debug_.temp === undefined) { _debug_.temp = []; }
+    //     //@ts-ignore
+    //     _debug_.temp.push(δs);
+    // }
+    // //@ts-ignore
+    // if (_debug_.temp2 === undefined) { _debug_.temp2 = []; }
+    // //@ts-ignore
+    // _debug_.temp2.push(δs.length);
+    //-------------------------
     const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
     const { circle, poss, δ3s } = threeProngInfo;
     const orders = [];

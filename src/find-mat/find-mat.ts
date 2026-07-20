@@ -1,10 +1,11 @@
 /** @internal */
 declare const _debug_: Debug; 
 
-import { LlRbTree } from 'flo-ll-rb-tree';
-import { Debug } from '../debug/debug.js';
-import { CpNode } from '../cp-node/cp-node.js';
-import { Loop } from 'flo-boolean';
+import type { Debug } from '../debug/debug.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { Loop } from 'flo-boolean';
+import type { MatOptions } from './mat-options.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 import { findAndAdd3ProngsOnLoop } from '../find-3-prong/find-and-add-3-prongs-on-loop.js';
 import { createInitialCpTree } from './create-initial-cp-tree.js';
 import { /*getPointToCpNode,*/ getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4, getPointToCpNode } from './get-meta.js';
@@ -15,8 +16,6 @@ import { getFor2ProngsOnLoop } from './get-for-2-prongs-on-loop.js';
 import { getFor1ProngsOnLoop } from './get-for-1-prongs-on-loop.js';
 import { findAndAddHoleClosing2Prongs } from '../find-2-prong/find-and-add-hole-closing-2-prongs.js';
 import { getShapeBounds } from '../svg/get-shape-bounds.js';
-import { MatOptions } from './mat-options.js';
-import { MatMeta } from '../mat/mat-meta.js';
 
 
 /**

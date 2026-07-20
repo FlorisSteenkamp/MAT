@@ -1,11 +1,11 @@
 import type { CpNode } from "../cp-node.js";
-import { LlRbTree } from "flo-ll-rb-tree";
+import { RbTree } from "flo-ll-rb-tree";
 import { PointOnShape } from "../../point-on-shape/point-on-shape.js";
 import { comparePoss } from "../../point-on-shape/compare-poss.js";
 
 
 function isOrderCorrect(
-        cpTree: LlRbTree<CpNode>,
+        cpTree: RbTree<CpNode>,
         pos: PointOnShape,
         next: CpNode): boolean {
 

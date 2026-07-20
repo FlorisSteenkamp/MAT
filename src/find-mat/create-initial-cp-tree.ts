@@ -2,7 +2,7 @@ import type { Loop } from 'flo-boolean';
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { Mutable } from '../utils/mutable.js';
-import { LlRbTree } from 'flo-ll-rb-tree';
+import { RbTree } from 'flo-ll-rb-tree';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
 import { cpNodeComparator } from '../cp-node/fs/cp-node-comparator.js';
 
@@ -24,10 +24,10 @@ function createInitialCpTree(
         sharpCornerss: PrePointOnShape[][],
         lastInsertId: { id: number }) {
 
-    const cpTrees: Map<Loop, LlRbTree<CpNode>> = new Map();
+    const cpTrees: Map<Loop, RbTree<CpNode>> = new Map();
 
     for (let k=0; k<sharpCornerss.length; k++) {
-        const cpTree = new LlRbTree(cpNodeComparator, false);
+        const cpTree = new RbTree(cpNodeComparator);
         cpTrees.set(loops[k], cpTree);
 
         const sharpCorners = sharpCornerss[k];

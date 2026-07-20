@@ -26,14 +26,16 @@ let ii = 0;
  */
 function findAndAdd3Prongs(
         meta: MatMeta,
-        cpStart: CpNode) {
+        cpStart: CpNode): {
+            closeBysFor3Prong: CpNode[] | undefined;
+            addedCpNodes: CpNode[][];
+        } {
 
     if (isPosSharpCorner(cpStart.pointOnShape)) {
         return { closeBysFor3Prong: undefined, addedCpNodes: [] };
     }
 
     const addedCpNodes: CpNode[][] = [];
-    let closeBysFor3Prong: CpNode[] | undefined = undefined;
     do {
         if (cpStart === undefined) { continue; }
         const visitedCps = traverseCp(cpStart);
@@ -54,7 +56,7 @@ function findAndAdd3Prongs(
         }
     } while (true);
 
-    return { closeBysFor3Prong, addedCpNodes };
+    return { closeBysFor3Prong: undefined, addedCpNodes };
 }
 
 

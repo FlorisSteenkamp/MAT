@@ -1,7 +1,9 @@
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { CurvePiece } from '../mat/curve-piece.js';
-import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
-import { getClosestPoints } from './get-closest-points.js';
+// import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
+import { fromTo, len, scale, translate } from 'flo-vector2d';
+import { circumCenter } from './timed-cc.js';  // TODO - testing - restore
+import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 
 
 /**
@@ -19,7 +21,6 @@ import { getClosestPoints } from './get-closest-points.js';
  * @internal
  */
 function calcBetterX(
-        maxCoordPowerOf2: number,
         curvePiece3s: CurvePiece[][], 
         x: number[], 
         vectorToZeroV: number[]): {
@@ -40,7 +41,9 @@ function calcBetterX(
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x); 
 
-        newPoss = getClosestPoints(maxCoordPowerOf2, newX, curvePiece3s);
+        newPoss = curvePiece3s.map(curvePieces => 
+            getCloseBoundaryPointsCertified(curvePieces, x)[0]
+        );
 
         // Point of zero V
         const newCircleCenter = circumCenter(newPoss.map(pos => pos!.p)); 

@@ -1,5 +1,7 @@
-import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
-import { getClosestPoints } from './get-closest-points.js';
+// import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
+import { fromTo, len, scale, translate } from 'flo-vector2d';
+import { circumCenter } from './timed-cc.js'; // TODO - testing - restore
+import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 /**
  * Find new `x` and `ps` that are better estimates of the 3-prong circle.
  *
@@ -14,7 +16,7 @@ import { getClosestPoints } from './get-closest-points.js';
  *
  * @internal
  */
-function calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV) {
+function calcBetterX(curvePiece3s, x, vectorToZeroV) {
     const V = len(vectorToZeroV);
     let nu = 1;
     let better;
@@ -25,7 +27,7 @@ function calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV) {
     do {
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x);
-        newPoss = getClosestPoints(maxCoordPowerOf2, newX, curvePiece3s);
+        newPoss = curvePiece3s.map(curvePieces => getCloseBoundaryPointsCertified(curvePieces, x)[0]);
         // Point of zero V
         const newCircleCenter = circumCenter(newPoss.map(pos => pos.p));
         const newVectorToZeroV = fromTo(newX, newCircleCenter);

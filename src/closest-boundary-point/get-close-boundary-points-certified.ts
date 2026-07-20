@@ -17,7 +17,6 @@ import { toP } from '../point-on-shape/to-p.js';
  * @internal
  */
 function getCloseBoundaryPointsCertified(
-        maxCoordPowerOf2: number,
         curvePieces: CurvePiece[], 
         x: number[]): PrePointOnShape[] {
     
@@ -28,7 +27,6 @@ function getCloseBoundaryPointsCertified(
         const curvePiece = curvePieces[i];
 
         const _pInfos = getPotentialClosestPointsOnCurveCertified(
-            maxCoordPowerOf2,
             curvePiece.curve, 
             x, 
             curvePiece.ts as [number,number]

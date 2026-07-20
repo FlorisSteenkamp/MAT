@@ -1,4 +1,4 @@
-import { LlRbTree } from 'flo-ll-rb-tree';
+import { RbTree } from 'flo-ll-rb-tree';
 import { cpNodeComparator } from '../cp-node/fs/cp-node-comparator.js';
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 /**
@@ -13,7 +13,7 @@ function createNewCpTrees(cpNode) {
         const loop = cpNode.pointOnShape.curve.loop;
         let cpTree = cpTrees_.get(loop);
         if (!cpTree) {
-            cpTree = new LlRbTree(cpNodeComparator, false);
+            cpTree = new RbTree(cpNodeComparator);
             cpTrees_.set(loop, cpTree);
         }
         cpTree.insert(cpNode);

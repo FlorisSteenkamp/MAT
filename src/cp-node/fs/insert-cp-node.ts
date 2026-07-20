@@ -1,7 +1,7 @@
 import type { CpNode } from "../cp-node.js";
 import type { PointOnShape } from "../../point-on-shape/point-on-shape.js";
 import type { Mutable } from "../../utils/mutable.js";
-import { LlRbTree } from "flo-ll-rb-tree";
+import { RbTree } from "flo-ll-rb-tree";
 import { isOrderCorrect } from "./is-order-correct.js";
 
 
@@ -9,7 +9,7 @@ function insertCpNode(
         insertIfOrderWrong: boolean,
         isHoleClosing: boolean,
         isIntersection: boolean,
-        cpTree: LlRbTree<CpNode>,
+        cpTree: RbTree<CpNode>,
         pos: PointOnShape,
         _prev: CpNode | undefined,
         lastInsertId: { id: number }): CpNode | undefined {

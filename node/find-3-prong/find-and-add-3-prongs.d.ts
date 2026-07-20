@@ -15,10 +15,7 @@ import { MatMeta } from '../mat/mat-meta.js';
  * @internal
  */
 declare function findAndAdd3Prongs(meta: MatMeta, cpStart: CpNode): {
-    closeBysFor3Prong: CpNode[];
-    addedCpNodes: CpNode[][];
-} | {
-    closeBysFor3Prong: undefined;
+    closeBysFor3Prong: CpNode[] | undefined;
     addedCpNodes: CpNode[][];
 };
 export { findAndAdd3Prongs };

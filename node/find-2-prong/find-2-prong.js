@@ -57,10 +57,6 @@ function find2Prong(meta) {
         // The lines below is an optimization.
         const xy2 = reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm);
         const xy = sqrt(xy2);
-        if (for1Prong && rO < (1 - oneProngTolerance) * xy) {
-            add1Prong(meta, rO, xO, yPos);
-            return undefined;
-        }
         const l = sqrt(nnorm[0] ** 2 + nnorm[1] ** 2);
         xO = [y[0] + nnorm[0] / l * xy, y[1] + nnorm[1] / l * xy];
         cullCurvePieces(curvePieces, xO, xy2);
@@ -77,6 +73,10 @@ function find2Prong(meta) {
             }
         }
         const { x, d, curve, s } = antipodalPoints[0];
+        if (for1Prong && rO < (1 - oneProngTolerance) * d) {
+            add1Prong(meta, rO, xO, yPos);
+            return undefined;
+        }
         const z = {
             curve, t: s, isSource: false,
             p: toP(curve.ps, s)
@@ -90,7 +90,7 @@ function find2Prong(meta) {
             }
             // The lines below eliminate cases where the found 2-prong is too
             // close to a one-prong
-            const squaredSeperationTolerance = max(calcSeperationTolerance(rO, sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeperationTolerance);
+            const squaredSeperationTolerance = max(calcSeperationTolerance(rO, sqrt(xz), (2 ** 2) * errorTolerance), minSquaredSeperationTolerance);
             if (yz <= squaredSeperationTolerance) {
                 return undefined;
             }

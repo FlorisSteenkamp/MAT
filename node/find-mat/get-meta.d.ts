@@ -2,9 +2,9 @@ import type { Loop } from 'flo-boolean';
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { TriMap } from '../utils/tri-map.js';
 import type { MatMeta } from '../mat/mat-meta.js';
-import { LlRbTree } from 'flo-ll-rb-tree';
+import { RbTree } from 'flo-ll-rb-tree';
 /** @internal */
-declare function getPointToCpNode(loops: Loop[], cpTrees: Map<Loop, LlRbTree<CpNode>>): TriMap<Loop, number, number, CpNode>;
+declare function getPointToCpNode(loops: Loop[], cpTrees: Map<Loop, RbTree<CpNode>>): TriMap<Loop, number, number, CpNode>;
 /** @internal */
 declare function getPartialMeta(loops: Loop[]): Omit<MatMeta, 'cpTrees' | 'loops' | 'maxCoordPowerOf2' | 'squaredDiagonalLength' | 'lastInsertId'>;
 /** @internal */

@@ -1,42 +1,52 @@
-import { createRootExact, roots } from 'flo-poly';
-import { getFootPointsOnBezierPolysCertified, getIntervalBox } from 'flo-bezier3';
+import { roots } from 'flo-poly';
+import { evalDeCasteljauDd, getFootPointsOnBezierPolysCertified, getIntervalBox } from 'flo-bezier3';
 import { rootIntervalToDistanceSquaredInterval } from './root-interval-to-distance-squared-interval.js';
-import { getPFromBox } from './get-p-from-box.js';
-const { sqrt } = Math;
+import { squaredDistanceBetweenDd } from "../find-2-prong/squared-distance-between-dd.js";
+import { eps } from '../error-analysis/gamma.js';
 /**
  * @internal
  *
- * @param maxCoordPowerOf2
  * @param curve the curve
  * @param x the point from which to check
  * @param tRange The allowed t range
  */
-function getPotentialClosestPointsOnCurveCertified(maxCoordPowerOf2, curve, x, tRange) {
+function getPotentialClosestPointsOnCurveCertified(curve, x, tRange) {
     const [tS, tE] = tRange;
-    const ps = curve.ps;
-    let { polyDd: pDd, polyE: pDd_, getPolyExact } = getFootPointsOnBezierPolysCertified(ps, x);
-    const ris = roots(pDd, tS, tE, pDd_, getPolyExact) || [];
-    ris.push(createRootExact(tS));
-    ris.push(createRootExact(tE));
-    const infos = ris
-        .map(ri => {
-        const { tS: ts, tE: te } = ri;
-        const _t = (ts + te) / 2;
-        const t = _t < 0 ? 0 : _t > 1 ? 1 : _t;
-        const box = getIntervalBox(ps, [ts, te]);
-        const p_ = getPFromBox(box);
-        const dSquaredI = rootIntervalToDistanceSquaredInterval(maxCoordPowerOf2, box, x);
+    const { ps } = curve;
+    const infos = [];
+    if (tS !== tE) {
+        const { polyDd: pDd, polyE: pDd_, getPolyExact } = getFootPointsOnBezierPolysCertified(ps, x);
+        const ris = roots(pDd, tS, tE, pDd_, getPolyExact) || [];
+        infos.push(...ris.map(ri => {
+            const { tS: ts, tE: te, t: _t } = ri;
+            const t = _t < 0 ? 0 : _t > 1 ? 1 : _t;
+            const box = getIntervalBox(ps, [ts, te]);
+            const dSquaredI = rootIntervalToDistanceSquaredInterval(box, x);
+            const t_ = t === 0 ? 1 : t;
+            const curve_ = t === 0 ? curve.prev : curve;
+            return {
+                curve: curve_,
+                t: t_,
+                dSquaredI
+            };
+        }));
+    }
+    const ts = tRange.slice();
+    if (tS === tE) {
+        ts.push(tS);
+    }
+    infos.push(...ts.map(t => {
+        const p = evalDeCasteljauDd(ps, [0, t]).map(v => v[0] + v[1]);
+        const d = squaredDistanceBetweenDd(p, x);
+        const dSquaredI = [d * (1 - eps), d * (1 + eps)];
         const t_ = t === 0 ? 1 : t;
         const curve_ = t === 0 ? curve.prev : curve;
         return {
             curve: curve_,
-            p: p_,
             t: t_,
-            d: (sqrt(dSquaredI[0]) + sqrt(dSquaredI[1])) / 2,
-            dSquaredI,
-            box
+            dSquaredI
         };
-    });
+    }));
     return infos;
 }
 export { getPotentialClosestPointsOnCurveCertified };

@@ -1,6 +1,4 @@
-import { drawFs } from 'flo-draw';
-import { CpNode } from '../../../cp-node/cp-node.js';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
+import type { CpNode } from '../../../cp-node/cp-node.js';
 import { getMatCurveToNext } from '../../../cp-node/fs/get-mat-curve-to-next.js';
 import { isTerminating } from '../../../cp-node/fs/is-terminating.js';
 import { drawBeziersAsSinglePath } from '../draw/draw-beziers-as-single-path.js';

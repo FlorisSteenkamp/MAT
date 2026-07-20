@@ -1,5 +1,4 @@
 import type { Loop } from "flo-boolean";
-import type { LlRbTree } from "flo-ll-rb-tree";
 import type { MatMeta } from "../../mat/mat-meta.js";
 import { CpNode } from "../../cp-node/cp-node.js";
 import { getAllOnLoop } from "../../cp-node/fs/get-all-on-loop.js";

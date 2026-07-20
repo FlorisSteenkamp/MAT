@@ -2693,8 +2693,6 @@ function twoDiff(a, b) {
 //# sourceMappingURL=two-diff.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/fast-expansion-sum.js
 // import { eCompress } from "./e-compress.js";
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-// const compress = eCompress;
 /**
  * Returns the result of adding two expansions.
  *
@@ -2837,20 +2835,7 @@ function merge(e, f) {
 
 //# sourceMappingURL=fast-expansion-sum.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/scale-expansion.js
-/* unused harmony import specifier */ var twoProduct;
-/* unused harmony import specifier */ var twoSum;
-/* unused harmony import specifier */ var fastTwoSum;
-/* unused harmony import specifier */ var eCompress;
-
-
-
-
 const f = 134217729; // 2**27 + 1;
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const tp = (/* unused pure expression or super */ null && (twoProduct));
-const ts = (/* unused pure expression or super */ null && (twoSum));
-const fts = (/* unused pure expression or super */ null && (fastTwoSum));
-const compress = (/* unused pure expression or super */ null && (eCompress));
 /**
  * Returns the result of multiplying an expansion by a double.
  *
@@ -3012,18 +2997,13 @@ function scaleExpansion2(b, e) {
 
 //# sourceMappingURL=scale-expansion.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/expansion-product.js
-/* unused harmony import specifier */ var expansion_product_eCompress;
 
 
-
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const multByDouble = scaleExpansion;
-const add = fastExpansionSum;
-const expansion_product_compress = (/* unused pure expression or super */ null && (expansion_product_eCompress));
 /**
  * Returns the product of two double floating point expansions.
  *
  * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ * * the result is not compressed, call `eCompress` on the result if required.
  *
  * As per Shewchuk in the above paper: "To find the product of two expansions
  * e and f, use SCALE-EXPANSION (with zero elimination) to form the expansions
@@ -3040,9 +3020,8 @@ const expansion_product_compress = (/* unused pure expression or super */ null &
 function expansionProduct(e, f) {
     let sum = [0];
     for (let i = 0; i < e.length; i++) {
-        sum = add(sum, multByDouble(f, e[i]));
+        sum = fastExpansionSum(sum, scaleExpansion(f, e[i]));
     }
-    //return compress(sum);
     return sum;
 }
 
@@ -3091,9 +3070,6 @@ function eNegativeOf(e) {
 ;// ./node_modules/big-float-ts/node/double-expansion/e-diff.js
 
 
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const negativeOf = eNegativeOf;
-const e_diff_add = fastExpansionSum;
 /**
  * Returns the difference between two floating point expansions, i.e. e - f.
  *
@@ -3103,8 +3079,8 @@ const e_diff_add = fastExpansionSum;
  * @param f another floating point expansion
  */
 function eDiff(e, f) {
-    const g = negativeOf(f);
-    return e_diff_add(e, g);
+    const g = eNegativeOf(f);
+    return fastExpansionSum(e, g);
 }
 
 //# sourceMappingURL=e-diff.js.map
@@ -3197,7 +3173,7 @@ function tangentAt0Exact(ps) {
  *
  * See https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf
  */
-function two_sum_twoSum(a, b) {
+function twoSum(a, b) {
     const x = a + b;
     const bv = x - a;
     return [(a - (x - bv)) + (b - bv), x];
@@ -3207,10 +3183,6 @@ function two_sum_twoSum(a, b) {
 
 //# sourceMappingURL=two-sum.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/grow-expansion.js
-/* unused harmony import specifier */ var grow_expansion_eCompress;
-
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const grow_expansion_compress = (/* unused pure expression or super */ null && (grow_expansion_eCompress));
 /**
  * Returns the result of adding a double to an expansion.
  *
@@ -3256,7 +3228,7 @@ function growExpansion(e, b) {
 //# sourceMappingURL=grow-expansion.js.map
 ;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate-2nd-derivative/exact/evaluate-2nd-derivative-at-0-exact.js
 
-const evaluate_2nd_derivative_at_0_exact_ts = two_sum_twoSum;
+const ts = twoSum;
 const evaluate_2nd_derivative_at_0_exact_sce = scaleExpansion2;
 const ge = growExpansion;
 /**
@@ -3271,15 +3243,15 @@ function evaluate2ndDerivativeAt0Exact(ps) {
     if (ps.length === 4) {
         const [[x0, y0], [x1, y1], [x2, y2]] = ps;
         return [
-            evaluate_2nd_derivative_at_0_exact_sce(6, ge(evaluate_2nd_derivative_at_0_exact_ts(x2, x0), -2 * x1)),
-            evaluate_2nd_derivative_at_0_exact_sce(6, ge(evaluate_2nd_derivative_at_0_exact_ts(y2, y0), -2 * y1))
+            evaluate_2nd_derivative_at_0_exact_sce(6, ge(ts(x2, x0), -2 * x1)),
+            evaluate_2nd_derivative_at_0_exact_sce(6, ge(ts(y2, y0), -2 * y1))
         ];
     }
     if (ps.length === 3) {
         const [[x0, y0], [x1, y1], [x2, y2]] = ps;
         return [
-            ge(evaluate_2nd_derivative_at_0_exact_ts(2 * x2, 2 * x0), -4 * x1),
-            ge(evaluate_2nd_derivative_at_0_exact_ts(2 * y2, 2 * y0), -4 * y1)
+            ge(ts(2 * x2, 2 * x0), -4 * x1),
+            ge(ts(2 * y2, 2 * y0), -4 * y1)
         ];
     }
     if (ps.length <= 2) {
@@ -4151,6 +4123,7 @@ const GAUSS_CONSTANTS = {
 ;// ./node_modules/flo-bezier3/node/local-properties-at-t/ds.js
 
 
+const { sqrt } = Math;
 /**
  * Returns `ds` (the length differential) for a linear, quadratic or cubic
  * bezier curve.
@@ -4167,13 +4140,13 @@ function ds(ps) {
     return function (t) {
         const dx = Horner(dX, t);
         const dy = Horner(dY, t);
-        return Math.sqrt(dx * dx + dy * dy);
+        return sqrt(dx * dx + dy * dy);
     };
 }
 
 //# sourceMappingURL=ds.js.map
 ;// ./node_modules/flo-bezier3/node/transformation/split/from-to/from-to-2-incl-error-bound.js
-const from_to_2_incl_error_bound_abs = Math.abs;
+const { abs: from_to_2_incl_error_bound_abs } = Math;
 /** error free error bounds */
 const psErrorFree = [[0, 0], [0, 0], [0, 0]];
 /**
@@ -4456,7 +4429,7 @@ const two_product_f = 134217729; // 2**27 + 1;
  * @param a A double
  * @param b Another double
  */
-function two_product_twoProduct(a, b) {
+function twoProduct(a, b) {
     const x = a * b;
     //const [ah, al] = split(a);
     const c = two_product_f * a;
@@ -4558,7 +4531,7 @@ function ddDiffDd(x, y) {
 
 
 const { atan2 } = Math;
-const get_interface_rotation_tp = two_product_twoProduct;
+const tp = twoProduct;
 /**
  * Returns the rotation angle (-𝜋 <= θ <= 𝜋 *guaranteed*) from some vector to
  * another vector considering them to both start at the same point.
@@ -4580,9 +4553,9 @@ function getInterfaceRotation(a, b) {
     const w1 = b[0];
     const w2 = b[1];
     // w2*v1 - w1*v2;
-    const A = ddDiffDd(get_interface_rotation_tp(w2, v1), get_interface_rotation_tp(w1, v2))[1];
+    const A = ddDiffDd(tp(w2, v1), tp(w1, v2))[1];
     // w1*v1 + w2*v2;
-    const B = ddAddDd(get_interface_rotation_tp(w1, v1), get_interface_rotation_tp(w2, v2))[1];
+    const B = ddAddDd(tp(w1, v1), tp(w2, v2))[1];
     return atan2(A, B);
 }
 
@@ -4677,6 +4650,7 @@ function splitByCurvature(ps, maxCurviness = 0.4, minTSpan = 2 ** -16) {
 
 
 
+const { sqrt: length_bez2_sqrt, log } = Math;
 /**
  * Returns the curve length of the given quadratic bezier curve within the
  * specified parameter interval.
@@ -4747,22 +4721,22 @@ function lengthBez2(interval: number[], ps: number[][]) {
     const B = 4 * (ax*bx + ay*by);
     const C = bx*bx + by*by;
 
-    const Sabc = 2*Math.sqrt(A+B+C);
-    const A_2 = Math.sqrt(A);
+    const Sabc = 2*sqrt(A+B+C);
+    const A_2 = sqrt(A);
     const A_32 = 2*A*A_2;
-    const C_2 = 2*Math.sqrt(C);
+    const C_2 = 2*sqrt(C);
     const BA = B/A_2;
 
     return (
         A_32*Sabc + A_2*B*(Sabc - C_2) +
-        (4*C*A - B*B)*Math.log((2*A_2 + BA + Sabc) / (BA + C_2))
+        (4*C*A - B*B)*log((2*A_2 + BA + Sabc) / (BA + C_2))
     ) / (4*A_32);
 }
 */
 
 //# sourceMappingURL=length-bez2.js.map
 ;// ./node_modules/flo-bezier3/node/transformation/split/from-to/from-to-3-incl-error-bound.js
-const from_to_3_incl_error_bound_abs = Math.abs;
+const { abs: from_to_3_incl_error_bound_abs } = Math;
 /** error free error bounds */
 const from_to_3_incl_error_bound_psErrorFree = [[0, 0], [0, 0], [0, 0], [0, 0]];
 /**
@@ -5802,23 +5776,23 @@ function removeLeadingZeroCoeffs(pDd, pDd_, getPExact, errorMultiplier) {
 //# sourceMappingURL=remove-leading-zero-coeffs.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/e-compress.js
 /**
- * Returns the result of compressing the given floating point expansion.
- *
- * * primarily for internal library use
+ * Returns the result of compressing the given Shewchuk floating point expansion.
  *
  * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
  *
- * Theorem 23 (Shewchuck): Let e = sum_(i=1)^m(e_i) be a nonoverlapping
- * expansion of m p-bit components, where m >= 3. Suppose that the components of
- * e are sorted in order of increasing magnitude, except that any of the e_i may
- * be zero. Then the following algorithm will produce a nonoverlapping expansion
+ * Theorem 23 (Shewchuk): Let `e = sum_(i=1)^m(e_i)` be a nonoverlapping
+ * expansion of m p-bit components, where m >= 3.
+ *
+ * Suppose that the components of `e` are sorted in order of increasing magnitude,
+ * except that any of the e_i may be zero.
+ *
+ * Then the following algorithm will produce a nonoverlapping expansion
  * (nonadjacent if round-to even tiebreaking is used) such that
- * h = sum_(i=1)^n(h_i) = e, where the components h_i are in order of increasing
- * magnitude. If h != 0, none of the h_i will be zero. Furthermore, the largest
- * component h_n approximates h with an error smaller than ulp(h_n).
+ * `h = sum_(i=1)^n(h_i) = e`, where the components `h_i` are in order of increasing
+ * magnitude. If `h != 0`, none of the `h_i` will be zero. Furthermore, the largest
+ * component `h_n` approximates `h` with an error smaller than `ulp(h_n)`.
  */
-function e_compress_eCompress(e) {
-    //return e;
+function eCompress(e) {
     const e_ = e.slice();
     const m = e_.length;
     if (m === 1) {
@@ -6324,7 +6298,7 @@ function eTaylorShift(p, h) {
     const q = p.slice();
     for (let k = 0; k <= n; k++) {
         for (let i = 1; i <= n - k; i++) {
-            q[i] = e_compress_eCompress(fastExpansionSum(q[i], scaleExpansion(q[i - 1], h)));
+            q[i] = eCompress(fastExpansionSum(q[i], scaleExpansion(q[i - 1], h)));
         }
     }
     return q;
@@ -6582,7 +6556,7 @@ const basic_two_product_f = 134217729; // 2**27 + 1;
  * @param a A double
  * @param b Another double
  */
-function basic_two_product_twoProduct(a, b) {
+function two_product_twoProduct(a, b) {
     const x = a * b;
     //const [ah, al] = split(a);
     const c = basic_two_product_f * a;
@@ -6632,8 +6606,8 @@ function EFTHorner(p, x) {
     let σ;
     let r̂ = p[0];
     for (let i = 1; i < p.length; i++) {
-        const [π, pi] = basic_two_product_twoProduct(r̂, x);
-        [σ, r̂] = two_sum_twoSum(pi, p[i]);
+        const [π, pi] = two_product_twoProduct(r̂, x);
+        [σ, r̂] = twoSum(pi, p[i]);
         // inlined
         //r̂ = pi + p[i]; const bv = r̂ - pi; σ = (pi - (x-bv)) + (p[i]-bv);
         pπ.push(π);
@@ -7284,7 +7258,7 @@ function eAdmissablePoint(pE, a, b) {
         d *= 2;
         for (let j = 1; j < d; j += 2) {
             const t = a + (b - a) * (d + 2 * j) / (4 * d);
-            const T = e_compress_eCompress(eHorner(pE, t)); // no error
+            const T = eCompress(eHorner(pE, t)); // no error
             const $T = T[T.length - 1];
             // If we can certify the sign of `p(t)` then don't waste time
             // looking for the best point.
@@ -9034,7 +9008,7 @@ function ddMultByNeg2(f) {
 //# sourceMappingURL=dd-mult-by-neg-2.js.map
 ;// ./node_modules/flo-boolean/node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-1-dd.js
 
-const get_footpoint_poly_1_dd_tp = two_product_twoProduct;
+const get_footpoint_poly_1_dd_tp = twoProduct;
 const get_footpoint_poly_1_dd_qaq = ddAddDd;
 const qmn2 = ddMultByNeg2;
 /**
@@ -9207,7 +9181,7 @@ function getFootpointPoly3Exact(ps, p) {
     const t0a = eDiff(x01, get_footpoint_poly_3_exact_sce(6, x00));
     const t0b = eDiff(y01, get_footpoint_poly_3_exact_sce(6, y00));
     const t0 = fastExpansionSum(t0a, t0b);
-    return [t5, t4, t3, t2, t1, t0].map(e_compress_eCompress);
+    return [t5, t4, t3, t2, t1, t0].map(eCompress);
 }
 
 //# sourceMappingURL=get-footpoint-poly-3-exact.js.map
@@ -9293,7 +9267,7 @@ function getFootpointPoly2Exact(ps, p) {
     const t0a = eDiff(y01, y00);
     const t0b = eDiff(x01, x00);
     const t0 = fastExpansionSum(t0a, t0b);
-    return [t3, t2, t1, t0].map(e_compress_eCompress);
+    return [t3, t2, t1, t0].map(eCompress);
 }
 
 //# sourceMappingURL=get-footpoint-poly-2-exact.js.map
@@ -9336,7 +9310,7 @@ function getFootpointPoly1Exact(ps, p) {
     const t1 = fastExpansionSum(fastExpansionSum(x11, y11), fastExpansionSum(get_footpoint_poly_1_exact_emn2(s1), s2));
     //const t0 = s1 - s2;
     const t0 = eDiff(s1, s2);
-    return [t1, t0].map(e_compress_eCompress);
+    return [t1, t0].map(eCompress);
 }
 
 //# sourceMappingURL=get-footpoint-poly-1-exact.js.map
@@ -9701,7 +9675,7 @@ function getFootPointsOnBezierPolysCertified(ps, p) {
 
 
 
-const { sqrt } = Math;
+const { sqrt: closest_point_on_bezier_certified_sqrt } = Math;
 /**
  * Returns the closest point(s) (and parameter `t` value(s)) on the given
  * bezier curve to the given point (with `t ∈ [0,1]`).
@@ -9736,7 +9710,7 @@ function closestPointOnBezierCertified(ps, p, lb = 0, ub = 1) {
         return {
             p: getPFromBox(box),
             t: ri.t,
-            d: (sqrt(dSquaredI[0]) + sqrt(dSquaredI[1])) / 2,
+            d: (closest_point_on_bezier_certified_sqrt(dSquaredI[0]) + closest_point_on_bezier_certified_sqrt(dSquaredI[1])) / 2,
             dSquaredI,
             box,
             ri
@@ -9823,19 +9797,20 @@ function containerIsBasic(container) {
 //# sourceMappingURL=container.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/e-to-double-double.js
 
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const e_to_double_double_compress = e_compress_eCompress;
 /**
  * Returns the result of converting a floating point expansion to a
  * double-double precision floating point number.
+ *
+ * * uses truncation to convert thus accurate to within 1 ulp on low double;
+ * (a slower summing method could reduce the max error to 1/2 ulp)
  */
 function eToDd(e) {
-    e = e_to_double_double_compress(e);
+    e = eCompress(e);
     const len = e.length;
     if (len === 2) {
         return e; // already a double-double
     }
-    else if (len === 1) {
+    else if (len <= 1) {
         return [0, e[0]]; // double-doubles have a fixed length of 2
     }
     return [e[len - 2], e[len - 1]]; // return only most significant parts
@@ -9920,8 +9895,8 @@ function refineK1(ri, p) {
     const ris = [];
     for (const riLo of risLo) {
         ris.push({
-            tS: two_sum_twoSum(tS, riLo.tS * δ),
-            tE: two_sum_twoSum(tS, riLo.tE * δ),
+            tS: twoSum(tS, riLo.tS * δ),
+            tE: twoSum(tS, riLo.tE * δ),
             multiplicity: riLo.multiplicity
         });
     }
@@ -12139,7 +12114,7 @@ function getImplicitForm2DdWithRunningError(ps) {
 
 
 
-const get_coeffs_bez2_bez1_dd_tp = two_product_twoProduct;
+const get_coeffs_bez2_bez1_dd_tp = twoProduct;
 const get_coeffs_bez2_bez1_dd_qm2 = ddMultBy2;
 const get_coeffs_bez2_bez1_dd_qmd = ddMultDouble2;
 const get_coeffs_bez2_bez1_dd_qmq = ddMultDd;
@@ -12638,7 +12613,7 @@ function getImplicitForm3DdWithRunningError(ps) {
 
 
 
-const get_coeffs_bez3_bez1_dd_tp = two_product_twoProduct;
+const get_coeffs_bez3_bez1_dd_tp = twoProduct;
 const get_coeffs_bez3_bez1_dd_qm2 = ddMultBy2;
 const get_coeffs_bez3_bez1_dd_qmd = ddMultDouble2;
 const get_coeffs_bez3_bez1_dd_qmq = ddMultDd;
@@ -13046,7 +13021,7 @@ function getCoeffsBez1Bez2Dd(ps1, ps2) {
 
 
 
-const get_coeffs_bez2_bez2_dd_tp = two_product_twoProduct;
+const get_coeffs_bez2_bez2_dd_tp = twoProduct;
 const get_coeffs_bez2_bez2_dd_qm2 = ddMultBy2;
 const get_coeffs_bez2_bez2_dd_qmd = ddMultDouble2;
 const get_coeffs_bez2_bez2_dd_qmq = ddMultDd;
@@ -13347,7 +13322,7 @@ function getCoeffsBez2Bez2Dd(ps1, ps2) {
 
 
 
-const get_coeffs_bez3_bez2_dd_tp = two_product_twoProduct;
+const get_coeffs_bez3_bez2_dd_tp = twoProduct;
 const get_coeffs_bez3_bez2_dd_qm2 = ddMultBy2;
 const get_coeffs_bez3_bez2_dd_qmd = ddMultDouble2;
 const get_coeffs_bez3_bez2_dd_qmq = ddMultDd;
@@ -14154,7 +14129,7 @@ function getCoeffsBez1Bez3Dd(ps1, ps2) {
 
 
 
-const get_coeffs_bez2_bez3_dd_tp = two_product_twoProduct;
+const get_coeffs_bez2_bez3_dd_tp = twoProduct;
 const get_coeffs_bez2_bez3_dd_qm2 = ddMultBy2;
 const get_coeffs_bez2_bez3_dd_qmd = ddMultDouble2;
 const get_coeffs_bez2_bez3_dd_qmq = ddMultDd;
@@ -14592,7 +14567,7 @@ function getCoeffsBez2Bez3Dd(ps1, ps2) {
 
 
 
-const get_coeffs_bez3_bez3_dd_tp = two_product_twoProduct;
+const get_coeffs_bez3_bez3_dd_tp = twoProduct;
 const get_coeffs_bez3_bez3_dd_qm2 = ddMultBy2;
 const get_coeffs_bez3_bez3_dd_qmd = ddMultDouble2;
 const get_coeffs_bez3_bez3_dd_qmq = ddMultDd;
@@ -15853,7 +15828,7 @@ function getCoeffsBez3Bez3Dd(ps1, ps2) {
 ;// ./node_modules/flo-boolean/node_modules/flo-bezier3/node/to-power-basis/to-power-basis/exact/to-power-basis-exact.js
 
 const to_power_basis_exact_td = twoDiff;
-const to_power_basis_exact_ts = two_sum_twoSum;
+const to_power_basis_exact_ts = twoSum;
 const to_power_basis_exact_sce = scaleExpansion2;
 const to_power_basis_exact_ge = growExpansion;
 /**
@@ -15902,7 +15877,7 @@ function toPowerBasis3Exact(ps) {
             to_power_basis_exact_sce(3, to_power_basis_exact_td(x1, x0)),
             // x0
             [x0]
-        ].map(e_compress_eCompress),
+        ].map(eCompress),
         [
             //ge(ge(sce(3, td(y1, y2)), y3), -y0),
             fastExpansionSum(to_power_basis_exact_td(y3, y0), to_power_basis_exact_sce(3, to_power_basis_exact_td(y1, y2))),
@@ -15910,7 +15885,7 @@ function toPowerBasis3Exact(ps) {
             to_power_basis_exact_sce(3, to_power_basis_exact_ge(to_power_basis_exact_ts(y2, y0), -2 * y1)),
             to_power_basis_exact_sce(3, to_power_basis_exact_td(y1, y0)),
             [y0]
-        ].map(e_compress_eCompress)
+        ].map(eCompress)
     ];
 }
 /** @internal */
@@ -15992,7 +15967,7 @@ function getImplicitForm1ExactPb(pspb) {
     const vₓ = get_implicit_form1_exact_eno(b1);
     const vᵧ = a1;
     //const v = a1*b0 - a0*b1;
-    const v = e_compress_eCompress(eDiff(get_implicit_form1_exact_sce(a0, b1), get_implicit_form1_exact_sce(b0, a1)));
+    const v = eCompress(eDiff(get_implicit_form1_exact_sce(a0, b1), get_implicit_form1_exact_sce(b0, a1)));
     return { vₓ, vᵧ, v };
 }
 
@@ -16050,7 +16025,7 @@ function getCoeffsBez1Bez1Exact(ps1, ps2) {
     const p5 = fes(p3, p4);
     const v0 = fes(p5, v);
     const r = [v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez1-bez1-exact.js.map
@@ -16109,29 +16084,29 @@ function getImplicitForm2ExactPb(pspb) {
     // -a1*q1*y - a2**2*y**2 + 2*a2*b2*x*y + 2*a2*q2*y + b1*q1*x - b2**2*x**2 - 2*b2*q2*x + q1*q3 - q2**2
     // b2**2*x**2
     // -b2**2 *x**2
-    const vₓₓ = e_compress_eCompress(get_implicit_form2_exact_eno(b2b2));
+    const vₓₓ = eCompress(get_implicit_form2_exact_eno(b2b2));
     // -2*a2*b2*x*y
     // 2*a2*b2 *x*y
-    const vₓᵧ = e_compress_eCompress(get_implicit_form2_exact_em2(a2b2));
+    const vₓᵧ = eCompress(get_implicit_form2_exact_em2(a2b2));
     // a2**2*y**2
     // -a2**2 *y**2 
-    const vᵧᵧ = e_compress_eCompress(get_implicit_form2_exact_eno(a2a2));
+    const vᵧᵧ = eCompress(get_implicit_form2_exact_eno(a2a2));
     // -2*a0*b2**2 + a1*b1*b2 + 2*a2*b0*b2 - a2*b1**2
     // (b1*q1 + -2*b2*q2) *x
     //const vₓ = b1*q1 - 2*b2*q2;
     const w1 = get_implicit_form2_exact_epr(b1, q1);
     const w2 = get_implicit_form2_exact_em2(get_implicit_form2_exact_epr(b2, q2));
-    const vₓ = e_compress_eCompress(edif(w1, w2));
+    const vₓ = eCompress(edif(w1, w2));
     // 2*a0*a2*b2 - a1**2*b2 + a1*a2*b1 - 2*a2**2*b0
     // (-a1*q1 + 2*a2*q2) *y
     const w3 = get_implicit_form2_exact_em2(get_implicit_form2_exact_epr(a2, q2));
     const w4 = get_implicit_form2_exact_epr(a1, q1);
-    const vᵧ = e_compress_eCompress(edif(w3, w4));
+    const vᵧ = eCompress(edif(w3, w4));
     // a0**2*b2**2 - a0*a1*b1*b2 - 2*a0*a2*b0*b2 + a0*a2*b1**2 + a1**2*b0*b2 - a1*a2*b0*b1 + a2**2*b0**2
     // q1*q3 + -q2**2
     const w5 = get_implicit_form2_exact_epr(q1, q3);
     const w6 = get_implicit_form2_exact_epr(q2, q2);
-    const v = e_compress_eCompress(edif(w5, w6));
+    const v = eCompress(edif(w5, w6));
     //console.log({ vₓₓ, vₓᵧ, vᵧᵧ, vₓ, vᵧ, v })
     return { vₓₓ, vₓᵧ, vᵧᵧ, vₓ, vᵧ, v };
 }
@@ -16142,7 +16117,7 @@ function getImplicitForm2ExactPb(pspb) {
 
 
 
-const get_coeffs_bez2_bez1_exact_tp = basic_two_product_twoProduct; // error -> 0
+const get_coeffs_bez2_bez1_exact_tp = two_product_twoProduct; // error -> 0
 const get_coeffs_bez2_bez1_exact_sce = scaleExpansion2;
 const get_coeffs_bez2_bez1_exact_epr = expansionProduct;
 const get_coeffs_bez2_bez1_exact_fes = fastExpansionSum;
@@ -16224,7 +16199,7 @@ function getCoeffsBez2Bez1Exact(ps1, ps2) {
     const pm = get_coeffs_bez2_bez1_exact_fes(pi, pl);
     const v0 = get_coeffs_bez2_bez1_exact_fes(pm, v);
     const r = [v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez2-bez1-exact.js.map
@@ -16233,7 +16208,7 @@ function getCoeffsBez2Bez1Exact(ps1, ps2) {
 const cubic_to_quadratic_epr = expansionProduct;
 const cubic_to_quadratic_td = twoDiff;
 const cubic_to_quadratic_sce = scaleExpansion;
-const cubic_to_quadratic_ts = two_sum_twoSum;
+const cubic_to_quadratic_ts = twoSum;
 /**
  * Returns a quadratic approximation to the given cubic bezier curve.
  *
@@ -16422,30 +16397,30 @@ function getImplicitForm3ExactPb(pspb) {
     const q3q4 = get_implicit_form3_exact_epr(q3, q4);
     const q3q5 = get_implicit_form3_exact_epr(q3, q5);
     const q3q6 = get_implicit_form3_exact_epr(q3, q6);
-    const vₓₓₓ = e_compress_eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_eno(b3), b3b3));
-    const vₓₓᵧ = e_compress_eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_sce(3, a3), b3b3));
-    const vₓᵧᵧ = e_compress_eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_sce(-3, b3), a3a3));
-    const vᵧᵧᵧ = e_compress_eCompress(get_implicit_form3_exact_epr(a3, a3a3));
+    const vₓₓₓ = eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_eno(b3), b3b3));
+    const vₓₓᵧ = eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_sce(3, a3), b3b3));
+    const vₓᵧᵧ = eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_sce(-3, b3), a3a3));
+    const vᵧᵧᵧ = eCompress(get_implicit_form3_exact_epr(a3, a3a3));
     const u1 = get_implicit_form3_exact_edif(get_implicit_form3_exact_sce(-3, q1), q5);
     //const vₓₓ = (u1*b3b3 + q3*(b1b3 - b2b2)) + tq2*b2b3;
     const w1 = get_implicit_form3_exact_epr(u1, b3b3);
     const w2 = get_implicit_form3_exact_epr(q3, t1);
     const w3 = get_implicit_form3_exact_fes(w1, w2);
     const w4 = get_implicit_form3_exact_epr(tq2, b2b3);
-    const vₓₓ = e_compress_eCompress(get_implicit_form3_exact_fes(w3, w4));
+    const vₓₓ = eCompress(get_implicit_form3_exact_fes(w3, w4));
     //const vᵧᵧ = (u1*a3a3 + q3*t2) + tq2*a2a3;
     const w5 = get_implicit_form3_exact_epr(u1, a3a3);
     const w6 = get_implicit_form3_exact_epr(q3, t2);
     const w7 = get_implicit_form3_exact_fes(w5, w6);
     const w8 = get_implicit_form3_exact_epr(tq2, a2a3);
-    const vᵧᵧ = e_compress_eCompress(get_implicit_form3_exact_fes(w7, w8));
+    const vᵧᵧ = eCompress(get_implicit_form3_exact_fes(w7, w8));
     //const vₓᵧ = 2*(q3*(a2b2 - p2/2) - (u1*a3b3 + q2*p1));
     const wa = get_implicit_form3_exact_edif(a2b2, ed2(p2));
     const wb = get_implicit_form3_exact_epr(u1, a3b3);
     const wc = get_implicit_form3_exact_epr(q2, p1);
     const wd = get_implicit_form3_exact_fes(wb, wc);
     const wq = get_implicit_form3_exact_epr(q3, wa);
-    const vₓᵧ = e_compress_eCompress(get_implicit_form3_exact_em2(get_implicit_form3_exact_edif(wq, wd)));
+    const vₓᵧ = eCompress(get_implicit_form3_exact_em2(get_implicit_form3_exact_edif(wq, wd)));
     //const s1 = (-3*q1q1 - 2*q1q5) + (tq2q4 + q3q6);
     const wr = get_implicit_form3_exact_sce(-3, q1q1);
     const we = get_implicit_form3_exact_edif(wr, get_implicit_form3_exact_em2(q1q5));
@@ -16461,13 +16436,13 @@ function getImplicitForm3ExactPb(pspb) {
     const ws = get_implicit_form3_exact_epr(b2, s2);
     const wt = get_implicit_form3_exact_epr(b1, s3);
     const wn = get_implicit_form3_exact_fes(ws, wt);
-    const vₓ = e_compress_eCompress(get_implicit_form3_exact_fes(wm, wn));
+    const vₓ = eCompress(get_implicit_form3_exact_fes(wm, wn));
     //const vᵧ = -a3*s1 - (a2*s2 + a1*s3);
     const wo = get_implicit_form3_exact_epr(a3, s1);
     const wu = get_implicit_form3_exact_epr(a2, s2);
     const wv = get_implicit_form3_exact_epr(a1, s3);
     const wp = get_implicit_form3_exact_fes(wu, wv);
-    const vᵧ = e_compress_eCompress(get_implicit_form3_exact_eno(get_implicit_form3_exact_fes(wo, wp)));
+    const vᵧ = eCompress(get_implicit_form3_exact_eno(get_implicit_form3_exact_fes(wo, wp)));
     const v3 = get_implicit_form3_exact_edif(tq2q4, q1q1);
     const v1 = get_implicit_form3_exact_edif(v3, q1q5);
     const v4 = get_implicit_form3_exact_epr(s3, q6);
@@ -16475,7 +16450,7 @@ function getImplicitForm3ExactPb(pspb) {
     const v2 = get_implicit_form3_exact_edif(v4, v5);
     const v6 = get_implicit_form3_exact_epr(q1, v1);
     //const v = q1*(tq2q4 - q1q1 - q1q5) + s3*q6 - q3q4*q4;
-    const v = e_compress_eCompress(get_implicit_form3_exact_fes(v6, v2));
+    const v = eCompress(get_implicit_form3_exact_fes(v6, v2));
     return { vₓₓₓ, vₓₓᵧ, vₓᵧᵧ, vᵧᵧᵧ, vₓₓ, vₓᵧ, vᵧᵧ, vₓ, vᵧ, v };
 }
 
@@ -16486,7 +16461,7 @@ function getImplicitForm3ExactPb(pspb) {
 
 
 
-const get_coeffs_bez3_bez1_exact_tp = basic_two_product_twoProduct; // error -> 0
+const get_coeffs_bez3_bez1_exact_tp = two_product_twoProduct; // error -> 0
 const get_coeffs_bez3_bez1_exact_sce = scaleExpansion2;
 const get_coeffs_bez3_bez1_exact_epr = expansionProduct;
 const get_coeffs_bez3_bez1_exact_fes = fastExpansionSum;
@@ -16635,7 +16610,7 @@ function getCoeffsBez3Bez1Exact(ps1, ps2) {
     const fd = get_coeffs_bez3_bez1_exact_fes(f9, fc);
     const v0 = get_coeffs_bez3_bez1_exact_fes(fd, v);
     const r = [v3, v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez3-bez1-exact.js.map
@@ -16701,7 +16676,7 @@ function getCoeffsBez1Bez2Exact(ps1, ps2) {
     const p7 = get_coeffs_bez1_bez2_exact_fes(p5, p6);
     const v0 = get_coeffs_bez1_bez2_exact_fes(p7, v);
     const r = [v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez1-bez2-exact.js.map
@@ -16711,7 +16686,7 @@ function getCoeffsBez1Bez2Exact(ps1, ps2) {
 
 
 
-const get_coeffs_bez2_bez2_exact_tp = basic_two_product_twoProduct; // error -> 0
+const get_coeffs_bez2_bez2_exact_tp = two_product_twoProduct; // error -> 0
 const get_coeffs_bez2_bez2_exact_sce = scaleExpansion2;
 const get_coeffs_bez2_bez2_exact_epr = expansionProduct;
 const get_coeffs_bez2_bez2_exact_fes = fastExpansionSum;
@@ -16853,7 +16828,7 @@ function getCoeffsBez2Bez2Exact(ps1, ps2) {
     const q4 = get_coeffs_bez2_bez2_exact_fes(q2, q3);
     const v0 = get_coeffs_bez2_bez2_exact_fes(q4, v);
     const r = [v4, v3, v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez2-bez2-exact.js.map
@@ -16864,7 +16839,7 @@ function getCoeffsBez2Bez2Exact(ps1, ps2) {
 
 
 
-const get_coeffs_bez3_bez2_exact_tp = basic_two_product_twoProduct; // error -> 0
+const get_coeffs_bez3_bez2_exact_tp = two_product_twoProduct; // error -> 0
 const get_coeffs_bez3_bez2_exact_sce = scaleExpansion2;
 const get_coeffs_bez3_bez2_exact_epr = expansionProduct;
 const get_coeffs_bez3_bez2_exact_fes = fastExpansionSum;
@@ -17175,7 +17150,7 @@ function getCoeffsBez3Bez2Exact(ps1, ps2) {
     const ub = get_coeffs_bez3_bez2_exact_fes(u9, ua);
     const v0 = get_coeffs_bez3_bez2_exact_fes(ub, v);
     const r = [v6, v5, v4, v3, v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez3-bez2-exact.js.map
@@ -17246,7 +17221,7 @@ function getCoeffsBez1Bez3Exact(ps1, ps2) {
     const p9 = get_coeffs_bez1_bez3_exact_fes(p7, p8);
     const v0 = get_coeffs_bez1_bez3_exact_fes(p9, v);
     const r = [v3, v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez1-bez3-exact.js.map
@@ -17257,7 +17232,7 @@ function getCoeffsBez1Bez3Exact(ps1, ps2) {
 
 
 
-const get_coeffs_bez2_bez3_exact_tp = basic_two_product_twoProduct; // error -> 0
+const get_coeffs_bez2_bez3_exact_tp = two_product_twoProduct; // error -> 0
 const get_coeffs_bez2_bez3_exact_sce = scaleExpansion2;
 const get_coeffs_bez2_bez3_exact_epr = expansionProduct;
 const get_coeffs_bez2_bez3_exact_fes = fastExpansionSum;
@@ -17449,7 +17424,7 @@ function getCoeffsBez2Bez3Exact(ps1, ps2) {
     const rm = get_coeffs_bez2_bez3_exact_fes(rk, rl);
     const v0 = get_coeffs_bez2_bez3_exact_fes(rm, v);
     const r = [v6, v5, v4, v3, v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez2-bez3-exact.js.map
@@ -17460,7 +17435,7 @@ function getCoeffsBez2Bez3Exact(ps1, ps2) {
 
 
 
-const get_coeffs_bez3_bez3_exact_tp = basic_two_product_twoProduct; // error -> 0
+const get_coeffs_bez3_bez3_exact_tp = two_product_twoProduct; // error -> 0
 const get_coeffs_bez3_bez3_exact_sce = scaleExpansion2;
 const get_coeffs_bez3_bez3_exact_epr = expansionProduct;
 const get_coeffs_bez3_bez3_exact_fes = fastExpansionSum;
@@ -17899,7 +17874,7 @@ function getCoeffsBez3Bez3Exact(ps1, ps2) {
     const pb = get_coeffs_bez3_bez3_exact_fes(p9, pa);
     const v0 = get_coeffs_bez3_bez3_exact_fes(pb, v);
     const r = [v9, v8, v7, v6, v5, v4, v3, v2, v1, v0];
-    return r.map(e_compress_eCompress);
+    return r.map(eCompress);
 }
 
 //# sourceMappingURL=get-coeffs-bez3-bez3-exact.js.map
@@ -19038,7 +19013,7 @@ function orient2dAdapt(A, B, C, detsum) {
     const bcx = B[0] - C[0];
     const acy = A[1] - C[1];
     const bcy = B[1] - C[1];
-    const b = eDiff(basic_two_product_twoProduct(acx, bcy), basic_two_product_twoProduct(acy, bcx));
+    const b = eDiff(two_product_twoProduct(acx, bcy), two_product_twoProduct(acy, bcx));
     let det = eEstimate(b);
     if (Math.abs(det) >= ccwerrboundB * detsum) {
         // Anti-clockwise or clockwise
@@ -19058,13 +19033,13 @@ function orient2dAdapt(A, B, C, detsum) {
     if (Math.abs(det) >= errbound) {
         return det;
     }
-    const a = eDiff(basic_two_product_twoProduct(acxtail, bcy), basic_two_product_twoProduct(acytail, bcx));
+    const a = eDiff(two_product_twoProduct(acxtail, bcy), two_product_twoProduct(acytail, bcx));
     const c = fastExpansionSum(b, a);
-    const d = eDiff(basic_two_product_twoProduct(acx, bcytail), basic_two_product_twoProduct(acy, bcxtail));
+    const d = eDiff(two_product_twoProduct(acx, bcytail), two_product_twoProduct(acy, bcxtail));
     const e = fastExpansionSum(c, d);
-    const f = eDiff(basic_two_product_twoProduct(acxtail, bcytail), basic_two_product_twoProduct(acytail, bcxtail));
+    const f = eDiff(two_product_twoProduct(acxtail, bcytail), two_product_twoProduct(acytail, bcxtail));
     let D = fastExpansionSum(e, f);
-    D = e_compress_eCompress(D);
+    D = eCompress(D);
     return D[D.length - 1];
 }
 
@@ -20235,8 +20210,8 @@ function isPointOnBezierExtension(ps, p) {
         return isPointOnBezierExtension1(ps, p);
     }
     if (ps.length === 1) {
-        const x = e_compress_eCompress(p[0]);
-        const y = e_compress_eCompress(p[1]);
+        const x = eCompress(p[0]);
+        const y = eCompress(p[1]);
         return (x.length === 1 && y.length === 1 &&
             x[0] === ps[0][0] && y[0] === ps[0][1]);
     }
@@ -20429,7 +20404,7 @@ function doConvexPolygonsIntersect(polygonA, polygonB, closed) {
 //# sourceMappingURL=do-convex-polygons-intersect.js.map
 ;// ./node_modules/flo-boolean/node_modules/flo-bezier3/node/global-properties/classification/is-cubic-really-quad.js
 
-const is_cubic_really_quad_tp = basic_two_product_twoProduct;
+const is_cubic_really_quad_tp = two_product_twoProduct;
 const is_cubic_really_quad_fes = fastExpansionSum;
 const is_cubic_really_quad_u = Number.EPSILON / 2;
 const is_cubic_really_quad_abs = Math.abs;
@@ -20489,7 +20464,7 @@ function isCubicReallyQuad(ps) {
 //# sourceMappingURL=is-cubic-really-quad.js.map
 ;// ./node_modules/flo-boolean/node_modules/flo-bezier3/node/global-properties/classification/is-quad-really-line.js
 
-const is_quad_really_line_ts = two_sum_twoSum;
+const is_quad_really_line_ts = twoSum;
 const { abs: is_quad_really_line_abs } = Math;
 /**
  * Returns `true` if the given quadratic bezier curve is really a linear curve
@@ -20825,9 +20800,6 @@ function reduceSignificand(a, bits) {
 
 
 
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const e_to_bitlength_sign = eSign;
-const e_to_bitlength_compress = e_compress_eCompress;
 /**
  * Returns a floating point expansion accurate to the given number of bits.
  * Extraneous bits are discarded.
@@ -20836,8 +20808,8 @@ const e_to_bitlength_compress = e_compress_eCompress;
  */
 // TODO - make faster
 function eToBitlength(a, l) {
-    a = e_to_bitlength_compress(a);
-    if (e_to_bitlength_sign(a) === 0) {
+    a = eCompress(a);
+    if (eSign(a) === 0) {
         return [0];
     }
     const maxMsb = msbExponent(a[a.length - 1]);
@@ -20883,7 +20855,7 @@ function bitLength(a) {
  * @param a A double precision floating point expansion
  */
 function expBitLength(a) {
-    const a_ = e_compress_eCompress(a);
+    const a_ = eCompress(a);
     if (eSign(a_) === 0) {
         return 0;
     }
@@ -20899,12 +20871,6 @@ function expBitLength(a) {
 
 
 
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const mult = expansionProduct;
-const toBitlength = eToBitlength;
-const e_div_bitLength = expBitLength;
-const e_div_diff = eDiff;
-const estimate = eEstimate;
 /**
  * Returns the result of a/b using Goldschmidt division.
  *
@@ -20927,18 +20893,18 @@ function eDiv(N, D, expansionLength) {
     let exact = false;
     let resultBitlengthUpperBound = 0;
     if (!expansionLength) {
-        const bitlengthN = e_div_bitLength(N_);
-        const bitlengthD = e_div_bitLength(D_);
+        const bitlengthN = expBitLength(N_);
+        const bitlengthD = expBitLength(D_);
         // resultBitlengthUpperBound is only valid if the division is known
         // to be exact
         resultBitlengthUpperBound = bitlengthN - bitlengthD + 1;
         expansionLength = (resultBitlengthUpperBound / 53) + 1;
         exact = true;
     }
-    let F = [1 / estimate(D_)]; // Initial guess - out by 1/2 upls
+    let F = [1 / eEstimate(D_)]; // Initial guess - out by 1/2 upls
     let i = 1;
     while (true) {
-        N_ = mult(N_, F);
+        N_ = expansionProduct(N_, F);
         // The precision bitlength doubles on each iteration
         if (i > expansionLength) {
             // we now have roughly double the needed precision - we actually 
@@ -20948,7 +20914,7 @@ function eDiv(N, D, expansionLength) {
                 // We must throw away bits known to be zero. 
                 // Any bits > expansionLength * 53 must be thrown away as they
                 // are wrong - all other bits are exact.
-                N_ = toBitlength(N_, resultBitlengthUpperBound);
+                N_ = eToBitlength(N_, resultBitlengthUpperBound);
                 // TODO - below is just for testing - remove later
                 //if (compare(mult(D, N_), N) !== 0) {
                 //    console.log(mult(D, N_))
@@ -20959,8 +20925,8 @@ function eDiv(N, D, expansionLength) {
             // Returning only significant bits helps with sign determination later on.
             return N_.slice(N_.length - expansionLength, N_.length);
         }
-        D_ = mult(D_, F);
-        F = e_div_diff([2], D_);
+        D_ = expansionProduct(D_, F);
+        F = eDiff([2], D_);
         i *= 2;
     }
 }
@@ -21248,7 +21214,7 @@ function bigintToExpansion(b) {
         b = q;
         i++;
     }
-    return e_compress_eCompress(e);
+    return eCompress(e);
 }
 
 //# sourceMappingURL=bigint-to-expansion.js.map
@@ -22042,8 +22008,6 @@ function setIntersectionNextValues(xPairs) {
 //# sourceMappingURL=set-intersection-next-values.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/e-abs.js
 
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-const e_abs_negativeOf = eNegativeOf;
 /**
  * Returns the absolute value of the given floating point expansion.
  *
@@ -22053,7 +22017,7 @@ const e_abs_negativeOf = eNegativeOf;
  */
 function eAbs(e) {
     if (e[e.length - 1] < 0) {
-        return e_abs_negativeOf(e);
+        return eNegativeOf(e);
     }
     return e;
 }
@@ -22072,7 +22036,7 @@ function eAbs(e) {
  *
  * See https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf
  */
-function basic_two_sum_twoSum(a, b) {
+function two_sum_twoSum(a, b) {
     const x = a + b;
     const bv = x - a;
     return [(a - (x - bv)) + (b - bv), x];
@@ -22477,7 +22441,7 @@ const bezier_self_intersection_edif = eDiff;
 const bezier_self_intersection_epr = expansionProduct;
 const bezier_self_intersection_sce = scaleExpansion2;
 const bezier_self_intersection_td = two_diff_twoDiff;
-const bezier_self_intersection_ts = basic_two_sum_twoSum;
+const bezier_self_intersection_ts = two_sum_twoSum;
 const bezier_self_intersection_qno = ddNegativeOf;
 const bezier_self_intersection_qaq = ddAddDd;
 const bezier_self_intersection_qm2 = ddMultBy2;
@@ -24247,7 +24211,7 @@ const { min: add_min, max: add_max } = Math;
  *
  * @doc
  */
-function add_add(p1, p2) {
+function add(p1, p2) {
     // Initialize result array
     const d1 = p1.length - 1;
     const d2 = p2.length - 1;
@@ -24297,7 +24261,7 @@ function getShapeArea(pss) {
         const [dx, dy] = to_power_basis_1st_derivative_toPowerBasis_1stDerivative(ps);
         const xdy = multiply(x, dy);
         const ydx = negate(multiply(y, dx));
-        const poly = integrate(add_add(xdy, ydx), 0);
+        const poly = integrate(add(xdy, ydx), 0);
         const area = Horner(poly, 1);
         totalArea += area;
     }
@@ -24546,7 +24510,7 @@ function bezierToBezierPiece(bezier) {
 
 
 const { atan2: get_interface_rotation_atan2 } = Math;
-const simultaneous_properties_get_interface_rotation_tp = two_product_twoProduct;
+const get_interface_rotation_tp = twoProduct;
 /**
  * Returns the rotation angle (-𝜋 <= θ <= 𝜋 *guaranteed*) from some vector to
  * another vector considering them to both start at the same point.
@@ -24568,9 +24532,9 @@ function get_interface_rotation_getInterfaceRotation(a, b) {
     const w1 = b[0];
     const w2 = b[1];
     // w2*v1 - w1*v2;
-    const A = ddDiffDd(simultaneous_properties_get_interface_rotation_tp(w2, v1), simultaneous_properties_get_interface_rotation_tp(w1, v2))[1];
+    const A = ddDiffDd(get_interface_rotation_tp(w2, v1), get_interface_rotation_tp(w1, v2))[1];
     // w1*v1 + w2*v2;
-    const B = ddAddDd(simultaneous_properties_get_interface_rotation_tp(w1, v1), simultaneous_properties_get_interface_rotation_tp(w2, v2))[1];
+    const B = ddAddDd(get_interface_rotation_tp(w1, v1), get_interface_rotation_tp(w2, v2))[1];
     return get_interface_rotation_atan2(A, B);
 }
 
@@ -24580,7 +24544,7 @@ function get_interface_rotation_getInterfaceRotation(a, b) {
 
 const is_cubic_really_line_sce = scaleExpansion;
 const ediff = eDiff;
-const is_cubic_really_line_ts = two_sum_twoSum;
+const is_cubic_really_line_ts = twoSum;
 const esign = eSign;
 /**
  * Returns `true` if the given bezier curve has all control points collinear
@@ -24637,7 +24601,7 @@ const classify_edif = eDiff;
 const classify_epr = expansionProduct;
 const classify_sce = scaleExpansion2;
 const classify_td = two_diff_twoDiff;
-const classify_ts = basic_two_sum_twoSum;
+const classify_ts = two_sum_twoSum;
 const classify_fes = fastExpansionSum;
 const classify_ge = growExpansion;
 const classify_abs = Math.abs;
@@ -25761,6 +25725,7 @@ function furthestPointOnBezier(ps, p) {
 
 //# sourceMappingURL=furthest-point-on-bezier.js.map
 ;// ./node_modules/flo-bezier3/node/error-analysis/max-abs-coordinate.js
+const { abs: max_abs_coordinate_abs } = Math;
 /**
  * Returns the maximum absolute value of the coordinates of the control points
  * of the given bezier curve.
@@ -25774,8 +25739,8 @@ function maxAbsCoordinate(ps) {
     let m = Number.NEGATIVE_INFINITY;
     for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
-        const absX = Math.abs(p[0]);
-        const absY = Math.abs(p[1]);
+        const absX = max_abs_coordinate_abs(p[0]);
+        const absY = max_abs_coordinate_abs(p[1]);
         if (absX > m) {
             m = absX;
         }
@@ -25788,9 +25753,10 @@ function maxAbsCoordinate(ps) {
 
 //# sourceMappingURL=max-abs-coordinate.js.map
 ;// ./node_modules/flo-bezier3/node/simultaneous-properties/hausdorff-distance/get-max-hausdorff.js
+const { max: get_max_hausdorff_max } = Math;
 /** @internal */
 function getMaxHausdorff(i) {
-    return Math.max(i.hL + i.hEL, i.hR + i.hER);
+    return get_max_hausdorff_max(i.hL + i.hEL, i.hR + i.hER);
 }
 
 //# sourceMappingURL=get-max-hausdorff.js.map
@@ -25902,7 +25868,7 @@ class Heap {
 
 
 /** @internal */
-const hausdorff_distance_one_sided_max = Math.max;
+const { max: hausdorff_distance_one_sided_max } = Math;
 // We need to calculate `H(A,B)`, the two sided Hausdorff distance between
 // the bezier curves `A` and `B` which equals `max(h(A,B), h(B,A))`, where
 // `h(A,B)` is the one sided Hausdorff distance from `A` to `B`
@@ -25928,7 +25894,7 @@ const hausdorff_distance_one_sided_max = Math.max;
  * control points e.g. `[[0,0],[1,1],[2,1],[2,0]]`
  * @param B a bezier curve (the 'to' curve) given by an ordered array of its
  * control points e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param tolerance optional; defaults to `Math.max(maxAbsCoordinate(A),maxAbsCoordinate(B))/1000_000`;
+ * @param tolerance optional; defaults to `max(maxAbsCoordinate(A),maxAbsCoordinate(B))/1000_000`;
  * if the calculated absolute error bound is less than this, the result is
  * returned; this is *not* a hard tolerance and the bound can be less
  * accurate in hard cases (due to the `maxIterations` parameter). Luckily
@@ -26098,578 +26064,336 @@ function getBranches(cpNode) {
 }
 
 
-;// ./node_modules/flo-ll-rb-tree/node/tree.js
-// Concise, Destructive, Left Leaning Red Black Tree implementation.
-// See: https://www.cs.princeton.edu/~rs/talks/LLRB/LLRB.pdf
-// See: https://en.wikipedia.org/wiki/Left-leaning_red%E2%80%93black_tree
-// See: http://www.teachsolaisgames.com/articles/balanced_left_leaning.html 
-const LEFT = -1;
-const RIGHT = 1;
+;// ./node_modules/flo-ll-rb-tree/node/rb-tree/rb-tree.js
 const BLACK = 1;
 const RED = 0;
-/**
- * Red Black Tree node.
- */
 class Node {
     datum;
     color = RED;
     parent;
-    extras;
-    "-1";
-    "1";
+    left;
+    right;
     constructor(datum) {
         this.datum = datum;
     }
 }
-function isRed(node) {
-    return !!node && node.color === RED;
-}
-class LlRbTree {
+class RbTree {
     compare;
-    duplicatesAllowed;
     root;
-    /**
-     * The number of nodes in the tree (that equals the number of values in the
-     * tree not counting duplicates).
-     */
-    nodeCount;
-    /**
-     * The number of values in the tree.
-     */
-    valueCount;
-    /**
-     * @param compare a comparator function
-     * @param duplicatesAllowed defaults to `true`; if `false` then if a
-     * duplicate is inserted (as per the equivalence relation induced by the
-     * compare function) then replace it; if `true` then instead still insert
-     * it (so there can be multiple nodes with the same value in the tree)
-     * @param data an optional initial array of data
-     */
-    constructor(compare, duplicatesAllowed = true, data) {
+    constructor(compare) {
         this.compare = compare;
-        this.duplicatesAllowed = duplicatesAllowed;
         this.root = undefined;
-        this.nodeCount = 0;
-        this.valueCount = 0;
-        if (!data) {
-            return;
-        }
-        for (const datum of data) {
-            this.insert(datum);
-        }
     }
-    isEmpty() { return !this.root; }
-    /**
-     * Find and returns the (first) node in the tree with the given datum using
-     * the tree compare function. Returns `undefined` if the node was not found.
-     */
+    isEmpty() {
+        return this.root === undefined;
+    }
     find(datum) {
-        const tree = this;
         let node = this.root;
         while (node) {
-            const c = tree.compare(datum, node.datum);
+            const c = this.compare(datum, node.datum);
             if (c === 0) {
                 return node;
             }
-            node = node[c > 0 ? RIGHT : LEFT];
+            node = c < 0 ? node.left : node.right;
         }
         return undefined;
     }
-    /**
-     * Returns an ordered (by the tree compare function) array of data as
-     * contained in the nodes of the tree by doing an in order traversal.
-     */
-    toArrayInOrder() {
-        const values = [];
-        f(this.root);
-        function f(node) {
-            if (!node) {
+    insert(datum) {
+        if (this.root === undefined) {
+            this.root = new Node(datum);
+            this.root.color = BLACK;
+            return;
+        }
+        let parent;
+        let node = this.root;
+        while (node) {
+            parent = node;
+            const c = this.compare(datum, node.datum);
+            if (c === 0) {
+                node.datum = datum;
                 return;
             }
-            f(node[LEFT]);
-            values.push(node.datum);
-            if (node.extras !== undefined) {
-                values.push(...node.extras);
-            }
-            f(node[RIGHT]);
+            node = c < 0 ? node.left : node.right;
         }
-        return values;
+        const inserted = new Node(datum);
+        inserted.parent = parent;
+        if (this.compare(datum, parent.datum) < 0) {
+            parent.left = inserted;
+        }
+        else {
+            parent.right = inserted;
+        }
+        this.fixInsert(inserted);
     }
-    insertMulti(data) {
-        const tree = this;
-        for (const datum of data) {
-            tree.insert(datum);
-        }
-    }
-    /**
-     * Inserts a node with the given datum into the tree.
-     */
-    insert(datum) {
-        const tree = this;
-        tree.root = f(tree.root, datum);
-        tree.root.color = BLACK;
-        tree.root.parent = undefined;
-        function f(h, datum) {
-            if (h === undefined) {
-                tree.valueCount++;
-                tree.nodeCount++;
-                return new Node(datum);
-            }
-            const c = tree.compare(datum, h.datum);
-            if (c === 0) {
-                if (tree.duplicatesAllowed) {
-                    tree.valueCount++;
-                    if (h.extras === undefined) {
-                        h.extras = [datum];
-                    }
-                    else {
-                        h.extras.push(datum);
-                    }
-                }
-                else {
-                    h.datum = datum; // replace old value
-                }
-            }
-            if (c !== 0) {
-                const dir = c > 0 ? RIGHT : LEFT;
-                h[dir] = f(h[dir], datum);
-                h[dir].parent = h;
-            }
-            if (isRed(h[RIGHT]) && !isRed(h[LEFT])) {
-                h = tree_rotate(LEFT, h);
-            }
-            if (isRed(h[LEFT]) && isRed(h[LEFT][LEFT])) {
-                h = tree_rotate(RIGHT, h);
-            }
-            if (isRed(h[LEFT]) && isRed(h[RIGHT])) {
-                flipColors(h);
-            }
-            return h;
-        }
-    }
-    /**
-     * Removes an item from the tree based on the given datum and returns the
-     * item that was removed or `undefined` if nothing was removed.
-     *
-     * @param datum
-     * @param all defaults to `false`; if `true` and duplicates exist, remove all
-     * @param compareStrict if provided then only delete an item if it passes the
-     * strict comparison function, i.e. if `compareStrict(item,node_value) === true`.
-     */
-    remove(datum, all = false, compareStrict) {
-        const tree = this;
-        if (tree.root === undefined) {
-            return undefined;
-        }
-        let removed = undefined;
-        const root = f(tree.root, datum);
-        if (root === null) {
-            return undefined;
-        }
-        tree.root = root;
-        if (tree.root !== undefined) {
-            tree.root.color = BLACK;
-            tree.root.parent = undefined;
-        }
-        return removed;
-        function f(h, datum) {
-            const theresExtras = tree.duplicatesAllowed && h.extras !== undefined;
-            let c = tree.compare(datum, h.datum);
-            if ((c < 0 && !h[LEFT]) || (c > 0 && !h[RIGHT])) {
-                return h; // end reached - no match
-            }
-            if (c < 0) {
-                if (!isRed(h[LEFT]) &&
-                    !isRed(h[LEFT][LEFT])) {
-                    h = moveRedLeft(h);
-                }
-                const g = f(h[LEFT], datum);
-                if (g === null) {
-                    return null;
-                }
-                h[LEFT] = g;
-                if (h[LEFT]) {
-                    h[LEFT].parent = h;
-                }
-                return fixUp(h);
-            }
-            if (isRed(h[LEFT])) {
-                h = tree_rotate(RIGHT, h);
-                c = tree.compare(datum, h.datum);
-            }
-            if (c === 0 && !h[RIGHT]) {
-                if (theresExtras && !all) {
-                    // There are multiple items at this node.
-                    if (compareStrict === undefined ||
-                        (compareStrict(datum, h.datum) === true)) {
-                        removed = h.datum;
-                        h.datum = h.extras.pop();
-                        tree.valueCount--;
-                        if (h.extras.length === 0) {
-                            h.extras = undefined;
-                        }
-                        return h;
-                    }
-                    else {
-                        const extras = h.extras;
-                        for (let i = 0; i < extras.length; i++) {
-                            if (compareStrict(datum, extras[i]) === true) {
-                                removed = extras.splice(i, 1)[0];
-                                tree.valueCount--;
-                                if (extras.length === 0) {
-                                    h.extras = undefined;
-                                }
-                                return h;
-                            }
-                        }
-                        return null;
-                    }
-                }
-                if (compareStrict === undefined ||
-                    (compareStrict(datum, h.datum) === true)) {
-                    removed = h.datum;
-                    tree.valueCount -= 1 + (theresExtras ? h.extras.length : 0);
-                    tree.nodeCount--;
-                    return undefined;
-                }
-                else {
-                    return null; // no match
-                }
-            }
-            if (!isRed(h[RIGHT]) &&
-                !isRed(h[RIGHT][LEFT])) {
-                h = moveRedRight(h);
-                c = tree.compare(datum, h.datum);
-            }
-            if (c === 0) {
-                if (theresExtras && !all) {
-                    // There are multiple items at this node.
-                    if (compareStrict === undefined ||
-                        (compareStrict(datum, h.datum) === true)) {
-                        removed = h.datum;
-                        h.datum = h.extras.pop();
-                        tree.valueCount--;
-                        if (h.extras.length === 0) {
-                            h.extras = undefined;
-                        }
-                        //// const g = f(h[RIGHT]!, datum);
-                        // if (g === null) { return null; }
-                        //// h[RIGHT] = g!;
-                    }
-                    else {
-                        const extras = h.extras;
-                        let found = false;
-                        for (let i = 0; i < extras.length; i++) {
-                            if (compareStrict(datum, extras[i]) === true) {
-                                removed = extras.splice(i, 1)[0];
-                                tree.valueCount--;
-                                if (extras.length === 0) {
-                                    h.extras = undefined;
-                                }
-                                //// const g = f(h[RIGHT]!, extras[i]);
-                                // if (g === null) { return null; }
-                                //// h[RIGHT] = g!;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            return null;
-                        }
-                    }
-                }
-                else {
-                    if (compareStrict === undefined ||
-                        (compareStrict(datum, h.datum) === true)) {
-                        tree.valueCount -= 1 + (theresExtras ? h.extras.length : 0);
-                        removed = h.datum;
-                        const minNode = tree.getMinNode(h[RIGHT]);
-                        // eslint-disable-next-line
-                        h.datum = minNode?.datum;
-                        // eslint-disable-next-line
-                        if (tree.duplicatesAllowed) {
-                            h.extras = minNode?.extras;
-                        }
-                        h[RIGHT] = removeMin(h[RIGHT]);
-                        tree.nodeCount--;
-                    }
-                    else {
-                        return null; // no match
-                    }
-                }
-            }
-            else {
-                const g = f(h[RIGHT], datum);
-                if (g === null) {
-                    return null;
-                }
-                h[RIGHT] = g;
-            }
-            if (h[RIGHT]) {
-                h[RIGHT].parent = h;
-            }
-            return fixUp(h);
-        }
-    }
-    /**
-     * Returns the two ordered nodes bounding the datum.
-     *
-     * * If the datum falls on a node, that node and the next (to the right) is
-     * returned.
-     * * If the given datum is smaller than all nodes then the first item in the
-     * bounds array is `undefined` and the next is the smallest node
-     * * If the given datum is larger than all nodes then the second item in the
-     * bounds array is `undefined` and the first item is the largest node
-     *
-     */
-    findBounds(datum) {
-        const tree = this;
-        let node = tree.root;
-        const bounds = [undefined, undefined];
+    remove(datum, _all = false, _compareStrict) {
+        const node = this.find(datum);
         if (node === undefined) {
-            return bounds;
+            return undefined;
         }
+        const removed = node.datum;
+        this.removeNode(node);
+        return removed;
+    }
+    findBounds(datum) {
+        let node = this.root;
+        const bounds = [undefined, undefined];
         while (node) {
-            const c = tree.compare(datum, node.datum);
+            const c = this.compare(datum, node.datum);
             if (c >= 0) {
                 bounds[0] = node;
+                node = node.right;
             }
             else {
                 bounds[1] = node;
-            }
-            node = node[c >= 0 ? RIGHT : LEFT];
-        }
-        return bounds;
-    }
-    /**
-     * Returns the two ordered nodes bounding the datum.
-     *
-     * * If the datum falls on a node, returns the nodes before and after this
-     * one.
-     * * If the given datum is smaller than all nodes then the first item in the
-     * bounds array is `undefined` and the next is the smallest node
-     * * If the given datum is larger than all nodes then the second item in the
-     * bounds array is `undefined` and the first item is the largest node
-     *
-     * @param tree
-     * @param datum
-     */
-    findBoundsExcl(datum) {
-        const tree = this;
-        const node = tree.root;
-        const bounds = [undefined, undefined];
-        if (node === undefined) {
-            return bounds;
-        }
-        f(node);
-        function f(node) {
-            while (node) {
-                const c = tree.compare(datum, node.datum);
-                if (c === 0) {
-                    // Search on both sides
-                    f(node[LEFT]);
-                    f(node[RIGHT]);
-                    return;
-                }
-                if (c > 0) {
-                    bounds[0] = node;
-                }
-                else if (c < 0) {
-                    bounds[1] = node;
-                }
-                node = node[c > 0 ? RIGHT : LEFT];
+                node = node.left;
             }
         }
         return bounds;
     }
-    /**
-     * Returns an array of all matching data found.
-     *
-     * If duplicates are not allowed it's better to just use `find`.
-     *
-     * @param datum
-     */
-    findAll(datum) {
-        const tree = this;
-        let node = this.root;
-        while (node) {
-            const c = tree.compare(datum, node.datum);
-            if (c === 0) {
-                return [
-                    node.datum,
-                    ...(node.extras ? node.extras : [])
-                ];
+    getMinNode(node) {
+        let curr = node === undefined ? this.root : node;
+        while (curr && curr.left) {
+            curr = curr.left;
+        }
+        return curr;
+    }
+    getMaxNode(node) {
+        let curr = node === undefined ? this.root : node;
+        while (curr && curr.right) {
+            curr = curr.right;
+        }
+        return curr;
+    }
+    removeNode(z) {
+        let y = z;
+        let yOriginalColor = y.color;
+        let x;
+        let xParent;
+        if (z.left === undefined) {
+            x = z.right;
+            xParent = z.parent;
+            this.transplant(z, z.right);
+        }
+        else if (z.right === undefined) {
+            x = z.left;
+            xParent = z.parent;
+            this.transplant(z, z.left);
+        }
+        else {
+            y = this.getMinNode(z.right);
+            yOriginalColor = y.color;
+            x = y.right;
+            if (y.parent === z) {
+                xParent = y;
+                if (x) {
+                    x.parent = y;
+                }
             }
-            node = node[c > 0 ? RIGHT : LEFT];
-        }
-        return [];
-    }
-    /** @internal */
-    getMinOrMaxNode(dir) {
-        return (node) => {
-            if (node === undefined) {
-                node = this.root;
+            else {
+                xParent = y.parent;
+                this.transplant(y, y.right);
+                y.right = z.right;
+                y.right.parent = y;
             }
-            if (!node) {
-                return undefined;
+            this.transplant(z, y);
+            y.left = z.left;
+            y.left.parent = y;
+            y.color = z.color;
+        }
+        if (yOriginalColor === BLACK) {
+            this.fixDelete(x, xParent);
+        }
+    }
+    fixInsert(z) {
+        let node = z;
+        while (node.parent && node.parent.color === RED) {
+            const parent = node.parent;
+            const grandParent = parent.parent;
+            if (parent === grandParent.left) {
+                const uncle = grandParent.right;
+                if (this.colorOf(uncle) === RED) {
+                    parent.color = BLACK;
+                    uncle.color = BLACK;
+                    grandParent.color = RED;
+                    node = grandParent;
+                }
+                else {
+                    if (node === parent.right) {
+                        node = parent;
+                        this.rotateLeft(node);
+                    }
+                    node.parent.color = BLACK;
+                    grandParent.color = RED;
+                    this.rotateRight(grandParent);
+                }
             }
-            while (node[dir]) {
-                node = node[dir];
+            else {
+                const uncle = grandParent.left;
+                if (this.colorOf(uncle) === RED) {
+                    parent.color = BLACK;
+                    uncle.color = BLACK;
+                    grandParent.color = RED;
+                    node = grandParent;
+                }
+                else {
+                    if (node === parent.left) {
+                        node = parent;
+                        this.rotateRight(node);
+                    }
+                    node.parent.color = BLACK;
+                    grandParent.color = RED;
+                    this.rotateLeft(grandParent);
+                }
             }
-            return node;
-        };
-    }
-    // eslint-disable-next-line
-    getMinNode = this.getMinOrMaxNode(LEFT);
-    // eslint-disable-next-line
-    getMaxNode = this.getMinOrMaxNode(RIGHT);
-    /**
-     * Returns the minimum value in the tree starting at the given node. If the
-     * tree is empty, `undefined` will be returned.
-     *
-     * If the min value is required for the entire tree call this function
-     * as `tree.min(tree.root)`
-     *
-     * @param node
-     */
-    min(node) {
-        if (node === undefined) {
-            node = this.root;
         }
-        const minNode = this.getMinNode(node);
-        if (minNode !== undefined) {
-            return minNode.datum;
+        this.root.color = BLACK;
+    }
+    fixDelete(x, parent) {
+        let node = x;
+        let nodeParent = parent;
+        while (node !== this.root && this.colorOf(node) === BLACK) {
+            if (nodeParent === undefined) {
+                break;
+            }
+            if (node === nodeParent?.left) {
+                let sibling = nodeParent.right;
+                if (this.colorOf(sibling) === RED) {
+                    sibling.color = BLACK;
+                    nodeParent.color = RED;
+                    this.rotateLeft(nodeParent);
+                    sibling = nodeParent.right;
+                }
+                if (this.colorOf(sibling?.left) === BLACK && this.colorOf(sibling?.right) === BLACK) {
+                    if (sibling) {
+                        sibling.color = RED;
+                    }
+                    node = nodeParent;
+                    nodeParent = node?.parent;
+                }
+                else {
+                    if (this.colorOf(sibling?.right) === BLACK) {
+                        if (sibling?.left) {
+                            sibling.left.color = BLACK;
+                        }
+                        if (sibling) {
+                            sibling.color = RED;
+                            this.rotateRight(sibling);
+                        }
+                        sibling = nodeParent.right;
+                    }
+                    if (sibling) {
+                        sibling.color = nodeParent.color;
+                    }
+                    nodeParent.color = BLACK;
+                    if (sibling?.right) {
+                        sibling.right.color = BLACK;
+                    }
+                    this.rotateLeft(nodeParent);
+                    node = this.root;
+                    nodeParent = undefined;
+                }
+            }
+            else {
+                let sibling = nodeParent?.left;
+                if (this.colorOf(sibling) === RED) {
+                    sibling.color = BLACK;
+                    nodeParent.color = RED;
+                    this.rotateRight(nodeParent);
+                    sibling = nodeParent.left;
+                }
+                if (this.colorOf(sibling?.left) === BLACK && this.colorOf(sibling?.right) === BLACK) {
+                    if (sibling) {
+                        sibling.color = RED;
+                    }
+                    node = nodeParent;
+                    nodeParent = nodeParent?.parent;
+                }
+                else {
+                    if (this.colorOf(sibling?.left) === BLACK) {
+                        if (sibling?.right) {
+                            sibling.right.color = BLACK;
+                        }
+                        if (sibling) {
+                            sibling.color = RED;
+                            this.rotateLeft(sibling);
+                        }
+                        sibling = nodeParent?.left;
+                    }
+                    if (sibling) {
+                        sibling.color = nodeParent.color;
+                    }
+                    nodeParent.color = BLACK;
+                    if (sibling?.left) {
+                        sibling.left.color = BLACK;
+                    }
+                    this.rotateRight(nodeParent);
+                    node = this.root;
+                    nodeParent = undefined;
+                }
+            }
         }
-        return undefined;
-    }
-    /**
-     * Returns the maximum value in the tree starting at the given node. If the
-     * tree is empty, `undefined` will be returned.
-     *
-     * If the max value is required for the entire tree call this function
-     * as `tree.max(tree.root)`
-     *
-     * @param node
-     */
-    max(node) {
-        if (node === undefined) {
-            node = this.root;
+        if (node) {
+            node.color = BLACK;
         }
-        const maxNode = this.getMaxNode(node);
-        if (maxNode !== undefined) {
-            return maxNode.datum;
+    }
+    transplant(u, v) {
+        if (u.parent === undefined) {
+            this.root = v;
         }
-        return undefined;
+        else if (u === u.parent.left) {
+            u.parent.left = v;
+        }
+        else {
+            u.parent.right = v;
+        }
+        if (v) {
+            v.parent = u.parent;
+        }
     }
-}
-/**
- * Returns the node that is at the top after the rotation.
- *
- * Destructively rotates the given node, say h, in the
- * given direction as far as tree rotations go.
- *
- * @param dir
- * @param h
- *
- * @internal
- */
-function tree_rotate(dir, h) {
-    const x = h[-dir];
-    h[-dir] = x[dir];
-    if (x[dir]) {
-        x[dir].parent = h;
+    rotateLeft(x) {
+        const y = x.right;
+        x.right = y.left;
+        if (y.left) {
+            y.left.parent = x;
+        }
+        y.parent = x.parent;
+        if (x.parent === undefined) {
+            this.root = y;
+        }
+        else if (x === x.parent.left) {
+            x.parent.left = y;
+        }
+        else {
+            x.parent.right = y;
+        }
+        y.left = x;
+        x.parent = y;
     }
-    x[dir] = h;
-    h.parent = x;
-    x.color = h.color;
-    h.color = RED;
-    return x;
-}
-/**
- * @param h
- *
- * @internal
- */
-function removeMin(h) {
-    if (!h[LEFT]) {
-        return undefined;
+    rotateRight(x) {
+        const y = x.left;
+        x.left = y.right;
+        if (y.right) {
+            y.right.parent = x;
+        }
+        y.parent = x.parent;
+        if (x.parent === undefined) {
+            this.root = y;
+        }
+        else if (x === x.parent.right) {
+            x.parent.right = y;
+        }
+        else {
+            x.parent.left = y;
+        }
+        y.right = x;
+        x.parent = y;
     }
-    if (!isRed(h[LEFT]) &&
-        !isRed(h[LEFT][LEFT])) {
-        h = moveRedLeft(h);
+    colorOf(node) {
+        return node ? node.color : BLACK;
     }
-    h[LEFT] = removeMin(h[LEFT]);
-    if (h[LEFT]) {
-        h[LEFT].parent = h;
-    }
-    return fixUp(h);
-}
-/**
- * Destructively flips the color of the given node and both
- * it's childrens' colors.
- *
- * @param h
- *
- * @internal
- */
-function flipColors(h) {
-    h.color = (h.color + 1) % 2;
-    h[LEFT].color = (h[LEFT].color + 1) % 2;
-    h[RIGHT].color = (h[RIGHT].color + 1) % 2;
-}
-/**
- * @param h
- *
- * @internal
- */
-function moveRedLeft(h) {
-    flipColors(h);
-    if (isRed(h[RIGHT][LEFT])) {
-        const a = tree_rotate(RIGHT, h[RIGHT]);
-        h[RIGHT] = a;
-        a.parent = h;
-        h = tree_rotate(LEFT, h);
-        flipColors(h);
-    }
-    return h;
-}
-/**
- * Returns the node that is at the top after the move.
- *
- * @param h
- *
- * @internal
- */
-function moveRedRight(h) {
-    flipColors(h);
-    if (isRed(h[LEFT][LEFT])) {
-        h = tree_rotate(RIGHT, h);
-        flipColors(h);
-    }
-    return h;
-}
-/**
- * Returns the node that is at the top after the fix.
- *
- * Fix right-leaning red nodes.
- *
- * @internal
- */
-function fixUp(h) {
-    if (isRed(h[RIGHT])) {
-        h = tree_rotate(LEFT, h);
-    }
-    if (isRed(h[LEFT]) && isRed(h[LEFT][LEFT])) {
-        h = tree_rotate(RIGHT, h);
-    }
-    // Split 4-nodes.
-    if (isRed(h[LEFT]) && isRed(h[RIGHT])) {
-        flipColors(h);
-    }
-    return h;
 }
 
-//# sourceMappingURL=tree.js.map
+//# sourceMappingURL=rb-tree.js.map
 ;// ./src/mat/create-new-cp-trees.ts
 
 
@@ -26686,7 +26410,7 @@ function createNewCpTrees(cpNode) {
         const loop = cpNode.pointOnShape.curve.loop;
         let cpTree = cpTrees_.get(loop);
         if (!cpTree) {
-            cpTree = new LlRbTree(cpNodeComparator, false);
+            cpTree = new RbTree(cpNodeComparator);
             cpTrees_.set(loop, cpTree);
         }
         cpTree.insert(cpNode);
@@ -27196,6 +26920,16 @@ function calcPosOrder(circleCenter, pos) {
 }
 
 
+;// ./node_modules/flo-vector2d/node/distance-and-length/len.js
+/**
+ * Returns the length of the given 2-vector.
+ * @param p a 2d vector
+ */
+function len(p) {
+    return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
+}
+
+//# sourceMappingURL=len.js.map
 ;// ./node_modules/flo-vector2d/node/distance-and-length/length-squared.js
 /**
  * Returns the squared length of the given 2-vector.
@@ -27227,7 +26961,7 @@ function det3(x, y, z) {
 * Returns the circumcenter of the given 2d triangle.
 * @param triangle
 */
-function circum_center_circumCenter(triangle) {
+function circumCenter(triangle) {
     // See wikipedia
     const p1 = triangle[0];
     const p2 = triangle[1];
@@ -27240,16 +26974,12 @@ function circum_center_circumCenter(triangle) {
 }
 
 //# sourceMappingURL=circum-center.js.map
-;// ./node_modules/flo-vector2d/node/distance-and-length/len.js
-/**
- * Returns the length of the given 2-vector.
- * @param p a 2d vector
- */
-function len(p) {
-    return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
-}
+;// ./src/find-3-prong/timed-cc.ts
 
-//# sourceMappingURL=len.js.map
+// const timeCircumCenter = timeFunctionCalls(circumCenter);
+const timeCircumCenter = circumCenter;
+
+
 ;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-3-dd.js
 
 const double_double_get_footpoint_poly_3_dd_td = two_diff_twoDiff;
@@ -27408,7 +27138,7 @@ function get_footpoint_poly_2_dd_getFootpointPoly2Dd(ps, p) {
 //# sourceMappingURL=get-footpoint-poly-2-dd.js.map
 ;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-1-dd.js
 
-const double_double_get_footpoint_poly_1_dd_tp = two_product_twoProduct;
+const double_double_get_footpoint_poly_1_dd_tp = twoProduct;
 const double_double_get_footpoint_poly_1_dd_qaq = ddAddDd;
 const get_footpoint_poly_1_dd_qmn2 = ddMultByNeg2;
 /**
@@ -27547,7 +27277,7 @@ function get_footpoint_poly_3_exact_getFootpointPoly3Exact(ps, p) {
     const t0a = eDiff(x01, exact_get_footpoint_poly_3_exact_sce(6, x00));
     const t0b = eDiff(y01, exact_get_footpoint_poly_3_exact_sce(6, y00));
     const t0 = fastExpansionSum(t0a, t0b);
-    return [t5, t4, t3, t2, t1, t0].map(e_compress_eCompress);
+    return [t5, t4, t3, t2, t1, t0].map(eCompress);
 }
 
 //# sourceMappingURL=get-footpoint-poly-3-exact.js.map
@@ -27633,7 +27363,7 @@ function get_footpoint_poly_2_exact_getFootpointPoly2Exact(ps, p) {
     const t0a = eDiff(y01, y00);
     const t0b = eDiff(x01, x00);
     const t0 = fastExpansionSum(t0a, t0b);
-    return [t3, t2, t1, t0].map(e_compress_eCompress);
+    return [t3, t2, t1, t0].map(eCompress);
 }
 
 //# sourceMappingURL=get-footpoint-poly-2-exact.js.map
@@ -27676,12 +27406,12 @@ function get_footpoint_poly_1_exact_getFootpointPoly1Exact(ps, p) {
     const t1 = fastExpansionSum(fastExpansionSum(x11, y11), fastExpansionSum(exact_get_footpoint_poly_1_exact_emn2(s1), s2));
     //const t0 = s1 - s2;
     const t0 = eDiff(s1, s2);
-    return [t1, t0].map(e_compress_eCompress);
+    return [t1, t0].map(eCompress);
 }
 
 //# sourceMappingURL=get-footpoint-poly-1-exact.js.map
 ;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/get-closest-on-bezier-from-point-error-counters.js
-const get_coeffs_get_closest_on_bezier_from_point_error_counters_abs = Math.abs;
+const { abs: get_coeffs_get_closest_on_bezier_from_point_error_counters_abs } = Math;
 /**
  * Returns a representation of the error when calculating the polynomial whose
  * roots are all the `t` values on the given bezier curve such that the line
@@ -28034,7 +27764,7 @@ function get_foot_points_polys_on_bezier_certified_getFootPointsOnBezierPolysCer
 
 //# sourceMappingURL=get-foot-points-polys-on-bezier-certified.js.map
 ;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/eval-de-casteljau-error.js
-const evaluate_eval_de_casteljau_error_abs = Math.abs;
+const { abs: evaluate_eval_de_casteljau_error_abs } = Math;
 /**
  * Returns a representation of the error (from which an absolute error bound
  * can be calculated) when evaluating the given bezier curve at the parameter `t`
@@ -28235,7 +27965,7 @@ function flo_bezier3_node_error_analysis_error_analysis_(n) {
 
 //# sourceMappingURL=error-analysis.js.map
 ;// ./node_modules/flo-bezier3/node/transformation/split/from-to/from-to-1-incl-error-bound.js
-const from_to_from_to_1_incl_error_bound_abs = Math.abs;
+const { abs: from_to_from_to_1_incl_error_bound_abs } = Math;
 /** error free error bounds */
 const from_to_from_to_1_incl_error_bound_psErrorFree = [[0, 0], [0, 0]];
 /**
@@ -28447,9 +28177,7 @@ function from_to_from_to_1_incl_error_bound_splitAtBoth1(ps, tS, tE) {
 
 
 
-const get_interval_box_get_interval_box_eps = Number.EPSILON;
-const get_interval_box_get_interval_box_u = get_interval_box_get_interval_box_eps / 2;
-const get_interval_box_get_interval_box_1 = node_error_analysis_error_analysis_(1);
+const { min: get_interval_box_min, max: get_interval_box_max } = Math;
 /**
  * Returns an axis-aligned-box that is guaranteed to engulf the entire
  * given bezier curve from t1 to t2. The returned box is given as a pair
@@ -28495,22 +28223,22 @@ function get_interval_box_getIntervalBox3(ps, ts) {
     const x1 = psI[1][0];
     const x2 = psI[2][0];
     const x3 = psI[3][0];
-    const _x0 = 9 * get_interval_box_get_interval_box_u * _psI[0][0];
-    const _x1 = 9 * get_interval_box_get_interval_box_u * _psI[1][0];
-    const _x2 = 9 * get_interval_box_get_interval_box_u * _psI[2][0];
-    const _x3 = 9 * get_interval_box_get_interval_box_u * _psI[3][0];
+    const _x0 = 9 * error_analysis_error_analysis_u * _psI[0][0];
+    const _x1 = 9 * error_analysis_error_analysis_u * _psI[1][0];
+    const _x2 = 9 * error_analysis_error_analysis_u * _psI[2][0];
+    const _x3 = 9 * error_analysis_error_analysis_u * _psI[3][0];
     const y0 = psI[0][1];
     const y1 = psI[1][1];
     const y2 = psI[2][1];
     const y3 = psI[3][1];
-    const _y0 = 9 * get_interval_box_get_interval_box_u * _psI[0][1];
-    const _y1 = 9 * get_interval_box_get_interval_box_u * _psI[1][1];
-    const _y2 = 9 * get_interval_box_get_interval_box_u * _psI[2][1];
-    const _y3 = 9 * get_interval_box_get_interval_box_u * _psI[3][1];
-    const minX = Math.min(x0 - _x0, x1 - _x1, x2 - _x2, x3 - _x3);
-    const maxX = Math.max(x0 + _x0, x1 + _x1, x2 + _x2, x3 + _x3);
-    const minY = Math.min(y0 - _y0, y1 - _y1, y2 - _y2, y3 - _y3);
-    const maxY = Math.max(y0 + _y0, y1 + _y1, y2 + _y2, y3 + _y3);
+    const _y0 = 9 * error_analysis_error_analysis_u * _psI[0][1];
+    const _y1 = 9 * error_analysis_error_analysis_u * _psI[1][1];
+    const _y2 = 9 * error_analysis_error_analysis_u * _psI[2][1];
+    const _y3 = 9 * error_analysis_error_analysis_u * _psI[3][1];
+    const minX = get_interval_box_min(x0 - _x0, x1 - _x1, x2 - _x2, x3 - _x3);
+    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1, x2 + _x2, x3 + _x3);
+    const minY = get_interval_box_min(y0 - _y0, y1 - _y1, y2 - _y2, y3 - _y3);
+    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1, y2 + _y2, y3 + _y3);
     return [[minX, minY], [maxX, maxY]];
 }
 /**
@@ -28531,19 +28259,19 @@ function get_interval_box_getIntervalBox2(ps, ts) {
     const x0 = psI[0][0];
     const x1 = psI[1][0];
     const x2 = psI[2][0];
-    const _x0 = 5 * get_interval_box_get_interval_box_u * _psI[0][0];
-    const _x1 = 5 * get_interval_box_get_interval_box_u * _psI[1][0];
-    const _x2 = 5 * get_interval_box_get_interval_box_u * _psI[2][0];
+    const _x0 = 5 * error_analysis_error_analysis_u * _psI[0][0];
+    const _x1 = 5 * error_analysis_error_analysis_u * _psI[1][0];
+    const _x2 = 5 * error_analysis_error_analysis_u * _psI[2][0];
     const y0 = psI[0][1];
     const y1 = psI[1][1];
     const y2 = psI[2][1];
-    const _y0 = 5 * get_interval_box_get_interval_box_u * _psI[0][1];
-    const _y1 = 5 * get_interval_box_get_interval_box_u * _psI[1][1];
-    const _y2 = 5 * get_interval_box_get_interval_box_u * _psI[2][1];
-    const minX = Math.min(x0 - _x0, x1 - _x1, x2 - _x2);
-    const maxX = Math.max(x0 + _x0, x1 + _x1, x2 + _x2);
-    const minY = Math.min(y0 - _y0, y1 - _y1, y2 - _y2);
-    const maxY = Math.max(y0 + _y0, y1 + _y1, y2 + _y2);
+    const _y0 = 5 * error_analysis_error_analysis_u * _psI[0][1];
+    const _y1 = 5 * error_analysis_error_analysis_u * _psI[1][1];
+    const _y2 = 5 * error_analysis_error_analysis_u * _psI[2][1];
+    const minX = get_interval_box_min(x0 - _x0, x1 - _x1, x2 - _x2);
+    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1, x2 + _x2);
+    const minY = get_interval_box_min(y0 - _y0, y1 - _y1, y2 - _y2);
+    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1, y2 + _y2);
     return [[minX, minY], [maxX, maxY]];
 }
 /**
@@ -28565,16 +28293,16 @@ function get_interval_box_getIntervalBox1(ps, ts) {
     const { ps: psI, _ps: _psI } = from_to_1_incl_error_bound_fromTo1InclErrorBound(ps, ts[0], ts[1]);
     const x0 = psI[0][0];
     const x1 = psI[1][0];
-    const _x0 = 3 * get_interval_box_get_interval_box_u * _psI[0][0];
-    const _x1 = 3 * get_interval_box_get_interval_box_u * _psI[1][0];
+    const _x0 = 3 * error_analysis_error_analysis_u * _psI[0][0];
+    const _x1 = 3 * error_analysis_error_analysis_u * _psI[1][0];
     const y0 = psI[0][1];
     const y1 = psI[1][1];
-    const _y0 = 3 * get_interval_box_get_interval_box_u * _psI[0][1];
-    const _y1 = 3 * get_interval_box_get_interval_box_u * _psI[1][1];
-    const minX = Math.min(x0 - _x0, x1 - _x1);
-    const maxX = Math.max(x0 + _x0, x1 + _x1);
-    const minY = Math.min(y0 - _y0, y1 - _y1);
-    const maxY = Math.max(y0 + _y0, y1 + _y1);
+    const _y0 = 3 * error_analysis_error_analysis_u * _psI[0][1];
+    const _y1 = 3 * error_analysis_error_analysis_u * _psI[1][1];
+    const minX = get_interval_box_min(x0 - _x0, x1 - _x1);
+    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1);
+    const minY = get_interval_box_min(y0 - _y0, y1 - _y1);
+    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1);
     return [[minX, minY], [maxX, maxY]];
 }
 /**
@@ -28595,13 +28323,13 @@ function get_interval_box_getIntervalBoxAtT(ps, t) {
     const p = eval_de_casteljau_evalDeCasteljau(ps, t);
     let pE;
     if (ps.length === 4) {
-        pE = eval_de_casteljau_error_evalDeCasteljauError(ps, [0, t]).map(c_ => 8 * get_interval_box_get_interval_box_1 * c_);
+        pE = eval_de_casteljau_error_evalDeCasteljauError(ps, [0, t]).map(c_ => 8 * error_analysis_error_analysis_1 * c_);
     }
     else if (ps.length === 3) {
-        pE = eval_de_casteljau_error_evalDeCasteljauError(ps, [0, t]).map(c_ => 5 * get_interval_box_get_interval_box_1 * c_);
+        pE = eval_de_casteljau_error_evalDeCasteljauError(ps, [0, t]).map(c_ => 5 * error_analysis_error_analysis_1 * c_);
     }
     else if (ps.length === 2) {
-        pE = eval_de_casteljau_error_evalDeCasteljauError(ps, [0, t]).map(c_ => 2 * get_interval_box_get_interval_box_1 * c_);
+        pE = eval_de_casteljau_error_evalDeCasteljauError(ps, [0, t]).map(c_ => 2 * error_analysis_error_analysis_1 * c_);
     }
     else if (ps.length === 1) {
         return [p, p];
@@ -28612,17 +28340,81 @@ function get_interval_box_getIntervalBoxAtT(ps, t) {
     ];
 }
 
-// 416
 //# sourceMappingURL=get-interval-box.js.map
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/double-double/eval-de-casteljau-dd.js
+
+const double_double_eval_de_casteljau_dd_qmq = ddMultDd;
+const double_double_eval_de_casteljau_dd_qaq = ddAddDd;
+const double_double_eval_de_casteljau_dd_qdq = ddDiffDd;
+const double_double_eval_de_casteljau_dd_td = two_diff_twoDiff;
+const double_double_eval_de_casteljau_dd_qad = ddAddDouble;
+/**
+ * Returns the resulting point (in double-double precision) of evaluating the
+ * given bezier curve at the given parameter `t` (given as a double-double
+ * precision floating point number).
+ *
+ * * uses [De Casteljau's algorithm](https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm)
+ * with intermediate calculations done in double-double precision floating point
+ * arithmetic.
+ *
+ * * to get an absolute error bound on the result call [[evalDeCasteljauError]]
+ *
+ * @param ps an order 1,2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the parameter value where the bezier should be evaluated (given in
+ * double-double precision)
+ *
+ * @doc mdx
+ **/
+function eval_de_casteljau_dd_evalDeCasteljauDd(ps, t) {
+    if (t[0] === 0 && t[1] === 0) {
+        return ps[0].map(c => [0, c]);
+    }
+    else if (t[0] === 0 && t[1] === 1) {
+        return ps[ps.length - 1].map(c => [0, c]);
+    }
+    if (ps.length === 4) {
+        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+        const a01 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x1, x0), t), x0);
+        const a11 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x2, x1), t), x1);
+        const a21 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x3, x2), t), x2);
+        const a02 = double_double_eval_de_casteljau_dd_qaq(a01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a11, a01), t));
+        const a12 = double_double_eval_de_casteljau_dd_qaq(a11, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a21, a11), t));
+        const x = double_double_eval_de_casteljau_dd_qaq(a02, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a12, a02), t));
+        const b01 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y1, y0), t), y0);
+        const b11 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y2, y1), t), y1);
+        const b21 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y3, y2), t), y2);
+        const b02 = double_double_eval_de_casteljau_dd_qaq(b01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b11, b01), t));
+        const b12 = double_double_eval_de_casteljau_dd_qaq(b11, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b21, b11), t));
+        const y = double_double_eval_de_casteljau_dd_qaq(b02, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b12, b02), t));
+        return [x, y];
+    }
+    if (ps.length === 3) {
+        const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+        const a01 = double_double_eval_de_casteljau_dd_qaq([0, x0], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x1, x0), t));
+        const a11 = double_double_eval_de_casteljau_dd_qaq([0, x1], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x2, x1), t));
+        const x = double_double_eval_de_casteljau_dd_qaq(a01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a11, a01), t));
+        const b01 = double_double_eval_de_casteljau_dd_qaq([0, y0], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y1, y0), t));
+        const b11 = double_double_eval_de_casteljau_dd_qaq([0, y1], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y2, y1), t));
+        const y = double_double_eval_de_casteljau_dd_qaq(b01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b11, b01), t));
+        return [x, y];
+    }
+    if (ps.length === 2) {
+        const [[x0, y0], [x1, y1]] = ps;
+        const x = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x1, x0), t), x0);
+        const y = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y1, y0), t), y0);
+        return [x, y];
+    }
+    if (ps.length === 1) {
+        const [x, y] = ps[0];
+        return [[0, x], [0, y]];
+    }
+    throw new Error('The given bezier curve must be of order <= 3.');
+}
+
+//# sourceMappingURL=eval-de-casteljau-dd.js.map
 ;// ./src/closest-boundary-point/root-interval-to-distance-squared-interval.ts
-/* unused harmony import specifier */ var root_interval_to_distance_squared_interval_eEstimate;
 
-
-// We *have* to do the below to improve performance with bundlers❗ The assignee is a getter❗ The assigned is a pure function❗
-const root_interval_to_distance_squared_interval_estimate = (/* unused pure expression or super */ null && (root_interval_to_distance_squared_interval_eEstimate));
-const closest_boundary_point_root_interval_to_distance_squared_interval_td = twoDiff;
-// const emult = eMult;
-// const eadd = eAdd;
+const closest_boundary_point_root_interval_to_distance_squared_interval_td = two_diff_twoDiff;
 const root_interval_to_distance_squared_interval_qmq = ddMultDd;
 const root_interval_to_distance_squared_interval_qaq = ddAddDd;
 const closest_boundary_point_root_interval_to_distance_squared_interval_eps = Number.EPSILON;
@@ -28637,7 +28429,7 @@ const closest_boundary_point_root_interval_to_distance_squared_interval_eps = Nu
  *
  * @internal
  */
-function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquaredInterval(maxCoordPowerOf2, box, p) {
+function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquaredInterval(box, p) {
     const bl = box[0];
     const tr = box[1];
     const minX = bl[0];
@@ -28666,8 +28458,10 @@ function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquare
         // const dc1 = estimate(dc1Exact);
         const dc1Dd = root_interval_to_distance_squared_interval_qaq(root_interval_to_distance_squared_interval_qmq(ax, ax), root_interval_to_distance_squared_interval_qmq(by, by)); // ax**2 + bx**2
         const dc1 = dc1Dd[1];
-        const dc1Min = dc1 * (1 - 2 ** maxCoordPowerOf2 * closest_boundary_point_root_interval_to_distance_squared_interval_eps); // distance minus max error
-        const dc1Max = dc1 * (1 + 2 ** maxCoordPowerOf2 * closest_boundary_point_root_interval_to_distance_squared_interval_eps); // distance plus max error
+        // const dc1Min = dc1*(1 - 2**maxCoordPowerOf2*eps);  // distance minus max error
+        // const dc1Max = dc1*(1 + 2**maxCoordPowerOf2*eps);  // distance plus max error
+        const dc1Min = dc1 * (1 - closest_boundary_point_root_interval_to_distance_squared_interval_eps); // distance minus max error
+        const dc1Max = dc1 * (1 + closest_boundary_point_root_interval_to_distance_squared_interval_eps); // distance plus max error
         if (dc1Min <= minDSquared) {
             minDSquared = dc1Min;
         }
@@ -28679,15 +28473,61 @@ function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquare
 }
 
 
-;// ./src/closest-boundary-point/get-p-from-box.ts
-/** @internal */
-function get_p_from_box_getPFromBox(box) {
-    const tl = box[0];
-    const br = box[1];
-    return [
-        (tl[0] + br[0]) / 2,
-        (tl[1] + br[1]) / 2,
-    ];
+;// ./src/find-2-prong/squared-distance-between-dd.ts
+
+function squaredDistanceBetweenDd(x, y) {
+    const [x0, y0] = x;
+    const [x1, y1] = y;
+    // xd = x0 - x1;
+    // yd = y0 - y1;
+    // xx = xd**2;
+    // yy = yd**2;
+    // return xx + yy
+    const xd = two_diff_twoDiff(x0, x1);
+    const yd = two_diff_twoDiff(y0, y1);
+    const xx = ddMultDd(xd, xd);
+    const yy = ddMultDd(yd, yd);
+    return ddAddDd(xx, yy)[1];
+}
+
+
+;// ./src/error-analysis/gamma.ts
+/** `2 * 2^-53` -> 2x the standard round-of unit `=== Number.EPSILON` */
+const gamma_eps = Number.EPSILON;
+/** `2^-53` -> the standard round-of unit `=== eps/2` */
+const gamma_u = gamma_eps / 2;
+/** `2^-106` -> the standard round-of unit for double-double precision `=== (eps/2)**2` */
+const gamma_uu = gamma_u * gamma_u;
+/**
+ * The canonical floating point error function, γ.
+ *
+ * * roughly `=== n * (Number.EPSILON / 2)`
+ * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
+ * @param n the parameter - typically a small positive integer, e.g. for
+ * polynomial evaluation this === 2*d + 1, where d is the degree of the
+ * polynomial
+ *
+ * @doc
+ */
+function gamma_(n) {
+    const nu = n * gamma_u;
+    return nu / (1 - nu);
+}
+/**
+ * The canonical, once compensated (implying double-double precision),
+ * floating point error function.
+ *
+ * * roughly `=== n * (Number.EPSILON / 2)**2`
+ * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
+ * @param n the parameter - typically a small positive integer, e.g. for
+ * polynomial evaluation this === 2*d + 1, where d is the degree of the
+ * polynomial
+ *
+ * @doc
+ */
+function error_analysis_gamma_(n) {
+    const nuu = n * gamma_uu;
+    return nuu / (1 - nuu);
 }
 
 
@@ -28696,41 +28536,51 @@ function get_p_from_box_getPFromBox(box) {
 
 
 
-const { sqrt: get_potential_closest_points_on_curve_certified_sqrt } = Math;
+
 /**
  * @internal
  *
- * @param maxCoordPowerOf2
  * @param curve the curve
  * @param x the point from which to check
  * @param tRange The allowed t range
  */
-function getPotentialClosestPointsOnCurveCertified(maxCoordPowerOf2, curve, x, tRange) {
+function getPotentialClosestPointsOnCurveCertified(curve, x, tRange) {
     const [tS, tE] = tRange;
-    const ps = curve.ps;
-    let { polyDd: pDd, polyE: pDd_, getPolyExact } = get_foot_points_polys_on_bezier_certified_getFootPointsOnBezierPolysCertified(ps, x);
-    const ris = roots(pDd, tS, tE, pDd_, getPolyExact) || [];
-    ris.push(createRootExact(tS));
-    ris.push(createRootExact(tE));
-    const infos = ris
-        .map(ri => {
-        const { tS: ts, tE: te } = ri;
-        const _t = (ts + te) / 2;
-        const t = _t < 0 ? 0 : _t > 1 ? 1 : _t;
-        const box = get_interval_box_getIntervalBox(ps, [ts, te]);
-        const p_ = get_p_from_box_getPFromBox(box);
-        const dSquaredI = root_interval_to_distance_squared_interval_rootIntervalToDistanceSquaredInterval(maxCoordPowerOf2, box, x);
+    const { ps } = curve;
+    const infos = [];
+    if (tS !== tE) {
+        const { polyDd: pDd, polyE: pDd_, getPolyExact } = get_foot_points_polys_on_bezier_certified_getFootPointsOnBezierPolysCertified(ps, x);
+        const ris = roots(pDd, tS, tE, pDd_, getPolyExact) || [];
+        infos.push(...ris.map(ri => {
+            const { tS: ts, tE: te, t: _t } = ri;
+            const t = _t < 0 ? 0 : _t > 1 ? 1 : _t;
+            const box = get_interval_box_getIntervalBox(ps, [ts, te]);
+            const dSquaredI = root_interval_to_distance_squared_interval_rootIntervalToDistanceSquaredInterval(box, x);
+            const t_ = t === 0 ? 1 : t;
+            const curve_ = t === 0 ? curve.prev : curve;
+            return {
+                curve: curve_,
+                t: t_,
+                dSquaredI
+            };
+        }));
+    }
+    const ts = tRange.slice();
+    if (tS === tE) {
+        ts.push(tS);
+    }
+    infos.push(...ts.map(t => {
+        const p = eval_de_casteljau_dd_evalDeCasteljauDd(ps, [0, t]).map(v => v[0] + v[1]);
+        const d = squaredDistanceBetweenDd(p, x);
+        const dSquaredI = [d * (1 - gamma_eps), d * (1 + gamma_eps)];
         const t_ = t === 0 ? 1 : t;
         const curve_ = t === 0 ? curve.prev : curve;
         return {
             curve: curve_,
-            p: p_,
             t: t_,
-            d: (get_potential_closest_points_on_curve_certified_sqrt(dSquaredI[0]) + get_potential_closest_points_on_curve_certified_sqrt(dSquaredI[1])) / 2,
-            dSquaredI,
-            box
+            dSquaredI
         };
-    });
+    }));
     return infos;
 }
 
@@ -28964,6 +28814,7 @@ function cullByLooseBoundingBox(curvePieces, xO, xy2) {
 
 
 
+const { sqrt: get_bounding_box_tight_sqrt } = Math;
 /**
  * Returns a **non-certified**, **rotated**, **tight** bounding box of the given
  * bezier curve as four ordered points of a rotated rectangle (with each given
@@ -28983,12 +28834,12 @@ function get_bounding_box_tight_getBoundingBoxTight(ps) {
     const len = control_point_lines_length_controlPointLinesLength(ps);
     if (squaredDistanceBetween(ps[0], ps[ps.length - 1]) * 2 ** 8 < len * len) {
         const [xE_, yE_] = eval_de_casteljau_evalDeCasteljau(ps, 0.5);
-        const hypotenuse = Math.sqrt((xE_ - xS) * (xE_ - xS) + (yE_ - yS) * (yE_ - yS));
+        const hypotenuse = get_bounding_box_tight_sqrt((xE_ - xS) * (xE_ - xS) + (yE_ - yS) * (yE_ - yS));
         sinθ = (yE_ - yS) / hypotenuse;
         cosθ = (xE_ - xS) / hypotenuse;
     }
     else {
-        const hypotenuse = Math.sqrt((xE - xS) * (xE - xS) + (yE - yS) * (yE - yS));
+        const hypotenuse = get_bounding_box_tight_sqrt((xE - xS) * (xE - xS) + (yE - yS) * (yE - yS));
         sinθ = (yE - yS) / hypotenuse;
         cosθ = (xE - xS) / hypotenuse;
     }
@@ -29110,77 +28961,6 @@ function cullCurvePieces1(curvePieces, xO) {
 }
 
 
-;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/double-double/eval-de-casteljau-dd.js
-
-const double_double_eval_de_casteljau_dd_qmq = ddMultDd;
-const double_double_eval_de_casteljau_dd_qaq = ddAddDd;
-const double_double_eval_de_casteljau_dd_qdq = ddDiffDd;
-const double_double_eval_de_casteljau_dd_td = two_diff_twoDiff;
-const double_double_eval_de_casteljau_dd_qad = ddAddDouble;
-/**
- * Returns the resulting point (in double-double precision) of evaluating the
- * given bezier curve at the given parameter `t` (given as a double-double
- * precision floating point number).
- *
- * * uses [De Casteljau's algorithm](https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm)
- * with intermediate calculations done in double-double precision floating point
- * arithmetic.
- *
- * * to get an absolute error bound on the result call [[evalDeCasteljauError]]
- *
- * @param ps an order 1,2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param t the parameter value where the bezier should be evaluated (given in
- * double-double precision)
- *
- * @doc mdx
- **/
-function eval_de_casteljau_dd_evalDeCasteljauDd(ps, t) {
-    if (t[0] === 0 && t[1] === 0) {
-        return ps[0].map(c => [0, c]);
-    }
-    else if (t[0] === 0 && t[1] === 1) {
-        return ps[ps.length - 1].map(c => [0, c]);
-    }
-    if (ps.length === 4) {
-        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-        const a01 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x1, x0), t), x0);
-        const a11 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x2, x1), t), x1);
-        const a21 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x3, x2), t), x2);
-        const a02 = double_double_eval_de_casteljau_dd_qaq(a01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a11, a01), t));
-        const a12 = double_double_eval_de_casteljau_dd_qaq(a11, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a21, a11), t));
-        const x = double_double_eval_de_casteljau_dd_qaq(a02, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a12, a02), t));
-        const b01 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y1, y0), t), y0);
-        const b11 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y2, y1), t), y1);
-        const b21 = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y3, y2), t), y2);
-        const b02 = double_double_eval_de_casteljau_dd_qaq(b01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b11, b01), t));
-        const b12 = double_double_eval_de_casteljau_dd_qaq(b11, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b21, b11), t));
-        const y = double_double_eval_de_casteljau_dd_qaq(b02, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b12, b02), t));
-        return [x, y];
-    }
-    if (ps.length === 3) {
-        const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-        const a01 = double_double_eval_de_casteljau_dd_qaq([0, x0], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x1, x0), t));
-        const a11 = double_double_eval_de_casteljau_dd_qaq([0, x1], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x2, x1), t));
-        const x = double_double_eval_de_casteljau_dd_qaq(a01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(a11, a01), t));
-        const b01 = double_double_eval_de_casteljau_dd_qaq([0, y0], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y1, y0), t));
-        const b11 = double_double_eval_de_casteljau_dd_qaq([0, y1], double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y2, y1), t));
-        const y = double_double_eval_de_casteljau_dd_qaq(b01, double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_qdq(b11, b01), t));
-        return [x, y];
-    }
-    if (ps.length === 2) {
-        const [[x0, y0], [x1, y1]] = ps;
-        const x = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(x1, x0), t), x0);
-        const y = double_double_eval_de_casteljau_dd_qad(double_double_eval_de_casteljau_dd_qmq(double_double_eval_de_casteljau_dd_td(y1, y0), t), y0);
-        return [x, y];
-    }
-    if (ps.length === 1) {
-        const [x, y] = ps[0];
-        return [[0, x], [0, y]];
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-
-//# sourceMappingURL=eval-de-casteljau-dd.js.map
 ;// ./src/point-on-shape/to-p.ts
 
 /**
@@ -29209,12 +28989,12 @@ function toP(ps, t) {
  *
  * @internal
  */
-function getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePieces, x) {
+function getCloseBoundaryPointsCertified(curvePieces, x) {
     curvePieces = cullCurvePieces1(curvePieces, x);
     const pInfos = [];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
-        const _pInfos = getPotentialClosestPointsOnCurveCertified(maxCoordPowerOf2, curvePiece.curve, x, curvePiece.ts);
+        const _pInfos = getPotentialClosestPointsOnCurveCertified(curvePiece.curve, x, curvePiece.ts);
         pInfos.push(..._pInfos);
     }
     /** the minimum max interval value */
@@ -29244,7 +29024,8 @@ function getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePieces, x) {
 
 
 ;// ./src/find-3-prong/calc-initial-3-prong-center.ts
-
+// import { circumCenter } from 'flo-vector2d';
+ // TODO - testing - restore
 
 /**
  * Finds an initial 3-prong circle center point from which to iterate. The point
@@ -29257,16 +29038,16 @@ function getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePieces, x) {
  *
  * @internal
  */
-function calcInitial3ProngCenter(maxCoordPowerOf2, δ3s, curvePiece3s) {
+function calcInitial3ProngCenter(δ3s, curvePiece3s) {
     const circle = δ3s[0][0].pointOnShape.circle;
     const twoProngCircleCenter = circle.center;
-    const pos = getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePiece3s[1], twoProngCircleCenter)[0];
+    const pos = getCloseBoundaryPointsCertified(curvePiece3s[1], twoProngCircleCenter)[0];
     const meanPoints = [
         δ3s[0][0].pointOnShape.p,
         pos.p,
         δ3s[2][1].pointOnShape.p,
     ];
-    return circum_center_circumCenter(meanPoints);
+    return timeCircumCenter(meanPoints);
 }
 
 
@@ -29279,9 +29060,9 @@ function calcInitial3ProngCenter(maxCoordPowerOf2, δ3s, curvePiece3s) {
  *
  * @internal
  */
-function getClosestPoints(maxCoordPowerOf2, x, curvePiece3s) {
+function getClosestPoints(x, curvePiece3s) {
     return curvePiece3s.map(curvePieces => {
-        return getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePieces, x)[0];
+        return getCloseBoundaryPointsCertified(curvePieces, x)[0];
     });
 }
 
@@ -29298,7 +29079,9 @@ function scale(p, c) {
 
 //# sourceMappingURL=scale.js.map
 ;// ./src/find-3-prong/calc-better-x.ts
+// import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
 
+ // TODO - testing - restore
 
 /**
  * Find new `x` and `ps` that are better estimates of the 3-prong circle.
@@ -29314,7 +29097,7 @@ function scale(p, c) {
  *
  * @internal
  */
-function calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV) {
+function calcBetterX(curvePiece3s, x, vectorToZeroV) {
     const V = len(vectorToZeroV);
     let nu = 1;
     let better;
@@ -29325,9 +29108,9 @@ function calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV) {
     do {
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x);
-        newPoss = getClosestPoints(maxCoordPowerOf2, newX, curvePiece3s);
+        newPoss = curvePiece3s.map(curvePieces => getCloseBoundaryPointsCertified(curvePieces, x)[0]);
         // Point of zero V
-        const newCircleCenter = circum_center_circumCenter(newPoss.map(pos => pos.p));
+        const newCircleCenter = timeCircumCenter(newPoss.map(pos => pos.p));
         const newVectorToZeroV = from_to_fromTo(newX, newCircleCenter);
         newV = len(newVectorToZeroV);
         better = newV < V;
@@ -29339,7 +29122,9 @@ function calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV) {
 
 
 ;// ./src/find-3-prong/find-3-prong-for-delta3s.ts
+// import { fromTo, circumCenter as getCircumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
 
+ // TODO - testing - restore
 
 
 
@@ -29389,13 +29174,28 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     if (isSharp(δ3s[0][0])) {
         return undefined;
     }
+    // TODO
+    //----------------------------
+    // const l1 = curvePiece3s[0].length;
+    // const l2 = curvePiece3s[1].length;
+    // const l3 = curvePiece3s[2].length;
+    // if (l1 === 1 && l2 == 1 && l3 === 1) {
+    //     // console.log('aaa');
+    //     const A = curvePiece3s[0][0].curve.ps;
+    //     const B = curvePiece3s[1][0].curve.ps;
+    //     const C = curvePiece3s[2][0].curve.ps;
+    //     console.log(A.length, B.length, C.length);
+    // } else {
+    //     // console.log('bbb');
+    // }
+    //----------------------------
     let poss = undefined;
     let j = 0; // Safeguard for slow convergence
-    let x = calcInitial3ProngCenter(maxCoordPowerOf2, δ3s, curvePiece3s);
+    let x = calcInitial3ProngCenter(δ3s, curvePiece3s);
     let tolerance = Infinity;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
         j++;
-        poss = getClosestPoints(maxCoordPowerOf2, x, curvePiece3s);
+        poss = getClosestPoints(x, curvePiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
             // FUTURE - the code can be cleaned up and sped up a lot if we don't
             // use this function as is but instead use δs[0] and δs[2] as is
@@ -29403,7 +29203,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const circumCenter = circum_center_circumCenter(poss.map(x => x.p));
+        const circumCenter = timeCircumCenter(poss.map(x => x.p));
         const vectorToZeroV = from_to_fromTo(x, circumCenter);
         if (!Number.isFinite(vectorToZeroV[0]) || !Number.isFinite(vectorToZeroV[1])) {
             // FUTURE - the code can be cleaned up and sped up a lot if we don't
@@ -29412,7 +29212,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const upds = calcBetterX(maxCoordPowerOf2, curvePiece3s, x, vectorToZeroV);
+        const upds = calcBetterX(curvePiece3s, x, vectorToZeroV);
         x = upds.newX;
         poss = upds.newPoss;
         const V = len(vectorToZeroV); // The 'potential'
@@ -29474,7 +29274,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     //-------------------------------------------------------------------------
     const closestDs = [];
     for (let i = 0; i < curvePiecess.length; i++) {
-        const pos = getCloseBoundaryPointsCertified(maxCoordPowerOf2, curvePiecess[i], x)[0];
+        const pos = getCloseBoundaryPointsCertified(curvePiecess[i], x)[0];
         closestDs.push(distanceBetween(pos.p, x));
     }
     const closestD = find_3_prong_for_delta3s_min(...closestDs);
@@ -29712,7 +29512,8 @@ function getCpNodeToLeftOrSame(cpTree, pos, order, order2) {
     if (cps[0] === undefined || cps[1] === undefined) {
         // Smaller than all -> cptree.min() === cps[1].data OR
         // Larger  than all -> cptree.max() === cps[0].data
-        return cpTree.max(cpTree.root);
+        // return cpTree.max(cpTree.root);
+        return cpTree.getMaxNode()?.datum;
     }
     return cps[0].datum;
 }
@@ -29892,6 +29693,7 @@ function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
 
 
 
+let find_and_add_3_prong_ii = 0;
 /**
  * @internal
  * Finds and add a 3-prong MAT circle to the given shape.
@@ -29905,6 +29707,20 @@ function findAndAdd3Prong(meta, visitedCps) {
     for (const visitedCp of visitedCps) {
         δs.push([visitedCp, visitedCp.next]);
     }
+    // TODO - remove - debugging
+    //-------------------------
+    // ii++;
+    // if (ii === 13) {
+    //     //@ts-ignore
+    //     if (_debug_.temp === undefined) { _debug_.temp = []; }
+    //     //@ts-ignore
+    //     _debug_.temp.push(δs);
+    // }
+    // //@ts-ignore
+    // if (_debug_.temp2 === undefined) { _debug_.temp2 = []; }
+    // //@ts-ignore
+    // _debug_.temp2.push(δs.length);
+    //-------------------------
     const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
     const { circle, poss, δ3s } = threeProngInfo;
     const orders = [];
@@ -29954,7 +29770,6 @@ function findAndAdd3Prongs(meta, cpStart) {
         return { closeBysFor3Prong: undefined, addedCpNodes: [] };
     }
     const addedCpNodes = [];
-    let closeBysFor3Prong = undefined;
     do {
         if (cpStart === undefined) {
             continue;
@@ -29974,7 +29789,7 @@ function findAndAdd3Prongs(meta, cpStart) {
             }
         }
     } while (true);
-    return { closeBysFor3Prong, addedCpNodes };
+    return { closeBysFor3Prong: undefined, addedCpNodes };
 }
 
 
@@ -29982,9 +29797,6 @@ function findAndAdd3Prongs(meta, cpStart) {
 
 
 
-// import { LlRbTree } from 'flo-ll-rb-tree';
-// import { Loop } from 'flo-boolean';
-// import { drawFs } from 'flo-draw';
 
 /**
  * @internal
@@ -30018,7 +29830,7 @@ function findAndAdd3ProngsOnLoop(meta, cpStart) {
         }
         cpStart = getFirstItemOfSet(cpNodeGoodSet);
     }
-    return getFirstItemOfSet(cpNodeGoodSet);
+    return cpStart;
 }
 // From https://stackoverflow.com/a/73281564/2010061
 function getFirstItemOfSet(set) {
@@ -30027,23 +29839,13 @@ function getFirstItemOfSet(set) {
     }
     return undefined;
 }
-// Unfortunately O(n) until Javascript gives us the simple ability to
-// retrieve the first or last item of a set
-function getLastItemOfSet(set) {
-    let item;
-    for (item of set) { }
-    return item;
-}
-function replaceCloseBys(
-// cpTrees: Map<Loop,LlRbTree<CpNode>>,
-meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
-    for (const closeBy of [closeBysFor3Prong[0]]) {
-        getAllOnCircle(closeBy).forEach(v => {
-            cpNodeSet.delete(v);
-            cpNodeGoodSet.delete(v);
-        });
-        removeVertex(closeBy, meta);
-    }
+function replaceCloseBys(meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
+    const closeBy = closeBysFor3Prong[0];
+    getAllOnCircle(closeBy).forEach(v => {
+        cpNodeSet.delete(v);
+        cpNodeGoodSet.delete(v);
+    });
+    removeVertex(closeBy, meta);
 }
 
 
@@ -30066,7 +29868,7 @@ meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
 function createInitialCpTree(loops, sharpCornerss, lastInsertId) {
     const cpTrees = new Map();
     for (let k = 0; k < sharpCornerss.length; k++) {
-        const cpTree = new LlRbTree(cpNodeComparator, false);
+        const cpTree = new RbTree(cpNodeComparator);
         cpTrees.set(loops[k], cpTree);
         const sharpCorners = sharpCornerss[k];
         let cpNode1 = undefined;
@@ -30109,6 +29911,7 @@ const get_bounding_hull_getBoundingHull = grahamScan;
 
 //# sourceMappingURL=get-bounding-hull.js.map
 ;// ./src/find-mat/get-meta.ts
+// import { TriMapFs } from '../utils/tri-map.js';
 
 
 
@@ -30271,56 +30074,320 @@ function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO
 }
 
 
-;// ./node_modules/flo-poly/node/roots/deflate/deflate.js
+;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis/double/to-power-basis.js
 /**
- * Deflates the given polynomial *approximately* by removing a factor `(x - r)`,
- * where `r` is a root of the polynomial.
+ * Returns the power basis representation of a bezier curve of order cubic or
+ * less.
  *
- * * **non-exact:** the deflation is done in double precision - it is not
- * possible to deflate a root exactly in most cases and round-off will thus
- * occur - use only if approximate deflation is acceptable
+ * * intermediate calculations are done in double precision
+ * * returns the resulting power basis x and y coordinate polynomials from
+ * highest power to lowest, e.g. if `x(t) = at^2 + bt + c`
+ * and `y(t) = dt^2 + et + f` then  the result is returned
+ * as `[[a,b,c],[d,e,f]]`
  *
- * @param p a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
- * @param root a root of the polynomial.
- *
- * @example
- * ```typescript
- * // The polynomial x^3 - 5x^2 + 8x - 4 has a root at 1 and a double root at 2
- * deflate([1, -5, 8, -4], 2);  //=> [1, -3, 2]
- * deflate([1, -3, 2], 2);      //=> [1,-1]
- * deflate([1, -1], 1);         //=> [1]
- * ```
+ * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
+ * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
  *
  * @doc
  */
-function deflate(p, root) {
-    const d = p.length - 1;
-    const bs = [p[0]];
-    for (let i = 1; i < d; i++) {
-        bs.push(p[i] + root * bs[i - 1]);
+function to_power_basis_toPowerBasis(ps) {
+    if (ps.length === 4) {
+        return to_power_basis_toPowerBasis3(ps);
     }
-    return bs;
+    if (ps.length === 3) {
+        return to_power_basis_toPowerBasis2(ps);
+    }
+    if (ps.length === 2) {
+        return to_power_basis_toPowerBasis1(ps);
+    }
+    if (ps.length === 1) {
+        return to_power_basis_toPowerBasis0(ps);
+    }
+    throw new Error('The given bezier curve must be of order <= 3.');
+}
+/** @internal */
+function to_power_basis_toPowerBasis3(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    return [[
+            (x3 - x0) + 3 * (x1 - x2),
+            3 * ((x2 + x0) - 2 * x1),
+            3 * (x1 - x0),
+            x0
+        ], [
+            (y3 - y0) + 3 * (y1 - y2),
+            3 * ((y2 + y0) - 2 * y1),
+            3 * (y1 - y0),
+            y0
+        ]];
+}
+/** @internal */
+function to_power_basis_toPowerBasis2(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    return [[
+            (x2 + x0) - 2 * x1,
+            2 * (x1 - x0),
+            x0
+        ], [
+            (y2 + y0) - 2 * y1,
+            2 * (y1 - y0),
+            y0
+        ]];
+}
+/** @internal */
+function to_power_basis_toPowerBasis1(ps) {
+    const [[x0, y0], [x1, y1]] = ps;
+    return [[
+            x1 - x0,
+            x0,
+        ], [
+            y1 - y0,
+            y0,
+        ]];
+}
+/** @internal */
+function to_power_basis_toPowerBasis0(ps) {
+    const [[x0, y0]] = ps;
+    return [[x0], [y0]];
 }
 
-//# sourceMappingURL=deflate.js.map
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez2.js
+//# sourceMappingURL=to-power-basis.js.map
+;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez2-same-curve.js
+
 /**
- * Returns polynomial coefficients for ray parameter values `t`, bezier
- * parameter values `s` and medial points for points `q(t)` and b(s) (an order
- * 2 bezier curve) that satisfy the medial condition with respect to `p` and `ps`:
+ * Returns polynomial coefficients for the same-curve quadratic medial-point
+ * case, where `p = b(t)` on the same quadratic bezier `ps` and `v` is normal
+ * to the curve at that parameter `t`.
  *
- * Let `p` be a fixed point in the plane.
- * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.
- * Let `ps` be a quadratic bezier curve.
+ * The returned coefficients encode:
+ * * `A`, `B`: `E2(s, τ) = (s - t)^2⋅(A(s)⋅τ + B(s))`
+//  * * `C`, `D`: `E1(s, τ) = C(s)⋅τ + D(s)`
+ * * `H`: the reduced eliminant in `s`
  *
+ * Here `τ` is the ray parameter in `q(τ) = p + τ⋅v`.
+ * For a candidate root `s` of `H`, recover `τ` from
+ * `A(s)⋅τ + B(s) = 0`, i.e. `τ = -B(s)/A(s)` when `A(s) ≠ 0`.
+ *
+ * In this same-curve setup, the full eliminant has the form
+ * `H_full(s) = (s - t)^4*(l1*s + l0)`. This function returns only the reduced
+ * factor `H(s) = l1*s + l0` (the repeated `(s - t)^4` factor is omitted).
+ *
+ * @param t parameter on `ps` where `p = b(t)`
+ * @param v ray direction from `p`; assumed normal to `ps` at `t`
+ * @param ps order 2 bezier control points, e.g. `[[0,0],[1,1],[2,1]]`
+ */
+function getMedialPointCoeffsBez2_SameCurve(t, v, ps) {
+    // -----------------------------------------------------
+    // See get-medial-points.md for implementation details.
+    // -----------------------------------------------------
+    // Quadratic bezier in power basis: b(s) = a⋅s² + b⋅s + c
+    const [[ax, bx], [ay, by]] = to_power_basis_toPowerBasis2(ps);
+    const [vx, vy] = v;
+    // Same-curve assumption with explicit parameter `t`:
+    // p = b(t) => u0 = p - c = t*(a*t + b).
+    const g0x = ax * t + bx;
+    const g0y = ay * t + by;
+    // Reuse core quadratic-form terms to reduce repeated multiplications.
+    const br2 = ax * ax + ay * ay;
+    const ab = ax * bx + ay * by;
+    // const bb = bx*bx + by*by;
+    const ag = ax * g0x + ay * g0y;
+    // -----------------------------------------------------
+    // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
+    // => C(s)⋅t + D(s) = 0
+    const c1 = 2 * (vx * ax + vy * ay);
+    // v is normal at parameter t, so C(t) = v⋅w(t) = 0.
+    // Since C(s) = c1*s + c0, enforce c0 = -c1*t exactly.
+    // const c0 = -c1*t;
+    // const d3 = -2*br2;
+    // const d2 = -3*ab;
+    // const d1 = 2*t*ag - bb;
+    // p = b(t) => D(t) = u(t)⋅w(t) = 0.
+    // const d0 = -t*(t*(d3*t + d2) + d1);
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
+    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
+    //         => (s - t)^2⋅(A(s)⋅t + B(s)) = 0
+    // Return only the reduced constant A(s) = ar0.
+    const ar0 = -c1;
+    // Full B(s) factorizes as: B_full(s) = (s - t)^2*B_reduced(s).
+    // Return only B_reduced(s) = br2*s^2 + br1*s + br0.
+    const br1 = 2 * ag;
+    const br0 = g0x * g0x + g0y * g0y;
+    // -----------------------------------------------------
+    // Eliminate t from:
+    //   A(s)⋅t + B(s) = 0
+    //   C(s)⋅t + D(s) = 0
+    // by taking A(s)⋅D(s) - B(s)⋅C(s) = 0 (degree ≤ 5 in s)
+    // For this same-curve quadratic case:
+    //   d3 = -2*b4, d2 = -(3/2)*b3, a2 = -c1, a1 = -2*c0.
+    // Therefore H5 and H4 reduce to:
+    //   H5 = b4*c1
+    //   H4 = 3*b4*c0 + (1/2)*b3*c1
+    const H5 = br2 * c1;
+    // In the same-curve quadratic case the full eliminant has the form
+    // H_full(s) = (s - t)^4*(l1*s + l0).
+    // Match the leading coefficients of H_full(s):
+    //   H5 = l1
+    //   H4 = l0 - 4*t*l1
+    // const l1 = H5;
+    // const l0 = H4 + 4*t*l1;
+    // Using c0 = -c1*t and b3 = 2*ab, this simplifies to l0 = c1*(br2*t + ab).
+    const l0 = c1 * (br2 * t + ab);
+    return {
+        A: [ar0],
+        B: [br2, br1, br0],
+        // C: [c1, c0],
+        // D: [d3, d2, d1, d0],
+        H: [H5, l0]
+    };
+}
+
+//# sourceMappingURL=get-medial-point-coeffs-bez2-same-curve.js.map
+;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez3-same-curve.js
+
+/**
+ * Returns polynomial coefficients for the same-curve cubic medial-point case,
+ * where `p = b(t)` on the same cubic bezier `ps` and `v` is normal to the
+ * curve at that parameter `t`.
+ *
+ * The returned coefficients encode:
+ * * `A`, `B`: `E2(s, τ) = (s - t)^2⋅(A(s)⋅τ + B(s))`
+ * * `C`, `D`: `E1(s, τ) = (s - t)⋅(C(s)⋅τ + D(s))`
+ * * `H`: the reduced eliminant in `s`
+ *
+ * Here `τ` is the ray parameter in `q(τ) = p + τ⋅v`.
+ * For a candidate root `s` of `H`, recover `τ` from `A(s)⋅τ + B(s) = 0`, i.e.
+ * `τ = -B(s)/A(s)` when `A(s) ≠ 0`.
+ *
+ * In this same-curve setup, the full eliminant has the form
+ * `H_full(s) = (s - t)^4*H(s)`. This function returns only the reduced factor
+ * `H(s)` (the repeated `(s - t)^4` factor is omitted).
+ *
+ * @param t parameter on `ps` where `p = b(t)`
+ * @param v ray direction from `p`; assumed normal to `ps` at `t`
+ * @param ps order 3 bezier control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
+ */
+function getMedialPointCoeffsBez3_SameCurve(t, v, ps) {
+    // -----------------------------------------------------
+    // See get-medial-points.md for implementation details.
+    // -----------------------------------------------------
+    const [vx, vy] = v;
+    // Cubic bezier in power basis: b(s) = a*s^3 + b*s^2 + c*s + d
+    const [[ax, bx, cx], [ay, by, cy]] = to_power_basis_toPowerBasis3(ps);
+    // Shared dot products to reduce repeated multiplications.
+    const va = vx * ax + vy * ay;
+    const vb = vx * bx + vy * by;
+    const vc = vx * cx + vy * cy;
+    const aa = ax * ax + ay * ay;
+    const ab = ax * bx + ay * by;
+    const ac = ax * cx + ay * cy;
+    const bb = bx * bx + by * by;
+    const bc = bx * cx + by * cy;
+    const cc = cx * cx + cy * cy;
+    const vu0 = t * (t * (t * va + vb) + vc);
+    const u0a = t * (t * (t * aa + ab) + ac);
+    const u0b = t * (t * (t * ab + bb) + bc);
+    // -----------------------------------------------------
+    // E1(s,t): (u(s) + t*v) * b'(s) = 0
+    // => C(s)*t + D(s) = 0
+    const c2 = 3 * va;
+    const c1 = 2 * vb;
+    // v is normal at parameter t, so C(t) = 0.
+    // const c0 = -t*(c2*t + c1);
+    // Return reduced C such that C_full(s) = (s - t)*C(s).
+    const cr0 = c1 + t * c2;
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    const d5 = -3 * aa;
+    const d4 = -5 * ab;
+    const d3 = -4 * ac - 2 * bb;
+    const d2 = -3 * bc + 3 * u0a;
+    const d1 = -cc + 2 * u0b;
+    // p = b(t) => D(t) = u(t)⋅w(t) = 0.
+    // Return reduced D such that D_full(s) = (s - t)*D(s).
+    const dr4 = d5;
+    const dr3 = d4 + t * dr4;
+    const dr2 = d3 + t * dr3;
+    const dr1 = d2 + t * dr2;
+    const dr0 = d1 + t * dr1;
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // E2(s,t): |t*v|^2 - |u(s) + t*v|^2 = 0
+    //         => 2*(v*u(s))*t + |u(s)|^2 = 0
+    //         => A(s)*t + B(s) = 0
+    // A'(s) = -2*C(s) identically for bezier curves, hence:
+    const a3 = -2 * va;
+    const a2 = -2 * vb;
+    // const a1 = -2*vc;
+    // p = b(t) => A(t) = 0.
+    // const a0 = 2*vu0;
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    const b6 = aa;
+    const b5 = 2 * ab;
+    const b4 = 2 * ac + bb;
+    const b3 = 2 * bc - 2 * u0a;
+    const b2 = cc - 2 * u0b;
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // Return reduced A and B such that:
+    //   A_full(s) = (s - t)^2*A(s)
+    //   B_full(s) = (s - t)^2*B(s)
+    // where A is degree 1 and B is degree 4.
+    const ar1 = a3;
+    const ar0 = a2 + 2 * t * ar1;
+    const br4 = b6;
+    const br3 = b5 + 2 * t * br4;
+    const br2 = b4 + t * (2 * br3 - t * br4);
+    const br1 = b3 + t * (2 * br2 - t * br3);
+    const br0 = b2 + t * (2 * br1 - t * br2);
+    // -----------------------------------------------------
+    // Eliminate t from:
+    //   A(s)*t + B(s) = 0
+    //   C(s)*t + D(s) = 0
+    // by taking A(s)*D(s) - B(s)*C(s) = 0 (degree <= 8 in s)
+    // H8 = a3*d5 - b6*c2 = (-2*va)*(-3*aa) - aa*(3*va) = 3*va*aa.
+    const H8 = 3 * va * aa;
+    const H7 = 4 * (va * ab + vb * aa);
+    const H6 = va * b4 + 6 * vb * ab + 5 * vc * aa;
+    const H5 = 2 * vb * b4 + 8 * vc * ab - 6 * vu0 * aa;
+    const H4 = -va * b2 + vb * b3 + 3 * vc * b4 - 10 * vu0 * ab;
+    // Reduce H_full(s) by its guaranteed (s - t)^4 factor:
+    // H_full(s) = (s - t)^4*(q4*s^4 + q3*s^3 + q2*s^2 + q1*s + q0)
+    // Match the high-order coefficients of H_full(s) explicitly.
+    const q4 = H8;
+    const q3 = H7 + 4 * t * q4;
+    const q2 = H6 + t * (4 * q3 - 6 * t * q4);
+    const q1 = H5 + t * (4 * q2 + t * (-6 * q3 + 4 * t * q4));
+    const q0 = H4 + t * (4 * q1 + t * (-6 * q2 + t * (4 * q3 - t * q4)));
+    return {
+        A: [ar1, ar0],
+        B: [br4, br3, br2, br1, br0],
+        C: [c2, cr0],
+        D: [dr4, dr3, dr2, dr1, dr0],
+        H: [q4, q3, q2, q1, q0]
+    };
+}
+
+//# sourceMappingURL=get-medial-point-coeffs-bez3-same-curve.js.map
+;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez2.js
+
+/**
+ * Returns the polynomial coefficients for the ray parameter `t` and the
+ * curve parameter `s` that encode the medial condition for `q(t) = p + t⋅v`
+ * and a quadratic bezier curve `ps`.
+ *
+ * The returned coefficients describe the equations whose common solutions
+ * satisfy:
  * * `q(t)` is equidistant from `p` and the nearest point on `ps`
  * * that common distance is locally minimal among such candidates
  *
- * In other words, this function returns candidate ray parameters for the
- * sought medial point(s). Selecting physically valid solutions (if needed)
- * is done by the caller or by a later stage of this routine.
+ * More specifically, this function returns:
+ * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
+ * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
+ * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
+ *   candidate `s` values for medial points
  *
  * @param p base point
  * @param v ray direction from `p`
@@ -30333,105 +30400,57 @@ function getMedialPointCoeffsBez2(p, v, ps) {
     // -----------------------------------------------------
     const [px, py] = p;
     const [vx, vy] = v;
-    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    const [[x0, y0]] = ps;
     // Quadratic bezier in power basis: b(s) = a⋅s² + b⋅s + c
-    const ax = x0 - 2 * x1 + x2;
-    const ay = y0 - 2 * y1 + y2;
-    const bx = -2 * x0 + 2 * x1;
-    const by = -2 * y0 + 2 * y1;
-    const cx = x0;
-    const cy = y0;
+    const [[ax, bx], [ay, by]] = to_power_basis_toPowerBasis2(ps);
     // u(s) = p - b(s) = u2⋅s² + u1⋅s + u0
-    const u2x = -ax;
-    const u2y = -ay;
-    const u1x = -bx;
-    const u1y = -by;
-    const u0x = px - cx;
-    const u0y = py - cy;
-    // b'(s) = w(s) = w1⋅s + w0
-    const w1x = 2 * ax;
-    const w1y = 2 * ay;
-    const w0x = bx;
-    const w0y = by;
+    const u0x = px - x0;
+    const u0y = py - y0;
+    // Shared dot products.
+    const c1 = 2 * (vx * ax + vy * ay);
+    const c0 = vx * bx + vy * by;
+    const vu0 = vx * u0x + vy * u0y;
+    const b4 = ax * ax + ay * ay;
+    const ab = ax * bx + ay * by;
+    const bb = bx * bx + by * by;
+    const u0a = u0x * ax + u0y * ay;
+    const d0 = u0x * bx + u0y * by;
+    const b0 = u0x * u0x + u0y * u0y;
     // -----------------------------------------------------
     // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
     // => C(s)⋅t + D(s) = 0
-    const c1 = vx * w1x + vy * w1y;
-    const c0 = vx * w0x + vy * w0y;
     // -----------------------------------------------------
     // -----------------------------------------------------
-    const d3 = u2x * w1x + u2y * w1y;
-    const d2 = u2x * w0x + u2y * w0y + u1x * w1x + u1y * w1y;
-    const d1 = u1x * w0x + u1y * w0y + u0x * w1x + u0y * w1y;
-    const d0 = u0x * w0x + u0y * w0y;
+    const d3 = -2 * b4;
+    const d2 = -3 * ab;
+    const d1 = 2 * u0a - bb;
     // -----------------------------------------------------
     // -----------------------------------------------------
     // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
     //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
     //         => A(s)⋅t + B(s) = 0
-    const a2 = 2 * (vx * u2x + vy * u2y);
-    const a1 = 2 * (vx * u1x + vy * u1y);
-    const a0 = 2 * (vx * u0x + vy * u0y);
+    const a2 = -c1;
+    const a1 = -2 * c0;
+    const a0 = 2 * vu0;
     // -----------------------------------------------------
     // -----------------------------------------------------
-    const b4 = u2x * u2x + u2y * u2y;
-    const b3 = 2 * (u2x * u1x + u2y * u1y);
-    const b2 = 2 * (u2x * u0x + u2y * u0y) + (u1x * u1x + u1y * u1y);
-    const b1 = 2 * (u1x * u0x + u1y * u0y);
-    const b0 = u0x * u0x + u0y * u0y;
+    const b3 = 2 * ab;
+    const b2 = -d1;
+    const b1 = -2 * d0;
     // -----------------------------------------------------
-    // const A = [a2, a1, a0];          // degree 2 in s
-    // const B = [b4, b3, b2, b1, b0];  // degree 4 in s
-    // const C = [c1, c0];              // degree 1 in s
-    // const D = [d3, d2, d1, d0];      // degree 3 in s
     // Eliminate t from:
     //   A(s)⋅t + B(s) = 0
     //   C(s)⋅t + D(s) = 0
     // by taking A(s)⋅D(s) - B(s)⋅C(s) = 0 (degree ≤ 5 in s)
-    // Explicit expansion of AD = multiply(A, D), descending in s.
-    // const AD = [
-    //     a2*d3,
-    //     a2*d2 + a1*d3,
-    //     a2*d1 + a1*d2 + a0*d3,
-    //     a2*d0 + a1*d1 + a0*d2,
-    //     a1*d0 + a0*d1,
-    //     a0*d0
-    // ];
-    const AD5 = a2 * d3;
-    const AD4 = a2 * d2 + a1 * d3;
-    const AD3 = a2 * d1 + a1 * d2 + a0 * d3;
-    const AD2 = a2 * d0 + a1 * d1 + a0 * d2;
-    const AD1 = a1 * d0 + a0 * d1;
-    const AD0 = a0 * d0;
-    // Explicit expansion of BC = multiply(B, C), descending in s.
-    // const BC = [
-    //     b4*c1,
-    //     b4*c0 + b3*c1,
-    //     b3*c0 + b2*c1,
-    //     b2*c0 + b1*c1,
-    //     b1*c0 + b0*c1,
-    //     b0*c0
-    // ];
-    const BC5 = b4 * c1;
-    const BC4 = b4 * c0 + b3 * c1;
-    const BC3 = b3 * c0 + b2 * c1;
-    const BC2 = b2 * c0 + b1 * c1;
-    const BC1 = b1 * c0 + b0 * c1;
-    const BC0 = b0 * c0;
-    // const H = [
-    //     AD5 - BC5,
-    //     AD4 - BC4,
-    //     AD3 - BC3,
-    //     AD2 - BC2,
-    //     AD1 - BC1,
-    //     AD0 - BC0
-    // ];
-    const H5 = AD5 - BC5;
-    const H4 = AD4 - BC4;
-    const H3 = AD3 - BC3;
-    const H2 = AD2 - BC2;
-    const H1 = AD1 - BC1;
-    const H0 = AD0 - BC0;
+    // Using:
+    //   a2 = -c1, d3 = -2*b4, d1 = -b2, b1 = -2*d0
+    // we can compute H = A⋅D - B⋅C directly.
+    const H5 = b4 * c1;
+    const H4 = ab * c1 + 3 * b4 * c0;
+    const H3 = 4 * (ab * c0 - vu0 * b4);
+    const H2 = c1 * d0 + c0 * b2 - 6 * vu0 * ab;
+    const H1 = -2 * vu0 * b2 - c1 * b0;
+    const H0 = 2 * vu0 * d0 - c0 * b0;
     return {
         A: [a2, a1, a0],
         B: [b4, b3, b2, b1, b0],
@@ -30444,23 +30463,22 @@ function getMedialPointCoeffsBez2(p, v, ps) {
 //# sourceMappingURL=get-medial-point-coeffs-bez2.js.map
 ;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez1.js
 /**
- * Returns polynomial coefficients for ray parameter values `t`, bezier
- * parameter values `s` and medial points for points `q(t)` and b(s) (an order
- * 1 bezier curve) that satisfy the medial condition with respect to `p` and `ps`:
+ * Returns the polynomial coefficients used to recover ray parameter values `t`
+ * for a ray `q(t) = p + t⋅v` and an order-1 bezier curve `ps`.
  *
- * Let `p` be a fixed point in the plane.
- * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.
- * Let `ps` be an order 1 bezier curve (a line segment).
+ * The returned polynomials encode the medial-condition equations in `s` and
+ * `t`. For any valid solution, `t` is recovered by eliminating `s` and solving
+ * the resulting ray equation, or equivalently by using the linear form
+ * `A(s)⋅t + B(s) = 0`, which gives `t = -B(s)/A(s)`.
  *
- * * `q(t)` is equidistant from `p` and the nearest point on `ps`
- * * that common distance is locally minimal among such candidates
- *
- * In other words, this function returns candidate ray parameters for the
- * sought medial point(s). Selecting physically valid solutions (if needed)
- * is done by the caller or by a later stage of this routine.
+ * More specifically, the returned values represent:
+ * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
+ * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
+ * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
+ *   candidate `s` values for medial points
  *
  * @param p base point
- * @param v ray direction from `p`
+ * @param v ray direction vector starting from `p`
  * @param ps order 1 bezier control points, i.e. a line segment
  * given as an array of control points, e.g. `[[0,0],[2,1]]`
  */
@@ -30472,56 +30490,41 @@ function getMedialPointCoeffsBez1(p, v, ps) {
     const [vx, vy] = v;
     const [[x0, y0], [x1, y1]] = ps;
     // Linear bezier in power basis: b(s) = b*s + c
-    const bx = -x0 + x1;
-    const by = -y0 + y1;
-    const cx = x0;
-    const cy = y0;
+    // We can also use: `const [[bx,by], [cx,cy]] = toPowerBasis1(ps)`
+    const bx = x1 - x0;
+    const by = y1 - y0;
     // u(s) = p - b(s) = u1*s + u0
-    const u1x = -bx;
-    const u1y = -by;
-    const u0x = px - cx;
-    const u0y = py - cy;
+    const u0x = px - x0;
+    const u0y = py - y0;
     // b'(s) = w(s) = w0
-    const w0x = bx;
-    const w0y = by;
     // -----------------------------------------------------
     // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
     // => C(s)⋅t + D(s) = 0
-    const c0 = vx * w0x + vy * w0y;
+    const c0 = vx * bx + vy * by;
     // -----------------------------------------------------
     // -----------------------------------------------------
-    const d1 = u1x * w0x + u1y * w0y;
-    const d0 = u0x * w0x + u0y * w0y;
+    const d1 = -(bx * bx + by * by);
+    const d0 = bx * u0x + by * u0y;
     // -----------------------------------------------------
     // -----------------------------------------------------
     // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
     //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
     //         => A(s)⋅t + B(s) = 0
-    const a1 = 2 * (vx * u1x + vy * u1y);
+    const a1 = -2 * c0;
     const a0 = 2 * (vx * u0x + vy * u0y);
     // -----------------------------------------------------
     // -----------------------------------------------------
-    const b2 = u1x * u1x + u1y * u1y;
-    const b1 = 2 * (u1x * u0x + u1y * u0y);
+    const b2 = -d1;
+    const b1 = -2 * d0;
     const b0 = u0x * u0x + u0y * u0y;
     // -----------------------------------------------------
-    // const A = [a1, a0];      // degree 1 in s
-    // const B = [b2, b1, b0];  // degree 2 in s
-    // const C = [c0];          // degree 0 in s
-    // const D = [d1, d0];      // degree 1 in s
     // Eliminate t from:
     //   A(s)⋅t + B(s) = 0
     //   C(s)⋅t + D(s) = 0
     // by taking A(s)⋅D(s) - B(s)⋅C(s) = 0 (degree ≤ 2 in s)
-    const AD2 = a1 * d1;
-    const AD1 = a1 * d0 + a0 * d1;
-    const AD0 = a0 * d0;
-    const BC2 = b2 * c0;
-    const BC1 = b1 * c0;
-    const BC0 = b0 * c0;
-    const H2 = AD2 - BC2;
-    const H1 = AD1 - BC1;
-    const H0 = AD0 - BC0;
+    const H2 = b2 * c0;
+    const H1 = a0 * d1;
+    const H0 = a0 * d0 - b0 * c0;
     return {
         A: [a1, a0],
         B: [b2, b1, b0],
@@ -30533,21 +30536,22 @@ function getMedialPointCoeffsBez1(p, v, ps) {
 
 //# sourceMappingURL=get-medial-point-coeffs-bez1.js.map
 ;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez3.js
+
 /**
- * Returns polynomial coefficients for ray parameter values `t`, bezier
- * parameter values `s` and medial points for points `q(t)` and b(s) (an order
- * 3 bezier curve) that satisfy the medial condition with respect to `p` and `ps`:
+ * Returns the polynomial coefficients for the ray parameter `t` and the
+ * curve parameter `s` that encode the medial condition for `q(t) = p + t⋅v`
+ * and a cubic bezier curve `ps`.
  *
- * Let `p` be a fixed point in the plane.
- * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.
- * Let `ps` be a cubic bezier curve.
- *
+ * The returned coefficients describe the equations whose common solutions
+ * satisfy:
  * * `q(t)` is equidistant from `p` and the nearest point on `ps`
  * * that common distance is locally minimal among such candidates
  *
- * In other words, this function returns candidate ray parameters for the
- * sought medial point(s). Selecting physically valid solutions (if needed)
- * is done by the caller or by a later stage of this routine.
+ * More specifically, this function returns:
+ * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
+ * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
+ * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
+ *   candidate `s` values for medial points
  *
  * @param p base point
  * @param v ray direction from `p`
@@ -30560,100 +30564,73 @@ function getMedialPointCoeffsBez3(p, v, ps) {
     // -----------------------------------------------------
     const [px, py] = p;
     const [vx, vy] = v;
-    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
     // Cubic bezier in power basis: b(s) = a*s^3 + b*s^2 + c*s + d
-    const ax = -x0 + 3 * x1 - 3 * x2 + x3;
-    const ay = -y0 + 3 * y1 - 3 * y2 + y3;
-    const bx = 3 * x0 - 6 * x1 + 3 * x2;
-    const by = 3 * y0 - 6 * y1 + 3 * y2;
-    const cx = -3 * x0 + 3 * x1;
-    const cy = -3 * y0 + 3 * y1;
-    const dx = x0;
-    const dy = y0;
-    // u(s) = p - b(s) = u3*s^3 + u2*s^2 + u1*s + u0
-    const u3x = -ax;
-    const u3y = -ay;
-    const u2x = -bx;
-    const u2y = -by;
-    const u1x = -cx;
-    const u1y = -cy;
+    const [[ax, bx, cx, dx], [ay, by, cy, dy]] = to_power_basis_toPowerBasis3(ps);
     const u0x = px - dx;
     const u0y = py - dy;
-    // b'(s) = w(s) = w2*s^2 + w1*s + w0
-    const w2x = 3 * ax;
-    const w2y = 3 * ay;
-    const w1x = 2 * bx;
-    const w1y = 2 * by;
-    const w0x = cx;
-    const w0y = cy;
+    // Reuse dot products across A, B, C, D, and H.
+    const va = vx * ax + vy * ay;
+    const vb = vx * bx + vy * by;
+    const vc = vx * cx + vy * cy;
+    const vu0 = vx * u0x + vy * u0y;
+    const b6 = ax * ax + ay * ay;
+    const ab = ax * bx + ay * by;
+    const ac = ax * cx + ay * cy;
+    const bb = bx * bx + by * by;
+    const bc = bx * cx + by * cy;
+    const cc = cx * cx + cy * cy;
+    const au0 = ax * u0x + ay * u0y;
+    const bu0 = bx * u0x + by * u0y;
+    const d0 = cx * u0x + cy * u0y;
+    const b0 = u0x * u0x + u0y * u0y;
     // -----------------------------------------------------
     // E1(s,t): (u(s) + t*v) * b'(s) = 0
     // => C(s)*t + D(s) = 0
-    const c2 = vx * w2x + vy * w2y;
-    const c1 = vx * w1x + vy * w1y;
-    const c0 = vx * w0x + vy * w0y;
+    const c2 = 3 * va;
+    const c1 = 2 * vb;
+    const c0 = vc;
     // -----------------------------------------------------
     // -----------------------------------------------------
-    const d5 = u3x * w2x + u3y * w2y;
-    const d4 = u3x * w1x + u3y * w1y + u2x * w2x + u2y * w2y;
-    const d3 = u3x * w0x + u3y * w0y + u2x * w1x + u2y * w1y + u1x * w2x + u1y * w2y;
-    const d2 = u2x * w0x + u2y * w0y + u1x * w1x + u1y * w1y + u0x * w2x + u0y * w2y;
-    const d1 = u1x * w0x + u1y * w0y + u0x * w1x + u0y * w1y;
-    const d0 = u0x * w0x + u0y * w0y;
+    const d5 = -3 * b6;
+    const d4 = -5 * ab;
+    const d3 = -4 * ac - 2 * bb;
+    const d2 = 3 * au0 - 3 * bc;
+    const d1 = 2 * bu0 - cc;
     // -----------------------------------------------------
     // -----------------------------------------------------
     // E2(s,t): |t*v|^2 - |u(s) + t*v|^2 = 0
     //         => 2*(v*u(s))*t + |u(s)|^2 = 0
     //         => A(s)*t + B(s) = 0
-    const a3 = 2 * (vx * u3x + vy * u3y);
-    const a2 = 2 * (vx * u2x + vy * u2y);
-    const a1 = 2 * (vx * u1x + vy * u1y);
-    const a0 = 2 * (vx * u0x + vy * u0y);
+    const a3 = -2 * va;
+    const a2 = -2 * vb;
+    const a1 = -2 * vc;
+    const a0 = 2 * vu0;
     // -----------------------------------------------------
     // -----------------------------------------------------
-    const b6 = u3x * u3x + u3y * u3y;
-    const b5 = 2 * (u3x * u2x + u3y * u2y);
-    const b4 = 2 * (u3x * u1x + u3y * u1y) + (u2x * u2x + u2y * u2y);
-    const b3 = 2 * (u3x * u0x + u3y * u0y) + 2 * (u2x * u1x + u2y * u1y);
-    const b2 = 2 * (u2x * u0x + u2y * u0y) + (u1x * u1x + u1y * u1y);
-    const b1 = 2 * (u1x * u0x + u1y * u0y);
-    const b0 = u0x * u0x + u0y * u0y;
+    const b5 = 2 * ab;
+    const b4 = 2 * ac + bb;
+    const b3 = 2 * bc - 2 * au0;
+    const b2 = cc - 2 * bu0;
+    const b1 = -2 * d0;
     // -----------------------------------------------------
-    // const A = [a3, a2, a1, a0];                  // degree 3 in s
-    // const B = [b6, b5, b4, b3, b2, b1, b0];      // degree 6 in s
-    // const C = [c2, c1, c0];                      // degree 2 in s
-    // const D = [d5, d4, d3, d2, d1, d0];          // degree 5 in s
     // Eliminate t from:
     //   A(s)*t + B(s) = 0
     //   C(s)*t + D(s) = 0
-    // by taking A(s)*D(s) - B(s)*C(s) = 0 (degree <= 8 in s)
-    const AD8 = a3 * d5;
-    const AD7 = a3 * d4 + a2 * d5;
-    const AD6 = a3 * d3 + a2 * d4 + a1 * d5;
-    const AD5 = a3 * d2 + a2 * d3 + a1 * d4 + a0 * d5;
-    const AD4 = a3 * d1 + a2 * d2 + a1 * d3 + a0 * d4;
-    const AD3 = a3 * d0 + a2 * d1 + a1 * d2 + a0 * d3;
-    const AD2 = a2 * d0 + a1 * d1 + a0 * d2;
-    const AD1 = a1 * d0 + a0 * d1;
-    const AD0 = a0 * d0;
-    const BC8 = b6 * c2;
-    const BC7 = b6 * c1 + b5 * c2;
-    const BC6 = b6 * c0 + b5 * c1 + b4 * c2;
-    const BC5 = b5 * c0 + b4 * c1 + b3 * c2;
-    const BC4 = b4 * c0 + b3 * c1 + b2 * c2;
-    const BC3 = b3 * c0 + b2 * c1 + b1 * c2;
-    const BC2 = b2 * c0 + b1 * c1 + b0 * c2;
-    const BC1 = b1 * c0 + b0 * c1;
-    const BC0 = b0 * c0;
-    const H8 = AD8 - BC8;
-    const H7 = AD7 - BC7;
-    const H6 = AD6 - BC6;
-    const H5 = AD5 - BC5;
-    const H4 = AD4 - BC4;
-    const H3 = AD3 - BC3;
-    const H2 = AD2 - BC2;
-    const H1 = AD1 - BC1;
-    const H0 = AD0 - BC0;
+    // by taking H(s) = A(s)*D(s) - B(s)*C(s) = 0 (degree <= 8 in s).
+    // Using:
+    //   a2 = -c1, a1 = -2*c0,
+    //   d5 = -3*b6, d4 = -(5/2)*b5, d3 = -2*b4, d2 = -(3/2)*b3,
+    //   d1 = -b2, d0 = -(1/2)*b1,
+    // we can compute H directly with fewer operations.
+    const H8 = 3 * va * b6;
+    const H7 = 4 * (va * ab + vb * b6);
+    const H6 = va * b4 + 6 * vb * ab + 5 * vc * b6;
+    const H5 = 2 * vb * b4 + 8 * vc * ab - 6 * vu0 * b6;
+    const H4 = -va * b2 + vb * b3 + 3 * vc * b4 - 10 * vu0 * ab;
+    const H3 = -2 * va * b1 + 2 * vc * b3 - 4 * vu0 * b4;
+    const H2 = vc * b2 - vb * b1 - 3 * vu0 * b3 - 3 * va * b0;
+    const H1 = -2 * vu0 * b2 - 2 * vb * b0;
+    const H0 = -vu0 * b1 - vc * b0;
     return {
         A: [a3, a2, a1, a0],
         B: [b6, b5, b4, b3, b2, b1, b0],
@@ -30666,32 +30643,28 @@ function getMedialPointCoeffsBez3(p, v, ps) {
 //# sourceMappingURL=get-medial-point-coeffs-bez3.js.map
 ;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez0.js
 /**
- * Returns polynomial coefficients for ray parameter values `t`, bezier
- * parameter values `s` and medial points for points `q(t)` and b(s) (an order
- * 0 bezier curve) that satisfy the medial condition with respect to `p` and `ps`:
+ * Returns the coefficients `a0` and `b0` for the linear equation
+ * `a0⋅t + b0 = 0`, so the ray parameter can be recovered as `t = -b0/a0`.
+ * That parameter value makes `q(t) = p + t⋅v` equidistant from `p` and `P`.
  *
- * Let `p` be a fixed point in the plane.
- * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.
- * Let `ps` be an order 0 bezier curve (a single point).
+ * Let `p` be a fixed point in the plane.\
+ * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.\
+ * Let `P` be another point.\
  *
- * * `q(t)` is equidistant from `p` and the nearest point on `ps`
- * * that common distance is locally minimal among such candidates
- *
- * In other words, this function returns candidate ray parameters for the
- * sought medial point(s). Selecting physically valid solutions (if needed)
- * is done by the caller or by a later stage of this routine.
+ * In other words, this function returns the coefficients needed to solve for
+ * the ray parameter of the medial point on the ray.
  *
  * @param p base point
  * @param v ray direction from `p`
- * @param ps order 0 bezier control point, e.g. `[1,2]`
+ * @param P another "target" point, e.g. `[1,2]`
  */
-function getMedialPointCoeffsBez0(p, v, ps) {
+function getMedialPointCoeffsBez0(p, v, P) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
     const [px, py] = p;
     const [vx, vy] = v;
-    const [x0, y0] = ps;
+    const [x0, y0] = P;
     // Constant bezier in power basis: b(s) = c
     // u(s) = p - b(s) = u0
     const u0x = px - x0;
@@ -30701,17 +30674,7 @@ function getMedialPointCoeffsBez0(p, v, ps) {
     //         => A(s)⋅t + B(s) = 0
     const a0 = 2 * (vx * u0x + vy * u0y);
     const b0 = u0x * u0x + u0y * u0y;
-    // const A = [a0];  // degree 0 in s
-    // const B = [b0];  // degree 0 in s
-    return {
-        a0,
-        b0
-        // A: [a0],
-        // B: [b0],
-        // C: [],  // the zero, i.e. -1 degree polynomial
-        // D: [],  // ...
-        // H: []   // ...
-    };
+    return { a0, b0 };
 }
 
 //# sourceMappingURL=get-medial-point-coeffs-bez0.js.map
@@ -30775,23 +30738,21 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
     const { curve, ts: [tS, tE] } = curvePiece;
     const { ps } = curve;
     const { curve: touchedCurve, t, p: y } = yPos;
-    const shouldDeflate = angle === 0 && curve === touchedCurve;
+    const isTouched = curve === touchedCurve;
+    const shouldDeflate = angle === 0 && isTouched;
     const infos = [];
-    // let onePushed = false;
     let startPushed = false;
     let endPushed = false;
     let ss;
-    if (tS !== tE) {
-        const { A, B, C, D, H } = getMedialPointCoeffs(y, nnorm, ps);
-        const def = shouldDeflate ? deflate(H, t) : undefined;
-        const def2 = for1Prong && shouldDeflate
-            ? deflate(def, t)
-            : undefined;
-        const def3 = for1Prong && shouldDeflate
-            ? deflate(def2, t)
-            : undefined;
-        const pDd = def3 ?? def ?? H;
-        ss = roots(pDd, tS, tE) || [];
+    if (tS !== tE &&
+        !(shouldDeflate && ps.length === 2) &&
+        !(isTouched && ps.length === 3 && for1Prong)) {
+        const { A, B, H } = shouldDeflate
+            ? ps.length === 3
+                ? getMedialPointCoeffsBez2_SameCurve(t, nnorm, ps)
+                : getMedialPointCoeffsBez3_SameCurve(t, nnorm, ps)
+            : getMedialPointCoeffs(y, nnorm, ps);
+        ss = roots(H, tS, tE) || [];
         //-----------------------
         for (let i = 0; i < ss.length; i++) {
             const ri = ss[i];
@@ -30802,20 +30763,26 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
             if (sE < tS || sS > tE) {
                 continue;
             } // outside curve piece
-            const s = _s < 0 ? 0 : _s > 1 ? 1 : _s; // clip to [0,1]
+            if (sS < 0) {
+                continue;
+            } // outside curve piece
+            // clip to [0,1]
+            const s = sE > 1 ? 1 : _s;
             //-----------------------
             const AS = Horner(A, s);
             const BS = Horner(B, s);
-            const CS = Horner(C, s);
-            const DS = Horner(D, s);
+            // const CS = Horner(C, s);
+            // const DS = Horner(D, s);
             const _AS = get_closest_points_abs(AS);
-            const _CS = get_closest_points_abs(CS);
-            if (get_closest_points_max(_AS, _CS) < 2 ** -40) {
+            // const _CS = abs(CS);
+            // if (max(_AS, _CS) < 2**-40) { continue; }
+            if (get_closest_points_max(_AS) < 2 ** -40) {
                 continue;
             }
-            const w = _AS > _CS
-                ? -BS / AS
-                : -DS / CS; // alternative
+            // const w = _AS > _CS
+            //     ? -BS / AS
+            //     : -DS / CS;  // alternative
+            const w = -BS / AS;
             if (w <= 0) {
                 // If `w` is negative the circle radius is negative -> discard
                 continue;
@@ -31006,24 +30973,6 @@ function reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm) {
 }
 
 
-;// ./src/find-2-prong/squared-distance-between-dd.ts
-
-function squaredDistanceBetweenDd(x, y) {
-    const [x0, y0] = x;
-    const [x1, y1] = y;
-    // xd = x0 - x1;
-    // yd = y0 - y1;
-    // xx = xd**2;
-    // yy = yd**2;
-    // return xx + yy
-    const xd = two_diff_twoDiff(x0, x1);
-    const yd = two_diff_twoDiff(y0, y1);
-    const xx = ddMultDd(xd, xd);
-    const yy = ddMultDd(yd, yd);
-    return ddAddDd(xx, yy)[1];
-}
-
-
 ;// ./src/find-2-prong/cull-bezier-pieces.ts
 
 
@@ -31113,7 +31062,7 @@ function add1Prong(meta, radius, center, pos) {
 
 ;// ./src/find-2-prong/calc-seperation-tolerance.ts
 
-const calc_seperation_tolerance_tp = two_product_twoProduct;
+const calc_seperation_tolerance_tp = twoProduct;
 const calc_seperation_tolerance_qaq = ddAddDd;
 const calc_seperation_tolerance_qdq = ddDiffDd;
 const calc_seperation_tolerance_qmd = ddMultDouble1;
@@ -31235,7 +31184,7 @@ function dd_horner_ddHorner(p, x) {
 //# sourceMappingURL=dd-horner.js.map
 ;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis-1st-derivative/double-double/to-power-basis-1st-derivative-dd.js
 
-const to_power_basis_1st_derivative_dd_ts = basic_two_sum_twoSum; // error -> 0
+const to_power_basis_1st_derivative_dd_ts = two_sum_twoSum; // error -> 0
 const to_power_basis_1st_derivative_dd_td = two_diff_twoDiff; // error -> 0
 const to_power_basis_1st_derivative_dd_qmd = ddMultDouble2; // error -> 3*u²
 const to_power_basis_1st_derivative_dd_qaq = ddAddDd;
@@ -31428,7 +31377,8 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
     const { curve, p, t } = pos;
     const { ps } = curve;
     const minCurvature = 1 / maxOsculatingCircleRadius;
-    const k_ = -(ddCurvature(ps, t)[1]);
+    const kDd = ddCurvature(ps, t);
+    const k_ = -(kDd[0] + kDd[1]);
     const k = k_ < minCurvature ? minCurvature : k_;
     const [tx, ty] = norm;
     const l = get_osculating_circle_sqrt(tx * tx + ty * ty);
@@ -31559,10 +31509,6 @@ function find2Prong(meta) {
         // The lines below is an optimization.
         const xy2 = reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm);
         const xy = find_2_prong_sqrt(xy2);
-        if (for1Prong && rO < (1 - oneProngTolerance) * xy) {
-            add1Prong(meta, rO, xO, yPos);
-            return undefined;
-        }
         const l = find_2_prong_sqrt(nnorm[0] ** 2 + nnorm[1] ** 2);
         xO = [y[0] + nnorm[0] / l * xy, y[1] + nnorm[1] / l * xy];
         cullCurvePieces(curvePieces, xO, xy2);
@@ -31579,6 +31525,10 @@ function find2Prong(meta) {
             }
         }
         const { x, d, curve, s } = antipodalPoints[0];
+        if (for1Prong && rO < (1 - oneProngTolerance) * d) {
+            add1Prong(meta, rO, xO, yPos);
+            return undefined;
+        }
         const z = {
             curve, t: s, isSource: false,
             p: toP(curve.ps, s)
@@ -31592,7 +31542,7 @@ function find2Prong(meta) {
             }
             // The lines below eliminate cases where the found 2-prong is too
             // close to a one-prong
-            const squaredSeperationTolerance = find_2_prong_max(calcSeperationTolerance(rO, find_2_prong_sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeperationTolerance);
+            const squaredSeperationTolerance = find_2_prong_max(calcSeperationTolerance(rO, find_2_prong_sqrt(xz), (2 ** 2) * errorTolerance), minSquaredSeperationTolerance);
             if (yz <= squaredSeperationTolerance) {
                 return undefined;
             }
@@ -32187,10 +32137,10 @@ function is_collinear_isVertical(ps) {
 //# sourceMappingURL=is-collinear.js.map
 ;// ./node_modules/flo-bezier3/node/global-properties/classification/is-cubic-really-quad.js
 
-const classification_is_cubic_really_quad_tp = basic_two_product_twoProduct;
+
+const classification_is_cubic_really_quad_tp = two_product_twoProduct;
 const classification_is_cubic_really_quad_fes = fastExpansionSum;
-const classification_is_cubic_really_quad_u = Number.EPSILON / 2;
-const classification_is_cubic_really_quad_abs = Math.abs;
+const { abs: classification_is_cubic_really_quad_abs } = Math;
 /**
  * Returns `true` if the given cubic bezier curve is really a quadratic (or
  * lower order) curve in disguise, i.e. it can be represent by a quadratic
@@ -32221,7 +32171,7 @@ function is_cubic_really_quad_isCubicReallyQuad(ps) {
     const w = u2 - v2;
     const w_ = u2_ + v2_ + classification_is_cubic_really_quad_abs(w); // the absolute error in w
     // if w cannot possibly be zero, i.e. if the error is smaller than the value
-    if (classification_is_cubic_really_quad_abs(w) - classification_is_cubic_really_quad_u * w_ > 0) {
+    if (classification_is_cubic_really_quad_abs(w) - error_analysis_error_analysis_u * w_ > 0) {
         // fast filter 1 passed
         return false;
     }
@@ -32235,7 +32185,7 @@ function is_cubic_really_quad_isCubicReallyQuad(ps) {
     const r2_ = r1_ + classification_is_cubic_really_quad_abs(r2); // the absolute error in r2
     const s = q2 - r2;
     const s_ = q2_ + r2_ + classification_is_cubic_really_quad_abs(s); // the absolute error in s
-    if (classification_is_cubic_really_quad_abs(s) - classification_is_cubic_really_quad_u * s_ > 0) {
+    if (classification_is_cubic_really_quad_abs(s) - error_analysis_error_analysis_u * s_ > 0) {
         // fast filter 2 passed
         return false;
     }
@@ -32250,7 +32200,7 @@ function is_cubic_really_quad_isCubicReallyQuad(ps) {
 const degree_or_type_cubic_to_quadratic_epr = expansionProduct;
 const degree_or_type_cubic_to_quadratic_td = twoDiff;
 const degree_or_type_cubic_to_quadratic_sce = scaleExpansion;
-const degree_or_type_cubic_to_quadratic_ts = two_sum_twoSum;
+const degree_or_type_cubic_to_quadratic_ts = twoSum;
 /**
  * Returns a quadratic approximation to the given cubic bezier curve.
  *
@@ -32802,8 +32752,8 @@ function findMats(bezierLoops, options) {
         }
         mats.push(mat);
     }
-    // console.log(structuredClone(find3Prong.getStats()));
-    // find3Prong.resetStats();
+    // console.log(structuredClone(circumCenter.getStats()));
+    // circumCenter.resetStats();
     return mats;
 }
 /**
@@ -33688,7 +33638,7 @@ threeProng, classes, delay = 0, scaleFactor = 1) {
     const circle = scaleCircle(threeProng.pointOnShape.circle, 1);
     const { center: c, radius: r } = circle;
     // const poss = threeProng.poss;
-    const poss = CpNodeFs.getAllOnCircle(threeProng)
+    const poss = getAllOnCircle(threeProng)
         .map(cpNode => cpNode.pointOnShape);
     const { dot, circle: drawCircle, crossHair } = drawFs;
     const $circle = drawCircle(g, circle, 'blue thin2 nofill', delay);
@@ -33706,8 +33656,6 @@ threeProng, classes, delay = 0, scaleFactor = 1) {
 
 ;// ./src/debug/functions/draw-elem/draw-vertex.ts
 
-
-const { getAllOnCircle: draw_vertex_getAllOnCircle } = CpNodeFs;
 /** @internal */
 function vertex(g, cpNode, classes, delay = 0, scaleFactor = 1) {
     const circle = cpNode.pointOnShape.circle;
@@ -33754,7 +33702,6 @@ function tightBoundingBox(g, box, classes = 'thin5 pinker nofill', delay = 0, sc
 
 
 
-const { isTerminating: draw_mat_isTerminating } = CpNodeFs;
 const altClasses = [
     'thin10 blue nofill',
     'thin10 red nofill'
@@ -33765,13 +33712,13 @@ function drawMat(g, mat, classes_, delay = 0, scaleFactor = 1) {
     if (!cpNode) {
         return [];
     }
-    while (!draw_mat_isTerminating(cpNode)) {
+    while (!isTerminating(cpNode)) {
         cpNode = cpNode.next;
     }
     const $svgs = [];
     let i = 0;
     traverseEdges(cpNode, cpNode => {
-        if (draw_mat_isTerminating(cpNode)) {
+        if (isTerminating(cpNode)) {
             return;
         }
         const bezier = getMatCurveToNext(cpNode);
@@ -33822,7 +33769,7 @@ function drawLeaves(g, leaves, classes = 'thin10 deeppink nofill', delay = 0, sc
         const { circle } = cp;
         const { center: c, radius: r } = circle;
         const $center = [drawCirclePercent(g, c, 0.5, 'pinker thin5 nofill')];
-        const poss = CpNodeFs.getAllOnCircle(cpNode)
+        const poss = getAllOnCircle(cpNode)
             .map(cpNode => cpNode.pointOnShape);
         const $ls = [];
         const $cps = [];
@@ -33889,7 +33836,7 @@ function drawBranch(g, branch, classes = 'thin5 purple nofill', delay = 0, scale
 function drawCpNode(g, cpNode, classes = 'blue thin2 nofill', delay = 0, scaleFactor = 1) {
     const circle = scaleCircle(cpNode.pointOnShape.circle, 1);
     const { center: c, radius: r } = circle;
-    const poss = CpNodeFs.getAllOnCircle(cpNode)
+    const poss = getAllOnCircle(cpNode)
         .map(cpNode => cpNode.pointOnShape);
     const { dot, circle: drawCircle, crossHair } = drawFs;
     const $circle = drawCircle(g, circle, classes, delay);
@@ -34342,4 +34289,5 @@ function getHoleCloserNext(pairs, holeCloser) {
 
 
 
-export { CpNodeFs, beziersToSvgPathStr, clone, cpNodeComparator, createInitialCpTree, debugElemNames, drawBeziersAsSinglePath, drawBranch, drawElemFs, drawElemFsDetailed, drawMat, emptyDebugElems, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getAllOnCircle, getAllOnLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getPartialMeta, getPathsFromStr, getPointToCpNode, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, removeVertex, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, traverseCp, traverseEdges, traverseVertices, trimMat };
+
+export { CpNodeFs, beziersToSvgPathStr, clone, cpNodeComparator, createInitialCpTree, debugElemNames, drawBeziersAsSinglePath, drawBranch, drawElemFs, drawElemFsDetailed, drawMat, emptyDebugElems, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getAllOnCircle, getAllOnLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getPartialMeta, getPathsFromStr, getPointToCpNode, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, removeVertex, scaleCircle, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, traverseCp, traverseEdges, traverseVertices, trimMat };

@@ -6,5 +6,5 @@ import type { CurvePiece } from '../mat/curve-piece.js';
  *
  * @internal
  */
-declare function getClosestPoints(maxCoordPowerOf2: number, x: number[], curvePiece3s: CurvePiece[][]): import("../point-on-shape/point-on-shape.js").PrePointOnShape[];
+declare function getClosestPoints(x: number[], curvePiece3s: CurvePiece[][]): import("../point-on-shape/point-on-shape.js").PrePointOnShape[];
 export { getClosestPoints };

@@ -1,6 +1,6 @@
 import { drawFs } from 'flo-draw';
 import { scaleCircle } from '../../../geometry/circle.js';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
+import { getAllOnCircle } from '../../../cp-node/fs/get-all-on-circle.js';
 /** @internal */
 function drawThreeProng(g, 
 // threeProng: ThreeProngForDebugging,
@@ -8,7 +8,7 @@ threeProng, classes, delay = 0, scaleFactor = 1) {
     const circle = scaleCircle(threeProng.pointOnShape.circle, 1);
     const { center: c, radius: r } = circle;
     // const poss = threeProng.poss;
-    const poss = CpNodeFs.getAllOnCircle(threeProng)
+    const poss = getAllOnCircle(threeProng)
         .map(cpNode => cpNode.pointOnShape);
     const { dot, circle: drawCircle, crossHair } = drawFs;
     const $circle = drawCircle(g, circle, 'blue thin2 nofill', delay);

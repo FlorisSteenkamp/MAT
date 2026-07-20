@@ -80,3 +80,4 @@ export { getHoleClosers } from './cp-node/fs/get-hole-closers.js';
 export { getInitialDegAngleBetweenMatCurves } from './cp-node/fs/get-angle-between-mat-curves.js';
 export { getAllVertices } from './cp-node/fs/get-all-vertices.js';
 export { isTrivial } from './cp-node/fs/is-trivial.js';
+export { scaleCircle } from './geometry/circle.js';

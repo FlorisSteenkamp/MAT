@@ -6,6 +6,8 @@ import { toScaleAxis } from '../sat/to-scale-axis.js';
 import { clipOptions } from './clip-options.js';
 import { findMat  } from './find-mat.js';
 import { defaultMatOptions, MatOptions } from './mat-options.js';
+import { circumCenter } from '../find-3-prong/timed-cc.js';
+
 
 const { ceil, log2 } = Math;
 
@@ -74,8 +76,8 @@ function findMats(
         mats.push(mat);
     }
     
-    // console.log(structuredClone(find3Prong.getStats()));
-    // find3Prong.resetStats();
+    // console.log(structuredClone(circumCenter.getStats()));
+    // circumCenter.resetStats();
 
     return mats;
 }

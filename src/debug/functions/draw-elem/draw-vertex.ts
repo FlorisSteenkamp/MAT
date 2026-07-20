@@ -1,8 +1,5 @@
+import type { CpNode } from '../../../cp-node/cp-node.js';
 import { drawFs } from 'flo-draw';
-import { CpNode } from '../../../cp-node/cp-node.js';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
-
-const { getAllOnCircle } = CpNodeFs;
 
 
 /** @internal */

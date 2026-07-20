@@ -14,7 +14,7 @@ import type { CurvePiece } from '../mat/curve-piece.js';
  *
  * @internal
  */
-declare function calcBetterX(maxCoordPowerOf2: number, curvePiece3s: CurvePiece[][], x: number[], vectorToZeroV: number[]): {
+declare function calcBetterX(curvePiece3s: CurvePiece[][], x: number[], vectorToZeroV: number[]): {
     newX: number[];
     newV: number;
     newPoss: PrePointOnShape[];

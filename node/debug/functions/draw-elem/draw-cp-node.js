@@ -1,11 +1,11 @@
 import { drawFs } from 'flo-draw';
 import { scaleCircle } from '../../../geometry/circle.js';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
+import { getAllOnCircle } from '../../../cp-node/fs/get-all-on-circle.js';
 /** @internal */
 function drawCpNode(g, cpNode, classes = 'blue thin2 nofill', delay = 0, scaleFactor = 1) {
     const circle = scaleCircle(cpNode.pointOnShape.circle, 1);
     const { center: c, radius: r } = circle;
-    const poss = CpNodeFs.getAllOnCircle(cpNode)
+    const poss = getAllOnCircle(cpNode)
         .map(cpNode => cpNode.pointOnShape);
     const { dot, circle: drawCircle, crossHair } = drawFs;
     const $circle = drawCircle(g, circle, classes, delay);

@@ -1,6 +1,4 @@
 import { drawFs } from 'flo-draw';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
-const { getAllOnCircle } = CpNodeFs;
 /** @internal */
 function vertex(g, cpNode, classes, delay = 0, scaleFactor = 1) {
     const circle = cpNode.pointOnShape.circle;

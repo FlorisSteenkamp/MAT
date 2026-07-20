@@ -1,11 +1,8 @@
+import type { Mat } from '../../../mat/mat.js';
 import { drawFs } from 'flo-draw';
-import { Mat } from '../../../mat/mat.js';
 import { traverseEdges } from '../../../cp-node/fs/traverse-edges.js';
 import { getMatCurveToNext } from '../../../cp-node/fs/get-mat-curve-to-next.js';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
-
-
-const { isTerminating } = CpNodeFs;
+import { isTerminating } from '../../../cp-node/fs/is-terminating.js';
 
 
 const altClasses = [

@@ -1,7 +1,7 @@
-import { CpNode } from '../cp-node/cp-node.js';
-import { Loop } from 'flo-boolean';
-import { MatOptions } from './mat-options.js';
-import { MatMeta } from '../mat/mat-meta.js';
+import type { CpNode } from '../cp-node/cp-node.js';
+import type { Loop } from 'flo-boolean';
+import type { MatOptions } from './mat-options.js';
+import type { MatMeta } from '../mat/mat-meta.js';
 /**
  * @internal
  * Find the MAT of the given loops.

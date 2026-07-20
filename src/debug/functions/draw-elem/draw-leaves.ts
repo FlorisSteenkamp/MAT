@@ -1,7 +1,7 @@
+import type { CpNode } from '../../../cp-node/cp-node.js';
 import { drawFs } from 'flo-draw';
-import { CpNodeFs } from '../../../cp-node/cp-node-fs.js';
-import { CpNode } from '../../../cp-node/cp-node.js';
 import { drawCirclePercent } from './draw-circle-percent.js';
+import { getAllOnCircle } from '../../../cp-node/fs/get-all-on-circle.js';
 
 
 /** @internal */
@@ -22,7 +22,7 @@ function drawLeaves(
 
         const $center = [drawCirclePercent(g, c, 0.5, 'pinker thin5 nofill')];
 
-        const poss = CpNodeFs.getAllOnCircle(cpNode)
+        const poss = getAllOnCircle(cpNode)
             .map(cpNode => cpNode.pointOnShape);
 
         const $ls: SVGElement[] = [];

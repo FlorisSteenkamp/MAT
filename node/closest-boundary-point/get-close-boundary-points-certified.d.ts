@@ -10,5 +10,5 @@ import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
  *
  * @internal
  */
-declare function getCloseBoundaryPointsCertified(maxCoordPowerOf2: number, curvePieces: CurvePiece[], x: number[]): PrePointOnShape[];
+declare function getCloseBoundaryPointsCertified(curvePieces: CurvePiece[], x: number[]): PrePointOnShape[];
 export { getCloseBoundaryPointsCertified };
