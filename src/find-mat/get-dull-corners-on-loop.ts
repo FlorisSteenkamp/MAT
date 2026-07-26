@@ -19,12 +19,13 @@ function getDullCornersOnLoop(
             }
 
             const { next, ps } = curve;
-            
+
             if (getCorner(ps, next.ps).isQuiteDull) {
                 const p = ps[ps.length - 1];
+                const pDd = [[0,p[0]], [0,p[1]]];
 
-                dullCorners.push({ curve, t: 1, isSource: true, p });
-                dullCorners.push({ curve: next, t: 0, isSource: true, p });
+                dullCorners.push({ curve, t: 1, isSource: true, p, pDd });
+                dullCorners.push({ curve: next, t: 0, isSource: true, p, pDd });
             }
         }
 

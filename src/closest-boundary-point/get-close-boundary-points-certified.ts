@@ -56,10 +56,11 @@ function getCloseBoundaryPointsCertified(
     return closestPointInfos.map(info => {
         const { curve, t } = info;
         const { ps } = curve;
-        const p = toP(ps, t);
+        const pDd = toP(ps, t);
+        const p = pDd.map(c => c[0] + c[1])
         
         return {
-            p, t, curve, isSource: false
+            curve, t, isSource: false, p, pDd
         };
     });
 }

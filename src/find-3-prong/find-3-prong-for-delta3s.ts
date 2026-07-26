@@ -2,9 +2,7 @@ import type { CpNode } from '../cp-node/cp-node.js';
 import type { CurvePiece } from '../mat/curve-piece.js';
 import type { ThreeProngInfo } from './three-prong-info.js';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
-// import { fromTo, circumCenter as getCircumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
-import { fromTo, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
-import { circumCenter as getCircumCenter } from './timed-cc.js';  // TODO - testing - restore
+import { circumCenter as getCircumCenter, fromTo, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
@@ -69,7 +67,6 @@ function find3ProngForDelta3s(
 
     if (isSharp(δ3s[0][0])) { return undefined; }
 
-    // TODO
     //----------------------------
     // const l1 = curvePiece3s[0].length;
     // const l2 = curvePiece3s[1].length;

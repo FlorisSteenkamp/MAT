@@ -28,6 +28,9 @@ interface PrePointOnShape {
 
     /** The (cached) point on the shape boundary. */
     readonly p: number[];
+
+    /** The (cached) double-double precision point on the shape boundary. */
+    readonly pDd: number[][];
 }
 
 

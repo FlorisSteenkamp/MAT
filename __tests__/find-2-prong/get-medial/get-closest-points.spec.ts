@@ -11,9 +11,11 @@ import { translate } from 'flo-vector2d';
 test('getClosestPoints', function() {
     const maxPowerOf2 = 11;
     const nnorm = [20.25, 239];
+    const nnormDd = [[0,20.25], [0,239]];
     const ps = [[610, -20], [484, -20], [384, 20.5]];
     const t = 0.25;
     const p = [548.625, -17.46875];
+    const pDd = [[0,548.625], [0,-17.46875]];
     const xO = translate(p, nnorm);//?
     const curve: Curve = {
         idx: 0,
@@ -25,7 +27,8 @@ test('getClosestPoints', function() {
 
     const yPos: PrePointOnShape = {
         isSource: true,
-        p, t, curve
+        p, t, curve,
+        pDd
     };
     const for1Prong = false;
     const angle = 0;
@@ -41,7 +44,7 @@ test('getClosestPoints', function() {
     const def = deflate(H,t);//?
     // def = [47279295, -157379071.5, 100304568, -23598664.03125, 1904993.75390625]
 
-    const r = getClosestPoint(maxPowerOf2, nnorm, yPos, for1Prong, angle, curvePiece);
+    const r = getClosestPoint(maxPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece);
 
     r;//?
 

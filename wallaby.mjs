@@ -1,17 +1,17 @@
 
 export default function(wallaby) {
     return {
+        autoDetect: ['jest'],
+
         files: [
             'package.json',
             'src/**/*.ts',
-            'test/helpers/*.ts'
+            '__tests__/helpers/*.ts'
         ],
 
         tests: [
-            'test/**/*.spec.ts'
+            '__tests__/**/*.spec.ts'
         ],
-
-        testFramework: 'mocha',
 
         compilers: {
             "**/*.+(t)s?": wallaby.compilers.typeScript()

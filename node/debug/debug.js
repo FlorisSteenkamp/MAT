@@ -1,4 +1,3 @@
-import { drawElemFs } from './functions/draw-elem/draw-elem.js';
 function enableDebugForMat(debugOn) {
     if (!debugOn) {
         window._debug_ = undefined;
@@ -8,29 +7,7 @@ function enableDebugForMat(debugOn) {
     debug = {
         ...debug,
         elems: {
-            ...debug?.elems,
-            // @ts-ignore
-            oneProng: [],
-            // oneProngAtDullCorner : [],
-            twoProng: [],
-            // twoProng_regular     : [],
-            // twoProng_failed      : [],
-            // twoProng_notAdded    : [],
-            // twoProng_deleted     : [],
-            // twoProng_holeClosing : [],
-            looseBoundingBox: [],
-            tightBoundingBox: [],
-            // sharpCorner          : [],
-            // dullCorner           : [],
-            vertex: [],
-            threeProng: [],
-            boundingHull: [],
-            mat: [],
-            // sat                  : [],
-            cpNode: [],
-            maxVertex: [],
-            leaves: [],
-            // culls                : [],
+            ...debug?.elems
         },
         timing: {
             ...debug?.timing,
@@ -38,14 +15,10 @@ function enableDebugForMat(debugOn) {
             oneAnd2Prongs: 0,
             threeProngs: 0,
             sats: 0,
-            simplifyMat: 0,
+            simplifyMat: 0
         },
         fs: {
-            ...debug?.fs,
-            drawElem: {
-                ...debug?.fs?.drawElem,
-                ...drawElemFs
-            }
+            ...debug?.fs
         },
         directives: {
             //...debug?.directives,

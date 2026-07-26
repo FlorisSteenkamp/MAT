@@ -14,5 +14,5 @@ import type { AntipodalPoint } from './antipodal-point.js';
  *
  * @internal
  */
-declare function getAntipodalPoints(maxCoordPowerOf2: number, nnorm: number[], yPos: PrePointOnShape, for1Prong: boolean, angle: number, curvePieces: CurvePiece[]): AntipodalPoint[];
+declare function getAntipodalPoints(maxCoordPowerOf2: number, nnorm: number[], nnormDd: number[][], yPos: PrePointOnShape, for1Prong: boolean, angle: number, curvePieces: CurvePiece[]): AntipodalPoint[];
 export { getAntipodalPoints };

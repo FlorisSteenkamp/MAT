@@ -1,6 +1,6 @@
 import type { CpNode } from '../cp-node.js';
 import { 
-    fromTo, dot, cross, rotate90Degrees, interpolate, translate,
+    fromTo as fromToVec, dot, cross, rotate90Degrees, interpolate, translate,
     lineLineIntersection
 } from 'flo-vector2d';
 import { getEdgeDirection } from './get-edge-direction.js';
@@ -32,14 +32,14 @@ function getMatCurveBetween(
 
     const mid = lineLineIntersection(fromL, toL);
 
-    const c = fromTo(fromCc,toCc);
+    const c = fromToVec(fromCc,toCc);
 
     let twisted: boolean;
     if (!mid) {
         twisted = true;
     } else {
-        const a = fromTo(fromCc, mid);
-        const b = fromTo(toCc,   mid);
+        const a = fromToVec(fromCc, mid);
+        const b = fromToVec(toCc,   mid);
         
         twisted = dot(a,c) < 0 || dot(b,c) > 0;
     }
@@ -49,8 +49,8 @@ function getMatCurveBetween(
     } 
         
     const r = rotate90Degrees(c);
-    const w1 = fromTo(fromL[0], fromL[1]); // This is a unit vector
-    const w2 = fromTo(toL[0],  toL[1]);  // This is a unit vector
+    const w1 = fromToVec(fromL[0], fromL[1]); // This is a unit vector
+    const w2 = fromToVec(toL[0],  toL[1]);  // This is a unit vector
 
     const d1 = abs(cross(c, w1)) / (3*3); 
     const d2 = abs(cross(c, w2)) / (3*3); 

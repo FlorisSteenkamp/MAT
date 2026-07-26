@@ -1,8 +1,8 @@
 import type { CpNode } from "../cp-node/cp-node.js";
 import type { Mat } from '../mat/mat.js';
 import { isOnSameLoop } from "../cp-node/fs/is-on-same-loop.js";
-import { isFullyTerminating } from "./is-fully-terminating.js";
-import { getAllOnLoop_ByLoop } from "./get-all-on-loop-by-loop.js";
+import { getAllOnLoop_ByLoop } from "../cp-node/fs/get-all-on-loop-by-loop.js";
+import { isFullyTerminating } from "../cp-node/fs/is-fully-terminating.js";
 
 
 function getCpNodessForSat(

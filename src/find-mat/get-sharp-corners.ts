@@ -20,7 +20,11 @@ function getSharpCornersOnLoop(
             }
             
             if (getCorner(curve.ps, curve.next.ps).isQuiteSharp) {
-                sharpCorners.push({ curve, t: 1, isSource: true, p: toP(curve.ps, 1) });
+                const { ps } = curve;
+
+                const p = ps[ps.length - 1];
+                const pDd = [[0,p[0]],[0,p[1]]];
+                sharpCorners.push({ curve, t: 1, isSource: true, p, pDd });
             }
         }
 

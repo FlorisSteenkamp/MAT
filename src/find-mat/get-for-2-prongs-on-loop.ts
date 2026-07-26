@@ -36,7 +36,12 @@ function getFor2ProngsOnLoop(
             ts = ts.filter(t => t !== 0 && t !== 1);
 
             const byCurvatureAndLength: PrePointOnShape[] = 
-                ts.map(t => ({ curve, t, isSource: true, p: toP(curve.ps, t) }));
+                ts.map(t => {
+                    const pDd = toP(curve.ps, t);
+                    const p = pDd.map(c => c[0] + c[1]);
+
+                    return { curve, t, isSource: true, p, pDd };
+                });
 
             for2Prongs.push(...byCurvatureAndLength);
         }

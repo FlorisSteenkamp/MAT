@@ -1,4 +1,4 @@
-import { isFullyTerminating } from './is-fully-terminating.js';
+import { isFullyTerminating } from '../cp-node/fs/is-fully-terminating.js';
 /**
  * In-place removes trivial 3-prongs from the SAT graph; just to simplify
  * subsequent processing.

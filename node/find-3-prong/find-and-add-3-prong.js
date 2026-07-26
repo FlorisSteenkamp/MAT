@@ -17,20 +17,6 @@ function findAndAdd3Prong(meta, visitedCps) {
     for (const visitedCp of visitedCps) {
         δs.push([visitedCp, visitedCp.next]);
     }
-    // TODO - remove - debugging
-    //-------------------------
-    // ii++;
-    // if (ii === 13) {
-    //     //@ts-ignore
-    //     if (_debug_.temp === undefined) { _debug_.temp = []; }
-    //     //@ts-ignore
-    //     _debug_.temp.push(δs);
-    // }
-    // //@ts-ignore
-    // if (_debug_.temp2 === undefined) { _debug_.temp2 = []; }
-    // //@ts-ignore
-    // _debug_.temp2.push(δs.length);
-    //-------------------------
     const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
     const { circle, poss, δ3s } = threeProngInfo;
     const orders = [];

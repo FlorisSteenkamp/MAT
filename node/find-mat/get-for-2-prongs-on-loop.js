@@ -22,7 +22,11 @@ function getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength) {
             ts = ts.length === 2 ? [0.5] : ts;
             ts.push(...getInflections(ps));
             ts = ts.filter(t => t !== 0 && t !== 1);
-            const byCurvatureAndLength = ts.map(t => ({ curve, t, isSource: true, p: toP(curve.ps, t) }));
+            const byCurvatureAndLength = ts.map(t => {
+                const pDd = toP(curve.ps, t);
+                const p = pDd.map(c => c[0] + c[1]);
+                return { curve, t, isSource: true, p, pDd };
+            });
             for2Prongs.push(...byCurvatureAndLength);
         }
         return for2Prongs;

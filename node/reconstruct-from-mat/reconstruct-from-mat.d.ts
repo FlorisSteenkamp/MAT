@@ -1,4 +1,10 @@
-import type { BezierPiece } from 'flo-bezier3';
 import type { Mat } from '../mat/mat.js';
-declare function reconstructFromMats(mats: Mat[]): BezierPiece[];
+/**
+ * * used for debugging only
+ *
+ * @param mats
+ *
+ * @internal
+ */
+declare function reconstructFromMats(mats: Mat[], minNumAccurateBits?: number | undefined): number[][][][][];
 export { reconstructFromMats };

@@ -19,7 +19,8 @@ import { getClosestPoint } from './get-closest-points.js';
  */
 function getAntipodalPoints(
         maxCoordPowerOf2: number,
-        nnorm: number[], 
+        nnorm: number[],
+        nnormDd: number[][],
         yPos: PrePointOnShape,
         for1Prong: boolean,
         angle: number,
@@ -30,7 +31,7 @@ function getAntipodalPoints(
         const curvePiece = curvePieces[i];
 
         const pInfos = getClosestPoint(
-            maxCoordPowerOf2, nnorm, yPos, for1Prong, angle,
+            maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle,
             curvePiece
         );
 

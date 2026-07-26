@@ -5,5 +5,5 @@
  * @param ps
  * @param t
  */
-declare function toP(ps: number[][], t: number): number[];
+declare function toP(ps: number[][], t: number): number[][];
 export { toP };

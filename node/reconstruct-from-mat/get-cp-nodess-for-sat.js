@@ -1,6 +1,6 @@
 import { isOnSameLoop } from "../cp-node/fs/is-on-same-loop.js";
-import { isFullyTerminating } from "./is-fully-terminating.js";
-import { getAllOnLoop_ByLoop } from "./get-all-on-loop-by-loop.js";
+import { getAllOnLoop_ByLoop } from "../cp-node/fs/get-all-on-loop-by-loop.js";
+import { isFullyTerminating } from "../cp-node/fs/is-fully-terminating.js";
 function getCpNodessForSat(sat) {
     let { cpNode } = sat;
     while (!isFullyTerminating(cpNode)) {

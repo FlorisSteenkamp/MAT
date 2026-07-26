@@ -12,7 +12,7 @@ const DEGREES = {
     16: 0.2756,
 };
 /** @internal */
-//const DEGREE_LIMIT = DEGREES[1];
+// const DEGREE_LIMIT = DEGREES[1];
 const DEGREE_LIMIT = DEGREES[4];
 //const DEGREE_LIMIT = DEGREES[16]; 
 /**

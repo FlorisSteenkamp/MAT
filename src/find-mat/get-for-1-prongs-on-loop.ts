@@ -24,9 +24,14 @@ function getFor1ProngsOnLoop(
                 continue;
             }
 
-            poss.push(...getCurvatureExtremaDd(curve.ps).maxima.map(t => ({
-                curve, t, isSource: true, p: toP(curve.ps, t)
-            })));
+            const { ps } = curve;
+
+            poss.push(...getCurvatureExtremaDd(ps).maxima.map(t => {
+                const pDd = toP(ps, t);
+                const p = pDd.map(c => c[0] + c[1]);
+
+                return { curve, t, isSource: true, p, pDd }
+            }));
         }
 
         return poss;

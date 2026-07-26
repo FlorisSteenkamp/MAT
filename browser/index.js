@@ -789,41 +789,6 @@ function getPathsFromStr(str) {
 }
 
 //# sourceMappingURL=get-paths-from-str.js.map
-;// ./src/debug/functions/draw/xmlns.ts
-const XMLNS = 'http://www.w3.org/2000/svg';
-
-
-;// ./src/debug/functions/draw/draw-beziers-as-single-path.ts
-
-function drawBeziersAsSinglePath(g, beziers, class_ = 'thin10 red nofill', delay = 0) {
-    if (beziers.length === 0) {
-        return [];
-    }
-    const x0 = beziers[0][0][0];
-    const y0 = beziers[0][0][1];
-    let d = `M${x0} ${y0} `;
-    for (let i = 0; i < beziers.length; i++) {
-        const ps = beziers[i];
-        if (ps.length <= 1) {
-            continue;
-        }
-        const [, p1, p2, p3] = ps;
-        d +=
-            ps.length === 2
-                ? `L ${p1[0]} ${p1[1]} `
-                : ps.length === 3
-                    ? `Q ${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]} `
-                    : `C ${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]} ${p3[0]} ${p3[1]} `;
-    }
-    // d += ' z';
-    const $path = document.createElementNS(XMLNS, 'path');
-    $path.setAttributeNS(null, "d", d);
-    $path.setAttributeNS(null, "class", class_);
-    g.appendChild($path);
-    return [$path];
-}
-
-
 ;// ./src/floyd-warshall/floyd-warshall.ts
 // A JavaScript program for Floyd Warshall All Pairs Shortest Path algorithm.
 // From https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/
@@ -1017,7 +982,19 @@ function getRealProngCount(cpNode) {
 }
 
 
+;// ./src/cp-node/fs/is-trivial.ts
+
+
+/**
+ * Returns `true` if the `CpNode` has all branches terminating
+ */
+function isTrivial(cpNode) {
+    return getAllOnCircle(cpNode).every(isTerminating);
+}
+
+
 ;// ./src/cp-node/fs/is-fully-terminating.ts
+
 
 
 /**
@@ -1025,6 +1002,17 @@ function getRealProngCount(cpNode) {
  * (except this.prevOnCircle) is terminating.
  */
 function isFullyTerminating(cpNode) {
+    // const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
+    // return otherOnCircle.every(isTerminating);
+    if (!isTerminating(cpNode)) {
+        return false;
+    }
+    if (isTrivial(cpNode)) {
+        return true;
+    }
+    while (cpNode.prev === cpNode.prevOnCircle) {
+        cpNode = cpNode.prev;
+    }
     const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
     return otherOnCircle.every(isTerminating);
 }
@@ -1714,70 +1702,12 @@ function fromTo(ps, tS, tE) {
 /**
  * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
  * on the boundary.
+ *
  * @param cpNode
  */
 function getBoundaryBeziersToNext(cpNode) {
     return getBoundaryBezierPartsToNext(cpNode).map(bp => fromTo(bp.ps, bp.ts[0], bp.ts[1]));
 }
-// /**
-//  * Returns the boundary beziers between this `CpNode` and the next
-//  * one.
-//  * 
-//  * * returns `[]` if the next `CpNode` is on a different loop,
-//  * as this is a hole-closer and there are no boundary beziers between them.
-//  * 
-//  * @param cpNode 
-//  */
-// function getBoundaryBeziersToNext(
-//         cpNode: CpNode): number[][][] {
-//     const cpThis = cpNode; 
-//     const cpNext = cpNode.next;
-//     const posThis = cpThis.cp.pointOnShape;
-//     const posNext = cpNext.cp.pointOnShape;
-//     const curveThis = posThis.curve;
-//     const curveNext = posNext.curve;
-//     if (curveThis.loop !== curveNext.loop) {
-//         // It is a hole-closer going over to the other loop - a kind of terminal
-//         // CpNode.
-//         // return undefined!;
-//         return [];
-//     }
-//     const beziers: number[][][] = [];
-//     if (curveNext === curveThis) {
-//         beziers.push(
-//             fromTo(posThis.curve.ps, posThis.t, posNext.t)
-//         );
-//     } else {
-//         beziers.push(
-//             fromTo(posThis.curve.ps, posThis.t, 1)
-//         );
-//         addSkippedBeziers(
-//             beziers,
-//             posThis.curve,
-//             posNext.curve,
-//             posNext.t
-//         );
-//     }
-//     return beziers;
-// }
-// /**
-//  * Adds pieces of skipped beziers.
-//  * @internal
-//  */
-// function addSkippedBeziers(
-//         beziers: number[][][],
-//         curveStart: Curve,
-//         curveEnd: Curve,
-//         t1: number) {
-//     let curveThis = curveStart;
-//     do {
-//         curveThis = curveThis.next;
-//         const tEnd = curveThis === curveEnd ? t1 : 1;
-//         beziers.push( 
-//             fromTo(curveThis.ps, 0, tEnd)
-//         );
-//     } while (curveThis !== curveEnd);
-// }
 
 
 ;// ./src/cp-node/fs/remove-cp-node.ts
@@ -2667,7 +2597,7 @@ function toPowerBasis1_1stDerivative(ps) {
  *
  * @doc mdx
  */
-function tangent(ps, t) {
+function tangent_tangent(ps, t) {
     const [dX, dY] = toPowerBasis_1stDerivative(ps);
     return [
         Horner(dX, t),
@@ -3522,7 +3452,7 @@ const DEGREES = {
     16: 0.2756,
 };
 /** @internal */
-//const DEGREE_LIMIT = DEGREES[1];
+// const DEGREE_LIMIT = DEGREES[1];
 const DEGREE_LIMIT = DEGREES[4];
 //const DEGREE_LIMIT = DEGREES[16]; 
 /**
@@ -3607,10 +3537,12 @@ function isPosSharpCorner(pos) {
 
 
 /**
- * @internal
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).
+ *
  * @param cpNode
+ *
+ * @internal
  */
 function getEdgeDirection(cpNode) {
     const circleCenter = cpNode.pointOnShape.circle.center;
@@ -3640,8 +3572,8 @@ function getEdgeDirection(cpNode) {
             curve1 = pos1.curve.next;
             curve2 = pos1.curve;
         }
-        const tan1 = toUnitVector(tangent(curve1.ps, 0));
-        const tan2 = reverse(toUnitVector(tangent(curve2.ps, 1)));
+        const tan1 = toUnitVector(tangent_tangent(curve1.ps, 0));
+        const tan2 = reverse(toUnitVector(tangent_tangent(curve2.ps, 1)));
         const x = dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
@@ -3784,17 +3716,6 @@ function isOneProng(cpNode) {
 
 function isTwoProng(cpNode) {
     return getRealProngCount(cpNode) === 2;
-}
-
-
-;// ./src/cp-node/fs/is-trivial.ts
-
-
-/**
- * Returns `true` if the `CpNode` has all branches terminating
- */
-function isTrivial(cpNode) {
-    return getAllOnCircle(cpNode).every(isTerminating);
 }
 
 
@@ -5221,8 +5142,8 @@ function getMatCurvesBetween(cpNodeS, cpNodeE) {
  * @returns
  */
 function getInitialDegAngleBetweenMatCurves(cpNode1, cpNode2) {
-    const tan1 = toUnitVector(tangent(getMatCurveToNext(cpNode1), 0));
-    const tan2 = toUnitVector(tangent(getMatCurveToNext(cpNode2), 0));
+    const tan1 = toUnitVector(tangent_tangent(getMatCurveToNext(cpNode1), 0));
+    const tan2 = toUnitVector(tangent_tangent(getMatCurveToNext(cpNode2), 0));
     const cross_ = cross(tan1, tan2);
     const angle = Math.abs(Math.asin(cross_) * (180 / Math.PI));
     return angle;
@@ -5529,45 +5450,6 @@ function isVertex(f) {
 const isVertexSpecial = isVertex(isSpecial);
 
 
-;// ./node_modules/flo-poly/node/basic/double/negate.js
-/**
- * Returns the negative of the given polynomial (p -> -p).
- *
- * @param p a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
- * @example
- * ```typescript
- * negate([0.1, -0.2]); //=> [-0.1, 0.2]
- * ```
- *
- * @doc
- */
-function negate(p) {
-    const p_ = new Array(p.length);
-    for (let i = 0; i < p.length; i++) {
-        p_[i] = -p[i];
-    }
-    return p_;
-}
-
-//# sourceMappingURL=negate.js.map
-;// ./node_modules/flo-poly/node/roots/root-bounds/upper-to-lower-bound.js
-/**
- * Returns a function that returns a positive lower root bound given a function
- * that returns a positive upper root bound.
- *
- * @param positiveUpperBoundFunction
- *
- * @internal
- */
-function upperToLowerBound(positiveUpperBoundFunction) {
-    return (p) => {
-        return 1 / positiveUpperBoundFunction(p.toReversed());
-    };
-}
-
-//# sourceMappingURL=upper-to-lower-bound.js.map
 ;// ./node_modules/flo-poly/node/change-variables/double/reflect-about-y-axis.js
 /**
  * Returns the result of reflecting the given polynomial about the Y-axis, i.e.
@@ -5599,7 +5481,7 @@ function reflectAboutYAxis(p) {
 }
 
 //# sourceMappingURL=reflect-about-y-axis.js.map
-;// ./node_modules/flo-poly/node/roots/root-bounds/positive-to-negative-bound.js
+;// ./node_modules/flo-poly/node/roots/root-bounds/positive-to-negative-bound-with-err.js
 
 /**
  * Returns a function that returns a negative root bound given a function that
@@ -5609,16 +5491,37 @@ function reflectAboutYAxis(p) {
  *
  * @internal
  */
-function positiveToNegativeBound(positiveBoundFunction) {
-    return (p) => {
-        return -positiveBoundFunction(reflectAboutYAxis(p));
+function positiveToNegativeBound_WithError(positiveBoundFunction) {
+    return (p, p_) => {
+        return -positiveBoundFunction(reflectAboutYAxis(p), p_);
     };
 }
 
-//# sourceMappingURL=positive-to-negative-bound.js.map
-;// ./node_modules/flo-poly/node/roots/root-bounds/root-bounds-lmq.js
+//# sourceMappingURL=positive-to-negative-bound-with-err.js.map
+;// ./node_modules/flo-poly/node/basic/double/negate.js
+/**
+ * Returns the negative of the given polynomial (p -> -p).
+ *
+ * @param p a polynomial with coefficients given densely as an array of double
+ * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
+ * represents the polynomial `5x^2 - 3x`
+ * @example
+ * ```typescript
+ * negate([0.1, -0.2]); //=> [-0.1, 0.2]
+ * ```
+ *
+ * @doc
+ */
+function negate(p) {
+    const p_ = new Array(p.length);
+    for (let i = 0; i < p.length; i++) {
+        p_[i] = -p[i];
+    }
+    return p_;
+}
 
-
+//# sourceMappingURL=negate.js.map
+;// ./node_modules/flo-poly/node/roots/root-bounds/lmq/positive-root-upper-bound-lmq.js
 
 /**
  * Returns an upper bound for the positive real roots of the given polynomial.
@@ -5674,19 +5577,105 @@ function positiveRootUpperBound_LMQ(p) {
     }
     return ub;
 }
+
+//# sourceMappingURL=positive-root-upper-bound-lmq.js.map
+;// ./node_modules/flo-poly/node/roots/root-bounds/lmq/to-poly-for-positive-root-upper-bound-lmq.js
+const { abs: to_poly_for_positive_root_upper_bound_lmq_abs } = Math;
 /**
- * Returns a positive lower bound of the real roots of the given polynomial
+ * Returns a new polynomial adjusted by coefficient-wise absolute error bounds
+ * for use with `positiveRootUpperBound_LMQ`.
  *
- * See algoritm 6 of the paper by Vigklas, Akritas and Strzeboński,
- * specifically the LocalMaxQuadratic algorithm hence LMQ.
+ * For each coefficient `c` with absolute error bound `e`, the returned
+ * coefficient is chosen from `[c - e, c + e]` as follows:
+ * * if the coefficient is guaranteed positive (`c - e > 0`), return `c - e`
+ *   (smallest guaranteed positive value)
+ * * if the coefficient is guaranteed negative (`c + e < 0`), return `c - e`
+ *   (most negative value)
+ * * if the sign is uncertain (`c - e <= 0 <= c + e`), return `0`
  *
- * @param p a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
+ * This yields a conservative representative polynomial for many practical
+ * cases, while making sign-uncertain coefficients explicit.
+ *
+ * @param p polynomial coefficients from highest to lowest power
+ * @param p_ coefficient-wise absolute error bounds; must have same length as `p`
  *
  * @doc
  */
-const positiveRootLowerBound_LMQ = upperToLowerBound(positiveRootUpperBound_LMQ);
+function toPolyForPositiveRootUpperBound_LMQ(p, p_) {
+    if (p.length !== p_.length) {
+        throw new Error('`p` and `p_` must be of equal length.');
+    }
+    const q = new Array(p.length);
+    for (let i = 0; i < p.length; i++) {
+        const e = to_poly_for_positive_root_upper_bound_lmq_abs(p_[i]);
+        const min = p[i] - e;
+        const max = p[i] + e;
+        q[i] = min > 0
+            ? min
+            : max < 0
+                ? min
+                : 0;
+    }
+    return q;
+}
+
+//# sourceMappingURL=to-poly-for-positive-root-upper-bound-lmq.js.map
+;// ./node_modules/flo-poly/node/roots/root-bounds/lmq/positive-root-upper-bound-lmq-with-err.js
+
+
+const { abs: positive_root_upper_bound_lmq_with_err_abs } = Math;
+/**
+ * Returns an LMQ upper bound for positive real roots using a conservative
+ * polynomial representative formed from coefficient-wise absolute errors.
+ *
+ * Strict mode:
+ * if coefficient sign uncertainty implies that, for some potentially negative
+ * coefficient, there is no guaranteed positive coefficient of higher power,
+ * then no finite LMQ-style bound can be guaranteed and `Infinity` is returned.
+ *
+ * @param p polynomial coefficients from highest to lowest power
+ * @param p_ coefficient-wise absolute error bounds
+ *
+ * @doc
+ */
+function positiveRootUpperBound_LMQ_WithError(p, p_) {
+    if (p.length !== p_.length) {
+        throw new Error('`p` and `p_` must be of equal length.');
+    }
+    // Strict guard: if a potentially negative coefficient has no guaranteed
+    // positive predecessor, only sign-uncertain positive predecessors, then
+    // a finite LMQ bound cannot be guaranteed.
+    for (let m = 0; m < p.length; m++) {
+        const em = positive_root_upper_bound_lmq_with_err_abs(p_[m]);
+        const minM = p[m] - em;
+        if (minM >= 0) {
+            continue;
+        }
+        let hasGuaranteedPositive = false;
+        let hasUncertainPositive = false;
+        for (let k = 0; k < m; k++) {
+            const ek = positive_root_upper_bound_lmq_with_err_abs(p_[k]);
+            const minK = p[k] - ek;
+            const maxK = p[k] + ek;
+            if (minK > 0) {
+                hasGuaranteedPositive = true;
+                break;
+            }
+            if (maxK > 0) {
+                hasUncertainPositive = true;
+            }
+        }
+        if (!hasGuaranteedPositive && hasUncertainPositive) {
+            return Infinity;
+        }
+    }
+    return positiveRootUpperBound_LMQ(toPolyForPositiveRootUpperBound_LMQ(p, p_));
+}
+
+//# sourceMappingURL=positive-root-upper-bound-lmq-with-err.js.map
+;// ./node_modules/flo-poly/node/roots/root-bounds/lmq/negative-root-lower-bound-lmq-with-err.js
+
+
 /**
  * Returns a negative lower (further from zero) bound of the real roots of the
  * given polynomial.
@@ -5700,26 +5689,15 @@ const positiveRootLowerBound_LMQ = upperToLowerBound(positiveRootUpperBound_LMQ)
  *
  * @doc
  */
-const negativeRootLowerBound_LMQ = positiveToNegativeBound(positiveRootUpperBound_LMQ);
-/**
- * Returns a negative upper (closer to zero) bound of the real roots of the
- * given polynomial.
- *
- * See algoritm 6 of the paper by Vigklas, Akritas and Strzeboński,
- * specifically the LocalMaxQuadratic algorithm hence LMQ.
- *
- * @param p a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
- *
- * @doc
- */
-const negativeRootUpperBound_LMQ = upperToLowerBound(negativeRootLowerBound_LMQ);
+const negativeRootLowerBound_LMQ_WithError = positiveToNegativeBound_WithError(positiveRootUpperBound_LMQ_WithError);
 
-//# sourceMappingURL=root-bounds-lmq.js.map
+//# sourceMappingURL=negative-root-lower-bound-lmq-with-err.js.map
 ;// ./node_modules/flo-poly/node/roots/reduce-interval.js
 
-const { min, max } = Math;
+
+
+const { min, max, abs: reduce_interval_abs } = Math;
+const MAX_DOUBLE = 1.7976931348623157e+308;
 /**
  * Returns the result of reducing the given interval [lb,ub] to a potentially
  * smaller interval that still contains all the roots of the given polynomial.
@@ -5733,13 +5711,95 @@ const { min, max } = Math;
  *
  * @internal
  */
-function reduceInterval(lb, ub, p) {
-    lb = max(lb, negativeRootLowerBound_LMQ(p));
-    ub = min(ub, positiveRootUpperBound_LMQ(p));
+function reduceInterval(lb, ub, p, pDd_, errorMultiplier) {
+    lb = max(lb, negativeRootLowerBound_LMQ_WithError(p, pDd_.map(c => c * errorMultiplier)));
+    ub = min(ub, positiveRootUpperBound_LMQ_WithError(p, pDd_.map(c => c * errorMultiplier)));
+    const d = p.length - 1;
+    const F = 2 ** (-2 * d);
+    if (!Number.isFinite(lb)) {
+        lb = -F * MAX_DOUBLE;
+    }
+    if (!Number.isFinite(ub)) {
+        ub = F * MAX_DOUBLE;
+    }
+    while (true) {
+        const lb_ = reduce_interval_abs(Horner(p, lb));
+        const ub_ = reduce_interval_abs(Horner(p, ub));
+        if (lb_ > F * MAX_DOUBLE) {
+            lb /= 2;
+            continue;
+        }
+        if (ub_ > F * MAX_DOUBLE) {
+            ub /= 2;
+            continue;
+        }
+        break;
+    }
     return [lb, ub];
 }
 
 //# sourceMappingURL=reduce-interval.js.map
+;// ./node_modules/flo-poly/node/error-analysis/gamma.js
+/** `2 * 2^-53` -> 2x the standard round-of unit `=== Number.EPSILON` */
+const eps = Number.EPSILON;
+/** `2^-53` -> the standard round-of unit `=== eps/2` */
+const u = eps / 2;
+/** `2^-106` -> the standard round-of unit for double-double precision `=== (eps/2)**2` */
+const uu = u * u;
+/**
+ * the standard floating point error function evaluated at `1`
+ *
+ * * `=== 1.1102230246251568e-16`
+ * * very close to being `=== Number.EPSILON / 2`
+ */
+const γ1 = γ(1);
+/**
+ * the standard double-double floating point error function evaluated at `3`;
+ * the `3` factor is due to double-double arithmetic accuracy constraints
+ *
+ * * `=== 3.697785493223493e-32`
+ * * very close to being `=== 3*(Number.EPSILON / 2)**2`
+ */
+const γγ3 = γγ(3);
+/**
+ * The canonical floating point error function, γ.
+ *
+ * * very close to being `=== n * (Number.EPSILON / 2)`
+ * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
+ * @param n the parameter - typically a small positive integer, e.g. for
+ * polynomial evaluation this `=== 2*d + 1`, where `d` is the degree of the
+ * polynomial
+ *
+ * @doc
+ */
+function γ(n) {
+    const nu = n * u;
+    return nu / (1 - nu);
+}
+/**
+ * The canonical, once compensated (implying double-double precision),
+ * floating point error function.
+ *
+ * * very close to being `=== n * (Number.EPSILON / 2)**2`
+ * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
+ * @param n the parameter - typically a small positive integer, e.g. for
+ * polynomial evaluation this === 2*d + 1, where d is the degree of the
+ * polynomial
+ *
+ * @doc
+ */
+function γγ(n) {
+    const nuu = n * uu;
+    return nuu / (1 - nuu);
+}
+// cache some standard error bound units
+const _γs = new Array(20).fill(0).map((_, i) => γ(i));
+/** @internal */
+function γs(n) {
+    return _γs[n] || γ(n);
+}
+
+//# sourceMappingURL=gamma.js.map
 ;// ./node_modules/flo-poly/node/roots/remove-leading-zero-coeffs.js
 
 const { abs: remove_leading_zero_coeffs_abs } = Math;
@@ -5754,23 +5814,27 @@ function removeLeadingZeroCoeffs(pDd, pDd_, getPExact, errorMultiplier) {
     let pExact = undefined; // lazy loaded
     // while the leading coefficient is smaller then the error bound 
     // i.e. possibly zero
-    while (pDd.length > 0 && remove_leading_zero_coeffs_abs(pDd[0][1]) <= errorMultiplier * pDd_[0]) {
-        pExact = pExact || getPExact();
-        // if leading coefficient really is zero
-        if (eSign(pExact[0]) === 0) {
-            // shift the leading coefficient and error out without altering the 
-            // given polynomial and error bound (shift is destructive, slice is not)
-            pDd = pDd.slice();
-            pDd.shift();
-            pDd_ = pDd_.slice();
-            pDd_.shift();
-            // also shift out the exact polynomial's leading coefficient
-            pExact.shift();
-            continue;
-        }
-        break;
+    // if leading coefficient is guaranteed > zero
+    if (pDd.length === 0 || remove_leading_zero_coeffs_abs(pDd[0][1]) > errorMultiplier * pDd_[0]) {
+        return { pDd, pDd_, pExact };
     }
-    return { pDd: pDd, pDd_: pDd_, pExact };
+    pExact = pExact || getPExact();
+    // Update `pDd` and `pDd_` with the exact polynomial's leading coefficients and error bounds
+    for (let i = 0; i < pExact.length; i++) {
+        const cExact = pExact[i];
+        const cDd = pDd[i];
+        cDd[1] = cExact[cExact.length - 1];
+        cDd[0] = cExact[cExact.length - 2] ?? 0;
+        pDd_[i] = remove_leading_zero_coeffs_abs(cDd[1]) * (γγ3 / errorMultiplier);
+    }
+    let i = 0;
+    while (i < pDd.length && pDd[i][1] === 0) {
+        i++;
+    }
+    pDd = pDd.slice(i);
+    pDd_ = pDd_.slice(i);
+    pExact = pExact.slice(i);
+    return { pDd, pDd_, pExact };
 }
 
 //# sourceMappingURL=remove-leading-zero-coeffs.js.map
@@ -5828,67 +5892,6 @@ function eCompress(e) {
 }
 
 //# sourceMappingURL=e-compress.js.map
-;// ./node_modules/flo-poly/node/error-analysis/gamma.js
-/** `2 * 2^-53` -> 2x the standard round-of unit `=== Number.EPSILON` */
-const eps = Number.EPSILON;
-/** `2^-53` -> the standard round-of unit `=== eps/2` */
-const u = Number.EPSILON / 2;
-/** `2^-106` -> the standard round-of unit for double-double precision `=== (eps/2)**2` */
-const uu = u * u;
-/**
- * the standard floating point error function evaluated at `1`
- *
- * * `=== 1.1102230246251568e-16`
- * * very close to being `=== Number.EPSILON / 2`
- */
-const γ1 = γ(1);
-/**
- * the standard double-double floating point error function evaluated at `3`;
- * the `3` factor is due to double-double arithmetic accuracy constraints
- *
- * * `=== 3.697785493223493e-32`
- * * very close to being `=== 3*(Number.EPSILON / 2)**2`
- */
-const γγ3 = γγ(3);
-/**
- * The canonical floating point error function, γ.
- *
- * * very close to being `=== n * (Number.EPSILON / 2)`
- * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
- * @param n the parameter - typically a small positive integer, e.g. for
- * polynomial evaluation this `=== 2*d + 1`, where `d` is the degree of the
- * polynomial
- *
- * @doc
- */
-function γ(n) {
-    const nu = n * u;
-    return nu / (1 - nu);
-}
-/**
- * The canonical, once compensated (implying double-double precision),
- * floating point error function.
- *
- * * very close to being `=== n * (Number.EPSILON / 2)**2`
- * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
- * @param n the parameter - typically a small positive integer, e.g. for
- * polynomial evaluation this === 2*d + 1, where d is the degree of the
- * polynomial
- *
- * @doc
- */
-function γγ(n) {
-    const nuu = n * uu;
-    return nuu / (1 - nuu);
-}
-// cache some standard error bound units
-const _γs = new Array(20).fill(0).map((_, i) => γ(i));
-/** @internal */
-function γs(n) {
-    return _γs[n] || γ(n);
-}
-
-//# sourceMappingURL=gamma.js.map
 ;// ./node_modules/flo-poly/node/change-variables/double/taylor-shift-with-inp-err.js
 const { abs: taylor_shift_with_inp_err_abs } = Math;
 /**
@@ -6388,7 +6391,7 @@ const { abs: mobius_precise_abs, sign: mobius_precise_sign } = Math;
  * @internal
  */
 function mobiusAndNumSignChanges(p, p_, pDd, pDd_, getPExact) {
-    return function mobiusPrecise_(a, b, A, B, failCount) {
+    return function mobiusAndNumSignChanges_(a, b, A, B, failCount) {
         //-------------------------------------------
         // Taylor shift by `a`, i.e. p(x + a)
         //-------------------------------------------
@@ -6468,7 +6471,6 @@ function ddMobiusAndNumSignChanges(pDd, pDd_, a, b, A, B, failCount, getPExact) 
     // The sign of `A` and `B` are both !== 0 and is certified since it is an
     // endpoint of the interval.
     let _s = mobius_precise_sign(A);
-    let failed = false;
     for (let i = 0; i < q.length - 1; i++) {
         // No error in the sign of the last coefficient (important for parity of sign changes)
         let s = mobius_precise_sign(q[i][1]);
@@ -7137,7 +7139,7 @@ function isolateRoots(p, pDd, pDd_, lb, ub, getPExact) {
     const Is = [[lb, ub, A, B, 0]];
     const Is_ = []; // Isolated root intervals will be stored here
     // let treeSize = 0;  // remove eventually
-    const mobiusPrecise_ = mobiusAndNumSignChanges(p, p_, pDd, pDd_, getPExact);
+    const mobiusAndNumSignChanges_ = mobiusAndNumSignChanges(p, p_, pDd, pDd_, getPExact);
     let errBound;
     let pDdTransposed;
     while (Is.length > 0) {
@@ -7147,7 +7149,7 @@ function isolateRoots(p, pDd, pDd_, lb, ub, getPExact) {
         //----------------------------------------------------------------------
         // Descarte's rule of signs to count the number of roots in this interval
         //----------------------------------------------------------------------
-        const varP = mobiusPrecise_(a, b, A, B, failCount);
+        const varP = mobiusAndNumSignChanges_(a, b, A, B, failCount);
         // If `varP < 0` we couldn't distinguish Mobius coefficients from `0`
         // without going to infinite precision.
         if (varP === 0) { // no roots in the open interval `(a,b)`
@@ -7283,6 +7285,7 @@ function eAdmissablePoint(pE, a, b) {
 
 
 
+const { abs: roots_abs, max: roots_max, log2: roots_log2, ceil: roots_ceil } = Math;
 /**
  * Finds and returns all ordered *certified* root intervals (bar underflow /
  * overflow) of the given polynomial (with coefficients given in double or
@@ -7434,7 +7437,6 @@ function eAdmissablePoint(pE, a, b) {
  * @doc
  */
 function roots(pDd, lb = -Infinity, ub = +Infinity, pDd_, getPExact, tryReduceInterval = false) {
-    // if (pDd === undefined) { pDd = p.map(c => [0,c]); }
     if (typeof pDd[0] === 'number') {
         pDd = pDd.map(c => [0, c]);
     }
@@ -7458,18 +7460,23 @@ function roots(pDd, lb = -Infinity, ub = +Infinity, pDd_, getPExact, tryReduceIn
     // Remove leading zero coefficients 
     //----------------------------------------------------------------------
     ({ pDd, pDd_, pExact } = removeLeadingZeroCoeffs(pDd, pDd_, getPExact_, γγ3));
+    // Approximate `p` from `pDd`
+    const p = pDd.map(c => c[0] + c[1]);
+    if (tryReduceInterval ||
+        // !Number.isFinite(lb) || !Number.isFinite(ub) ||
+        roots_abs(lb) > 2 ** 20 || roots_abs(ub) > 2 ** 20) {
+        [lb, ub] = reduceInterval(lb, ub, p, pDd_, γγ3);
+    }
     if (pDd.length === 0) {
         return undefined; // return `undefined` for the zero polynomial (of degree -1)
     }
     else if (pDd.length === 1) {
         return []; // return `[]` for a (a non-zero) degree 0 polynomial
     }
-    const p = pDd.map(c => c[0] + c[1]);
-    if (tryReduceInterval || lb === -Infinity || ub === Infinity) {
-        [lb, ub] = reduceInterval(lb, ub, p);
-        if (lb === ub) { // edge case
-            return [{ t: lb, tS: lb, tE: ub, multiplicity: p.length - 1 }];
-        }
+    if (lb === ub) { // edge case
+        const halfWidth = 2 * eps * roots_max(1, 2 ** roots_ceil(roots_log2(roots_max(roots_abs(lb), roots_abs(ub)))));
+        lb -= halfWidth;
+        ub += halfWidth;
     }
     return isolateRoots(p, pDd, pDd_, lb, ub, getPExact_);
 }
@@ -9068,7 +9075,6 @@ function getFootPointsOnBezierPolysCertified(ps, p) {
     if (order === 3) {
         return {
             polyDd: getFootpointPoly3Dd(ps, p),
-            // polyE: getClosestOnBezier3FromPointErrorCounters(ps, p).map(e => 10*γγ6*e), 
             polyE: getClosestOnBezier3FromPointErrorCounters(ps, p).map(e => 10 * 2 * e),
             getPolyExact: () => getFootpointPoly3Exact(ps, p)
         };
@@ -9076,7 +9082,6 @@ function getFootPointsOnBezierPolysCertified(ps, p) {
     else if (order === 2) {
         return {
             polyDd: getFootpointPoly2Dd(ps, p),
-            // polyE: getClosestOnBezier2FromPointErrorCounters(ps, p).map(e => 8*γγ6*e), 
             polyE: getClosestOnBezier2FromPointErrorCounters(ps, p).map(e => 8 * 2 * e),
             getPolyExact: () => getFootpointPoly2Exact(ps, p)
         };
@@ -9084,7 +9089,6 @@ function getFootPointsOnBezierPolysCertified(ps, p) {
     else if (order === 1) {
         return {
             polyDd: getFootpointPoly1Dd(ps, p),
-            // polyE: getClosestOnBezier1FromPointErrorCounters(ps, p).map(e => 6*γγ6*e), 
             polyE: getClosestOnBezier1FromPointErrorCounters(ps, p).map(e => 6 * 2 * e),
             getPolyExact: () => getFootpointPoly1Exact(ps, p)
         };
@@ -10205,7 +10209,7 @@ function getAxisAlignedRayLoopIntersections(loop, p, dir) {
         // We only care if there were 1 or 3 intersections.
         if (ts.length === 1 || ts.length === 3) {
             for (const t of ts) {
-                const tan = toUnitVector(tangent(ps, t));
+                const tan = toUnitVector(tangent_tangent(ps, t));
                 if (((dir === 'left' || dir === 'right') && Math.abs(tan[1]) < DELTA) ||
                     ((dir === 'down' || dir === 'up') && Math.abs(tan[0]) < DELTA)) {
                     // We don't know the exact number of intersections due to
@@ -13505,80 +13509,10 @@ const { abs: get_coeffs_bez3_bez3_dd_abs } = Math;
  * @internal
  */
 function getCoeffsBez3Bez3Dd(ps1, ps2) {
-    //--------------------------------------------------------------------------
-    // `var` -> a variable
-    // `$var` -> the double precision approximation to `var`
-    // `_var` -> the absolute value of $var (a prefix underscore on a variable means absolute value)
-    // `var_` -> the error in var (a postfix underscore means error bound but should still be multiplied by 3*γ²)
-    // `_var_` -> means both absolute value and absolute error bound
-    // recall: `a*b`, where both `a` and `b` have errors |a| and |b| we get for the
-    //   * error bound of (a*b) === a_|b| + |a|b_ + |a*b|   (when either of a and b is double)
-    //   * error bound of (a*b) === a_|b| + |a|b_ + 2|a*b|  (when both a and b is double-double)
-    //   * error bound of (a+b) === a_ + b_ + |a+b|         (when a and/or b is double or double-double)
-    // * the returned errors need to be multiplied by 3γ² to get the true error
-    // * can use either `$var` or `var[var.length-1]` (the approx value) in error calculations
-    //   due to multiplication by 3*γ² and not 3*u²
-    //--------------------------------------------------------------------------
-    // examples: (all?)
-    // ----------------
-    // let qmd === ddMultDouble2, etc.
-    //
-    // ---------------
-    // 1. double-double X by double
-    // ---------------
-    // qmd(a,b);  // both `a` and `b` is error-free
-    // use: error bound of (a*b) === a_|b| + |a|b_ + |a*b| (by definition)
-    //                           === 0|b| + |a|0 + |a*b|
-    //                           === |a*b|
-    //
-    // ---------------
-    // 2a. double-double +/- double-double
-    // ---------------
-    // qdq(a,b);  // error in a === |a|, thus call the error _a_, same with b
-    // use: error bound of (a+b) === a_ + b_ + |a+b| (by definition)
-    //                           === _a_ + _b_ + |a+b|
-    //
-    // ---------------
-    // 2b. double-double +/- double-double
-    // ---------------
-    // qaq(a,b);  // error in a === 2|a|, thus the error is 2*_a, same with b
-    // use: error bound of (a+b) === a_ + b_ + |a+b| (by definition)
-    //                           === 2*_a + 2*_b + |a+b|
-    //                           === 2*(_a + _b) + |a+b| OR
-    //                           === a_ + b_ + |a+b|
-    //
-    // ---------------
-    // 3a. double-double X double-double
-    // ---------------
-    // qmq(a,b);  // both `a` and `b` error-free
-    // use: error bound of (a*b) === a_|b| + |a|b_ + |a*b| (by definition)
-    //                           === 0|b| + |a|0 + 2|a*b|
-    //                           === 2|a*b| 
-    //
-    // ---------------
-    // 3b. double-double X double-double
-    // ---------------
-    // qmq(a,b);  // both `a` and `b` not error-free
-    // use: error bound of (a*b) === a_|b| + |a|b_ + 2|a*b| (by definition)
-    //
-    // ---------------
-    // 3b. double-double X double-double
-    // ---------------
-    // qmq(a,b);  // both `a` not error-free and `b` error-free
-    // use: error bound of (a*b) === a_|b| + |a|b_ + 2|a*b| (by definition)
-    //                           === a_|b| + 2|a*b| 
-    //
-    // ---------------
-    // 4a. double-double +/- double
-    // ---------------
-    // qad(a,b);  // both `a` and `b` error-free
-    // use: error bound of (a+b) === a_ + b_ + |a+b| (by definition)
-    //                           === 0 + 0 + |a+b|
-    //                           === |a+b| 
-    //--------------------------------------------------------------------------
     const { coeffs: { vₓₓₓ, vₓₓᵧ, vₓᵧᵧ, vᵧᵧᵧ, vₓₓ, vₓᵧ, vᵧᵧ, vₓ, vᵧ, v }, errorBound: { vₓₓₓ_, vₓₓᵧ_, vₓᵧᵧ_, vᵧᵧᵧ_, vₓₓ_, vₓᵧ_, vᵧᵧ_, vₓ_, vᵧ_, v_ } } = getImplicitForm3DdWithRunningError(ps1);
     const { coeffs: [[c3, c2, c1, [, c0]], [d3, d2, d1, [, d0]]], errorBound: [[c3_, c2_, c1_], [d3_, d2_, d1_]] // c0 and d0 is error free
      } = toPowerBasis3DdWithRunningError(ps2);
+    // See error-bound-calc.txt
     const $vₓₓₓ = vₓₓₓ[1];
     const $vₓₓᵧ = vₓₓᵧ[1];
     const $vₓᵧᵧ = vₓᵧᵧ[1];
@@ -23809,7 +23743,7 @@ function getTotalShapeCurvature(pss) {
         const psO = pss[i];
         const c = totalCurvature(psO, [0, 1]);
         // disconutinuous curvature (turn) at interface between 2 beziers
-        const θ = getInterfaceRotation(tangent(psI, 1), tangent(psO, 0));
+        const θ = getInterfaceRotation(tangent_tangent(psI, 1), tangent_tangent(psO, 0));
         total += c + θ;
     }
     return total;
@@ -25707,16 +25641,6 @@ function calcPosOrder(circleCenter, pos) {
 }
 
 
-;// ./node_modules/flo-vector2d/node/distance-and-length/len.js
-/**
- * Returns the length of the given 2-vector.
- * @param p a 2d vector
- */
-function len(p) {
-    return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
-}
-
-//# sourceMappingURL=len.js.map
 ;// ./node_modules/flo-vector2d/node/distance-and-length/length-squared.js
 /**
  * Returns the squared length of the given 2-vector.
@@ -25748,7 +25672,7 @@ function det3(x, y, z) {
 * Returns the circumcenter of the given 2d triangle.
 * @param triangle
 */
-function circumCenter(triangle) {
+function circum_center_circumCenter(triangle) {
     // See wikipedia
     const p1 = triangle[0];
     const p2 = triangle[1];
@@ -25761,12 +25685,16 @@ function circumCenter(triangle) {
 }
 
 //# sourceMappingURL=circum-center.js.map
-;// ./src/find-3-prong/timed-cc.ts
+;// ./node_modules/flo-vector2d/node/distance-and-length/len.js
+/**
+ * Returns the length of the given 2-vector.
+ * @param p a 2d vector
+ */
+function len(p) {
+    return Math.sqrt(p[0] * p[0] + p[1] * p[1]);
+}
 
-// const timeCircumCenter = timeFunctionCalls(circumCenter);
-const timeCircumCenter = circumCenter;
-
-
+//# sourceMappingURL=len.js.map
 ;// ./src/closest-boundary-point/root-interval-to-distance-squared-interval.ts
 
 const closest_boundary_point_root_interval_to_distance_squared_interval_td = two_diff_twoDiff;
@@ -26143,7 +26071,7 @@ function cullCurvePieces1(curvePieces, xO) {
  * @param t
  */
 function toP(ps, t) {
-    return evalDeCasteljauDd(ps, [0, t]).map(c => c[0] + c[1]);
+    return evalDeCasteljauDd(ps, [0, t]);
 }
 
 
@@ -26187,17 +26115,17 @@ function getCloseBoundaryPointsCertified(curvePieces, x) {
     return closestPointInfos.map(info => {
         const { curve, t } = info;
         const { ps } = curve;
-        const p = toP(ps, t);
+        const pDd = toP(ps, t);
+        const p = pDd.map(c => c[0] + c[1]);
         return {
-            p, t, curve, isSource: false
+            curve, t, isSource: false, p, pDd
         };
     });
 }
 
 
 ;// ./src/find-3-prong/calc-initial-3-prong-center.ts
-// import { circumCenter } from 'flo-vector2d';
- // TODO - testing - restore
+
 
 /**
  * Finds an initial 3-prong circle center point from which to iterate. The point
@@ -26219,7 +26147,7 @@ function calcInitial3ProngCenter(δ3s, curvePiece3s) {
         pos.p,
         δ3s[2][1].pointOnShape.p,
     ];
-    return timeCircumCenter(meanPoints);
+    return circum_center_circumCenter(meanPoints);
 }
 
 
@@ -26251,9 +26179,7 @@ function scale(p, c) {
 
 //# sourceMappingURL=scale.js.map
 ;// ./src/find-3-prong/calc-better-x.ts
-// import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
 
- // TODO - testing - restore
 
 /**
  * Find new `x` and `ps` that are better estimates of the 3-prong circle.
@@ -26282,7 +26208,7 @@ function calcBetterX(curvePiece3s, x, vectorToZeroV) {
         newX = translate(shift, x);
         newPoss = curvePiece3s.map(curvePieces => getCloseBoundaryPointsCertified(curvePieces, x)[0]);
         // Point of zero V
-        const newCircleCenter = timeCircumCenter(newPoss.map(pos => pos.p));
+        const newCircleCenter = circum_center_circumCenter(newPoss.map(pos => pos.p));
         const newVectorToZeroV = from_to_fromTo(newX, newCircleCenter);
         newV = len(newVectorToZeroV);
         better = newV < V;
@@ -26294,9 +26220,7 @@ function calcBetterX(curvePiece3s, x, vectorToZeroV) {
 
 
 ;// ./src/find-3-prong/find-3-prong-for-delta3s.ts
-// import { fromTo, circumCenter as getCircumCenter, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
 
- // TODO - testing - restore
 
 
 
@@ -26346,7 +26270,6 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     if (isSharp(δ3s[0][0])) {
         return undefined;
     }
-    // TODO
     //----------------------------
     // const l1 = curvePiece3s[0].length;
     // const l2 = curvePiece3s[1].length;
@@ -26375,7 +26298,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const circumCenter = timeCircumCenter(poss.map(x => x.p));
+        const circumCenter = circum_center_circumCenter(poss.map(x => x.p));
         const vectorToZeroV = from_to_fromTo(x, circumCenter);
         if (!Number.isFinite(vectorToZeroV[0]) || !Number.isFinite(vectorToZeroV[1])) {
             // FUTURE - the code can be cleaned up and sped up a lot if we don't
@@ -26429,7 +26352,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             //---------------------------
             // Tangent of curve at point
             //---------------------------
-            const v2 = toUnitVector(tangent(pos.curve.ps, pos.t));
+            const v2 = toUnitVector(tangent_tangent(pos.curve.ps, pos.t));
             // Cross is more numerically stable than Vector.dot at angles a
             // multiple of `Math.PI` **and** is close to the actual angle value
             // and can thus just be added to cone method of looking at 
@@ -26879,20 +26802,6 @@ function findAndAdd3Prong(meta, visitedCps) {
     for (const visitedCp of visitedCps) {
         δs.push([visitedCp, visitedCp.next]);
     }
-    // TODO - remove - debugging
-    //-------------------------
-    // ii++;
-    // if (ii === 13) {
-    //     //@ts-ignore
-    //     if (_debug_.temp === undefined) { _debug_.temp = []; }
-    //     //@ts-ignore
-    //     _debug_.temp.push(δs);
-    // }
-    // //@ts-ignore
-    // if (_debug_.temp2 === undefined) { _debug_.temp2 = []; }
-    // //@ts-ignore
-    // _debug_.temp2.push(δs.length);
-    //-------------------------
     const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
     const { circle, poss, δ3s } = threeProngInfo;
     const orders = [];
@@ -27100,6 +27009,12 @@ function getPartialMeta(loops) {
         dullCorners
     };
 }
+function get_meta_addDebugInfo1() {
+    if (typeof _debug_ === 'undefined') {
+        return;
+    }
+    timingStart = performance.now();
+}
 /** @internal */
 function get_meta_addDebugInfo2() {
     if (typeof _debug_ === 'undefined') {
@@ -27109,6 +27024,7 @@ function get_meta_addDebugInfo2() {
     _debug_.timing.holeClosers += now - timingStart;
     timingStart = now;
 }
+/** @internal */
 function addDebugInfo3() {
     if (typeof _debug_ === 'undefined') {
         return;
@@ -27117,6 +27033,7 @@ function addDebugInfo3() {
     _debug_.timing.oneAnd2Prongs += now - timingStart;
     timingStart = now;
 }
+/** @internal */
 function addDebugInfo4() {
     if (typeof _debug_ === 'undefined') {
         return;
@@ -27126,7 +27043,6 @@ function addDebugInfo4() {
 
 
 ;// ./src/find-mat/get-sharp-corners.ts
-
 
 
 /** @internal */
@@ -27139,7 +27055,10 @@ function getSharpCornersOnLoop(minBezLength) {
                 continue;
             }
             if (getCorner(curve.ps, curve.next.ps).isQuiteSharp) {
-                sharpCorners.push({ curve, t: 1, isSource: true, p: toP(curve.ps, 1) });
+                const { ps } = curve;
+                const p = ps[ps.length - 1];
+                const pDd = [[0, p[0]], [0, p[1]]];
+                sharpCorners.push({ curve, t: 1, isSource: true, p, pDd });
             }
         }
         return sharpCorners;
@@ -27162,8 +27081,9 @@ function getDullCornersOnLoop(minBezLength) {
             const { next, ps } = curve;
             if (getCorner(ps, next.ps).isQuiteDull) {
                 const p = ps[ps.length - 1];
-                dullCorners.push({ curve, t: 1, isSource: true, p });
-                dullCorners.push({ curve: next, t: 0, isSource: true, p });
+                const pDd = [[0, p[0]], [0, p[1]]];
+                dullCorners.push({ curve, t: 1, isSource: true, p, pDd });
+                dullCorners.push({ curve: next, t: 0, isSource: true, p, pDd });
             }
         }
         return dullCorners;
@@ -27204,8 +27124,641 @@ function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO
 }
 
 
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez2-same-curve.js
+;// ./node_modules/flo-poly/node/evaluate/double-double/dd-horner.js
 
+/**
+ * Returns the result of evaluating a univariate polynomial using Horner's
+ * method with intermediate calculations done in double-double precision and
+ * the result returned in double-double precision.
+ *
+ * @param p a polynomial with coefficients given densely as an array of
+ * double-double numbers from highest to lowest power, e.g. `[[0,5],[0,-3],[0,0]]
+ * represents the polynomial `5x^2 - 3x`
+ * @param x the value at which to evaluate the polynomial
+ *
+ * @doc
+ */
+function dd_horner_ddHorner(p, x) {
+    let q = [0, 0];
+    for (let i = 0; i < p.length; i++) {
+        // q = p[i] + x*q;
+        q = ddAddDd(p[i], ddMultDouble2(x, q));
+    }
+    return q;
+}
+
+//# sourceMappingURL=dd-horner.js.map
+;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis/double-double/to-power-basis-dd.js
+
+const to_power_basis_dd_td = two_diff_twoDiff; // error -> 0
+const to_power_basis_dd_qmd = ddMultDouble2; // error -> 3*u²
+const to_power_basis_dd_qaq = ddAddDd;
+const to_power_basis_dd_qad = ddAddDouble; // error -> 2*u²
+const to_power_basis_dd_ts = two_sum_twoSum;
+/**
+ * Returns the power basis representation of a bezier curve of order cubic or
+ * less.
+ *
+ * * intermediate calculations are done in double-double precision
+ * * returns the power basis x and y coordinate polynomials from highest power
+ * to lowest, e.g. if `x(t) = at^3 + bt^2 + ct + d`
+ * and `y(t) = et^3 + ft^2 + gt + h` then the result is returned
+ * as `[[a,b,c,d],[e,f,g,h]]`, where the `a,b,c,...` are in double-double
+ * precision
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
+ * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ *
+ * @doc
+ */
+function to_power_basis_dd_toPowerBasisDd(ps) {
+    if (ps.length === 4) {
+        return toPowerBasis3Dd(ps);
+    }
+    if (ps.length === 3) {
+        return toPowerBasis2Dd(ps);
+    }
+    if (ps.length === 2) {
+        return toPowerBasis1Dd(ps);
+    }
+    if (ps.length === 1) {
+        return toPowerBasis0Dd(ps);
+    }
+    throw new Error('The given bezier curve must be of order <= cubic.');
+}
+/** @internal */
+function toPowerBasis3Dd(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    // xx3 = (x3 - x0) + 3*(x1 - x2)
+    const xx3 = to_power_basis_dd_qaq(to_power_basis_dd_td(x3, x0), to_power_basis_dd_qmd(3, to_power_basis_dd_td(x1, x2)));
+    // xx2 = 3*((x2 + x0) - 2*x1)
+    const xx2 = to_power_basis_dd_qmd(3, to_power_basis_dd_qad(to_power_basis_dd_ts(x2, x0), -2 * x1));
+    // xx1 = 3*(x1 - x0)
+    const xx1 = to_power_basis_dd_qmd(3, to_power_basis_dd_td(x1, x0));
+    // yy3 = (y3 - y0) + 3*(y1 - y2)
+    const yy3 = to_power_basis_dd_qaq(to_power_basis_dd_td(y3, y0), to_power_basis_dd_qmd(3, to_power_basis_dd_td(y1, y2)));
+    // yy2 = 3*((y2 + y0) - 2*y1)
+    const yy2 = to_power_basis_dd_qmd(3, to_power_basis_dd_qad(to_power_basis_dd_ts(y2, y0), -2 * y1));
+    // yy1 = 3*(y1 - y0)
+    const yy1 = to_power_basis_dd_qmd(3, to_power_basis_dd_td(y1, y0));
+    return [[xx3, xx2, xx1, [0, x0]], [yy3, yy2, yy1, [0, y0]]];
+}
+/**
+ * Only the quadratic monomial coefficient has an error, the others are exact.
+ *
+ * @internal
+ */
+function toPowerBasis2Dd(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    // xx2 = x2 + x0 - 2*x1
+    const xx2 = to_power_basis_dd_qad(to_power_basis_dd_ts(x2, x0), -2 * x1);
+    // xx1 = 2*(x1 - x0)
+    const xx1 = to_power_basis_dd_td(2 * x1, 2 * x0); // error free
+    // yy2 = y2 + y0 - 2*y1
+    const yy2 = to_power_basis_dd_qad(to_power_basis_dd_ts(y2, y0), -2 * y1);
+    // yy1 = 2*(y1 - y0)
+    const yy1 = to_power_basis_dd_td(2 * y1, 2 * y0); // error free
+    return [[xx2, xx1, [0, x0]], [yy2, yy1, [0, y0]]];
+}
+/**
+ * Exact for any bitlength.
+ *
+ * @internal
+ */
+function toPowerBasis1Dd(ps) {
+    const [[x0, y0], [x1, y1]] = ps;
+    return [[
+            to_power_basis_dd_td(x1, x0),
+            [0, x0]
+        ], [
+            to_power_basis_dd_td(y1, y0),
+            [0, y0]
+        ]];
+}
+/**
+ * Exact for any bitlength.
+ *
+ * @internal
+ */
+function toPowerBasis0Dd(ps) {
+    const [[x0, y0]] = ps;
+    return [[[0, x0]], [[0, y0]]];
+}
+
+//# sourceMappingURL=to-power-basis-dd.js.map
+;// ./node_modules/double-double/node/double-mixed-double-double/dd-diff-double.js
+/**
+ * Returns the result of subtracting the second given double-precision
+ * floating point number from the first double-double precision float.
+ *
+ * * relative error bound: 3u^2 + 13u^3, i.e. fl(a-b) = (a-b)(1+ϵ),
+ * where ϵ <= 3u^2 + 13u^3, u = 0.5 * Number.EPSILON
+ * * the error bound is not sharp - the worst case that could be found by the
+ * authors were 2.25u^2
+ *
+ * ALGORITHM 6 of https://hal.archives-ouvertes.fr/hal-01351529v3/document
+ * @param x a double-double precision floating point number
+ * @param y a double precision floating point number
+ */
+function ddDiffDouble(x, y) {
+    const xl = x[0];
+    const xh = x[1];
+    //const [sl,sh] = twoSum(xh,yh);
+    const sh = xh - y;
+    const _1 = sh - xh;
+    const sl = (xh - (sh - _1)) + (-y - _1);
+    //const [tl,th] = twoSum(xl,yl);
+    const th = xl;
+    const _2 = th - xl;
+    const tl = (xl - (th - _2)) - _2;
+    const c = sl + th;
+    //const [vl,vh] = fastTwoSum(sh,c)
+    const vh = sh + c;
+    const vl = c - (vh - sh);
+    const w = tl + vl;
+    //const [zl,zh] = fastTwoSum(vh,w)
+    const zh = vh + w;
+    const zl = w - (zh - vh);
+    return [zl, zh];
+}
+
+//# sourceMappingURL=dd-diff-double.js.map
+;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez2.ts
+
+
+const dd_get_medial_point_coeffs_bez2_qmd = ddMultDouble2;
+const dd_get_medial_point_coeffs_bez2_qaq = ddAddDd;
+const dd_get_medial_point_coeffs_bez2_qmq = ddMultDd;
+const dd_get_medial_point_coeffs_bez2_qno = ddNegativeOf;
+const dd_get_medial_point_coeffs_bez2_qmn2 = ddMultByNeg2;
+const dd_get_medial_point_coeffs_bez2_qm2 = ddMultBy2;
+const qdd = ddDiffDouble;
+/**
+ * Returns the polynomial coefficients for the ray parameter `t` and the
+ * curve parameter `s` that encode the medial condition for `q(t) = p + t⋅v`
+ * and a quadratic bezier curve `ps`.
+ *
+ * The returned coefficients describe the equations whose common solutions
+ * satisfy:
+ * * `q(t)` is equidistant from `p` and the nearest point on `ps`
+ * * that common distance is locally minimal among such candidates
+ *
+ * More specifically, this function returns:
+ * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
+ * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
+ * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
+ *   candidate `s` values for medial points
+ *
+ * @param p base point
+ * @param v ray direction from `p`
+ * @param ps quadratic bezier control points, i.e. an order 2 bezier curve
+ * given as an array of control points, e.g. `[[0,0],[1,1],[2,1]]`
+ */
+function ddGetMedialPointCoeffsBez2(p, v, ps) {
+    // -----------------------------------------------------
+    // See get-medial-points.md for implementation details.
+    // -----------------------------------------------------
+    const [px, py] = p;
+    const [vx, vy] = v;
+    const [[x0, y0]] = ps;
+    // Quadratic bezier in power basis: b(s) = a⋅s² + b⋅s + c
+    const [[ax, bx], [ay, by]] = to_power_basis_dd_toPowerBasisDd(ps);
+    // u(s) = p - b(s) = u2⋅s² + u1⋅s + u0
+    // const u0x = px - x0;
+    // const u0y = py - y0;
+    const u0x = qdd(px, x0);
+    const u0y = qdd(py, y0);
+    // Shared dot products.
+    // const c1 = 2*(vx*ax + vy*ay);
+    // const c0 = vx*bx + vy*by;
+    // const vu0 = vx*u0x + vy*u0y;
+    // const b4 = ax*ax + ay*ay;
+    // const ab = ax*bx + ay*by;
+    // const bb = bx*bx + by*by;
+    // const u0a = u0x*ax + u0y*ay;
+    // const d0 = u0x*bx + u0y*by;
+    // const b0 = u0x*u0x + u0y*u0y;
+    const c1 = dd_get_medial_point_coeffs_bez2_qm2(dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(vx, ax), dd_get_medial_point_coeffs_bez2_qmq(vy, ay)));
+    const c0 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(vx, bx), dd_get_medial_point_coeffs_bez2_qmq(vy, by));
+    const vu0 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(vx, u0x), dd_get_medial_point_coeffs_bez2_qmq(vy, u0y));
+    const b4 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(ax, ax), dd_get_medial_point_coeffs_bez2_qmq(ay, ay));
+    const ab = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(bx, ax), dd_get_medial_point_coeffs_bez2_qmq(by, ay));
+    const bb = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(bx, bx), dd_get_medial_point_coeffs_bez2_qmq(by, by));
+    const u0a = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(u0x, ax), dd_get_medial_point_coeffs_bez2_qmq(u0y, ay));
+    const d0 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(bx, u0x), dd_get_medial_point_coeffs_bez2_qmq(by, u0y));
+    const b0 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(u0x, u0x), dd_get_medial_point_coeffs_bez2_qmq(u0y, u0y));
+    // -----------------------------------------------------
+    // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
+    // => C(s)⋅t + D(s) = 0
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // const d3 = -2*b4;
+    // const d2 = -3*ab;
+    // const d1 = 2*u0a - bb;
+    const d3 = dd_get_medial_point_coeffs_bez2_qmn2(b4);
+    const d2 = dd_get_medial_point_coeffs_bez2_qmd(-3, ab);
+    const d1 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qm2(u0a), dd_get_medial_point_coeffs_bez2_qno(bb));
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
+    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
+    //         => A(s)⋅t + B(s) = 0
+    // const a2 = -c1;
+    // const a1 = -2*c0;
+    // const a0 = 2*vu0;
+    const a2 = dd_get_medial_point_coeffs_bez2_qno(c1);
+    const a1 = dd_get_medial_point_coeffs_bez2_qmn2(c0);
+    const a0 = dd_get_medial_point_coeffs_bez2_qm2(vu0);
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // const b3 = 2*ab;
+    // const b2 = -d1;
+    // const b1 = -2*d0;
+    const b3 = dd_get_medial_point_coeffs_bez2_qm2(ab);
+    const b2 = dd_get_medial_point_coeffs_bez2_qno(d1);
+    const b1 = dd_get_medial_point_coeffs_bez2_qmn2(d0);
+    // -----------------------------------------------------
+    // Eliminate t from:
+    //   A(s)⋅t + B(s) = 0
+    //   C(s)⋅t + D(s) = 0
+    // by taking A(s)⋅D(s) - B(s)⋅C(s) = 0 (degree ≤ 5 in s)
+    // Using:
+    //   a2 = -c1, d3 = -2*b4, d1 = -b2, b1 = -2*d0
+    // we can compute H = A⋅D - B⋅C directly.
+    // const H5 = b4*c1;
+    // const H4 = ab*c1 + 3*b4*c0;
+    // const H3 = 4*(ab*c0 - vu0*b4);
+    // const H2 = c1*d0 + c0*b2 - 6*vu0*ab;
+    // const H1 = -2*vu0*b2 - c1*b0;
+    // const H0 = 2*vu0*d0 - c0*b0;
+    const H5 = dd_get_medial_point_coeffs_bez2_qmq(b4, c1);
+    const H4 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(ab, c1), dd_get_medial_point_coeffs_bez2_qmd(3, dd_get_medial_point_coeffs_bez2_qmq(b4, c0)));
+    const H3 = dd_get_medial_point_coeffs_bez2_qm2(dd_get_medial_point_coeffs_bez2_qm2(dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(ab, c0), dd_get_medial_point_coeffs_bez2_qno(dd_get_medial_point_coeffs_bez2_qmq(vu0, b4)))));
+    const H2 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmq(c1, d0), dd_get_medial_point_coeffs_bez2_qmq(c0, b2)), dd_get_medial_point_coeffs_bez2_qno(dd_get_medial_point_coeffs_bez2_qmd(6, dd_get_medial_point_coeffs_bez2_qmq(vu0, ab))));
+    const H1 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmn2(dd_get_medial_point_coeffs_bez2_qmq(vu0, b2)), dd_get_medial_point_coeffs_bez2_qno(dd_get_medial_point_coeffs_bez2_qmq(c1, b0)));
+    const H0 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qm2(dd_get_medial_point_coeffs_bez2_qmq(vu0, d0)), dd_get_medial_point_coeffs_bez2_qno(dd_get_medial_point_coeffs_bez2_qmq(c0, b0)));
+    return {
+        A: [a2, a1, a0],
+        B: [b4, b3, b2, b1, b0],
+        C: [c1, c0],
+        D: [d3, d2, d1, d0],
+        H: [H5, H4, H3, H2, H1, H0]
+    };
+}
+
+
+;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez1.ts
+
+const dd_get_medial_point_coeffs_bez1_td = two_diff_twoDiff;
+const dd_get_medial_point_coeffs_bez1_qaq = ddAddDd;
+const dd_get_medial_point_coeffs_bez1_qmq = ddMultDd;
+const dd_get_medial_point_coeffs_bez1_qno = ddNegativeOf;
+const dd_get_medial_point_coeffs_bez1_qmn2 = ddMultByNeg2;
+const dd_get_medial_point_coeffs_bez1_qm2 = ddMultBy2;
+const dd_get_medial_point_coeffs_bez1_qdd = ddDiffDouble;
+/**
+ * Returns the polynomial coefficients used to recover ray parameter values `t`
+ * for a ray `q(t) = p + t⋅v` and an order-1 bezier curve `ps`.
+ *
+ * The returned polynomials encode the medial-condition equations in `s` and
+ * `t`. For any valid solution, `t` is recovered by eliminating `s` and solving
+ * the resulting ray equation, or equivalently by using the linear form
+ * `A(s)⋅t + B(s) = 0`, which gives `t = -B(s)/A(s)`.
+ *
+ * More specifically, the returned values represent:
+ * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
+ * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
+ * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
+ *   candidate `s` values for medial points
+ *
+ * @param p base point
+ * @param v ray direction vector starting from `p`
+ * @param ps order 1 bezier control points, i.e. a line segment
+ * given as an array of control points, e.g. `[[0,0],[2,1]]`
+ */
+function ddGetMedialPointCoeffsBez1(p, v, ps) {
+    // -----------------------------------------------------
+    // See get-medial-points.md for implementation details.
+    // -----------------------------------------------------
+    const [px, py] = p;
+    const [vx, vy] = v;
+    const [[x0, y0], [x1, y1]] = ps;
+    // Linear bezier in power basis: b(s) = b*s + c
+    // We can also use: `const [[bx,by], [cx,cy]] = toPowerBasis1(ps)`
+    // const bx = x1 - x0;
+    // const by = y1 - y0;
+    const bx = dd_get_medial_point_coeffs_bez1_td(x1, x0);
+    const by = dd_get_medial_point_coeffs_bez1_td(y1, y0);
+    // u(s) = p - b(s) = u1*s + u0
+    // const u0x = px - x0;
+    // const u0y = py - y0;
+    const u0x = dd_get_medial_point_coeffs_bez1_qdd(px, x0);
+    const u0y = dd_get_medial_point_coeffs_bez1_qdd(py, y0);
+    // b'(s) = w(s) = w0
+    // -----------------------------------------------------
+    // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
+    // => C(s)⋅t + D(s) = 0
+    // const c0 = vx*bx + vy*by;
+    const c0 = dd_get_medial_point_coeffs_bez1_qaq(dd_get_medial_point_coeffs_bez1_qmq(vx, bx), dd_get_medial_point_coeffs_bez1_qmq(vy, by));
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // const d1 = -(bx*bx + by*by);
+    // const d0 = bx*u0x + by*u0y;
+    // const d1 = qmd(-1,qaq(qmq(bx,bx),qmq(by,by)));
+    const d1 = dd_get_medial_point_coeffs_bez1_qno(dd_get_medial_point_coeffs_bez1_qaq(dd_get_medial_point_coeffs_bez1_qmq(bx, bx), dd_get_medial_point_coeffs_bez1_qmq(by, by)));
+    const d0 = dd_get_medial_point_coeffs_bez1_qaq(dd_get_medial_point_coeffs_bez1_qmq(bx, u0x), dd_get_medial_point_coeffs_bez1_qmq(by, u0y));
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
+    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
+    //         => A(s)⋅t + B(s) = 0
+    // const a1 = -2*c0;
+    // const a0 = 2*(vx*u0x + vy*u0y);
+    const a1 = dd_get_medial_point_coeffs_bez1_qmn2(c0);
+    const a0 = dd_get_medial_point_coeffs_bez1_qaq(dd_get_medial_point_coeffs_bez1_qmq(dd_get_medial_point_coeffs_bez1_qm2(vx), u0x), dd_get_medial_point_coeffs_bez1_qmq(dd_get_medial_point_coeffs_bez1_qm2(vy), u0y));
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // const b2 = -d1;
+    // const b1 = -2*d0;
+    // const b0 = u0x*u0x + u0y*u0y;
+    const b2 = dd_get_medial_point_coeffs_bez1_qno(d1);
+    const b1 = dd_get_medial_point_coeffs_bez1_qmn2(d0);
+    const b0 = dd_get_medial_point_coeffs_bez1_qaq(dd_get_medial_point_coeffs_bez1_qmq(u0x, u0x), dd_get_medial_point_coeffs_bez1_qmq(u0y, u0y));
+    // -----------------------------------------------------
+    // Eliminate t from:
+    //   A(s)⋅t + B(s) = 0
+    //   C(s)⋅t + D(s) = 0
+    // by taking A(s)⋅D(s) - B(s)⋅C(s) = 0 (degree ≤ 2 in s)
+    // const H2 = b2*c0;
+    // const H1 = a0*d1;
+    // const H0 = a0*d0 - b0*c0;
+    const H2 = dd_get_medial_point_coeffs_bez1_qmq(b2, c0);
+    const H1 = dd_get_medial_point_coeffs_bez1_qmq(a0, d1);
+    const H0 = dd_get_medial_point_coeffs_bez1_qaq(dd_get_medial_point_coeffs_bez1_qmq(a0, d0), dd_get_medial_point_coeffs_bez1_qno(dd_get_medial_point_coeffs_bez1_qmq(b0, c0)));
+    return {
+        A: [a1, a0],
+        B: [b2, b1, b0],
+        C: [c0],
+        D: [d1, d0],
+        H: [H2, H1, H0]
+    };
+}
+
+
+;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez3.ts
+/* unused harmony import specifier */ var dd_get_medial_point_coeffs_bez3_twoDiff;
+
+
+const dd_get_medial_point_coeffs_bez3_td = (/* unused pure expression or super */ null && (dd_get_medial_point_coeffs_bez3_twoDiff));
+const dd_get_medial_point_coeffs_bez3_qmd = ddMultDouble2;
+const dd_get_medial_point_coeffs_bez3_qaq = ddAddDd;
+const dd_get_medial_point_coeffs_bez3_qmq = ddMultDd;
+const dd_get_medial_point_coeffs_bez3_qno = ddNegativeOf;
+const dd_get_medial_point_coeffs_bez3_qmn2 = ddMultByNeg2;
+const dd_get_medial_point_coeffs_bez3_qm2 = ddMultBy2;
+const dd_get_medial_point_coeffs_bez3_qdd = ddDiffDouble;
+/**
+ * Returns the polynomial coefficients for the ray parameter `t` and the
+ * curve parameter `s` that encode the medial condition for `q(t) = p + t⋅v`
+ * and a cubic bezier curve `ps`.
+ *
+ * The returned coefficients describe the equations whose common solutions
+ * satisfy:
+ * * `q(t)` is equidistant from `p` and the nearest point on `ps`
+ * * that common distance is locally minimal among such candidates
+ *
+ * More specifically, this function returns:
+ * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
+ * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
+ * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
+ *   candidate `s` values for medial points
+ *
+ * @param p base point
+ * @param v ray direction from `p`
+ * @param ps cubic bezier control points, i.e. an order 3 bezier curve
+ * given as an array of control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
+ */
+function ddGetMedialPointCoeffsBez3(p, v, ps) {
+    // -----------------------------------------------------
+    // See get-medial-points.md for implementation details.
+    // -----------------------------------------------------
+    const [px, py] = p;
+    const [vx, vy] = v;
+    // Cubic bezier in power basis: b(s) = a*s^3 + b*s^2 + c*s + d
+    const [[ax, bx, cx, [, dx]], [ay, by, cy, [, dy]]] = to_power_basis_dd_toPowerBasisDd(ps);
+    // const u0x = px - dx;
+    // const u0y = py - dy;
+    const u0x = dd_get_medial_point_coeffs_bez3_qdd(px, dx);
+    const u0y = dd_get_medial_point_coeffs_bez3_qdd(py, dy);
+    // Reuse dot products across A, B, C, D, and H.
+    // const va = vx*ax + vy*ay;
+    // const vb = vx*bx + vy*by;
+    // const vc = vx*cx + vy*cy;
+    // const vu0 = vx*u0x + vy*u0y;
+    const va = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(vx, ax), dd_get_medial_point_coeffs_bez3_qmq(vy, ay));
+    const vb = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(vx, bx), dd_get_medial_point_coeffs_bez3_qmq(vy, by));
+    const vc = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(vx, cx), dd_get_medial_point_coeffs_bez3_qmq(vy, cy));
+    const vu0 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(vx, u0x), dd_get_medial_point_coeffs_bez3_qmq(vy, u0y));
+    // const b6 = ax*ax + ay*ay;
+    // const ab = ax*bx + ay*by;
+    // const ac = ax*cx + ay*cy;
+    // const bb = bx*bx + by*by;
+    // const bc = bx*cx + by*cy;
+    // const cc = cx*cx + cy*cy;
+    const b6 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(ax, ax), dd_get_medial_point_coeffs_bez3_qmq(ay, ay));
+    const ab = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(ax, bx), dd_get_medial_point_coeffs_bez3_qmq(ay, by));
+    const ac = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(ax, cx), dd_get_medial_point_coeffs_bez3_qmq(ay, cy));
+    const bb = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(bx, bx), dd_get_medial_point_coeffs_bez3_qmq(by, by));
+    const bc = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(bx, cx), dd_get_medial_point_coeffs_bez3_qmq(by, cy));
+    const cc = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(cx, cx), dd_get_medial_point_coeffs_bez3_qmq(cy, cy));
+    // const au0 = ax*u0x + ay*u0y;
+    // const bu0 = bx*u0x + by*u0y;
+    // const d0 = cx*u0x + cy*u0y;
+    // const b0 = u0x*u0x + u0y*u0y;
+    const au0 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(ax, u0x), dd_get_medial_point_coeffs_bez3_qmq(ay, u0y));
+    const bu0 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(bx, u0x), dd_get_medial_point_coeffs_bez3_qmq(by, u0y));
+    const d0 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(cx, u0x), dd_get_medial_point_coeffs_bez3_qmq(cy, u0y));
+    const b0 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(u0x, u0x), dd_get_medial_point_coeffs_bez3_qmq(u0y, u0y));
+    // -----------------------------------------------------
+    // E1(s,t): (u(s) + t*v) * b'(s) = 0
+    // => C(s)*t + D(s) = 0
+    // const c2 = 3*va;
+    // const c1 = 2*vb;
+    // const c0 = vc;
+    const c2 = dd_get_medial_point_coeffs_bez3_qmd(3, va);
+    const c1 = dd_get_medial_point_coeffs_bez3_qm2(vb);
+    const c0 = vc;
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // const d5 = -3*b6;
+    // const d4 = -5*ab;
+    // const d3 = -4*ac - 2*bb;
+    // const d2 = 3*au0 - 3*bc;
+    // const d1 = 2*bu0 - cc;
+    const d5 = dd_get_medial_point_coeffs_bez3_qmd(-3, b6);
+    const d4 = dd_get_medial_point_coeffs_bez3_qmd(-5, ab);
+    const d3 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmd(-4, ac), dd_get_medial_point_coeffs_bez3_qmn2(bb));
+    const d2 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmd(3, au0), dd_get_medial_point_coeffs_bez3_qmd(-3, bc));
+    const d1 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qm2(bu0), dd_get_medial_point_coeffs_bez3_qno(cc));
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // E2(s,t): |t*v|^2 - |u(s) + t*v|^2 = 0
+    //         => 2*(v*u(s))*t + |u(s)|^2 = 0
+    //         => A(s)*t + B(s) = 0
+    // const a3 = -2*va;
+    // const a2 = -2*vb;
+    // const a1 = -2*vc;
+    // const a0 = 2*vu0;
+    const a3 = dd_get_medial_point_coeffs_bez3_qmn2(va);
+    const a2 = dd_get_medial_point_coeffs_bez3_qmn2(vb);
+    const a1 = dd_get_medial_point_coeffs_bez3_qmn2(vc);
+    const a0 = dd_get_medial_point_coeffs_bez3_qm2(vu0);
+    // -----------------------------------------------------
+    // -----------------------------------------------------
+    // const b5 = 2*ab;
+    // const b4 = 2*ac + bb;
+    // const b3 = 2*bc - 2*au0;
+    // const b2 = cc - 2*bu0;
+    // const b1 = -2*d0;
+    const b5 = dd_get_medial_point_coeffs_bez3_qm2(ab);
+    const b4 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qm2(ac), bb);
+    const b3 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qm2(bc), dd_get_medial_point_coeffs_bez3_qmn2(au0));
+    const b2 = dd_get_medial_point_coeffs_bez3_qaq(cc, dd_get_medial_point_coeffs_bez3_qmn2(bu0));
+    const b1 = dd_get_medial_point_coeffs_bez3_qmn2(d0);
+    // -----------------------------------------------------
+    // Eliminate t from:
+    //   A(s)*t + B(s) = 0
+    //   C(s)*t + D(s) = 0
+    // by taking H(s) = A(s)*D(s) - B(s)*C(s) = 0 (degree <= 8 in s).
+    // Using:
+    //   a2 = -c1, a1 = -2*c0,
+    //   d5 = -3*b6, d4 = -(5/2)*b5, d3 = -2*b4, d2 = -(3/2)*b3,
+    //   d1 = -b2, d0 = -(1/2)*b1,
+    // we can compute H directly with fewer operations.
+    // const H8 = 3*va*b6;
+    // const H7 = 4*(va*ab + vb*b6);
+    // const H6 = va*b4 + 6*vb*ab + 5*vc*b6;
+    // const H5 = 2*vb*b4 + 8*vc*ab - 6*vu0*b6;
+    // const H4 = -va*b2 + vb*b3 + 3*vc*b4 - 10*vu0*ab;
+    // const H3 = -2*va*b1 + 2*vc*b3 - 4*vu0*b4;
+    // const H2 = vc*b2 - vb*b1 - 3*vu0*b3 - 3*va*b0;
+    // const H1 = -2*vu0*b2 - 2*vb*b0;
+    // const H0 = -vu0*b1 - vc*b0;
+    const H8 = dd_get_medial_point_coeffs_bez3_qmd(3, dd_get_medial_point_coeffs_bez3_qmq(va, b6));
+    const H7 = dd_get_medial_point_coeffs_bez3_qm2(dd_get_medial_point_coeffs_bez3_qm2(dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(va, ab), dd_get_medial_point_coeffs_bez3_qmq(vb, b6))));
+    const H6 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(va, b4), dd_get_medial_point_coeffs_bez3_qmd(6, dd_get_medial_point_coeffs_bez3_qmq(vb, ab))), dd_get_medial_point_coeffs_bez3_qmd(5, dd_get_medial_point_coeffs_bez3_qmq(vc, b6)));
+    const H5 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qm2(dd_get_medial_point_coeffs_bez3_qmq(vb, b4)), dd_get_medial_point_coeffs_bez3_qmd(8, dd_get_medial_point_coeffs_bez3_qmq(vc, ab))), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmd(6, dd_get_medial_point_coeffs_bez3_qmq(vu0, b6))));
+    const H4 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmq(va, b2)), dd_get_medial_point_coeffs_bez3_qmq(vb, b3)), dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmd(3, dd_get_medial_point_coeffs_bez3_qmq(vc, b4)), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmd(10, dd_get_medial_point_coeffs_bez3_qmq(vu0, ab)))));
+    const H3 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmn2(dd_get_medial_point_coeffs_bez3_qmq(va, b1)), dd_get_medial_point_coeffs_bez3_qm2(dd_get_medial_point_coeffs_bez3_qmq(vc, b3))), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qm2(dd_get_medial_point_coeffs_bez3_qm2(dd_get_medial_point_coeffs_bez3_qmq(vu0, b4)))));
+    const H2 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmq(vc, b2), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmq(vb, b1))), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmd(3, dd_get_medial_point_coeffs_bez3_qmq(vu0, b3)))), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmd(3, dd_get_medial_point_coeffs_bez3_qmq(va, b0))));
+    const H1 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmn2(dd_get_medial_point_coeffs_bez3_qmq(vu0, b2)), dd_get_medial_point_coeffs_bez3_qmn2(dd_get_medial_point_coeffs_bez3_qmq(vb, b0)));
+    const H0 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmq(vu0, b1)), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmq(vc, b0)));
+    return {
+        A: [a3, a2, a1, a0],
+        B: [b6, b5, b4, b3, b2, b1, b0],
+        C: [c2, c1, c0],
+        D: [d5, d4, d3, d2, d1, d0],
+        H: [H8, H7, H6, H5, H4, H3, H2, H1, H0]
+    };
+}
+
+
+;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez0.ts
+
+const dd_get_medial_point_coeffs_bez0_qaq = ddAddDd;
+const dd_get_medial_point_coeffs_bez0_qmq = ddMultDd;
+const dd_get_medial_point_coeffs_bez0_qm2 = ddMultBy2;
+const dd_get_medial_point_coeffs_bez0_qdd = ddDiffDouble;
+// TODO - move all these upstream to flo-bezier3
+/**
+ * Returns the coefficients `a0` and `b0` for the linear equation
+ * `a0⋅t + b0 = 0`, so the ray parameter can be recovered as `t = -b0/a0`.
+ * That parameter value makes `q(t) = p + t⋅v` equidistant from `p` and `P`.
+ *
+ * Let `p` be a fixed point in the plane.\
+ * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.\
+ * Let `P` be another point.\
+ *
+ * In other words, this function returns the coefficients needed to solve for
+ * the ray parameter of the medial point on the ray.
+ *
+ * @param p base point
+ * @param v ray direction from `p`
+ * @param P another "target" point, e.g. `[1,2]`
+ */
+function ddGetMedialPointCoeffsBez0(p, v, P) {
+    // -----------------------------------------------------
+    // See get-medial-points.md for implementation details.
+    // -----------------------------------------------------
+    const [px, py] = p;
+    const [vx, vy] = v;
+    const [x0, y0] = P;
+    // Constant bezier in power basis: b(s) = c
+    // u(s) = p - b(s) = u0
+    // const u0x = px - x0;
+    // const u0y = py - y0;
+    const u0x = dd_get_medial_point_coeffs_bez0_qdd(px, x0);
+    const u0y = dd_get_medial_point_coeffs_bez0_qdd(py, y0);
+    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
+    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
+    //         => A(s)⋅t + B(s) = 0
+    // const a0 = 2*(vx*u0x + vy*u0y);
+    // const b0 = u0x*u0x + u0y*u0y;
+    const a0 = dd_get_medial_point_coeffs_bez0_qaq(dd_get_medial_point_coeffs_bez0_qmq(dd_get_medial_point_coeffs_bez0_qm2(vx), u0x), dd_get_medial_point_coeffs_bez0_qmq(dd_get_medial_point_coeffs_bez0_qm2(vy), u0y));
+    const b0 = dd_get_medial_point_coeffs_bez0_qaq(dd_get_medial_point_coeffs_bez0_qmq(u0x, u0x), dd_get_medial_point_coeffs_bez0_qmq(u0y, u0y));
+    return { a0, b0 };
+}
+
+
+;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs.ts
+
+
+
+
+const getMedialPointCoeffss = [
+    ,
+    ,
+    ddGetMedialPointCoeffsBez1,
+    ddGetMedialPointCoeffsBez2,
+    ddGetMedialPointCoeffsBez3
+];
+/**
+ * Returns polynomial coefficients for ray parameter values `t`, bezier
+ * parameter values `s` and medial points for points `q(t)` and b(s) (an order
+ * 0, 1, 2 or 3 bezier curve) that satisfy the medial condition with respect to `p` and `ps`:
+ *
+ * Let `p` be a fixed point in the plane.
+ * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.
+ * Let `ps` be a cubic bezier curve.
+ *
+ * * `q(t)` is equidistant from `p` and the nearest point on `ps`
+ * * that common distance is locally minimal among such candidates
+ *
+ * In other words, this function returns candidate ray parameters for the
+ * sought medial point(s). Selecting physically valid solutions (if needed)
+ * is done by the caller or by a later stage of this routine.
+ *
+ * @param p base point
+ * @param v ray direction from `p`
+ * @param ps bezier control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
+ */
+function ddGetMedialPointCoeffs(p, v, ps) {
+    if (ps.length === 1) {
+        const { a0, b0 } = ddGetMedialPointCoeffsBez0(p, v, ps[0]);
+        return { A: [a0], B: [b0], C: [], D: [], H: [] };
+    }
+    return getMedialPointCoeffss[ps.length](p, v, ps);
+}
+
+
+;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez2-same-curve.ts
+
+
+const dd_get_medial_point_coeffs_bez2_same_curve_qmd = ddMultDouble2;
+const dd_get_medial_point_coeffs_bez2_same_curve_qaq = ddAddDd;
+const dd_get_medial_point_coeffs_bez2_same_curve_qmq = ddMultDd;
+const dd_get_medial_point_coeffs_bez2_same_curve_qno = ddNegativeOf;
+const dd_get_medial_point_coeffs_bez2_same_curve_qm2 = ddMultBy2;
 /**
  * Returns polynomial coefficients for the same-curve quadratic medial-point
  * case, where `p = b(t)` on the same quadratic bezier `ps` and `v` is normal
@@ -27228,26 +27781,32 @@ function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO
  * @param v ray direction from `p`; assumed normal to `ps` at `t`
  * @param ps order 2 bezier control points, e.g. `[[0,0],[1,1],[2,1]]`
  */
-function getMedialPointCoeffsBez2_SameCurve(t, v, ps) {
+function ddGetMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
     // Quadratic bezier in power basis: b(s) = a⋅s² + b⋅s + c
-    const [[ax, bx], [ay, by]] = toPowerBasis2(ps);
+    const [[ax, bx], [ay, by]] = to_power_basis_dd_toPowerBasisDd(ps);
     const [vx, vy] = v;
     // Same-curve assumption with explicit parameter `t`:
     // p = b(t) => u0 = p - c = t*(a*t + b).
-    const g0x = ax * t + bx;
-    const g0y = ay * t + by;
+    // const g0x = ax*t + bx;
+    // const g0y = ay*t + by;
+    const g0x = dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmd(t, ax), bx);
+    const g0y = dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmd(t, ay), by);
     // Reuse core quadratic-form terms to reduce repeated multiplications.
-    const br2 = ax * ax + ay * ay;
-    const ab = ax * bx + ay * by;
+    // const br2 = ax*ax + ay*ay;
+    // const ab = ax*bx + ay*by;
     // const bb = bx*bx + by*by;
-    const ag = ax * g0x + ay * g0y;
+    // const ag = ax*g0x + ay*g0y;
+    const br2 = dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmq(ax, ax), dd_get_medial_point_coeffs_bez2_same_curve_qmq(ay, ay));
+    const ab = dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmq(ax, bx), dd_get_medial_point_coeffs_bez2_same_curve_qmq(ay, by));
+    const ag = dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmq(ax, g0x), dd_get_medial_point_coeffs_bez2_same_curve_qmq(ay, g0y));
     // -----------------------------------------------------
     // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
     // => C(s)⋅t + D(s) = 0
-    const c1 = 2 * (vx * ax + vy * ay);
+    // const c1 = 2*(vx*ax + vy*ay);
+    const c1 = dd_get_medial_point_coeffs_bez2_same_curve_qm2(dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmq(vx, ax), dd_get_medial_point_coeffs_bez2_same_curve_qmq(vy, ay)));
     // v is normal at parameter t, so C(t) = v⋅w(t) = 0.
     // Since C(s) = c1*s + c0, enforce c0 = -c1*t exactly.
     // const c0 = -c1*t;
@@ -27262,11 +27821,14 @@ function getMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
     //         => (s - t)^2⋅(A(s)⋅t + B(s)) = 0
     // Return only the reduced constant A(s) = ar0.
-    const ar0 = -c1;
+    // const ar0 = -c1;
+    const ar0 = dd_get_medial_point_coeffs_bez2_same_curve_qno(c1);
     // Full B(s) factorizes as: B_full(s) = (s - t)^2*B_reduced(s).
     // Return only B_reduced(s) = br2*s^2 + br1*s + br0.
-    const br1 = 2 * ag;
-    const br0 = g0x * g0x + g0y * g0y;
+    // const br1 = 2*ag;
+    // const br0 = g0x*g0x + g0y*g0y;
+    const br1 = dd_get_medial_point_coeffs_bez2_same_curve_qm2(ag);
+    const br0 = dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmq(g0x, g0x), dd_get_medial_point_coeffs_bez2_same_curve_qmq(g0y, g0y));
     // -----------------------------------------------------
     // Eliminate t from:
     //   A(s)⋅t + B(s) = 0
@@ -27277,7 +27839,8 @@ function getMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     // Therefore H5 and H4 reduce to:
     //   H5 = b4*c1
     //   H4 = 3*b4*c0 + (1/2)*b3*c1
-    const H5 = br2 * c1;
+    // const H5 = br2*c1;
+    const H5 = dd_get_medial_point_coeffs_bez2_same_curve_qmq(br2, c1);
     // In the same-curve quadratic case the full eliminant has the form
     // H_full(s) = (s - t)^4*(l1*s + l0).
     // Match the leading coefficients of H_full(s):
@@ -27286,7 +27849,8 @@ function getMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     // const l1 = H5;
     // const l0 = H4 + 4*t*l1;
     // Using c0 = -c1*t and b3 = 2*ab, this simplifies to l0 = c1*(br2*t + ab).
-    const l0 = c1 * (br2 * t + ab);
+    // const l0 = c1*(br2*t + ab);
+    const l0 = dd_get_medial_point_coeffs_bez2_same_curve_qmq(c1, dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmd(t, br2), ab));
     return {
         A: [ar0],
         B: [br2, br1, br0],
@@ -27296,9 +27860,16 @@ function getMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     };
 }
 
-//# sourceMappingURL=get-medial-point-coeffs-bez2-same-curve.js.map
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez3-same-curve.js
 
+;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez3-same-curve.ts
+
+
+const dd_get_medial_point_coeffs_bez3_same_curve_qmd = ddMultDouble2;
+const dd_get_medial_point_coeffs_bez3_same_curve_qaq = ddAddDd;
+const dd_get_medial_point_coeffs_bez3_same_curve_qmq = ddMultDd;
+const dd_get_medial_point_coeffs_bez3_same_curve_qno = ddNegativeOf;
+const dd_get_medial_point_coeffs_bez3_same_curve_qmn2 = ddMultByNeg2;
+const dd_get_medial_point_coeffs_bez3_same_curve_qm2 = ddMultBy2;
 /**
  * Returns polynomial coefficients for the same-curve cubic medial-point case,
  * where `p = b(t)` on the same cubic bezier `ps` and `v` is normal to the
@@ -27321,67 +27892,97 @@ function getMedialPointCoeffsBez2_SameCurve(t, v, ps) {
  * @param v ray direction from `p`; assumed normal to `ps` at `t`
  * @param ps order 3 bezier control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
  */
-function getMedialPointCoeffsBez3_SameCurve(t, v, ps) {
+function ddGetMedialPointCoeffsBez3_SameCurve(t, v, ps) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
     const [vx, vy] = v;
     // Cubic bezier in power basis: b(s) = a*s^3 + b*s^2 + c*s + d
-    const [[ax, bx, cx], [ay, by, cy]] = toPowerBasis3(ps);
+    const [[ax, bx, cx], [ay, by, cy]] = to_power_basis_dd_toPowerBasisDd(ps);
     // Shared dot products to reduce repeated multiplications.
-    const va = vx * ax + vy * ay;
-    const vb = vx * bx + vy * by;
-    const vc = vx * cx + vy * cy;
-    const aa = ax * ax + ay * ay;
-    const ab = ax * bx + ay * by;
-    const ac = ax * cx + ay * cy;
-    const bb = bx * bx + by * by;
-    const bc = bx * cx + by * cy;
-    const cc = cx * cx + cy * cy;
-    const vu0 = t * (t * (t * va + vb) + vc);
-    const u0a = t * (t * (t * aa + ab) + ac);
-    const u0b = t * (t * (t * ab + bb) + bc);
+    // const va = vx*ax + vy*ay;
+    // const vb = vx*bx + vy*by;
+    // const vc = vx*cx + vy*cy;
+    // const aa = ax*ax + ay*ay;
+    // const ab = ax*bx + ay*by;
+    // const ac = ax*cx + ay*cy;
+    // const bb = bx*bx + by*by;
+    // const bc = bx*cx + by*cy;
+    // const cc = cx*cx + cy*cy;
+    // const vu0 = t*(t*(t*va + vb) + vc);
+    // const u0a = t*(t*(t*aa + ab) + ac);
+    // const u0b = t*(t*(t*ab + bb) + bc);
+    const va = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(vx, ax), dd_get_medial_point_coeffs_bez3_same_curve_qmq(vy, ay));
+    const vb = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(vx, bx), dd_get_medial_point_coeffs_bez3_same_curve_qmq(vy, by));
+    const vc = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(vx, cx), dd_get_medial_point_coeffs_bez3_same_curve_qmq(vy, cy));
+    const aa = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(ax, ax), dd_get_medial_point_coeffs_bez3_same_curve_qmq(ay, ay));
+    const ab = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(ax, bx), dd_get_medial_point_coeffs_bez3_same_curve_qmq(ay, by));
+    const ac = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(ax, cx), dd_get_medial_point_coeffs_bez3_same_curve_qmq(ay, cy));
+    const bb = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(bx, bx), dd_get_medial_point_coeffs_bez3_same_curve_qmq(by, by));
+    const bc = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(bx, cx), dd_get_medial_point_coeffs_bez3_same_curve_qmq(by, cy));
+    const cc = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(cx, cx), dd_get_medial_point_coeffs_bez3_same_curve_qmq(cy, cy));
+    const vu0 = dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, va), vb)), vc));
+    const u0a = dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, aa), ab)), ac));
+    const u0b = dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, ab), bb)), bc));
     // -----------------------------------------------------
     // E1(s,t): (u(s) + t*v) * b'(s) = 0
     // => C(s)*t + D(s) = 0
-    const c2 = 3 * va;
-    const c1 = 2 * vb;
+    // const c2 = 3*va;
+    // const c1 = 2*vb;
+    const c2 = dd_get_medial_point_coeffs_bez3_same_curve_qmd(3, va);
+    const c1 = dd_get_medial_point_coeffs_bez3_same_curve_qm2(vb);
     // v is normal at parameter t, so C(t) = 0.
     // const c0 = -t*(c2*t + c1);
     // Return reduced C such that C_full(s) = (s - t)*C(s).
-    const cr0 = c1 + t * c2;
+    // const cr0 = c1 + t*c2;
+    const cr0 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(c1, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, c2));
     // -----------------------------------------------------
     // -----------------------------------------------------
-    const d5 = -3 * aa;
-    const d4 = -5 * ab;
-    const d3 = -4 * ac - 2 * bb;
-    const d2 = -3 * bc + 3 * u0a;
-    const d1 = -cc + 2 * u0b;
+    // const d5 = -3*aa;
+    // const d4 = -5*ab;
+    // const d3 = -4*ac - 2*bb;
+    // const d2 = -3*bc + 3*u0a;
+    // const d1 = -cc + 2*u0b;
+    const d5 = dd_get_medial_point_coeffs_bez3_same_curve_qmd(-3, aa);
+    const d4 = dd_get_medial_point_coeffs_bez3_same_curve_qmd(-5, ab);
+    const d3 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(-4, ac), dd_get_medial_point_coeffs_bez3_same_curve_qmn2(bb));
+    const d2 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(-3, bc), dd_get_medial_point_coeffs_bez3_same_curve_qmd(3, u0a));
+    const d1 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qno(cc), dd_get_medial_point_coeffs_bez3_same_curve_qm2(u0b));
     // p = b(t) => D(t) = u(t)⋅w(t) = 0.
     // Return reduced D such that D_full(s) = (s - t)*D(s).
     const dr4 = d5;
-    const dr3 = d4 + t * dr4;
-    const dr2 = d3 + t * dr3;
-    const dr1 = d2 + t * dr2;
-    const dr0 = d1 + t * dr1;
+    // const dr3 = d4 + t*dr4;
+    // const dr2 = d3 + t*dr3;
+    // const dr1 = d2 + t*dr2;
+    // const dr0 = d1 + t*dr1;
+    const dr3 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(d4, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dr4));
+    const dr2 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(d3, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dr3));
+    const dr1 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(d2, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dr2));
+    const dr0 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(d1, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dr1));
     // -----------------------------------------------------
     // -----------------------------------------------------
     // E2(s,t): |t*v|^2 - |u(s) + t*v|^2 = 0
     //         => 2*(v*u(s))*t + |u(s)|^2 = 0
     //         => A(s)*t + B(s) = 0
     // A'(s) = -2*C(s) identically for bezier curves, hence:
-    const a3 = -2 * va;
-    const a2 = -2 * vb;
+    // const a3 = -2*va;
+    // const a2 = -2*vb;
+    const a3 = dd_get_medial_point_coeffs_bez3_same_curve_qmn2(va);
+    const a2 = dd_get_medial_point_coeffs_bez3_same_curve_qmn2(vb);
     // const a1 = -2*vc;
     // p = b(t) => A(t) = 0.
     // const a0 = 2*vu0;
     // -----------------------------------------------------
     // -----------------------------------------------------
     const b6 = aa;
-    const b5 = 2 * ab;
-    const b4 = 2 * ac + bb;
-    const b3 = 2 * bc - 2 * u0a;
-    const b2 = cc - 2 * u0b;
+    // const b5 = 2*ab;
+    // const b4 = 2*ac + bb;
+    // const b3 = 2*bc - 2*u0a;
+    // const b2 = cc - 2*u0b;
+    const b5 = dd_get_medial_point_coeffs_bez3_same_curve_qm2(ab);
+    const b4 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(ac), bb);
+    const b3 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(bc), dd_get_medial_point_coeffs_bez3_same_curve_qmn2(u0a));
+    const b2 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(cc, dd_get_medial_point_coeffs_bez3_same_curve_qmn2(u0b));
     // -----------------------------------------------------
     // -----------------------------------------------------
     // Return reduced A and B such that:
@@ -27389,31 +27990,45 @@ function getMedialPointCoeffsBez3_SameCurve(t, v, ps) {
     //   B_full(s) = (s - t)^2*B(s)
     // where A is degree 1 and B is degree 4.
     const ar1 = a3;
-    const ar0 = a2 + 2 * t * ar1;
+    // const ar0 = a2 + 2*t*ar1;
+    const ar0 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(a2, dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, ar1)));
     const br4 = b6;
-    const br3 = b5 + 2 * t * br4;
-    const br2 = b4 + t * (2 * br3 - t * br4);
-    const br1 = b3 + t * (2 * br2 - t * br3);
-    const br0 = b2 + t * (2 * br1 - t * br2);
+    // const br3 = b5 + 2*t*br4;
+    // const br2 = b4 + t*(2*br3 - t*br4);
+    // const br1 = b3 + t*(2*br2 - t*br3);
+    // const br0 = b2 + t*(2*br1 - t*br2);
+    const br3 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(b5, dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, br4)));
+    const br2 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(b4, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(br3), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, br4)))));
+    const br1 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(b3, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(br2), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, br3)))));
+    const br0 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(b2, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(br1), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, br2)))));
     // -----------------------------------------------------
     // Eliminate t from:
     //   A(s)*t + B(s) = 0
     //   C(s)*t + D(s) = 0
     // by taking A(s)*D(s) - B(s)*C(s) = 0 (degree <= 8 in s)
     // H8 = a3*d5 - b6*c2 = (-2*va)*(-3*aa) - aa*(3*va) = 3*va*aa.
-    const H8 = 3 * va * aa;
-    const H7 = 4 * (va * ab + vb * aa);
-    const H6 = va * b4 + 6 * vb * ab + 5 * vc * aa;
-    const H5 = 2 * vb * b4 + 8 * vc * ab - 6 * vu0 * aa;
-    const H4 = -va * b2 + vb * b3 + 3 * vc * b4 - 10 * vu0 * ab;
+    // const H8 = 3*va*aa;
+    // const H7 = 4*(va*ab + vb*aa);
+    // const H6 = va*b4 + 6*vb*ab + 5*vc*aa;
+    // const H5 = 2*vb*b4 + 8*vc*ab - 6*vu0*aa;
+    // const H4 = -va*b2 + vb*b3 + 3*vc*b4 - 10*vu0*ab;
+    const H8 = dd_get_medial_point_coeffs_bez3_same_curve_qmd(3, dd_get_medial_point_coeffs_bez3_same_curve_qmq(va, aa));
+    const H7 = dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(va, ab), dd_get_medial_point_coeffs_bez3_same_curve_qmq(vb, aa))));
+    const H6 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmq(va, b4), dd_get_medial_point_coeffs_bez3_same_curve_qmd(6, dd_get_medial_point_coeffs_bez3_same_curve_qmq(vb, ab))), dd_get_medial_point_coeffs_bez3_same_curve_qmd(5, dd_get_medial_point_coeffs_bez3_same_curve_qmq(vc, aa)));
+    const H5 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qmq(vb, b4)), dd_get_medial_point_coeffs_bez3_same_curve_qmd(8, dd_get_medial_point_coeffs_bez3_same_curve_qmq(vc, ab))), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(6, dd_get_medial_point_coeffs_bez3_same_curve_qmq(vu0, aa))));
+    const H4 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmq(va, b2)), dd_get_medial_point_coeffs_bez3_same_curve_qmq(vb, b3)), dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(3, dd_get_medial_point_coeffs_bez3_same_curve_qmq(vc, b4)), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(10, dd_get_medial_point_coeffs_bez3_same_curve_qmq(vu0, ab)))));
     // Reduce H_full(s) by its guaranteed (s - t)^4 factor:
     // H_full(s) = (s - t)^4*(q4*s^4 + q3*s^3 + q2*s^2 + q1*s + q0)
     // Match the high-order coefficients of H_full(s) explicitly.
     const q4 = H8;
-    const q3 = H7 + 4 * t * q4;
-    const q2 = H6 + t * (4 * q3 - 6 * t * q4);
-    const q1 = H5 + t * (4 * q2 + t * (-6 * q3 + 4 * t * q4));
-    const q0 = H4 + t * (4 * q1 + t * (-6 * q2 + t * (4 * q3 - t * q4)));
+    // const q3 = H7 + 4*t*q4;
+    // const q2 = H6 + t*(4*q3 - 6*t*q4);
+    // const q1 = H5 + t*(4*q2 + t*(-6*q3 + 4*t*q4));
+    // const q0 = H4 + t*(4*q1 + t*(-6*q2 + t*(4*q3 - t*q4)));
+    const q3 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(H7, dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, q4))));
+    const q2 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(H6, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(q3)), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(6, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, q4))))));
+    const q1 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(H5, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(q2)), dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(-6, q3), dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, q4))))))));
+    const q0 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(H4, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(q1)), dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(-6, q2), dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(q3)), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, q4)))))))));
     return {
         A: [ar1, ar0],
         B: [br4, br3, br2, br1, br0],
@@ -27423,360 +28038,18 @@ function getMedialPointCoeffsBez3_SameCurve(t, v, ps) {
     };
 }
 
-//# sourceMappingURL=get-medial-point-coeffs-bez3-same-curve.js.map
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez2.js
 
-/**
- * Returns the polynomial coefficients for the ray parameter `t` and the
- * curve parameter `s` that encode the medial condition for `q(t) = p + t⋅v`
- * and a quadratic bezier curve `ps`.
- *
- * The returned coefficients describe the equations whose common solutions
- * satisfy:
- * * `q(t)` is equidistant from `p` and the nearest point on `ps`
- * * that common distance is locally minimal among such candidates
- *
- * More specifically, this function returns:
- * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
- * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
- * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
- *   candidate `s` values for medial points
- *
- * @param p base point
- * @param v ray direction from `p`
- * @param ps quadratic bezier control points, i.e. an order 2 bezier curve
- * given as an array of control points, e.g. `[[0,0],[1,1],[2,1]]`
- */
-function getMedialPointCoeffsBez2(p, v, ps) {
-    // -----------------------------------------------------
-    // See get-medial-points.md for implementation details.
-    // -----------------------------------------------------
-    const [px, py] = p;
-    const [vx, vy] = v;
-    const [[x0, y0]] = ps;
-    // Quadratic bezier in power basis: b(s) = a⋅s² + b⋅s + c
-    const [[ax, bx], [ay, by]] = toPowerBasis2(ps);
-    // u(s) = p - b(s) = u2⋅s² + u1⋅s + u0
-    const u0x = px - x0;
-    const u0y = py - y0;
-    // Shared dot products.
-    const c1 = 2 * (vx * ax + vy * ay);
-    const c0 = vx * bx + vy * by;
-    const vu0 = vx * u0x + vy * u0y;
-    const b4 = ax * ax + ay * ay;
-    const ab = ax * bx + ay * by;
-    const bb = bx * bx + by * by;
-    const u0a = u0x * ax + u0y * ay;
-    const d0 = u0x * bx + u0y * by;
-    const b0 = u0x * u0x + u0y * u0y;
-    // -----------------------------------------------------
-    // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
-    // => C(s)⋅t + D(s) = 0
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    const d3 = -2 * b4;
-    const d2 = -3 * ab;
-    const d1 = 2 * u0a - bb;
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
-    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
-    //         => A(s)⋅t + B(s) = 0
-    const a2 = -c1;
-    const a1 = -2 * c0;
-    const a0 = 2 * vu0;
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    const b3 = 2 * ab;
-    const b2 = -d1;
-    const b1 = -2 * d0;
-    // -----------------------------------------------------
-    // Eliminate t from:
-    //   A(s)⋅t + B(s) = 0
-    //   C(s)⋅t + D(s) = 0
-    // by taking A(s)⋅D(s) - B(s)⋅C(s) = 0 (degree ≤ 5 in s)
-    // Using:
-    //   a2 = -c1, d3 = -2*b4, d1 = -b2, b1 = -2*d0
-    // we can compute H = A⋅D - B⋅C directly.
-    const H5 = b4 * c1;
-    const H4 = ab * c1 + 3 * b4 * c0;
-    const H3 = 4 * (ab * c0 - vu0 * b4);
-    const H2 = c1 * d0 + c0 * b2 - 6 * vu0 * ab;
-    const H1 = -2 * vu0 * b2 - c1 * b0;
-    const H0 = 2 * vu0 * d0 - c0 * b0;
-    return {
-        A: [a2, a1, a0],
-        B: [b4, b3, b2, b1, b0],
-        C: [c1, c0],
-        D: [d3, d2, d1, d0],
-        H: [H5, H4, H3, H2, H1, H0]
-    };
-}
-
-//# sourceMappingURL=get-medial-point-coeffs-bez2.js.map
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez1.js
-/**
- * Returns the polynomial coefficients used to recover ray parameter values `t`
- * for a ray `q(t) = p + t⋅v` and an order-1 bezier curve `ps`.
- *
- * The returned polynomials encode the medial-condition equations in `s` and
- * `t`. For any valid solution, `t` is recovered by eliminating `s` and solving
- * the resulting ray equation, or equivalently by using the linear form
- * `A(s)⋅t + B(s) = 0`, which gives `t = -B(s)/A(s)`.
- *
- * More specifically, the returned values represent:
- * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
- * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
- * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
- *   candidate `s` values for medial points
- *
- * @param p base point
- * @param v ray direction vector starting from `p`
- * @param ps order 1 bezier control points, i.e. a line segment
- * given as an array of control points, e.g. `[[0,0],[2,1]]`
- */
-function getMedialPointCoeffsBez1(p, v, ps) {
-    // -----------------------------------------------------
-    // See get-medial-points.md for implementation details.
-    // -----------------------------------------------------
-    const [px, py] = p;
-    const [vx, vy] = v;
-    const [[x0, y0], [x1, y1]] = ps;
-    // Linear bezier in power basis: b(s) = b*s + c
-    // We can also use: `const [[bx,by], [cx,cy]] = toPowerBasis1(ps)`
-    const bx = x1 - x0;
-    const by = y1 - y0;
-    // u(s) = p - b(s) = u1*s + u0
-    const u0x = px - x0;
-    const u0y = py - y0;
-    // b'(s) = w(s) = w0
-    // -----------------------------------------------------
-    // E1(s,t): (u(s) + t⋅v) ⋅ b'(s) = 0
-    // => C(s)⋅t + D(s) = 0
-    const c0 = vx * bx + vy * by;
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    const d1 = -(bx * bx + by * by);
-    const d0 = bx * u0x + by * u0y;
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
-    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
-    //         => A(s)⋅t + B(s) = 0
-    const a1 = -2 * c0;
-    const a0 = 2 * (vx * u0x + vy * u0y);
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    const b2 = -d1;
-    const b1 = -2 * d0;
-    const b0 = u0x * u0x + u0y * u0y;
-    // -----------------------------------------------------
-    // Eliminate t from:
-    //   A(s)⋅t + B(s) = 0
-    //   C(s)⋅t + D(s) = 0
-    // by taking A(s)⋅D(s) - B(s)⋅C(s) = 0 (degree ≤ 2 in s)
-    const H2 = b2 * c0;
-    const H1 = a0 * d1;
-    const H0 = a0 * d0 - b0 * c0;
-    return {
-        A: [a1, a0],
-        B: [b2, b1, b0],
-        C: [c0],
-        D: [d1, d0],
-        H: [H2, H1, H0]
-    };
-}
-
-//# sourceMappingURL=get-medial-point-coeffs-bez1.js.map
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez3.js
-
-/**
- * Returns the polynomial coefficients for the ray parameter `t` and the
- * curve parameter `s` that encode the medial condition for `q(t) = p + t⋅v`
- * and a cubic bezier curve `ps`.
- *
- * The returned coefficients describe the equations whose common solutions
- * satisfy:
- * * `q(t)` is equidistant from `p` and the nearest point on `ps`
- * * that common distance is locally minimal among such candidates
- *
- * More specifically, this function returns:
- * * `A` and `B`: the coefficients of `E2(s,t) = A(s)⋅t + B(s)`
- * * `C` and `D`: the coefficients of `E1(s,t) = C(s)⋅t + D(s)`
- * * `H`: the eliminated polynomial `A(s)⋅D(s) - B(s)⋅C(s)` whose roots are
- *   candidate `s` values for medial points
- *
- * @param p base point
- * @param v ray direction from `p`
- * @param ps cubic bezier control points, i.e. an order 3 bezier curve
- * given as an array of control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
- */
-function getMedialPointCoeffsBez3(p, v, ps) {
-    // -----------------------------------------------------
-    // See get-medial-points.md for implementation details.
-    // -----------------------------------------------------
-    const [px, py] = p;
-    const [vx, vy] = v;
-    // Cubic bezier in power basis: b(s) = a*s^3 + b*s^2 + c*s + d
-    const [[ax, bx, cx, dx], [ay, by, cy, dy]] = toPowerBasis3(ps);
-    const u0x = px - dx;
-    const u0y = py - dy;
-    // Reuse dot products across A, B, C, D, and H.
-    const va = vx * ax + vy * ay;
-    const vb = vx * bx + vy * by;
-    const vc = vx * cx + vy * cy;
-    const vu0 = vx * u0x + vy * u0y;
-    const b6 = ax * ax + ay * ay;
-    const ab = ax * bx + ay * by;
-    const ac = ax * cx + ay * cy;
-    const bb = bx * bx + by * by;
-    const bc = bx * cx + by * cy;
-    const cc = cx * cx + cy * cy;
-    const au0 = ax * u0x + ay * u0y;
-    const bu0 = bx * u0x + by * u0y;
-    const d0 = cx * u0x + cy * u0y;
-    const b0 = u0x * u0x + u0y * u0y;
-    // -----------------------------------------------------
-    // E1(s,t): (u(s) + t*v) * b'(s) = 0
-    // => C(s)*t + D(s) = 0
-    const c2 = 3 * va;
-    const c1 = 2 * vb;
-    const c0 = vc;
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    const d5 = -3 * b6;
-    const d4 = -5 * ab;
-    const d3 = -4 * ac - 2 * bb;
-    const d2 = 3 * au0 - 3 * bc;
-    const d1 = 2 * bu0 - cc;
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    // E2(s,t): |t*v|^2 - |u(s) + t*v|^2 = 0
-    //         => 2*(v*u(s))*t + |u(s)|^2 = 0
-    //         => A(s)*t + B(s) = 0
-    const a3 = -2 * va;
-    const a2 = -2 * vb;
-    const a1 = -2 * vc;
-    const a0 = 2 * vu0;
-    // -----------------------------------------------------
-    // -----------------------------------------------------
-    const b5 = 2 * ab;
-    const b4 = 2 * ac + bb;
-    const b3 = 2 * bc - 2 * au0;
-    const b2 = cc - 2 * bu0;
-    const b1 = -2 * d0;
-    // -----------------------------------------------------
-    // Eliminate t from:
-    //   A(s)*t + B(s) = 0
-    //   C(s)*t + D(s) = 0
-    // by taking H(s) = A(s)*D(s) - B(s)*C(s) = 0 (degree <= 8 in s).
-    // Using:
-    //   a2 = -c1, a1 = -2*c0,
-    //   d5 = -3*b6, d4 = -(5/2)*b5, d3 = -2*b4, d2 = -(3/2)*b3,
-    //   d1 = -b2, d0 = -(1/2)*b1,
-    // we can compute H directly with fewer operations.
-    const H8 = 3 * va * b6;
-    const H7 = 4 * (va * ab + vb * b6);
-    const H6 = va * b4 + 6 * vb * ab + 5 * vc * b6;
-    const H5 = 2 * vb * b4 + 8 * vc * ab - 6 * vu0 * b6;
-    const H4 = -va * b2 + vb * b3 + 3 * vc * b4 - 10 * vu0 * ab;
-    const H3 = -2 * va * b1 + 2 * vc * b3 - 4 * vu0 * b4;
-    const H2 = vc * b2 - vb * b1 - 3 * vu0 * b3 - 3 * va * b0;
-    const H1 = -2 * vu0 * b2 - 2 * vb * b0;
-    const H0 = -vu0 * b1 - vc * b0;
-    return {
-        A: [a3, a2, a1, a0],
-        B: [b6, b5, b4, b3, b2, b1, b0],
-        C: [c2, c1, c0],
-        D: [d5, d4, d3, d2, d1, d0],
-        H: [H8, H7, H6, H5, H4, H3, H2, H1, H0]
-    };
-}
-
-//# sourceMappingURL=get-medial-point-coeffs-bez3.js.map
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs-bez0.js
-/**
- * Returns the coefficients `a0` and `b0` for the linear equation
- * `a0⋅t + b0 = 0`, so the ray parameter can be recovered as `t = -b0/a0`.
- * That parameter value makes `q(t) = p + t⋅v` equidistant from `p` and `P`.
- *
- * Let `p` be a fixed point in the plane.\
- * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.\
- * Let `P` be another point.\
- *
- * In other words, this function returns the coefficients needed to solve for
- * the ray parameter of the medial point on the ray.
- *
- * @param p base point
- * @param v ray direction from `p`
- * @param P another "target" point, e.g. `[1,2]`
- */
-function getMedialPointCoeffsBez0(p, v, P) {
-    // -----------------------------------------------------
-    // See get-medial-points.md for implementation details.
-    // -----------------------------------------------------
-    const [px, py] = p;
-    const [vx, vy] = v;
-    const [x0, y0] = P;
-    // Constant bezier in power basis: b(s) = c
-    // u(s) = p - b(s) = u0
-    const u0x = px - x0;
-    const u0y = py - y0;
-    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
-    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
-    //         => A(s)⋅t + B(s) = 0
-    const a0 = 2 * (vx * u0x + vy * u0y);
-    const b0 = u0x * u0x + u0y * u0y;
-    return { a0, b0 };
-}
-
-//# sourceMappingURL=get-medial-point-coeffs-bez0.js.map
-;// ./node_modules/flo-bezier3/node/get-medial-points/get-medial-point-coeffs.js
-
-
-
-
-const getMedialPointCoeffss = [
-    ,
-    ,
-    getMedialPointCoeffsBez1,
-    getMedialPointCoeffsBez2,
-    getMedialPointCoeffsBez3
-];
-/**
- * Returns polynomial coefficients for ray parameter values `t`, bezier
- * parameter values `s` and medial points for points `q(t)` and b(s) (an order
- * 0, 1, 2 or 3 bezier curve) that satisfy the medial condition with respect to `p` and `ps`:
- *
- * Let `p` be a fixed point in the plane.
- * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.
- * Let `ps` be a cubic bezier curve.
- *
- * * `q(t)` is equidistant from `p` and the nearest point on `ps`
- * * that common distance is locally minimal among such candidates
- *
- * In other words, this function returns candidate ray parameters for the
- * sought medial point(s). Selecting physically valid solutions (if needed)
- * is done by the caller or by a later stage of this routine.
- *
- * @param p base point
- * @param v ray direction from `p`
- * @param ps bezier control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
- */
-function getMedialPointCoeffs(p, v, ps) {
-    if (ps.length === 1) {
-        const { a0, b0 } = getMedialPointCoeffsBez0(p, v, ps[0]);
-        return { A: [a0], B: [b0], C: [], D: [], H: [] };
-    }
-    return getMedialPointCoeffss[ps.length](p, v, ps);
-}
-
-//# sourceMappingURL=get-medial-point-coeffs.js.map
 ;// ./src/find-2-prong/get-medial/get-closest-points.ts
 
 
 
+
+
+
+
+
 const { sqrt: get_closest_points_sqrt, abs: get_closest_points_abs, max: get_closest_points_max } = Math;
+const get_closest_points_qmd = ddMultDouble1;
 /**
  * @param maxCoordPowerOf2
  * @param nnorm
@@ -27787,10 +28060,10 @@ const { sqrt: get_closest_points_sqrt, abs: get_closest_points_abs, max: get_clo
  *
  * @internal
  */
-function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curvePiece) {
+function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece) {
     const { curve, ts: [tS, tE] } = curvePiece;
     const { ps } = curve;
-    const { curve: touchedCurve, t, p: y } = yPos;
+    const { curve: touchedCurve, t, p: y, pDd: yDd } = yPos;
     const isTouched = curve === touchedCurve;
     const shouldDeflate = angle === 0 && isTouched;
     const infos = [];
@@ -27802,9 +28075,10 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
         !(isTouched && ps.length === 3 && for1Prong)) {
         const { A, B, H } = shouldDeflate
             ? ps.length === 3
-                ? getMedialPointCoeffsBez2_SameCurve(t, nnorm, ps)
-                : getMedialPointCoeffsBez3_SameCurve(t, nnorm, ps)
-            : getMedialPointCoeffs(y, nnorm, ps);
+                ? ddGetMedialPointCoeffsBez2_SameCurve(t, nnormDd, ps)
+                : ddGetMedialPointCoeffsBez3_SameCurve(t, nnormDd, ps)
+            : ddGetMedialPointCoeffs(yDd, nnormDd, ps);
+        // const Hd = H.map(h => h[0] + h[1]);
         ss = roots(H, tS, tE) || [];
         //-----------------------
         for (let i = 0; i < ss.length; i++) {
@@ -27822,8 +28096,12 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
             // clip to [0,1]
             const s = sE > 1 ? 1 : _s;
             //-----------------------
-            const AS = Horner(A, s);
-            const BS = Horner(B, s);
+            // const AS = Horner(A, s);
+            // const BS = Horner(B, s);
+            const ASDd = dd_horner_ddHorner(A, s);
+            const BSDd = dd_horner_ddHorner(B, s);
+            const AS = ASDd[0] + ASDd[1];
+            const BS = BSDd[0] + BSDd[1];
             // const CS = Horner(C, s);
             // const DS = Horner(D, s);
             const _AS = get_closest_points_abs(AS);
@@ -27840,7 +28118,8 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
                 // If `w` is negative the circle radius is negative -> discard
                 continue;
             }
-            const V = [w * nnorm[0], w * nnorm[1]];
+            const VDd = [get_closest_points_qmd(w, nnormDd[0]), get_closest_points_qmd(w, nnormDd[1])];
+            const V = [VDd[0][1], VDd[1][1]];
             const d = get_closest_points_sqrt(lengthSquared(V));
             if (d <= 2 ** (maxCoordPowerOf2 - 40)) {
                 // If `w` <= 2**-40 -> discard
@@ -27915,16 +28194,17 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
     for (let i = 0; i < PS.length; i++) {
         //-----------------------
         const { P, t: s } = PS[i];
-        const { a0, b0 } = getMedialPointCoeffsBez0(y, nnorm, P);
-        if (get_closest_points_abs(a0) <= 2 ** -40 || get_closest_points_abs(b0) <= 2 ** -40) {
+        const { a0, b0 } = ddGetMedialPointCoeffsBez0(yDd, nnormDd, P);
+        if (get_closest_points_abs(a0[1]) <= 2 ** -40 || get_closest_points_abs(b0[1]) <= 2 ** -40) {
             continue;
         }
-        const w = -b0 / a0;
+        const w = -b0[1] / a0[1];
         // too close to point of origin *or* negative;
         if (w < 2 ** -40) {
             continue;
         }
-        const V = [w * nnorm[0], w * nnorm[1]];
+        const VDd = [get_closest_points_qmd(w, nnormDd[0]), get_closest_points_qmd(w, nnormDd[1])];
+        const V = [VDd[0][1], VDd[1][1]];
         const d = get_closest_points_sqrt(lengthSquared(V));
         const x = [y[0] + V[0], y[1] + V[1]];
         const s_ = s === 0 ? 1 : s;
@@ -27939,6 +28219,39 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
     return infos;
 }
 
+/**
+ * Recovers a numerically stable ray parameter `t` from linear equations
+ * `A*t + B = 0` and (optionally) `C*t + D = 0` evaluated at a fixed `s`.
+ *
+ * If `C,D` are unavailable, this falls back to `-B/A`.
+ */
+// function chooseStableT(
+//         A: number,
+//         B: number,
+//         C: number,
+//         D: number) {
+//     const epsScale = max(1, abs(A), abs(B), abs(C), abs(D));
+//     const eps = Number.EPSILON * epsScale;
+//     const denomAB = abs(A);
+//     const hasAB = denomAB > eps;
+//     const denomCD = abs(C);
+//     const hasCD = denomCD > eps;
+//     if (!hasAB && !hasCD) {
+//         return undefined;
+//     }
+//     if (hasAB && !hasCD) {
+//         return -B / A;
+//     }
+//     if (!hasAB && hasCD) {
+//         return -D / C;
+//     }
+//     const tAB = -B / A;
+//     const tCD = -D / C;
+//     // Score each candidate by how well it satisfies the *other* equation.
+//     const scoreAB = abs(C*tAB + D) / (abs(C) + abs(D) + eps);
+//     const scoreCD = abs(A*tCD + B) / (abs(A) + abs(B) + eps);
+//     return scoreAB <= scoreCD ? tAB : tCD;
+// }
 
 ;// ./src/find-2-prong/get-medial/get-antipodal-points.ts
 
@@ -27955,11 +28268,11 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curveP
  *
  * @internal
  */
-function getAntipodalPoints(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curvePieces) {
+function getAntipodalPoints(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePieces) {
     const pInfoss = [];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
-        const pInfos = getClosestPoint(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curvePiece);
+        const pInfos = getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece);
         pInfoss.push(...pInfos);
     }
     /** the minimum max value */
@@ -27982,6 +28295,43 @@ function getAntipodalPoints(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, cur
 }
 
 
+;// ./node_modules/flo-bezier3/node/get-medial-points/double/get-medial-point-coeffs-bez0.js
+/**
+ * Returns the coefficients `a0` and `b0` for the linear equation
+ * `a0⋅t + b0 = 0`, so the ray parameter can be recovered as `t = -b0/a0`.
+ * That parameter value makes `q(t) = p + t⋅v` equidistant from `p` and `P`.
+ *
+ * Let `p` be a fixed point in the plane.\
+ * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.\
+ * Let `P` be another point.\
+ *
+ * In other words, this function returns the coefficients needed to solve for
+ * the ray parameter of the medial point on the ray.
+ *
+ * @param p base point
+ * @param v ray direction from `p`
+ * @param P another "target" point, e.g. `[1,2]`
+ */
+function getMedialPointCoeffsBez0(p, v, P) {
+    // -----------------------------------------------------
+    // See get-medial-points.md for implementation details.
+    // -----------------------------------------------------
+    const [px, py] = p;
+    const [vx, vy] = v;
+    const [x0, y0] = P;
+    // Constant bezier in power basis: b(s) = c
+    // u(s) = p - b(s) = u0
+    const u0x = px - x0;
+    const u0y = py - y0;
+    // E2(s,t): |t⋅v|² - |u(s) + t⋅v|² = 0
+    //         => 2⋅(v⋅u(s))⋅t + |u(s)|² = 0
+    //         => A(s)⋅t + B(s) = 0
+    const a0 = 2 * (vx * u0x + vy * u0y);
+    const b0 = u0x * u0x + u0y * u0y;
+    return { a0, b0 };
+}
+
+//# sourceMappingURL=get-medial-point-coeffs-bez0.js.map
 ;// ./src/find-2-prong/reduce-radius.ts
 
 
@@ -27990,10 +28340,12 @@ const reduce_radius_TOLERANCE = 1 + 2 ** -20;
 /**
  * Reduces the circle radius initially as an optimization step.
  *
+ * @param rO maximum possible initial radius
+ *
  * @internal
  */
-function reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm) {
-    let minRadius = Infinity;
+function reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm) {
+    let minRadiusSqrd = rO ** 2;
     let x = [y[0] + nnorm[0], y[1] + nnorm[1]];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
@@ -28001,7 +28353,7 @@ function reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm) {
         const pS = ps[0];
         const pE = ps[ps.length - 1];
         for (const P of [pS, pE]) {
-            if (squaredDistanceBetween(x, P) > minRadius) {
+            if (squaredDistanceBetween(x, P) > minRadiusSqrd) {
                 continue; // short-circuit
             }
             const { a0, b0 } = getMedialPointCoeffsBez0(y, nnorm, P);
@@ -28015,14 +28367,14 @@ function reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm) {
             }
             const N = [w * nnorm[0], w * nnorm[1]];
             const r = lengthSquared(N);
-            if (r < minRadius) {
-                minRadius = r;
+            if (r < minRadiusSqrd) {
+                minRadiusSqrd = r;
                 x = [y[0] + N[0], y[1] + N[1]];
             }
         }
     }
     // The extra bit is to account for floating point precision.
-    return reduce_radius_TOLERANCE * minRadius;
+    return reduce_radius_TOLERANCE * minRadiusSqrd;
 }
 
 
@@ -28208,30 +28560,6 @@ function calcSeperationTolerance(R, r, δ) {
 //     // return r*θ;  // approximate arc with line
 // }
 
-;// ./node_modules/flo-poly/node/evaluate/double-double/dd-horner.js
-
-/**
- * Returns the result of evaluating a univariate polynomial using Horner's
- * method with intermediate calculations done in double-double precision and
- * the result returned in double-double precision.
- *
- * @param p a polynomial with coefficients given densely as an array of
- * double-double numbers from highest to lowest power, e.g. `[[0,5],[0,-3],[0,0]]
- * represents the polynomial `5x^2 - 3x`
- * @param x the value at which to evaluate the polynomial
- *
- * @doc
- */
-function dd_horner_ddHorner(p, x) {
-    let q = [0, 0];
-    for (let i = 0; i < p.length; i++) {
-        // q = p[i] + x*q;
-        q = ddAddDd(p[i], ddMultDouble2(x, q));
-    }
-    return q;
-}
-
-//# sourceMappingURL=dd-horner.js.map
 ;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis-1st-derivative/double-double/to-power-basis-1st-derivative-dd.js
 
 const to_power_basis_1st_derivative_dd_ts = two_sum_twoSum; // error -> 0
@@ -28511,7 +28839,7 @@ function ddNormal(ps, t) {
 
 
 
-const { sin, cos, max: find_2_prong_max, sqrt: find_2_prong_sqrt } = Math;
+const { abs: find_2_prong_abs, sin, cos, max: find_2_prong_max, sqrt: find_2_prong_sqrt } = Math;
 /**
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
@@ -28551,23 +28879,30 @@ function find2Prong(meta) {
         const nnorm = isHoleClosing
             ? [0, -maxOsculatingCircleRadius]
             : (angle !== 0 ? rotate_rotate(sin(angle), cos(angle))(_nnorm) : _nnorm);
+        const nnormDd = isHoleClosing || angle !== 0
+            ? [[0, nnorm[0]], [0, nnorm[1]]]
+            : [[-normDd[0][0], -normDd[0][1]], [-normDd[1][0], -normDd[1][1]]];
         // Get initial kissing circle guess
         let [xO, rO] = getInitialX(angle, isHoleClosing, maxOsculatingCircleRadius, yPos, nnorm);
         // The boundary piece that should contain the other point of 
         // the 2-prong circle. (Defined by start and end points).
         const curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO);
         // The lines below is an optimization.
-        const xy2 = reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm);
+        const xy2 = reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm);
         const xy = find_2_prong_sqrt(xy2);
         const l = find_2_prong_sqrt(nnorm[0] ** 2 + nnorm[1] ** 2);
         xO = [y[0] + nnorm[0] / l * xy, y[1] + nnorm[1] / l * xy];
         cullCurvePieces(curvePieces, xO, xy2);
-        const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curvePieces);
+        const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePieces);
+        // FUTURE - if antipodalPoints.length > 1 let's just add an n-prong;
         if (antipodalPoints.length !== 1) {
             if (antipodalPoints.length === 0) {
+                if (isHoleClosing) {
+                    console.log(yPos);
+                }
                 return undefined;
             }
-            if (!areAllAntipodesSame(antipodalPoints)) {
+            if (!isHoleClosing && !areAllAntipodesSame(antipodalPoints, maxCoordPowerOf2)) {
                 // At this point there is multiple antipodal points (zs) for the given
                 // source point so do not add the 2-prong, it will be caught when 
                 // adding 3+-prongs.
@@ -28579,9 +28914,11 @@ function find2Prong(meta) {
             add1Prong(meta, rO, xO, yPos);
             return undefined;
         }
+        const pDd = toP(curve.ps, s);
+        const p = pDd.map(c => c[0] + c[1]);
         const z = {
             curve, t: s, isSource: false,
-            p: toP(curve.ps, s)
+            p, pDd
         };
         const circle = { center: x, radius: d };
         const yz = squaredDistanceBetweenDd(yPos.p, z.p);
@@ -28601,11 +28938,16 @@ function find2Prong(meta) {
     };
 }
 /** @internal */
-function areAllAntipodesSame(app) {
-    const { curve, s: t } = app[0];
-    for (let i = 1; i < app.length; i++) {
-        const { curve: curve_, s: t_ } = app[i];
-        if (curve !== curve_ || t !== t_) {
+function areAllAntipodesSame(point, maxCoordPowerOf2) {
+    const { curve, s: t, x } = point[0];
+    const tol = 2 ** (maxCoordPowerOf2 - 40);
+    for (let i = 1; i < point.length; i++) {
+        // const { curve: curve_, s: t_ } = point[i];
+        // if (curve !== curve_ || t !== t_) {
+        //     return false;
+        // }
+        const { x: x_ } = point[i];
+        if (find_2_prong_abs(x[0] - x_[0]) > tol || find_2_prong_abs(x[0] - x_[0]) > tol) {
             return false;
         }
     }
@@ -28877,7 +29219,11 @@ function getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength) {
             ts = ts.length === 2 ? [0.5] : ts;
             ts.push(...get_inflections_getInflections(ps));
             ts = ts.filter(t => t !== 0 && t !== 1);
-            const byCurvatureAndLength = ts.map(t => ({ curve, t, isSource: true, p: toP(curve.ps, t) }));
+            const byCurvatureAndLength = ts.map(t => {
+                const pDd = toP(curve.ps, t);
+                const p = pDd.map(c => c[0] + c[1]);
+                return { curve, t, isSource: true, p, pDd };
+            });
             for2Prongs.push(...byCurvatureAndLength);
         }
         return for2Prongs;
@@ -29235,9 +29581,12 @@ function getFor1ProngsOnLoop(minBezLength) {
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
             }
-            poss.push(...getCurvatureExtremaDd(curve.ps).maxima.map(t => ({
-                curve, t, isSource: true, p: toP(curve.ps, t)
-            })));
+            const { ps } = curve;
+            poss.push(...getCurvatureExtremaDd(ps).maxima.map(t => {
+                const pDd = toP(ps, t);
+                const p = pDd.map(c => c[0] + c[1]);
+                return { curve, t, isSource: true, p, pDd };
+            }));
         }
         return poss;
     };
@@ -29249,11 +29598,15 @@ function getFor1ProngsOnLoop(minBezLength) {
 
 
 function toPrePoint(extreme) {
+    const { curve, t } = extreme;
+    const { ps } = curve;
+    const pDd = toP(ps, t);
+    const p = pDd.map(c => c[0] + c[1]);
     return {
-        curve: extreme.curve,
+        curve,
         t: extreme.t,
         isSource: true,
-        p: toP(extreme.curve.ps, extreme.t)
+        p, pDd
     };
 }
 function updateExtreme(extreme, curve, t, val, isMax) {
@@ -29397,6 +29750,7 @@ const get_shape_bounds_getShapeBounds = memoize(function (loops) {
  * (i.e. smallest y-value) topmost point loops to lowest)
  */
 function findMat(loops, maxCoordPowerOf2, options) {
+    get_meta_addDebugInfo1();
     const { minBezLength, maxCurviness, maxLength, angleIncrement } = options;
     const getSharpCornersOnLoop_ = getSharpCornersOnLoop(minBezLength);
     const getDullCornersOnLoop_ = getDullCornersOnLoop(minBezLength);
@@ -29610,985 +29964,7 @@ function trimMat(mat) {
 }
 
 
-;// ./node_modules/flo-draw/node/draw/default-class.js
-const DEFAULT_CLASS = 'red thin10 nofill ';
-
-//# sourceMappingURL=default-class.js.map
-;// ./node_modules/flo-draw/node/draw/xmlns.js
-const xmlns_XMLNS = 'http://www.w3.org/2000/svg';
-
-//# sourceMappingURL=xmlns.js.map
-;// ./node_modules/flo-draw/node/draw/circle.js
-
-
-/**
- * Draws a circle
- * @param g An SVG group element wherein to draw the circle.
- * @param circle
- * @param classes
- * @param delay
- */
-function circle(g, circle, classes = DEFAULT_CLASS, delay) {
-    const c = circle.center;
-    const r = circle.radius;
-    const $circle = document.createElementNS(xmlns_XMLNS, 'circle');
-    $circle.setAttributeNS(null, "cx", c[0].toString());
-    $circle.setAttributeNS(null, "cy", c[1].toString());
-    $circle.setAttributeNS(null, "r", r.toString());
-    $circle.setAttributeNS(null, "class", classes);
-    g.appendChild($circle);
-    if (delay) {
-        setTimeout(() => $circle.remove(), delay);
-    }
-    return [$circle];
-}
-
-//# sourceMappingURL=circle.js.map
-;// ./node_modules/flo-draw/node/draw/dot.js
-
-/**
- * Draws a dot.
- */
-function dot_dot(g, p, r = 3, color = 'red', delay) {
-    const [$dot] = circle(g, { center: p, radius: r }, 'dot ' + color, delay);
-    if (delay) {
-        setTimeout(() => $dot.remove(), delay);
-    }
-    return [$dot];
-}
-
-//# sourceMappingURL=dot.js.map
-;// ./node_modules/flo-draw/node/draw/line.js
-
-
-
-/**
- *
- * @param snap
- * @param l
- * @param classes
- */
-function line(g, l, classes = DEFAULT_CLASS, delay = 0, controlPointClass = undefined, controlPointRadius = 0) {
-    const $line = document.createElementNS(xmlns_XMLNS, 'line');
-    $line.setAttributeNS(null, "x1", l[0][0].toString());
-    $line.setAttributeNS(null, "y1", l[0][1].toString());
-    $line.setAttributeNS(null, "x2", l[1][0].toString());
-    $line.setAttributeNS(null, "y2", l[1][1].toString());
-    $line.setAttributeNS(null, "class", classes);
-    g.appendChild($line);
-    let $dots = [];
-    if (controlPointClass !== undefined) {
-        for (const p of l) {
-            $dots.push(...dot_dot(g, p, controlPointRadius, controlPointClass, delay));
-        }
-    }
-    for (const $ of $dots) {
-        g.appendChild($);
-    }
-    const $svgs = [$line, ...$dots];
-    if (delay) {
-        setTimeout(() => { for (const $ of $svgs) {
-            $.remove();
-        } }, delay);
-    }
-    return $svgs;
-}
-
-//# sourceMappingURL=line.js.map
-;// ./node_modules/flo-draw/node/draw/cross-hair.js
-
-
-
-/**
- * Draws a crosshair.
- */
-function crossHair(g, p, classes = DEFAULT_CLASS, r = 3, delay) {
-    const circle_ = { center: p, radius: r };
-    const $circle = circle(g, circle_, classes);
-    const l1 = [[p[0] - r, p[1]], [p[0] + r, p[1]]];
-    const l2 = [[p[0], p[1] - r], [p[0], p[1] + r]];
-    const $l1 = line(g, l1, classes);
-    const $l2 = line(g, l2, classes);
-    if (delay) {
-        setTimeout(() => {
-            $circle.forEach(e => e.remove());
-            $l1.forEach(e => e.remove());
-            $l2.forEach(e => e.remove());
-        }, delay);
-    }
-    return [...$circle, ...$l1, ...$l2];
-}
-
-//# sourceMappingURL=cross-hair.js.map
-;// ./node_modules/flo-draw/node/draw/rect.js
-
-
-function rect(g, rect, classes = DEFAULT_CLASS, delay) {
-    const [[x0, y0], [x1, y1]] = rect;
-    const x = x0 < x1 ? x0 : x1;
-    const y = y0 < y1 ? y0 : y1;
-    const width = Math.abs(x0 - x1);
-    const height = Math.abs(y0 - y1);
-    const $rect = document.createElementNS(xmlns_XMLNS, 'rect');
-    $rect.setAttributeNS(null, "x", x.toString());
-    $rect.setAttributeNS(null, "y", y.toString());
-    $rect.setAttributeNS(null, "width", width.toString());
-    $rect.setAttributeNS(null, "height", height.toString());
-    if (classes) {
-        $rect.setAttributeNS(null, "class", classes);
-    }
-    g.appendChild($rect);
-    if (delay) {
-        setTimeout(() => $rect.remove(), delay);
-    }
-    return [$rect];
-}
-
-//# sourceMappingURL=rect.js.map
-;// ./node_modules/flo-draw/node/draw/polygon.js
-
-
-/**
- * Draws a polygon
- * @param g
- * @param poly the polygon specified as an array of points - the last point does
- * not have to be specified
- * @param class_
- * @param delay
- */
-function polygon(g, poly, class_ = DEFAULT_CLASS, delay) {
-    const $path = document.createElementNS(xmlns_XMLNS, 'path');
-    let d = `M${poly[0][0]} ${poly[0][1]} L`;
-    for (let i = 0; i < poly.length; i++) {
-        d += `${poly[i][0]} ${poly[i][1]} `;
-    }
-    d += ' z';
-    $path.setAttributeNS(null, "d", d);
-    if (class_) {
-        $path.setAttributeNS(null, "class", class_);
-    }
-    g.appendChild($path);
-    if (delay) {
-        setTimeout(() => $path.remove(), delay);
-    }
-    return [$path];
-}
-
-//# sourceMappingURL=polygon.js.map
-;// ./node_modules/flo-draw/node/draw/loop.js
-
-
-function loop(g, curves, class_ = DEFAULT_CLASS, delay) {
-    if (!curves.length) {
-        return [];
-    }
-    const $path = document.createElementNS(xmlns_XMLNS, 'path');
-    let d = `M${curves[0][0][0]} ${curves[0][0][1]} `;
-    for (let i = 0; i < curves.length; i++) {
-        const curve = curves[i];
-        d += `${getType(curve.length)} `;
-        for (let j = 1; j < curve.length; j++) {
-            d += `${curve[j][0]} ${curve[j][1]} `;
-        }
-    }
-    d += ' z';
-    $path.setAttributeNS(null, "d", d);
-    if (class_) {
-        $path.setAttributeNS(null, "class", class_);
-    }
-    g.appendChild($path);
-    if (delay) {
-        setTimeout(() => $path.remove(), delay);
-    }
-    return [$path];
-}
-function getType(len) {
-    if (len === 2) {
-        return 'L';
-    }
-    if (len === 3) {
-        return 'Q';
-    }
-    if (len === 4) {
-        return 'C';
-    }
-}
-
-//# sourceMappingURL=loop.js.map
-;// ./node_modules/flo-draw/node/draw/polyline.js
-
-
-function polyline(g, poly, class_ = DEFAULT_CLASS, delay) {
-    if (poly.length < 2) {
-        return [];
-    }
-    const $path = document.createElementNS(xmlns_XMLNS, 'path');
-    let d = `M${poly[0][0]} ${poly[0][1]} L`;
-    for (let i = 0; i < poly.length; i++) {
-        d += `${poly[i][0]} ${poly[i][1]} `;
-    }
-    $path.setAttributeNS(null, "d", d);
-    if (class_) {
-        $path.setAttributeNS(null, "class", class_);
-    }
-    g.appendChild($path);
-    if (delay) {
-        setTimeout(() => $path.remove(), delay);
-    }
-    return [$path];
-}
-
-//# sourceMappingURL=polyline.js.map
-;// ./node_modules/flo-draw/node/draw/quad-bezier.js
-
-
-
-
-function quadBezier(g, ps, class_ = DEFAULT_CLASS, delay = 0, controlPointClass = undefined, controlPointRadius = 0, lineCLass = undefined) {
-    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-    const $path = document.createElementNS(xmlns_XMLNS, 'path');
-    $path.setAttributeNS(null, "d", `M${x0} ${y0} Q${x1} ${y1} ${x2} ${y2}`);
-    if (class_) {
-        $path.setAttributeNS(null, "class", class_);
-    }
-    let $dots = [];
-    if (controlPointClass !== undefined) {
-        for (const p of ps) {
-            $dots.push(...dot_dot(g, p, controlPointRadius, controlPointClass, delay));
-        }
-    }
-    let $lines = [];
-    if (lineCLass !== undefined) {
-        for (let i = 0; i < ps.length - 1; i++) {
-            $lines.push(...line(g, [ps[i], ps[i + 1]], lineCLass, delay));
-        }
-    }
-    const $svgs = [$path, ...$dots, ...$lines];
-    for (const $ of $svgs) {
-        g.appendChild($);
-    }
-    if (delay) {
-        setTimeout(() => { for (const $ of $svgs) {
-            $.remove();
-        } }, delay);
-    }
-    return $svgs;
-}
-
-//# sourceMappingURL=quad-bezier.js.map
-;// ./node_modules/flo-draw/node/draw/cubic-bezier.js
-
-
-
-
-
-function cubicBezier(g, ps, class_ = DEFAULT_CLASS, delay = 0, controlPointClass = undefined, controlPointRadius = 0, lineCLass = undefined) {
-    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-    if (x0 === x3 && x1 === x3 && x2 === x3 &&
-        y0 === y3 && y1 === y3 && y2 === y3) {
-        return crossHair(g, [x0, y0], class_, 0.2, delay);
-    }
-    const $path = document.createElementNS(xmlns_XMLNS, 'path');
-    $path.setAttributeNS(null, "d", `M${x0} ${y0} C${x1} ${y1} ${x2} ${y2} ${x3} ${y3}`);
-    $path.setAttributeNS(null, "class", class_);
-    let $dots = [];
-    if (controlPointClass !== undefined) {
-        for (const p of ps) {
-            $dots.push(...dot_dot(g, p, controlPointRadius, controlPointClass, delay));
-        }
-    }
-    let $lines = [];
-    if (lineCLass !== undefined) {
-        for (let i = 0; i < ps.length - 1; i++) {
-            $lines.push(...line(g, [ps[i], ps[i + 1]], lineCLass, delay));
-        }
-    }
-    const $svgs = [$path, ...$dots, ...$lines];
-    for (const $ of $svgs) {
-        g.appendChild($);
-    }
-    if (delay) {
-        setTimeout(() => { for (const $ of $svgs) {
-            $.remove();
-        } }, delay);
-    }
-    return $svgs;
-}
-
-//# sourceMappingURL=cubic-bezier.js.map
-;// ./node_modules/flo-draw/node/draw/bezier.js
-
-
-
-
-/**
- * Draws a bezier.
- *
- * @param g
- * @param bezier
- * @param class_
- * @param delay
- * @param controlPointClass a dot at each control point will be drawn if specified
- * @param lineClass a line to each control point will be drawn if specified
- * @returns
- */
-function bezier(g, bezier, class_ = DEFAULT_CLASS, delay = 0, controlPointClass = undefined, controlPointRadius = 0, lineClass = undefined) {
-    if (bezier.length === 2) {
-        return line(g, bezier, class_, delay, controlPointClass, controlPointRadius);
-    }
-    else if (bezier.length === 3) {
-        return quadBezier(g, bezier, class_, delay, controlPointClass, controlPointRadius, lineClass);
-    }
-    else if (bezier.length === 4) {
-        return cubicBezier(g, bezier, class_, delay, controlPointClass, controlPointRadius, lineClass);
-    }
-    return [];
-}
-
-//# sourceMappingURL=bezier.js.map
-;// ./node_modules/flo-draw/node/draw/beziers.js
-
-const COLORS = ['red', 'green', 'cyan', 'blue'];
-/**
- * Draws beziers.
- * @param snap
- * @param beziers
- * @param delay
- */
-function beziers(g, beziers, classes, delay) {
-    const alternateColors = classes === undefined;
-    const $beziers = [];
-    for (let i = 0; i < beziers.length; i++) {
-        const ps = beziers[i];
-        const color = COLORS[i % COLORS.length];
-        const class_ = alternateColors
-            ? 'thin5 nofill ' + color
-            : classes;
-        $beziers.push(...bezier(g, ps, class_));
-    }
-    if (delay) {
-        setTimeout(() => $beziers.forEach(e => e.remove()), delay);
-    }
-    return $beziers;
-}
-
-//# sourceMappingURL=beziers.js.map
-;// ./node_modules/flo-draw/node/draw/evaluate-bezier.js
-/**
- * Returns an estimate of evaluating the given bezier at the given t value.
- * @param ps An order 1, 2 or bezier
- * @param t The parameter ∈ [0,1]
- */
-function evaluateBezier(ps, t) {
-    const s = 1 - t;
-    if (ps.length === 4) {
-        // cubic
-        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-        const x = x0 * s ** 3 + 3 * x1 * s ** 2 * t + 3 * x2 * s * t ** 2 + x3 * t ** 3;
-        const y = y0 * s ** 3 + 3 * y1 * s ** 2 * t + 3 * y2 * s * t ** 2 + y3 * t ** 3;
-        return [x, y];
-    }
-    if (ps.length === 3) {
-        // quadratic
-        const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-        const x = x0 * s ** 2 + 2 * x1 * s * t + x2 * t ** 2;
-        const y = y0 * s ** 2 + 2 * y1 * s * t + y2 * t ** 2;
-        return [x, y];
-    }
-    if (ps.length === 2) {
-        // line
-        const [[x0, y0], [x1, y1]] = ps;
-        const x = x0 * s + x1 * t;
-        const y = y0 * s + y1 * t;
-        return [x, y];
-    }
-    return [NaN, NaN];
-}
-
-//# sourceMappingURL=evaluate-bezier.js.map
-;// ./node_modules/flo-draw/node/draw/split-at.js
-/**
- * Returns 2 new beziers split at the given t parameter, i.e. for the ranges
- * [0,t] and [t,1].
- * @param ps
- * @param t
- */
-function splitAt(ps, t) {
-    if (ps.length === 2) {
-        return splitLineAt(ps, t);
-    }
-    else if (ps.length === 3) {
-        return splitQuadAt(ps, t);
-    }
-    else if (ps.length === 4) {
-        return splitCubicAt(ps, t);
-    }
-    return [];
-}
-/**
- * Returns 2 new cubic beziers split at the given t parameter, i.e. for the ranges
- * [0,t] and [t,1]. Uses de Casteljau's algorithm.
- *
- * A loose bound on the accuracy of the resultant points is given by:
- * |δP| = 2n*max_k(|b_k|)η, where n = 3 (cubic), b_k are the control points
- * abd η is Number.EPSILON.
- * @param ps A cubic bezier curve
- * @param t The t parameter where the curve should be split
- */
-function splitCubicAt(ps, t) {
-    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-    const s = 1 - t;
-    const t2 = t * t;
-    const t3 = t2 * t;
-    const s2 = s * s;
-    const s3 = s2 * s;
-    /** The split point */
-    const p = [
-        t3 * x3 + 3 * s * t2 * x2 + 3 * s2 * t * x1 + s3 * x0,
-        t3 * y3 + 3 * s * t2 * y2 + 3 * s2 * t * y1 + s3 * y0
-    ];
-    const ps1 = [
-        [x0, y0],
-        [t * x1 + s * x0,
-            t * y1 + s * y0],
-        [t2 * x2 + 2 * s * t * x1 + s2 * x0,
-            t2 * y2 + 2 * s * t * y1 + s2 * y0],
-        p
-    ];
-    const ps2 = [
-        p,
-        [t2 * x3 + 2 * t * s * x2 + s2 * x1,
-            t2 * y3 + 2 * t * s * y2 + s2 * y1],
-        [t * x3 + s * x2,
-            t * y3 + s * y2],
-        [x3, y3]
-    ];
-    return [ps1, ps2];
-}
-function splitQuadAt(ps, t) {
-    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-    const s = 1 - t;
-    /** The split point */
-    const p = [
-        s * s * x0 + 2 * s * t * x1 + t * t * x2,
-        s * s * y0 + 2 * s * t * y1 + t * t * y2
-    ];
-    const ps1 = [
-        [x0, y0],
-        [s * x0 + t * x1,
-            s * y0 + t * y1],
-        p
-    ];
-    const ps2 = [
-        p,
-        [s * x1 + t * x2,
-            s * y1 + t * y2],
-        [x2, y2]
-    ];
-    return [ps1, ps2];
-}
-function splitLineAt(ps, t) {
-    const [[x0, y0], [x1, y1]] = ps;
-    const s = 1 - t;
-    /** The split point */
-    const p = [
-        s * x0 + t * x1,
-        s * y0 + t * y1
-    ];
-    const ps1 = [
-        [x0, y0],
-        p
-    ];
-    const ps2 = [
-        p,
-        [x1, y1]
-    ];
-    return [ps1, ps2];
-}
-
-//# sourceMappingURL=split-at.js.map
-;// ./node_modules/flo-draw/node/draw/bezier-from-bezier-piece.js
-
-
-/**
- * Returns a new bezier from the given bezier by limiting its t range.
- *
- * Duplicated here so we don't circularly depend on flo-bezier.
- *
- * Uses de Casteljau's algorithm.
- *
- * @param ps a bezier
- * @param tRange a t range
- */
-function bezierFromBezierPiece(ps, tRange) {
-    // If tRange = [0,1] then return original bezier.
-    if (tRange[0] === 0 && tRange[1] === 1) {
-        return ps;
-    }
-    // If tRange[0] === tRange[1] then return a single point degenerated bezier.
-    if (tRange[0] === tRange[1]) {
-        const p = evaluateBezier(ps, tRange[0]);
-        return [p, p, p, p];
-    }
-    if (tRange[0] === 0) {
-        return splitAt(ps, tRange[1])[0];
-    }
-    if (tRange[1] === 1) {
-        return splitAt(ps, tRange[0])[1];
-    }
-    // At this stage we know the t range is not degenerate and tRange[0] !== 0 
-    // and tRange[1] !== 1
-    return splitAt(splitAt(ps, tRange[0])[1], (tRange[1] - tRange[0]) / (1 - tRange[0]))[0];
-}
-
-//# sourceMappingURL=bezier-from-bezier-piece.js.map
-;// ./node_modules/flo-draw/node/draw/bezier-piece.js
-
-
-
-
-
-/**
- * Draws a bezier piece, i.e. a bezier within a specified t range.
- * @param snap
- * @param bezierPiece
- * @param class
- * @param delay
- */
-function bezierPiece(g, ps_, tRange, class_ = DEFAULT_CLASS, delay) {
-    const $elems = (tRange[0] === tRange[1])
-        // Draw crosshair if t range bounds are equal.
-        ? crossHair(g, evaluateBezier(ps_, tRange[0]), class_, 1.5)
-        : bezier(g, bezierFromBezierPiece(ps_, tRange), class_);
-    if (delay) {
-        setTimeout(() => $elems.forEach(e => e.remove()), delay);
-    }
-    return $elems;
-}
-
-//# sourceMappingURL=bezier-piece.js.map
-;// ./node_modules/flo-draw/node/draw/text.js
-
-
-/**
- * Draws text
- * @param g a SVG group element wherein to draw
- * @param p
- * @param str
- * @param fontSize
- * @param classes
- * @param delay
- */
-function text_text(g, p, str, fontSize, classes = DEFAULT_CLASS, delay) {
-    const $text = document.createElementNS(xmlns_XMLNS, 'text');
-    $text.setAttributeNS(null, "x", p[0].toString());
-    $text.setAttributeNS(null, "y", p[1].toString());
-    $text.setAttributeNS(null, "font-size", fontSize.toString());
-    $text.setAttributeNS(null, "class", classes);
-    $text.textContent = str;
-    g.appendChild($text);
-    if (delay) {
-        setTimeout(() => $text.remove(), delay);
-    }
-    return [$text];
-}
-
-//# sourceMappingURL=text.js.map
-;// ./node_modules/flo-draw/node/draw-fs.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const drawFs = {
-    circle: circle,
-    crossHair: crossHair,
-    dot: dot_dot,
-    line: line,
-    rect: rect,
-    beziers: beziers,
-    bezier: bezier,
-    bezierPiece: bezierPiece,
-    quadBezier: quadBezier,
-    cubicBezier: cubicBezier,
-    polygon: polygon,
-    loop: loop,
-    polyline: polyline,
-    text: text_text
-};
-
-//# sourceMappingURL=draw-fs.js.map
-;// ./src/debug/functions/draw-elem/draw-one-prong.ts
-
-/** @hidden */
-function drawOneProng(g, cpNode, classes, delay = 0, scaleFactor = 1) {
-    // const cp = cpNode.cp;
-    const { pointOnShape: pos } = cpNode;
-    const { circle } = pos;
-    const $posP = drawFs.dot(g, pos.p, 0.02 * scaleFactor, 'deeppink', delay);
-    const $circleCenter = drawFs.dot(g, circle.center, 0.01 * scaleFactor, 'deeppink', delay);
-    const $circle = drawFs.circle(g, circle, 'deeppink thin5 nofill', delay);
-    return [...$posP, ...$circleCenter, ...$circle];
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-two-prong.ts
-
-/** @internal */
-function drawTwoProng(drawCrosshair, drawSpokes) {
-    return (g, twoProng, classes, delay = 0, scaleFactor = 1) => {
-        let color;
-        let thin;
-        switch (twoProng.isHoleClosing) {
-            case false: {
-                color = 'red ';
-                thin = '2';
-                break;
-            }
-            case true: {
-                color = 'cyan ';
-                thin = '10';
-                break;
-            }
-        }
-        // const cp = twoProng.cp;
-        const { pointOnShape: pos } = twoProng;
-        const { circle } = pos;
-        const { center: c, radius: r } = circle;
-        const { isSource, p } = pos;
-        const p2 = twoProng.nextOnCircle.pointOnShape.p;
-        const pS = isSource ? p : p2;
-        const pA = isSource ? p2 : p;
-        const { line, dot, circle: drawCircle, crossHair } = drawFs;
-        const $center = dot(g, circle.center, 0.02 * scaleFactor, 'yellow', delay);
-        const $circle = drawCircle(g, circle, color + 'thin' + thin + ' nofill', delay);
-        const $cp1 = dot(g, pS, 0.005 * scaleFactor, color, delay);
-        const $cp2 = dot(g, pA, 0.01 * scaleFactor, color, delay);
-        // const $l1 = drawSpokes ? line(g, [pS, c], 'thin5 red nofill', delay) : [];
-        // const $l2 = drawSpokes ? line(g, [pA, c], 'thin5 red nofill', delay) : [];
-        const $cross = drawCrosshair
-            ? crossHair(g, circle.center, 'red thin2 nofill', 0.002 * scaleFactor, delay)
-            : [];
-        return [
-            ...$circle,
-            ...$cp1,
-            ...$cp2,
-            // ...$l1,
-            // ...$l2,
-            ...$cross,
-            ...$center
-        ];
-    };
-}
-
-
-;// ./src/geometry/circle.ts
-/* unused harmony import specifier */ var circle_squaredDistanceBetween;
-
-/**
- * Returns a scaled version of the given circle without changing its center.
- * @param circle
- * @param s multiplier
- */
-function scaleCircle(circle, s) {
-    return { center: circle.center, radius: s * circle.radius };
-}
-/**
- * Returns true if the first circle engulfs the second.
- *
- * @param c1
- * @param c2
- */
-function engulfsCircle(c1, c2) {
-    if (c1.radius <= c2.radius) {
-        return false;
-    }
-    const d = circle_squaredDistanceBetween(c1.center, c2.center);
-    const dr = c1.radius - c2.radius;
-    const δ = dr * dr;
-    return δ > d;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-three-prong.ts
-
-
-
-/** @internal */
-function drawThreeProng(g, 
-// threeProng: ThreeProngForDebugging,
-threeProng, classes, delay = 0, scaleFactor = 1) {
-    const circle = scaleCircle(threeProng.pointOnShape.circle, 1);
-    const { center: c, radius: r } = circle;
-    // const poss = threeProng.poss;
-    const poss = getAllOnCircle(threeProng)
-        .map(cpNode => cpNode.pointOnShape);
-    const { dot, circle: drawCircle, crossHair } = drawFs;
-    const $circle = drawCircle(g, circle, 'blue thin2 nofill', delay);
-    const $cps = [];
-    const $ls = [];
-    for (let i = 0; i < poss.length; i++) {
-        const p = poss[i].p;
-        $cps.push(...dot(g, p, 0.01 * (i + 1) * scaleFactor, 'blue', delay));
-        $ls.push(...drawFs.line(g, [p, c], 'thin5 red', delay));
-    }
-    const $cross = crossHair(g, circle.center, 'red thin2 nofill', 0.02 * scaleFactor, delay);
-    return [...$cps, ...$ls, ...$circle, ...$cross];
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-vertex.ts
-
-/** @internal */
-function vertex(g, cpNode, classes, delay = 0, scaleFactor = 1) {
-    const circle = cpNode.pointOnShape.circle;
-    let $svgs = [];
-    // const $circle = drawFs.circle(g, circle, 'red ' + THIN + ' nofill ', delay);
-    // const $crossHair = drawFs.crossHair(g, circle.center, 'red ' + THIN + ' nofill ', 3, delay);
-    const $dot = drawFs.dot(g, circle.center, 0.01 * scaleFactor, 'darkgreen', delay);
-    $svgs = [...$dot];
-    return $svgs;
-}
-
-
-;// ./src/debug/functions/draw-elem/bounding-hull.ts
-
-/** @internal */
-function boundingHull(g, hull, classes = 'thin5 black nofill', delay = 0, scaleFactor = 1) {
-    const $polygon = drawFs.polygon(g, hull, classes, delay);
-    return $polygon;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-loose-bounding-box.ts
-
-/** @internal */
-function looseBoundingBox(g, box, classes = 'thin5 brown nofill', delay = 0, scaleFactor = 1) {
-    const [[x0, y0], [x1, y1]] = box;
-    box = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
-    const $box = drawFs.polygon(g, box, classes, delay);
-    return $box;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-tight-bounding-box.ts
-
-/** @internal */
-function tightBoundingBox(g, box, classes = 'thin5 pinker nofill', delay = 0, scaleFactor = 1) {
-    const $box = drawFs.polygon(g, box, 'thin5 pinker nofill', delay);
-    return $box;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-mat.ts
-
-
-
-
-const altClasses = [
-    'thin10 blue nofill',
-    'thin10 red nofill'
-];
-/** @internal */
-function drawMat(g, mat, classes_, delay = 0, scaleFactor = 1) {
-    let cpNode = mat.cpNode;
-    if (!cpNode) {
-        return [];
-    }
-    while (!isTerminating(cpNode)) {
-        cpNode = cpNode.next;
-    }
-    const $svgs = [];
-    let i = 0;
-    traverseEdges(cpNode, cpNode => {
-        if (isTerminating(cpNode)) {
-            return;
-        }
-        const bezier = getMatCurveToNext(cpNode);
-        if (!bezier) {
-            return;
-        }
-        $svgs.push(...drawFs.bezier(g, bezier, altClasses[i % 2], delay));
-        i++;
-    });
-    return $svgs;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-max-vertex.ts
-
-/** @internal */
-function maxVertex(g, cpNode) {
-    const circle = cpNode.pointOnShape.circle;
-    const $elems = drawFs.circle(g, circle, 'brown thin10 nofill');
-    return $elems;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-circle-percent.ts
-/** @internal */
-function drawCirclePercent(g, center, radiusPercent, classes) {
-    const XMLNS = 'http://www.w3.org/2000/svg';
-    const $circle = document.createElementNS(XMLNS, 'circle');
-    $circle.setAttributeNS(null, "cx", center[0].toString());
-    $circle.setAttributeNS(null, "cy", center[1].toString());
-    $circle.setAttributeNS(null, "r", radiusPercent.toString() + '%');
-    $circle.setAttributeNS(null, "class", classes);
-    g.appendChild($circle);
-    return $circle;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-leaves.ts
-
-
-
-/** @internal */
-function drawLeaves(g, leaves, classes = 'thin10 deeppink nofill', delay = 0, scaleFactor = 1) {
-    const $elems = [];
-    const { line, dot, circle: drawCircle } = drawFs;
-    for (const cpNode of leaves) {
-        const cp = cpNode.pointOnShape;
-        const { circle } = cp;
-        const { center: c, radius: r } = circle;
-        const $center = [drawCirclePercent(g, c, 0.5, 'pinker thin5 nofill')];
-        const poss = getAllOnCircle(cpNode)
-            .map(cpNode => cpNode.pointOnShape);
-        const $ls = [];
-        const $cps = [];
-        for (let i = 0; i < poss.length; i++) {
-            const p = poss[i].p;
-            $cps.push(...dot(g, p, 0.01 * (i + 1) * scaleFactor, 'pinker', delay));
-            $ls.push(...line(g, [p, c], 'thin5 red', delay));
-        }
-        const $circle = drawCircle(g, circle, classes, delay);
-        // const $cp = dot(g, p, 0.005*scaleFactor, 'pinker', delay);
-        $elems.push(...[
-            ...$circle,
-            ...$cps,
-            ...$ls,
-            ...$center
-        ]);
-    }
-    return $elems;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-cull.ts
-
-/** @internal */
-function drawCull(g, cull, classes = 'thin10 cyan nofill', delay = 0, scaleFactor = 1) {
-    const $elems = [];
-    $elems.push(...drawFs.crossHair(g, cull, classes, 0.1 * scaleFactor, delay));
-    return $elems;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-branch.ts
-
-
-
-/** @internal */
-function drawBranch(g, branch, classes = 'thin5 purple nofill', delay = 0, scaleFactor = 1) {
-    const $svgs = [];
-    let i = 0;
-    const pss = [];
-    for (const cpNode of branch) {
-        if (isTerminating(cpNode)) {
-            continue;
-        }
-        const bezier = getMatCurveToNext(cpNode);
-        if (!bezier) {
-            continue;
-        }
-        i++;
-        // $svgs.push( ...drawFs.bezier(g, bezier, classes, delay));
-        pss.push(bezier);
-    }
-    // return $svgs;
-    $svgs.push(...drawBeziersAsSinglePath(g, pss, classes, delay));
-    return $svgs;
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-cp-node.ts
-
-
-
-/** @internal */
-function drawCpNode(g, cpNode, classes = 'blue thin2 nofill', delay = 0, scaleFactor = 1) {
-    const circle = scaleCircle(cpNode.pointOnShape.circle, 1);
-    const { center: c, radius: r } = circle;
-    const poss = getAllOnCircle(cpNode)
-        .map(cpNode => cpNode.pointOnShape);
-    const { dot, circle: drawCircle, crossHair } = drawFs;
-    const $circle = drawCircle(g, circle, classes, delay);
-    const $cps = [];
-    const $ls = [];
-    for (let i = 0; i < poss.length; i++) {
-        const p = poss[i].p;
-        $cps.push(...dot(g, p, 0.01 * (i + 1) * scaleFactor, 'blue', delay));
-        $ls.push(...drawFs.line(g, [p, c], 'thin5 red', delay));
-    }
-    const $cross = crossHair(g, c, 'orange thin10 nofill', 2 * scaleFactor, delay);
-    // if (r === 0) {
-    //     const $cross = crossHair(g, circle.center, 'red thin2 nofill', 0.02*scaleFactor, delay);
-    // }
-    return [...$cps, ...$ls, ...$circle, ...$cross];
-}
-
-
-;// ./src/debug/functions/draw-elem/draw-elem.ts
-
-
-
-
-
-
-
-
-
-
-
-
-
-/** @internal */
-const drawElemFs = {
-    oneProng: drawOneProng,
-    twoProng: drawTwoProng(false, true),
-    threeProng: drawThreeProng,
-    boundingHull: boundingHull,
-    looseBoundingBox: looseBoundingBox,
-    tightBoundingBox: tightBoundingBox,
-    // sharpCorner,
-    // dullCorner,
-    vertex: vertex,
-    mat: drawMat,
-    // sat: drawMat('sat'),
-    maxVertex: maxVertex,
-    leaves: drawLeaves,
-    cull: drawCull,
-    cpNode: drawCpNode,
-    branch: drawBranch,
-    holeCloser: drawTwoProng(false, false)
-};
-const drawElemFsDetailed = {
-    ...drawElemFs,
-    twoProng: drawTwoProng(true, true),
-};
-
-
 ;// ./src/debug/debug.ts
-
 function enableDebugForMat(debugOn) {
     if (!debugOn) {
         window._debug_ = undefined;
@@ -30598,29 +29974,7 @@ function enableDebugForMat(debugOn) {
     debug = {
         ...debug,
         elems: {
-            ...debug?.elems,
-            // @ts-ignore
-            oneProng: [],
-            // oneProngAtDullCorner : [],
-            twoProng: [],
-            // twoProng_regular     : [],
-            // twoProng_failed      : [],
-            // twoProng_notAdded    : [],
-            // twoProng_deleted     : [],
-            // twoProng_holeClosing : [],
-            looseBoundingBox: [],
-            tightBoundingBox: [],
-            // sharpCorner          : [],
-            // dullCorner           : [],
-            vertex: [],
-            threeProng: [],
-            boundingHull: [],
-            mat: [],
-            // sat                  : [],
-            cpNode: [],
-            maxVertex: [],
-            leaves: [],
-            // culls                : [],
+            ...debug?.elems
         },
         timing: {
             ...debug?.timing,
@@ -30628,14 +29982,10 @@ function enableDebugForMat(debugOn) {
             oneAnd2Prongs: 0,
             threeProngs: 0,
             sats: 0,
-            simplifyMat: 0,
+            simplifyMat: 0
         },
         fs: {
-            ...debug?.fs,
-            drawElem: {
-                ...debug?.fs?.drawElem,
-                ...drawElemFs
-            }
+            ...debug?.fs
         },
         directives: {
             //...debug?.directives,
@@ -30650,29 +30000,6 @@ function enableDebugForMat(debugOn) {
     };
     window._debug_ = debug;
 }
-
-
-;// ./src/debug/debug-elem-types.ts
-const emptyDebugElems = {
-    oneProng: [],
-    // oneProngAtDullCorner: [] as PointOnShape[],
-    twoProng: [],
-    threeProng: [],
-    looseBoundingBox: [],
-    tightBoundingBox: [],
-    boundingHull: [],
-    // sharpCorner: [] as Curve[],
-    // dullCorner: [] as Curve[],
-    vertex: [],
-    mat: [],
-    maxVertex: [],
-    leaves: [],
-    cull: [],
-    cpNode: [],
-    branch: [],
-    holeCloser: []
-};
-const debugElemNames = Object.keys(emptyDebugElems);
 
 
 ;// ./src/sweep-line/sweep-line.ts
@@ -30774,8 +30101,8 @@ function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
     }
     const { ps: psA } = curveA;
     const { ps: psB } = curveB;
-    const lA = [pA, translate(pA)(toUnitVector(tangent(psA, tA)))];
-    const lB = [pB, translate(pB)(toUnitVector(tangent(psB, tB)))];
+    const lA = [pA, translate(pA)(toUnitVector(tangent_tangent(psA, tA)))];
+    const lB = [pB, translate(pB)(toUnitVector(tangent_tangent(psB, tB)))];
     const mid = lineLineIntersection(lA, lB);
     const c = from_to_fromTo(pA, pB);
     let twisted;
@@ -30903,30 +30230,38 @@ function getHoleCloserNext(pairs, holeCloser) {
 }
 
 
-;// ./src/cp-node/fs/is-on-same-loop.ts
-function isOnSameLoop(cpNode1, cpNode2) {
-    return (cpNode1.pointOnShape.curve.loop ===
-        cpNode2.pointOnShape.curve.loop);
-}
-
-
-;// ./src/reconstruct-from-mat/is-fully-terminating.ts
-
-
-
-// TODO - DUPLICATE! -> likely other version needs fixing
-function is_fully_terminating_isFullyTerminating(cpNode) {
-    if (!isTerminating(cpNode)) {
-        return false;
+;// ./src/utils/map-deep.ts
+/**
+ * Returns the result of mapping the array to the given depth and, optionally,
+ * filtering out `undefined` leaf values.
+ *
+ * @param tss
+ * @param f
+ * @param filterUndefined
+ */
+function mapDeep(depth, tss, f, filterUndefined) {
+    if (!Number.isInteger(depth) || depth < 1) {
+        throw new Error('depth must be an integer >= 1');
     }
-    if (isTrivial(cpNode)) {
-        return true;
+    function mapRec(d, arr) {
+        const a = arr;
+        if (d === 1) {
+            const ts_ = [];
+            for (let i = 0; i < a.length; i++) {
+                const v = f(a[i]);
+                if (!filterUndefined || v !== undefined) {
+                    ts_.push(v);
+                }
+            }
+            return ts_;
+        }
+        const tss_ = [];
+        for (let i = 0; i < a.length; i++) {
+            tss_.push(mapRec(d - 1, a[i]));
+        }
+        return tss_;
     }
-    while (cpNode.prev === cpNode.prevOnCircle) {
-        cpNode = cpNode.prev;
-    }
-    const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
-    return otherOnCircle.every(isTerminating);
+    return mapRec(depth, tss);
 }
 
 
@@ -30945,7 +30280,7 @@ function removeSatInducedTrivial3Prongs(sat) {
     let { cpNode } = sat;
     let cpStart = cpNode;
     do {
-        if (is_fully_terminating_isFullyTerminating(cpNode) ||
+        if (isFullyTerminating(cpNode) ||
             // cpNode.isHoleClosing ||  // hole-closers are fully terminating
             cpNode.next !== cpNode.nextOnCircle) {
             cpNode = cpNode.next;
@@ -30977,554 +30312,21 @@ function removeSatInducedTrivial3Prongs(sat) {
 }
 
 
-;// ./src/reconstruct-from-mat/get-sats2.ts
-
-
-/**
- * Returns the shape information.
- *
- * @param font$$ the font from which the glyph outlines will be retrieved
- * @param glyphId the glyph id for which the shape is to be retrieved
- * @param options the options for SAT computation
- */
-// TODO
-function getSats2(mats, satScale) {
-    const sats = mats.map(mat => toScaleAxis(mat, satScale));
-    return sats.map(removeSatInducedTrivial3Prongs);
+;// ./src/cp-node/fs/is-on-same-loop.ts
+function isOnSameLoop(cpNode1, cpNode2) {
+    return (cpNode1.pointOnShape.curve.loop ===
+        cpNode2.pointOnShape.curve.loop);
 }
 
 
-;// ./node_modules/flo-poly/node/roots/naive/brent.js
-const brent_eps = Number.EPSILON;
-const { abs: brent_abs, max: brent_max } = Math;
-/**
- * Returns a refined root given a root bracketed in the interval (a,b) of the
- * given function using Brent's Method. Any function can be supplied (it
- * does not even have to be continuous) as long as the root is bracketed.
- *
- * * near exact implementation of the original Brent Dekker Method (also known
- *   as Brent's Method)
- *
- * * Brent's Method is an excellent root-refinement choice since:
- *   - guaranteed converge (unlike the Newton and other so-called single-point methods),
- *   - converges in a reasonable number of iterations even for highly contrived
- *     functions (unlike Dekker's Method) and
- *   - nearly always converges fast, i.e. super-linearly (unlike the Secant and
- *     Regula-Falsi methods).
- *
- * * unfortunately the algorithm given on [Wikipedia](https://en.wikipedia.org/wiki/Brent%27s_method)
- * works but is not precisely Brent's method and runs about 2x or more slower
- * due to it not implementing the critically important 'micro-step' (Aug 2020).
- *
- * * the algorithm stops once the interval width becomes equal or less than
- * `2 * Number.EPSILON * max(1,abs(a),abs(b))` where `a` and `b` are the current
- * lower and upper interval limits
- *
- * * see [Brent (page 47)](https://maths-people.anu.edu.au/~brent/pd/rpb011i.pdf)
- *
- * @param f the function for which the root is sought.
- * @param lb the lower limit of the search interval.
- * @param ub the upper limit of the search interval.
- *
- * @example
- * ```typescript
- * let p = fromRoots([-10,2,3,4]);  //=> [1, 1, -64, 236, -240]
- * let f = t => Horner(p,t);
- * brent(f,2.2,3.8); //=> 3.000000000000003
- * brent(f,2.2,3.1); //=> 3.000000000000001
- * ```
- *
- * @doc
- */
-function brent(f, lb, ub) {
-    // Precondition: fa, fb !== 0
-    //---- Make local copies of a and b.
-    let a = lb;
-    let b = ub;
-    let fa = f(a);
-    let fb = f(b);
-    let c = a;
-    let fc = fa;
-    let e = b - a;
-    let d = e;
-    while (true) {
-        if (brent_abs(fc) < brent_abs(fb)) {
-            a = b;
-            b = c;
-            c = a;
-            fa = fb;
-            fb = fc;
-            fc = fa;
-        }
-        const δ = 2 * brent_eps * brent_max(1, brent_abs(a), brent_abs(b));
-        const m = 0.5 * (c - b);
-        //if (abs(m) <= δ || fb === 0) {
-        if (brent_abs(m) <= δ) {
-            // uncomment below if range to be returned
-            //return b < c ? [b,c] : [c,b];
-            // uncomment below if leftmost guess to be returned
-            //return b < c ? b : c;
-            // uncomment below if rightmost guess to be returned
-            //return b < c ? b : c;
-            // uncomment below if any guess to be returned
-            return b;
-        }
-        if (brent_abs(e) < δ || brent_abs(fa) <= brent_abs(fb)) {
-            e = m;
-            d = e;
-        }
-        else {
-            let s = fb / fa;
-            let p;
-            let q;
-            if (a === c) {
-                p = 2 * m * s;
-                q = 1 - s;
-            }
-            else {
-                q = fa / fc;
-                const r = fb / fc;
-                p = s * (2 * m * q * (q - r) - (b - a) * (r - 1));
-                q = (q - 1) * (r - 1) * (s - 1);
-            }
-            if (0 < p) {
-                q = -q;
-            }
-            else {
-                p = -p;
-            }
-            s = e;
-            e = d;
-            if (2 * p < 3 * m * q - brent_abs(δ * q) && p < brent_abs(0.5 * s * q)) {
-                d = p / q;
-            }
-            else {
-                e = m;
-                d = e;
-            }
-        }
-        a = b;
-        fa = fb;
-        if (δ < brent_abs(d)) {
-            b = b + d;
-        }
-        else if (0 < m) {
-            b = b + δ;
-        }
-        else {
-            //b = b - eps;
-            b = b - δ;
-        }
-        fb = f(b);
-        // inlined above line:
-        //fb = p[0]; for (let i=1; i<p.length; i++) { fb = fb*b + p[i]; }
-        if (fb === 0) {
-            return b;
-        }
-        if (fb * fc > 0) {
-            c = a;
-            fc = fa;
-            e = b - a;
-            d = e;
-        }
-    }
-}
-
-//# sourceMappingURL=brent.js.map
-;// ./node_modules/flo-bezier3/node/local-properties-to-t/get-t-at-length.js
-
-
-/**
- * Returns the `t` parameter value where the given bezier curve reaches the
- * given length `s` starting from `t = 0` and clipping at `t = 1.125`.
- *
- * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
- * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param s the length
- *
- * @doc mdx
- */
-function getTAtLength(ps, s) {
-    if (s === 0) {
-        return 0;
-    }
-    const lenAtT = (t) => length_length([0, t], ps);
-    return brent(t => (lenAtT(t) - s), 0, 1.125);
-}
-
-//# sourceMappingURL=get-t-at-length.js.map
-;// ./src/utils/clip.ts
-const { max: clip_max, min: clip_min } = Math;
-function clip(v, vMin, vMax) {
-    return clip_max(vMin, clip_min(vMax, v));
-}
-
-
-;// ./src/reconstruct-from-mat/get-bezier-piece-length.ts
-
-function getBezierPieceLength(bezierPiece) {
-    return length_length(bezierPiece.ts, bezierPiece.ps);
-}
-
-
-;// ./src/reconstruct-from-mat/split-tri-path.ts
-
-
-
-
-const EPS = 1e-9;
-function splitTriPath(boundaryBeziers, medialBezier, boundaryBeziersOpp) {
-    const _boundaryBeziersOpp = boundaryBeziersOpp ?? [];
-    const boundaryBeziersOpp_ = _boundaryBeziersOpp.map(reverseBezierPiece).toReversed();
-    // Importantly, we need to split on boundaryBeziersOpp_ as well, to ensure
-    // the number of returned pieces is the same for both sides, so that they
-    // can be interpolated.
-    const _paths = boundaryBeziersOpp_.length > 0
-        ? [boundaryBeziers, [medialBezier], boundaryBeziersOpp_]
-        : [boundaryBeziers, [medialBezier]];
-    const paths = splitTriPath_(_paths);
-    const matchedBezierss = [];
-    for (let i = 0; i < paths.length; i++) {
-        const path = paths[i];
-        // const pathOpp = paths[paths.length - 1 - i];
-        const [boundaryBezier, medialBezier] = path;
-        // const boundaryBezierOpp = pathOpp[2];
-        const matchedBeziers = {
-            boundaryBezier,
-            medialBezier,
-            // boundaryBezierOpp
-        };
-        matchedBezierss.push(matchedBeziers);
-    }
-    return matchedBezierss;
-}
-function reverseBezierPiece(bezierPiece) {
-    const { ps, ts: [tS, tE] } = bezierPiece;
-    return {
-        ps: ps.toReversed(),
-        ts: [1 - tE, 1 - tS]
-    };
-}
-/**
- * Returns an array of arrays of `BezierPiece`s, where each inner array
- * contains `BezierPiece`s that correspond to each other across the different
- * paths by normalized length.
- *
- * For example, if there are 3 paths, then each inner array will contain 3
- * `BezierPiece`s, one from each path, that correspond to each other by normalized
- * length.
- *
- * @param bezierPiecess
- */
-function splitTriPath_(bezierPiecess) {
-    const lenss = mapmap(bezierPiecess, getBezierPieceLength);
-    const lens = lenss.map(sum);
-    const cums = lenss.map(getCumLengths);
-    const normCums = cums.map((cum, i) => {
-        const len = lens[i];
-        if (len <= EPS) {
-            return cum.map((_, j) => j === 0 ? 0 : 1);
-            // return cum.map(() => Number.POSITIVE_INFINITY);
-        }
-        return cum.map(l => l / len);
-    });
-    /** Current position of start t */
-    let ts = new Array(bezierPiecess.length).fill(0);
-    /** Current position of i */
-    let is = new Array(bezierPiecess.length).fill(0);
-    const matchedBezierss = [];
-    normCums; //?
-    let ii = 0;
-    const maxIterations = 100;
-    while (ts.some(t => t < 1) && ii++ < maxIterations) {
-        const normCumsNext = [];
-        for (let k = 0; k < bezierPiecess.length; k++) {
-            const i_ = is[k];
-            const normCum_ = normCums[k][i_ + 1]; //?
-            const normCum = normCum_ === undefined
-                ? Number.POSITIVE_INFINITY
-                : normCum_;
-            normCumsNext.push(normCum);
-        }
-        normCumsNext; //?
-        const minIdx = getMinIdx(normCumsNext); //?
-        const idxs = getIdxs(normCumsNext, normCumsNext[minIdx]); //?
-        const curCum = normCumsNext[minIdx];
-        // if (idxs.length === 0) {
-        //     throw new Error('splitTriPath_: unable to make progress');
-        // }
-        const nextPieces = new Array(bezierPiecess.length).fill([]);
-        for (let m = 0; m < bezierPiecess.length; m++) {
-            const bezierPieces = bezierPiecess[m];
-            const _i = is[m];
-            // This path is already finished; keep emitting a degenerate tail.
-            if (_i >= bezierPieces.length) {
-                const lastBezierPiece = bezierPieces[bezierPieces.length - 1];
-                nextPieces[m] = {
-                    ps: lastBezierPiece.ps,
-                    ts: [1, 1]
-                };
-                ts[m] = 1;
-                continue;
-            }
-            if (idxs.includes(m)) {
-                const _t = ts[m];
-                const bezierPiece = bezierPieces[_i];
-                const [pieceTS, pieceTE] = bezierPiece.ts;
-                const pieceDt = pieceTE - pieceTS;
-                nextPieces[m] = {
-                    ps: bezierPiece.ps,
-                    ts: [pieceTS + _t * pieceDt, pieceTE]
-                };
-                const nextI = _i + 1;
-                is[m] = nextI;
-                ts[m] = nextI >= bezierPieces.length ? 1 : 0;
-            }
-            else {
-                const _t = ts[m];
-                const bezierPiece = bezierPieces[_i];
-                const [pieceTS, pieceTE] = bezierPiece.ts;
-                const pieceDt = pieceTE - pieceTS;
-                const bezierLen = getBezierPieceLength({ ps: bezierPiece.ps, ts: [0, 1] });
-                const normCumStart = normCums[m][_i];
-                const normCumEnd = normCums[m][_i + 1];
-                const normCumDt = normCumEnd - normCumStart;
-                const normWithinPiece = normCumDt <= EPS
-                    ? _t
-                    : clip((curCum - normCumStart) / normCumDt, _t, 1);
-                const t1 = bezierLen <= EPS
-                    ? _t
-                    : clip(getTAtLength(bezierPiece.ps, bezierLen * normWithinPiece), _t, 1);
-                nextPieces[m] = {
-                    ps: bezierPiece.ps,
-                    ts: [pieceTS + _t * pieceDt, pieceTS + t1 * pieceDt]
-                };
-                if (closeToEps(t1, 1)) {
-                    const nextI = _i + 1;
-                    is[m] = nextI;
-                    ts[m] = nextI >= bezierPieces.length ? 1 : 0;
-                }
-                else {
-                    is[m] = _i;
-                    ts[m] = t1;
-                }
-            }
-        }
-        matchedBezierss.push(nextPieces);
-    }
-    if (ts.some(t => t < 1)) {
-        throw new Error('splitTriPath_: exceeded maximum iterations');
-    }
-    return matchedBezierss;
-}
-function getCumLengths(lens) {
-    const cum = [0];
-    let cumLen = 0;
-    for (let j = 0; j < lens.length; j++) {
-        cumLen += lens[j];
-        cum.push(cumLen);
-    }
-    return cum;
-}
-/**
- * Returns the index within the given array of the number with the highest
- * value.
- *
- * * returns `undefined` if the array is empty
- */
-function getMinIdx(vs) {
-    let minIdx = undefined;
-    let minVal = Number.POSITIVE_INFINITY;
-    for (let i = 0; i < vs.length; i++) {
-        if (vs[i] <= minVal) {
-            minVal = vs[i];
-            minIdx = i;
-        }
-    }
-    return minIdx;
-}
-/**
- * Returns the indices within the given array of the numbers that are equal to
- * the given max value (within an EPS value).
- *
- * @param vs
- * @param maxVal
- */
-function getIdxs(vs, maxVal) {
-    const maxIdxs = [];
-    for (let i = 0; i < vs.length; i++) {
-        if (vs[i] === maxVal || closeToEps(vs[i], maxVal)) {
-            maxIdxs.push(i);
-        }
-    }
-    return maxIdxs;
-}
-function closeToEps(a, b) {
-    return Math.abs(a - b) <= EPS;
-}
-
-// KEEP FOR TESTING! - one in opentype-ts doesn't work with tests due to aliases
-function mapmap(tss, f) {
-    const tss_ = [];
-    for (let i = 0; i < tss.length; i++) {
-        const ts = tss[i];
-        const ts_ = [];
-        for (let j = 0; j < ts.length; j++) {
-            ts_.push(f(ts[j]));
-        }
-        tss_.push(ts_);
-    }
-    return tss_;
-}
-
-;// ./node_modules/flo-bezier3/node/bezier-piece/is-bezier-piece-zero-length.js
-/**
- * Returns `true` if the given bezier piece has zero length, i.e. if the start
- * and end parameter are the same or if all control points are the same;
- * otherwise returns `false`.
- *
- * @param piece the bezier piece to check
- */
-function isBezierPieceZeroLength(piece) {
-    const { ps, ts: [tS, tE] } = piece;
-    if (tS === tE || ps.length <= 1) {
-        return true;
-    }
-    const [[x0, y0], [x1, y1]] = ps;
-    const same0 = (x0 === x1 && y0 === y1);
-    if (ps.length === 2) {
-        return same0;
-    }
-    const [x2, y2] = ps[2];
-    const same1 = same0 && (x1 === x2 && y1 === y2);
-    if (ps.length === 3) {
-        return same1;
-    }
-    const [x3, y3] = ps[3];
-    const same2 = same1 && (x2 === x3 && y2 === y3);
-    if (ps.length === 4) {
-        return same2;
-    }
-    return false;
-}
-
-//# sourceMappingURL=is-bezier-piece-zero-length.js.map
-;// ./src/reconstruct-from-mat/filter-zero-length.ts
-
-/**
- * Filters out zero-length bezier pieces.
- *
- * * **note** will return at least one bezier piece, even if all pieces are zero-length.
- *
- * @param bezierPieces
- */
-function filterZeroLength(bezierPieces) {
-    const bezierPieces_ = bezierPieces.filter(bezierPiece => !isBezierPieceZeroLength(bezierPiece));
-    return bezierPieces_.length > 0 ? bezierPieces_ : [bezierPieces[0]];
-}
-
-
-;// ./src/reconstruct-from-mat/get-boundary.ts
-
-
-
-function getBoundary(cpNode) {
-    const cpNodeOpp = is_fully_terminating_isFullyTerminating(cpNode)
-        ? undefined // no opposite boundary
-        : cpNode.next.prevOnCircle;
-    const boundaryBeziers = filterZeroLength(getBoundaryBezierPartsToNext(cpNode));
-    const boundaryBeziersOpp = cpNodeOpp === undefined
-        ? undefined
-        : filterZeroLength(getBoundaryBezierPartsToNext(cpNodeOpp));
-    return {
-        boundaryBeziers,
-        boundaryBeziersOpp
-    };
-}
-
-
-;// ./src/reconstruct-from-mat/get-matching-beziers.ts
-
-
-
-
-/**
- * Returns a correspondence between boundary bezier curves and a medial axis
- * bezier curve. They will later be interpolated.
- *
- * @param cpNode the start `CpNode`
- */
-function getMatchingBeziers(cpNode) {
-    const medialBezier = {
-        ps: getMatCurveToNext(cpNode),
-        ts: [0, 1]
-    };
-    if (cpNode.isHoleClosing && // short-circuit
-        !isOnSameLoop(cpNode, cpNode.next)) {
-        // We get here for half of hole-closers, as only half of hole-closers are on a different loop.
-        // This cpNode indicates we should connect the hole
-        // console.log('hole-closing dummy case');
-        return undefined;
-    }
-    const r = getBoundary(cpNode);
-    const { boundaryBeziers, boundaryBeziersOpp } = r;
-    const matchedBezierss = splitTriPath(boundaryBeziers, medialBezier, boundaryBeziersOpp ?? []);
-    return matchedBezierss;
-}
-
-
-;// ./src/reconstruct-from-mat/get-mbss-by-loop-with-opp-arr.ts
-
-
-function getMbssByLoopWithOppArr(cpNodess) {
-    const mbssByLoop = [];
-    /**
-     * An array with each entry being a pair of indices mapping from
-     * `MatchedBeziers[]` on one side to `MatchedBeziers[]` on the other side
-     */
-    const mbMap = new Map();
-    for (let l = 0; l < cpNodess.length; l++) {
-        const cpNodes = cpNodess[l];
-        const mbss = [];
-        for (let i = 0; i < cpNodes.length; i++) {
-            const cpNode = cpNodes[i];
-            mbMap.set(cpNode, [l, i]);
-            const mbs = getMatchingBeziers(cpNode);
-            mbss.push(mbs);
-        }
-        mbssByLoop.push(mbss);
-    }
-    const oppArr = [];
-    for (let l = 0; l < cpNodess.length; l++) {
-        const cpNodes = cpNodess[l];
-        for (let i = 0; i < cpNodes.length; i++) {
-            const cpNode = cpNodes[i];
-            const cpNodeOpp = is_fully_terminating_isFullyTerminating(cpNode)
-                ? undefined // no opposite boundary
-                : cpNode.next.prevOnCircle;
-            // if (cpNodeOpp === undefined) {
-            //     continue;
-            // }
-            const oppIdxs = cpNodeOpp === undefined
-                ? [255, 65535]
-                : mbMap.get(cpNodeOpp);
-            const mbs = mbssByLoop[l][i];
-            if (oppIdxs !== undefined && mbs !== undefined) {
-                oppArr.push([[l, i], oppIdxs]);
-            }
-            else {
-                oppArr.push([[l, i], [255, 65535]]);
-            }
-        }
-    }
-    return { mbssByLoop, oppArr };
-}
-
-
-;// ./src/reconstruct-from-mat/get-all-on-loop-by-loop.ts
+;// ./src/cp-node/fs/get-all-on-loop-by-loop.ts
 /**
  * Returns all `CpNode`s on the MAT that this `CpNode` is part of
- * starting from the current one and going anti-clockwise around the shape.
+ * starting from the current one and going anti-clockwise around the shape
+ * going loop by loop.
+ *
+ * * sometimes more useful than `getAllOnLoop` since this function returns an
+ *   array of `CpNode`s for each loop seperately.
  */
 function getAllOnLoop_ByLoop(cpNode) {
     const cpNodess = [];
@@ -31566,7 +30368,7 @@ function getAllOnLoop_ByLoop(cpNode) {
 
 function getCpNodessForSat(sat) {
     let { cpNode } = sat;
-    while (!is_fully_terminating_isFullyTerminating(cpNode)) {
+    while (!isFullyTerminating(cpNode)) {
         cpNode = cpNode.next;
     }
     if (!isOnSameLoop(cpNode, cpNode.next)) {
@@ -31576,50 +30378,196 @@ function getCpNodessForSat(sat) {
 }
 
 
-;// ./src/reconstruct-from-mat/get-mbss-by-loop-per-sat.ts
+;// ./src/reconstruct-from-mat/reconstruct-from-mat.ts
 
 
 
-function getMbssByLoopPerSat(mats, satScale) {
-    const sats = getSats2(mats, satScale);
-    const cpNodessPerSat = sats.map(getCpNodessForSat);
-    return cpNodessPerSat.map(getMbssByLoopWithOppArr);
+
+
+
+const { max: reconstruct_from_mat_max, abs: reconstruct_from_mat_abs, round: reconstruct_from_mat_round, log2: reconstruct_from_mat_log2 } = Math;
+// let ii = 0;
+/**
+ * * used for debugging only
+ *
+ * @param mats
+ *
+ * @internal
+ */
+function reconstructFromMats(mats, minNumAccurateBits = undefined) {
+    const maxPO2 = reconstruct_from_mat_max(...mats.map(mat => mat.meta.maxCoordPowerOf2));
+    const recoverBoundary_ = recoverBoundary(maxPO2, minNumAccurateBits);
+    // Really only required if getSats was called on the `Mat`s
+    const cpNodessPerSat = mats
+        .map(removeSatInducedTrivial3Prongs)
+        .map(getCpNodessForSat);
+    const r = mapDeep(3, cpNodessPerSat, recoverBoundary_, true);
+    // ii;//?
+    return r;
+}
+const FROM = 0;
+const TO = 1;
+/**
+ *
+ * @param cpNode
+ *
+ * @internal
+ */
+function recoverBoundary(maxPO2, minNumAccurateBits) {
+    return function (cpNode) {
+        const cpNode_ = cpNode.next;
+        const pos = cpNode.pointOnShape;
+        const pos_ = cpNode_.pointOnShape;
+        const { curve, circle, p } = pos;
+        const { curve: curve_, p: p_ } = pos_;
+        if (p[0] === p_[0] && p[1] === p_[1]) {
+            return undefined;
+        }
+        if (curve.loop !== curve_.loop) {
+            // It is a hole-closer going over to the other loop
+            // return undefined;
+            return undefined;
+        }
+        const d = distanceBetween(circle.center, p);
+        if (getRealProngCount(cpNode)) {
+        }
+        // DON'T remove these - they tell us the accuracy of the algorithm
+        // if (!closeTo(2**34)(circle.radius, d) && getRealProngCount(cpNode) === 3) {
+        //     ii++;
+        //     circle.center;//?
+        //     circle.radius;//?
+        //     d;            //?
+        //     p;//?
+        //     pos.isSource;//?
+        //     getRealProngCount(cpNode);//?
+        // }
+        // if (!closeTo(2**28)(circle.radius, d) && getRealProngCount(cpNode) !== 3) {
+        //     ii++;
+        //     circle.center;//?
+        //     circle.radius;//?
+        //     d;            //?
+        //     p;//?
+        //     pos.isSource;//?
+        //     getRealProngCount(cpNode);//?
+        // }
+        if (minNumAccurateBits !== undefined) {
+            const TOL = 2 ** (maxPO2 - minNumAccurateBits);
+            if (reconstruct_from_mat_abs(circle.radius - d) > TOL) {
+                throw new Error(`Medial circle radius must be about the same (2**${reconstruct_from_mat_round(reconstruct_from_mat_log2(TOL))}) ` +
+                    `as distance from medial circle center to point on shape, ` +
+                    `found: medial radius ${circle.radius}, distance: ${d}`);
+            }
+        }
+        return getBoundaryPiece(cpNode);
+    };
+}
+/** @internal */
+const reconstruct_from_mat_TOLERANCE_ADD_2PRONG = 0.01;
+/** @internal */
+const reconstruct_from_mat_TOLERANCE_USE_LINE = 0.0001; // else cubic
+function getBoundaryPiece(cpNode) {
+    const cpNode_ = cpNode.next;
+    const pos = cpNode.pointOnShape;
+    const pos_ = cpNode_.pointOnShape;
+    const { p } = pos;
+    const { p: p_ } = pos_;
+    const fromCc = p;
+    const fromL = reconstruct_from_mat_getEdgeDirection(cpNode, FROM);
+    const toCc = p_;
+    const toL = reconstruct_from_mat_getEdgeDirection(cpNode_, TO);
+    const mid = lineLineIntersection(fromL, toL);
+    const c = from_to_fromTo(fromCc, toCc);
+    let twisted;
+    if (!mid) {
+        twisted = true;
+    }
+    else {
+        const a = from_to_fromTo(fromCc, mid);
+        const b = from_to_fromTo(toCc, mid);
+        twisted = dot(a, c) < 0 || dot(b, c) > 0;
+    }
+    if (!twisted) {
+        return [fromCc, mid, toCc];
+    }
+    const r = rotate90Degrees(c);
+    const w1 = from_to_fromTo(fromL[0], fromL[1]); // This is a unit vector
+    const w2 = from_to_fromTo(toL[0], toL[1]); // This is a unit vector
+    const d1 = reconstruct_from_mat_abs(cross(c, w1)) / (3 * 3);
+    const d2 = reconstruct_from_mat_abs(cross(c, w2)) / (3 * 3);
+    if (d1 > reconstruct_from_mat_TOLERANCE_ADD_2PRONG || d2 > reconstruct_from_mat_TOLERANCE_ADD_2PRONG) {
+        // FUTURE - not within tolerance - must add additional 2-prong
+        return [fromCc, toCc];
+    }
+    if (d1 > reconstruct_from_mat_TOLERANCE_USE_LINE || d2 > reconstruct_from_mat_TOLERANCE_USE_LINE) {
+        // approximate with cubic bezier
+        const m1 = interpolate(fromCc, toCc, 1 / 3);
+        const m2 = interpolate(fromCc, toCc, 2 / 3);
+        const v1 = translate(r, m1);
+        const v2 = translate(r, m2);
+        const l1 = [m1, v1];
+        const l2 = [m2, v2];
+        const mid1 = lineLineIntersection(fromL, l1);
+        const mid2 = lineLineIntersection(toL, l2);
+        return [fromCc, mid1, mid2, toCc];
+    }
+    // Within tolerance - approximate with a straight line.
+    return [fromCc, toCc];
+}
+/**
+ * Returns a line segment of unit length starting at the given point and
+ * being tangent to the shape boundary.
+ *
+ * @internal
+ */
+function reconstruct_from_mat_getEdgeDirection(cpNode, fromOrTo) {
+    let { pointOnShape } = cpNode;
+    let { curve, t, p } = pointOnShape;
+    let { ps } = curve;
+    if (fromOrTo === FROM && t === 1) {
+        t = 0;
+        curve = curve.next;
+        ps = curve.ps;
+    }
+    if (fromOrTo === TO && t === 0) {
+        t = 1;
+        curve = curve.prev;
+        ps = curve.ps;
+    }
+    const tangent = tangent_tangent(ps, t);
+    const v = translate(p, tangent);
+    return [p, v];
 }
 
 
-;// ./src/reconstruct-from-mat/reconstruct-from-mat.ts
+;// ./src/geometry/circle.ts
+/* unused harmony import specifier */ var circle_squaredDistanceBetween;
 
-function reconstructFromMats(mats) {
-    const loopss = [];
-    const bzs = [];
-    const mbssByLoopPerSat = getMbssByLoopPerSat(mats, 1.5);
-    for (const mbssByLoopPS of mbssByLoopPerSat) {
-        const { mbssByLoop, oppArr } = mbssByLoopPS;
-        for (let l = 0; l < mbssByLoop.length; l++) {
-            const rs = mbssByLoop[l];
-            for (let i = 0; i < rs.length; i++) {
-                const r = mbssByLoop[l][i];
-                if (r === undefined) {
-                    continue;
-                }
-                const matchedBezierss = r;
-                for (let j = 0; j < matchedBezierss.length; j++) {
-                    const mb = matchedBezierss[j];
-                    const { boundaryBezier, medialBezier } = mb;
-                    bzs.push(boundaryBezier);
-                }
-            }
-        }
+/**
+ * Returns a scaled version of the given circle without changing its center.
+ * @param circle
+ * @param s multiplier
+ */
+function scaleCircle(circle, s) {
+    return { center: circle.center, radius: s * circle.radius };
+}
+/**
+ * Returns true if the first circle engulfs the second.
+ *
+ * @param c1
+ * @param c2
+ */
+function engulfsCircle(c1, c2) {
+    if (c1.radius <= c2.radius) {
+        return false;
     }
-    return bzs;
-    // return loopss;
+    const d = circle_squaredDistanceBetween(c1.center, c2.center);
+    const dr = c1.radius - c2.radius;
+    const δ = dr * dr;
+    return δ > d;
 }
 
 
 ;// ./src/index.ts
-
-
-
 
 
 
@@ -31686,4 +30634,4 @@ function reconstructFromMats(mats) {
 
 
 
-export { CpNodeFs, beziersToSvgPathStr, clone, cpNodeComparator, createInitialCpTree, debugElemNames, drawBeziersAsSinglePath, drawBranch, drawElemFs, drawElemFsDetailed, drawMat, emptyDebugElems, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getAllOnCircle, getAllOnLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getPartialMeta, getPathsFromStr, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOnSameLoop, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, reconstructFromMats, removeVertex, scaleCircle, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, traverseCp, traverseEdges, traverseVertices, trimMat };
+export { CpNodeFs, beziersToSvgPathStr, clone, cpNodeComparator, createInitialCpTree, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getAllOnCircle, getAllOnLoop, getAllOnLoop_ByLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getOsculatingCircle, getPartialMeta, getPathsFromStr, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOnSameLoop, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, reconstructFromMats, removeVertex, scaleCircle, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, traverseCp, traverseEdges, traverseVertices, trimMat };

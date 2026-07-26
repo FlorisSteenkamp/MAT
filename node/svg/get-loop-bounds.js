@@ -2,11 +2,15 @@ import { memoize } from 'flo-memoize';
 import { getBounds } from 'flo-bezier3';
 import { toP } from '../point-on-shape/to-p.js';
 function toPrePoint(extreme) {
+    const { curve, t } = extreme;
+    const { ps } = curve;
+    const pDd = toP(ps, t);
+    const p = pDd.map(c => c[0] + c[1]);
     return {
-        curve: extreme.curve,
+        curve,
         t: extreme.t,
         isSource: true,
-        p: toP(extreme.curve.ps, extreme.t)
+        p, pDd
     };
 }
 function updateExtreme(extreme, curve, t, val, isMax) {

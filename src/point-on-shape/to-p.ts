@@ -10,9 +10,9 @@ import { evalDeCasteljauDd } from "flo-bezier3";
  */
 function toP(
         ps: number[][],
-        t: number): number[] {
+        t: number): number[][] {
 
-    return evalDeCasteljauDd(ps, [0,t]).map(c => c[0] + c[1]);
+    return evalDeCasteljauDd(ps, [0,t]);
 }
 
 

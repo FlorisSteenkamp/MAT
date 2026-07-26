@@ -1,8 +1,6 @@
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { CurvePiece } from '../mat/curve-piece.js';
-// import { fromTo, circumCenter, len, scale, translate } from 'flo-vector2d';
-import { fromTo, len, scale, translate } from 'flo-vector2d';
-import { circumCenter } from './timed-cc.js';  // TODO - testing - restore
+import { circumCenter, fromTo, len, scale, translate } from 'flo-vector2d';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 
 

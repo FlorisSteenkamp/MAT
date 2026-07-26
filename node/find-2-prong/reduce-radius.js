@@ -5,10 +5,12 @@ const TOLERANCE = 1 + 2 ** -20;
 /**
  * Reduces the circle radius initially as an optimization step.
  *
+ * @param rO maximum possible initial radius
+ *
  * @internal
  */
-function reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm) {
-    let minRadius = Infinity;
+function reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm) {
+    let minRadiusSqrd = rO ** 2;
     let x = [y[0] + nnorm[0], y[1] + nnorm[1]];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
@@ -16,7 +18,7 @@ function reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm) {
         const pS = ps[0];
         const pE = ps[ps.length - 1];
         for (const P of [pS, pE]) {
-            if (squaredDistanceBetween(x, P) > minRadius) {
+            if (squaredDistanceBetween(x, P) > minRadiusSqrd) {
                 continue; // short-circuit
             }
             const { a0, b0 } = getMedialPointCoeffsBez0(y, nnorm, P);
@@ -30,14 +32,14 @@ function reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm) {
             }
             const N = [w * nnorm[0], w * nnorm[1]];
             const r = lengthSquared(N);
-            if (r < minRadius) {
-                minRadius = r;
+            if (r < minRadiusSqrd) {
+                minRadiusSqrd = r;
                 x = [y[0] + N[0], y[1] + N[1]];
             }
         }
     }
     // The extra bit is to account for floating point precision.
-    return TOLERANCE * minRadius;
+    return TOLERANCE * minRadiusSqrd;
 }
 export { reduceRadius };
 //# sourceMappingURL=reduce-radius.js.map

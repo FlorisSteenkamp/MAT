@@ -1,5 +1,4 @@
-// import { circumCenter } from 'flo-vector2d';
-import { circumCenter } from './timed-cc.js'; // TODO - testing - restore
+import { circumCenter } from 'flo-vector2d';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 /**
  * Finds an initial 3-prong circle center point from which to iterate. The point

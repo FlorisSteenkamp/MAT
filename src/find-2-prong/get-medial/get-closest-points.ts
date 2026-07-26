@@ -2,11 +2,18 @@ import type { RootInterval } from 'flo-poly';
 import type { CurvePiece } from "../../mat/curve-piece.js";
 import type { PrePointOnShape } from "../../point-on-shape/point-on-shape.js";
 import type { AntipodalPoint } from './antipodal-point.js';
+import { ddMultDouble1 } from 'double-double';
 import { lengthSquared } from "flo-vector2d";
-import { roots, deflate, Horner } from 'flo-poly';
-import { evalDeCasteljau, getMedialPointCoeffs, getMedialPointCoeffsBez0, getMedialPointCoeffsBez2_SameCurve, getMedialPointCoeffsBez3_SameCurve } from 'flo-bezier3';
+import { roots, Horner, ddHorner } from 'flo-poly';
+import { evalDeCasteljau, getMedialPointCoeffs, getMedialPointCoeffsBez0 } from 'flo-bezier3';
+import { ddGetMedialPointCoeffs } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs.js';
+import { ddGetMedialPointCoeffsBez2_SameCurve } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs-bez2-same-curve.js';
+import { ddGetMedialPointCoeffsBez3_SameCurve } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs-bez3-same-curve.js';
+import { ddGetMedialPointCoeffsBez0 } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs-bez0.js';
 
 const { sqrt, abs, max } = Math;
+
+const qmd = ddMultDouble1;
 
 
 /**
@@ -22,6 +29,7 @@ const { sqrt, abs, max } = Math;
 function getClosestPoint(
         maxCoordPowerOf2: number,
         nnorm: number[], 
+        nnormDd: number[][],
         yPos: PrePointOnShape,
         for1Prong: boolean,
         angle: number,
@@ -29,7 +37,7 @@ function getClosestPoint(
 
     const { curve, ts: [tS,tE] } = curvePiece;
     const { ps } = curve;
-    const { curve: touchedCurve, t, p: y } = yPos;
+    const { curve: touchedCurve, t, p: y, pDd: yDd } = yPos;
 
     const isTouched = curve === touchedCurve;
     const shouldDeflate = angle === 0 && isTouched;
@@ -42,11 +50,14 @@ function getClosestPoint(
     if (tS !== tE &&
         !(shouldDeflate && ps.length === 2) &&
         !(isTouched && ps.length === 3 && for1Prong)) {
+
         const { A, B, H } = shouldDeflate
             ? ps.length === 3
-                ? getMedialPointCoeffsBez2_SameCurve(t,nnorm,ps)
-                : getMedialPointCoeffsBez3_SameCurve(t,nnorm,ps)
-            : getMedialPointCoeffs(y, nnorm, ps);
+                ? ddGetMedialPointCoeffsBez2_SameCurve(t, nnormDd, ps)
+                : ddGetMedialPointCoeffsBez3_SameCurve(t, nnormDd, ps)
+            : ddGetMedialPointCoeffs(yDd, nnormDd, ps);
+
+        // const Hd = H.map(h => h[0] + h[1]);
         
         ss = roots(H, tS, tE) || [];
         //-----------------------
@@ -65,8 +76,14 @@ function getClosestPoint(
             const s = sE > 1 ? 1 : _s;
 
             //-----------------------
-            const AS = Horner(A, s);
-            const BS = Horner(B, s);
+            // const AS = Horner(A, s);
+            // const BS = Horner(B, s);
+
+            const ASDd = ddHorner(A, s);
+            const BSDd = ddHorner(B, s);
+            const AS = ASDd[0] + ASDd[1];
+            const BS = BSDd[0] + BSDd[1];
+
             // const CS = Horner(C, s);
             // const DS = Horner(D, s);
 
@@ -86,7 +103,8 @@ function getClosestPoint(
                 continue;
             }
 
-            const V = [w*nnorm[0], w*nnorm[1]];
+            const VDd = [qmd(w, nnormDd[0]), qmd(w, nnormDd[1])];
+            const V = [VDd[0][1], VDd[1][1]];
             const d = sqrt(lengthSquared(V));
 
             if (d <= 2**(maxCoordPowerOf2 - 40)) {
@@ -174,20 +192,21 @@ function getClosestPoint(
     for (let i=0; i<PS.length; i++) {
         //-----------------------
         const { P, t: s } = PS[i];
-        const { a0, b0 } = getMedialPointCoeffsBez0(y,nnorm,P);
+        const { a0, b0 } = ddGetMedialPointCoeffsBez0(yDd, nnormDd, P);
 
-        if (abs(a0) <= 2**-40 || abs(b0) <= 2**-40) {
+        if (abs(a0[1]) <= 2**-40 || abs(b0[1]) <= 2**-40) {
             continue;
         }
 
-        const w = -b0 / a0;
+        const w = -b0[1] / a0[1];
 
         // too close to point of origin *or* negative;
         if (w < 2**-40) {
             continue;
         }
 
-        const V = [w*nnorm[0], w*nnorm[1]];
+        const VDd = [qmd(w, nnormDd[0]), qmd(w, nnormDd[1])];
+        const V = [VDd[0][1], VDd[1][1]];
         const d = sqrt(lengthSquared(V));
 
         const x = [y[0] + V[0], y[1] + V[1]];
@@ -209,3 +228,45 @@ function getClosestPoint(
 
 
 export { getClosestPoint }
+
+
+
+/**
+ * Recovers a numerically stable ray parameter `t` from linear equations
+ * `A*t + B = 0` and (optionally) `C*t + D = 0` evaluated at a fixed `s`.
+ *
+ * If `C,D` are unavailable, this falls back to `-B/A`.
+ */
+// function chooseStableT(
+//         A: number,
+//         B: number,
+//         C: number,
+//         D: number) {
+
+//     const epsScale = max(1, abs(A), abs(B), abs(C), abs(D));
+//     const eps = Number.EPSILON * epsScale;
+
+//     const denomAB = abs(A);
+//     const hasAB = denomAB > eps;
+//     const denomCD = abs(C);
+//     const hasCD = denomCD > eps;
+
+//     if (!hasAB && !hasCD) {
+//         return undefined;
+//     }
+//     if (hasAB && !hasCD) {
+//         return -B / A;
+//     }
+//     if (!hasAB && hasCD) {
+//         return -D / C;
+//     }
+
+//     const tAB = -B / A;
+//     const tCD = -D / C;
+
+//     // Score each candidate by how well it satisfies the *other* equation.
+//     const scoreAB = abs(C*tAB + D) / (abs(C) + abs(D) + eps);
+//     const scoreCD = abs(A*tCD + B) / (abs(A) + abs(B) + eps);
+
+//     return scoreAB <= scoreCD ? tAB : tCD;
+// }

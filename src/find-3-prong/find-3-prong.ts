@@ -2,7 +2,6 @@ import type { CpNode } from '../cp-node/cp-node.js';
 import type { ThreeProngInfo } from './three-prong-info.js';
 import { find3ProngForDelta3s } from './find-3-prong-for-delta3s.js';
 import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
-import { timeFunctionCalls } from '../utils/time-function-call.js';
 
 
 /**

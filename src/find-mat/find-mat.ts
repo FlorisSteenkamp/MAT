@@ -8,7 +8,7 @@ import type { MatOptions } from './mat-options.js';
 import type { MatMeta } from '../mat/mat-meta.js';
 import { findAndAdd3ProngsOnLoop } from '../find-3-prong/find-and-add-3-prongs-on-loop.js';
 import { createInitialCpTree } from './create-initial-cp-tree.js';
-import { getPartialMeta, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
+import { getPartialMeta, addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
 import { getSharpCornersOnLoop } from './get-sharp-corners.js';
 import { getDullCornersOnLoop } from './get-dull-corners-on-loop.js';
 import { findAndAdd2ProngsOnAllLoops } from '../find-2-prong/find-and-add-2-prongs-on-all-loops.js';
@@ -31,6 +31,8 @@ function findMat(
             cpNode: CpNode;
             meta: MatMeta;
         } {
+
+    addDebugInfo1();
 
     const { minBezLength, maxCurviness, maxLength, angleIncrement } = options;
 

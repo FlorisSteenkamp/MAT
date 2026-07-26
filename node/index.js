@@ -1,5 +1,4 @@
 export { loopFromBeziers, beziersToSvgPathStr, getPathsFromStr } from 'flo-boolean';
-export { drawBeziersAsSinglePath } from './debug/functions/draw/draw-beziers-as-single-path.js';
 export { floydWarshall } from './floyd-warshall/floyd-warshall.js';
 export { CpNodeFs } from './cp-node/cp-node-fs.js';
 export { isVertexSpecial } from './cp-node/fs/is-vertex-special.js';
@@ -8,13 +7,9 @@ export { trimMat } from './mat/trim-mat.js';
 export { toScaleAxis } from './sat/to-scale-axis.js';
 export { getBranches } from './mat/get-branches.js';
 export { enableDebugForMat } from './debug/debug.js';
-export { drawBranch } from './debug/functions/draw-elem/draw-branch.js';
-export { drawMat } from './debug/functions/draw-elem/draw-mat.js';
-export { debugElemNames, emptyDebugElems } from './debug/debug-elem-types.js';
 export { getShapeBounds } from './svg/get-shape-bounds.js';
 export { getBoundaryPieceBeziers } from './mat/get-boundary-piece-beziers.js';
 export { simplifyMat } from './mat/simplify-mat.js';
-export { drawElemFs, drawElemFsDetailed } from './debug/functions/draw-elem/draw-elem.js';
 export { sweepLine } from './sweep-line/sweep-line.js';
 export { getClosestSquareDistanceToRect } from './geometry/get-closest-square-distance-to-rect.js';
 export { getImpliedBoundaryBezierBetween } from './cp-node/fs/get-implied-boundary-bezier-between.js';
@@ -28,6 +23,8 @@ export { getPotentialClosestPointsOnCurveCertified } from './closest-boundary-po
 export { getCloseBoundaryPointsCertified } from './closest-boundary-point/get-close-boundary-points-certified.js';
 export { getPartialMeta } from './find-mat/get-meta.js';
 export { findAndAddHoleClosing2Prongs } from './find-2-prong/find-and-add-hole-closing-2-prongs.js';
+export { reconstructFromMats } from './reconstruct-from-mat/reconstruct-from-mat.js';
+export { getOsculatingCircle } from './point-on-shape/get-osculating-circle.js';
 // CpNodeFs functions
 export { getChildren } from './cp-node/fs/get-children.js';
 export { getVertexForwardChildren } from './cp-node/fs/get-vertex-forward-children.js';
@@ -65,5 +62,5 @@ export { getAllVertices } from './cp-node/fs/get-all-vertices.js';
 export { isTrivial } from './cp-node/fs/is-trivial.js';
 export { scaleCircle } from './geometry/circle.js';
 export { isOnSameLoop } from './cp-node/fs/is-on-same-loop.js';
-export { reconstructFromMats } from './reconstruct-from-mat/reconstruct-from-mat.js';
+export { getAllOnLoop_ByLoop } from './cp-node/fs/get-all-on-loop-by-loop.js';
 //# sourceMappingURL=index.js.map

@@ -64,6 +64,14 @@ function getPartialMeta(
 }
 
 
+function addDebugInfo1() {
+    if (typeof _debug_ === 'undefined') { return; }
+
+    timingStart = performance.now();
+}
+
+
+
 /** @internal */
 function addDebugInfo2() {
     if (typeof _debug_ === 'undefined') { return; }
@@ -74,6 +82,7 @@ function addDebugInfo2() {
 }
 
 
+/** @internal */
 function addDebugInfo3() {
     if (typeof _debug_ === 'undefined') { return; }
 
@@ -84,6 +93,7 @@ function addDebugInfo3() {
 }
 
 
+/** @internal */
 function addDebugInfo4() {
     if (typeof _debug_ === 'undefined') { return; }
 
@@ -93,6 +103,7 @@ function addDebugInfo4() {
 
 export {
     getPartialMeta,
+    addDebugInfo1,
     addDebugInfo2,
     addDebugInfo3,
     addDebugInfo4

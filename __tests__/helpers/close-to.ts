@@ -1,12 +1,12 @@
 import type { ObjOrArray } from "./obj-or-array.js";
+import { eps } from '../../src/error-analysis/gamma.js';
 
-const { EPSILON: eps, POSITIVE_INFINITY: inf } = Number;
-const abs = Math.abs;
+const { abs } = Math;
 
 
 /**
- * @param ulpsOrEps If a number then 2\*\*1 means last bit, 2\*\*2 means last 2 bits, etc... 
- * else if an array containing a single number then 1 means 1 eps, 2 means 2 eps, etc...
+ * @param ulpsOrEps if a number then 2\*\*1 means last bit, 2\*\*2 means last 2 bits, etc... 
+ * else if an array containing a single number then 1 means 1 `eps`, 2 means 2 `eps`, etc...
  */
 function closeTo(ulpsOrEps: number | number[]) {
     let isUlps = true;
@@ -22,7 +22,7 @@ function closeTo(ulpsOrEps: number | number[]) {
         if (typeof expected === 'number') {
             if (typeof actual !== 'number') { return false; }
             const actual_ = actual as number;
-            if (expected === inf) { return actual_ === inf; }
+            if (expected === Infinity) { return actual_ === Infinity; }
             const error = abs((isUlps ? expected : 1)*(ulpsOrEps as number)*eps);
             
             return (

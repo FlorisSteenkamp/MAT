@@ -1,17 +1,21 @@
 import type { Curve } from 'flo-boolean';
 import type { CpNode } from '../cp-node.js';
-import { toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse, dot } from 'flo-vector2d';
+import { toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse as reverseVec, dot } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
 import { isPosSharpCorner } from '../../point-on-shape/is-pos-sharp-corner.js';
 
 
 /**
- * @internal
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).
+ * 
  * @param cpNode 
+ * 
+ * @internal
  */
-function getEdgeDirection(cpNode: CpNode) {
+function getEdgeDirection(
+        cpNode: CpNode) {
+
     const circleCenter = cpNode.pointOnShape.circle.center;
 
     const cp1 = cpNode;
@@ -44,7 +48,7 @@ function getEdgeDirection(cpNode: CpNode) {
         }
 
         const tan1 = toUnitVector(tangent(curve1!.ps, 0));
-        const tan2 = reverse( toUnitVector(tangent(curve2!.ps, 1)) );
+        const tan2 = reverseVec( toUnitVector(tangent(curve2!.ps, 1)) );
         
         const x = dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 

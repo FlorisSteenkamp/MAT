@@ -11,15 +11,18 @@ const TOLERANCE = 1 + 2**-20;
 /**
  * Reduces the circle radius initially as an optimization step.
  * 
+ * @param rO maximum possible initial radius
+ * 
  * @internal
  */
 function reduceRadius(
         maxCoordPowerOf2: number,
+        rO: number,
         curvePieces: CurvePiece[], 
         y: number[],
         nnorm: number[]): number {
 
-    let minRadius = Infinity;
+    let minRadiusSqrd = rO**2;
     let x = [y[0] + nnorm[0], y[1] + nnorm[1]];
 
     for (let i=0; i<curvePieces.length; i++) {
@@ -31,7 +34,7 @@ function reduceRadius(
         const pE = ps[ps.length - 1];
 
         for (const P of [pS,pE]) {
-            if (squaredDistanceBetween(x,P) > minRadius) {
+            if (squaredDistanceBetween(x,P) > minRadiusSqrd) {
                 continue;  // short-circuit
             }
 
@@ -49,15 +52,15 @@ function reduceRadius(
             const N = [w*nnorm[0], w*nnorm[1]];
             const r = lengthSquared(N);
 
-            if (r < minRadius) {
-                minRadius = r;
+            if (r < minRadiusSqrd) {
+                minRadiusSqrd = r;
                 x = [y[0] + N[0], y[1] + N[1]];
             }
         }
     }
 
     // The extra bit is to account for floating point precision.
-    return TOLERANCE*minRadius;
+    return TOLERANCE*minRadiusSqrd;
 }
 
 

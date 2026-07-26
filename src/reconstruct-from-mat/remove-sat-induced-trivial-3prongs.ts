@@ -1,6 +1,6 @@
 import type { Mutable } from '../utils/mutable.js';
 import type { Mat } from '../mat/mat.js';
-import { isFullyTerminating } from './is-fully-terminating.js';
+import { isFullyTerminating } from '../cp-node/fs/is-fully-terminating.js';
 
 
 /**

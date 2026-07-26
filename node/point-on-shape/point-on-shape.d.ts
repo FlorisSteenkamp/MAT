@@ -23,6 +23,8 @@ interface PrePointOnShape {
     readonly isSource: boolean;
     /** The (cached) point on the shape boundary. */
     readonly p: number[];
+    /** The (cached) double-double precision point on the shape boundary. */
+    readonly pDd: number[][];
 }
 /**
  * Represents a point on the shape boundary, including the `curve` it belongs

@@ -6,7 +6,7 @@ import type { CpNode } from "../cp-node.js";
  * starting from the current one and going anti-clockwise around the shape.
  */
 function getAllOnLoop(
-        cpNode: CpNode) {
+        cpNode: CpNode): CpNode[] {
 
     const cpStart = cpNode;
     const cpNodes: CpNode[] = [];

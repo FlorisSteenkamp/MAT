@@ -9,7 +9,7 @@ import { calcSeperationTolerance } from './calc-seperation-tolerance.js';
 import { getInitialX } from './get-initial-x.js';
 import { ddNormal } from 'flo-bezier3';
 import { rotate } from 'flo-vector2d';
-const { sin, cos, max, sqrt } = Math;
+const { abs, sin, cos, max, sqrt } = Math;
 /**
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
@@ -49,23 +49,30 @@ function find2Prong(meta) {
         const nnorm = isHoleClosing
             ? [0, -maxOsculatingCircleRadius]
             : (angle !== 0 ? rotate(sin(angle), cos(angle))(_nnorm) : _nnorm);
+        const nnormDd = isHoleClosing || angle !== 0
+            ? [[0, nnorm[0]], [0, nnorm[1]]]
+            : [[-normDd[0][0], -normDd[0][1]], [-normDd[1][0], -normDd[1][1]]];
         // Get initial kissing circle guess
         let [xO, rO] = getInitialX(angle, isHoleClosing, maxOsculatingCircleRadius, yPos, nnorm);
         // The boundary piece that should contain the other point of 
         // the 2-prong circle. (Defined by start and end points).
         const curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO);
         // The lines below is an optimization.
-        const xy2 = reduceRadius(maxCoordPowerOf2, curvePieces, y, nnorm);
+        const xy2 = reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm);
         const xy = sqrt(xy2);
         const l = sqrt(nnorm[0] ** 2 + nnorm[1] ** 2);
         xO = [y[0] + nnorm[0] / l * xy, y[1] + nnorm[1] / l * xy];
         cullCurvePieces(curvePieces, xO, xy2);
-        const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnorm, yPos, for1Prong, angle, curvePieces);
+        const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePieces);
+        // FUTURE - if antipodalPoints.length > 1 let's just add an n-prong;
         if (antipodalPoints.length !== 1) {
             if (antipodalPoints.length === 0) {
+                if (isHoleClosing) {
+                    console.log(yPos);
+                }
                 return undefined;
             }
-            if (!areAllAntipodesSame(antipodalPoints)) {
+            if (!isHoleClosing && !areAllAntipodesSame(antipodalPoints, maxCoordPowerOf2)) {
                 // At this point there is multiple antipodal points (zs) for the given
                 // source point so do not add the 2-prong, it will be caught when 
                 // adding 3+-prongs.
@@ -77,9 +84,11 @@ function find2Prong(meta) {
             add1Prong(meta, rO, xO, yPos);
             return undefined;
         }
+        const pDd = toP(curve.ps, s);
+        const p = pDd.map(c => c[0] + c[1]);
         const z = {
             curve, t: s, isSource: false,
-            p: toP(curve.ps, s)
+            p, pDd
         };
         const circle = { center: x, radius: d };
         const yz = squaredDistanceBetweenDd(yPos.p, z.p);
@@ -99,11 +108,16 @@ function find2Prong(meta) {
     };
 }
 /** @internal */
-function areAllAntipodesSame(app) {
-    const { curve, s: t } = app[0];
-    for (let i = 1; i < app.length; i++) {
-        const { curve: curve_, s: t_ } = app[i];
-        if (curve !== curve_ || t !== t_) {
+function areAllAntipodesSame(point, maxCoordPowerOf2) {
+    const { curve, s: t, x } = point[0];
+    const tol = 2 ** (maxCoordPowerOf2 - 40);
+    for (let i = 1; i < point.length; i++) {
+        // const { curve: curve_, s: t_ } = point[i];
+        // if (curve !== curve_ || t !== t_) {
+        //     return false;
+        // }
+        const { x: x_ } = point[i];
+        if (abs(x[0] - x_[0]) > tol || abs(x[0] - x_[0]) > tol) {
             return false;
         }
     }

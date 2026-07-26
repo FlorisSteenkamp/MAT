@@ -1,7 +1,6 @@
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { CurvePiece } from '../mat/curve-piece.js';
-// import { circumCenter } from 'flo-vector2d';
-import { circumCenter } from './timed-cc.js';  // TODO - testing - restore
+import { circumCenter } from 'flo-vector2d';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
 
 
