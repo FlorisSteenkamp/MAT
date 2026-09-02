@@ -100,7 +100,7 @@ test('Should correctly reconstruct original shape from medial axis for specific 
 
             const bezierLoops = getPathsFromStr(pathStr);
 
-            const loopss = simplifyPaths(bezierLoops, undefined, { forceOrientationNegative: true });
+            const loopss = simplifyPaths(bezierLoops, { forceOrientationNegative: true });
 
             let mats: Mat[];
             try {

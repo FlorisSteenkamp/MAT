@@ -39,7 +39,9 @@ function findMats(bezierLoops, options) {
         ...(options || {})
     });
     const { applySat, simplify, satScale, simplifyTolerance } = options_;
-    const loopss = simplifyPaths(bezierLoops, undefined, { forceOrientationNegative: true });
+    const loopss = simplifyPaths(bezierLoops, {
+        forceOrientationNegative: true,
+    });
     // console.log(loopsToSvgPathStr(bezierLoops));
     const mats = [];
     for (const loops of loopss) {

@@ -1,5 +1,5 @@
 
-;// ./node_modules/flo-boolean/node/loop/loop-from-beziers.js
+;// ./node_modules/flo-boolean/node/shape/loop-from-beziers.js
 /**
  * @param beziers a pre-ordered array of bezier curves to add initially.
  * @param idx an optional index to assign to the loop - it can be anything
@@ -38,19 +38,23 @@ function loopFromBeziers(beziers = [], idx) {
     return loop;
 }
 function isPoint(ps) {
+    if (ps.length <= 1) {
+        return true;
+    }
+    const p0 = ps[0];
+    const p1 = ps[1];
+    const p01Same = p0[0] === p1[0] && p0[1] === p1[1];
     if (ps.length === 2) {
-        return (ps[0][0] === ps[1][0] && ps[0][1] === ps[1][1] // p[0] === p[1]
-        );
+        return p01Same;
     }
+    const p2 = ps[2];
+    const p12Same = p1[0] === p2[0] && p1[1] === p2[1];
     if (ps.length === 3) {
-        return (ps[0][0] === ps[1][0] && ps[0][1] === ps[1][1] && // p[0] === p[1]
-            ps[1][1] === ps[2][1] && ps[1][1] === ps[2][1] // p[1] === p[2]
-        );
+        return p01Same && p12Same;
     }
-    return (ps[0][0] === ps[1][0] && ps[0][1] === ps[1][1] && // p[0] === p[1]
-        ps[1][1] === ps[2][1] && ps[1][1] === ps[2][1] && // p[1] === p[2]
-        ps[2][1] === ps[3][1] && ps[2][1] === ps[3][1] // p[2] === p[3]
-    );
+    const p3 = ps[3];
+    const p23Same = p2[0] === p3[0] && p2[1] === p3[1];
+    return p01Same && p12Same && p23Same;
 }
 
 //# sourceMappingURL=loop-from-beziers.js.map
@@ -97,25 +101,8 @@ function beziersToSvgPathStr(beziers) {
 }
 
 //# sourceMappingURL=beziers-to-svg-path-str.js.map
-;// ./node_modules/flo-boolean/node/svg/path-state.js
-/** @hidden */
-class PathState {
-    initialPoint = undefined;
-    p;
-    vals = undefined;
-    // Used in conjunction with "S", "s"
-    prev2ndCubicControlPoint = undefined;
-    // Used in conjunction with "T", "t"
-    prev2ndQuadraticControlPoint = undefined;
-    constructor() {
-        this.p = [0, 0];
-    }
-}
-
-//# sourceMappingURL=path-state.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/z.js
 /**
- * @hidden
  * Z and z: (from www.w3.org)
  *
  * params: (none)
@@ -123,6 +110,8 @@ class PathState {
  * Close the current subpath by drawing a straight line from the current point
  * to current subpath's initial point. Since the Z and z commands take no
  * parameters, they have an identical effect.
+ *
+ * @internal
  */
 function z(s) {
     const ps = [
@@ -137,7 +126,6 @@ function z(s) {
 //# sourceMappingURL=z.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/c.js
 /**
- * @hidden
  * C and c: (from www.w3.org)
  *
  * params: x1 y1 x2 y2 x y
@@ -151,6 +139,8 @@ function z(s) {
  * be specified to draw a polybézier. At the end of the
  * command, the new current point becomes the final (x,y)
  * coordinate pair used in the polybézier.
+ *
+ * @internal
  */
 function c(s) {
     const ps = [
@@ -167,7 +157,6 @@ function c(s) {
 //# sourceMappingURL=c.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/s.js
 /**
- * @hidden
  * S and s: (from www.w3.org)
  *
  * params: x2 y2 x y
@@ -182,6 +171,8 @@ function c(s) {
  * indicates that relative coordinates will follow. Multiple sets of coordinates
  * may be specified to draw a polybézier. At the end of the command, the new
  * current point becomes the final (x,y) coordinate pair used in the polybézier.
+ *
+ * @internal
  */
 function s(s) {
     const p = s.prev2ndCubicControlPoint
@@ -202,7 +193,6 @@ function s(s) {
 //# sourceMappingURL=s.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/l.js
 /**
- * @hidden
  * L and l: (from www.w3.org)
  *
  * params: x y
@@ -213,6 +203,8 @@ function s(s) {
  * will follow. A number of coordinates pairs may be specified to draw a
  * polyline. At the end of the command, the new current point is set to the
  * final set of coordinates provided.
+ *
+ * @internal
  */
 function l(s) {
     const ps = [
@@ -227,7 +219,6 @@ function l(s) {
 //# sourceMappingURL=l.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/h.js
 /**
- * @hidden
  * H and h: (from www.w3.org)
  *
  * params: x
@@ -237,6 +228,8 @@ function l(s) {
  * indicates that relative coordinates will follow. Multiple x values can be
  * provided (although usually this doesn't make sense). At the end of the
  * command, the new current point becomes (x, cpy) for the final value of x.
+ *
+ * @internal
  */
 function h(s) {
     const ps = [
@@ -251,7 +244,6 @@ function h(s) {
 //# sourceMappingURL=h.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/v.js
 /**
- * @hidden
  * V and v: (from www.w3.org)
  *
  * params: y
@@ -261,6 +253,8 @@ function h(s) {
  * indicates that relative coordinates will follow. Multiple y values can be
  * provided (although usually this doesn't make sense). At the end of the
  * command, the new current point becomes (cpx, y) for the final value of y.
+ *
+ * @internal
  */
 function v(s) {
     const ps = [
@@ -275,7 +269,6 @@ function v(s) {
 //# sourceMappingURL=v.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/q.js
 /**
- * @hidden
  * Q and q: (from www.w3.org)
  *
  * params: x1 y1 x y
@@ -286,6 +279,8 @@ function v(s) {
  * Multiple sets of coordinates may be specified to draw a polybézier. At the
  * end of the command, the new current point becomes the final (x,y) coordinate
  * pair used in the polybézier.
+ *
+ * @internal
  */
 function q(s) {
     const QP1 = [s.vals[0], s.vals[1]];
@@ -299,7 +294,6 @@ function q(s) {
 //# sourceMappingURL=q.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/t.js
 /**
- * @hidden
  * T and t: (from www.w3.org)
  *
  * params: x y
@@ -312,6 +306,8 @@ function q(s) {
  * coordinates will follow; t (lowercase) indicates that relative coordinates
  * will follow. At the end of the command, the new current point becomes the
  * final (x,y) coordinate pair used in the polybézier.
+ *
+ * @internal
  */
 function t(s) {
     const p = s.prev2ndQuadraticControlPoint
@@ -326,50 +322,151 @@ function t(s) {
 }
 
 //# sourceMappingURL=t.js.map
-;// ./node_modules/flo-boolean/node/svg/arc-to-cubic-curves.js
-// TODO - a work in progress - currently using a different (less accurate?) 
-// function.
+;// ./node_modules/flo-vector2d/node/affine-transformations/linear/rotate.js
+function rotate(sinθ, cosθ, p) {
+    function rotateByθ(p) {
+        return [
+            p[0] * cosθ - p[1] * sinθ,
+            p[0] * sinθ + p[1] * cosθ
+        ];
+    }
+    // Curry the function
+    return p === undefined ? rotateByθ : rotateByθ(p);
+}
+
+//# sourceMappingURL=rotate.js.map
+;// ./node_modules/flo-boolean/node/utils/clamp.js
+const { min, max } = Math;
+function clamp(v, minV, maxV) {
+    return min(maxV, max(minV, v));
+}
+
+//# sourceMappingURL=clamp.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/arc-to-cubic-curves.js
+
+
+const { abs, sqrt, asin, sin, cos, tan, PI } = Math;
 /**
- * @hidden
  * Get an array of corresponding cubic bezier curve parameters for given arc
  * curve paramters.
+ *
+ * @internal
  */
-function arcToCubicCurves(
-/** the start point */
-pS, 
-/** radius x */
-rx, 
-/** radius y */
-ry, 
-/** x-axis rotation - in degrees */
-rotationAngle, largeArcFlag, sweepFlag, pE) {
-    return [[
-            pS,
-            pE
-        ]];
-}
-/**
- * @param x
- * @param y
- * @param angleRad
- */
-function rotate(x, y, angleRad) {
-    const X = x * Math.cos(angleRad) - y * Math.sin(angleRad);
-    const Y = x * Math.sin(angleRad) + y * Math.cos(angleRad);
-    return { x: X, y: Y };
+function arcToCubicCurves(x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag, _recursive) {
+    const θ = degToRad(angle);
+    let params = [];
+    let f1, f2, cx, cy;
+    if (_recursive) {
+        f1 = _recursive[0];
+        f2 = _recursive[1];
+        cx = _recursive[2];
+        cy = _recursive[3];
+    }
+    else {
+        const sin_θ = sin(-θ);
+        const cos_θ = cos(-θ);
+        const rotate_θ = rotate(sin_θ, cos_θ);
+        [x1, y1] = rotate_θ([x1, y1]);
+        [x2, y2] = rotate_θ([x2, y2]);
+        const x = (x1 - x2) / 2;
+        const y = (y1 - y2) / 2;
+        let h = (x * x) / (r1 * r1) + (y * y) / (r2 * r2);
+        if (h > 1) {
+            h = sqrt(h);
+            r1 = h * r1;
+            r2 = h * r2;
+        }
+        const sign = largeArcFlag === sweepFlag ? -1 : +1;
+        const r1Pow = r1 * r1;
+        const r2Pow = r2 * r2;
+        const left = r1Pow * r2Pow - r1Pow * y * y - r2Pow * x * x;
+        const right = r1Pow * y * y + r2Pow * x * x;
+        const k = sign * sqrt(abs(left / right));
+        cx = k * r1 * y / r2 + (x1 + x2) / 2;
+        cy = k * -r2 * x / r1 + (y1 + y2) / 2;
+        f1 = asin(clamp((y1 - cy) / r2, -1, 1));
+        f2 = asin(clamp((y2 - cy) / r2, -1, 1));
+        if (x1 < cx) {
+            f1 = PI - f1;
+        }
+        if (x2 < cx) {
+            f2 = PI - f2;
+        }
+        if (f1 < 0) {
+            f1 = PI * 2 + f1;
+        }
+        if (f2 < 0) {
+            f2 = PI * 2 + f2;
+        }
+        if (sweepFlag && f1 > f2) {
+            f1 = f1 - PI * 2;
+        }
+        if (!sweepFlag && f2 > f1) {
+            f2 = f2 - PI * 2;
+        }
+    }
+    let df = f2 - f1;
+    if (abs(df) > (PI * 120 / 180)) {
+        const f2old = f2;
+        const x2old = x2;
+        const y2old = y2;
+        f2 = f1 + (sweepFlag && f2 > f1 ? 1 : -1) * PI * 120 / 180;
+        x2 = cx + r1 * cos(f2);
+        y2 = cy + r2 * sin(f2);
+        params = arcToCubicCurves(x2, y2, x2old, y2old, r1, r2, angle, 0, sweepFlag, [f2, f2old, cx, cy]);
+    }
+    df = f2 - f1;
+    const c1 = cos(f1);
+    const s1 = sin(f1);
+    const c2 = cos(f2);
+    const s2 = sin(f2);
+    const t = tan(df / 4);
+    const hx = 4 / 3 * r1 * t;
+    const hy = 4 / 3 * r2 * t;
+    const m1 = [x1, y1];
+    const m2 = [x1 + hx * s1, y1 - hy * c1];
+    const m3 = [x2 + hx * s2, y2 - hy * c2];
+    const m4 = [x2, y2];
+    m2[0] = 2 * m1[0] - m2[0];
+    m2[1] = 2 * m1[1] - m2[1];
+    if (_recursive) {
+        return [m2, m3, m4, ...params];
+    }
+    const params2 = [m2, m3, m4, ...params].flat();
+    const curves = [];
+    let curveParams = [];
+    const sinθ = sin(θ);
+    const cosθ = cos(θ);
+    const rotateθ = rotate(sinθ, cosθ);
+    params2.forEach(function (param, i) {
+        if (i % 2) {
+            const p = rotateθ([params2[i - 1], params2[i]]);
+            curveParams.push(p[1]);
+        }
+        else {
+            const p = rotateθ([params2[i], params2[i + 1]]);
+            curveParams.push(p[0]);
+        }
+        if (curveParams.length === 6) {
+            curves.push(curveParams);
+            curveParams = [];
+        }
+    });
+    return curves;
 }
 /**
  * @param degrees
+ *
+ * @internal
  */
 function degToRad(degrees) {
-    return (Math.PI * degrees) / 180;
+    return (PI * degrees) / 180;
 }
 
 //# sourceMappingURL=arc-to-cubic-curves.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/a.js
 
 /**
- * @hidden
  * A and a: (from www.w3.org)
  *
  * params: rx ry x-axis-rotation large-arc-flag sweep-flag x y
@@ -381,11 +478,47 @@ function degToRad(degrees) {
  * is calculated automatically to satisfy the constraints imposed by the other
  * parameters. large-arc-flag and sweep-flag contribute to the automatic
  * calculations and help determine how the arc is drawn.
+ *
+ * @internal
  */
 function a(s) {
     s.prev2ndCubicControlPoint = undefined;
     s.prev2ndQuadraticControlPoint = undefined;
-    const curves = arcToCubicCurves(s.p, s.vals[0], s.vals[1], s.vals[2], s.vals[3], s.vals[4], [s.vals[5], s.vals[6]]);
+    // SVG arc params: rx ry x-axis-rotation large-arc-flag sweep-flag x y
+    const start = s.p;
+    const end = [s.vals[5], s.vals[6]];
+    const rx = Math.abs(s.vals[0]); // spec: radii are treated as absolute values
+    const ry = Math.abs(s.vals[1]);
+    // Spec (F.6.2): if the endpoint is identical to the current point the arc
+    // segment is omitted entirely.
+    if (start[0] === end[0] && start[1] === end[1]) {
+        return [];
+    }
+    // Spec (F.6.2): if either radius is zero, treat the arc as a straight line
+    // to the endpoint.
+    if (rx === 0 || ry === 0) {
+        s.p = end; // Update current point
+        return [[start, end]];
+    }
+    const flatCurves = arcToCubicCurves(start[0], // start x
+    start[1], // start y
+    end[0], // end x
+    end[1], // end y
+    rx, // rx
+    ry, // ry
+    s.vals[2], // x-axis rotation (degrees)
+    s.vals[3], // large-arc-flag
+    s.vals[4]);
+    // Each returned cubic is a flat [c1x,c1y,c2x,c2y,ex,ey] with an implicit
+    // start point (the arc start, then the previous cubic's end). Expand into
+    // explicit [start, ctrl1, ctrl2, end] 4-point cubics.
+    const curves = [];
+    let cur = start;
+    for (const c of flatCurves) {
+        const curve = [cur, [c[0], c[1]], [c[2], c[3]], [c[4], c[5]]];
+        curves.push(curve);
+        cur = curve[3];
+    }
     const lastPs = curves[curves.length - 1];
     s.p = lastPs[lastPs.length - 1]; // Update current point
     return curves;
@@ -402,9 +535,8 @@ function a(s) {
 
 
 
-
 const pathFs = {
-    //a, // elliptical arc
+    // a, // elliptical arc -> handled seperately due to returning multiple beziers
     c: c, // cubic bezier
     h: h, // horizontal line
     l: l, // line
@@ -422,25 +554,31 @@ const pathFs = {
  */
 function getBeziersFromRawPaths(paths) {
     if (paths.length === 0) {
-        return []; // A shape is not described   
+        return [];
     }
-    if (paths[0].type.toLowerCase() !== 'm') {
+    if (paths[0].command.toLowerCase() !== 'm') {
         throw new Error('Invalid SVG - every new path must start with an M or m.');
     }
-    const s = new PathState();
+    const s = {
+        p: [0, 0],
+        initialPoint: undefined,
+        prev2ndCubicControlPoint: undefined,
+        prev2ndQuadraticControlPoint: undefined,
+        vals: undefined
+    };
     const beziersArrays = [];
     let beziers = [];
     let prevType = undefined;
     for (let i = 0; i < paths.length; i++) {
         const pathSeg = paths[i];
-        const type = pathSeg.type.toLowerCase();
+        const segType = pathSeg.command.toLowerCase();
         s.vals = pathSeg.values;
         // If pathSeg was lowercase, it is relative - make absolute
-        if (pathSeg.type === type) {
-            if (type === 'v') {
+        if (pathSeg.command === segType) {
+            if (segType === 'v') {
                 s.vals[0] += s.p[1];
             }
-            else if (type === 'a') {
+            else if (segType === 'a') {
                 s.vals[5] += s.p[0];
                 s.vals[6] += s.p[1];
             }
@@ -450,7 +588,7 @@ function getBeziersFromRawPaths(paths) {
                 }
             }
         }
-        if (type === 'm') {
+        if (segType === 'm') {
             if (beziers.length) {
                 // This is a subpath, close as if the previous command was a 
                 // Z or z.
@@ -462,14 +600,14 @@ function getBeziersFromRawPaths(paths) {
                 beziers = [];
             }
             s.initialPoint = s.p = s.vals;
-            prevType = type;
+            prevType = segType;
             continue;
         }
-        if (type === 'a') {
+        if (segType === 'a') {
             beziers.push(...a(s));
         }
         else {
-            const f = pathFs[type];
+            const f = pathFs[segType];
             if (!f) {
                 throw new Error('Invalid SVG - command not recognized.');
             }
@@ -477,7 +615,7 @@ function getBeziersFromRawPaths(paths) {
             s.p = ps[ps.length - 1]; // Update current point
             beziers.push(ps);
         }
-        prevType = type;
+        prevType = segType;
     }
     if (beziers.length > 0) {
         // This is a subpath, close as if the previous command was a Z or z.
@@ -491,13 +629,75 @@ function getBeziersFromRawPaths(paths) {
 }
 
 //# sourceMappingURL=get-beziers-from-raw-paths.js.map
-;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/parse-number.js
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/to-command.js
+/** @internal */
+const COMMAND_CHARS = new Set('MLCQAHVSTZmlcqahvstz');
 /**
- * @hidden
+ * Returns the normalized path command for `char`, or `undefined` if it is not a
+ * command letter. Both `z` and `Z` normalize to `"Z"` (close-path has no
+ * separate relative form); every other command keeps its case so the absolute
+ * (uppercase) / relative (lowercase) distinction is preserved.
+ * @internal
+ */
+function toCommand(char) {
+    if (!COMMAND_CHARS.has(char)) {
+        return undefined;
+    }
+    return char === 'z' ? 'Z' : char;
+}
+
+//# sourceMappingURL=to-command.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/is-current-space.js
+// SVG path grammar whitespace (wsp): space, tab, LF, CR, FF
+const WHITESPACE_RE = /[ \t\n\r\f]/;
+function isCurrentSpace(source) {
+    return WHITESPACE_RE.test(source._string[source._currentIndex]);
+}
+
+//# sourceMappingURL=is-current-space.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/skip-optional-spaces.js
+
+function skipOptionalSpaces(source) {
+    while (source._currentIndex < source._endIndex &&
+        isCurrentSpace(source)) {
+        source._currentIndex++;
+    }
+    return source._currentIndex < source._endIndex;
+}
+
+//# sourceMappingURL=skip-optional-spaces.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/skip-optional-spaces-or-delimiter.js
+
+
+/** * modifies `source` */
+function skipOptionalSpacesOrDelimiter(source) {
+    if (source._currentIndex < source._endIndex &&
+        !isCurrentSpace(source) &&
+        source._string[source._currentIndex] !== ",") {
+        return false;
+    }
+    if (skipOptionalSpaces(source)) {
+        if (source._currentIndex < source._endIndex &&
+            source._string[source._currentIndex] === ",") {
+            source._currentIndex++;
+            skipOptionalSpaces(source);
+        }
+    }
+    return source._currentIndex < source._endIndex;
+}
+
+//# sourceMappingURL=skip-optional-spaces-or-delimiter.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/parse-number.js
+
+
+/**
  * Parse a number from an SVG path. This very closely follows genericParseNumber(...) from
  * Source/core/svg/SVGParserUtilities.cpp.
  * Spec: http://www.w3.org/TR/SVG11/single-page.html#paths-PathDataBNF
+ *
  * @param source
+ *
+ * @internal
  */
 function parseNumber(source) {
     let exponent = 0;
@@ -507,16 +707,16 @@ function parseNumber(source) {
     let sign = 1;
     let expsign = 1;
     const startIndex = source._currentIndex;
-    source._skipOptionalSpaces();
+    skipOptionalSpaces(source);
     let ci = source._currentIndex;
     // Read the sign.
     if (ci < source._endIndex && source._string[ci] === "+") {
-        source._currentIndex += 1;
-        ci += 1;
+        source._currentIndex++;
+        ci++;
     }
     else if (ci < source._endIndex && source._string[ci] === "-") {
-        source._currentIndex += 1;
-        ci += 1;
+        source._currentIndex++;
+        ci++;
         sign = -1;
     }
     const c = source._string[ci];
@@ -530,8 +730,8 @@ function parseNumber(source) {
         source._string[ci] >= "0" &&
         source._string[ci] <= "9") {
         // Advance to first non-digit.
-        source._currentIndex += 1;
-        ci += 1;
+        source._currentIndex++;
+        ci++;
     }
     if (ci !== startIntPartIndex) {
         let scanIntPartIndex = ci - 1;
@@ -544,8 +744,8 @@ function parseNumber(source) {
     }
     // Read the decimals.
     if (ci < source._endIndex && source._string[ci] === ".") {
-        source._currentIndex += 1;
-        ci += 1;
+        source._currentIndex++;
+        ci++;
         if (ci >= source._endIndex ||
             source._string[ci] < "0" ||
             source._string[ci] > "9") {
@@ -555,9 +755,9 @@ function parseNumber(source) {
             source._string[ci] >= "0" &&
             source._string[ci] <= "9") {
             frac *= 10;
-            decimal += (Number(source._string.charAt(ci))) / frac;
-            source._currentIndex += 1;
-            ci += 1;
+            decimal += (Number(source._string[ci])) / frac;
+            source._currentIndex++;
+            ci++;
         }
     }
     // Read the exponent part.
@@ -565,16 +765,16 @@ function parseNumber(source) {
         ci + 1 < source._endIndex &&
         (source._string[ci] === "e" || source._string[ci] === "E") &&
         (source._string[ci + 1] !== "x" && source._string[ci + 1] !== "m")) {
-        source._currentIndex += 1;
-        ci += 1;
+        source._currentIndex++;
+        ci++;
         // Read the sign of the exponent.
         if (source._string[ci] === "+") {
-            source._currentIndex += 1;
-            ci += 1;
+            source._currentIndex++;
+            ci++;
         }
         else if (source._string[ci] === "-") {
-            source._currentIndex += 1;
-            ci += 1;
+            source._currentIndex++;
+            ci++;
             expsign = -1;
         }
         if (ci >= source._endIndex ||
@@ -587,188 +787,173 @@ function parseNumber(source) {
             source._string[ci] <= "9") {
             exponent *= 10;
             exponent += (Number(source._string[ci]));
-            source._currentIndex += 1;
-            ci += 1;
+            source._currentIndex++;
+            ci++;
         }
     }
     let number = integer + decimal;
     number *= sign;
     if (exponent) {
-        number *= Math.pow(10, expsign * exponent);
+        number *= 10 ** (expsign * exponent);
     }
-    if (startIndex === ci) {
-        throw new Error('Internal error: startIndex === source._currentIndex');
-    }
-    source._skipOptionalSpacesOrDelimiter();
+    skipOptionalSpacesOrDelimiter(source);
     return number;
 }
 
 //# sourceMappingURL=parse-number.js.map
-;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/source.js
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/parse-arc-flag.js
 
-/** @hidden */
-const COMMAND_MAP = {
-    Z: "Z", M: "M", L: "L", C: "C", Q: "Q", A: "A", H: "H", V: "V", S: "S", T: "T",
-    z: "Z", m: "m", l: "l", c: "c", q: "q", a: "a", h: "h", v: "v", s: "s", t: "t"
-};
-/** @hidden */
-class Source {
-    _string;
-    _currentIndex;
-    _endIndex;
-    _prevCommand;
-    constructor(string) {
-        this._string = string;
-        this._currentIndex = 0;
-        this._endIndex = this._string.length;
-        this._prevCommand = undefined;
-        this._skipOptionalSpaces();
+/** * modifies `source` */
+function parseArcFlag(source) {
+    if (source._currentIndex >= source._endIndex) {
+        throw new Error('Unable to parse arc flag');
     }
-    parseSegment() {
-        const char = this._string[this._currentIndex];
-        let command = COMMAND_MAP[char];
-        if (command === undefined) {
-            if (this._prevCommand === undefined) {
-                throw new Error('Implicit command not allowed for first commands.');
-            }
-            // Check for remaining coordinates in the current command.
-            if ((char === "+" || char === "-" || char === "." || (char >= "0" && char <= "9")) &&
-                this._prevCommand !== "Z") {
-                if (this._prevCommand === "M") {
-                    command = "L";
-                }
-                else if (this._prevCommand === "m") {
-                    command = "l";
-                }
-                else {
-                    command = this._prevCommand;
-                }
-            }
-            else {
-                throw new Error('Remaining coordinates not found for implicit command');
-            }
-        }
-        else {
-            this._currentIndex += 1;
-        }
-        this._prevCommand = command;
-        let values = undefined;
-        const cmd = command.toUpperCase();
-        if (cmd === "H" || cmd === "V") {
-            values = [parseNumber(this)];
-        }
-        else if (cmd === "M" || cmd === "L" || cmd === "T") {
-            values = [parseNumber(this), parseNumber(this)];
-        }
-        else if (cmd === "S" || cmd === "Q") {
-            values = [parseNumber(this), parseNumber(this), parseNumber(this), parseNumber(this)];
-        }
-        else if (cmd === "C") {
-            values = [
-                parseNumber(this),
-                parseNumber(this),
-                parseNumber(this),
-                parseNumber(this),
-                parseNumber(this),
-                parseNumber(this)
-            ];
-        }
-        else if (cmd === "A") {
-            values = [
-                parseNumber(this),
-                parseNumber(this),
-                parseNumber(this),
-                this._parseArcFlag(),
-                this._parseArcFlag(),
-                parseNumber(this),
-                parseNumber(this)
-            ];
-        }
-        else if (cmd === "Z") {
-            this._skipOptionalSpaces();
-            values = [];
-        }
-        if (values === undefined) {
-            throw new Error('Unknown command');
-        }
-        else {
-            return { type: command, values };
-        }
+    let flag = undefined;
+    const flagChar = source._string[source._currentIndex];
+    source._currentIndex++;
+    if (flagChar === "0") {
+        flag = 0;
     }
-    hasMoreData() {
-        return this._currentIndex < this._endIndex;
+    else if (flagChar === "1") {
+        flag = 1;
     }
-    initialCommandIsMoveTo() {
-        // If the path is empty it is still valid, so return true.
-        if (!this.hasMoreData()) {
-            return true;
-        }
-        const command = COMMAND_MAP[this._string[this._currentIndex]];
-        return command === "M" || command === "m";
+    else {
+        throw new Error('Unable to parse arc flag - arc flag must be 0 or 1');
     }
-    _isCurrentSpace() {
-        const char = this._string[this._currentIndex];
-        return char <= " " && (char === " " || char === "\n" || char === "\t" || char === "\r" || char === "\f");
-    }
-    _skipOptionalSpaces() {
-        while (this._currentIndex < this._endIndex && this._isCurrentSpace()) {
-            this._currentIndex += 1;
-        }
-        return this._currentIndex < this._endIndex;
-    }
-    _skipOptionalSpacesOrDelimiter() {
-        if (this._currentIndex < this._endIndex &&
-            !this._isCurrentSpace() &&
-            this._string[this._currentIndex] !== ",") {
-            return false;
-        }
-        if (this._skipOptionalSpaces()) {
-            if (this._currentIndex < this._endIndex && this._string[this._currentIndex] === ",") {
-                this._currentIndex += 1;
-                this._skipOptionalSpaces();
-            }
-        }
-        return this._currentIndex < this._endIndex;
-    }
-    _parseArcFlag() {
-        if (this._currentIndex >= this._endIndex) {
-            throw new Error('Unable to parse arc flag');
-        }
-        let flag = undefined;
-        const flagChar = this._string[this._currentIndex];
-        this._currentIndex += 1;
-        if (flagChar === "0") {
-            flag = 0;
-        }
-        else if (flagChar === "1") {
-            flag = 1;
-        }
-        else {
-            throw new Error('Unable to parse arc flag - arc flag must be 0 or 1');
-        }
-        this._skipOptionalSpacesOrDelimiter();
-        return flag;
-    }
+    skipOptionalSpacesOrDelimiter(source);
+    return flag;
 }
 
-//# sourceMappingURL=source.js.map
+//# sourceMappingURL=parse-arc-flag.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/parse-segment.js
+
+
+
+
+function parseSegment(source) {
+    const char = source._string[source._currentIndex];
+    let command = toCommand(char);
+    if (command === undefined) {
+        // Check for remaining coordinates in the current command.
+        if ((char === "+" || char === "-" || char === "." || (char >= "0" && char <= "9")) &&
+            source._prevCommand !== "Z") {
+            if (source._prevCommand === "M") {
+                command = "L";
+            }
+            else if (source._prevCommand === "m") {
+                command = "l";
+            }
+            else {
+                // Reached only on implicit repeats of a prior command, so
+                // _prevCommand is always defined here.
+                command = source._prevCommand;
+            }
+        }
+        else {
+            throw new Error('Remaining coordinates not found for implicit command');
+        }
+    }
+    else {
+        source._currentIndex++;
+    }
+    source._prevCommand = command;
+    const cmd = command.toUpperCase();
+    let values;
+    if (cmd === "H" || cmd === "V") {
+        values = [parseNumber(source)];
+    }
+    else if (cmd === "M" || cmd === "L" || cmd === "T") {
+        values = [
+            parseNumber(source),
+            parseNumber(source)
+        ];
+    }
+    else if (cmd === "S" || cmd === "Q") {
+        values = [
+            parseNumber(source),
+            parseNumber(source),
+            parseNumber(source),
+            parseNumber(source)
+        ];
+    }
+    else if (cmd === "C") {
+        values = [
+            parseNumber(source),
+            parseNumber(source),
+            parseNumber(source),
+            parseNumber(source),
+            parseNumber(source),
+            parseNumber(source)
+        ];
+    }
+    else if (cmd === "A") {
+        values = [
+            parseNumber(source),
+            parseNumber(source),
+            parseNumber(source),
+            parseArcFlag(source),
+            parseArcFlag(source),
+            parseNumber(source),
+            parseNumber(source)
+        ];
+    }
+    else {
+        // The only remaining valid command is Z (close-path), which takes no
+        // coordinates. `toCommand` guarantees `cmd` is one of the handled
+        // commands, so no "unknown command" case is possible here.
+        skipOptionalSpaces(source);
+        values = [];
+    }
+    return { command: command, values };
+}
+
+//# sourceMappingURL=parse-segment.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/has-more-data.js
+function hasMoreData(source) {
+    return source._currentIndex < source._endIndex;
+}
+
+//# sourceMappingURL=has-more-data.js.map
+;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/initial-command-is-move-to.js
+
+
+function initialCommandIsMoveTo(source) {
+    // If the path is empty it is still valid, so return true.
+    if (!hasMoreData(source)) {
+        return true;
+    }
+    const command = toCommand(source._string[source._currentIndex]);
+    return command === "M" || command === "m";
+}
+
+//# sourceMappingURL=initial-command-is-move-to.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-data-polyfill/parse-path-data-string.js
 
+
+
+
 /**
- * @hidden
- * @param string
+ * @param str
+ *
+ * @internal
  */
-function parsePathDataString(string) {
-    if (!string.length) {
+function parsePathDataString(str) {
+    if (!str.length) {
         return [];
     }
-    const source = new Source(string);
-    const pathData = [];
-    if (!source.initialCommandIsMoveTo()) {
+    const source = {
+        _string: str,
+        _currentIndex: 0,
+        _endIndex: str.length,
+        _prevCommand: undefined
+    };
+    skipOptionalSpaces(source);
+    if (!initialCommandIsMoveTo(source)) {
         throw new Error('Path must start with m or M');
     }
-    while (source.hasMoreData()) {
-        pathData.push(source.parseSegment());
+    const pathData = [];
+    while (hasMoreData(source)) {
+        pathData.push(parseSegment(source));
     }
     return pathData;
 }
@@ -2473,19 +2658,6 @@ function reverse(p) {
 }
 
 //# sourceMappingURL=reverse.js.map
-;// ./node_modules/flo-vector2d/node/affine-transformations/linear/rotate.js
-function rotate_rotate(sinθ, cosθ, p) {
-    function rotateByθ(p) {
-        return [
-            p[0] * cosθ - p[1] * sinθ,
-            p[0] * sinθ + p[1] * cosθ
-        ];
-    }
-    // Curry the function
-    return p === undefined ? rotateByθ : rotateByθ(p);
-}
-
-//# sourceMappingURL=rotate.js.map
 ;// ./node_modules/flo-poly/node/evaluate/double/horner.js
 /**
  * Returns the result of evaluating a univariate polynomial using
@@ -3580,7 +3752,7 @@ function getEdgeDirection(cpNode) {
         // be calculated.
         const cosθ = Math.sqrt((1 + x) / 2);
         const sinθ = Math.sqrt((1 - x) / 2);
-        vDir = rotate_rotate(sinθ, cosθ, tan2);
+        vDir = rotate(sinθ, cosθ, tan2);
     }
     const v = translate(toUnitVector(vDir), circleCenter);
     return [circleCenter, v];
@@ -3590,7 +3762,7 @@ function getEdgeDirection(cpNode) {
 ;// ./src/cp-node/fs/get-mat-curve-between.ts
 
 
-const { abs } = Math;
+const { abs: get_mat_curve_between_abs } = Math;
 /** @internal */
 const TOLERANCE_ADD_2PRONG = 0.01;
 /** @internal */
@@ -3623,8 +3795,8 @@ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
     const r = rotate90Degrees(c);
     const w1 = from_to_fromTo(fromL[0], fromL[1]); // This is a unit vector
     const w2 = from_to_fromTo(toL[0], toL[1]); // This is a unit vector
-    const d1 = abs(cross(c, w1)) / (3 * 3);
-    const d2 = abs(cross(c, w2)) / (3 * 3);
+    const d1 = get_mat_curve_between_abs(cross(c, w1)) / (3 * 3);
+    const d2 = get_mat_curve_between_abs(cross(c, w2)) / (3 * 3);
     if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
         // FUTURE - not within tolerance - must add additional 2-prong
         return [fromCc, toCc];
@@ -4044,7 +4216,7 @@ const GAUSS_CONSTANTS = {
 ;// ./node_modules/flo-bezier3/node/local-properties-at-t/ds.js
 
 
-const { sqrt } = Math;
+const { sqrt: ds_sqrt } = Math;
 /**
  * Returns `ds` (the length differential) for a linear, quadratic or cubic
  * bezier curve.
@@ -4061,7 +4233,7 @@ function ds(ps) {
     return function (t) {
         const dx = Horner(dX, t);
         const dy = Horner(dY, t);
-        return sqrt(dx * dx + dy * dy);
+        return ds_sqrt(dx * dx + dy * dy);
     };
 }
 
@@ -5696,7 +5868,7 @@ const negativeRootLowerBound_LMQ_WithError = positiveToNegativeBound_WithError(p
 
 
 
-const { min, max, abs: reduce_interval_abs } = Math;
+const { min: reduce_interval_min, max: reduce_interval_max, abs: reduce_interval_abs } = Math;
 const MAX_DOUBLE = 1.7976931348623157e+308;
 /**
  * Returns the result of reducing the given interval [lb,ub] to a potentially
@@ -5712,8 +5884,8 @@ const MAX_DOUBLE = 1.7976931348623157e+308;
  * @internal
  */
 function reduceInterval(lb, ub, p, pDd_, errorMultiplier) {
-    lb = max(lb, negativeRootLowerBound_LMQ_WithError(p, pDd_.map(c => c * errorMultiplier)));
-    ub = min(ub, positiveRootUpperBound_LMQ_WithError(p, pDd_.map(c => c * errorMultiplier)));
+    lb = reduce_interval_max(lb, negativeRootLowerBound_LMQ_WithError(p, pDd_.map(c => c * errorMultiplier)));
+    ub = reduce_interval_min(ub, positiveRootUpperBound_LMQ_WithError(p, pDd_.map(c => c * errorMultiplier)));
     const d = p.length - 1;
     const F = 2 ** (-2 * d);
     if (!Number.isFinite(lb)) {
@@ -7601,2363 +7773,6 @@ function evalDeCasteljau(ps, t) {
 }
 
 //# sourceMappingURL=eval-de-casteljau.js.map
-;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/eval-de-casteljau-error.js
-const { abs: eval_de_casteljau_error_abs } = Math;
-/**
- * Returns a representation of the error (from which an absolute error bound
- * can be calculated) when evaluating the given bezier curve at the parameter `t`
- * using [De Casteljau's algorithm](https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm).
- *
- * The returned error representation needs to be multiplied with
- * [Stewart error counters¹](https://www.amazon.ca/Introduction-Matrix-Computations-G-Stewart/dp/0126703507)
- * and an appropriate error function, `γ`, depending on the precision used (e.g. double
- * or double-double). This is explained in more detail below. See
- * also [Higham 2002](http://ftp.demec.ufpr.br/CFD/bibliografia/Higham_2002_Accuracy%20and%20Stability%20of%20Numerical%20Algorithms.pdf)
- * p. 68 near the bottom.
- *
- * (1) G. W. Stewart. Introduction to Matrix Computations. Academic Press, New York,
- *  1973. xiii+441 pp. ISBN 0-12-670350-7
- *
- * The absolute erros below can be calculated as follows (where `<E>` are the
- * error counters as indicated in the comments of the return value below):
- *  * double precision: `<E> * (γ(1)) * result_`
- *  * double-double precision: `<E> * (2*γγ(3)) * result_`
- *
- * where [[γ]] and [[γγ]] are the usual error functions with `γ(1) === 1.1102230246251568e-16`
- * and `γγ(3) === 3.697785493223493e-32`.
- * The `T` in the error counter formula is the input error given as an error
- * counter on `t`. For example, if the exact `t` (let's call it `te`) is bounded
- * by `(|t| - 5u) < |te| < (|t| + 5u)` where `u === Number.EPSILON/2` then `T`
- * should be given as `5`. If `t` is exact then `T` is zero.
- *
- * ```
- * // for cubic bezier curves
- * return [
- *     x_,  // <E> === 3T + 9
- *     y_   // <E> === 3T + 9
- * ];
- * // for quadratic bezier curves
- * return [
- *     x_,  // <E> === 2T + 6
- *     y_   // <E> === 2T + 6
- * ];
- * // for linear bezier curves (i.e. lines)
- * return [
- *     x_,  // <E> === T + 3
- *     y_   // <E> === T + 3
- * ];
- * ```
- *
- * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
- * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param t the parameter value where the bezier should be evaluated (given in
- * double-double precision)
- *
- * @example
- * ```typescript
- * const ps = [[1.1,1.1],[2.3,2.3],[0.7,2.1],[3.11,-1.27]];  // some cubic bezier curve
- * const t = [0,0.1];  // some `t` in double-double precision, i.e. `t` equals `0.1`
- * const r = evalDeCasteljau(ps, t[1]) //=> [1.3828099999999999, 1.41623]
- * let error = evalDeCasteljauError(ps,t); //=> [2.32521, 2.3695700000000004]
- * const γ1 = 1*(Number.EPSILON)/(1-1*(Number.EPSILON));  // this is the error constant for double precision
- * error = error.map(c => γ1*c); //=> [5.163003358177322e-16, 5.261502344922066e-16]
- * // so, for instance, the *real* x coordinate of the point, i.e. `r[0]`, is somewhere between
- * // `1.3828099999999999 - 5.163003358177322e-16` and `1.3828099999999999 + 5.163003358177322e-16`, i.e.
- * // `1.3828099999999994 < r[0] < 1.3828100000000003`
- * ```
- *
- * @internal
- **/
-function evalDeCasteljauError(ps, t) {
-    if (t[0] === 0 && t[1] === 0) {
-        return [0, 0]; // No error
-    }
-    else if (t[0] === 0 && t[1] === 1) {
-        return [0, 0]; // No error
-    }
-    const t_ = eval_de_casteljau_error_abs(t[1]); // <T>
-    // <M> --> the cost of multiplication === <1> except for `qmq` in which
-    // case it is <2>. One might as well just double the error in the end for
-    // double-double precision calculations (thus losing 1 bit) and take 
-    // <M> === 1 always. This simplifies the calculation a bit.
-    if (ps.length === 4) {
-        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-        const _x0 = eval_de_casteljau_error_abs(x0); // <0>
-        const _y0 = eval_de_casteljau_error_abs(y0); // <0>
-        const _x1 = eval_de_casteljau_error_abs(x1); // <0>
-        const _y1 = eval_de_casteljau_error_abs(y1); // <0>
-        const _x2 = eval_de_casteljau_error_abs(x2); // <0>
-        const _y2 = eval_de_casteljau_error_abs(y2); // <0>
-        const _x3 = eval_de_casteljau_error_abs(x3); // <0>
-        const _y3 = eval_de_casteljau_error_abs(y3); // <0>
-        // a01<T+3> <-- <T+3>(x0 + <T+2>(<1>(x1 + x0)*<T>t));
-        const a01_ = _x0 + (_x1 + _x0) * t_;
-        // a11<T+3> <-- <T+3>(x1 + <1>(<0>(x2 + x1)*<T>t));
-        const a11_ = _x1 + (_x2 + _x1) * t_;
-        // a21<T+3> <-- <T+3>(x2 + <1>(<0>(x3 + x2)*<T>t));
-        const a21_ = _x2 + (_x3 + _x2) * t_;
-        // a02<2T+6> <-- <2T+6>(<T+3>a01 + <2T+5>(<T+4>(<T+3>a11 + <T+3>a01)*<T>t));
-        const a02_ = a01_ + (a11_ + a01_) * t_;
-        // a12<2T+6> <-- <2T+6>(<T+3>a11 + <2T+5>(<T+4>(<T+3>a21 + <T+3>a11)*<T>t));
-        const a12_ = a11_ + (a21_ + a11_) * t_;
-        // x<3T+9> <-- <3T+9>(<2T+6>a02 + <3T+8>(<2T+7>(<2T+6>a12 + <2T+6>a02)*<T>t));
-        const x_ = a02_ + (a12_ + a02_) * t_;
-        const b01_ = _y0 + (_y1 + _y0) * t_;
-        const b11_ = _y1 + (_y2 + _y1) * t_;
-        const b21_ = _y2 + (_y3 + _y2) * t_;
-        const b02_ = b01_ + (b11_ + b01_) * t_;
-        const b12_ = b11_ + (b21_ + b11_) * t_;
-        const y_ = b02_ + (b12_ + b02_) * t_;
-        return [x_, y_];
-    }
-    if (ps.length === 3) {
-        const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-        const _x0 = eval_de_casteljau_error_abs(x0);
-        const _y0 = eval_de_casteljau_error_abs(y0);
-        const _x1 = eval_de_casteljau_error_abs(x1);
-        const _y1 = eval_de_casteljau_error_abs(y1);
-        const _x2 = eval_de_casteljau_error_abs(x2);
-        const _y2 = eval_de_casteljau_error_abs(y2);
-        // <T+3>a01 <-- <T+3>(x0 + <T+2>(<1>(x1 + x0)*<T>t));
-        const a01_ = _x0 + (_x1 + _x0) * t_;
-        // <T+3>a11 <-- <T+3>(x1 + <T+2>(<1>(x2 + x1)*<T>t));
-        const a11_ = _x1 + (_x2 + _x1) * t_;
-        // <2T+6>x <-- <2T+6>(<T+3>a01 + <2T+5>(<T+4>(<T+3>a11 + <T+3>a01)*<T>t));
-        const x_ = a01_ + (a11_ + a01_) * t_;
-        const b01_ = _y0 + (_y1 + _y0) * t_;
-        const b11_ = _y1 + (_y2 + _y1) * t_;
-        const y_ = b01_ + (b11_ + b01_) * t_;
-        return [x_, y_];
-    }
-    if (ps.length === 2) {
-        const [[x0, y0], [x1, y1]] = ps;
-        const _x0 = eval_de_casteljau_error_abs(x0);
-        const _y0 = eval_de_casteljau_error_abs(y0);
-        const _x1 = eval_de_casteljau_error_abs(x1);
-        const _y1 = eval_de_casteljau_error_abs(y1);
-        // <T+3>x = <T+3>(x0 + <T+2>(<1>(x1 + x0)*<T>t));
-        const x_ = _x0 + (_x1 + _x0) * t_;
-        const y_ = _y0 + (_y1 + _y0) * t_;
-        return [x_, y_];
-    }
-    if (ps.length === 1) {
-        return [0, 0];
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-
-//# sourceMappingURL=eval-de-casteljau-error.js.map
-;// ./node_modules/flo-bezier3/node/error-analysis/error-analysis.js
-/** `2 * 2^-53` -> 2x the standard round-of unit `=== Number.EPSILON` */
-const error_analysis_eps = Number.EPSILON;
-/** `2^-53` -> the standard round-of unit `=== eps/2` */
-const error_analysis_u = Number.EPSILON / 2;
-/** `2^-106` -> the standard round-of unit for double-double precision `=== (eps/2)**2` */
-const error_analysis_uu = error_analysis_u * error_analysis_u;
-/**
- * the standard floating point error function evaluated at `1`
- *
- * * `=== 1.1102230246251568e-16`
- * * very close to being `=== Number.EPSILON / 2`
- */
-const error_analysis_1 = error_analysis_(1);
-/**
- * the standard double-double floating point error function evaluated at `3`;
- * the `3` factor is due to double-double arithmetic accuracy constraints
- *
- * * `=== 3.697785493223493e-32`
- * * very close to being `=== 3*(Number.EPSILON / 2)**2`
- */
-const error_analysis_3 = error_analysis_error_analysis_(3);
-/**
- * The canonical floating point error function, γ.
- *
- * * very close to being `=== n * (Number.EPSILON / 2)`
- * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
- * @param n the parameter - typically a small positive integer, e.g. for
- * polynomial evaluation this `=== 2*d + 1`, where `d` is the degree of the
- * polynomial
- *
- * @doc
- */
-function error_analysis_(n) {
-    const nu = n * error_analysis_u;
-    return nu / (1 - nu);
-}
-/**
- * The canonical, once compensated (implying double-double precision),
- * floating point error function.
- *
- * * very close to being `=== n * (Number.EPSILON / 2)**2`
- * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
- * @param n the parameter - typically a small positive integer, e.g. for
- * polynomial evaluation this === 2*d + 1, where d is the degree of the
- * polynomial
- *
- * @doc
- */
-function error_analysis_error_analysis_(n) {
-    const nuu = n * error_analysis_uu;
-    return nuu / (1 - nuu);
-}
-
-//# sourceMappingURL=error-analysis.js.map
-;// ./node_modules/flo-bezier3/node/transformation/split/from-to/from-to-1-incl-error-bound.js
-const { abs: from_to_1_incl_error_bound_abs } = Math;
-/** error free error bounds */
-const from_to_1_incl_error_bound_psErrorFree = [[0, 0], [0, 0]];
-/**
- * Returns a bezier curve that starts and ends at the given `t` parameters
- * including an error bound (that needs to be multiplied by `3u` before use,
- * where `u === Number.EPSILON/2`).
- *
- * @param ps a linear bezier curve (a line) given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1]]`
- * @param tS the `t` parameter where the resultant bezier should start
- * @param tE the `t` parameter where the resultant bezier should end
- *
- * @internal
- */
-function fromTo1InclErrorBound(ps, tS, tE) {
-    if (tS === 0) {
-        if (tE === 1) {
-            return { ps, _ps: from_to_1_incl_error_bound_psErrorFree };
-        }
-        return from_to_1_incl_error_bound_splitLeft1(ps, tE);
-    }
-    if (tE === 1) {
-        return from_to_1_incl_error_bound_splitRight1(ps, tS);
-    }
-    return from_to_1_incl_error_bound_splitAtBoth1(ps, tS, tE);
-}
-/**
- * Returns a bezier curve that starts at the given `t` parameter and ends
- * at `t === 1` including an error bound (that needs to be multiplied
- * by `3u`, where `u === Number.EPSILON/2`).
- *
- * @param ps a lineer bezier curve (a line) given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1]]`
- * @param t the `t` parameter where the resultant bezier should start
- *
- * @internal
- */
-function from_to_1_incl_error_bound_splitRight1(ps, t) {
-    // --------------------------------------------------------
-    // const [[x0, y0], [x1, y1]] = ps; 
-    const p0 = ps[0]; // exact
-    const p1 = ps[1]; // exact
-    const x0 = p0[0];
-    const y0 = p0[1]; // exact
-    const x1 = p1[0];
-    const y1 = p1[1]; // exact
-    // --------------------------------------------------------
-    // error bound using counters <k>:
-    // counter rules:
-    //   1. <k>a + <l>b = <max(k,l) + 1>(a + b)
-    //   2. <k>a<l>b = <k + l + 1>ab
-    //   3. fl(a) === <1>a
-    const psR = [
-        [t * (x1 - x0) + x0, // xx0
-            t * (y1 - y0) + y0], // yy0
-        [x1, // xx1
-            y1] // yy1
-    ];
-    // -----------------------
-    // Calculate error bounds
-    // -----------------------
-    const _t = from_to_1_incl_error_bound_abs(t);
-    const _x0 = from_to_1_incl_error_bound_abs(x0);
-    const _x1 = from_to_1_incl_error_bound_abs(x1);
-    const _y0 = from_to_1_incl_error_bound_abs(y0);
-    const _y1 = from_to_1_incl_error_bound_abs(y1);
-    // <3>xx0 <= <3>(<2>(t*<1>(x1 - x0)) + x0)
-    const _xx0 = _t * (_x1 + _x0) + _x0;
-    const _yy0 = _t * (_y1 + _y0) + _y0;
-    /** the coordinate-wise error bound */
-    //const psR_ = [
-    //    [3*u*_xx0, 3*u*_yy0],
-    //    [0, 0]
-    //];
-    const psR_ = [
-        [_xx0, _yy0],
-        [0, 0]
-    ];
-    return {
-        ps: psR,
-        _ps: psR_
-    };
-}
-/**
- * Returns a bezier curve that starts at `t === 0` and ends at the given `t`
- * parameter including an error bound (that needs to be multiplied by `3u`,
- * where `u === Number.EPSILON/2`).
- *
- * @param ps a lineer bezier curve (a line) given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1]]`
- * @param t the `t` parameter where the resultant bezier should end
- *
- * @internal
- */
-function from_to_1_incl_error_bound_splitLeft1(ps, t) {
-    // --------------------------------------------------------
-    // const [[x0, y0], [x1, y1]] = ps; 
-    const p0 = ps[0]; // exact 
-    const p1 = ps[1]; // exact
-    const x0 = p0[0];
-    const y0 = p0[1]; // exact
-    const x1 = p1[0];
-    const y1 = p1[1]; // exact
-    // --------------------------------------------------------
-    // error bound using counters <k>:
-    // counter rules:
-    //   1. <k>a + <l>b = <max(k,l) + 1>(a + b)
-    //   2. <k>a<l>b = <k + l + 1>ab
-    //   3. fl(a) === <1>a
-    const psL = [
-        [x0, // xx0
-            y0], // yy0
-        [t * (x1 - x0) + x0, // xx1
-            t * (y1 - y0) + y0] // yy1
-    ];
-    // -----------------------
-    // Calculate error bounds
-    // -----------------------
-    const _t = from_to_1_incl_error_bound_abs(t);
-    const _x0 = from_to_1_incl_error_bound_abs(x0);
-    const _x1 = from_to_1_incl_error_bound_abs(x1);
-    const _y0 = from_to_1_incl_error_bound_abs(y0);
-    const _y1 = from_to_1_incl_error_bound_abs(y1);
-    // <3>xx1 <= <3>(<2>(t*<1>(x1 - x0)) + x0)
-    const _xx1 = _t * (_x1 + _x0) + _x0;
-    const _yy1 = _t * (_y1 + _y0) + _y0;
-    /** the coordinate-wise error bound */
-    //const psL_ = [
-    //    [0, 0],
-    //    [3*u*_xx1, 3*u*_yy1],
-    //];
-    const psL_ = [
-        [0, 0],
-        [_xx1, _yy1],
-    ];
-    return {
-        ps: psL,
-        _ps: psL_
-    };
-}
-/**
- * Returns a bezier curve that starts and ends at the given `t` parameters
- * including an error bound (that needs to be multiplied by `3u`, where
- * `u === Number.EPSILON/2`).
- *
- * @param ps a lineer bezier curve (a line) given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1]]`
- * @param tS the `t` parameter where the resultant bezier should start
- * @param tE the `t` parameter where the resultant bezier should end
- *
- * @internal
- */
-function from_to_1_incl_error_bound_splitAtBoth1(ps, tS, tE) {
-    // --------------------------------------------------------
-    // const [[x0, y0], [x1, y1]] = ps; 
-    const p0 = ps[0]; // exact
-    const p1 = ps[1]; // exact
-    const x0 = p0[0];
-    const y0 = p0[1]; // exact
-    const x1 = p1[0];
-    const y1 = p1[1]; // exact
-    // --------------------------------------------------------
-    // error bound using counters <k>:
-    // counter rules:
-    //   1. <k>a + <l>b = <max(k,l) + 1>(a + b)
-    //   2. <k>a<l>b = <k + l + 1>ab
-    //   3. fl(a) === <1>a
-    const psB = [
-        [tS * (x1 - x0) + x0, // xx0
-            tS * (y1 - y0) + y0], // yy0
-        [tE * (x1 - x0) + x0, // xx1
-            tE * (y1 - y0) + y0] // yy1
-    ];
-    // -----------------------
-    // Calculate error bounds
-    // -----------------------
-    const _tS = from_to_1_incl_error_bound_abs(tS);
-    const _tE = from_to_1_incl_error_bound_abs(tE);
-    const _x0 = from_to_1_incl_error_bound_abs(x0);
-    const _x1 = from_to_1_incl_error_bound_abs(x1);
-    const _y0 = from_to_1_incl_error_bound_abs(y0);
-    const _y1 = from_to_1_incl_error_bound_abs(y1);
-    // <3>xx0 <= <3>(<2>(tS*<1>(x1 - x0)) + x0)
-    const _xx0 = _tS * (_x1 + _x0) + _x0;
-    // <3>xx1
-    const _xx1 = _tE * (_x1 + _x0) + _x0;
-    const _yy0 = _tS * (_y1 + _y0) + _y0;
-    const _yy1 = _tE * (_y1 + _y0) + _y0;
-    /** the coordinate-wise error bound */
-    //const psR_ = [
-    //    [3*u*_xx0, 3*u*_yy0],
-    //    [0, 0]
-    //];
-    const psB_ = [
-        [_xx0, _yy0],
-        [_xx1, _yy1]
-    ];
-    return {
-        ps: psB,
-        _ps: psB_
-    };
-}
-
-//# sourceMappingURL=from-to-1-incl-error-bound.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-interval-box/get-interval-box.js
-
-
-
-
-
-
-const { min: get_interval_box_min, max: get_interval_box_max } = Math;
-/**
- * Returns an axis-aligned-box that is guaranteed to engulf the entire
- * given bezier curve from t1 to t2. The returned box is given as a pair
- * of points (the box corners) in double precision, e.g. `[[1,1], [2,2]]`.
- *
- * * **precondition:** (to satisfy guarantee) t1 < t2
- * * **precondition:** (to satisfy guarantee) t1,t2 >= 0 && t1,t2 <= 1
- *
- * @param ps an order 1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- * @param ts [first, second] parameter values, e.g. [0.11, 0.12]
- *
- * @doc mdx
- */
-function getIntervalBox(ps, ts) {
-    if (ts[0] !== ts[1]) {
-        if (ps.length === 4) {
-            return getIntervalBox3(ps, ts);
-        }
-        if (ps.length === 3) {
-            return getIntervalBox2(ps, ts);
-        }
-        return getIntervalBox1(ps, ts);
-    }
-    // ts[0] === ts[1]
-    return getIntervalBoxAtT(ps, ts[0]);
-}
-/**
- * Returns an axis-aligned-box that is guaranteed to engulf the entire given
- * bezier curve from t1 to t2.
- *
- * This is achieved by calculating the error bounds of a new curve calculated
- * form t1 to t2 using a splitting algorithm and then taking its extreme
- * control points and finally finding a box that engulfs the control points.
- * @internal
- *
- * @param ps
- * @param ts
- */
-function getIntervalBox3(ps, ts) {
-    const { ps: psI, _ps: _psI } = fromTo3InclErrorBound(ps, ts[0], ts[1]);
-    const x0 = psI[0][0];
-    const x1 = psI[1][0];
-    const x2 = psI[2][0];
-    const x3 = psI[3][0];
-    const _x0 = 9 * error_analysis_u * _psI[0][0];
-    const _x1 = 9 * error_analysis_u * _psI[1][0];
-    const _x2 = 9 * error_analysis_u * _psI[2][0];
-    const _x3 = 9 * error_analysis_u * _psI[3][0];
-    const y0 = psI[0][1];
-    const y1 = psI[1][1];
-    const y2 = psI[2][1];
-    const y3 = psI[3][1];
-    const _y0 = 9 * error_analysis_u * _psI[0][1];
-    const _y1 = 9 * error_analysis_u * _psI[1][1];
-    const _y2 = 9 * error_analysis_u * _psI[2][1];
-    const _y3 = 9 * error_analysis_u * _psI[3][1];
-    const minX = get_interval_box_min(x0 - _x0, x1 - _x1, x2 - _x2, x3 - _x3);
-    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1, x2 + _x2, x3 + _x3);
-    const minY = get_interval_box_min(y0 - _y0, y1 - _y1, y2 - _y2, y3 - _y3);
-    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1, y2 + _y2, y3 + _y3);
-    return [[minX, minY], [maxX, maxY]];
-}
-/**
- * Returns an axis-aligned-box that is guaranteed to engulf the entire given
- * bezier curve from t1 to t2.
- *
- * This is achievied by calculating the error bounds of a new curve calculated
- * form t1 to t2 using a splitting algorithm and then taking its extreme
- * control points and finally finding a box that engulfs the control points
- *
- * @param param0
- * @param param1
- *
- * @internal
- */
-function getIntervalBox2(ps, ts) {
-    const { ps: psI, _ps: _psI } = fromTo2InclErrorBound(ps, ts[0], ts[1]);
-    const x0 = psI[0][0];
-    const x1 = psI[1][0];
-    const x2 = psI[2][0];
-    const _x0 = 5 * error_analysis_u * _psI[0][0];
-    const _x1 = 5 * error_analysis_u * _psI[1][0];
-    const _x2 = 5 * error_analysis_u * _psI[2][0];
-    const y0 = psI[0][1];
-    const y1 = psI[1][1];
-    const y2 = psI[2][1];
-    const _y0 = 5 * error_analysis_u * _psI[0][1];
-    const _y1 = 5 * error_analysis_u * _psI[1][1];
-    const _y2 = 5 * error_analysis_u * _psI[2][1];
-    const minX = get_interval_box_min(x0 - _x0, x1 - _x1, x2 - _x2);
-    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1, x2 + _x2);
-    const minY = get_interval_box_min(y0 - _y0, y1 - _y1, y2 - _y2);
-    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1, y2 + _y2);
-    return [[minX, minY], [maxX, maxY]];
-}
-/**
- * Returns an axis-aligned-box that is guaranteed to engulf the entire given
- * bezier curve from t1 to t2.
- *
- * This is achievied by calculating the error bounds of a new curve calculated
- * form t1 to t2 using a splitting algorithm and then taking its extreme
- * control points and finally finding a box that engulfs the control points
- *
- * @param param0
- * @param param1
- *
- * @internal
- */
-function getIntervalBox1(ps, ts) {
-    // Implementation for lines kept for symmetry - there are obviously much
-    // simpler ways to calculate the required box in the case of a line.
-    const { ps: psI, _ps: _psI } = fromTo1InclErrorBound(ps, ts[0], ts[1]);
-    const x0 = psI[0][0];
-    const x1 = psI[1][0];
-    const _x0 = 3 * error_analysis_u * _psI[0][0];
-    const _x1 = 3 * error_analysis_u * _psI[1][0];
-    const y0 = psI[0][1];
-    const y1 = psI[1][1];
-    const _y0 = 3 * error_analysis_u * _psI[0][1];
-    const _y1 = 3 * error_analysis_u * _psI[1][1];
-    const minX = get_interval_box_min(x0 - _x0, x1 - _x1);
-    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1);
-    const minY = get_interval_box_min(y0 - _y0, y1 - _y1);
-    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1);
-    return [[minX, minY], [maxX, maxY]];
-}
-/**
- * @param ps
- * @param t
- *
- * @internal
- */
-function getIntervalBoxAtT(ps, t) {
-    const _pS = ps[0];
-    const _pE = ps[ps.length - 1];
-    if (t === 0) {
-        return [_pS, _pS];
-    }
-    else if (t === 1) {
-        return [_pE, _pE];
-    }
-    const p = evalDeCasteljau(ps, t);
-    let pE;
-    if (ps.length === 4) {
-        pE = evalDeCasteljauError(ps, [0, t]).map(c_ => 8 * error_analysis_1 * c_);
-    }
-    else if (ps.length === 3) {
-        pE = evalDeCasteljauError(ps, [0, t]).map(c_ => 5 * error_analysis_1 * c_);
-    }
-    else if (ps.length === 2) {
-        pE = evalDeCasteljauError(ps, [0, t]).map(c_ => 2 * error_analysis_1 * c_);
-    }
-    else if (ps.length === 1) {
-        return [p, p];
-    }
-    return [
-        [p[0] - pE[0], p[1] - pE[1]],
-        [p[0] + pE[0], p[1] + pE[1]]
-    ];
-}
-
-//# sourceMappingURL=get-interval-box.js.map
-;// ./node_modules/flo-bezier3/node/intersection/bezier-bezier-intersection/x.js
-/** @internal */
-function getPFromBox(box) {
-    const tl = box[0];
-    const br = box[1];
-    return [
-        (tl[0] + br[0]) / 2,
-        (tl[1] + br[1]) / 2,
-    ];
-}
-
-//# sourceMappingURL=x.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/root-interval-to-distance-squared-interval.js
-
-const root_interval_to_distance_squared_interval_td = twoDiff;
-const root_interval_to_distance_squared_interval_eps = Number.EPSILON;
-/**
- * Returns the distance interval squared given the root interval (currently
- * ignoring multiplicity)
- *
- * @param box
- * @param p
- *
- * @internal
- */
-function rootIntervalToDistanceSquaredInterval(box, p) {
-    const bl = box[0];
-    const tr = box[1];
-    const minX = bl[0];
-    const minY = bl[1];
-    const maxX = tr[0];
-    const maxY = tr[1];
-    const x = p[0]; // <0>
-    const y = p[1]; // <0>
-    let minDSquared = Number.POSITIVE_INFINITY;
-    let maxDSquared = Number.NEGATIVE_INFINITY;
-    // for each corner of the interval box
-    for (const [a, b] of [[minX, minY], [minX, maxY], [maxX, minY], [maxX, maxY]]) {
-        /*
-        // distance to 1st corner of interval box - `distance² = x² + y²`
-        const dc1 = (a - x)**2 + (b - y)**2;
-        // max absolute roundoff error of `dc1`
-        // <4>dc1 <-- <4>(<3>(<1>(a - x)**2) + <3>(<1>((b - y)**2))
-        const dc1E = 4*γ1*((a + x)**2 + (b + y)**2);
-        const dc1Min = dc1 - dc1E;  // distance minus max error
-        const dc1Max = dc1 + dc1E;  // distance plus max error
-        */
-        /** distance to 1st corner of interval box - `distance² = x² + y²` */
-        const ax = root_interval_to_distance_squared_interval_td(a, x); // a - x
-        const by = root_interval_to_distance_squared_interval_td(b, y); // b - y
-        const dc1Exact = fastExpansionSum(expansionProduct(ax, ax), expansionProduct(by, by)); // ax**2 + bx**2
-        const dc1 = eEstimate(dc1Exact);
-        const dc1Min = dc1 * (1 - root_interval_to_distance_squared_interval_eps); // distance minus max error
-        const dc1Max = dc1 * (1 + root_interval_to_distance_squared_interval_eps); // distance plus max error
-        if (dc1Min <= minDSquared) {
-            minDSquared = dc1Min;
-        }
-        if (dc1Max >= maxDSquared) {
-            maxDSquared = dc1Max;
-        }
-    }
-    return [minDSquared, maxDSquared];
-}
-
-//# sourceMappingURL=root-interval-to-distance-squared-interval.js.map
-;// ./node_modules/double-double/node/basic/two-diff.js
-/**
- * Returns the exact result of subtracting b from a.
- *
- * @param a minuend - a double-double precision floating point number
- * @param b subtrahend - a double-double precision floating point number
- */
-function two_diff_twoDiff(a, b) {
-    const x = a - b;
-    const bvirt = a - x;
-    const y = (a - (x + bvirt)) + (bvirt - b);
-    return [y, x];
-}
-
-//# sourceMappingURL=two-diff.js.map
-;// ./node_modules/double-double/node/double-double/unary/dd-mult-by-2.js
-/**
- * Returns the result of multiplying the given double-double by 2.
- * * The result is exact
- * @param f a double-double precision floating point number
- */
-function ddMultBy2(f) {
-    return [2 * f[0], 2 * f[1]];
-}
-
-//# sourceMappingURL=dd-mult-by-2.js.map
-;// ./node_modules/double-double/node/double-double/unary/dd-mult-by-4.js
-/**
- * Returns the result of multiplying the given double-double by 4.
- * * The result is exact
- * @param f a double-double precision floating point number
- */
-function ddMultBy4(f) {
-    return [4 * f[0], 4 * f[1]];
-}
-
-//# sourceMappingURL=dd-mult-by-4.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-3-dd.js
-
-const get_footpoint_poly_3_dd_td = two_diff_twoDiff;
-const get_footpoint_poly_3_dd_qaq = ddAddDd;
-const get_footpoint_poly_3_dd_qmd = ddMultDouble2;
-const get_footpoint_poly_3_dd_qmq = ddMultDd;
-const qm2 = ddMultBy2;
-const qm4 = ddMultBy4;
-const qdq = ddDiffDd;
-/**
- * Returns the polynomial whose roots are all the `t` values on the given bezier
- * curve such that the line from the given point to the point on the bezier
- * evaluated at `t` is tangent to the bezier curve at `t`.
- *
- * * intermediate calculations are done (and the final result returned in)
- * double-double precision
- *
- * @param ps an order 3 bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- * @param p a point, e.g. `[1,2]`
- *
- * @internal
- */
-function getFootpointPoly3Dd(ps, p) {
-    //const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-    const p0 = ps[0];
-    const p1 = ps[1];
-    const p2 = ps[2];
-    const p3 = ps[3];
-    const x0 = p0[0];
-    const y0 = p0[1];
-    const x1 = p1[0];
-    const y1 = p1[1];
-    const x2 = p2[0];
-    const y2 = p2[1];
-    const x3 = p3[0];
-    const y3 = p3[1];
-    const [x, y] = p;
-    const xx0 = get_footpoint_poly_3_dd_td(x0, x); // exact
-    const xx1 = get_footpoint_poly_3_dd_td(x1, x); // exact
-    const xx2 = get_footpoint_poly_3_dd_td(x2, x); // exact
-    const xx3 = get_footpoint_poly_3_dd_td(x3, x); // exact
-    const yy0 = get_footpoint_poly_3_dd_td(y0, y); // exact
-    const yy1 = get_footpoint_poly_3_dd_td(y1, y); // exact
-    const yy2 = get_footpoint_poly_3_dd_td(y2, y); // exact
-    const yy3 = get_footpoint_poly_3_dd_td(y3, y); // exact
-    const x00 = get_footpoint_poly_3_dd_qmq(xx0, xx0);
-    const x01 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx0, xx1));
-    const x02 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx0, xx2));
-    const x03 = qm2(get_footpoint_poly_3_dd_qmq(xx0, xx3));
-    const x11 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(xx1, xx1));
-    const x12 = get_footpoint_poly_3_dd_qmd(18, get_footpoint_poly_3_dd_qmq(xx1, xx2));
-    const x13 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx1, xx3));
-    const x22 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(xx2, xx2));
-    const x23 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx2, xx3));
-    const x33 = get_footpoint_poly_3_dd_qmq(xx3, xx3);
-    const y00 = get_footpoint_poly_3_dd_qmq(yy0, yy0);
-    const y01 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy0, yy1));
-    const y02 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy0, yy2));
-    const y03 = qm2(get_footpoint_poly_3_dd_qmq(yy0, yy3));
-    const y11 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(yy1, yy1));
-    const y12 = get_footpoint_poly_3_dd_qmd(18, get_footpoint_poly_3_dd_qmq(yy1, yy2));
-    const y13 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy1, yy3));
-    const y22 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(yy2, yy2));
-    const y23 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy2, yy3));
-    const y33 = get_footpoint_poly_3_dd_qmq(yy3, yy3);
-    const q1 = get_footpoint_poly_3_dd_qaq(x13, x22);
-    const q2 = get_footpoint_poly_3_dd_qaq(x03, x12);
-    const q3 = get_footpoint_poly_3_dd_qaq(x02, x11);
-    const r1 = get_footpoint_poly_3_dd_qaq(y13, y22);
-    const r2 = get_footpoint_poly_3_dd_qaq(y03, y12);
-    const r3 = get_footpoint_poly_3_dd_qaq(y02, y11);
-    // const t5 = 6*(((((x33 - x23) + (x00 - x01)) + q1) + (q3 - q2)) + 
-    //               ((((y33 - y23) + (y00 - y01)) + r1) + (r3 - r2)));
-    const t5 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(qdq(x33, x23), qdq(x00, x01)), q1), qdq(q3, q2)), get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(qdq(y33, y23), qdq(y00, y01)), r1), qdq(r3, r2))));
-    //const t4 = 5*((((x23 + 5*x01) + 3*q2) - 2*(q1 + 2*q3 + 3*x00)) +
-    //              (((y23 + 5*y01) + 3*r2) - 2*(r1 + 2*r3 + 3*y00)));
-    const t4 = get_footpoint_poly_3_dd_qmd(5, get_footpoint_poly_3_dd_qaq(qdq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(x23, get_footpoint_poly_3_dd_qmd(5, x01)), get_footpoint_poly_3_dd_qmd(3, q2)), qm2(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(q1, qm2(q3)), get_footpoint_poly_3_dd_qmd(3, x00)))), qdq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(y23, get_footpoint_poly_3_dd_qmd(5, y01)), get_footpoint_poly_3_dd_qmd(3, r2)), qm2(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(r1, qm2(r3)), get_footpoint_poly_3_dd_qmd(3, y00))))));
-    //const t3 = 4*(((q1 - 3*(q2 - 2*q3)) - 5*(2*x01 - 3*x00)) +
-    //              ((r1 - 3*(r2 - 2*r3)) - 5*(2*y01 - 3*y00)));
-    const t3 = qm4(get_footpoint_poly_3_dd_qaq(qdq(qdq(q1, get_footpoint_poly_3_dd_qmd(3, (qdq(q2, qm2(q3))))), get_footpoint_poly_3_dd_qmd(5, qdq(qm2(x01), get_footpoint_poly_3_dd_qmd(3, x00)))), qdq(qdq(r1, get_footpoint_poly_3_dd_qmd(3, (qdq(r2, qm2(r3))))), get_footpoint_poly_3_dd_qmd(5, qdq(qm2(y01), get_footpoint_poly_3_dd_qmd(3, y00))))));
-    //const t2 = 3*((q2 - 2*(2*q3 - 5*(x01 - 2*x00))) +
-    //              (r2 - 2*(2*r3 - 5*(y01 - 2*y00))));
-    const t2 = get_footpoint_poly_3_dd_qmd(3, get_footpoint_poly_3_dd_qaq(qdq(q2, qm2(qdq(qm2(q3), get_footpoint_poly_3_dd_qmd(5, qdq(x01, qm2(x00)))))), qdq(r2, qm2(qdq(qm2(r3), get_footpoint_poly_3_dd_qmd(5, qdq(y01, qm2(y00))))))));
-    //const t1 = 2*((q3 - 5*(x01 - 3*x00)) +
-    //              (r3 - 5*(y01 - 3*y00)));
-    const t1 = qm2(get_footpoint_poly_3_dd_qaq(qdq(q3, get_footpoint_poly_3_dd_qmd(5, (qdq(x01, get_footpoint_poly_3_dd_qmd(3, x00))))), qdq(r3, get_footpoint_poly_3_dd_qmd(5, (qdq(y01, get_footpoint_poly_3_dd_qmd(3, y00)))))));
-    //const t0 = ((x01 - 6*x00) +
-    //            (y01 - 6*y00));
-    const t0 = get_footpoint_poly_3_dd_qaq(qdq(x01, get_footpoint_poly_3_dd_qmd(6, x00)), qdq(y01, get_footpoint_poly_3_dd_qmd(6, y00)));
-    return [t5, t4, t3, t2, t1, t0];
-}
-
-//# sourceMappingURL=get-footpoint-poly-3-dd.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-2-dd.js
-
-const get_footpoint_poly_2_dd_td = two_diff_twoDiff;
-const get_footpoint_poly_2_dd_qaq = ddAddDd;
-const get_footpoint_poly_2_dd_qmd = ddMultDouble2;
-const get_footpoint_poly_2_dd_qmq = ddMultDd;
-const get_footpoint_poly_2_dd_qm2 = ddMultBy2;
-const qdifq = ddDiffDd;
-const get_footpoint_poly_2_dd_qm4 = ddMultBy4;
-/**
- * Returns the polynomial whose roots are all the `t` values on the given bezier
- * curve such that the line from the given point to the point on the bezier
- * evaluated at `t` is tangent to the bezier curve at `t`.
- *
- * * intermediate calculations are done (and the final result returned in)
- * double-double precision
- *
- * @param ps an order 2 bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1]]`
- * @param p a point, e.g. `[1,2]`
- *
- * @internal
- */
-function getFootpointPoly2Dd(ps, p) {
-    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-    const [x, y] = p;
-    const xx0 = get_footpoint_poly_2_dd_td(x0, x);
-    const xx1 = get_footpoint_poly_2_dd_td(x1, x);
-    const xx2 = get_footpoint_poly_2_dd_td(x2, x);
-    const yy0 = get_footpoint_poly_2_dd_td(y0, y);
-    const yy1 = get_footpoint_poly_2_dd_td(y1, y);
-    const yy2 = get_footpoint_poly_2_dd_td(y2, y);
-    const x00 = get_footpoint_poly_2_dd_qmq(xx0, xx0);
-    const x01 = get_footpoint_poly_2_dd_qmq(xx0, xx1);
-    const x02 = get_footpoint_poly_2_dd_qmq(xx0, xx2);
-    const x11 = get_footpoint_poly_2_dd_qmq(xx1, xx1);
-    const x12 = get_footpoint_poly_2_dd_qmq(xx1, xx2);
-    const x22 = get_footpoint_poly_2_dd_qmq(xx2, xx2);
-    const y00 = get_footpoint_poly_2_dd_qmq(yy0, yy0);
-    const y01 = get_footpoint_poly_2_dd_qmq(yy0, yy1);
-    const y02 = get_footpoint_poly_2_dd_qmq(yy0, yy2);
-    const y11 = get_footpoint_poly_2_dd_qmq(yy1, yy1);
-    const y12 = get_footpoint_poly_2_dd_qmq(yy1, yy2);
-    const y22 = get_footpoint_poly_2_dd_qmq(yy2, yy2);
-    const q1 = get_footpoint_poly_2_dd_qaq(y02, get_footpoint_poly_2_dd_qm2(y11));
-    const r1 = get_footpoint_poly_2_dd_qaq(x02, get_footpoint_poly_2_dd_qm2(x11));
-    //const t3 = ((y22 + y00) + 2*q1 - 4*(y12 + y01)) + 
-    //           ((x22 + x00) + 2*r1 - 4*(x12 + x01));
-    const t3 = get_footpoint_poly_2_dd_qaq(qdifq(get_footpoint_poly_2_dd_qaq(get_footpoint_poly_2_dd_qaq(y22, y00), get_footpoint_poly_2_dd_qm2(q1)), get_footpoint_poly_2_dd_qm4(get_footpoint_poly_2_dd_qaq(y12, y01))), qdifq(get_footpoint_poly_2_dd_qaq(get_footpoint_poly_2_dd_qaq(x22, x00), get_footpoint_poly_2_dd_qm2(r1)), get_footpoint_poly_2_dd_qm4(get_footpoint_poly_2_dd_qaq(x12, x01))));
-    //const t2 = 3*(((y12 - q1) + (3*y01 - y00)) + 
-    //              ((x12 - r1) + (3*x01 - x00)));
-    const t2 = get_footpoint_poly_2_dd_qmd(3, get_footpoint_poly_2_dd_qaq(get_footpoint_poly_2_dd_qaq(qdifq(y12, q1), qdifq(get_footpoint_poly_2_dd_qmd(3, y01), y00)), get_footpoint_poly_2_dd_qaq(qdifq(x12, r1), qdifq(get_footpoint_poly_2_dd_qmd(3, x01), x00))));
-    //const t1 = (q1 - 3*(2*y01 - y00)) + 
-    //           (r1 - 3*(2*x01 - x00));
-    const t1 = get_footpoint_poly_2_dd_qaq(qdifq(q1, get_footpoint_poly_2_dd_qmd(3, qdifq(get_footpoint_poly_2_dd_qm2(y01), y00))), qdifq(r1, get_footpoint_poly_2_dd_qmd(3, qdifq(get_footpoint_poly_2_dd_qm2(x01), x00))));
-    //const t0 = (y01 - y00) + 
-    //           (x01 - x00);
-    const t0 = get_footpoint_poly_2_dd_qaq(qdifq(y01, y00), qdifq(x01, x00));
-    return [t3, t2, t1, t0];
-}
-
-//# sourceMappingURL=get-footpoint-poly-2-dd.js.map
-;// ./node_modules/double-double/node/double-double/unary/dd-mult-by-neg-2.js
-/**
- * Returns the result of multiplying the given double-double by -2.
- * * The result is exact
- * @param f a double-double precision floating point number
- */
-function ddMultByNeg2(f) {
-    return [-2 * f[0], -2 * f[1]];
-}
-
-//# sourceMappingURL=dd-mult-by-neg-2.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-1-dd.js
-
-const get_footpoint_poly_1_dd_tp = twoProduct;
-const get_footpoint_poly_1_dd_qaq = ddAddDd;
-const qmn2 = ddMultByNeg2;
-/**
- * Returns the polynomial whose roots are all the `t` values on the given bezier
- * curve such that the line from the given point to the point on the bezier
- * evaluated at `t` is tangent to the bezier curve at `t`.
- *
- * * intermediate calculations are done (and the final result returned in)
- * double-double precision
- *
- * @param ps an order 1 bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1]]`
- * @param p a point, e.g. `[1,2]`
- *
- * @internal
- */
-function getFootpointPoly1Dd(ps, p) {
-    const [[x0, y0], [x1, y1]] = ps;
-    const [x, y] = p;
-    const xx0 = x0 - x;
-    const xx1 = x1 - x;
-    const yy0 = y0 - y;
-    const yy1 = y1 - y;
-    const x00 = get_footpoint_poly_1_dd_tp(xx0, xx0);
-    const x01 = get_footpoint_poly_1_dd_tp(xx0, xx1);
-    const x11 = get_footpoint_poly_1_dd_tp(xx1, xx1);
-    const y00 = get_footpoint_poly_1_dd_tp(yy0, yy0);
-    const y01 = get_footpoint_poly_1_dd_tp(yy0, yy1);
-    const y11 = get_footpoint_poly_1_dd_tp(yy1, yy1);
-    const s1 = get_footpoint_poly_1_dd_qaq(x01, y01);
-    const s2 = get_footpoint_poly_1_dd_qaq(y00, x00);
-    //const t1 = (x11 + y11) + (s2 - 2*s1)
-    const t1 = get_footpoint_poly_1_dd_qaq(get_footpoint_poly_1_dd_qaq(x11, y11), get_footpoint_poly_1_dd_qaq(s2, qmn2(s1)));
-    //const t0 = s1 - s2;
-    const t0 = ddDiffDd(s1, s2);
-    return [t1, t0];
-}
-
-//# sourceMappingURL=get-footpoint-poly-1-dd.js.map
-;// ./node_modules/big-float-ts/node/double-expansion/e-mult-by-2.js
-/**
- * Returns the result of multiplying a floating point expansion by 2.
- * * **error free**
- * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
- *
- * @param e a floating point expansion
- */
-function eMultBy2(e) {
-    const e_ = [];
-    for (let i = 0; i < e.length; i++) {
-        e_.push(2 * e[i]);
-    }
-    return e_;
-}
-
-//# sourceMappingURL=e-mult-by-2.js.map
-;// ./node_modules/big-float-ts/node/double-expansion/e-mult-by-neg-2.js
-/**
- * Multiply a floating point expansion by -2.
- * * **error free**
- * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
- *
- * @param e a floating point expansion
- */
-function eMultByNeg2(e) {
-    const e_ = [];
-    for (let i = 0; i < e.length; i++) {
-        e_.push(-2 * e[i]);
-    }
-    return e_;
-}
-
-//# sourceMappingURL=e-mult-by-neg-2.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/exact/get-footpoint-poly-3-exact.js
-
-const get_footpoint_poly_3_exact_td = twoDiff;
-const get_footpoint_poly_3_exact_sce = scaleExpansion2;
-const em2 = eMultBy2;
-const emn2 = eMultByNeg2;
-/**
- * Returns the *exact* polynomial whose roots are all the `t` values on the
- * given bezier curve such that the line from the given point to the point on
- * the bezier evaluated at `t` is tangent to the bezier curve at `t`.
- *
- * * The returned polynomial coefficients are given densely as an array of
- * [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf) floating
- * point expansions from highest to lowest power,
- * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`.
- *
- * @param ps an order 3 bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- * @param p a point, e.g. `[1,2]`
- */
-function getFootpointPoly3Exact(ps, p) {
-    //const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-    const p0 = ps[0];
-    const p1 = ps[1];
-    const p2 = ps[2];
-    const p3 = ps[3];
-    const x0 = p0[0];
-    const y0 = p0[1];
-    const x1 = p1[0];
-    const y1 = p1[1];
-    const x2 = p2[0];
-    const y2 = p2[1];
-    const x3 = p3[0];
-    const y3 = p3[1];
-    const [x, y] = p;
-    const xx0 = get_footpoint_poly_3_exact_td(x0, x);
-    const xx1 = get_footpoint_poly_3_exact_td(x1, x);
-    const xx2 = get_footpoint_poly_3_exact_td(x2, x);
-    const xx3 = get_footpoint_poly_3_exact_td(x3, x);
-    const yy0 = get_footpoint_poly_3_exact_td(y0, y);
-    const yy1 = get_footpoint_poly_3_exact_td(y1, y);
-    const yy2 = get_footpoint_poly_3_exact_td(y2, y);
-    const yy3 = get_footpoint_poly_3_exact_td(y3, y);
-    const x00 = expansionProduct(xx0, xx0);
-    const x01 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx0, xx1));
-    const x02 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx0, xx2));
-    const x03 = em2(expansionProduct(xx0, xx3));
-    const x11 = get_footpoint_poly_3_exact_sce(9, expansionProduct(xx1, xx1));
-    const x12 = get_footpoint_poly_3_exact_sce(18, expansionProduct(xx1, xx2));
-    const x13 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx1, xx3));
-    const x22 = get_footpoint_poly_3_exact_sce(9, expansionProduct(xx2, xx2));
-    const x23 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx2, xx3));
-    const x33 = expansionProduct(xx3, xx3);
-    const y00 = expansionProduct(yy0, yy0);
-    const y01 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy0, yy1));
-    const y02 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy0, yy2));
-    const y03 = em2(expansionProduct(yy0, yy3));
-    const y11 = get_footpoint_poly_3_exact_sce(9, expansionProduct(yy1, yy1));
-    const y12 = get_footpoint_poly_3_exact_sce(18, expansionProduct(yy1, yy2));
-    const y13 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy1, yy3));
-    const y22 = get_footpoint_poly_3_exact_sce(9, expansionProduct(yy2, yy2));
-    const y23 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy2, yy3));
-    const y33 = expansionProduct(yy3, yy3);
-    const q1 = fastExpansionSum(x13, x22);
-    const q2 = fastExpansionSum(x03, x12);
-    const q3 = fastExpansionSum(x02, x11);
-    const r1 = fastExpansionSum(y13, y22);
-    const r2 = fastExpansionSum(y03, y12);
-    const r3 = fastExpansionSum(y02, y11);
-    //const t5 = 6*((x33 - x23 + q1 - q2 + q3 - x01 + x00) + 
-    //              (y33 - y23 + r1 - r2 + r3 - y01 + y00));
-    const t5a = eDiff(fastExpansionSum(fastExpansionSum(x33, x00), fastExpansionSum(q1, q3)), (fastExpansionSum(fastExpansionSum(q2, x23), x01)));
-    const t5b = eDiff(fastExpansionSum(fastExpansionSum(y33, y00), fastExpansionSum(r1, r3)), (fastExpansionSum(fastExpansionSum(r2, y23), y01)));
-    const t5 = get_footpoint_poly_3_exact_sce(6, fastExpansionSum(t5a, t5b));
-    //const t4 = 5*((x23 - 2*(q1 + 2*q3 + 3*x00) + 3*q2 + 5*x01) +
-    //              (y23 - 2*(r1 + 2*r3 + 3*y00) + 3*r2 + 5*y01));
-    const t4a = fastExpansionSum(emn2(fastExpansionSum(fastExpansionSum(q1, em2(q3)), get_footpoint_poly_3_exact_sce(3, x00))), fastExpansionSum(fastExpansionSum(x23, get_footpoint_poly_3_exact_sce(3, q2)), get_footpoint_poly_3_exact_sce(5, x01)));
-    const t4b = fastExpansionSum(emn2(fastExpansionSum(fastExpansionSum(r1, em2(r3)), get_footpoint_poly_3_exact_sce(3, y00))), fastExpansionSum(fastExpansionSum(y23, get_footpoint_poly_3_exact_sce(3, r2)), get_footpoint_poly_3_exact_sce(5, y01)));
-    const t4 = get_footpoint_poly_3_exact_sce(5, fastExpansionSum(t4a, t4b));
-    //const t3 = 4*((q1 - 3*(q2 - 2*q3) - 5*(2*x01 - 3*x00)) +
-    //              (r1 - 3*(r2 - 2*r3) - 5*(2*y01 - 3*y00)));
-    const t3a = fastExpansionSum(fastExpansionSum(q1, get_footpoint_poly_3_exact_sce(3, (eDiff(em2(q3), q2)))), get_footpoint_poly_3_exact_sce(5, (eDiff(get_footpoint_poly_3_exact_sce(3, x00), em2(x01)))));
-    const t3b = fastExpansionSum(fastExpansionSum(r1, get_footpoint_poly_3_exact_sce(3, (eDiff(em2(r3), r2)))), get_footpoint_poly_3_exact_sce(5, (eDiff(get_footpoint_poly_3_exact_sce(3, y00), em2(y01)))));
-    const t3 = get_footpoint_poly_3_exact_sce(4, fastExpansionSum(t3a, t3b));
-    //const t2 = 3*((q2 - 2*(2*q3 - 5*(x01 - 2*x00))) +
-    //              (r2 - 2*(2*r3 - 5*(y01 - 2*y00))));
-    const t2a = eDiff(q2, em2(eDiff(em2(q3), get_footpoint_poly_3_exact_sce(5, (eDiff(x01, em2(x00)))))));
-    const t2b = eDiff(r2, em2(eDiff(em2(r3), get_footpoint_poly_3_exact_sce(5, (eDiff(y01, em2(y00)))))));
-    const t2 = get_footpoint_poly_3_exact_sce(3, fastExpansionSum(t2a, t2b));
-    //const t1 = 2*((q3 - 5*(x01 - 3*x00)) +
-    //              (r3 - 5*(y01 - 3*y00)));
-    const t1a = eDiff(q3, get_footpoint_poly_3_exact_sce(5, (eDiff(x01, get_footpoint_poly_3_exact_sce(3, x00)))));
-    const t1b = eDiff(r3, get_footpoint_poly_3_exact_sce(5, (eDiff(y01, get_footpoint_poly_3_exact_sce(3, y00)))));
-    const t1 = em2(fastExpansionSum(t1a, t1b));
-    //const t0 = ((x01 - 6*x00) +
-    //            (y01 - 6*y00));
-    const t0a = eDiff(x01, get_footpoint_poly_3_exact_sce(6, x00));
-    const t0b = eDiff(y01, get_footpoint_poly_3_exact_sce(6, y00));
-    const t0 = fastExpansionSum(t0a, t0b);
-    return [t5, t4, t3, t2, t1, t0].map(eCompress);
-}
-
-//# sourceMappingURL=get-footpoint-poly-3-exact.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/exact/get-footpoint-poly-2-exact.js
-
-const get_footpoint_poly_2_exact_td = twoDiff;
-const get_footpoint_poly_2_exact_sce = scaleExpansion2;
-const get_footpoint_poly_2_exact_em2 = eMultBy2;
-/**
- * Returns the result of multiplying a floating point expansion by 4.
- *
- * * **error free**
- *
- * * see [[Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
- *
- * @param e a floating point expansion
- *
- * @internal
- */
-function em4(e) {
-    const e_ = [];
-    for (let i = 0; i < e.length; i++) {
-        e_.push(4 * e[i]);
-    }
-    return e_;
-}
-/**
- * Returns the *exact* polynomial whose roots are all the `t` values on the
- * given bezier curve such that the line from the given point to the point on
- * the bezier evaluated at `t` is tangent to the bezier curve at `t`.
- *
- * * The returned polynomial coefficients are given densely as an array of
- * [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf) floating
- * point expansions from highest to lowest power,
- * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`.
- *
- * @param ps an order 2 curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1]]`
- * @param p a point, e.g. `[1,2]`
- *
- * @internal
- */
-function getFootpointPoly2Exact(ps, p) {
-    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-    const [x, y] = p;
-    const xx0 = get_footpoint_poly_2_exact_td(x0, x);
-    const xx1 = get_footpoint_poly_2_exact_td(x1, x);
-    const xx2 = get_footpoint_poly_2_exact_td(x2, x);
-    const yy0 = get_footpoint_poly_2_exact_td(y0, y);
-    const yy1 = get_footpoint_poly_2_exact_td(y1, y);
-    const yy2 = get_footpoint_poly_2_exact_td(y2, y);
-    const x00 = expansionProduct(xx0, xx0);
-    const x01 = expansionProduct(xx0, xx1);
-    const x02 = expansionProduct(xx0, xx2);
-    const x11 = expansionProduct(xx1, xx1);
-    const x12 = expansionProduct(xx1, xx2);
-    const x22 = expansionProduct(xx2, xx2);
-    const y00 = expansionProduct(yy0, yy0);
-    const y01 = expansionProduct(yy0, yy1);
-    const y02 = expansionProduct(yy0, yy2);
-    const y11 = expansionProduct(yy1, yy1);
-    const y12 = expansionProduct(yy1, yy2);
-    const y22 = expansionProduct(yy2, yy2);
-    const q1 = fastExpansionSum(y02, get_footpoint_poly_2_exact_em2(y11));
-    const r1 = fastExpansionSum(x02, get_footpoint_poly_2_exact_em2(x11));
-    //const t3 = y22 + 2*q1 - 4*(y12 + y01) + y00 + 
-    //           x22 + 2*r1 - 4*(x12 + x01) + x00;
-    const t3a = fastExpansionSum(eDiff(fastExpansionSum(x22, get_footpoint_poly_2_exact_em2(r1)), em4(fastExpansionSum(x12, x01))), x00);
-    const t3b = fastExpansionSum(eDiff(fastExpansionSum(y22, get_footpoint_poly_2_exact_em2(q1)), em4(fastExpansionSum(y12, y01))), y00);
-    const t3 = fastExpansionSum(t3a, t3b);
-    //const t2 = 3*(y12 - q1 + 3*y01 - y00 + 
-    //              x12 - r1 + 3*x01 - x00);
-    const t2a = fastExpansionSum(eDiff(x12, r1), eDiff(get_footpoint_poly_2_exact_sce(3, x01), x00));
-    const t2b = fastExpansionSum(eDiff(y12, q1), eDiff(get_footpoint_poly_2_exact_sce(3, y01), y00));
-    const t2 = get_footpoint_poly_2_exact_sce(3, fastExpansionSum(t2a, t2b));
-    //const t1 = q1 - 3*(2*y01 - y00) + 
-    //           r1 - 3*(2*x01 - x00);
-    const t1a = eDiff(q1, get_footpoint_poly_2_exact_sce(3, eDiff(get_footpoint_poly_2_exact_em2(y01), y00)));
-    const t1b = eDiff(r1, get_footpoint_poly_2_exact_sce(3, eDiff(get_footpoint_poly_2_exact_em2(x01), x00)));
-    const t1 = fastExpansionSum(t1a, t1b);
-    //const t0 = y01 - y00 + 
-    //           x01 - x00;
-    const t0a = eDiff(y01, y00);
-    const t0b = eDiff(x01, x00);
-    const t0 = fastExpansionSum(t0a, t0b);
-    return [t3, t2, t1, t0].map(eCompress);
-}
-
-//# sourceMappingURL=get-footpoint-poly-2-exact.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/exact/get-footpoint-poly-1-exact.js
-
-const get_footpoint_poly_1_exact_td = twoDiff;
-const get_footpoint_poly_1_exact_emn2 = eMultByNeg2;
-/**
- * Returns the *exact* polynomial whose roots are all the `t` values on the
- * given bezier curve such that the line from the given point to the point on
- * the bezier evaluated at `t` is tangent to the bezier curve at `t`.
- *
- * * The returned polynomial coefficients are given densely as an array of
- * [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf) floating
- * point expansions from highest to lowest power,
- * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`.
- *
- * @param ps an order 1 bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1]]`
- * @param p a point, e.g. `[1,2]`
- *
- * @internal
- */
-function getFootpointPoly1Exact(ps, p) {
-    const [[x0, y0], [x1, y1]] = ps;
-    const [x, y] = p;
-    const xx0 = get_footpoint_poly_1_exact_td(x0, x);
-    const xx1 = get_footpoint_poly_1_exact_td(x1, x);
-    const yy0 = get_footpoint_poly_1_exact_td(y0, y);
-    const yy1 = get_footpoint_poly_1_exact_td(y1, y);
-    const x00 = expansionProduct(xx0, xx0);
-    const x01 = expansionProduct(xx0, xx1);
-    const x11 = expansionProduct(xx1, xx1);
-    const y00 = expansionProduct(yy0, yy0);
-    const y01 = expansionProduct(yy0, yy1);
-    const y11 = expansionProduct(yy1, yy1);
-    const s1 = fastExpansionSum(x01, y01);
-    const s2 = fastExpansionSum(y00, x00);
-    //const t1 = x11 + y11 - 2*s1 + s2;
-    const t1 = fastExpansionSum(fastExpansionSum(x11, y11), fastExpansionSum(get_footpoint_poly_1_exact_emn2(s1), s2));
-    //const t0 = s1 - s2;
-    const t0 = eDiff(s1, s2);
-    return [t1, t0].map(eCompress);
-}
-
-//# sourceMappingURL=get-footpoint-poly-1-exact.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/get-closest-on-bezier-from-point-error-counters.js
-const { abs: get_closest_on_bezier_from_point_error_counters_abs } = Math;
-/**
- * Returns a representation of the error when calculating the polynomial whose
- * roots are all the `t` values on the given bezier curve such that the line
- * from the given point to the point on the bezier evaluated at `t` is tangent
- * to the bezier at `t`.
- *
- * @param ps a cubic bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- * @param p a point, e.g. `[1,2]`
- *
- * ```
- * return [
- *      t5_,  // <9>
- *      t4_,  // <10>
- *      t3_,  // <10>
- *      t2_,  // <10>
- *      t1_,  // <9>
- *      t0_   // <7>
- * ];
- * ```
- *
- * @internal
- */
-function getClosestOnBezier3FromPointErrorCounters(ps, p) {
-    //const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-    //const [xp, yp] = p;
-    const p0 = ps[0];
-    const p1 = ps[1];
-    const p2 = ps[2];
-    const p3 = ps[3];
-    const x0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[0]); // <0>  (error counters)
-    const y0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[1]); // <0>
-    const x1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[0]); // <0>
-    const y1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[1]); // <0>
-    const x2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[0]); // <0>
-    const y2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[1]); // <0>
-    const x3_ = get_closest_on_bezier_from_point_error_counters_abs(p3[0]); // <0>
-    const y3_ = get_closest_on_bezier_from_point_error_counters_abs(p3[1]); // <0>
-    const xp_ = get_closest_on_bezier_from_point_error_counters_abs(p[0]); // <0>
-    const yp_ = get_closest_on_bezier_from_point_error_counters_abs(p[1]); // <0>
-    // <1>xx0 <-- <1>(x0 - xp);
-    const xx0_ = x0_ + xp_;
-    // <1>xx1 <-- <1>(x1 - xp);
-    const xx1_ = x1_ + xp_;
-    // <1>xx2 <-- <1>(x2 - xp);
-    const xx2_ = x2_ + xp_;
-    // <1>xx3 <-- <1>(x3 - xp);
-    const xx3_ = x3_ + xp_;
-    // <1>yy0 <-- <1>(y0 - yp);
-    const yy0_ = y0_ + yp_;
-    // <1>yy1 <-- <1>(y1 - yp);
-    const yy1_ = y1_ + yp_;
-    // <1>yy2 <-- <1>(y2 - yp);
-    const yy2_ = y2_ + yp_;
-    // <1>yy3 <-- <1>(y3 - yp);
-    const yy3_ = y3_ + yp_;
-    // <3>x00 <-- <3>(<1>xx0*<1>xx0);
-    const x00_ = xx0_ * xx0_;
-    // <4>x01 <-- <4>(6 *<3>(<1>xx0*<1>xx1));
-    const x01_ = 6 * xx0_ * xx1_;
-    // <4>x02 <-- <4>(6 *<3>(<1>xx0*<1>xx2));
-    const x02_ = 6 * xx0_ * xx2_;
-    // <3>x03 <-- 2 *<3>(<1>xx0*<1>xx3);
-    const x03_ = 2 * xx0_ * xx3_;
-    // <4>x11 <-- <4>(9 *<3>(<1>xx1*<1>xx1));
-    const x11_ = 9 * xx1_ * xx1_;
-    // <4>x12 <-- <4>(18*<3>(<1>xx1*<1>xx2));
-    const x12_ = 18 * xx1_ * xx2_;
-    // <4>x13 <-- <4>(6 *<3>(<1>xx1*<1>xx3));
-    const x13_ = 6 * xx1_ * xx3_;
-    // <4>x22 <-- <4>(9 *<3>(<1>xx2*<1>xx2));
-    const x22_ = 9 * xx2_ * xx2_;
-    // <4>x23 <-- <4>(6 *<3>(<1>xx2*<1>xx3));
-    const x23_ = 6 * xx2_ * xx3_;
-    // <3>x33 <--    <3>(<1>xx3*<1>xx3);
-    const x33_ = xx3_ * xx3_;
-    const y00_ = yy0_ * yy0_;
-    const y01_ = 6 * yy0_ * yy1_;
-    const y02_ = 6 * yy0_ * yy2_;
-    const y03_ = 2 * yy0_ * yy3_;
-    const y11_ = 9 * yy1_ * yy1_;
-    const y12_ = 18 * yy1_ * yy2_;
-    const y13_ = 6 * yy1_ * yy3_;
-    const y22_ = 9 * yy2_ * yy2_;
-    const y23_ = 6 * yy2_ * yy3_;
-    const y33_ = yy3_ * yy3_;
-    // <5>q1 <-- (5>(<4>x13 + <4>x22);
-    const q1_ = x13_ + x22_;
-    // <5>q2 <-- (5>(<3>x03 + <4>x12);
-    const q2_ = x03_ + x12_;
-    // <5>q3 <-- (5>(<4>x02 + <4>x11);
-    const q3_ = x02_ + x11_;
-    const r1_ = y13_ + y22_; // <5>
-    const r2_ = y03_ + y12_; // <5>
-    const r3_ = y02_ + y11_; // <5>
-    // <9>t5 <-- <9>(6*<8>(<7>(<6>(<5>(<4>(x33 - x23) + <4>(x00 - x01)) + <5>q1) + <6>(q3 - q2)) + 
-    //                     <7>(<6>(<5>(<4>(y33 - y23) + <4>(y00 - y01)) + <5>r1) + <6>(r3 - r2))));
-    const t5_ = 6 * (((((x33_ + x23_) + (x00_ + x01_)) + q1_) + (q3_ + q2_)) +
-        ((((y33_ + y23_) + (y00_ + y01_)) + r1_) + (r3_ + r2_)));
-    // <10>t4 <-- <10>(5*<9>(<8>(<7>(<6>(x23 + <5>(5*x01)) + <6>(3*q2)) - 2*<7>(<6>(q1 + 2*q3) + <5>(3*x00))) +
-    //                       <8>(<7>(<6>(y23 + <5>(5*y01)) + <6>(3*r2)) - 2*<7>(<6>(r1 + 2*r3) + <5>(3*y00)))));
-    const t4_ = 5 * ((((x23_ + 5 * x01_) + 3 * q2_) + 2 * (q1_ + 2 * q3_ + 3 * x00_)) +
-        (((y23_ + 5 * y01_) + 3 * r2_) + 2 * (r1_ + 2 * r3_ + 3 * y00_)));
-    // <10>t3 <-- 4*<10>(<9>(<8>(q1 - <7>(3*<6>(q2 - 2*q3))) - <7>(5*<6>(2*x01 - <5>(3*x00)))) +
-    //                 <9>(<8>(r1 - <7>(3*<6>(r2 - 2*r3))) - <7>(5*<6>(2*y01 - <5>(3*y00)))))
-    const t3_ = 4 * (((q1_ + 3 * (q2_ + 2 * q3_)) + 5 * (2 * x01_ + 3 * x00_)) +
-        ((r1_ + 3 * (r2_ + 2 * r3_)) + 5 * (2 * y01_ + 3 * y00_)));
-    // <10>t2 <-- <10>(3*<9>(<8>(q2 - 2*<7>(2*q3 - <6>(5*<5>(x01 - 2*x00)))) +
-    //                       <8>(r2 - 2*<7>(2*r3 - <6>(5*<5>(y01 - 2*y00))))));
-    const t2_ = 3 * ((q2_ + 2 * (2 * q3_ + 5 * (x01_ + 2 * x00_))) +
-        (r2_ + 2 * (2 * r3_ + 5 * (y01_ + 2 * y00_))));
-    // <9>t1 <-- 2*<9>(<8>(q3 - <7>(5*<6>(x01 - <5>(3*x00)))) +
-    //                 <8>(r3 - <7>(5*<6>(y01 - <5>(3*y00)))));
-    const t1_ = 2 * ((q3_ + 5 * (x01_ + 3 * x00_)) +
-        (r3_ + 5 * (y01_ + 3 * y00_)));
-    // <7>t0 <-- <7>(<6>(x01 - <5>(6*x00)) +
-    //              <6>(y01 - <5>(6*y00)));
-    const t0_ = ((x01_ + 6 * x00_) +
-        (y01_ + 6 * y00_));
-    return [
-        t5_, // <9>
-        t4_, // <10>
-        t3_, // <10>
-        t2_, // <10>
-        t1_, // <9>
-        t0_ // <7>
-    ];
-}
-/**
- * Returns a representation of the error when calculating the polynomial whose
- * roots are all the `t` values on the given bezier curve such that the line
- * from the given point to the point on the bezier evaluated at `t` is tangent
- * to the bezier at `t`.
- *
- * @param ps a quadratic bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1]]`
- * @param p a point, e.g. `[1,2]`
- * ```
- * return [
- *      t3_,  // <7>
- *      t2_,  // <8>
- *      t1_,  // <7>
- *      t0_   // <5>
- * ];
- * ```
- *
- * @internal
- */
-function getClosestOnBezier2FromPointErrorCounters(ps, p) {
-    //const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-    //const [xp, yp] = p;
-    const p0 = ps[0];
-    const p1 = ps[1];
-    const p2 = ps[2];
-    const x0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[0]); // <0>
-    const y0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[1]); // <0>
-    const x1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[0]); // <0>
-    const y1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[1]); // <0>
-    const x2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[0]); // <0>
-    const y2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[1]); // <0>
-    const xp_ = get_closest_on_bezier_from_point_error_counters_abs(p[0]); // <0>
-    const yp_ = get_closest_on_bezier_from_point_error_counters_abs(p[1]); // <0>
-    // <1>xx0 <-- <1>(x0 - xp);
-    const xx0_ = x0_ + xp_;
-    // <1>xx1 <-- <1>(x1 - xp);
-    const xx1_ = x1_ + xp_;
-    // <1>xx2 <-- <1>(x2 - xp);
-    const xx2_ = x2_ + xp_;
-    // <1>yy0 <-- <1>(y0 - yp);
-    const yy0_ = y0_ + yp_;
-    // <1>yy1 <-- <1>(y1 - yp);
-    const yy1_ = y1_ + yp_;
-    // <1>yy2 <-- <1>(y2 - yp);
-    const yy2_ = y2_ + yp_;
-    // <3>x00 <-- <3>(xx0*xx0);
-    const x00_ = xx0_ * xx0_;
-    // <3>x01 <-- <3>(xx0*xx1);
-    const x01_ = xx0_ * xx1_;
-    // <3>x02 <-- <3>(xx0*xx2);
-    const x02_ = xx0_ * xx2_;
-    // <3>x11 <-- <3>(xx1*xx1);
-    const x11_ = xx1_ * xx1_;
-    // <3>x12 <-- <3>(xx1*xx2);
-    const x12_ = xx1_ * xx2_;
-    // <3>x22 <-- <3>(xx2*xx2);
-    const x22_ = xx2_ * xx2_;
-    const y00_ = yy0_ * yy0_;
-    const y01_ = yy0_ * yy1_;
-    const y02_ = yy0_ * yy2_;
-    const y11_ = yy1_ * yy1_;
-    const y12_ = yy1_ * yy2_;
-    const y22_ = yy2_ * yy2_;
-    // <4>q1 <-- <4>(y02 + 2*y11);
-    const q1_ = y02_ + 2 * y11_;
-    // <4>r1 <-- <4>(x02 + 2*x11);
-    const r1_ = x02_ + 2 * x11_;
-    // <7>t3 <-- <7>(<6>(<5>(<4>(y22 + y00) + 2*q1) - 4*<4>(y12 + y01))) + 
-    //              (<6>(<5>(<4>(x22 + x00) + 2*r1) - 4*<4>(x12 + x01)));
-    const t3_ = ((y22_ + y00_) + 2 * q1_ + 4 * (y12_ + y01_)) +
-        ((x22_ + x00_) + 2 * r1_ + 4 * (x12_ + x01_));
-    // <8>t2 <-- <8>(3*<7>(<6>(<5>(y12 - q1) + <5>(<4>(3*y01) - y00)) + 
-    //                     <6>(<5>(x12 - r1) + <5>(<4>(3*x01) - x00))));
-    const t2_ = 3 * (((y12_ + q1_) + (3 * y01_ + y00_)) +
-        ((x12_ + r1_) + (3 * x01_ + x00_)));
-    // <7>t1 <-- <7>(<6>(<4>q1 - <5>(3*<4>(2*y01 - y00))) + 
-    //               <6>(<4>r1 - <5>(3*<4>(2*x01 - x00))));
-    const t1_ = (q1_ + 3 * (2 * y01_ + y00_)) +
-        (r1_ + 3 * (2 * x01_ + x00_));
-    // <5>t0 <-- <5>(<4>(y01 - y00) + 
-    //              <4>(x01 - x00));
-    const t0_ = (y01_ + y00_) +
-        (x01_ + x00_);
-    return [
-        t3_, // <7>
-        t2_, // <8>
-        t1_, // <7>
-        t0_ // <5>
-    ];
-}
-/**
- * Returns a representation of the error when calculating the polynomial whose
- * roots are all the `t` values on the given bezier curve such that the line
- * from the given point to the point on the bezier evaluated at `t` is tangent
- * to the bezier at `t`.
- *
- * @param ps a linear bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1]]`
- * @param p a point, e.g. `[1,2]`
- *
- * ```
- * return [
- *     t1,  // <6>
- *     t0   // <5>
- * ];
- * ```
- *
- * @internal
- */
-function getClosestOnBezier1FromPointErrorCounters(ps, p) {
-    //const [[x0, y0], [x1, y1]] = ps;
-    //const [xp, yp] = p;
-    const p0 = ps[0];
-    const p1 = ps[1];
-    const x0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[0]); // <0>
-    const y0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[1]); // <0>
-    const x1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[0]); // <0>
-    const y1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[1]); // <0>
-    const xp_ = get_closest_on_bezier_from_point_error_counters_abs(p[0]); // <0>
-    const yp_ = get_closest_on_bezier_from_point_error_counters_abs(p[1]); // <0>
-    // <1>xx0 <-- <1>(x0 - xp);
-    const xx0_ = x0_ + xp_;
-    // <1>xx1 <-- <1>(x1 - xp);
-    const xx1_ = x1_ + xp_;
-    // <1>yy0 <-- <1>(y0 - yp);
-    const yy0_ = y0_ + yp_;
-    // <1>yy1 <-- <1>(y1 - yp);
-    const yy1_ = y1_ + yp_;
-    // <3>x00 <-- <3>(xx0*xx0);
-    const x00_ = xx0_ * xx0_;
-    // <3>x01 <-- <3>(xx0*xx1);
-    const x01_ = xx0_ * xx1_;
-    // <3>x11 <-- <3>(xx1*xx1);
-    const x11_ = xx1_ * xx1_;
-    const y00_ = yy0_ * yy0_;
-    const y01_ = yy0_ * yy1_;
-    const y11_ = yy1_ * yy1_;
-    // <4>s1 <-- <4>(x01 + y01);
-    const s1_ = x01_ + y01_;
-    // <4>s2 <-- <4>(y00 + x00);
-    const s2_ = y00_ + x00_;
-    // <6>t1 = <6>(<4>(x11 + y11) + <5>(s2 - 2*s1));
-    const t1 = x11_ + y11_ + 2 * s1_ + s2_;
-    // <5>t0 = <5>(s1 - s2);
-    const t0 = s1_ + s2_;
-    return [
-        t1, // <6>
-        t0 // <5>
-    ];
-}
-
-//# sourceMappingURL=get-closest-on-bezier-from-point-error-counters.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-foot-points-polys-on-bezier-certified.js
-
-
-
-
-
-
-
-
-
-/**
- * Returns the footpoint(s) (and parameter `t` value(s)) on the
- * given bezier curve to the given point (with `t ∈ [0,1]`).
- *
- * * guaranteed accurate to within `4*Number.EPSILON` in the returned `t`
- * value(s)
- * * the returned point(s) are objects with the following properties:
- *     * `p`: the best estimate point on the bezier curve (calculated from the root interval `ri`)
- *     * `t`: the best estimate `t` parameter value (calculated from the root interval `ri`)
- *     * `d`: the best estimate closest distance from the point to the bezier curve (calculated from the root interval `ri`)
- *     * `ri`: a root interval guaranteed to contain the actual `t` value
- *     * `box`: a small box guaranteed to contain the relevant point on the bezier curve
- *     * `dSquaredI`: a small squared distance interval guaranteed to contain the actual distance squared
- *        between the point and the bezier curve
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- * @param p a point, e.g. `[1,2]`
- *
- * @doc
- */
-function getFootPointsOnBezierPolysCertified(ps, p) {
-    const order = ps.length - 1;
-    if (order === 3) {
-        return {
-            polyDd: getFootpointPoly3Dd(ps, p),
-            polyE: getClosestOnBezier3FromPointErrorCounters(ps, p).map(e => 10 * 2 * e),
-            getPolyExact: () => getFootpointPoly3Exact(ps, p)
-        };
-    }
-    else if (order === 2) {
-        return {
-            polyDd: getFootpointPoly2Dd(ps, p),
-            polyE: getClosestOnBezier2FromPointErrorCounters(ps, p).map(e => 8 * 2 * e),
-            getPolyExact: () => getFootpointPoly2Exact(ps, p)
-        };
-    }
-    else if (order === 1) {
-        return {
-            polyDd: getFootpointPoly1Dd(ps, p),
-            polyE: getClosestOnBezier1FromPointErrorCounters(ps, p).map(e => 6 * 2 * e),
-            getPolyExact: () => getFootpointPoly1Exact(ps, p)
-        };
-    }
-    else if (order === 0) {
-        return {
-            polyDd: [[0, 1]],
-            polyE: [0],
-            getPolyExact: () => [[1]]
-        };
-    }
-    else {
-        throw new Error('The given bezier curve must be of order 1, 2 or 3');
-    }
-}
-
-//# sourceMappingURL=get-foot-points-polys-on-bezier-certified.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/closest-point-on-bezier-certified.js
-
-
-
-
-
-const { sqrt: closest_point_on_bezier_certified_sqrt } = Math;
-/**
- * Returns the closest point(s) (and parameter `t` value(s)) on the given
- * bezier curve to the given point (with `t ∈ [0,1]`).
- *
- * * guaranteed accurate to within `4*Number.EPSILON` in the returned `t`
- * value(s)
- * * in some cases there can be more than one closest point, e.g. on the axis
- * of symmetry of a parabola
- * * the returned point(s) are objects with the following properties:
- *     * `p`: the best estimate point on the bezier curve (calculated from the root interval `ri`)
- *     * `t`: the best estimate `t` parameter value (calculated from the root interval `ri`)
- *     * `d`: the best estimate closest distance from the point to the bezier curve (calculated from the root interval `ri`)
- *     * `ri`: a root interval guaranteed to contain the actual `t` value
- *     * `box`: a small box guaranteed to contain the relevant point on the bezier curve
- *     * `dSquaredI`: a small squared distance interval guaranteed to contain the actual distance squared
- *        between the point and the bezier curve
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an ordered array of its
- * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- * @param p a point, e.g. `[1,2]`
- *
- * @doc
- */
-function closestPointOnBezierCertified(ps, p, lb = 0, ub = 1) {
-    const { polyDd, polyE, getPolyExact } = getFootPointsOnBezierPolysCertified(ps, p);
-    const ris = roots(polyDd, lb, ub, polyE, getPolyExact) || [];
-    ris.push({ t: lb, tS: lb, tE: lb, multiplicity: 1 });
-    ris.push({ t: ub, tS: ub, tE: ub, multiplicity: 1 });
-    const infos = ris.map((ri) => {
-        const box = getIntervalBox(ps, [ri.tS, ri.tE]);
-        const dSquaredI = rootIntervalToDistanceSquaredInterval(box, p);
-        return {
-            p: getPFromBox(box),
-            t: ri.t,
-            d: (closest_point_on_bezier_certified_sqrt(dSquaredI[0]) + closest_point_on_bezier_certified_sqrt(dSquaredI[1])) / 2,
-            dSquaredI,
-            box,
-            ri
-        };
-    });
-    /** the minimum max interval value */
-    let minMax = Number.POSITIVE_INFINITY;
-    for (let i = 0; i < infos.length; i++) {
-        const diMax = infos[i].dSquaredI[1];
-        if (diMax < minMax) {
-            minMax = diMax;
-        }
-    }
-    const closestPointInfos = [];
-    for (let i = 0; i < infos.length; i++) {
-        const info = infos[i];
-        if (info.dSquaredI[0] <= minMax) {
-            closestPointInfos.push(info);
-        }
-    }
-    return closestPointInfos;
-}
-
-//# sourceMappingURL=closest-point-on-bezier-certified.js.map
-;// ./node_modules/flo-poly/node/roots/root-interval.js
-/**
- * Simple function that creates and returns an exact root (with a bracketing
- * interval width of 0 and multiplicity 1)
- *
- * @param t
- *
- * @doc
- */
-function createRootExact(t) {
-    return { t, tS: t, tE: t, multiplicity: 1 };
-}
-/**
- * Simple function that returns the middle of the root bracketing interval - can
- * be used to estimate the root
- *
- * @param ri a root interval
- *
- * @doc
- */
-function mid(ri) {
-    return (ri.tS + ri.tE) / 2;
-}
-
-//# sourceMappingURL=root-interval.js.map
-;// ./node_modules/flo-boolean/node/container.js
-/**
- * Returns true if the container contains only 1 interface
- * intersection or contains only 1 general, extreme or loop intersection
- * (not cusp, or endpoint overlap), false otherwise.
- *
- * @param container
- */
-function containerIsBasic(container) {
-    const xs = container.xs;
-    if (xs.length === 4) {
-        let topmostCount = 0;
-        let interfaceCount = 0;
-        for (let i = 0; i < xs.length; i++) {
-            if (xs[i].x.kind === 0) {
-                topmostCount++;
-            }
-            if (xs[i].x.kind === 4) {
-                interfaceCount++;
-            }
-        }
-        // topmostCount;//?
-        // interfaceCount;//?
-        if (topmostCount === 2 && interfaceCount === 2) {
-            return true;
-        }
-    }
-    if (xs.length <= 2 && xs[0].x.kind !== 7) {
-        return true;
-    }
-    // xs.length;//?
-    return false;
-}
-
-//# sourceMappingURL=container.js.map
-;// ./node_modules/big-float-ts/node/double-expansion/e-to-double-double.js
-
-/**
- * Returns the result of converting a floating point expansion to a
- * double-double precision floating point number.
- *
- * * uses truncation to convert thus accurate to within 1 ulp on low double;
- * (a slower summing method could reduce the max error to 1/2 ulp)
- */
-function eToDd(e) {
-    e = eCompress(e);
-    const len = e.length;
-    if (len === 2) {
-        return e; // already a double-double
-    }
-    else if (len <= 1) {
-        return [0, e[0]]; // double-doubles have a fixed length of 2
-    }
-    return [e[len - 2], e[len - 1]]; // return only most significant parts
-}
-
-//# sourceMappingURL=e-to-double-double.js.map
-;// ./node_modules/flo-poly/node/change-variables/expansion/e-change-variables-linear.js
-
-
-/**
- * Returns the exact result (bar underflow / overflow) of performing a change
- * of variables of the form: p(x) <- p(ax + b) on the given polynomial (with
- * coefficients given as Shewchuk expansions).
- *
- * * see [this stackoverflow question](http://stackoverflow.com/questions/141422/how-can-a-transform-a-polynomial-to-another-coordinate-system)
- *
- * @param p a polynomial with coefficients given densely as an array of Shewchuk
- * floating point expansions from highest to lowest power, e.g. `[[5],[-3],[0]]`
- * represents the polynomial `5x^2 - 3x`
- * @param a the `a` in `ax + b`
- * @param b the `b` in `ax + b`
- *
- * @example
- * ```typescript
- * eChangeVariablesLinear([[1],[2],[7]], 3, 4); //=> [[9], [30], [31]]
- * ```
- *
- * @doc
- */
-function eChangeVariablesLinear(p, a, b) {
-    return eScale(eTaylorShift(p, b), a);
-}
-
-//# sourceMappingURL=e-change-variables-linear.js.map
-;// ./node_modules/flo-poly/node/roots/certified/refine-k1.js
-
-
-
-
-
-const { abs: refine_k1_abs, min: refine_k1_min, max: refine_k1_max, log2: refine_k1_log2, ceil: refine_k1_ceil } = Math;
-/**
- * Returns once compensated root(s) (bar underflow / overflow) given a root
- * interval previously calculated using [[allRootsCertified]].
- *
- * * root interval endpoints are returned in double-double precision
- *
- * * 'once-compensated' here means that the typical root interval, `W`,
- * (`~ 2*Number.EPSILON` at `1`) is reduced to `W**2`; if multiple distinct
- * roots were present in the original interval they may be resolved to individual
- * intervals
- *
- * @param ri a root interval previously calculated
- * @param p the exact polynomial with coefficients given densely as an array of
- * Shewchuk floating point expansions from highest to lowest power,
- * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`
- *
- * @doc
- */
-function refineK1(ri, p) {
-    const { tS, tE } = ri;
-    const W = tE - tS;
-    if (W === 0) {
-        return [{
-                tS: [0, tS],
-                tE: [0, tS],
-                multiplicity: ri.multiplicity
-            }];
-    }
-    const δ = 2 ** refine_k1_ceil(refine_k1_log2(W)); // Ensure scale is a power of 2
-    // Translate the polynomial such that the root is within δ from 0, then
-    // scale it such that the roots stay <= 1, i.e. is in [0,1]
-    const pExactK1 = eChangeVariablesLinear(p, δ, tS);
-    // reduce the polynomial to double-double precision for faster root finding
-    const pDdK1 = pExactK1.map(eToDd);
-    // update the double-double precision error bound - it is simply the error 
-    // in rounding the exact coefficients to double-double precision
-    const errBoundK1 = pDdK1.map(c => c[1] * (eps ** 2));
-    const getPExactK1 = () => pExactK1;
-    // const risLo = allRootsCertified(pDdK1, 0, 1, errBoundK1, getPExactK1)!;
-    const risLo = roots(pDdK1, 0, 1, errBoundK1, getPExactK1);
-    const ris = [];
-    for (const riLo of risLo) {
-        ris.push({
-            tS: twoSum(tS, riLo.tS * δ),
-            tE: twoSum(tS, riLo.tE * δ),
-            multiplicity: riLo.multiplicity
-        });
-    }
-    return ris;
-}
-
-//# sourceMappingURL=refine-k1.js.map
-;// ./node_modules/big-float-ts/node/double-expansion/e-compare.js
-
-
-/**
- * Returns 0 if a === b, a +tive value if a > b or a negative value if a < b.
- *
- * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
- *
- * "The easiest way to compare two expansions is to subtract one from the other,
- * and test the sign of the result. An expansion’s sign can be easily tested
- * because of the nonoverlapping property; simply check the sign of the
- * expansion's most significant nonzero component..."
- *
- * @param a a floating point expansion
- * @param b another floating point expansion
- */
-function eCompare(a, b) {
-    return eSign(eDiff(a, b));
-}
-
-//# sourceMappingURL=e-compare.js.map
-;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/compare-in-out.js
-
-
-const { abs: compare_in_out_abs } = Math;
-/**
- * Returns the result of comparing two `InOut`s within the same container.
- *
- * @param inOutA
- * @param inOutB
- */
-function compareInOut(snugDir) {
-    return (inOutA, inOutB) => {
-        // First compare side indexes - side indexes are the coursest ordering
-        const sideA = inOutA.side;
-        const sideB = inOutB.side;
-        let res = sideA - sideB;
-        if (res !== 0) {
-            return res;
-        }
-        // Could not resolve by side indexes (they are the same)
-        // Compare by side `t` values
-        const xA = inOutA.sideX;
-        const xB = inOutB.sideX;
-        res = xA.ri.tS - xB.ri.tS;
-        const errBound = 2 * 4 * Number.EPSILON; // is factor of 2 necessary?
-        if (compare_in_out_abs(res) >= errBound) {
-            return res;
-        }
-        // At this point we zoom in once more (compensated once) to add an 
-        // additional 49 bits accuracy
-        // FUTURE - first check if they are in the same k family - this will speed
-        // up the algorithm in those cases.
-        if (!xA.compensated) { // else the root is already compensated once
-            xA.compensated = 1; // compensate once - in future we can compensate more times if necessary
-            // there should be only 1 root in the 4u interval
-            // FUTURE - getPExact called too often - cache it!
-            xA.riExp = refineK1(xA.ri, xA.getPExact())[0];
-        }
-        if (!xB.compensated) { // else the root is already compensated once
-            xB.compensated = 1; // compensate once - in future we can compensate more times if necessary
-            // there should be only 1 root in the 4u interval
-            // FUTURE - getPExact called too often - cache it!
-            xB.riExp = refineK1(xB.ri, xB.getPExact())[0];
-        }
-        //console.log('compensated')
-        //console.log('xA', expEst(xA.riExp.tS), ' - ', expEst(xA.riExp.tE));
-        //console.log('xB', expEst(xB.riExp.tS), ' - ', expEst(xB.riExp.tE));
-        res = eCompare(xA.riExp.tS, xB.riExp.tS);
-        if (res !== 0) {
-            return res;
-        }
-        // console.log('aa')
-        // At this stage it is either the same curve (mathematically, if endpoints
-        // and direction is ignored) or even the once compenensated roots cannot be
-        // resolved. In future we can cascade compensations to ensure resolution
-        // but we are already about a quadrillionth of a quadrillionth of a unit
-        // accurate at this stage.
-        // res = inOutB.dir - inOutA.dir;
-        res = inOutA.dir - inOutB.dir;
-        // console.log(inOutA.orientation);
-        // console.log(inOutB.orientation);
-        if (res !== 0) {
-            return snugDir * res;
-        }
-        // At this stage they are both in or both out
-        // We reverse sort the ins in comparison to the outs
-        return inOutA.dir === 1
-            ? inOutA.idx - inOutB.idx
-            : inOutB.idx - inOutA.idx;
-    };
-}
-
-//# sourceMappingURL=compare-in-out.js.map
-;// ./node_modules/flo-boolean/node/containers/order-in-outs.js
-
-/**
- * Orders the `InOut`s within the container.
- *
- * * modifies `prevAround` and `nextAround` of the given container's `InOut`s
- *
- * @param container
- */
-function orderInOuts(container, snugDir) {
-    const inOuts = container.inOuts;
-    inOuts.sort(compareInOut(snugDir));
-    let prevInOut = inOuts[inOuts.length - 1];
-    for (let i = 0; i < inOuts.length; i++) {
-        const inOut = inOuts[i];
-        inOut.prevAround = prevInOut;
-        prevInOut.nextAround = inOut;
-        prevInOut = inOut;
-    }
-}
-
-//# sourceMappingURL=order-in-outs.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/get-next-exit.js
-
-
-/**
- *
- * @param in_ the in for which the next exit should be found
- * @param originalOut
- * @param additionalOutsToCheck
- * @param takenOuts
- */
-function getNextExit(in_, originalOut, additionalOutsToCheck, takenOuts) {
-    const markOutForChecking_ = markInOutForChecking(takenOuts, additionalOutsToCheck);
-    // the ordering below also ensures ins comes before outs
-    orderInOuts(in_.container, originalOut.orientation);
-    // console.log([in_.idx, in_.dir]);
-    let toCount = 1;
-    let next = in_;
-    let outToUse = undefined;
-    let curOrientation = originalOut.orientation;
-    do {
-        next = originalOut.orientation === +1
-            ? next.nextAround
-            : next.prevAround;
-        if (next === in_) {
-            break;
-        }
-        const prevToCount = toCount;
-        toCount = toCount - next.dir;
-        if (toCount === 1) {
-            curOrientation *= -1;
-        }
-        if (next.dir === -1) {
-            continue;
-        }
-        if (!outToUse) {
-            // we are still rotating on the inside of the loop
-            if (toCount === 0) {
-                outToUse = next;
-            }
-            else if (toCount === 1) {
-                // ...must have the same orientation (see complexish2.svg in tests)
-                markOutForChecking_(next, originalOut.orientation, originalOut);
-            }
-        }
-        else {
-            // else we are rotating on the outside of the loop
-            if (prevToCount === 1 && toCount === 0) {
-                markOutForChecking_(next, originalOut.orientation, originalOut.parent);
-            }
-            else if (prevToCount === 0 && toCount === -1) {
-                markOutForChecking_(next, -originalOut.orientation, originalOut.parent);
-            }
-        }
-    } while (true);
-    let additionalBezier = undefined;
-    if (!containerIsBasic(in_.container)) {
-        // add a "micro corner"
-        additionalBezier = [in_.p, outToUse.p];
-    }
-    return { inOutToUse: outToUse, additionalBezier };
-}
-function markInOutForChecking(takenInOuts, additionalOutsToCheck) {
-    return (inOut, orientation, origParent) => {
-        if (!takenInOuts.has(inOut)) {
-            inOut.orientation = orientation;
-            inOut.parent = origParent;
-            inOut.windingNum = origParent.windingNum + inOut.orientation;
-            additionalOutsToCheck.push(inOut);
-        }
-    };
-}
-
-//# sourceMappingURL=get-next-exit.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/get-beziers-to-next-container.js
-
-
-
-function getBeziersToNextContainer(inOut, inOut_NextOrPrev) {
-    const outX = inOut._x_;
-    const inX = inOut_NextOrPrev._x_;
-    //----------------------------
-    const curveS = outX.curve;
-    const tS = outX.x.ri.tS;
-    const curveE = inX.curve;
-    const tE = inX.x.ri.tS;
-    let curCurve = curveS;
-    let curT = tS;
-    if (!containerIsBasic(inOut.container)) {
-        // we must clip the outgoing curve
-        curT = mid(closestPointOnBezierCertified(curveS.ps, inOut.p)[0].ri);
-    }
-    const bezierPieces = [];
-    while (true) {
-        if (curCurve === curveE &&
-            (curT < tE || (curT === tE && bezierPieces.length !== 0))) {
-            const ps = curCurve.ps;
-            const ts = [curT, tE];
-            bezierPieces.push({ ps, ts });
-            return bezierPieces;
-        }
-        else {
-            const ps = curCurve.ps;
-            const ts = [curT, 1];
-            bezierPieces.push({ ps, ts });
-        }
-        curT = 0;
-        curCurve = curCurve.next;
-    }
-}
-
-//# sourceMappingURL=get-beziers-to-next-container.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/get-beziers-to-prev-container.js
-
-
-
-function getBeziersToPrevContainer(inOut, inOut_NextOrPrev) {
-    const outX = inOut_NextOrPrev._x_;
-    const inX = inOut._x_;
-    //----------------------------
-    const curveS = inX.curve;
-    const tS = inX.x.ri.tS;
-    const curveE = outX.curve;
-    const tE = outX.x.ri.tS;
-    let curCurve = curveS;
-    let curT = tS;
-    if (!containerIsBasic(inOut.container)) {
-        // we must clip the outgoing curve
-        curT = mid(closestPointOnBezierCertified(curCurve.ps, inOut.p)[0].ri);
-    }
-    const bezierPieces = [];
-    while (true) {
-        const ps = curCurve.ps;
-        if (curCurve === curveE &&
-            (curT > tE || (curT === tE && bezierPieces.length !== 0))) {
-            const ts = [curT, tE];
-            bezierPieces.push({ ps, ts });
-            return bezierPieces;
-        }
-        else {
-            const ts = [curT, 0];
-            bezierPieces.push({ ps, ts });
-        }
-        curT = 1;
-        curCurve = curCurve.prev;
-    }
-}
-
-//# sourceMappingURL=get-beziers-to-prev-container.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/get-tight-next-exit.js
-
-
-/**
- *
- * @param inOut the in/out for which the next exit should be found
- * @param additionalOutsToCheck
- */
-function getTightNextExit(inOut, origInOut, additionalOutsToCheck, takenInOuts) {
-    const markInOutForChecking_ = get_tight_next_exit_markInOutForChecking(origInOut, takenInOuts, additionalOutsToCheck);
-    orderInOuts(inOut.container, 1);
-    // console.log(inOut.idx, inOut.dir);
-    let inOutToUse = inOut.nextAround;
-    // console.log([inOutToUse.idx, inOutToUse.dir], 'used');
-    let next = inOut;
-    const marks = []; // for debugging
-    const curLoopsIdxs = new Set(origInOut.loopsIdxs);
-    do {
-        next = next.nextAround;
-        if (next === inOut) {
-            break;
-        }
-        markInOutForChecking_(next, origInOut.dir, origInOut, curLoopsIdxs);
-        marks.push(next.idx);
-        if (next.dir === -1) {
-            curLoopsIdxs?.add(next._x_?.curve.loop.idx);
-        }
-        else {
-            curLoopsIdxs.delete(next._x_?.curve.loop.idx);
-        }
-    } while (true);
-    marks;
-    let additionalBezier = undefined;
-    if (!containerIsBasic(inOut.container)) {
-        // add a "micro corner"
-        additionalBezier = [inOut.p, inOutToUse.p];
-    }
-    return { inOutToUse, additionalBezier };
-}
-function get_tight_next_exit_markInOutForChecking(originalOut, takenInOuts, additionalOutsToCheck) {
-    return (inOut, parity, origInOut, curLoopsIdxs) => {
-        if (!takenInOuts.has(inOut) && inOut.dir === 1) {
-            inOut.loopsIdxs = new Set(curLoopsIdxs);
-            inOut.orientation = parity * originalOut.orientation;
-            inOut.parent = origInOut.parent;
-            inOut.windingNum = origInOut.windingNum + inOut.orientation;
-            additionalOutsToCheck.unshift(inOut);
-        }
-    };
-}
-
-//# sourceMappingURL=get-tight-next-exit.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/bezier-piece-to-bezier.js
-
-function bezierPieceToBezier(bezierPiece) {
-    const { ps, ts } = bezierPiece;
-    return fromTo(ps, ts[0], ts[1]);
-}
-
-//# sourceMappingURL=bezier-piece-to-bezier.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/complete-loop.js
-
-
-
-
-
-
-
-/**
- * Completes a loop for a specific intersection point entry curve.
- *
- * @param expMax
- * @param takenInOuts
- * @param origInOut
- */
-function completeLoop(takenInOuts, origInOut, tight) {
-    const additionalOutsToCheck = [];
-    const bezierPieces = [];
-    // Move immediately to the outgoing start of the loop
-    let inOutToUse = origInOut;
-    let additionalBezier;
-    const getNextExit_ = tight ? getTightNextExit : getNextExit;
-    /** For debugging only */
-    const ios = [];
-    do {
-        takenInOuts.add(inOutToUse);
-        ios.push(inOutToUse); // for debugging only
-        const inOut_Next = inOutToUse.nextOrPrev;
-        takenInOuts.add(inOut_Next);
-        const beziersToNextContainer = inOutToUse.dir === +1
-            ? getBeziersToNextContainer(inOutToUse, inOut_Next)
-            : getBeziersToPrevContainer(inOutToUse, inOut_Next);
-        bezierPieces.push(...beziersToNextContainer);
-        const nextExit = getNextExit_(inOut_Next, origInOut, additionalOutsToCheck, takenInOuts);
-        ({ inOutToUse, additionalBezier } = nextExit);
-        if (additionalBezier !== undefined) {
-            const lastBezPiece = bezierPieces[bezierPieces.length - 1];
-            const lastBez = bezierPieceToBezier(lastBezPiece);
-            const t = mid(closestPointOnBezierCertified(lastBez, additionalBezier[0])[0].ri);
-            const inBez_ = { ps: lastBez, ts: [0, t] };
-            bezierPieces.pop();
-            bezierPieces.push(inBez_);
-            bezierPieces.push({ ps: additionalBezier, ts: [0, 1] });
-        }
-    } while (inOutToUse !== origInOut);
-    if (typeof _debug_ !== 'undefined' && !!_debug_.verbose) {
-        logIos(ios);
-    }
-    return { bezierPieces, additionalOutsToCheck };
-}
-/** For debugging only */
-function logIos(ios) {
-    const strs = [];
-    const params = [];
-    for (let io of ios) {
-        params.push(io.dir === 1 ? "color: blue;" : "color: red");
-        strs.push(`%c${io.idx}`);
-    }
-    // console.log('Taken ios: ' + strs.join(' '), ...params);
-}
-
-//# sourceMappingURL=complete-loop.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/complete-path.js
-
-/**
- * Completes the path of a disjoint set of loops, i.e. this function is called
- * for each disjoint set of paths.
- *
- * @param intersections
- * @param takenLoops
- * @param parent
- * @param loop
- */
-function completePath(initialOut, takenLoops, takenInOuts, tight) {
-    const inOutStack = [initialOut];
-    while (inOutStack.length) {
-        const origInOut = inOutStack.pop();
-        takenLoops.add(origInOut._x_.curve.loop);
-        if (takenInOuts.has(origInOut)) {
-            continue;
-        }
-        origInOut.children = new Set();
-        const { bezierPieces, additionalOutsToCheck } = completeLoop(takenInOuts, origInOut, tight);
-        origInOut.bezierPieces = bezierPieces;
-        origInOut.parent.children = origInOut.parent.children || new Set();
-        origInOut.parent.children.add(origInOut);
-        for (let i = 0; i < additionalOutsToCheck.length; i++) {
-            inOutStack.push(additionalOutsToCheck[i]);
-        }
-    }
-}
-
-//# sourceMappingURL=complete-path.js.map
-;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis/double/to-power-basis.js
-/**
- * Returns the power basis representation of a bezier curve of order cubic or
- * less.
- *
- * * intermediate calculations are done in double precision
- * * returns the resulting power basis x and y coordinate polynomials from
- * highest power to lowest, e.g. if `x(t) = at^2 + bt + c`
- * and `y(t) = dt^2 + et + f` then  the result is returned
- * as `[[a,b,c],[d,e,f]]`
- *
- * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
- * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- *
- * @doc
- */
-function toPowerBasis(ps) {
-    if (ps.length === 4) {
-        return toPowerBasis3(ps);
-    }
-    if (ps.length === 3) {
-        return toPowerBasis2(ps);
-    }
-    if (ps.length === 2) {
-        return toPowerBasis1(ps);
-    }
-    if (ps.length === 1) {
-        return toPowerBasis0(ps);
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-/** @internal */
-function toPowerBasis3(ps) {
-    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-    return [[
-            (x3 - x0) + 3 * (x1 - x2),
-            3 * ((x2 + x0) - 2 * x1),
-            3 * (x1 - x0),
-            x0
-        ], [
-            (y3 - y0) + 3 * (y1 - y2),
-            3 * ((y2 + y0) - 2 * y1),
-            3 * (y1 - y0),
-            y0
-        ]];
-}
-/** @internal */
-function toPowerBasis2(ps) {
-    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-    return [[
-            (x2 + x0) - 2 * x1,
-            2 * (x1 - x0),
-            x0
-        ], [
-            (y2 + y0) - 2 * y1,
-            2 * (y1 - y0),
-            y0
-        ]];
-}
-/** @internal */
-function toPowerBasis1(ps) {
-    const [[x0, y0], [x1, y1]] = ps;
-    return [[
-            x1 - x0,
-            x0,
-        ], [
-            y1 - y0,
-            y0,
-        ]];
-}
-/** @internal */
-function toPowerBasis0(ps) {
-    const [[x0, y0]] = ps;
-    return [[x0], [y0]];
-}
-
-//# sourceMappingURL=to-power-basis.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-x-bounds-tight.js
-
-
-
-/**
- * Returns tight x-coordinate bounds of the given bezier curve.
- *
- * @param ps an order 1, 2 or 3 bezier curve given as an array of control
- * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- *
- * @doc mdx
- */
-function getXBoundsTight(ps) {
-    const pS = ps[0];
-    const pE = ps[ps.length - 1];
-    let minX;
-    let maxX;
-    if (pS[0] < pE[0]) {
-        minX = { ts: [0, 0], box: [pS, pS] };
-        maxX = { ts: [1, 1], box: [pE, pE] };
-    }
-    else {
-        minX = { ts: [1, 1], box: [pE, pE] };
-        maxX = { ts: [0, 0], box: [pS, pS] };
-    }
-    if (ps.length === 2) {
-        return { minX, maxX };
-    }
-    const [dx,] = toPowerBasis_1stDerivative(ps);
-    const rootsX = roots(dx, 0, 1) || [];
-    // Test points
-    for (let i = 0; i < rootsX.length; i++) {
-        const r = rootsX[i];
-        const ts = [r.tS, r.tE];
-        const box = getIntervalBox(ps, ts);
-        if (box[0][0] < minX.box[0][0]) {
-            minX = { ts, box };
-        }
-        if (box[1][0] > maxX.box[0][0]) {
-            maxX = { ts, box };
-        }
-    }
-    return { minX, maxX };
-}
-
-//# sourceMappingURL=get-x-bounds-tight.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-y-bounds-tight.js
-
-
-
-/**
- * Returns tight y-coordinate bounds of the given bezier curve.
- *
- * @param ps an order 1, 2 or 3 bezier curve given as an array of control
- * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- *
- * @doc mdx
- */
-function getYBoundsTight(ps) {
-    const pS = ps[0];
-    const pE = ps[ps.length - 1];
-    let minY;
-    let maxY;
-    if (pS[1] < pE[1]) {
-        minY = { ts: [0, 0], box: [pS, pS] };
-        maxY = { ts: [1, 1], box: [pE, pE] };
-    }
-    else {
-        minY = { ts: [1, 1], box: [pE, pE] };
-        maxY = { ts: [0, 0], box: [pS, pS] };
-    }
-    if (ps.length === 2) {
-        return { minY, maxY };
-    }
-    const [, dy] = toPowerBasis_1stDerivative(ps);
-    const rootsY = roots(dy, 0, 1) || [];
-    // Test points
-    for (let i = 0; i < rootsY.length; i++) {
-        const r = rootsY[i];
-        const ts = [r.tS, r.tE];
-        const box = getIntervalBox(ps, ts);
-        if (box[0][1] < minY.box[0][1]) {
-            minY = { ts, box };
-        }
-        if (box[1][1] > maxY.box[0][1]) {
-            maxY = { ts, box };
-        }
-    }
-    return { minY, maxY };
-}
-
-//# sourceMappingURL=get-y-bounds-tight.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-bounding-box.js
-
-
-/**
- * Returns a tight axis-aligned bounding box of the given bezier curve.
- *
- * * **certified**: the box is guaranteed to engulf the given bezier curve.
- *
- * * returns the box in the form `[[minX, minY], [maxX, maxY]`
- *
- * @param ps an order 1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
- *
- * @doc mdx
- */
-function getBoundingBox(ps) {
-    const xBounds = getXBoundsTight(ps);
-    const yBounds = getYBoundsTight(ps);
-    return [
-        [xBounds.minX.box[0][0], yBounds.minY.box[0][1]],
-        [xBounds.maxX.box[1][0], yBounds.maxY.box[1][1]]
-    ];
-}
-
-//# sourceMappingURL=get-bounding-box.js.map
-;// ./node_modules/flo-boolean/node/get-bounding-box-.js
-
-
-const getBoundingBox$ = memoize(getBoundingBox);
-
-//# sourceMappingURL=get-bounding-box-.js.map
 ;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-bounds.js
 
 
@@ -9985,10 +7800,10 @@ function getBounds(ps) {
     // Endpoints
     rootsX.push(0, 1);
     rootsY.push(0, 1);
-    let minX = Number.POSITIVE_INFINITY;
-    let maxX = Number.NEGATIVE_INFINITY;
-    let minY = Number.POSITIVE_INFINITY;
-    let maxY = Number.NEGATIVE_INFINITY;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
     let tMinX;
     let tMaxX;
     let tMinY;
@@ -10026,231 +7841,12 @@ function getBounds(ps) {
 }
 
 //# sourceMappingURL=get-bounds.js.map
-;// ./node_modules/flo-boolean/node/get-bounds-.js
+;// ./node_modules/flo-boolean/node/geometry/get-bounds-.js
 
 
 const getBounds$ = memoize(getBounds);
 
 //# sourceMappingURL=get-bounds-.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/get-shape-bounds.js
-
-const { min: get_shape_bounds_min, max: get_shape_bounds_max } = Math;
-function getShapeBounds(pss) {
-    const bounds = pss.map(getBounds$);
-    return {
-        minX: get_shape_bounds_min(...bounds.map(bound => bound.box[0][0])),
-        maxX: get_shape_bounds_max(...bounds.map(bound => bound.box[1][0])),
-        minY: get_shape_bounds_min(...bounds.map(bound => bound.box[0][1])),
-        maxY: get_shape_bounds_max(...bounds.map(bound => bound.box[1][1])),
-    };
-}
-
-//# sourceMappingURL=get-shape-bounds.js.map
-;// ./node_modules/squares-rng/node/index.js
-const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
-//const isNode = new Function("try {return this===global;}catch(e){return false;}");
-const base64ToArrayBuffer = isBrowser()
-    ? browserBase64ToArrayBuffer
-    : nodeBase64ToArrayBuffer;
-const arrayBuffer = base64ToArrayBuffer(
-// The WASM code (from .wasm file) that is Base64 encoded
-`AGFzbQEAAAABBgFgAX8BfAMDAgAABQMBAAAHHwMGbWVtb3J5AgAHc3F1YXJlcwAA\
-CHNxdWFyZXM0AAEKjgECPwECfiAArULHuuXf9tjQm2p+IgEgASABfnxCIIoiAiAC\
-fiABQse65d/22NCbanx8QiCKIgIgAn4gAXxCIIi6C0wBAn4gAK1Cx7rl3/bY0Jtq\
-fiIBQse65d/22NCbanwiAiABIAIgASABIAF+fEIgiiIBIAF+fEIgiiIBIAF+fEIg\
-iiIBIAF+fEIgiLoL`);
-const $module$ = new WebAssembly.Module(arrayBuffer);
-const $instance$ = new WebAssembly.Instance($module$);
-const squares = $instance$.exports.squares;
-const squares4 = $instance$.exports.squares4;
-/** From https://stackoverflow.com/a/21797381 */
-function browserBase64ToArrayBuffer(base64) {
-    const str = window.atob(base64);
-    const len = str.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = str.charCodeAt(i);
-    }
-    return bytes.buffer;
-}
-function nodeBase64ToArrayBuffer(base64) {
-    return toArrayBuffer(Buffer.from(base64, 'base64'));
-}
-/** From https://stackoverflow.com/a/12101012 */
-function toArrayBuffer(buffer) {
-    const ab = new ArrayBuffer(buffer.length);
-    const view = new Uint8Array(ab);
-    for (let i = 0; i < buffer.length; ++i) {
-        view[i] = buffer[i];
-    }
-    return ab;
-}
-
-//# sourceMappingURL=index.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/is-loop-in-loop.js
-
-
-
-
-
-
-// FUTURE - remove delta; probably not necessary
-const DELTA = 1e-6;
-/**
- * Returns true if the first loop is wholly contained within the second loop's
- * boundary.
- *
- * * precondition: the loop must either wholly contained inside the loop or is wholly outside.
- *
- * @param loop1
- * @param loop2
- */
-function isLoopInLoop(loop1, loop2) {
-    let i = 0;
-    do {
-        i++;
-        // Gets a predictable random number between 0 and 1
-        const t = squares(i) / 0x1_0000_0000;
-        // Gets a predictable random number between 0 and the number of
-        // curves in the loop.
-        const idx = squares(i + 1000) % loop1.length;
-        const ps = loop1[idx];
-        const p = evalDeCasteljau(ps, t);
-        const r = f(loop1, loop2, p);
-        if (r !== undefined) {
-            return r;
-        }
-    } while (i < 100);
-    return undefined; // There's no chance we'll get up to this point.
-    function f(loop1, loop2, p) {
-        if (isLoopNotInLoop(loop1, loop2)) {
-            return false;
-        }
-        const count = getAxisAlignedRayLoopIntersections(loop2, p, 'left');
-        if (count !== undefined) {
-            return count % 2 !== 0;
-        }
-    }
-}
-/**
- * Returns `true` if the first loop is not wholly within the second. The converse
- * is not necessarily true. It is assumed the loops don't intersect.
- *
- * @param loops
- */
-function isLoopNotInLoop(loop1, loop2) {
-    const bounds1 = getShapeBounds(loop1);
-    const bounds2 = getShapeBounds(loop2);
-    return (bounds1.minX < bounds2.minX ||
-        bounds1.maxX > bounds2.maxX ||
-        bounds1.minY < bounds2.minY ||
-        bounds1.maxY > bounds2.maxY);
-}
-/**
- * @param loop a loop of curves
- * @param p the point where the horizontal ray starts
- * @param dir the ray direction
- */
-function getAxisAlignedRayLoopIntersections(loop, p, dir) {
-    const [x, y] = p;
-    let count = 0;
-    for (let i = 0; i < loop.length; i++) {
-        const ps = loop[i];
-        //------------------------------------------------------/
-        //---- Check if ray intersects bezier bounding box -----/
-        //------------------------------------------------------/
-        const [[minX, minY], [maxX, maxY]] = getBoundingBox$(ps);
-        let notIntersecting = ((dir === 'left' || dir === 'right') && (minY > y || maxY < y)) ||
-            ((dir === 'up' || dir === 'down') && (minX > x || maxX < x));
-        notIntersecting = notIntersecting ||
-            (dir === 'left' && minX > x) || (dir === 'right' && maxX < x) ||
-            (dir === 'down' && minY > y) || (dir === 'up' && maxY < y);
-        if (notIntersecting) {
-            continue;
-        } // No intersection with bezier
-        //------------------------------------------------------/
-        //----------- Get intersection ts on bezier ------------/
-        //------------------------------------------------------/
-        // Get the bezier's x-coordinate power representation.
-        const ts = [];
-        let f;
-        let offset;
-        let axis;
-        const dirIsDecreasing = (dir === 'left' || dir === 'up');
-        if (dir === 'left' || dir === 'right') {
-            f = (ps) => toPowerBasis(ps)[1];
-            offset = [0, -y];
-            axis = 0;
-        }
-        else {
-            f = (ps) => toPowerBasis(ps)[0];
-            offset = [-x, 0];
-            axis = 1;
-        }
-        const translatedPs = ps.map(translate(offset));
-        const poly = f(translatedPs);
-        const ts_ = roots(poly, 0 - DELTA, 1 + DELTA)?.map(r => r.t) || [];
-        for (let i = 0; i < ts_.length; i++) {
-            const t = ts_[i];
-            if (Math.abs(t) < DELTA || Math.abs(t - 1) < DELTA) {
-                // We don't know the exact number of intersections due to
-                // floating point arithmetic. 
-                return undefined;
-            }
-            const p_ = evalDeCasteljau(translatedPs, t);
-            if ((dirIsDecreasing && p[axis] >= p_[axis]) ||
-                (!dirIsDecreasing && p[axis] <= p_[axis])) {
-                ts.push(t);
-            }
-        }
-        //------------------------------------------------------/
-        //----- Check if line is tangent to intersections ------/
-        //------------------------------------------------------/
-        // We only care if there were 1 or 3 intersections.
-        if (ts.length === 1 || ts.length === 3) {
-            for (const t of ts) {
-                const tan = toUnitVector(tangent_tangent(ps, t));
-                if (((dir === 'left' || dir === 'right') && Math.abs(tan[1]) < DELTA) ||
-                    ((dir === 'down' || dir === 'up') && Math.abs(tan[0]) < DELTA)) {
-                    // We don't know the exact number of intersections due to
-                    // floating point arithmetic
-                    return undefined;
-                }
-            }
-        }
-        count += ts.length;
-    }
-    return count;
-}
-
-//# sourceMappingURL=is-loop-in-loop.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/get-tightest-containing-loop.js
-
-
-/**
- * @param root
- * @param loop
- */
-function getTightestContainingLoop(root, loop) {
-    let containingLoop = undefined;
-    const stack = [root];
-    while (stack.length) {
-        const inOut = stack.pop();
-        f(inOut);
-    }
-    return containingLoop;
-    function f(parent) {
-        // if (parent === root || isLoopInLoop(loop.beziers, parent.bezierPieces!)) {
-        if (parent === root || isLoopInLoop(loop.beziers, parent.bezierPieces.map(bezierPieceToBezier))) {
-            containingLoop = parent;
-            for (const child of parent.children) {
-                stack.push(child);
-            }
-        }
-    }
-}
-
-//# sourceMappingURL=get-tightest-containing-loop.js.map
 ;// ./node_modules/flo-boolean/node/calc-paths/order-loop-ascending-by-min-y.js
 
 /**
@@ -10260,11 +7856,11 @@ function getTightestContainingLoop(root, loop) {
  * @param loopA
  * @param loopB
  */
-function orderLoopAscendingByMinY(loopA, loopB) {
+function compareLoopByMinY(loopA, loopB) {
     return getMinY(loopA) - getMinY(loopB);
 }
 function getMinY(pss) {
-    let minY = Number.POSITIVE_INFINITY;
+    let minY = Infinity;
     for (const ps of pss) {
         const y = getBounds$(ps).box[0][1];
         if (y < minY) {
@@ -10277,10 +7873,15 @@ function getMinY(pss) {
 //# sourceMappingURL=order-loop-ascending-by-min-y.js.map
 ;// ./node_modules/flo-boolean/node/calc-paths/split-loop-trees.js
 /**
- * Take the forest of trees, create a new root making it a tree and snip
- * branches such that each branch determines a new set of loops each
- * representing an individual independent shape (possibly with holes or shapes
- * with absolute winding number > 1).
+ * Take the forest of trees (the `children` of `root`) and return, for each
+ * independent shape, its root loop (possibly with holes or shapes with
+ * absolute winding number > 1).
+ *
+ * A shape root is any non-zero-winding node whose parent face has winding 0;
+ * a winding-0 node is never itself a shape root - its own non-zero children
+ * (islands within holes, ...) are collected instead. Does **not** mutate the
+ * tree, so the same `root` can be decomposed again (e.g. under a different
+ * boolean op).
  *
  * @param root
  */
@@ -10290,89 +7891,274 @@ function splitLoopTrees(root) {
     while (stack.length) {
         const tree = stack.pop();
         if (tree.windingNum === 0) {
-            loopTrees.push(...tree.children);
+            for (const child of tree.children) {
+                // winding-0 children aren't shape roots; their own non-zero
+                // descendants are collected when those children are visited
+                if (child.windingNum !== 0) {
+                    loopTrees.push(child);
+                }
+            }
         }
         stack.push(...tree.children);
-        if (tree.windingNum === 0) {
-            // Make it a leaf - not strictly necessary as it will be ignored anyway
-            tree.children = new Set();
-        }
     }
     return loopTrees;
 }
 
 //# sourceMappingURL=split-loop-trees.js.map
 ;// ./node_modules/flo-boolean/node/calc-paths/get-loops-from-tree.js
-const { abs: get_loops_from_tree_abs, sign: get_loops_from_tree_sign } = Math;
+const { abs: get_loops_from_tree_abs } = Math;
 /**
- * Returns an array of LoopTrees from the given LoopTree where each returned
- * LoopTree is one of the nodes of the tree. Nodes with winding number absolute
- * value > 1 are not returned.
- * @param root
+ * Returns `true` if a region with the given winding number belongs to the
+ * result of the given boolean operation, i.e. the operation's membership
+ * predicate `P(windingNum)`.
+ *
+ * - `OR`  (union)         : winding number !== 0
+ * - `AND` (intersection)  : |winding number| >= 2 (covered two or more times)
+ * - `XOR` (symmetric diff): winding number is odd
+ */
+function inResult(booleanOp, windingNum) {
+    if (booleanOp === 'AND') {
+        return get_loops_from_tree_abs(windingNum) >= 2;
+    }
+    if (booleanOp === 'XOR') {
+        return (get_loops_from_tree_abs(windingNum) % 2) === 1;
+    }
+    // 'OR' and the default
+    return windingNum !== 0;
+}
+/**
+ * Returns the selected loop nodes that bound the result of the given boolean
+ * operation for the given tree, each paired with its nesting `depth` (the
+ * number of selected ancestor loops within this tree).
+ *
+ * A loop is included exactly when membership in the result changes across it,
+ * i.e. when `P(node.windingNum) !== P(parent.windingNum)` where `P` is the
+ * operation's membership predicate (see `inResult`) and the region outside the
+ * outermost loop (winding number 0) is never in the result.
+ *
+ * The returned loops are precisely the boundary of the result region. The
+ * `depth` lets the caller alternate loop orientations by nesting level so that
+ * the non-zero winding fill rule reproduces the region for arbitrarily nested
+ * loops (outer loops, holes, islands within holes, ...).
+ *
+ * @param root the outer loop of an independent shape (winding number 1 or -1)
  */
 function getLoopsFromTree(booleanOp) {
     return (root) => {
-        // At this point root will have a winding number of 1 or -1 (obviously since it's the outer loop)
-        const trees = booleanOp === 'OR' || booleanOp === 'XOR'
-            ? [root] // include the outer loop in these cases (abs winding num 1)
-            : [];
-        // @ts-ignore
-        root.used = booleanOp === 'OR' || booleanOp === 'XOR';
-        const stack = Array.from(root.children);
+        const selected = [];
+        // Each stack entry is a node paired with the number of selected
+        // ancestor loops above it within this tree.
+        const stack = [[root, 0]];
         while (stack.length) {
-            const tree = stack.pop();
-            if (booleanOp === 'OR') {
-                if (tree.windingNum === 0) {
-                    trees.push(tree);
-                }
+            const [tree, ancestorCount] = stack.pop();
+            // Winding number of the face just outside this loop (0 if this is
+            // the outermost loop of the shape).
+            const parentWinding = tree.parent.windingNum;
+            // Include this loop iff result membership flips across it.
+            const isSelected = inResult(booleanOp, tree.windingNum) !==
+                inResult(booleanOp, parentWinding);
+            if (isSelected) {
+                selected.push({
+                    out: tree,
+                    depth: ancestorCount,
+                    windingNum: tree.windingNum,
+                    parentWinding,
+                });
             }
-            if (booleanOp === 'AND') {
-                const ancestorUsed = isAncestorUsed(tree);
-                if ((tree.windingNum === 0 && ancestorUsed) ||
-                    get_loops_from_tree_abs(tree.windingNum) >= 2 && !ancestorUsed) {
-                    trees.push(tree);
-                    // @ts-ignore
-                    tree.used = true;
-                }
-            }
-            if (booleanOp === 'XOR') {
-                const ancestorUsed = isAncestorUsed(tree);
-                if ((tree.windingNum === 0 && ancestorUsed) ||
-                    get_loops_from_tree_abs(tree.windingNum) >= 2 && ancestorUsed) {
-                    trees.push(tree);
-                    // @ts-ignore
-                    tree.used = true;
-                } /* else if (abs(tree.windingNum) >= 2) {
-                    // @ts-ignore
-                    // tree.windingNum = 0;
-                    // tree.orientation = -sign(tree.orientation);
-                    trees.push(tree);
-                    // @ts-ignore
-                    tree.used = true;
-                }*/
-            }
+            const childAncestorCount = isSelected ? ancestorCount + 1 : ancestorCount;
             for (const child of tree.children) {
-                stack.push(child);
+                // A non-zero child of a winding-0 node begins an independent
+                // shape (see `splitLoopTrees`); don't re-collect it here.
+                if (tree.windingNum === 0 && child.windingNum !== 0) {
+                    continue;
+                }
+                stack.push([child, childAncestorCount]);
             }
         }
-        return trees;
+        return selected;
     };
-}
-function isAncestorUsed(inOut) {
-    let parent = inOut.parent;
-    while (true) {
-        if (parent === undefined) {
-            return false;
-        }
-        if (parent.used) {
-            return true;
-        }
-        parent = parent.parent;
-    }
 }
 
 //# sourceMappingURL=get-loops-from-tree.js.map
-;// ./node_modules/flo-boolean/node/are-boxes-intersecting.js
+;// ./node_modules/flo-boolean/node/containers/compare-xs.js
+/**
+ * Total order on `_X_`s: by curve index, then by parameter (`tS`), then by
+ * `order` - a globally-unique arbitrary value (assigned in `getAllXPairs`) that
+ * distinguishes otherwise-coincident `_X_`s. Using the same `order` here and in
+ * the `getXInOuts` sort guarantees both sorts agree on coincident points.
+ */
+function compareXs(xA, xB) {
+    let res = xA.x.curve.idx - xB.x.curve.idx;
+    if (res !== 0) {
+        return res;
+    }
+    res = xA.x.ri.tS - xB.x.ri.tS;
+    // res = xA.x.ri.t - xB.x.ri.t;
+    return res;
+}
+
+//# sourceMappingURL=compare-xs.js.map
+;// ./node_modules/flo-boolean/node/get-critical-points/set-intersection-next-values.js
+
+/**
+ * Set each intersection on the given original loop's `next`/`prev` (the next/
+ * prev intersection in a *different* container) and emit its `In`/`Out` when it
+ * is an entry/exit of its container - i.e. when its immediate loop-neighbour is
+ * already in a different container (consumed later by `getXInOuts`).
+ *
+ * @param xPairs
+ */
+function setIntersectionNextAndPrevs(xPairs) {
+    const xsByLoop = [];
+    for (const xPair of xPairs) {
+        for (const _x_ of xPair) {
+            const { idx } = _x_.x.curve.loop;
+            (xsByLoop[idx] ??= []).push(_x_);
+        }
+    }
+    for (const xs of xsByLoop) {
+        if (xs === undefined || xs.length === 0) {
+            continue;
+        }
+        xs.sort(compareXs);
+        const len = xs.length;
+        for (let i = 0; i < len; i++) {
+            const _x_ = xs[i];
+            const { container } = _x_;
+            // Skip over intersections that stay in the same container so that
+            // `next`/`prev` always move to an intersection in a different
+            // container (falls back to `xs[i]` itself if all share it).
+            let i_ = (i + 1) % len;
+            while (i_ !== i && xs[i_].container === container) {
+                i_ = (i_ + 1) % len;
+            }
+            let _i = (i - 1 + len) % len;
+            while (_i !== i && xs[_i].container === container) {
+                _i = (_i - 1 + len) % len;
+            }
+            //----------------
+            // Mutate
+            //----------------
+            let _x__ = _x_;
+            _x__.next = xs[i_];
+            _x__.prev = xs[_i];
+            // An `_X_` is an entry (`In`) / exit (`Out`) of its container exactly
+            // when its immediate loop-neighbour is already in a different one.
+            if (xs[(i - 1 + len) % len].container !== container) {
+                _x__.in_ = { dir: -1, _x_, loop: _x_.x.curve.loop.beziers };
+            }
+            if (xs[(i + 1) % len].container !== container) {
+                _x__.out = { dir: +1, _x_, loop: _x_.x.curve.loop.beziers };
+            }
+        }
+    }
+}
+
+//# sourceMappingURL=set-intersection-next-values.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/send-containers-to-grid.js
+const { floor, ceil: send_containers_to_grid_ceil } = Math;
+/**
+ * Returns the containers from the given containers by sending their boxes to a
+ * grid with a smaller bitlength.
+ *
+ * The grid spacing equals half the container dimension (`1/2x`). To prevent a
+ * container from collapsing to a point when it falls within a single grid cell,
+ * the box's min corner is rounded down and its max corner is rounded up.
+ *
+ * @param containers
+ * @param expMax
+ * @param containerDim
+ */
+function sendContainersToGrid(containers, expContainer) {
+    // Grid spacing = 1/2 the container dimension (a power of 2, so snapping via
+    // divide/multiply is exact).
+    const gridSpacing = 2 ** (expContainer - 1);
+    const snapDown = (a) => floor(a / gridSpacing) * gridSpacing;
+    const snapUp = (a) => send_containers_to_grid_ceil(a / gridSpacing) * gridSpacing;
+    const containers_ = containers.map((container) => {
+        const { xs, box } = container;
+        const [minD, maxD] = box;
+        const box_ = [minD.map(snapDown), maxD.map(snapUp)];
+        return { xs, box: box_ };
+    });
+    return containers_;
+}
+
+//# sourceMappingURL=send-containers-to-grid.js.map
+;// ./node_modules/flo-boolean/node/sweep-line/sweep-line.js
+const EVENT_LEFT = -1;
+const EVENT_RIGHT = +1;
+/**
+ * Generalized sweepline algorithm.
+ *
+ * Typically used to turn O(n^2) algorithms into roughly O(n logn) algorithms.
+ *
+ * @param items An array of items that are to be compared. Items should
+ * typically be geometric objects in 2d space with well-defined left and right
+ * endpoints.
+ * @param getLeftmostPoint A function that returns the leftmost point of the
+ * geometric object of interest.
+ * @param getRightmostPoint A function that returns the rightmost point of the
+ * geometric object of interest.
+ * @param predicate A predicate that takes two geometric objects and returns
+ * truthy (of some specific type) if they are of interest or falsey otherwise.
+ */
+function sweepLine(items, getLeftmost, getRightmost, predicate) {
+    // Initialize event queue to contain all endpoints.
+    const events = [];
+    for (const item of items) {
+        events.push({
+            type: EVENT_LEFT,
+            item,
+            x: getLeftmost(item)
+        });
+        events.push({
+            type: EVENT_RIGHT,
+            item,
+            x: getRightmost(item)
+        });
+    }
+    events.sort(compare);
+    const activeItems = new Set();
+    /** A list of pairs of items that passed the predicate */
+    const pairedItems = [];
+    for (const event of events) {
+        const { item, type } = event;
+        if (type === EVENT_LEFT) {
+            for (const activeItem of activeItems) {
+                const result = predicate(item, activeItem);
+                if (result) {
+                    pairedItems.push({
+                        a: item,
+                        b: activeItem,
+                        u: result
+                    });
+                }
+            }
+            activeItems.add(item);
+        }
+        else if (type === EVENT_RIGHT) {
+            activeItems.delete(item);
+        }
+    }
+    return pairedItems;
+}
+/**
+ * Compare two Events by their x-axis and then by their type.
+ * @param a An event
+ * @param b Another event
+ */
+function compare(a, b) {
+    const res = a.x - b.x;
+    if (res !== 0) {
+        return res;
+    }
+    // Alwys put left events before right ones.
+    return a.type;
+}
+
+//# sourceMappingURL=sweep-line.js.map
+;// ./node_modules/flo-boolean/node/geometry/are-boxes-intersecting.js
 /**
  * Returns `true` if the 2 given axis-aligned rectangular boxes intersect.
  *
@@ -10420,40 +8206,43 @@ function areBoxesIntersecting(closed, a, b) {
 }
 
 //# sourceMappingURL=are-boxes-intersecting.js.map
-;// ./node_modules/flo-boolean/node/containers/are-containers-intersecting.js
+;// ./node_modules/flo-boolean/node/containers/get-containers/combine-overlapping-containers/are-containers-intersecting.js
 
+/** Fraction of its own width/height by which a container box is grown on every
+ * side before testing for overlap when deciding whether to merge containers. */
+const CONTAINER_MERGE_ENLARGE_FRAC = 0.5;
+/**
+ * Enlarges an axis-aligned box by `frac` of its size on every side (e.g.
+ * `frac === 0.5` grows each side by 50% of the box's width/height).
+ */
+function enlargeBox(box, frac) {
+    let [[x0, y0], [x1, y1]] = box;
+    if (x0 > x1) {
+        [x0, x1] = [x1, x0];
+    }
+    if (y0 > y1) {
+        [y0, y1] = [y1, y0];
+    }
+    const dx = (x1 - x0) * frac;
+    const dy = (y1 - y0) * frac;
+    return [[x0 - dx, y0 - dy], [x1 + dx, y1 + dy]];
+}
 function areContainersIntersecting(container1, container2) {
-    return areBoxesIntersecting(true, container1.box, container2.box);
+    return areBoxesIntersecting(true, enlargeBox(container1.box, CONTAINER_MERGE_ENLARGE_FRAC), enlargeBox(container2.box, CONTAINER_MERGE_ENLARGE_FRAC));
 }
 
 //# sourceMappingURL=are-containers-intersecting.js.map
 ;// ./node_modules/flo-boolean/node/graph/get-connected-components.js
-function addEdges(graph, edges) {
-    for (let i = 0; i < edges.length; i++) {
-        const edge = edges[i];
-        addEdge(graph, [edge.a, edge.b]);
-    }
-}
 /**
  * Adds an edge to an undirected graph.
  */
 function addEdge(graph, vertices) {
     const [src, dest] = vertices;
-    let srcList = graph.get(src);
-    if (!srcList) {
-        srcList = [];
-        graph.set(src, srcList);
-    }
-    let destList = graph.get(dest);
-    if (!destList) {
-        destList = [];
-        graph.set(dest, destList);
-    }
-    srcList.push(dest);
-    destList.push(src);
+    graph.getOrInsert(src, []).push(dest);
+    graph.getOrInsert(dest, []).push(src);
 }
 function DFSUtil(graph, v, visited, component) {
-    // Mark the current node as visited and print it 
+    // Mark the current node as visited and add it 
     visited.add(v);
     component.push(v);
     // Recur for all the vertices adjacent to this vertex 
@@ -10466,7 +8255,10 @@ function DFSUtil(graph, v, visited, component) {
     }
 }
 /**
- * Returns connected components for the given undirected graph
+ * Returns the connected components for the given undirected graph.
+ *
+ * An isolated vertex (a graph key with an empty adjacency list) is returned as
+ * its own single-vertex component.
  */
 function getConnectedComponents(graph) {
     // Mark all the vertices as not visited 
@@ -10484,83 +8276,273 @@ function getConnectedComponents(graph) {
 }
 
 //# sourceMappingURL=get-connected-components.js.map
-;// ./node_modules/flo-boolean/node/containers/get-isolated-containers.js
-/**
- * @param containers all containers
- * @param connectedContainers
- */
-function getIsolatedComponents(containers, connectedContainers) {
-    const connectedContainers_ = new Set();
-    for (const cs of connectedContainers) {
-        for (const c of cs) {
-            connectedContainers_.add(c);
-        }
+;// ./node_modules/flo-boolean/node/containers/get-containers/combine-overlapping-containers/merge-containers.js
+const { min: merge_containers_min, max: merge_containers_max } = Math;
+function mergeContainers(containers) {
+    let minLeft = Infinity;
+    let minTop = Infinity;
+    let maxRight = -Infinity;
+    let maxBottom = -Infinity;
+    const xs = [];
+    for (const container of containers) {
+        const [[left, top], [right, bottom]] = container.box;
+        minLeft = merge_containers_min(minLeft, left);
+        minTop = merge_containers_min(minTop, top);
+        maxRight = merge_containers_max(maxRight, right);
+        maxBottom = merge_containers_max(maxBottom, bottom);
+        xs.push(...container.xs);
     }
-    const res = [];
-    for (let i = 0; i < containers.length; i++) {
-        const container = containers[i];
-        if (!connectedContainers_.has(container)) {
-            res.push(container);
-        }
-    }
-    return res;
-}
-
-//# sourceMappingURL=get-isolated-containers.js.map
-;// ./node_modules/flo-boolean/node/containers/merge-containers.js
-function mergeContainers(ccs) {
-    const containers = [];
-    for (const cc of ccs) {
-        let minLeft = Number.POSITIVE_INFINITY;
-        let minTop = Number.POSITIVE_INFINITY;
-        let maxRight = Number.NEGATIVE_INFINITY;
-        let maxBottom = Number.NEGATIVE_INFINITY;
-        const xs = [];
-        for (const c of cc) {
-            const [[left, top], [right, bottom]] = c.box;
-            if (left < minLeft) {
-                minLeft = left;
-            }
-            if (top < minTop) {
-                minTop = top;
-            }
-            if (right > maxRight) {
-                maxRight = right;
-            }
-            if (bottom > maxBottom) {
-                maxBottom = bottom;
-            }
-            xs.push(...c.xs);
-        }
-        const container = {
-            box: [[minLeft, minTop], [maxRight, maxBottom]],
-            xs: xs,
-            inOuts: undefined
-        };
-        containers.push(container);
-    }
-    return containers;
+    const box = [[minLeft, minTop], [maxRight, maxBottom]];
+    return { xs, box };
 }
 
 //# sourceMappingURL=merge-containers.js.map
-;// ./node_modules/flo-poly/node/roots/certified/root-interval-to-exp.js
-/**
- * Returns the result of converting a double precision root interval to a
- * double-double precision one
- *
- * @param ri a root interval
- *
- * @doc
- */
-function rootIntervalToExp(ri) {
-    return {
-        tS: [0, ri.tS],
-        tE: [0, ri.tE],
-        multiplicity: ri.multiplicity
-    };
+;// ./node_modules/flo-boolean/node/utils/sum.js
+function sum_sum(ns) {
+    let total = 0;
+    for (let n of ns) {
+        total += n;
+    }
+    return total;
 }
 
-//# sourceMappingURL=root-interval-to-exp.js.map
+//# sourceMappingURL=sum.js.map
+;// ./node_modules/flo-boolean/node/utils/time-function-call.js
+
+/**
+ *
+ * @param f
+ */
+function timeFunctionCalls(f) {
+    const history = [];
+    function wrapper(...args) {
+        if (typeof _debug_ === 'undefined') {
+            return f.apply(this, args);
+        }
+        const start = performance.now();
+        const result = f.apply(this, args);
+        const end = performance.now();
+        history.push(end - start);
+        return result;
+    }
+    ;
+    // Attach a helper method to inspect stats at any time
+    wrapper.getStats = () => {
+        const total = sum_sum(history);
+        return {
+            name: f.name,
+            totalMs: total,
+            count: history.length,
+            // avg: history.length === 0 ? 0 : total / history.length,
+            // history: history
+        };
+    };
+    wrapper.resetStats = () => {
+        history.length = 0;
+    };
+    return wrapper;
+}
+
+//# sourceMappingURL=time-function-call.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/combine-overlapping-containers/combine-overlapping-containers.js
+
+
+
+
+
+/**
+ * Returns new `containers` by iterating, combining containers that overlap on
+ * each iteration
+ *
+ * @param containers
+ */
+const combineOverlappingContainers = timeFunctionCalls(function combineOverlappingContainers(containers) {
+    // iterate, combining containers that overlap on each iteration 
+    while (true) {
+        /**
+         * container intersections as an array of objects with the following properties:
+         *   a: the first container in the pair
+         *   b: the second container in the pair
+         *   u: always `true` (the result of the predicate)
+         */
+        const rs = sweepLine(containers, container => enlargeBox(container.box, (/* inlined export .CONTAINER_MERGE_ENLARGE_FRAC */0.5))[0][0], container => enlargeBox(container.box, (/* inlined export .CONTAINER_MERGE_ENLARGE_FRAC */0.5))[1][0], areContainersIntersecting);
+        // if there are no more intersections between containers we're done
+        if (!rs.length) {
+            break;
+        }
+        // Create a graph of containers, where each container is a vertex and
+        // each intersection is an edge
+        const graph = new Map(containers.map(c => [c, []]));
+        for (let i = 0; i < rs.length; i++) {
+            const r = rs[i];
+            addEdge(graph, [r.a, r.b]);
+        }
+        containers = getConnectedComponents(graph)
+            .map(mergeContainers);
+    }
+    return containers;
+});
+
+//# sourceMappingURL=combine-overlapping-containers.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/get-containers-from-x-pairs.js
+/**
+ * Create the initial containers from the array of intersections
+ */
+function getContainersFromXPairs(xPairs, expContainer) {
+    const containerDim = 2 ** expContainer;
+    const containers = xPairs
+        .map(xPair => {
+        const { p } = xPair[0].x;
+        return {
+            xs: xPair,
+            box: [
+                [p[0] - containerDim, p[1] - containerDim],
+                [p[0] + containerDim, p[1] + containerDim]
+            ]
+        };
+    });
+    return containers;
+}
+
+//# sourceMappingURL=get-containers-from-x-pairs.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/connect-container-in-outs.js
+/**
+ * * modifies `containers`
+ */
+function connectContainerInOuts(containers) {
+    for (const container of containers) {
+        for (const inOut of container.inOuts) {
+            if (inOut.dir === +1) {
+                const out = inOut;
+                let { _x_ } = out;
+                _x_ = _x_.next;
+                out.twin = _x_.in_;
+                out.idx = out.twin.idx;
+            }
+            else {
+                const in_ = inOut;
+                let { _x_ } = in_;
+                _x_ = _x_.prev;
+                in_.twin = _x_.out;
+                in_.idx = in_.twin.idx;
+            }
+        }
+    }
+}
+
+//# sourceMappingURL=connect-container-in-outs.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/number-in-outs.js
+/**
+ * Simply gives each `InOut` within all containers a unique `idx`
+ *
+ * @param containers
+ */
+function numberInOuts(containers) {
+    let ioIdx = 0;
+    for (const container of containers) {
+        for (const inOut of container.inOuts) {
+            inOut.idx = ++ioIdx;
+        }
+    }
+}
+
+//# sourceMappingURL=number-in-outs.js.map
+;// ./node_modules/double-double/node/double-double/binary/dd-compare.js
+/**
+ * Returns 0 if a === b, a +tive value if a > b or a negative value if a < b.
+ *
+ * @param x a double-double precision floating point number
+ * @param y another double-double precision floating point number
+ */
+function ddCompare(x, y) {
+    //return ddDiffDd(x,y)[1];
+    const xl = x[0];
+    const xh = x[1];
+    const yl = y[0];
+    const yh = y[1];
+    //const [sl,sh] = twoSum(xh,yh);
+    const sh = xh - yh;
+    const _1 = sh - xh;
+    const sl = (xh - (sh - _1)) + (-yh - _1);
+    //const [tl,th] = twoSum(xl,yl);
+    const th = xl - yl;
+    const _2 = th - xl;
+    const tl = (xl - (th - _2)) + (-yl - _2);
+    const c = sl + th;
+    //const [vl,vh] = fastTwoSum(sh,c)
+    const vh = sh + c;
+    const vl = c - (vh - sh);
+    const w = tl + vl;
+    //const [zl,zh] = fastTwoSum(vh,w)
+    const zh = vh + w;
+    return zh;
+}
+
+//# sourceMappingURL=dd-compare.js.map
+;// ./node_modules/flo-boolean/node/containers/get-beziers-to-next-x.js
+/**
+ * Yields the `BezierPiece`s along the original loop from the given `_X_` up to
+ * (and including the partial piece ending at) its adjacent `_X_` - the `next`
+ * one if `nextElsePrev` is `true`, otherwise the `prev` one.
+ *
+ * This is the `_X_`-based analog of `getBeziersToNextContainer` and is intended
+ * for debugging: instead of walking between container interfaces (`Out` ->
+ * `In`) it walks between two consecutive intersections along the loop using the
+ * `_X_.next`/`_X_.prev` link and the curve chain.
+ *
+ * When walking backwards each yielded piece has a descending `ts` (i.e.
+ * `ts[0] > ts[1]`), reflecting the reversed traversal direction.
+ *
+ * @param x_ the starting intersection
+ * @param nextElsePrev walk towards `x_.next` when `true`, else towards `x_.prev`
+ */
+function* iterBeziersToNextX(x_, nextElsePrev) {
+    const endX = nextElsePrev ? x_.next : x_.prev;
+    const curveS = x_.x.curve;
+    const tS = x_.x.ri.tS;
+    const curveE = endX.x.curve;
+    const tE = endX.x.ri.tS;
+    // A non-final piece runs to the end of the current curve in the walk
+    // direction (`1` forwards, `0` backwards); stepping then continues on the
+    // next/prev curve starting from its opposite end.
+    const pieceEndT = nextElsePrev ? 1 : 0;
+    const stepStartT = nextElsePrev ? 0 : 1;
+    let curCurve = curveS;
+    let curT = tS;
+    let emitted = false;
+    while (true) {
+        const reachedEnd = curCurve === curveE && (curT === tE
+            ? emitted
+            : (nextElsePrev ? curT < tE : curT > tE));
+        if (reachedEnd) {
+            yield { ts: [curT, tE], curve: curCurve };
+            return;
+        }
+        else {
+            yield { ts: [curT, pieceEndT], curve: curCurve };
+            emitted = true;
+        }
+        curT = stepStartT;
+        curCurve = nextElsePrev ? curCurve.next : curCurve.prev;
+    }
+}
+
+//# sourceMappingURL=get-beziers-to-next-x.js.map
+;// ./node_modules/double-double/node/basic/two-diff.js
+/**
+ * Returns the exact result of subtracting b from a.
+ *
+ * @param a minuend - a double-double precision floating point number
+ * @param b subtrahend - a double-double precision floating point number
+ */
+function two_diff_twoDiff(a, b) {
+    const x = a - b;
+    const bvirt = a - x;
+    const y = (a - (x + bvirt)) + (bvirt - b);
+    return [y, x];
+}
+
+//# sourceMappingURL=two-diff.js.map
 ;// ./node_modules/double-double/node/double-mixed-double-double/dd-add-double.js
 /**
  * Returns the result of adding a double to a double-double precision floating
@@ -10589,12 +8571,250 @@ function ddAddDouble(x, y) {
 }
 
 //# sourceMappingURL=dd-add-double.js.map
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/double-double/eval-de-casteljau-dd.js
+
+const eval_de_casteljau_dd_qmq = ddMultDd;
+const eval_de_casteljau_dd_qaq = ddAddDd;
+const qdq = ddDiffDd;
+const eval_de_casteljau_dd_td = two_diff_twoDiff;
+const qad = ddAddDouble;
+/**
+ * Returns the resulting point (in double-double precision) of evaluating the
+ * given bezier curve at the given parameter `t` (given as a double-double
+ * precision floating point number).
+ *
+ * * uses [De Casteljau's algorithm](https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm)
+ * with intermediate calculations done in double-double precision floating point
+ * arithmetic.
+ *
+ * * to get an absolute error bound on the result call [[evalDeCasteljauError]]
+ *
+ * @param ps an order 1,2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the parameter value where the bezier should be evaluated (given in
+ * double-double precision)
+ *
+ * @doc mdx
+ **/
+function evalDeCasteljauDd(ps, t) {
+    if (t[0] === 0 && t[1] === 0) {
+        return ps[0].map(c => [0, c]);
+    }
+    else if (t[0] === 0 && t[1] === 1) {
+        return ps[ps.length - 1].map(c => [0, c]);
+    }
+    if (ps.length === 4) {
+        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+        const a01 = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x1, x0), t), x0);
+        const a11 = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x2, x1), t), x1);
+        const a21 = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x3, x2), t), x2);
+        const a02 = eval_de_casteljau_dd_qaq(a01, eval_de_casteljau_dd_qmq(qdq(a11, a01), t));
+        const a12 = eval_de_casteljau_dd_qaq(a11, eval_de_casteljau_dd_qmq(qdq(a21, a11), t));
+        const x = eval_de_casteljau_dd_qaq(a02, eval_de_casteljau_dd_qmq(qdq(a12, a02), t));
+        const b01 = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y1, y0), t), y0);
+        const b11 = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y2, y1), t), y1);
+        const b21 = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y3, y2), t), y2);
+        const b02 = eval_de_casteljau_dd_qaq(b01, eval_de_casteljau_dd_qmq(qdq(b11, b01), t));
+        const b12 = eval_de_casteljau_dd_qaq(b11, eval_de_casteljau_dd_qmq(qdq(b21, b11), t));
+        const y = eval_de_casteljau_dd_qaq(b02, eval_de_casteljau_dd_qmq(qdq(b12, b02), t));
+        return [x, y];
+    }
+    if (ps.length === 3) {
+        const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+        const a01 = eval_de_casteljau_dd_qaq([0, x0], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x1, x0), t));
+        const a11 = eval_de_casteljau_dd_qaq([0, x1], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x2, x1), t));
+        const x = eval_de_casteljau_dd_qaq(a01, eval_de_casteljau_dd_qmq(qdq(a11, a01), t));
+        const b01 = eval_de_casteljau_dd_qaq([0, y0], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y1, y0), t));
+        const b11 = eval_de_casteljau_dd_qaq([0, y1], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y2, y1), t));
+        const y = eval_de_casteljau_dd_qaq(b01, eval_de_casteljau_dd_qmq(qdq(b11, b01), t));
+        return [x, y];
+    }
+    if (ps.length === 2) {
+        const [[x0, y0], [x1, y1]] = ps;
+        const x = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x1, x0), t), x0);
+        const y = qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y1, y0), t), y0);
+        return [x, y];
+    }
+    if (ps.length === 1) {
+        const [x, y] = ps[0];
+        return [[0, x], [0, y]];
+    }
+    throw new Error('The given bezier curve must be of order <= 3.');
+}
+
+//# sourceMappingURL=eval-de-casteljau-dd.js.map
+;// ./node_modules/flo-boolean/node/utils/to-p.js
+
+/**
+ * Accurately returns the result of evaluating the given bezier curve `ps` at `t`.
+ *
+ * @param ps
+ * @param t
+ */
+function toP(ps, t) {
+    return evalDeCasteljauDd(ps, [0, t]).map(c => c[0] + c[1]);
+}
+
+//# sourceMappingURL=to-p.js.map
+;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/get-in-out-side-idx.js
+
+
+const { min: get_in_out_side_idx_min, max: get_in_out_side_idx_max } = Math;
+function getInOutSideIdx(inOut, _x_, sides, forward) {
+    let pS = undefined;
+    for (const { curve, ts } of iterBeziersToNextX(_x_, forward)) {
+        const { ps } = curve;
+        if (pS === undefined) {
+            pS = toP(ps, ts[0]);
+        }
+        const pE = toP(ps, ts[1]);
+        const [xS, yS] = pS;
+        const [xE, yE] = pE;
+        // Nearest crossing (smallest parameter along `a` -> `b`) among the sides.
+        let sideIdxs = [];
+        for (let i = 0; i < sides.length; i++) {
+            const side = sides[i];
+            const [[X, Y]] = side;
+            if (!((i % 2 === 0 && get_in_out_side_idx_min(yS, yE) <= Y && Y <= get_in_out_side_idx_max(yS, yE)) || // top & bottom
+                (i % 2 === 1 && get_in_out_side_idx_min(xS, xE) <= X && X <= get_in_out_side_idx_max(xS, xE)))) { // left & right
+                continue;
+            }
+            sideIdxs.push(i);
+        }
+        if (sideIdxs.length > 0) {
+            inOut.oSideIdxs = sideIdxs;
+            return sideIdxs;
+        }
+        pS = pE;
+    }
+    return undefined; // shouldn't be possible
+}
+
+//# sourceMappingURL=get-in-out-side-idx.js.map
+;// ./node_modules/double-double/node/double-mixed-double-double/dd-diff-double.js
+/**
+ * Returns the result of subtracting the second given double-precision
+ * floating point number from the first double-double precision float.
+ *
+ * * relative error bound: 3u^2 + 13u^3, i.e. fl(a-b) = (a-b)(1+ϵ),
+ * where ϵ <= 3u^2 + 13u^3, u = 0.5 * Number.EPSILON
+ * * the error bound is not sharp - the worst case that could be found by the
+ * authors were 2.25u^2
+ *
+ * ALGORITHM 6 of https://hal.archives-ouvertes.fr/hal-01351529v3/document
+ * @param x a double-double precision floating point number
+ * @param y a double precision floating point number
+ */
+function ddDiffDouble(x, y) {
+    const xl = x[0];
+    const xh = x[1];
+    //const [sl,sh] = twoSum(xh,yh);
+    const sh = xh - y;
+    const _1 = sh - xh;
+    const sl = (xh - (sh - _1)) + (-y - _1);
+    //const [tl,th] = twoSum(xl,yl);
+    const th = xl;
+    const _2 = th - xl;
+    const tl = (xl - (th - _2)) - _2;
+    const c = sl + th;
+    //const [vl,vh] = fastTwoSum(sh,c)
+    const vh = sh + c;
+    const vl = c - (vh - sh);
+    const w = tl + vl;
+    //const [zl,zh] = fastTwoSum(vh,w)
+    const zh = vh + w;
+    const zl = w - (zh - vh);
+    return [zl, zh];
+}
+
+//# sourceMappingURL=dd-diff-double.js.map
+;// ./node_modules/double-double/node/double-mixed-double-double/dd-div-double.js
+/** @internal */
+const dd_div_double_f = 134217729; // 2**27 + 1;
+/**
+ * Returns the result of dividing a double-double-precision floating point
+ * number by a double.
+ *
+ * * relative error bound: 3u^2, i.e. fl(a/b) = (a/b)(1+ϵ), where ϵ <= 3u^2,
+ * u = 0.5 * Number.EPSILON
+ * * the bound is very sharp
+ *
+ * * ALGORITHM 15 of https://hal.archives-ouvertes.fr/hal-01351529v3/document
+ * @param x a double-double precision floating point number
+ * @param y the double-precision divisor
+ */
+function ddDivDouble(x, y) {
+    const xl = x[0];
+    const xh = x[1];
+    const th = xh / y;
+    //const [πl,πh] = twoProduct(th,y);
+    const πh = th * y;
+    const c = dd_div_double_f * th;
+    const ah = c - (c - th);
+    const al = th - ah;
+    const d = dd_div_double_f * y;
+    const bh = d - (d - y);
+    const bl = y - bh;
+    const πl = (al * bl) - ((πh - (ah * bh)) - (al * bh) - (ah * bl));
+    const δh = xh - πh; // exact operation
+    const δt = δh - πl; // exact operation
+    const δ = δt + xl;
+    const tl = δ / y;
+    //return fastTwoSum(th,tl);
+    const rl = th + tl;
+    return [tl - (rl - th), rl];
+}
+
+//# sourceMappingURL=dd-div-double.js.map
+;// ./node_modules/double-double/node/double-double/binary/dd-min.js
+
+// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
+/** @internal */
+const diff = ddDiffDd;
+/**
+ * Returns the minimum of a and b.
+ * @param a a double-double precision floating point number
+ * @param b another double-double precision floating point number
+ */
+function ddMin(a, b) {
+    const res = diff(a, b)[1];
+    return res > 0 ? b : a;
+}
+
+//# sourceMappingURL=dd-min.js.map
+;// ./node_modules/double-double/node/double-double/binary/dd-max.js
+
+// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
+/** @internal */
+const dd_max_diff = ddDiffDd;
+/**
+ * Returns the maximum of a and b.
+ * @param a a double-double precision floating point number
+ * @param b another double-double precision floating point number
+ */
+function ddMax(a, b) {
+    const res = dd_max_diff(a, b)[1];
+    return res > 0 ? a : b;
+}
+
+//# sourceMappingURL=dd-max.js.map
+;// ./node_modules/double-double/node/double-double/unary/dd-negative-of.js
+/**
+ * Returns the negative of the given double-double precision floating point
+ * number.
+ * * the result is exact
+ * @param f a double-double precision floating point number
+ */
+function ddNegativeOf(f) {
+    return [-f[0], -f[1]];
+}
+
+//# sourceMappingURL=dd-negative-of.js.map
 ;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis/double-double/to-power-basis-dd-with-running-error.js
 
 const to_power_basis_dd_with_running_error_td = two_diff_twoDiff; // error -> 0
 const to_power_basis_dd_with_running_error_qmd = ddMultDouble2; // error -> 3*u²
 const to_power_basis_dd_with_running_error_qaq = ddAddDd;
-const qad = ddAddDouble; // error -> 2*u²
+const to_power_basis_dd_with_running_error_qad = ddAddDouble; // error -> 2*u²
 const { abs: to_power_basis_dd_with_running_error_abs } = Math;
 /**
  * Returns the power basis representation of a bezier curve of order cubic or
@@ -10652,7 +8872,7 @@ function toPowerBasis3DdWithRunningError(ps) {
     // xx2 = 3*(x2 - 2*x1 + x0)
     // ----------------------------
     const xd = to_power_basis_dd_with_running_error_td(x2, 2 * x1); // error free
-    const xe = qad(xd, x0);
+    const xe = to_power_basis_dd_with_running_error_qad(xd, x0);
     const _xe_ = to_power_basis_dd_with_running_error_abs(x2 - 2 * x1 + x0);
     const xx2 = to_power_basis_dd_with_running_error_qmd(3, xe);
     //const xx2_ = 3*_xe_ + 3*_xe_;
@@ -10677,7 +8897,7 @@ function toPowerBasis3DdWithRunningError(ps) {
     // yy2 = 3*(y2 - 2*y1 + y0)
     // ----------------------------
     const yd = to_power_basis_dd_with_running_error_td(y2, 2 * y1); // error free
-    const ye = qad(yd, y0);
+    const ye = to_power_basis_dd_with_running_error_qad(yd, y0);
     const _ye_ = to_power_basis_dd_with_running_error_abs(y2 - 2 * y1 + y0);
     const yy2 = to_power_basis_dd_with_running_error_qmd(3, ye);
     //const yy2_ = 3*_ye_ + 3*_ye_;
@@ -10701,7 +8921,7 @@ function toPowerBasis2DdWithRunningError(ps) {
     // ---------------------
     const $a = x2 - 2 * x1;
     const a = to_power_basis_dd_with_running_error_td(x2, 2 * x1); // error free
-    const xx2 = qad(a, x0);
+    const xx2 = to_power_basis_dd_with_running_error_qad(a, x0);
     const xx2_ = to_power_basis_dd_with_running_error_abs($a + x0);
     // ---------------------
     // xx1 = 2*(x1 - x0)
@@ -10712,7 +8932,7 @@ function toPowerBasis2DdWithRunningError(ps) {
     // ---------------------
     const $b = y2 - 2 * y1;
     const b = to_power_basis_dd_with_running_error_td(y2, 2 * y1); // error free
-    const yy2 = qad(b, y0);
+    const yy2 = to_power_basis_dd_with_running_error_qad(b, y0);
     const yy2_ = to_power_basis_dd_with_running_error_abs($b + y0);
     // ---------------------
     // yy1 = 2*(y1 - y0)
@@ -10744,12 +8964,14 @@ function toPowerBasis0DdWithRunningError(ps) {
 ;// ./node_modules/flo-bezier3/node/implicit-form/double-double/get-implicit-form1-dd-with-running-error.js
 
 
-
 const get_implicit_form1_dd_with_running_error_qdq = ddDiffDd; // error -> 3*γ²
 const get_implicit_form1_dd_with_running_error_qmd = ddMultDouble2;
-const eno = eNegativeOf;
+const ddn = ddNegativeOf;
 const { abs: get_implicit_form1_dd_with_running_error_abs } = Math;
+const ddGetImplicitForm1_WithRunningError = (/* unused pure expression or super */ null && (getImplicitForm1DdWithRunningError));
 /**
+ * * use `ddGetImplicitForm1_WithRunningError` instead (it is the same function but with a better name)
+ *
  * Returns a double-double precision implicit form of the given line segment
  * and a coefficientwise error bound.
  *
@@ -10775,7 +8997,7 @@ function getImplicitForm1DdWithRunningError(ps) {
     // The implicit form is given by:
     // vₓx + vᵧy + v = 0
     const [[a1, [, a0]], [b1, [, b0]]] = toPowerBasis1DdWithRunningError(ps);
-    const vₓ = eno(b1); // exact
+    const vₓ = ddn(b1); // exact
     const vᵧ = a1; // exact
     //const v = a1*b0 - a0*b1;
     const a1b0 = get_implicit_form1_dd_with_running_error_qmd(b0, a1);
@@ -10865,29 +9087,31 @@ function getCoeffsBez1Bez1Dd(ps1, ps2) {
 }
 
 //# sourceMappingURL=get-coeffs-bez1-bez1-dd.js.map
-;// ./node_modules/double-double/node/double-double/unary/dd-negative-of.js
+;// ./node_modules/double-double/node/double-double/unary/dd-mult-by-2.js
 /**
- * Returns the negative of the given double-double precision floating point
- * number.
- * * the result is exact
+ * Returns the result of multiplying the given double-double by 2.
+ * * The result is exact
  * @param f a double-double precision floating point number
  */
-function ddNegativeOf(f) {
-    return [-f[0], -f[1]];
+function ddMultBy2(f) {
+    return [2 * f[0], 2 * f[1]];
 }
 
-//# sourceMappingURL=dd-negative-of.js.map
+//# sourceMappingURL=dd-mult-by-2.js.map
 ;// ./node_modules/flo-bezier3/node/implicit-form/double-double/get-implicit-form2-dd-with-running-error.js
 
 
 const qno = ddNegativeOf; // error -> 0
-const get_implicit_form2_dd_with_running_error_qm2 = ddMultBy2; // error -> 0 
+const qm2 = ddMultBy2; // error -> 0 
 //const qmd2 = qMultDouble1;  // error -> 1.5*γ²
 const get_implicit_form2_dd_with_running_error_qmd = ddMultDouble2; // error -> 3*γ²
 const get_implicit_form2_dd_with_running_error_qmq = ddMultDd; // error -> 7*γ² (theoretical), 5*γ² (worst found), we use 6*γ²
 const get_implicit_form2_dd_with_running_error_qdq = ddDiffDd; // error -> 3*γ²
 const { abs: get_implicit_form2_dd_with_running_error_abs } = Math;
+const ddGetImplicitForm2_WithRunningError = (/* unused pure expression or super */ null && (getImplicitForm2DdWithRunningError));
 /**
+ * * use `ddGetImplicitForm2_WithRunningError` instead (it is the same function but with a better name)
+ *
  * Returns a double-double precision implicit form of the given quadratic
  * bezier curve and a coefficientwise error bound.
  *
@@ -10970,7 +9194,7 @@ function getImplicitForm2DdWithRunningError(ps) {
     // -2*a2*b2 *x*y
     // 2*a2*b2 *x*y
     // -------------
-    const vₓᵧ = get_implicit_form2_dd_with_running_error_qm2(a2b2);
+    const vₓᵧ = qm2(a2b2);
     const vₓᵧ_ = 2 * a2b2_;
     // -------------
     // a2**2 *y**2 
@@ -10987,7 +9211,7 @@ function getImplicitForm2DdWithRunningError(ps) {
     const w1 = get_implicit_form2_dd_with_running_error_qmq(b1, q1);
     const w1_ = _b1 * q1_ + 2 * get_implicit_form2_dd_with_running_error_abs($w1);
     const $w2 = 2 * $q2 * $b2;
-    const w2 = get_implicit_form2_dd_with_running_error_qm2(get_implicit_form2_dd_with_running_error_qmq(b2, q2));
+    const w2 = qm2(get_implicit_form2_dd_with_running_error_qmq(b2, q2));
     const w2_ = 2 * (b2_ * _q2 + _b2 * q2_ + 2 * get_implicit_form2_dd_with_running_error_abs($w2));
     const $vₓ = $w1 - $w2;
     const vₓ = get_implicit_form2_dd_with_running_error_qdq(w1, w2);
@@ -10997,7 +9221,7 @@ function getImplicitForm2DdWithRunningError(ps) {
     // (-a1*q1 + 2*a2*q2) *y
     // -----------------------------------------------
     const $w3 = 2 * $a2 * $q2;
-    const w3 = get_implicit_form2_dd_with_running_error_qm2(get_implicit_form2_dd_with_running_error_qmq(a2, q2));
+    const w3 = qm2(get_implicit_form2_dd_with_running_error_qmq(a2, q2));
     const w3_ = 2 * (a2_ * _q2 + _a2 * q2_ + 2 * get_implicit_form2_dd_with_running_error_abs($w3));
     const $w4 = $a1 * $q1;
     const w4 = get_implicit_form2_dd_with_running_error_qmq(a1, q1);
@@ -11210,7 +9434,10 @@ const get_implicit_form3_dd_with_running_error_qmd = ddMultDouble2; // error -> 
 const get_implicit_form3_dd_with_running_error_qmq = ddMultDd; // error -> 5*γ² (worst found), 7*γ² (theoretical), we use 6*γ²
 const get_implicit_form3_dd_with_running_error_qdq = ddDiffDd; // error -> 3*γ²
 const get_implicit_form3_dd_with_running_error_qaq = ddAddDd; // error -> 3*γ²
+const ddGetImplicitForm3_WithRunningError = (/* unused pure expression or super */ null && (getImplicitForm3DdWithRunningError));
 /**
+ * * use `ddGetImplicitForm3_WithRunningError` instead (it is the same function but with a better name)
+ *
  * Returns a double-double precision implicit form of the given cubic
  * bezier curve curve and a coefficientwise error bound.
  *
@@ -14771,13 +12998,16 @@ function toPowerBasis0Exact(ps) {
 }
 
 //# sourceMappingURL=to-power-basis-exact.js.map
-;// ./node_modules/flo-bezier3/node/implicit-form/exact/get-implicit-form1-exact.js
+;// ./node_modules/flo-bezier3/node/implicit-form/expansion/e-get-implicit-form1.js
 
 
 
-const get_implicit_form1_exact_sce = scaleExpansion2;
-const get_implicit_form1_exact_eno = eNegativeOf;
+const e_get_implicit_form1_sce = scaleExpansion2;
+const eno = eNegativeOf;
+const eGetImplicitForm1 = (/* unused pure expression or super */ null && (getImplicitForm1Exact));
 /**
+ * use `eGetImplicitForm1` instead (it is identical but with a new name)
+ *
  * Returns the *exact* implicit form of the given linear bezier curve (a line
  * segment) or `undefined` if the line degenerates to a point.
  *
@@ -14809,14 +13039,14 @@ function getImplicitForm1ExactPb(pspb) {
         // it is a point and no implicit form is possible
         return undefined;
     }
-    const vₓ = get_implicit_form1_exact_eno(b1);
+    const vₓ = eno(b1);
     const vᵧ = a1;
     //const v = a1*b0 - a0*b1;
-    const v = eCompress(eDiff(get_implicit_form1_exact_sce(a0, b1), get_implicit_form1_exact_sce(b0, a1)));
+    const v = eCompress(eDiff(e_get_implicit_form1_sce(a0, b1), e_get_implicit_form1_sce(b0, a1)));
     return { vₓ, vᵧ, v };
 }
 
-//# sourceMappingURL=get-implicit-form1-exact.js.map
+//# sourceMappingURL=e-get-implicit-form1.js.map
 ;// ./node_modules/flo-bezier3/node/intersection/bezier-bezier-intersection/get-coefficients/exact/get-coeffs-bez1-bez1-exact.js
 
 
@@ -14874,16 +13104,36 @@ function getCoeffsBez1Bez1Exact(ps1, ps2) {
 }
 
 //# sourceMappingURL=get-coeffs-bez1-bez1-exact.js.map
-;// ./node_modules/flo-bezier3/node/implicit-form/exact/get-implicit-form2-exact.js
-
-
-
-const get_implicit_form2_exact_sce = scaleExpansion2;
-const get_implicit_form2_exact_em2 = eMultBy2;
-const edif = eDiff;
-const get_implicit_form2_exact_epr = expansionProduct;
-const get_implicit_form2_exact_eno = eNegativeOf;
+;// ./node_modules/big-float-ts/node/double-expansion/e-mult-by-2.js
 /**
+ * Returns the result of multiplying a floating point expansion by 2.
+ * * **error free**
+ * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ *
+ * @param e a floating point expansion
+ */
+function eMultBy2(e) {
+    const e_ = [];
+    for (let i = 0; i < e.length; i++) {
+        e_.push(2 * e[i]);
+    }
+    return e_;
+}
+
+//# sourceMappingURL=e-mult-by-2.js.map
+;// ./node_modules/flo-bezier3/node/implicit-form/expansion/e-get-implicit-form2.js
+
+
+
+const e_get_implicit_form2_sce = scaleExpansion2;
+const em2 = eMultBy2;
+const edif = eDiff;
+const e_get_implicit_form2_epr = expansionProduct;
+const e_get_implicit_form2_eno = eNegativeOf;
+const eGetImplicitForm2 = (/* unused pure expression or super */ null && (getImplicitForm2Exact));
+/**
+ * use `eGetImplicitForm2` instead (it is identical but with a new name)
+ *
  * Returns the exact implicit form of the given quadratic bezier curve
  * or `undefined` if the curve degenerates to a point.
  *
@@ -14914,49 +13164,49 @@ function getImplicitForm2ExactPb(pspb) {
         // the input bezier curve is in fact not quadratic but has order < 2
         return getImplicitForm1ExactPb([[a1, [a0]], [b1, [b0]]]);
     }
-    const a2b1 = get_implicit_form2_exact_epr(a2, b1);
-    const a1b2 = get_implicit_form2_exact_epr(a1, b2);
-    const a2b0 = get_implicit_form2_exact_sce(b0, a2);
-    const a0b2 = get_implicit_form2_exact_sce(a0, b2);
-    const a1b0 = get_implicit_form2_exact_sce(b0, a1);
-    const a0b1 = get_implicit_form2_exact_sce(a0, b1);
-    const a2a2 = get_implicit_form2_exact_epr(a2, a2);
-    const a2b2 = get_implicit_form2_exact_epr(a2, b2);
-    const b2b2 = get_implicit_form2_exact_epr(b2, b2);
+    const a2b1 = e_get_implicit_form2_epr(a2, b1);
+    const a1b2 = e_get_implicit_form2_epr(a1, b2);
+    const a2b0 = e_get_implicit_form2_sce(b0, a2);
+    const a0b2 = e_get_implicit_form2_sce(a0, b2);
+    const a1b0 = e_get_implicit_form2_sce(b0, a1);
+    const a0b1 = e_get_implicit_form2_sce(a0, b1);
+    const a2a2 = e_get_implicit_form2_epr(a2, a2);
+    const a2b2 = e_get_implicit_form2_epr(a2, b2);
+    const b2b2 = e_get_implicit_form2_epr(b2, b2);
     const q1 = edif(a2b1, a1b2);
     const q2 = edif(a2b0, a0b2);
     const q3 = edif(a1b0, a0b1);
     // -a1*q1*y - a2**2*y**2 + 2*a2*b2*x*y + 2*a2*q2*y + b1*q1*x - b2**2*x**2 - 2*b2*q2*x + q1*q3 - q2**2
     // b2**2*x**2
     // -b2**2 *x**2
-    const vₓₓ = eCompress(get_implicit_form2_exact_eno(b2b2));
+    const vₓₓ = eCompress(e_get_implicit_form2_eno(b2b2));
     // -2*a2*b2*x*y
     // 2*a2*b2 *x*y
-    const vₓᵧ = eCompress(get_implicit_form2_exact_em2(a2b2));
+    const vₓᵧ = eCompress(em2(a2b2));
     // a2**2*y**2
     // -a2**2 *y**2 
-    const vᵧᵧ = eCompress(get_implicit_form2_exact_eno(a2a2));
+    const vᵧᵧ = eCompress(e_get_implicit_form2_eno(a2a2));
     // -2*a0*b2**2 + a1*b1*b2 + 2*a2*b0*b2 - a2*b1**2
     // (b1*q1 + -2*b2*q2) *x
     //const vₓ = b1*q1 - 2*b2*q2;
-    const w1 = get_implicit_form2_exact_epr(b1, q1);
-    const w2 = get_implicit_form2_exact_em2(get_implicit_form2_exact_epr(b2, q2));
+    const w1 = e_get_implicit_form2_epr(b1, q1);
+    const w2 = em2(e_get_implicit_form2_epr(b2, q2));
     const vₓ = eCompress(edif(w1, w2));
     // 2*a0*a2*b2 - a1**2*b2 + a1*a2*b1 - 2*a2**2*b0
     // (-a1*q1 + 2*a2*q2) *y
-    const w3 = get_implicit_form2_exact_em2(get_implicit_form2_exact_epr(a2, q2));
-    const w4 = get_implicit_form2_exact_epr(a1, q1);
+    const w3 = em2(e_get_implicit_form2_epr(a2, q2));
+    const w4 = e_get_implicit_form2_epr(a1, q1);
     const vᵧ = eCompress(edif(w3, w4));
     // a0**2*b2**2 - a0*a1*b1*b2 - 2*a0*a2*b0*b2 + a0*a2*b1**2 + a1**2*b0*b2 - a1*a2*b0*b1 + a2**2*b0**2
     // q1*q3 + -q2**2
-    const w5 = get_implicit_form2_exact_epr(q1, q3);
-    const w6 = get_implicit_form2_exact_epr(q2, q2);
+    const w5 = e_get_implicit_form2_epr(q1, q3);
+    const w6 = e_get_implicit_form2_epr(q2, q2);
     const v = eCompress(edif(w5, w6));
     //console.log({ vₓₓ, vₓᵧ, vᵧᵧ, vₓ, vᵧ, v })
     return { vₓₓ, vₓᵧ, vᵧᵧ, vₓ, vᵧ, v };
 }
 
-//# sourceMappingURL=get-implicit-form2-exact.js.map
+//# sourceMappingURL=e-get-implicit-form2.js.map
 ;// ./node_modules/flo-bezier3/node/intersection/bezier-bezier-intersection/get-coefficients/exact/get-coeffs-bez2-bez1-exact.js
 
 
@@ -15157,18 +13407,21 @@ function eDivBy2(e) {
 }
 
 //# sourceMappingURL=e-div-by-2.js.map
-;// ./node_modules/flo-bezier3/node/implicit-form/exact/get-implicit-form3-exact.js
+;// ./node_modules/flo-bezier3/node/implicit-form/expansion/e-get-implicit-form3.js
 
 
 
-const get_implicit_form3_exact_sce = scaleExpansion2;
-const get_implicit_form3_exact_epr = expansionProduct;
-const get_implicit_form3_exact_fes = fastExpansionSum;
-const get_implicit_form3_exact_edif = eDiff;
-const get_implicit_form3_exact_eno = eNegativeOf;
-const get_implicit_form3_exact_em2 = eMultBy2;
+const e_get_implicit_form3_sce = scaleExpansion2;
+const e_get_implicit_form3_epr = expansionProduct;
+const e_get_implicit_form3_fes = fastExpansionSum;
+const e_get_implicit_form3_edif = eDiff;
+const e_get_implicit_form3_eno = eNegativeOf;
+const e_get_implicit_form3_em2 = eMultBy2;
 const ed2 = eDivBy2;
+const eGetImplicitForm3 = (/* unused pure expression or super */ null && (getImplicitForm3Exact));
 /**
+ * use `eGetImplicitForm3` instead (it is identical but with a new name)
+ *
  * Returns the exact implicit form of the given cubic bezier curve
  * or `undefined` if the curve degenerates to a point.
  *
@@ -15200,106 +13453,106 @@ function getImplicitForm3ExactPb(pspb) {
         // the input bezier curve is in fact not cubic but has order < 3
         return getImplicitForm2ExactPb([[a2, a1, [a0]], [b2, b1, [b0]]]);
     }
-    const a3b1 = get_implicit_form3_exact_epr(a3, b1);
-    const a1b3 = get_implicit_form3_exact_epr(a1, b3);
-    const a3b2 = get_implicit_form3_exact_epr(a3, b2);
-    const a2b2 = get_implicit_form3_exact_epr(a2, b2);
-    const a2b3 = get_implicit_form3_exact_epr(a2, b3);
-    const a3a3 = get_implicit_form3_exact_epr(a3, a3);
-    const b2b2 = get_implicit_form3_exact_epr(b2, b2);
-    const b3b3 = get_implicit_form3_exact_epr(b3, b3);
-    const a1a3 = get_implicit_form3_exact_epr(a1, a3);
-    const a2a2 = get_implicit_form3_exact_epr(a2, a2);
-    const b1b3 = get_implicit_form3_exact_epr(b1, b3);
-    const b2b3 = get_implicit_form3_exact_epr(b2, b3);
-    const a2a3 = get_implicit_form3_exact_epr(a2, a3);
-    const a3b3 = get_implicit_form3_exact_epr(a3, b3);
-    const a3b0 = get_implicit_form3_exact_sce(b0, a3);
-    const a0b3 = get_implicit_form3_exact_sce(a0, b3);
-    const a2b0 = get_implicit_form3_exact_sce(b0, a2);
-    const a0b2 = get_implicit_form3_exact_sce(a0, b2);
-    const a2b1 = get_implicit_form3_exact_epr(a2, b1);
-    const a1b2 = get_implicit_form3_exact_epr(a1, b2);
-    const a1b0 = get_implicit_form3_exact_sce(b0, a1);
-    const a0b1 = get_implicit_form3_exact_sce(a0, b1);
-    const q1 = get_implicit_form3_exact_edif(a3b0, a0b3);
-    const q2 = get_implicit_form3_exact_edif(a3b1, a1b3);
-    const q3 = get_implicit_form3_exact_edif(a3b2, a2b3);
-    const q4 = get_implicit_form3_exact_edif(a2b0, a0b2);
-    const q5 = get_implicit_form3_exact_edif(a2b1, a1b2);
-    const q6 = get_implicit_form3_exact_edif(a1b0, a0b1);
-    const t1 = get_implicit_form3_exact_edif(b1b3, b2b2);
-    const t2 = get_implicit_form3_exact_edif(a1a3, a2a2);
-    const p1 = get_implicit_form3_exact_fes(a2b3, a3b2);
-    const p2 = get_implicit_form3_exact_fes(a1b3, a3b1);
-    const tq2 = get_implicit_form3_exact_em2(q2); // error free
-    const q1q1 = get_implicit_form3_exact_epr(q1, q1);
-    const q1q2 = get_implicit_form3_exact_epr(q1, q2);
-    const q1q3 = get_implicit_form3_exact_epr(q1, q3);
-    const q1q5 = get_implicit_form3_exact_epr(q1, q5);
-    const q2q2 = get_implicit_form3_exact_epr(q2, q2);
-    const tq2q4 = get_implicit_form3_exact_epr(tq2, q4);
-    const q3q4 = get_implicit_form3_exact_epr(q3, q4);
-    const q3q5 = get_implicit_form3_exact_epr(q3, q5);
-    const q3q6 = get_implicit_form3_exact_epr(q3, q6);
-    const vₓₓₓ = eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_eno(b3), b3b3));
-    const vₓₓᵧ = eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_sce(3, a3), b3b3));
-    const vₓᵧᵧ = eCompress(get_implicit_form3_exact_epr(get_implicit_form3_exact_sce(-3, b3), a3a3));
-    const vᵧᵧᵧ = eCompress(get_implicit_form3_exact_epr(a3, a3a3));
-    const u1 = get_implicit_form3_exact_edif(get_implicit_form3_exact_sce(-3, q1), q5);
+    const a3b1 = e_get_implicit_form3_epr(a3, b1);
+    const a1b3 = e_get_implicit_form3_epr(a1, b3);
+    const a3b2 = e_get_implicit_form3_epr(a3, b2);
+    const a2b2 = e_get_implicit_form3_epr(a2, b2);
+    const a2b3 = e_get_implicit_form3_epr(a2, b3);
+    const a3a3 = e_get_implicit_form3_epr(a3, a3);
+    const b2b2 = e_get_implicit_form3_epr(b2, b2);
+    const b3b3 = e_get_implicit_form3_epr(b3, b3);
+    const a1a3 = e_get_implicit_form3_epr(a1, a3);
+    const a2a2 = e_get_implicit_form3_epr(a2, a2);
+    const b1b3 = e_get_implicit_form3_epr(b1, b3);
+    const b2b3 = e_get_implicit_form3_epr(b2, b3);
+    const a2a3 = e_get_implicit_form3_epr(a2, a3);
+    const a3b3 = e_get_implicit_form3_epr(a3, b3);
+    const a3b0 = e_get_implicit_form3_sce(b0, a3);
+    const a0b3 = e_get_implicit_form3_sce(a0, b3);
+    const a2b0 = e_get_implicit_form3_sce(b0, a2);
+    const a0b2 = e_get_implicit_form3_sce(a0, b2);
+    const a2b1 = e_get_implicit_form3_epr(a2, b1);
+    const a1b2 = e_get_implicit_form3_epr(a1, b2);
+    const a1b0 = e_get_implicit_form3_sce(b0, a1);
+    const a0b1 = e_get_implicit_form3_sce(a0, b1);
+    const q1 = e_get_implicit_form3_edif(a3b0, a0b3);
+    const q2 = e_get_implicit_form3_edif(a3b1, a1b3);
+    const q3 = e_get_implicit_form3_edif(a3b2, a2b3);
+    const q4 = e_get_implicit_form3_edif(a2b0, a0b2);
+    const q5 = e_get_implicit_form3_edif(a2b1, a1b2);
+    const q6 = e_get_implicit_form3_edif(a1b0, a0b1);
+    const t1 = e_get_implicit_form3_edif(b1b3, b2b2);
+    const t2 = e_get_implicit_form3_edif(a1a3, a2a2);
+    const p1 = e_get_implicit_form3_fes(a2b3, a3b2);
+    const p2 = e_get_implicit_form3_fes(a1b3, a3b1);
+    const tq2 = e_get_implicit_form3_em2(q2); // error free
+    const q1q1 = e_get_implicit_form3_epr(q1, q1);
+    const q1q2 = e_get_implicit_form3_epr(q1, q2);
+    const q1q3 = e_get_implicit_form3_epr(q1, q3);
+    const q1q5 = e_get_implicit_form3_epr(q1, q5);
+    const q2q2 = e_get_implicit_form3_epr(q2, q2);
+    const tq2q4 = e_get_implicit_form3_epr(tq2, q4);
+    const q3q4 = e_get_implicit_form3_epr(q3, q4);
+    const q3q5 = e_get_implicit_form3_epr(q3, q5);
+    const q3q6 = e_get_implicit_form3_epr(q3, q6);
+    const vₓₓₓ = eCompress(e_get_implicit_form3_epr(e_get_implicit_form3_eno(b3), b3b3));
+    const vₓₓᵧ = eCompress(e_get_implicit_form3_epr(e_get_implicit_form3_sce(3, a3), b3b3));
+    const vₓᵧᵧ = eCompress(e_get_implicit_form3_epr(e_get_implicit_form3_sce(-3, b3), a3a3));
+    const vᵧᵧᵧ = eCompress(e_get_implicit_form3_epr(a3, a3a3));
+    const u1 = e_get_implicit_form3_edif(e_get_implicit_form3_sce(-3, q1), q5);
     //const vₓₓ = (u1*b3b3 + q3*(b1b3 - b2b2)) + tq2*b2b3;
-    const w1 = get_implicit_form3_exact_epr(u1, b3b3);
-    const w2 = get_implicit_form3_exact_epr(q3, t1);
-    const w3 = get_implicit_form3_exact_fes(w1, w2);
-    const w4 = get_implicit_form3_exact_epr(tq2, b2b3);
-    const vₓₓ = eCompress(get_implicit_form3_exact_fes(w3, w4));
+    const w1 = e_get_implicit_form3_epr(u1, b3b3);
+    const w2 = e_get_implicit_form3_epr(q3, t1);
+    const w3 = e_get_implicit_form3_fes(w1, w2);
+    const w4 = e_get_implicit_form3_epr(tq2, b2b3);
+    const vₓₓ = eCompress(e_get_implicit_form3_fes(w3, w4));
     //const vᵧᵧ = (u1*a3a3 + q3*t2) + tq2*a2a3;
-    const w5 = get_implicit_form3_exact_epr(u1, a3a3);
-    const w6 = get_implicit_form3_exact_epr(q3, t2);
-    const w7 = get_implicit_form3_exact_fes(w5, w6);
-    const w8 = get_implicit_form3_exact_epr(tq2, a2a3);
-    const vᵧᵧ = eCompress(get_implicit_form3_exact_fes(w7, w8));
+    const w5 = e_get_implicit_form3_epr(u1, a3a3);
+    const w6 = e_get_implicit_form3_epr(q3, t2);
+    const w7 = e_get_implicit_form3_fes(w5, w6);
+    const w8 = e_get_implicit_form3_epr(tq2, a2a3);
+    const vᵧᵧ = eCompress(e_get_implicit_form3_fes(w7, w8));
     //const vₓᵧ = 2*(q3*(a2b2 - p2/2) - (u1*a3b3 + q2*p1));
-    const wa = get_implicit_form3_exact_edif(a2b2, ed2(p2));
-    const wb = get_implicit_form3_exact_epr(u1, a3b3);
-    const wc = get_implicit_form3_exact_epr(q2, p1);
-    const wd = get_implicit_form3_exact_fes(wb, wc);
-    const wq = get_implicit_form3_exact_epr(q3, wa);
-    const vₓᵧ = eCompress(get_implicit_form3_exact_em2(get_implicit_form3_exact_edif(wq, wd)));
+    const wa = e_get_implicit_form3_edif(a2b2, ed2(p2));
+    const wb = e_get_implicit_form3_epr(u1, a3b3);
+    const wc = e_get_implicit_form3_epr(q2, p1);
+    const wd = e_get_implicit_form3_fes(wb, wc);
+    const wq = e_get_implicit_form3_epr(q3, wa);
+    const vₓᵧ = eCompress(e_get_implicit_form3_em2(e_get_implicit_form3_edif(wq, wd)));
     //const s1 = (-3*q1q1 - 2*q1q5) + (tq2q4 + q3q6);
-    const wr = get_implicit_form3_exact_sce(-3, q1q1);
-    const we = get_implicit_form3_exact_edif(wr, get_implicit_form3_exact_em2(q1q5));
-    const wf = get_implicit_form3_exact_fes(tq2q4, q3q6);
-    const s1 = get_implicit_form3_exact_fes(we, wf);
+    const wr = e_get_implicit_form3_sce(-3, q1q1);
+    const we = e_get_implicit_form3_edif(wr, e_get_implicit_form3_em2(q1q5));
+    const wf = e_get_implicit_form3_fes(tq2q4, q3q6);
+    const s1 = e_get_implicit_form3_fes(we, wf);
     //const s2 = 2*(q1q2 - q3q4);
-    const s2 = get_implicit_form3_exact_em2(get_implicit_form3_exact_edif(q1q2, q3q4));
+    const s2 = e_get_implicit_form3_em2(e_get_implicit_form3_edif(q1q2, q3q4));
     //const s3 = q1q3 - q2q2 + q3q5;
-    const wl = get_implicit_form3_exact_edif(q1q3, q2q2);
-    const s3 = get_implicit_form3_exact_fes(wl, q3q5);
+    const wl = e_get_implicit_form3_edif(q1q3, q2q2);
+    const s3 = e_get_implicit_form3_fes(wl, q3q5);
     //const vₓ = b3*s1 + (b2*s2 + b1*s3);
-    const wm = get_implicit_form3_exact_epr(b3, s1);
-    const ws = get_implicit_form3_exact_epr(b2, s2);
-    const wt = get_implicit_form3_exact_epr(b1, s3);
-    const wn = get_implicit_form3_exact_fes(ws, wt);
-    const vₓ = eCompress(get_implicit_form3_exact_fes(wm, wn));
+    const wm = e_get_implicit_form3_epr(b3, s1);
+    const ws = e_get_implicit_form3_epr(b2, s2);
+    const wt = e_get_implicit_form3_epr(b1, s3);
+    const wn = e_get_implicit_form3_fes(ws, wt);
+    const vₓ = eCompress(e_get_implicit_form3_fes(wm, wn));
     //const vᵧ = -a3*s1 - (a2*s2 + a1*s3);
-    const wo = get_implicit_form3_exact_epr(a3, s1);
-    const wu = get_implicit_form3_exact_epr(a2, s2);
-    const wv = get_implicit_form3_exact_epr(a1, s3);
-    const wp = get_implicit_form3_exact_fes(wu, wv);
-    const vᵧ = eCompress(get_implicit_form3_exact_eno(get_implicit_form3_exact_fes(wo, wp)));
-    const v3 = get_implicit_form3_exact_edif(tq2q4, q1q1);
-    const v1 = get_implicit_form3_exact_edif(v3, q1q5);
-    const v4 = get_implicit_form3_exact_epr(s3, q6);
-    const v5 = get_implicit_form3_exact_epr(q3q4, q4);
-    const v2 = get_implicit_form3_exact_edif(v4, v5);
-    const v6 = get_implicit_form3_exact_epr(q1, v1);
+    const wo = e_get_implicit_form3_epr(a3, s1);
+    const wu = e_get_implicit_form3_epr(a2, s2);
+    const wv = e_get_implicit_form3_epr(a1, s3);
+    const wp = e_get_implicit_form3_fes(wu, wv);
+    const vᵧ = eCompress(e_get_implicit_form3_eno(e_get_implicit_form3_fes(wo, wp)));
+    const v3 = e_get_implicit_form3_edif(tq2q4, q1q1);
+    const v1 = e_get_implicit_form3_edif(v3, q1q5);
+    const v4 = e_get_implicit_form3_epr(s3, q6);
+    const v5 = e_get_implicit_form3_epr(q3q4, q4);
+    const v2 = e_get_implicit_form3_edif(v4, v5);
+    const v6 = e_get_implicit_form3_epr(q1, v1);
     //const v = q1*(tq2q4 - q1q1 - q1q5) + s3*q6 - q3q4*q4;
-    const v = eCompress(get_implicit_form3_exact_fes(v6, v2));
+    const v = eCompress(e_get_implicit_form3_fes(v6, v2));
     return { vₓₓₓ, vₓₓᵧ, vₓᵧᵧ, vᵧᵧᵧ, vₓₓ, vₓᵧ, vᵧᵧ, vₓ, vᵧ, v };
 }
 
-//# sourceMappingURL=get-implicit-form3-exact.js.map
+//# sourceMappingURL=e-get-implicit-form3.js.map
 ;// ./node_modules/flo-bezier3/node/intersection/bezier-bezier-intersection/get-coefficients/exact/get-coeffs-bez3-bez1-exact.js
 
 
@@ -16780,6 +15033,584 @@ function getCoeffsBezBez(ps1, ps2) {
 }
 
 //# sourceMappingURL=get-coeffs-bez-bez.js.map
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/eval-de-casteljau-error.js
+const { abs: eval_de_casteljau_error_abs } = Math;
+/**
+ * Returns a representation of the error (from which an absolute error bound
+ * can be calculated) when evaluating the given bezier curve at the parameter `t`
+ * using [De Casteljau's algorithm](https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm).
+ *
+ * The returned error representation needs to be multiplied with
+ * [Stewart error counters¹](https://www.amazon.ca/Introduction-Matrix-Computations-G-Stewart/dp/0126703507)
+ * and an appropriate error function, `γ`, depending on the precision used (e.g. double
+ * or double-double). This is explained in more detail below. See
+ * also [Higham 2002](http://ftp.demec.ufpr.br/CFD/bibliografia/Higham_2002_Accuracy%20and%20Stability%20of%20Numerical%20Algorithms.pdf)
+ * p. 68 near the bottom.
+ *
+ * (1) G. W. Stewart. Introduction to Matrix Computations. Academic Press, New York,
+ *  1973. xiii+441 pp. ISBN 0-12-670350-7
+ *
+ * The absolute erros below can be calculated as follows (where `<E>` are the
+ * error counters as indicated in the comments of the return value below):
+ *  * double precision: `<E> * (γ(1)) * result_`
+ *  * double-double precision: `<E> * (2*γγ(3)) * result_`
+ *
+ * where [[γ]] and [[γγ]] are the usual error functions with `γ(1) === 1.1102230246251568e-16`
+ * and `γγ(3) === 3.697785493223493e-32`.
+ * The `T` in the error counter formula is the input error given as an error
+ * counter on `t`. For example, if the exact `t` (let's call it `te`) is bounded
+ * by `(|t| - 5u) < |te| < (|t| + 5u)` where `u === Number.EPSILON/2` then `T`
+ * should be given as `5`. If `t` is exact then `T` is zero.
+ *
+ * ```
+ * // for cubic bezier curves
+ * return [
+ *     x_,  // <E> === 3T + 9
+ *     y_   // <E> === 3T + 9
+ * ];
+ * // for quadratic bezier curves
+ * return [
+ *     x_,  // <E> === 2T + 6
+ *     y_   // <E> === 2T + 6
+ * ];
+ * // for linear bezier curves (i.e. lines)
+ * return [
+ *     x_,  // <E> === T + 3
+ *     y_   // <E> === T + 3
+ * ];
+ * ```
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
+ * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the parameter value where the bezier should be evaluated (given in
+ * double-double precision)
+ *
+ * @example
+ * ```typescript
+ * const ps = [[1.1,1.1],[2.3,2.3],[0.7,2.1],[3.11,-1.27]];  // some cubic bezier curve
+ * const t = [0,0.1];  // some `t` in double-double precision, i.e. `t` equals `0.1`
+ * const r = evalDeCasteljau(ps, t[1]) //=> [1.3828099999999999, 1.41623]
+ * let error = evalDeCasteljauError(ps,t); //=> [2.32521, 2.3695700000000004]
+ * const γ1 = 1*(Number.EPSILON)/(1-1*(Number.EPSILON));  // this is the error constant for double precision
+ * error = error.map(c => γ1*c); //=> [5.163003358177322e-16, 5.261502344922066e-16]
+ * // so, for instance, the *real* x coordinate of the point, i.e. `r[0]`, is somewhere between
+ * // `1.3828099999999999 - 5.163003358177322e-16` and `1.3828099999999999 + 5.163003358177322e-16`, i.e.
+ * // `1.3828099999999994 < r[0] < 1.3828100000000003`
+ * ```
+ *
+ * @internal
+ **/
+function evalDeCasteljauError(ps, t) {
+    if (t[0] === 0 && t[1] === 0) {
+        return [0, 0]; // No error
+    }
+    else if (t[0] === 0 && t[1] === 1) {
+        return [0, 0]; // No error
+    }
+    const t_ = eval_de_casteljau_error_abs(t[1]); // <T>
+    // <M> --> the cost of multiplication === <1> except for `qmq` in which
+    // case it is <2>. One might as well just double the error in the end for
+    // double-double precision calculations (thus losing 1 bit) and take 
+    // <M> === 1 always. This simplifies the calculation a bit.
+    if (ps.length === 4) {
+        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+        const _x0 = eval_de_casteljau_error_abs(x0); // <0>
+        const _y0 = eval_de_casteljau_error_abs(y0); // <0>
+        const _x1 = eval_de_casteljau_error_abs(x1); // <0>
+        const _y1 = eval_de_casteljau_error_abs(y1); // <0>
+        const _x2 = eval_de_casteljau_error_abs(x2); // <0>
+        const _y2 = eval_de_casteljau_error_abs(y2); // <0>
+        const _x3 = eval_de_casteljau_error_abs(x3); // <0>
+        const _y3 = eval_de_casteljau_error_abs(y3); // <0>
+        // a01<T+3> <-- <T+3>(x0 + <T+2>(<1>(x1 + x0)*<T>t));
+        const a01_ = _x0 + (_x1 + _x0) * t_;
+        // a11<T+3> <-- <T+3>(x1 + <1>(<0>(x2 + x1)*<T>t));
+        const a11_ = _x1 + (_x2 + _x1) * t_;
+        // a21<T+3> <-- <T+3>(x2 + <1>(<0>(x3 + x2)*<T>t));
+        const a21_ = _x2 + (_x3 + _x2) * t_;
+        // a02<2T+6> <-- <2T+6>(<T+3>a01 + <2T+5>(<T+4>(<T+3>a11 + <T+3>a01)*<T>t));
+        const a02_ = a01_ + (a11_ + a01_) * t_;
+        // a12<2T+6> <-- <2T+6>(<T+3>a11 + <2T+5>(<T+4>(<T+3>a21 + <T+3>a11)*<T>t));
+        const a12_ = a11_ + (a21_ + a11_) * t_;
+        // x<3T+9> <-- <3T+9>(<2T+6>a02 + <3T+8>(<2T+7>(<2T+6>a12 + <2T+6>a02)*<T>t));
+        const x_ = a02_ + (a12_ + a02_) * t_;
+        const b01_ = _y0 + (_y1 + _y0) * t_;
+        const b11_ = _y1 + (_y2 + _y1) * t_;
+        const b21_ = _y2 + (_y3 + _y2) * t_;
+        const b02_ = b01_ + (b11_ + b01_) * t_;
+        const b12_ = b11_ + (b21_ + b11_) * t_;
+        const y_ = b02_ + (b12_ + b02_) * t_;
+        return [x_, y_];
+    }
+    if (ps.length === 3) {
+        const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+        const _x0 = eval_de_casteljau_error_abs(x0);
+        const _y0 = eval_de_casteljau_error_abs(y0);
+        const _x1 = eval_de_casteljau_error_abs(x1);
+        const _y1 = eval_de_casteljau_error_abs(y1);
+        const _x2 = eval_de_casteljau_error_abs(x2);
+        const _y2 = eval_de_casteljau_error_abs(y2);
+        // <T+3>a01 <-- <T+3>(x0 + <T+2>(<1>(x1 + x0)*<T>t));
+        const a01_ = _x0 + (_x1 + _x0) * t_;
+        // <T+3>a11 <-- <T+3>(x1 + <T+2>(<1>(x2 + x1)*<T>t));
+        const a11_ = _x1 + (_x2 + _x1) * t_;
+        // <2T+6>x <-- <2T+6>(<T+3>a01 + <2T+5>(<T+4>(<T+3>a11 + <T+3>a01)*<T>t));
+        const x_ = a01_ + (a11_ + a01_) * t_;
+        const b01_ = _y0 + (_y1 + _y0) * t_;
+        const b11_ = _y1 + (_y2 + _y1) * t_;
+        const y_ = b01_ + (b11_ + b01_) * t_;
+        return [x_, y_];
+    }
+    if (ps.length === 2) {
+        const [[x0, y0], [x1, y1]] = ps;
+        const _x0 = eval_de_casteljau_error_abs(x0);
+        const _y0 = eval_de_casteljau_error_abs(y0);
+        const _x1 = eval_de_casteljau_error_abs(x1);
+        const _y1 = eval_de_casteljau_error_abs(y1);
+        // <T+3>x = <T+3>(x0 + <T+2>(<1>(x1 + x0)*<T>t));
+        const x_ = _x0 + (_x1 + _x0) * t_;
+        const y_ = _y0 + (_y1 + _y0) * t_;
+        return [x_, y_];
+    }
+    if (ps.length === 1) {
+        return [0, 0];
+    }
+    throw new Error('The given bezier curve must be of order <= 3.');
+}
+
+//# sourceMappingURL=eval-de-casteljau-error.js.map
+;// ./node_modules/flo-bezier3/node/error-analysis/error-analysis.js
+/** `2 * 2^-53` -> 2x the standard round-of unit `=== Number.EPSILON` */
+const error_analysis_eps = Number.EPSILON;
+/** `2^-53` -> the standard round-of unit `=== eps/2` */
+const error_analysis_u = Number.EPSILON / 2;
+/** `2^-106` -> the standard round-of unit for double-double precision `=== (eps/2)**2` */
+const error_analysis_uu = error_analysis_u * error_analysis_u;
+/**
+ * the standard floating point error function evaluated at `1`
+ *
+ * * `=== 1.1102230246251568e-16`
+ * * very close to being `=== Number.EPSILON / 2`
+ */
+const error_analysis_1 = error_analysis_(1);
+/**
+ * the standard double-double floating point error function evaluated at `3`;
+ * the `3` factor is due to double-double arithmetic accuracy constraints
+ *
+ * * `=== 3.697785493223493e-32`
+ * * very close to being `=== 3*(Number.EPSILON / 2)**2`
+ */
+const error_analysis_3 = error_analysis_error_analysis_(3);
+/**
+ * The canonical floating point error function, γ.
+ *
+ * * very close to being `=== n * (Number.EPSILON / 2)`
+ * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
+ * @param n the parameter - typically a small positive integer, e.g. for
+ * polynomial evaluation this `=== 2*d + 1`, where `d` is the degree of the
+ * polynomial
+ *
+ * @doc
+ */
+function error_analysis_(n) {
+    const nu = n * error_analysis_u;
+    return nu / (1 - nu);
+}
+/**
+ * The canonical, once compensated (implying double-double precision),
+ * floating point error function.
+ *
+ * * very close to being `=== n * (Number.EPSILON / 2)**2`
+ * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
+ * @param n the parameter - typically a small positive integer, e.g. for
+ * polynomial evaluation this === 2*d + 1, where d is the degree of the
+ * polynomial
+ *
+ * @doc
+ */
+function error_analysis_error_analysis_(n) {
+    const nuu = n * error_analysis_uu;
+    return nuu / (1 - nuu);
+}
+
+//# sourceMappingURL=error-analysis.js.map
+;// ./node_modules/flo-bezier3/node/transformation/split/from-to/from-to-1-incl-error-bound.js
+const { abs: from_to_1_incl_error_bound_abs } = Math;
+/** error free error bounds */
+const from_to_1_incl_error_bound_psErrorFree = [[0, 0], [0, 0]];
+/**
+ * Returns a bezier curve that starts and ends at the given `t` parameters
+ * including an error bound (that needs to be multiplied by `3u` before use,
+ * where `u === Number.EPSILON/2`).
+ *
+ * @param ps a linear bezier curve (a line) given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1]]`
+ * @param tS the `t` parameter where the resultant bezier should start
+ * @param tE the `t` parameter where the resultant bezier should end
+ *
+ * @internal
+ */
+function fromTo1InclErrorBound(ps, tS, tE) {
+    if (tS === 0) {
+        if (tE === 1) {
+            return { ps, _ps: from_to_1_incl_error_bound_psErrorFree };
+        }
+        return from_to_1_incl_error_bound_splitLeft1(ps, tE);
+    }
+    if (tE === 1) {
+        return from_to_1_incl_error_bound_splitRight1(ps, tS);
+    }
+    return from_to_1_incl_error_bound_splitAtBoth1(ps, tS, tE);
+}
+/**
+ * Returns a bezier curve that starts at the given `t` parameter and ends
+ * at `t === 1` including an error bound (that needs to be multiplied
+ * by `3u`, where `u === Number.EPSILON/2`).
+ *
+ * @param ps a lineer bezier curve (a line) given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1]]`
+ * @param t the `t` parameter where the resultant bezier should start
+ *
+ * @internal
+ */
+function from_to_1_incl_error_bound_splitRight1(ps, t) {
+    // --------------------------------------------------------
+    // const [[x0, y0], [x1, y1]] = ps; 
+    const p0 = ps[0]; // exact
+    const p1 = ps[1]; // exact
+    const x0 = p0[0];
+    const y0 = p0[1]; // exact
+    const x1 = p1[0];
+    const y1 = p1[1]; // exact
+    // --------------------------------------------------------
+    // error bound using counters <k>:
+    // counter rules:
+    //   1. <k>a + <l>b = <max(k,l) + 1>(a + b)
+    //   2. <k>a<l>b = <k + l + 1>ab
+    //   3. fl(a) === <1>a
+    const psR = [
+        [t * (x1 - x0) + x0, // xx0
+            t * (y1 - y0) + y0], // yy0
+        [x1, // xx1
+            y1] // yy1
+    ];
+    // -----------------------
+    // Calculate error bounds
+    // -----------------------
+    const _t = from_to_1_incl_error_bound_abs(t);
+    const _x0 = from_to_1_incl_error_bound_abs(x0);
+    const _x1 = from_to_1_incl_error_bound_abs(x1);
+    const _y0 = from_to_1_incl_error_bound_abs(y0);
+    const _y1 = from_to_1_incl_error_bound_abs(y1);
+    // <3>xx0 <= <3>(<2>(t*<1>(x1 - x0)) + x0)
+    const _xx0 = _t * (_x1 + _x0) + _x0;
+    const _yy0 = _t * (_y1 + _y0) + _y0;
+    /** the coordinate-wise error bound */
+    //const psR_ = [
+    //    [3*u*_xx0, 3*u*_yy0],
+    //    [0, 0]
+    //];
+    const psR_ = [
+        [_xx0, _yy0],
+        [0, 0]
+    ];
+    return {
+        ps: psR,
+        _ps: psR_
+    };
+}
+/**
+ * Returns a bezier curve that starts at `t === 0` and ends at the given `t`
+ * parameter including an error bound (that needs to be multiplied by `3u`,
+ * where `u === Number.EPSILON/2`).
+ *
+ * @param ps a lineer bezier curve (a line) given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1]]`
+ * @param t the `t` parameter where the resultant bezier should end
+ *
+ * @internal
+ */
+function from_to_1_incl_error_bound_splitLeft1(ps, t) {
+    // --------------------------------------------------------
+    // const [[x0, y0], [x1, y1]] = ps; 
+    const p0 = ps[0]; // exact 
+    const p1 = ps[1]; // exact
+    const x0 = p0[0];
+    const y0 = p0[1]; // exact
+    const x1 = p1[0];
+    const y1 = p1[1]; // exact
+    // --------------------------------------------------------
+    // error bound using counters <k>:
+    // counter rules:
+    //   1. <k>a + <l>b = <max(k,l) + 1>(a + b)
+    //   2. <k>a<l>b = <k + l + 1>ab
+    //   3. fl(a) === <1>a
+    const psL = [
+        [x0, // xx0
+            y0], // yy0
+        [t * (x1 - x0) + x0, // xx1
+            t * (y1 - y0) + y0] // yy1
+    ];
+    // -----------------------
+    // Calculate error bounds
+    // -----------------------
+    const _t = from_to_1_incl_error_bound_abs(t);
+    const _x0 = from_to_1_incl_error_bound_abs(x0);
+    const _x1 = from_to_1_incl_error_bound_abs(x1);
+    const _y0 = from_to_1_incl_error_bound_abs(y0);
+    const _y1 = from_to_1_incl_error_bound_abs(y1);
+    // <3>xx1 <= <3>(<2>(t*<1>(x1 - x0)) + x0)
+    const _xx1 = _t * (_x1 + _x0) + _x0;
+    const _yy1 = _t * (_y1 + _y0) + _y0;
+    /** the coordinate-wise error bound */
+    //const psL_ = [
+    //    [0, 0],
+    //    [3*u*_xx1, 3*u*_yy1],
+    //];
+    const psL_ = [
+        [0, 0],
+        [_xx1, _yy1],
+    ];
+    return {
+        ps: psL,
+        _ps: psL_
+    };
+}
+/**
+ * Returns a bezier curve that starts and ends at the given `t` parameters
+ * including an error bound (that needs to be multiplied by `3u`, where
+ * `u === Number.EPSILON/2`).
+ *
+ * @param ps a lineer bezier curve (a line) given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1]]`
+ * @param tS the `t` parameter where the resultant bezier should start
+ * @param tE the `t` parameter where the resultant bezier should end
+ *
+ * @internal
+ */
+function from_to_1_incl_error_bound_splitAtBoth1(ps, tS, tE) {
+    // --------------------------------------------------------
+    // const [[x0, y0], [x1, y1]] = ps; 
+    const p0 = ps[0]; // exact
+    const p1 = ps[1]; // exact
+    const x0 = p0[0];
+    const y0 = p0[1]; // exact
+    const x1 = p1[0];
+    const y1 = p1[1]; // exact
+    // --------------------------------------------------------
+    // error bound using counters <k>:
+    // counter rules:
+    //   1. <k>a + <l>b = <max(k,l) + 1>(a + b)
+    //   2. <k>a<l>b = <k + l + 1>ab
+    //   3. fl(a) === <1>a
+    const psB = [
+        [tS * (x1 - x0) + x0, // xx0
+            tS * (y1 - y0) + y0], // yy0
+        [tE * (x1 - x0) + x0, // xx1
+            tE * (y1 - y0) + y0] // yy1
+    ];
+    // -----------------------
+    // Calculate error bounds
+    // -----------------------
+    const _tS = from_to_1_incl_error_bound_abs(tS);
+    const _tE = from_to_1_incl_error_bound_abs(tE);
+    const _x0 = from_to_1_incl_error_bound_abs(x0);
+    const _x1 = from_to_1_incl_error_bound_abs(x1);
+    const _y0 = from_to_1_incl_error_bound_abs(y0);
+    const _y1 = from_to_1_incl_error_bound_abs(y1);
+    // <3>xx0 <= <3>(<2>(tS*<1>(x1 - x0)) + x0)
+    const _xx0 = _tS * (_x1 + _x0) + _x0;
+    // <3>xx1
+    const _xx1 = _tE * (_x1 + _x0) + _x0;
+    const _yy0 = _tS * (_y1 + _y0) + _y0;
+    const _yy1 = _tE * (_y1 + _y0) + _y0;
+    /** the coordinate-wise error bound */
+    //const psR_ = [
+    //    [3*u*_xx0, 3*u*_yy0],
+    //    [0, 0]
+    //];
+    const psB_ = [
+        [_xx0, _yy0],
+        [_xx1, _yy1]
+    ];
+    return {
+        ps: psB,
+        _ps: psB_
+    };
+}
+
+//# sourceMappingURL=from-to-1-incl-error-bound.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-interval-box/get-interval-box.js
+
+
+
+
+
+
+const { min: get_interval_box_min, max: get_interval_box_max } = Math;
+/**
+ * Returns an axis-aligned-box that is guaranteed to engulf the entire
+ * given bezier curve from t1 to t2. The returned box is given as a pair
+ * of points (the box corners) in double precision, e.g. `[[1,1], [2,2]]`.
+ *
+ * * **precondition:** (to satisfy guarantee) t1 < t2
+ * * **precondition:** (to satisfy guarantee) t1,t2 >= 0 && t1,t2 <= 1
+ *
+ * @param ps an order 1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ * @param ts [first, second] parameter values, e.g. [0.11, 0.12]
+ *
+ * @doc mdx
+ */
+function getIntervalBox(ps, ts) {
+    if (ts[0] !== ts[1]) {
+        if (ps.length === 4) {
+            return getIntervalBox3(ps, ts);
+        }
+        if (ps.length === 3) {
+            return getIntervalBox2(ps, ts);
+        }
+        return getIntervalBox1(ps, ts);
+    }
+    // ts[0] === ts[1]
+    return getIntervalBoxAtT(ps, ts[0]);
+}
+/**
+ * Returns an axis-aligned-box that is guaranteed to engulf the entire given
+ * bezier curve from t1 to t2.
+ *
+ * This is achieved by calculating the error bounds of a new curve calculated
+ * form t1 to t2 using a splitting algorithm and then taking its extreme
+ * control points and finally finding a box that engulfs the control points.
+ * @internal
+ *
+ * @param ps
+ * @param ts
+ */
+function getIntervalBox3(ps, ts) {
+    const { ps: psI, _ps: _psI } = fromTo3InclErrorBound(ps, ts[0], ts[1]);
+    const x0 = psI[0][0];
+    const x1 = psI[1][0];
+    const x2 = psI[2][0];
+    const x3 = psI[3][0];
+    const _x0 = 9 * error_analysis_u * _psI[0][0];
+    const _x1 = 9 * error_analysis_u * _psI[1][0];
+    const _x2 = 9 * error_analysis_u * _psI[2][0];
+    const _x3 = 9 * error_analysis_u * _psI[3][0];
+    const y0 = psI[0][1];
+    const y1 = psI[1][1];
+    const y2 = psI[2][1];
+    const y3 = psI[3][1];
+    const _y0 = 9 * error_analysis_u * _psI[0][1];
+    const _y1 = 9 * error_analysis_u * _psI[1][1];
+    const _y2 = 9 * error_analysis_u * _psI[2][1];
+    const _y3 = 9 * error_analysis_u * _psI[3][1];
+    const minX = get_interval_box_min(x0 - _x0, x1 - _x1, x2 - _x2, x3 - _x3);
+    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1, x2 + _x2, x3 + _x3);
+    const minY = get_interval_box_min(y0 - _y0, y1 - _y1, y2 - _y2, y3 - _y3);
+    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1, y2 + _y2, y3 + _y3);
+    return [[minX, minY], [maxX, maxY]];
+}
+/**
+ * Returns an axis-aligned-box that is guaranteed to engulf the entire given
+ * bezier curve from t1 to t2.
+ *
+ * This is achievied by calculating the error bounds of a new curve calculated
+ * form t1 to t2 using a splitting algorithm and then taking its extreme
+ * control points and finally finding a box that engulfs the control points
+ *
+ * @param param0
+ * @param param1
+ *
+ * @internal
+ */
+function getIntervalBox2(ps, ts) {
+    const { ps: psI, _ps: _psI } = fromTo2InclErrorBound(ps, ts[0], ts[1]);
+    const x0 = psI[0][0];
+    const x1 = psI[1][0];
+    const x2 = psI[2][0];
+    const _x0 = 5 * error_analysis_u * _psI[0][0];
+    const _x1 = 5 * error_analysis_u * _psI[1][0];
+    const _x2 = 5 * error_analysis_u * _psI[2][0];
+    const y0 = psI[0][1];
+    const y1 = psI[1][1];
+    const y2 = psI[2][1];
+    const _y0 = 5 * error_analysis_u * _psI[0][1];
+    const _y1 = 5 * error_analysis_u * _psI[1][1];
+    const _y2 = 5 * error_analysis_u * _psI[2][1];
+    const minX = get_interval_box_min(x0 - _x0, x1 - _x1, x2 - _x2);
+    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1, x2 + _x2);
+    const minY = get_interval_box_min(y0 - _y0, y1 - _y1, y2 - _y2);
+    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1, y2 + _y2);
+    return [[minX, minY], [maxX, maxY]];
+}
+/**
+ * Returns an axis-aligned-box that is guaranteed to engulf the entire given
+ * bezier curve from t1 to t2.
+ *
+ * This is achievied by calculating the error bounds of a new curve calculated
+ * form t1 to t2 using a splitting algorithm and then taking its extreme
+ * control points and finally finding a box that engulfs the control points
+ *
+ * @param param0
+ * @param param1
+ *
+ * @internal
+ */
+function getIntervalBox1(ps, ts) {
+    // Implementation for lines kept for symmetry - there are obviously much
+    // simpler ways to calculate the required box in the case of a line.
+    const { ps: psI, _ps: _psI } = fromTo1InclErrorBound(ps, ts[0], ts[1]);
+    const x0 = psI[0][0];
+    const x1 = psI[1][0];
+    const _x0 = 3 * error_analysis_u * _psI[0][0];
+    const _x1 = 3 * error_analysis_u * _psI[1][0];
+    const y0 = psI[0][1];
+    const y1 = psI[1][1];
+    const _y0 = 3 * error_analysis_u * _psI[0][1];
+    const _y1 = 3 * error_analysis_u * _psI[1][1];
+    const minX = get_interval_box_min(x0 - _x0, x1 - _x1);
+    const maxX = get_interval_box_max(x0 + _x0, x1 + _x1);
+    const minY = get_interval_box_min(y0 - _y0, y1 - _y1);
+    const maxY = get_interval_box_max(y0 + _y0, y1 + _y1);
+    return [[minX, minY], [maxX, maxY]];
+}
+/**
+ * @param ps
+ * @param t
+ *
+ * @internal
+ */
+function getIntervalBoxAtT(ps, t) {
+    const _pS = ps[0];
+    const _pE = ps[ps.length - 1];
+    if (t === 0) {
+        return [_pS, _pS];
+    }
+    else if (t === 1) {
+        return [_pE, _pE];
+    }
+    const p = evalDeCasteljau(ps, t);
+    let pE;
+    if (ps.length === 4) {
+        pE = evalDeCasteljauError(ps, [0, t]).map(c_ => 8 * error_analysis_1 * c_);
+    }
+    else if (ps.length === 3) {
+        pE = evalDeCasteljauError(ps, [0, t]).map(c_ => 5 * error_analysis_1 * c_);
+    }
+    else if (ps.length === 2) {
+        pE = evalDeCasteljauError(ps, [0, t]).map(c_ => 2 * error_analysis_1 * c_);
+    }
+    else if (ps.length === 1) {
+        return [p, p];
+    }
+    return [
+        [p[0] - pE[0], p[1] - pE[1]],
+        [p[0] + pE[0], p[1] + pE[1]]
+    ];
+}
+
+//# sourceMappingURL=get-interval-box.js.map
 ;// ./node_modules/double-double/node/double-double/binary/dd-div-dd.js
 /** @internal */
 const dd_div_dd_f = 134217729; // 2**27 + 1;
@@ -16871,109 +15702,6 @@ function ddDivDdWithError(numer, denom, nE, dE) {
 }
 
 //# sourceMappingURL=dd-div-dd-with-error.js.map
-;// ./node_modules/double-double/node/double-double/binary/dd-min.js
-
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-/** @internal */
-const diff = ddDiffDd;
-/**
- * Returns the minimum of a and b.
- * @param a a double-double precision floating point number
- * @param b another double-double precision floating point number
- */
-function ddMin(a, b) {
-    const res = diff(a, b)[1];
-    return res > 0 ? b : a;
-}
-
-//# sourceMappingURL=dd-min.js.map
-;// ./node_modules/double-double/node/double-double/binary/dd-max.js
-
-// We *have* to do the below❗ The assignee is a getter❗ The assigned is a pure function❗
-/** @internal */
-const dd_max_diff = ddDiffDd;
-/**
- * Returns the maximum of a and b.
- * @param a a double-double precision floating point number
- * @param b another double-double precision floating point number
- */
-function ddMax(a, b) {
-    const res = dd_max_diff(a, b)[1];
-    return res > 0 ? a : b;
-}
-
-//# sourceMappingURL=dd-max.js.map
-;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/double-double/eval-de-casteljau-dd.js
-
-const eval_de_casteljau_dd_qmq = ddMultDd;
-const eval_de_casteljau_dd_qaq = ddAddDd;
-const eval_de_casteljau_dd_qdq = ddDiffDd;
-const eval_de_casteljau_dd_td = two_diff_twoDiff;
-const eval_de_casteljau_dd_qad = ddAddDouble;
-/**
- * Returns the resulting point (in double-double precision) of evaluating the
- * given bezier curve at the given parameter `t` (given as a double-double
- * precision floating point number).
- *
- * * uses [De Casteljau's algorithm](https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm)
- * with intermediate calculations done in double-double precision floating point
- * arithmetic.
- *
- * * to get an absolute error bound on the result call [[evalDeCasteljauError]]
- *
- * @param ps an order 1,2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param t the parameter value where the bezier should be evaluated (given in
- * double-double precision)
- *
- * @doc mdx
- **/
-function evalDeCasteljauDd(ps, t) {
-    if (t[0] === 0 && t[1] === 0) {
-        return ps[0].map(c => [0, c]);
-    }
-    else if (t[0] === 0 && t[1] === 1) {
-        return ps[ps.length - 1].map(c => [0, c]);
-    }
-    if (ps.length === 4) {
-        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-        const a01 = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x1, x0), t), x0);
-        const a11 = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x2, x1), t), x1);
-        const a21 = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x3, x2), t), x2);
-        const a02 = eval_de_casteljau_dd_qaq(a01, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(a11, a01), t));
-        const a12 = eval_de_casteljau_dd_qaq(a11, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(a21, a11), t));
-        const x = eval_de_casteljau_dd_qaq(a02, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(a12, a02), t));
-        const b01 = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y1, y0), t), y0);
-        const b11 = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y2, y1), t), y1);
-        const b21 = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y3, y2), t), y2);
-        const b02 = eval_de_casteljau_dd_qaq(b01, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(b11, b01), t));
-        const b12 = eval_de_casteljau_dd_qaq(b11, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(b21, b11), t));
-        const y = eval_de_casteljau_dd_qaq(b02, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(b12, b02), t));
-        return [x, y];
-    }
-    if (ps.length === 3) {
-        const [[x0, y0], [x1, y1], [x2, y2]] = ps;
-        const a01 = eval_de_casteljau_dd_qaq([0, x0], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x1, x0), t));
-        const a11 = eval_de_casteljau_dd_qaq([0, x1], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x2, x1), t));
-        const x = eval_de_casteljau_dd_qaq(a01, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(a11, a01), t));
-        const b01 = eval_de_casteljau_dd_qaq([0, y0], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y1, y0), t));
-        const b11 = eval_de_casteljau_dd_qaq([0, y1], eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y2, y1), t));
-        const y = eval_de_casteljau_dd_qaq(b01, eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_qdq(b11, b01), t));
-        return [x, y];
-    }
-    if (ps.length === 2) {
-        const [[x0, y0], [x1, y1]] = ps;
-        const x = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(x1, x0), t), x0);
-        const y = eval_de_casteljau_dd_qad(eval_de_casteljau_dd_qmq(eval_de_casteljau_dd_td(y1, y0), t), y0);
-        return [x, y];
-    }
-    if (ps.length === 1) {
-        const [x, y] = ps[0];
-        return [[0, x], [0, y]];
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-
-//# sourceMappingURL=eval-de-casteljau-dd.js.map
 ;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-interval-box/get-interval-box-dd.js
 
 
@@ -17339,457 +16067,670 @@ function getIntervalBoxAtTDd(ps, t) {
 }
 
 //# sourceMappingURL=get-interval-box-dd.js.map
-;// ./node_modules/flo-boolean/node/sweep-line/are-boxes-intersecting.js
+;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/get-ts.js
+
+
+
+
+const qdd = ddDiffDouble;
+const get_ts_qad = ddAddDouble;
+const { min: get_ts_min, max: get_ts_max } = Math;
 /**
- * Returns true if the 2 given axis-aligned rectangular boxes intersect.
- * @param a An axis-aligned rectangular box
- * @param b Another axis-aligned rectangular box
- * @param closed (defaults to false) Interpret boxes as being closed (i.e. they
- * contain their border) or open. If open then if both boxes have zero area
- * then they are both considered close.
- */
-function areBoxesIntersectingDd(closed) {
-    return (a, b) => {
-        let [[ax0, ay0], [ax1, ay1]] = a;
-        let [[bx0, by0], [bx1, by1]] = b;
-        // If open then if both boxes have zero area then they are both 
-        // considered closed.
-        /*if ((ax0 === ax1 || ay0 === ay1) && (bx0 === bx1 || by0 === by1)) {
-            closed = true;
-        }*/
-        // Swap so smaller coordinate comes first
-        if (ay0[1] > ay1[1] || ay0[1] === ay1[1] && ay0[0] > ay1[0]) {
-            [ay0, ay1] = [ay1, ay0];
-        }
-        if (by0[1] > by1[1] || by0[1] === by1[1] && by0[0] > by1[0]) {
-            [by0, by1] = [by1, by0];
-        }
-        if (ax0[1] > ax1[1] || ax0[1] === ax1[1] && ax0[0] > ax1[0]) {
-            [ax0, ax1] = [ax1, ax0];
-        }
-        if (bx0[1] > bx1[1] || bx0[1] === bx1[1] && bx0[0] > bx1[0]) {
-            [bx0, bx1] = [bx1, bx0];
-        }
-        return closed
-            ? (
-            //ax0 <= bx1 && ax1 >= bx0 && 
-            //by0 <= ay1 && by1 >= ay0
-            (ax0[1] < bx1[1] || (ax0[1] === bx1[1] && ax0[0] <= bx1[0])) &&
-                (ax1[1] > bx0[1] || (ax1[1] === bx0[1] && ax1[0] >= bx0[0])) &&
-                (by0[1] < ay1[1] || (by0[1] === ay1[1] && by0[0] <= ay1[0])) &&
-                (by1[1] > ay0[1] || (by1[1] === ay0[1] && by1[0] >= ay0[0])))
-            : (
-            //ax0 < bx1 && ax1 > bx0 && 
-            //by0 < ay1 && by1 > ay0
-            (ax0[1] < bx1[1] || (ax0[1] === bx1[1] && ax0[0] < bx1[0])) &&
-                (ax1[1] > bx0[1] || (ax1[1] === bx0[1] && ax1[0] > bx0[0])) &&
-                (by0[1] < ay1[1] || (by0[1] === ay1[1] && by0[0] < ay1[0])) &&
-                (by1[1] > ay0[1] || (by1[1] === ay0[1] && by1[0] > ay0[0])));
-    };
-}
-
-//# sourceMappingURL=are-boxes-intersecting.js.map
-;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/get-x-in-outs.js
-
-
-
-
-function midBox(box) {
-    return [
-        (box[0][0] + box[1][0]) / 2,
-        (box[0][1] + box[1][1]) / 2
-    ];
-}
-function midBoxX(_x_) {
-    return midBox(_x_.x.box);
-}
-/**
- * * **warning** modifies container.xs[i].in_
- * @param container
- */
-function getXInOuts(container) {
-    const [[left, top], [right, bottom]] = container.box;
-    const sides = [
-        [[right, top], [left, top]],
-        [[left, top], [left, bottom]],
-        [[left, bottom], [right, bottom]],
-        [[right, bottom], [right, top]]
-    ];
-    return (curve, xs_, ioIdx) => {
-        // At this point all xs belong to the same curve and container.
-        // For each of the four sides get the t values closest to the 
-        // intersection t.
-        const ps = curve.ps;
-        const xs = xs_.slice();
-        // console.log(xs.length);
-        for (let i = 0; i < sides.length; i++) {
-            const xs_ = getTs(ps, sides[i]);
-            for (const { psX, sideX } of xs_) {
-                xs.push({
-                    x: psX,
-                    side: i,
-                    sideX,
-                    curve: undefined, // unused
-                });
-            }
-        }
-        // console.log(xs.length);
-        //---- resolve in-outs
-        // the sort below should always resolve if the container dimension is
-        // 'large enough', where large enough is based on the maximum value that
-        // the tangent magnitude of a curve can attain (no need to resort to 
-        // compensated intervals)
-        xs.sort((xA, xB) => xA.x.ri.tS - xB.x.ri.tS);
-        const ins = [];
-        const outs = [];
-        let prevX = undefined;
-        /** true if the prevX was a proper X, false if it was a SideX */
-        let prevWasX = undefined;
-        for (const x of xs) {
-            if (x.side !== undefined) {
-                // it is a sideX
-                if (prevWasX === true) {
-                    outs.push({
-                        idx: ++ioIdx,
-                        dir: +1,
-                        p: midBoxX(x),
-                        _x_: prevX,
-                        container,
-                        side: x.side,
-                        sideX: x.sideX,
-                        loopsIdxs: new Set(),
-                        children: new Set(),
-                        windingNum: 0,
-                        orientation: 0
-                    });
-                    prevX.out = outs[outs.length - 1];
-                }
-                prevWasX = false;
-            }
-            else {
-                // it is a proper X
-                if (prevWasX === false) {
-                    ins.push({
-                        idx: ++ioIdx,
-                        dir: -1,
-                        p: midBoxX(prevX),
-                        _x_: x,
-                        container,
-                        side: prevX.side,
-                        sideX: prevX.sideX,
-                        loopsIdxs: new Set(),
-                        children: new Set(),
-                        windingNum: 0,
-                        orientation: 0
-                    });
-                    x.in_ = ins[ins.length - 1];
-                }
-                prevWasX = true;
-            }
-            prevX = x;
-        }
-        return { ins, outs, ioIdx };
-    };
-}
-/**
- * Get zero times compensated roots and exact coefficents
- */
-function getXs0(ps1, ps2) {
-    // const _coeffs = getIntersectionCoeffs(ps1, ps2);
-    const _coeffs = getCoeffsBezBez(ps1, ps2);
-    if (_coeffs === undefined) {
-        return undefined;
-    }
-    const { coeffs, errBound, getPExact } = _coeffs;
-    const ris = roots(coeffs, 0, 1, errBound, getPExact) || [];
-    if (ris.length === 0) {
-        return undefined;
-    }
-    return { ris: ris.map(rootIntervalToExp), getPExact };
-}
-function rootIntervalToDouble(ri) {
-    const tS = eEstimate(ri.tS);
-    const tE = eEstimate(ri.tE);
-    return {
-        t: tS,
-        tS, tE,
-        multiplicity: ri.multiplicity
-    };
-}
-/**
- * Robustly get matching intersections of ps (a bezier) that matches those of
- * side. ps and side can actually be any order 1, 2 or 3 bezier curve.
- * * **precondition** RootInterval[] contains no multiple roots
+ * Robustly get matching intersections of `ps` (a bezier) that matches those of
+ * `side`.
+ *
+ * * **precondition** `RootInterval[]` contains no multiple roots
+ *
  * @param ps
  * @param side
  * @param risSide_
  */
-function getTs(ps, side) {
-    const xs0Side = getXs0(ps, side);
-    if (xs0Side === undefined) {
-        return [];
+function getTs(curve, side, tsPs, sideIdx) {
+    const { ps } = curve;
+    //--------------------------------------------------------------------------
+    const r = getCoeffsBezBez(side, ps);
+    if (r === undefined) {
+        return undefined;
     }
-    const { getPExact: getPExactSide } = xs0Side;
-    let { ris: risSide } = xs0Side;
-    //const exactSide = getPExactSide();
-    let exactSide = undefined; // lazy loaded
-    const getPExactSide_ = () => {
-        exactSide = exactSide || getPExactSide();
-        return exactSide;
+    const { coeffs: pDd, errBound: pDd_, getPExact: getPExactPs } = r;
+    const getPExactPs$ = memoize(getPExactPs);
+    const risPs = roots(pDd, tsPs[0], tsPs[1], pDd_, getPExactPs$);
+    if (risPs === undefined || risPs.length === 0) {
+        return undefined;
+    }
+    //--------------------------------------------------------------------------
+    const riPs = risPs[0]; // since ps is monotonic there can only be 1
+    const riSide = getSideRi(ps, side, riPs);
+    return {
+        xPs: {
+            compensated: undefined,
+            ri: riPs,
+            getPExact: getPExactPs$,
+            kind: 1,
+            p: undefined, // unused
+            curve
+        },
+        riSide,
+        sideIdx,
+        ps
     };
-    const xs0Ps = getXs0(side, ps);
-    if (xs0Ps === undefined) {
-        return [];
-    }
-    let { ris: risPs } = xs0Ps;
-    const { getPExact: getPExactPs } = xs0Ps;
-    //const exactPs = getPExactPs();
-    let exactPs = undefined; // lazy loaded
-    const getPExactPs_ = () => {
-        exactPs = exactPs || getPExactPs();
-        return exactPs;
+}
+function getSideRi(ps, side, riPs) {
+    const box = getIntervalBox(ps, [riPs.tS, riPs.tE]);
+    // The `box` is guaranteed to enclose a piece of `side`. Since `side` is a
+    // line, `P(t) = A + t*(B - A)` is monotonic in both x and y, so the box's
+    // min/max extents map straight onto the `t` range along the side. Which box
+    // corner corresponds to the smaller/larger `t` depends on the side's
+    // direction, so we take the min/max of the two endpoint parameters. We
+    // parameterize by the dominant axis to avoid dividing by a near-zero delta.
+    const A = side[0];
+    const B = side[side.length - 1];
+    const dx = B[0] - A[0]; // exact
+    const dy = B[1] - A[1]; // exact
+    const [[minX, minY], [maxX, maxY]] = box;
+    // Project the box onto the side parameter along the non-degenerate axis
+    // (x for horizontal sides, y for vertical). The sign of the delta `d`
+    // already determines which box extent maps to the smaller `t`, so `min`/
+    // `max` order them; widen slightly by `eps` for tolerance.
+    const horizontal = dy === 0;
+    const a = horizontal ? A[0] : A[1];
+    const d = horizontal ? dx : dy;
+    const lo = horizontal ? minX : minY;
+    const hi = horizontal ? maxX : maxY;
+    const t1 = (lo - a) / d;
+    const t2 = (hi - a) / d;
+    let tS = get_ts_min(t1, t2) * (1 - eps);
+    let tE = get_ts_max(t1, t2) * (1 + eps);
+    return {
+        multiplicity: 1,
+        t: (tS + tE) / 2,
+        tS,
+        tE
     };
-    //---- Make sure no boxesPs overlap. 
-    // If any two boxes do operlap we cannot match the t value of a ps box to 
-    // that of a side box, else we can definitively match them.
-    // Note: multiplicity > 1 intersections will result in an infinite loop. 
-    // It is assumed (as a precondition) the code is such that a multiple 
-    // intersection is node possible here
-    let maxIter;
-    // currently we only go up to once compensated (double-double precision roots)
-    maxIter = 1;
-    /** number of compensations for ps */
-    let cPs = 0;
-    let boxesPs = undefined;
-    loop: while ( true && cPs < maxIter) {
-        // update boxes to new tighter versions
-        boxesPs = risPs.map(ri => getIntervalBoxDd(ps, [ri.tS, ri.tE]));
-        for (let i = 0; i < risPs.length; i++) {
-            const boxPsI = boxesPs[i];
-            for (let j = i + 1; j < risPs.length; j++) {
-                const boxPsJ = boxesPs[j];
-                if (areBoxesIntersectingDd(true)(boxPsI, boxPsJ)) {
-                    const _risPs = [];
-                    for (const riPs of risPs) {
-                        // FUTURE - below we're converting riPs (using getXs0) to RootIntervalExp and below back to 
-                        // RootInterval again - not necessary - fix
-                        _risPs.push(...refineK1({ t: riPs.tS[1], tS: riPs.tS[1], tE: riPs.tE[1], multiplicity: riPs.multiplicity }, getPExactPs_()));
-                    }
-                    risPs = _risPs;
-                    cPs++;
-                    continue loop;
-                }
-            }
-        }
-        break loop;
-    }
-    //---- Make sure no boxesSides overlap - this should be rare as we are 
-    // already roughly once compensated on that (due to small length of the sides).
-    // currently we only go up to once compensated (quad precision roots)
-    maxIter = 1;
-    /** number of compensations for sides */
-    let cSide = 0;
-    let boxesSide = undefined;
-    loop: while ( true && cSide < maxIter) {
-        boxesSide = risSide.map(ri => getIntervalBoxDd(side, [ri.tS, ri.tE]));
-        for (let i = 0; i < risSide.length; i++) {
-            const boxSideI = boxesSide[i];
-            for (let j = i + 1; j < risSide.length; j++) {
-                const boxSideJ = boxesSide[j];
-                if (areBoxesIntersectingDd(true)(boxSideI, boxSideJ)) {
-                    const _risSide = [];
-                    for (const riSide of risSide) {
-                        _risSide.push(...refineK1({ t: riSide.tS[1], tS: riSide.tS[1], tE: riSide.tE[1], multiplicity: riSide.multiplicity }, getPExactSide_()));
-                    }
-                    risSide = _risSide;
-                    cSide++;
-                    continue loop;
-                }
-            }
-        }
-        break loop;
-    }
-    const xPairs = [];
-    for (let i = 0; i < risPs.length; i++) {
-        const boxPs = boxesPs[i];
-        for (let j = 0; j < risSide.length; j++) {
-            const boxSide = boxesSide[j];
-            // FUTURE - investigate if below commented code would improve algorithm
-            //const box = intersectBoxes(boxPs,boxSide);
-            //if (box !== undefined) {
-            if (areBoxesIntersectingDd(true)(boxPs, boxSide)) {
-                const psX = {
-                    compensated: cPs,
-                    ri: rootIntervalToDouble(risPs[i]),
-                    riExp: cPs ? risPs[i] : undefined,
-                    getPExact: cPs ? undefined : getPExactPs,
-                    kind: 1,
-                    box: boxExpToBox(boxPs)
-                };
-                const sideX = {
-                    compensated: cSide,
-                    ri: rootIntervalToDouble(risSide[j]),
-                    riExp: cSide ? risSide[j] : undefined,
-                    getPExact: cSide ? undefined : getPExactSide,
-                    kind: 1,
-                    box: boxExpToBox(boxSide)
-                };
-                xPairs.push({ psX, sideX });
-            }
-        }
-    }
-    return xPairs;
 }
-/**
- * Converts a box with expansion coordinates into one with double coordinates.
- */
-function boxExpToBox(boxExp) {
-    return boxExp.map(p => p.map(eEstimate));
+function getSideRiExp(ps, side, riPs) {
+    const box = getIntervalBoxDd(ps, [riPs.tS, riPs.tE]);
+    // The `box` is guaranteed to enclose a piece of `side`. Since `side` is a
+    // line, `P(t) = A + t*(B - A)` is monotonic in both x and y, so the box's
+    // min/max extents map straight onto the `t` range along the side. Which box
+    // corner corresponds to the smaller/larger `t` depends on the side's
+    // direction, so we take the min/max of the two endpoint parameters. We
+    // parameterize by the dominant axis to avoid dividing by a near-zero delta.
+    const A = side[0];
+    const B = side[side.length - 1];
+    const dx = B[0] - A[0]; // exact
+    const dy = B[1] - A[1]; // exact
+    const [[minX, minY], [maxX, maxY]] = box;
+    // Project the box onto the side parameter along the non-degenerate axis
+    // (x for horizontal sides, y for vertical). The sign of the delta `d`
+    // already determines which box extent maps to the smaller `t`, so `min`/
+    // `max` order them; widen slightly by `eps` for tolerance.
+    const horizontal = dy === 0;
+    const a = horizontal ? A[0] : A[1];
+    const d = horizontal ? dx : dy;
+    const lo = horizontal ? minX : minY;
+    const hi = horizontal ? maxX : maxY;
+    const t1 = ddDivDouble(qdd(lo, a), d); // error ~ 6*u**2
+    const t2 = ddDivDouble(qdd(hi, a), d); // ...
+    let tS = qdd(ddMin(t1, t2), 6 * uu);
+    let tE = get_ts_qad(ddMax(t1, t2), 6 * uu);
+    return {
+        tS,
+        tE,
+        multiplicity: 1
+    };
 }
 
-//# sourceMappingURL=get-x-in-outs.js.map
-;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/get-in-outs-via-sides.js
+//# sourceMappingURL=get-ts.js.map
+;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/get-first-side-crossing.js
+
 
 /**
- * Returns the incoming / outgoing curves (as InOuts) for the given container
- * using an extremely small rectangle around the intersections.
- * * **warning** ioIdx will be modified by this function
- * @param container
- * @param ioIdx
- */
-function getInOutsViaSides(container, ioIdx) {
-    // We check one __X__ for each curve with an intersection within this container
-    const xs_ = container.xs;
-    //if (xs_.length === 4) {
-    //    console.log(xs_.map(x => x.x.kind))
-    //}
-    const inOuts = [];
-    // get a map from each Curve to each __X__ of this container
-    const xMap = new Map();
-    for (const x of xs_) {
-        const curve = x.curve;
-        const xs = xMap.get(curve);
-        if (!xs) {
-            xMap.set(curve, [x]);
-        }
-        else {
-            xs.push(x);
-        }
-    }
-    const getXInOuts_ = getXInOuts(container);
-    for (const entry of xMap) {
-        const [curve, xs] = entry;
-        let ins;
-        let outs;
-        ({ ins, outs, ioIdx } = getXInOuts_(curve, xs, ioIdx));
-        inOuts.push(...ins);
-        inOuts.push(...outs);
-    }
-    return { inOuts, ioIdx };
-}
-
-//# sourceMappingURL=get-in-outs-via-sides.js.map
-;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-container-in-outs.js
-
-// import { getInOutsViaCrossing } from "./get-in-outs-via-crossing/get-in-outs-via-crossing.js";
-/**
- * * **warning** ioIdx will be modified by this function
+ * Follows the loop's beziers outward from `_x_` (via `iterBeziersToNextX`) and
+ * returns the first `side` (index into `sides`) whose segment is crossed by a
+ * bezier piece's endpoint segment, together with the crossing point `p`, or
+ * `undefined` if no crossing occurs before the next intersection.
  *
- * @param container
- * @param ioIdx
+ * The `sides` are the axis-aligned edges of a box in the standard side order
+ * (0 top, 1 left, 2 bottom, 3 right).
  */
-function getContainerInOuts(container, ioIdx) {
-    // We check one __X__ for each curve with an intersection within this container
-    // const xs = container.xs;
-    // console.log(xs);
-    // Check nature of Xs. If Xs is the very common case where two curves cross
-    // we can use a faster check. Also in the bit less common case where all
-    // curves are joining at an interface we can do a fast ccw (the ccw part
-    // has not been implemented yet).
-    // FUTURE; Removed below for now; not necessary and causes issues with `boolean`
-    // if (xs.length === 2) {
-    //     if (xs[0].x.kind === 1 && xs[1].x.kind === 1 &&
-    //         xs[0].x.ri.multiplicity%2 === 1 && xs[1].x.ri.multiplicity%2 === 1) {
-    //         return getInOutsViaCrossing(container, ioIdx);
-    //     }
-    // }
-    return getInOutsViaSides(container, ioIdx);
+const getFirstSideCrossing$ = memoize(function (_x_, sides, forward, sideIdxs) {
+    // We only ever need the first bezier piece from `_x_` up to its adjacent
+    // `_X_`, so compute that single piece directly rather than iterating.
+    const curveS = _x_.x.curve;
+    const tS = _x_.x.ri.tS;
+    const endX = forward ? _x_.next : _x_.prev;
+    const pieceEndT = forward ? 1 : 0;
+    const runsToEnd = curveS === endX.x.curve &&
+        (forward ? tS < endX.x.ri.tS : tS > endX.x.ri.tS);
+    const tE = runsToEnd ? endX.x.ri.tS : pieceEndT;
+    // Nearest crossing (smallest parameter along `a` -> `b`) among the sides.
+    let best = undefined;
+    for (let j = 0; j < sideIdxs.length; j++) {
+        const sideIdx = sideIdxs[j];
+        const side = sides[sideIdx];
+        // check for possible intersection
+        const ts_ = tS < tE ? [tS, tE] : [tE, tS];
+        const sideCrossing = getTs(curveS, side, ts_, sideIdx);
+        if (sideCrossing !== undefined) {
+            best = sideCrossing;
+        }
+    }
+    return best;
+});
+
+//# sourceMappingURL=get-first-side-crossing.js.map
+;// ./node_modules/big-float-ts/node/double-expansion/e-to-double-double.js
+
+/**
+ * Returns the result of converting a floating point expansion to a
+ * double-double precision floating point number.
+ *
+ * * uses truncation to convert thus accurate to within 1 ulp on low double;
+ * (a slower summing method could reduce the max error to 1/2 ulp)
+ */
+function eToDd(e) {
+    e = eCompress(e);
+    const len = e.length;
+    if (len === 2) {
+        return e; // already a double-double
+    }
+    else if (len <= 1) {
+        return [0, e[0]]; // double-doubles have a fixed length of 2
+    }
+    return [e[len - 2], e[len - 1]]; // return only most significant parts
 }
 
-//# sourceMappingURL=get-container-in-outs.js.map
-;// ./node_modules/flo-boolean/node/sweep-line/sweep-line.js
-const EVENT_LEFT = -1;
-const EVENT_RIGHT = +1;
+//# sourceMappingURL=e-to-double-double.js.map
+;// ./node_modules/flo-poly/node/change-variables/expansion/e-change-variables-linear.js
+
+
 /**
- * Generalized sweepline algorithm.
+ * Returns the exact result (bar underflow / overflow) of performing a change
+ * of variables of the form: p(x) <- p(ax + b) on the given polynomial (with
+ * coefficients given as Shewchuk expansions).
  *
- * Typically used to turn O(n^2) algorithms into roughly O(n logn) algorithms.
+ * * see [this stackoverflow question](http://stackoverflow.com/questions/141422/how-can-a-transform-a-polynomial-to-another-coordinate-system)
  *
- * @param items An array of items that are to be compared. Items should
- * typically be geometric objects in 2d space with well-defined left and right
- * endpoints.
- * @param getLeftmostPoint A function that returns the leftmost point of the
- * geometric object of interest.
- * @param getRightmostPoint A function that returns the rightmost point of the
- * geometric object of interest.
- * @param predicate A predicate that takes two geometric objects and returns
- * truthy (of some specific type) if they are of interest or falsey otherwise.
+ * @param p a polynomial with coefficients given densely as an array of Shewchuk
+ * floating point expansions from highest to lowest power, e.g. `[[5],[-3],[0]]`
+ * represents the polynomial `5x^2 - 3x`
+ * @param a the `a` in `ax + b`
+ * @param b the `b` in `ax + b`
+ *
+ * @example
+ * ```typescript
+ * eChangeVariablesLinear([[1],[2],[7]], 3, 4); //=> [[9], [30], [31]]
+ * ```
+ *
+ * @doc
  */
-function sweepLine(items, getLeftmost, getRightmost, predicate) {
-    // Initialize event queue to contain all endpoints.
-    const events = [];
-    for (const item of items) {
-        events.push({
-            type: EVENT_LEFT,
-            item,
-            x: getLeftmost(item)
-        });
-        events.push({
-            type: EVENT_RIGHT,
-            item,
-            x: getRightmost(item)
+function eChangeVariablesLinear(p, a, b) {
+    return eScale(eTaylorShift(p, b), a);
+}
+
+//# sourceMappingURL=e-change-variables-linear.js.map
+;// ./node_modules/flo-poly/node/roots/certified/refine-k1.js
+
+
+
+
+
+const { abs: refine_k1_abs, min: refine_k1_min, max: refine_k1_max, log2: refine_k1_log2, ceil: refine_k1_ceil } = Math;
+/**
+ * Returns once compensated root(s) (bar underflow / overflow) given a root
+ * interval previously calculated using [[allRootsCertified]].
+ *
+ * * root interval endpoints are returned in double-double precision
+ *
+ * * 'once-compensated' here means that the typical root interval, `W`,
+ * (`~ 2*Number.EPSILON` at `1`) is reduced to `W**2`; if multiple distinct
+ * roots were present in the original interval they may be resolved to individual
+ * intervals
+ *
+ * @param ri a root interval previously calculated
+ * @param p the exact polynomial with coefficients given densely as an array of
+ * Shewchuk floating point expansions from highest to lowest power,
+ * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`
+ *
+ * @doc
+ */
+function refineK1(ri, p) {
+    const { tS, tE } = ri;
+    const W = tE - tS;
+    if (W === 0) {
+        return [{
+                tS: [0, tS],
+                tE: [0, tS],
+                multiplicity: ri.multiplicity
+            }];
+    }
+    const δ = 2 ** refine_k1_ceil(refine_k1_log2(W)); // Ensure scale is a power of 2
+    // Translate the polynomial such that the root is within δ from 0, then
+    // scale it such that the roots stay <= 1, i.e. is in [0,1]
+    const pExactK1 = eChangeVariablesLinear(p, δ, tS);
+    // reduce the polynomial to double-double precision for faster root finding
+    const pDdK1 = pExactK1.map(eToDd);
+    // update the double-double precision error bound - it is simply the error 
+    // in rounding the exact coefficients to double-double precision
+    const errBoundK1 = pDdK1.map(c => c[1] * (eps ** 2));
+    const getPExactK1 = () => pExactK1;
+    // const risLo = allRootsCertified(pDdK1, 0, 1, errBoundK1, getPExactK1)!;
+    const risLo = roots(pDdK1, 0, 1, errBoundK1, getPExactK1);
+    const ris = [];
+    for (const riLo of risLo) {
+        ris.push({
+            tS: twoSum(tS, riLo.tS * δ),
+            tE: twoSum(tS, riLo.tE * δ),
+            multiplicity: riLo.multiplicity
         });
     }
-    events.sort(compare);
-    const activeItems = new Set();
-    /** A list of pairs of items that passed the predicate */
-    const pairedItems = [];
-    for (const event of events) {
-        const { item, type } = event;
-        if (type === EVENT_LEFT) {
-            for (const activeItem of activeItems) {
-                const result = predicate(item, activeItem);
-                if (result) {
-                    pairedItems.push({
-                        a: item,
-                        b: activeItem,
-                        u: result
-                    });
-                }
-            }
-            activeItems.add(item);
-        }
-        else if (type === EVENT_RIGHT) {
-            activeItems.delete(item);
+    return ris;
+}
+
+//# sourceMappingURL=refine-k1.js.map
+;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/do-ris-overlap.js
+function doRisOverlap(riA, riB) {
+    return (riA.tS <= riB.tE && riB.tS <= riA.tE);
+}
+
+//# sourceMappingURL=do-ris-overlap.js.map
+;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/dd-do-ris-overlap.js
+
+function ddDoRisOverlap(riA, riB) {
+    return ddCompare(riA.tS, riB.tE) <= 0 &&
+        ddCompare(riB.tS, riA.tE) <= 0;
+}
+
+//# sourceMappingURL=dd-do-ris-overlap.js.map
+;// ./node_modules/flo-boolean/node/containers/get-container-in-outs/get-in-outs-via-sides/compare-in-out.js
+
+
+
+
+
+
+
+
+/**
+ * Returns the result of comparing two `InOut`s within the same container.
+ *
+ * Note the edge ordering around the container:
+ *   * 0 -> MinY edge (top)
+ *   * 1 -> MinX edge (left)
+ *   * 2 -> MaxY edge (bottom)
+ *   * 3 -> MaxX edge (right)
+ *
+ * @param inOutA
+ * @param inOutB
+ */
+function compareInOut(inOutA, inOutB) {
+    let res;
+    const { _x_: _x_A, dir: dirA, idx: idxA, swapped: swappedA } = inOutA;
+    const { _x_: _x_B, dir: dirB, idx: idxB, swapped: swappedB } = inOutB;
+    const sides = getBigBoxSides$(_x_A.container.bigBox);
+    // Follow the loop outward from `_x_A` (in its `dir`) and find the
+    // first `sidesA` edge it crosses, detected via bezier-piece endpoints.
+    // A `swapped` in/out has its `dir` flipped while the loop direction is
+    // unchanged, so walk the opposite way in that case.
+    const forwardA = (dirA === 1) !== !!swappedA;
+    const forwardB = (dirB === 1) !== !!swappedB;
+    const sidesA = inOutA.oSideIdxs ?? getInOutSideIdx(inOutA, _x_A, sides, forwardA);
+    const sidesB = inOutB.oSideIdxs ?? getInOutSideIdx(inOutB, _x_B, sides, forwardB);
+    // if (typeof _debug_ !== 'undefined') { _debug_.callCounts.l1++; }
+    if (sidesA.length === 1 && sidesB.length === 1) {
+        inOutA.oSideIdx = inOutA.oSideIdx ?? sidesA[0];
+        inOutB.oSideIdx = inOutB.oSideIdx ?? sidesB[0];
+        res = sidesA[0] - sidesB[0];
+        if (res !== 0) {
+            return res;
         }
     }
-    return pairedItems;
-}
-/**
- * Compare two Events by their x-axis and then by their type.
- * @param a An event
- * @param b Another event
- */
-function compare(a, b) {
-    const res = a.x - b.x;
+    //--------------------------------------------------------------------------
+    // Couldn't compare using sides, compare parameter values at side crossing
+    //--------------------------------------------------------------------------
+    const crossingA = inOutA.oFSC ?? getFirstSideCrossing$(_x_A, sides, forwardA, sidesA);
+    const crossingB = inOutB.oFSC ?? getFirstSideCrossing$(_x_B, sides, forwardB, sidesB);
+    // if (typeof _debug_ !== 'undefined') { _debug_.callCounts.l2++; }
+    const { sideIdx: sideIdxA, riSide: riA } = crossingA;
+    const { sideIdx: sideIdxB, riSide: riB } = crossingB;
+    //-------------------------------------------------
+    // Re-check sides due to more accurate calculation
+    //-------------------------------------------------
+    res = sideIdxA - sideIdxB;
+    if (res !== 0) {
+        inOutA.oSideIdx = sideIdxA;
+        inOutB.oSideIdx = sideIdxB;
+        return res;
+    }
+    res = doRisOverlap(riA, riB) ? 0 : (riA.tS < riB.tS ? -1 : 1);
     if (res !== 0) {
         return res;
     }
-    // Alwys put left events before right ones.
-    return a.type;
+    // if (typeof _debug_ !== 'undefined') { _debug_.callCounts.l3++; }
+    //--------------------------------------------------------------------------
+    // Cannot discern yet, compensate once
+    //--------------------------------------------------------------------------
+    const riSideA = inOutA.oFSCE ?? getSideCrossingExp$(crossingA, sides);
+    const riSideB = inOutB.oFSCE ?? getSideCrossingExp$(crossingB, sides);
+    res = ddDoRisOverlap(riSideA, riSideB)
+        ? 0 : ddCompare(riSideA.tS, riSideB.tS);
+    if (res !== 0) {
+        return res;
+    }
+    //--------------------------------------------------------------------------
+    //----------------------------------------------------
+    // We reverse sort the ins in comparison to the outs.
+    //----------------------------------------------------
+    res = dirA - dirB;
+    if (res !== 0) {
+        return res;
+    }
+    // At this stage they are both in or both out;
+    // `idx` doesn't matter but just so it is a stable sort
+    return dirA === 1
+        ? idxA - idxB
+        : idxB - idxA;
+}
+const refineK1$ = memoize(refineK1);
+const getSideCrossingExp$ = memoize(function (crossing, sides) {
+    const { xPs, ps, sideIdx } = crossing;
+    const { ri: riPs, getPExact: getPExact$ } = xPs;
+    const riExpPs = refineK1$(riPs, getPExact$())[0]; // there can only be 1
+    return getSideRiExp(ps, sides[sideIdx], riExpPs);
+});
+const getBigBoxSides$ = memoize(function (bigBox) {
+    const [[minX, minY], [maxX, maxY]] = bigBox;
+    return [
+        [[maxX, minY], [minX, minY]], // top      (right to left)
+        [[minX, minY], [minX, maxY]], // left     (top to bottom)
+        [[minX, maxY], [maxX, maxY]], // bottom   (left to right)
+        [[maxX, maxY], [maxX, minY]] // right    (bottom to top)
+    ];
+});
+
+//# sourceMappingURL=compare-in-out.js.map
+;// ./node_modules/flo-boolean/node/containers/xs-has-min-y.js
+function xsHasMinY(xs) {
+    for (let _x_ of xs) {
+        if (_x_.x.kind === 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
-//# sourceMappingURL=sweep-line.js.map
+//# sourceMappingURL=xs-has-min-y.js.map
+;// ./node_modules/flo-boolean/node/containers/order-in-outs.js
+
+
+
+/**
+ * Orders the `InOut`s within the container in a loop.
+ *
+ * * modifies `prevAround` and `nextAround` of the given container's `InOut`s
+ *
+ * @param container
+ */
+const orderInOuts = timeFunctionCalls(function orderInOuts(container) {
+    const { inOuts, xs } = container;
+    // getInOutsViaCrossing  // FUTURE
+    // if `inOuts` length <= 2 we only need a cyclic sort UNLESS it contains
+    // a `minY` (type 0) `_X_` in which case we need a total order
+    if (inOuts.length > 2 || xsHasMinY(container.xs)) {
+        inOuts.sort(compareInOut);
+    }
+    let prevInOut = inOuts[inOuts.length - 1];
+    for (let i = 0; i < inOuts.length; i++) {
+        const inOut = inOuts[i];
+        inOut.prevAround = prevInOut;
+        prevInOut.nextAround = inOut;
+        prevInOut = inOut;
+    }
+});
+
+//# sourceMappingURL=order-in-outs.js.map
+;// ./node_modules/flo-boolean/node/containers/get-big-box.js
+const { abs: get_big_box_abs, min: get_big_box_min } = Math;
+/**
+ * Fraction of each side's full distance from `p` to keep when shrinking the
+ * "big box" (the value that used to be a hard-coded `0.5` = halve). Smaller
+ * values give a tighter box, `1` keeps the full box, `0` collapses it to `p`.
+ * Adjust this to tune the big box size (e.g. `0.5`, `0.4`, ...).
+ */
+const BIG_BOX_SHRINK_FACTOR = 0.5;
+/**
+ * Returns the largest rectangle surrounding a given point without any of the
+ * given rects being strictly inside it (the rects are allowed to touch the
+ * returned rectangle's edges).
+ *
+ * * **precondition**: no rect contains `p` and the rects don't overlap each
+ * other.
+ *
+ * Each rect blocks the box on the side of the rect facing `p`, chosen as
+ * follows from `p`'s position relative to the rect's spans:
+ * * `p` overlaps the rect in y only -> block the near x-edge.
+ * * `p` overlaps the rect in x only -> block the near y-edge.
+ * * `p` separated from the rect on both axes (diagonal) -> block the dominant
+ *   axis of the rect's near corner (the larger absolute offset from `p`), a
+ *   45-degree corner blocking both axes.
+ *
+ * The blocking edge is placed exactly on the rect's near edge, so the rect is
+ * never strictly inside, and the most restrictive constraint is kept per edge.
+ * This degenerates to the point version when a rect shrinks to a point.
+ *
+ * @param rects the rects that must stay outside (or on the edge of) the box,
+ * each given as `[[minX, minY], [maxX, maxY]]`
+ * @param p the point the box must surround
+ * @returns the box as `[[minX, minY], [maxX, maxY]]`
+ */
+function getBigBox(expMax, rects, p) {
+    let MAX = 2 ** (expMax + 1);
+    const [px, py] = p;
+    let minX = -MAX;
+    let minY = -MAX;
+    let maxX = +MAX;
+    let maxY = +MAX;
+    for (const [[rMinX, rMinY], [rMaxX, rMaxY]] of rects) {
+        // `p`'s position relative to the rect on each axis. `sep === 0` means
+        // `p`'s coordinate lies within the rect's span (they overlap on that
+        // axis); otherwise `near` is the rect edge facing `p`.
+        let xSep = 0;
+        let nearX = 0;
+        if (px < rMinX) {
+            xSep = +1;
+            nearX = rMinX;
+        }
+        else if (px > rMaxX) {
+            xSep = -1;
+            nearX = rMaxX;
+        }
+        let ySep = 0;
+        let nearY = 0;
+        if (py < rMinY) {
+            ySep = +1;
+            nearY = rMinY;
+        }
+        else if (py > rMaxY) {
+            ySep = -1;
+            nearY = rMaxY;
+        }
+        // Decide which edge(s) this rect blocks.
+        let blockX = false;
+        let blockY = false;
+        if (xSep !== 0 && ySep === 0) {
+            blockX = true; // overlaps `p` in y -> must block the near x-edge
+        }
+        else if (ySep !== 0 && xSep === 0) {
+            blockY = true; // overlaps `p` in x -> must block the near y-edge
+        }
+        else if (xSep !== 0 && ySep !== 0) {
+            // diagonal -> dominant axis of the near corner (ties block both)
+            const adx = get_big_box_abs(nearX - px);
+            const ady = get_big_box_abs(nearY - py);
+            blockX = adx >= ady;
+            blockY = ady >= adx;
+        }
+        // else `p` is inside the rect -> precondition violated; ignore
+        if (blockX) {
+            if (xSep > 0) {
+                if (nearX < maxX) {
+                    maxX = nearX;
+                }
+            }
+            else {
+                if (nearX > minX) {
+                    minX = nearX;
+                }
+            }
+        }
+        if (blockY) {
+            if (ySep > 0) {
+                if (nearY < maxY) {
+                    maxY = nearY;
+                }
+            }
+            else {
+                if (nearY > minY) {
+                    minY = nearY;
+                }
+            }
+        }
+    }
+    // Shrink to a square: every side the same distance from `p`, using the
+    // minimum of the four edge distances so no rect ends up strictly inside.
+    // const d = min(px - minX, maxX - px, py - minY, maxY - py);
+    // return [
+    //     [px - d/2, py - d/2],
+    //     [px + d/2, py + d/2],
+    // ];
+    // Move each side from `p` towards its blocking edge by `shrinkFactor` of
+    // the full distance, keeping `p` fixed (0.5 = halve, 1 = full box).
+    const f = BIG_BOX_SHRINK_FACTOR;
+    return [
+        [px + (minX - px) * f, py + (minY - py) * f],
+        [px + (maxX - px) * f, py + (maxY - py) * f],
+    ];
+}
+
+//# sourceMappingURL=get-big-box.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/assign-big-boxes-to-containers.js
+
+
+const assignBigBoxesToContainers = timeFunctionCalls(function assignBigBoxesToContainers(containers, expMax) {
+    for (const container of containers) {
+        const [[minX, minY], [maxX, maxY]] = container.box;
+        const c = [(minX + maxX) / 2, (minY + maxY) / 2];
+        const boxes = [
+            ...container.xs.map(_x_ => _x_.next.container.box),
+            ...container.xs.map(_x_ => _x_.prev.container.box),
+        ];
+        const bigBox = getBigBox(expMax, boxes, c);
+        container.bigBox = bigBox;
+    }
+    return containers;
+});
+
+//# sourceMappingURL=assign-big-boxes-to-containers.js.map
+;// ./node_modules/flo-boolean/node/utils/map-map.js
+/**
+ * Returns the result of mapping the array to depth 2 and applying a filter
+ * to the inner results which defaults to filtering out `undefined`.
+ *
+ * @param tss
+ * @param f
+ * @param filter
+ */
+function mapmap(tss, f, filter = u => u !== undefined) {
+    const tss_ = [];
+    for (let i = 0; i < tss.length; i++) {
+        const ts = tss[i];
+        const ts_ = [];
+        for (let j = 0; j < ts.length; j++) {
+            const v = f(ts[j]);
+            if (filter(v)) {
+                ts_.push(f(ts[j]));
+            }
+        }
+        tss_.push(ts_);
+    }
+    return tss_;
+}
+
+//# sourceMappingURL=map-map.js.map
+;// ./node_modules/flo-boolean/node/containers/set-next-and-prev-around.js
+function setNextAndPrevAround(inOuts) {
+    let prevInOut = inOuts[inOuts.length - 1];
+    for (let i = 0; i < inOuts.length; i++) {
+        const inOut = inOuts[i];
+        inOut.prevAround = prevInOut;
+        prevInOut.nextAround = inOut;
+        prevInOut = inOut;
+    }
+}
+
+//# sourceMappingURL=set-next-and-prev-around.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/get-containers.js
+
+
+
+
+
+
+
+
+
+
+
+/**
+ *
+ * @param containerDim
+ *
+ * @internal
+ */
+const getContainers = timeFunctionCalls(function getContainers(xPairs, expMax, expContainer) {
+    // `container`/`next`/`prev` are filled in later (assignContainersToXs,
+    // setIntersectionNextAndPrevs)
+    const _x_Pairs = mapmap(xPairs, x => ({ x }));
+    let containers = getContainersFromXPairs(_x_Pairs, expContainer);
+    containers = combineOverlappingContainers(containers);
+    containers = sendContainersToGrid(containers, expContainer);
+    assignContainersToXs(containers);
+    setIntersectionNextAndPrevs(_x_Pairs);
+    for (const container of containers) {
+        const inOuts = [];
+        for (const x of container.xs) {
+            if (x.in_) {
+                inOuts.push(x.in_);
+            }
+            if (x.out) {
+                inOuts.push(x.out);
+            }
+        }
+        container.inOuts = inOuts;
+        for (const inOut of inOuts) {
+            inOut.container = container;
+        }
+    }
+    const containers_ = assignBigBoxesToContainers(containers, expMax);
+    numberInOuts(containers_);
+    connectContainerInOuts(containers_);
+    containers_.forEach(orderInOuts);
+    containers_.forEach(container => setNextAndPrevAround(container.inOuts));
+    return containers;
+});
+/**
+ * ssign a container to each `_X_` within all containers
+ */
+function assignContainersToXs(containers) {
+    for (const container of containers) {
+        for (const x of container.xs) {
+            x.container = container;
+        }
+    }
+}
+
+//# sourceMappingURL=get-containers.js.map
 ;// ./node_modules/big-float-ts/node/geometric-primitives/orient2d.js
 
 
@@ -17889,6 +16830,191 @@ function orient2dAdapt(A, B, C, detsum) {
 }
 
 //# sourceMappingURL=orient2d.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/classification/is-collinear.js
+
+/**
+ * Returns `true` if the given bezier curve has all control points collinear,
+ * `false` otherwise.
+ *
+ * * if you need to know whether a given bezier curve can be converted to an
+ * order 1 bezier curve (a line) such that the same `(x,y)` point is returned
+ * for the same `t` value then use e.g. [[isQuadReallyLine]] instead.
+ *
+ * * **exact** not susceptible to floating point round-off
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
+ *
+ * @doc mdx
+ */
+function isCollinear(ps) {
+    if (ps.length === 4) {
+        // Cubic bezier
+        return (orient2d(ps[0], ps[1], ps[2]) === 0 &&
+            orient2d(ps[1], ps[2], ps[3]) === 0 &&
+            // The below check is necessary for if ps[1] === ps[2]
+            orient2d(ps[0], ps[2], ps[3]) === 0);
+    }
+    if (ps.length === 3) {
+        // Quadratic bezier
+        return orient2d(ps[0], ps[1], ps[2]) === 0;
+    }
+    if (ps.length <= 2) {
+        // Line (or point)
+        return true;
+    }
+    throw new Error('The given bezier curve must be of order <= 3.');
+}
+/**
+ * Returns `true` if the given bezier curve has all control points the
+ * same `y` value (possibly self-overlapping), `false` otherwise.
+ *
+ * @param ps An order 0, 1, 2 or 3 bezier curve.
+ *
+ * @doc
+ */
+function isHorizontal(ps) {
+    const y = ps[0][1];
+    for (let i = 1; i < ps.length; i++) {
+        if (ps[i][1] !== y) {
+            return false;
+        }
+    }
+    return true;
+}
+/**
+ * Returns `true` if the given bezier curve has all control points the
+ * same `x` value (possibly self-overlapping), `false` otherwise.
+ *
+ * @param ps An order 0, 1, 2 or 3 bezier curve.
+ *
+ * @doc
+ */
+function isVertical(ps) {
+    const x = ps[0][0];
+    for (let i = 1; i < ps.length; i++) {
+        if (ps[i][0] !== x) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//# sourceMappingURL=is-collinear.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/classification/is-self-overlapping.js
+
+/**
+ * Returns `true` if the given bezier has all control points collinear and
+ * it is self-overlapping, i.e. if it intersects itself at an infinite number
+ * of points.
+ *
+ * * a bezier curve can only intersect itself at an infinite number of
+ * points if its locus is a 'self-overlapping line'.
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
+ *
+ * @doc mdx
+ */
+function isSelfOverlapping(ps) {
+    if (!isCollinear(ps)) {
+        return false;
+    }
+    // Check if control points are non-strict monotone
+    const xs = ps.map(p => p[0]);
+    const ys = ps.map(p => p[1]);
+    return !(isMonotone(xs) && isMonotone(ys));
+}
+/**
+ * Returns true if the given array of numbers are non-strict monotone increasing.
+ * @param xs an array of numbers
+ *
+ * @internal
+ */
+function isMonotoneIncreasing(xs) {
+    for (let i = 1; i < xs.length; i++) {
+        if (xs[i - 1] > xs[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+/**
+ * Returns true if the given array of numbers are non-strict monotone decreasing.
+ * @param xs an array of numbers
+ *
+ * @internal
+ */
+function isMonotoneDecreasing(xs) {
+    for (let i = 1; i < xs.length; i++) {
+        if (xs[i - 1] < xs[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+/**
+ * @param xs
+ *
+ * @internal
+ */
+function isMonotone(xs) {
+    return isMonotoneIncreasing(xs) || isMonotoneDecreasing(xs);
+}
+
+//# sourceMappingURL=is-self-overlapping.js.map
+;// ./node_modules/big-float-ts/node/basic/reduce-significand.js
+/**
+ * Truncates a floating point value's significand and returns the result.
+ * Similar to split, but with the ability to specify the number of bits to keep.
+ *
+ * Theorem 17 (Veltkamp-Dekker): Let a be a p-bit floating-point number, where
+ * p >= 3. Choose a splitting point s such that p/2 <= s <= p-1. Then the
+ * following algorithm will produce a (p-s)-bit value a_hi and a
+ * nonoverlapping (s-1)-bit value a_lo such that abs(a_hi) >= abs(a_lo) and
+ * a = a_hi + a_lo.
+ *
+ * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ *
+ * @param a a double
+ * @param bits the number of significand bits to leave intact
+ */
+function reduceSignificand(a, bits) {
+    const s = 53 - bits;
+    const f = 2 ** s + 1;
+    const c = f * a;
+    const r = c - (c - a);
+    return r;
+}
+
+//# sourceMappingURL=reduce-significand.js.map
+;// ./node_modules/flo-boolean/node/shape/normalize/to-grid.js
+
+const { floor: to_grid_floor, log2: to_grid_log2, abs: to_grid_abs } = Math;
+/**
+ * Sends `a` onto a fixed-spacing grid with `2**significantBits` divisions.
+ * Each division is `2**(maxExp - significantBits)` wide.
+ *
+ * @param a
+ * @param expMax log2(max extent of grid in positive and negative directions)
+ *
+ * @param significantBits
+ */
+function toGrid(expMax, significantBits) {
+    return function (a) {
+        const expA = to_grid_floor(to_grid_log2(to_grid_abs(a)));
+        const newSig = significantBits - expMax + expA + 1;
+        if (newSig <= 0) {
+            return 0;
+        }
+        if (significantBits >= 53) {
+            return a;
+        }
+        return reduceSignificand(a, newSig);
+    };
+}
+
+//# sourceMappingURL=to-grid.js.map
 ;// ./node_modules/flo-vector2d/node/distance-and-length/squared-distance-between.js
 /**
  * Returns the squared distance between two 2d points.
@@ -17902,6 +17028,593 @@ function squaredDistanceBetween(p, q) {
 }
 
 //# sourceMappingURL=squared-distance-between.js.map
+;// ./node_modules/flo-vector2d/node/distance-and-length/to-length.js
+/**
+ * Returns the given 2-vector scaled to the given length.
+ * @param p a vector
+ * @param length the length to scale to
+ */
+function toLength(p, length) {
+    const c = length / Math.sqrt(p[0] * p[0] + p[1] * p[1]);
+    return [c * p[0], c * p[1]];
+}
+
+//# sourceMappingURL=to-length.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/classification/is-really-point.js
+/**
+ * Returns `true` if the given bezier curve has all control points coincident,
+ * `false` otherwise.
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ *
+ * @doc
+ */
+function isReallyPoint(ps) {
+    const x = ps[0][0];
+    const y = ps[0][1];
+    for (let i = 1; i < ps.length; i++) {
+        if (x !== ps[i][0] || y !== ps[i][1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//# sourceMappingURL=is-really-point.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/equal.js
+/**
+ * Returns `true` if the two given bezier curves are exactly equal when compared
+ * by value (deep equality), `false` otherwise
+ *
+ * @param ps1 an order 0,1,2 or 3 bezier curve given as an ordered array of its
+ * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param ps2 another bezier curve
+ *
+ * @doc
+ */
+function equal(ps1, ps2) {
+    if (ps1 === ps2) {
+        return true;
+    }
+    if (ps1.length !== ps2.length) {
+        return false;
+    }
+    for (let i = 0; i < ps1.length; i++) {
+        if (ps1[i][0] !== ps2[i][0] || ps1[i][1] !== ps2[i][1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//# sourceMappingURL=equal.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/classification/is-cubic-really-quad.js
+
+
+const is_cubic_really_quad_tp = two_product_twoProduct;
+const is_cubic_really_quad_fes = fastExpansionSum;
+const { abs: is_cubic_really_quad_abs } = Math;
+/**
+ * Returns `true` if the given cubic bezier curve is really a quadratic (or
+ * lower order) curve in disguise, i.e. it can be represent by a quadratic
+ * bezier curve, `false` otherwise.
+ *
+ * * **exact**: not susceptible to floating point round-off
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
+ *
+ * @doc mdx
+ */
+function isCubicReallyQuad(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    // The line below is unrolled (uses a toHybridQuadratic condition (points same?))
+    //if ((x3 + 3*x1) - (x0 + 3*x2) === 0 && 
+    //    (y3 + 3*y1) - (y0 + 3*y2) === 0) {
+    // Calculate an approximation of the above with error bounds and use it as
+    // a fast filter.
+    const u1 = 3 * x1;
+    const u1_ = is_cubic_really_quad_abs(3 * x1); // the absolute error in u1
+    const u2 = x3 + u1;
+    const u2_ = u1_ + is_cubic_really_quad_abs(u2); // the absolute error in u2
+    const v1 = 3 * x2;
+    const v1_ = is_cubic_really_quad_abs(3 * x2); // the absolute error in v1
+    const v2 = x0 + v1;
+    const v2_ = v1_ + is_cubic_really_quad_abs(v2); // the absolute error in v2
+    const w = u2 - v2;
+    const w_ = u2_ + v2_ + is_cubic_really_quad_abs(w); // the absolute error in w
+    // if w cannot possibly be zero, i.e. if the error is smaller than the value
+    if (is_cubic_really_quad_abs(w) - error_analysis_u * w_ > 0) {
+        // fast filter 1 passed
+        return false;
+    }
+    const q1 = 3 * y1;
+    const q1_ = is_cubic_really_quad_abs(3 * y1); // the absolute error in q1
+    const q2 = y3 + q1;
+    const q2_ = q1_ + is_cubic_really_quad_abs(q2); // the absolute error in q2
+    const r1 = 3 * y2;
+    const r1_ = is_cubic_really_quad_abs(3 * y2); // the absolute error in r1
+    const r2 = y0 + r1;
+    const r2_ = r1_ + is_cubic_really_quad_abs(r2); // the absolute error in r2
+    const s = q2 - r2;
+    const s_ = q2_ + r2_ + is_cubic_really_quad_abs(s); // the absolute error in s
+    if (is_cubic_really_quad_abs(s) - error_analysis_u * s_ > 0) {
+        // fast filter 2 passed
+        return false;
+    }
+    // unable to filter - go slow and exact
+    return (eSign(eDiff(is_cubic_really_quad_fes([x3], is_cubic_really_quad_tp(3, x1)), is_cubic_really_quad_fes([x0], is_cubic_really_quad_tp(3, x2)))) === 0 &&
+        eSign(eDiff(is_cubic_really_quad_fes([y3], is_cubic_really_quad_tp(3, y1)), is_cubic_really_quad_fes([y0], is_cubic_really_quad_tp(3, y2)))) === 0);
+}
+
+//# sourceMappingURL=is-cubic-really-quad.js.map
+;// ./node_modules/flo-boolean/node/shape/normalize/are-all-points-different.js
+/**
+ * Returns true if all points in the given array are different, false otherwise.
+ * @param ps An array of points.
+ */
+function areAllPointsDifferent(ps) {
+    for (let i = 0; i < ps.length - 1; i++) {
+        for (let j = i + 1; j < ps.length; j++) {
+            if (ps[i][0] === ps[j][0] && ps[i][1] === ps[j][1]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+//# sourceMappingURL=are-all-points-different.js.map
+;// ./node_modules/flo-boolean/node/shape/normalize/fix-bezier-by-point-spacing.js
+
+// import { lengthSquaredUpperBound, isLine, isCubicReallyQuad, toQuadraticFromCubic } from "flo-bezier3";
+
+
+const { abs: fix_bezier_by_point_spacing_abs } = Math;
+/**
+ * Returns the same bezier if its points are well-spaced, e.g. all points not
+ * coincident, etc., else fix it, if possible, and return the fixed bezier,
+ * else return undefined.
+ *
+ * @param ps a bezier
+ * @param gridSpacing
+ * @param sendToGrid
+ */
+function fixBezierByPointSpacing(ps, gridSpacing, sendToGrid) {
+    if (ps === undefined) {
+        return undefined;
+    }
+    // Early filter - if all points coincide, we're done - degenerate to point
+    if (isReallyPoint(ps)) {
+        return undefined; // Cannot fix
+    }
+    if (ps.length === 2) {
+        // obviously no need to fix a line (that is not degenerate to a point)
+        return ps;
+    }
+    if (ps.length === 3) {
+        // Early filter - if no points coincide, we're done - well spaced
+        if (areAllPointsDifferent(ps)) {
+            // but if it s a line masquerading as a quadratic or cubic bezier
+            // then make it line
+            // return isLine(ps) ? [ps[0], ps[2]] : ps;
+            return isCollinear(ps) ? [ps[0], ps[2]] : ps;
+        }
+        // Is the quadratic bezier overlapping onto itself? 
+        if (arePsEqual(ps[0], ps[2])) {
+            // a quadratic with equal endpoints (and not degenerate to a point)
+            return undefined; // better to just remove it
+            // return [ps[0], ps[1]];
+        }
+        // At this point not all points same and not all points different and 
+        // not endpoints coincide, so either:
+        // * point 0 and 1 coincide
+        // * point 1 and 2 coincide
+        // but in that case we simply have a line
+        return [ps[0], ps[2]];
+    }
+    // ---- at this point we must have a cubic
+    // Early filter - if no points coincide, we're done - well spaced
+    if (areAllPointsDifferent(ps)) {
+        const ps_ = checkCubicForLineOrQuad(ps);
+        if (ps_ === undefined) {
+            return undefined;
+        }
+        if (equal(ps_, ps)) {
+            return ps;
+        }
+        return fixBezierByPointSpacing(ps_, gridSpacing, sendToGrid);
+    }
+    if (arePsEqual(ps[0], ps[3])) {
+        // we should simply handle this case for cubics - lines and quadratics 
+        // degenerate into a point and a self-overlapping curve respectively.
+        // if (isCollinear(ps)) { return [ps[0], ps[3]]; }
+        if (isCollinear(ps)) {
+            return undefined;
+        }
+        // if (arePsEqual(ps[1], ps[2])) {
+        //     // it is a cubic degenerated to a line
+        //     return [ps[0], ps[2]];
+        // }
+        // no need to fix anything - it is a loop - it cannot be a line or a
+        // quadratic (they don't make loops)
+        return ps;
+    }
+    if (isCollinear(ps)) {
+        return [ps[0], ps[3]];
+    }
+    // At this point, either:
+    // * point 0, 1 and 2 coincide
+    // * point 1, 2 and 3 coincide
+    // * points 0,1 AND points 2,3 coincide
+    // * only point 0 and point 1 coincide
+    // * only point 0 and point 2 coincide
+    // * only point 1 and point 2 coincide
+    // * only point 1 and point 3 coincide
+    // * only point 2 and point 3 coincide
+    // If point 0, 1 and 2 coincide OR point 1, 2 and 3 coincide OR
+    // points 0,1 AND points 2,3 coincide we have a line
+    if ((arePsEqual(ps[0], ps[1]) &&
+        arePsEqual(ps[1], ps[2])) ||
+        (arePsEqual(ps[1], ps[2]) &&
+            arePsEqual(ps[2], ps[3])) ||
+        (arePsEqual(ps[0], ps[1]) &&
+            arePsEqual(ps[2], ps[3]))) {
+        return fixBezierByPointSpacing([ps[0], ps[ps.length - 1]], gridSpacing, sendToGrid);
+    }
+    // At this point, either:
+    // * only point 0 and point 1 coincides
+    // * only point 0 and point 2 coincides        
+    // * only point 1 and point 2 coincides
+    // * only point 1 and point 3 coincides
+    // * only point 2 and point 3 coincides
+    // If points 0,2 OR points 1,3 OR points 1,2 coincide we're done - they
+    // are not problematic
+    if (arePsEqual(ps[0], ps[2]) ||
+        arePsEqual(ps[1], ps[3]) ||
+        arePsEqual(ps[1], ps[2])) {
+        // these kinds of cubics cannot be quadratics and the case for a line
+        // has already been checked - we're done
+        return ps;
+    }
+    // At this point, either:
+    // * only point 0 and point 1 coincides
+    // * only point 2 and point 3 coincides
+    // it is a cubic with a cusp at an endpoint - these are fine for our
+    // algorithm but lets move them a little apart for later alogorithms 
+    // operating on our returned result.
+    if (arePsEqual(ps[0], ps[1])) {
+        // Move point 1 towards point 2 without surpassing it and ensuring it
+        // will be on a new grid point
+        // If squared distance between the points < 4 * gridSpacing just 
+        // move them onto each other - this shouldn't affect the overall 
+        // accuracy of the algorithm and it ensures the move > gridSpacing.
+        if (squaredDistanceBetween(ps[1], ps[2]) < 4 * gridSpacing) {
+            return [ps[0], ps[2], ps[2], ps[3]]; // cannot be a line or quad
+        }
+        else {
+            const v = toLength(from_to_fromTo(ps[1], ps[2]), 2 * gridSpacing);
+            const p1 = translate(ps[1], v);
+            return checkCubicForLineOrQuad([
+                ps[0],
+                sendToGrid(p1),
+                ps[2],
+                ps[3]
+            ]);
+        }
+    }
+    if (arePsEqual(ps[2], ps[3])) {
+        // Move point 2 towards point 1 without surpassing it and ensuring it
+        // will be on a new grid point
+        // If squared distance between the points < 4 * gridSpacing just 
+        // move them onto each other - this shouldn't affect the overall 
+        // accuracy of the algorithm and it ensures the move > gridSpacing.
+        if (squaredDistanceBetween(ps[2], ps[1]) < 4 * gridSpacing) {
+            return [
+                ps[0],
+                ps[1],
+                ps[1],
+                ps[3]
+            ]; // cannot be a line or quad
+        }
+        else {
+            const v = toLength(from_to_fromTo(ps[2], ps[1]), 2 * gridSpacing);
+            const p2 = translate(ps[2], v);
+            return checkCubicForLineOrQuad([
+                ps[0],
+                ps[1],
+                sendToGrid(p2),
+                ps[3]
+            ]);
+        }
+    }
+}
+function checkCubicForLineOrQuad(ps) {
+    // return isLine(ps)
+    return isCollinear(ps)
+        ? [ps[0], ps[3]]
+        : isCubicReallyQuad(ps)
+            ? cubicToQuadratic(ps)
+            : ps;
+}
+/** Returns true if the points are the same */
+function arePsEqual(p1, p2) {
+    return p1[0] === p2[0] && p1[1] === p2[1];
+}
+
+//# sourceMappingURL=fix-bezier-by-point-spacing.js.map
+;// ./node_modules/flo-boolean/node/shape/normalize/fix-beziers.js
+
+
+
+function sendToGrid(expMax, maxBitLength) {
+    const toGrid_ = toGrid(expMax, maxBitLength);
+    return function (p) {
+        const x = toGrid_(p[0]);
+        const y = toGrid_(p[1]);
+        if (x === p[0] && y === p[1]) {
+            return p; // keep point's identity if possible
+        }
+        return [x, y];
+    };
+}
+function sendToGridNoop(p) { return p; }
+/**
+ * Returns the grid-aligned loop derived from the given input loop.
+ *
+ * Also ensures that:
+ * * All points are coerced onto a grid.
+ * * All bezier points of a single curve are seperated.
+ * @param expMax The exponent, e, such that 2^e > all bezier coordinate points.
+ * @param maxBitLength
+ */
+function fixBeziers(expMax, maxBitLength, doSendToGrid = true) {
+    /** The actual control point grid spacing */
+    const gridSpacing = 2 ** (expMax - maxBitLength);
+    const sendToGrid_ = doSendToGrid
+        ? sendToGrid(expMax, maxBitLength)
+        : sendToGridNoop;
+    return (loop) => {
+        const newPss = [];
+        for (let i = 0; i < loop.length; i++) {
+            let ps = loop[i].slice();
+            // Get endpoint of last good bezier or else the original start point
+            const len = newPss.length;
+            const prevGoodBezier = newPss[len - 1];
+            const prevGoodBezierEndpoint = prevGoodBezier
+                ? prevGoodBezier[prevGoodBezier.length - 1]
+                : sendToGrid_(loop[0][0]); // Bit-align original start point
+            // Set the start point to the previous good bezier's endpoint
+            ps[0] = prevGoodBezierEndpoint;
+            // Align to grid before doing any further checks
+            ps = ps.map(p => sendToGrid_(p));
+            // Check if ps degenerates into a self-overlapping line
+            if (isSelfOverlapping(ps)) {
+                // Change into a line with endponts that of the original bezier
+                ps = [ps[0], ps[ps.length - 1]];
+            }
+            ps = fixBezierByPointSpacing(ps, gridSpacing, sendToGrid_);
+            if (ps !== undefined) {
+                newPss.push(ps);
+            }
+        }
+        const len = newPss.length;
+        if (!len) {
+            return [];
+        }
+        // Connect the last bezier end-point to the first bezier start-point.
+        const ps = newPss[len - 1];
+        ps[ps.length - 1] = newPss[0][0];
+        return newPss;
+    };
+}
+
+//# sourceMappingURL=fix-beziers.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-x-bounds-tight.js
+
+
+
+/**
+ * Returns tight x-coordinate bounds of the given bezier curve.
+ *
+ * @param ps an order 1, 2 or 3 bezier curve given as an array of control
+ * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ *
+ * @doc mdx
+ */
+function getXBoundsTight(ps) {
+    const pS = ps[0];
+    const pE = ps[ps.length - 1];
+    let minX;
+    let maxX;
+    if (pS[0] < pE[0]) {
+        minX = { ts: [0, 0], box: [pS, pS] };
+        maxX = { ts: [1, 1], box: [pE, pE] };
+    }
+    else {
+        minX = { ts: [1, 1], box: [pE, pE] };
+        maxX = { ts: [0, 0], box: [pS, pS] };
+    }
+    if (ps.length === 2) {
+        return { minX, maxX };
+    }
+    const [dx,] = toPowerBasis_1stDerivative(ps);
+    const rootsX = roots(dx, 0, 1) || [];
+    // Test points
+    for (let i = 0; i < rootsX.length; i++) {
+        const r = rootsX[i];
+        const ts = [r.tS, r.tE];
+        const box = getIntervalBox(ps, ts);
+        if (box[0][0] < minX.box[0][0]) {
+            minX = { ts, box };
+        }
+        if (box[1][0] > maxX.box[0][0]) {
+            maxX = { ts, box };
+        }
+    }
+    return { minX, maxX };
+}
+
+//# sourceMappingURL=get-x-bounds-tight.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-y-bounds-tight.js
+
+
+
+/**
+ * Returns tight y-coordinate bounds of the given bezier curve.
+ *
+ * @param ps an order 1, 2 or 3 bezier curve given as an array of control
+ * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ *
+ * @doc mdx
+ */
+function getYBoundsTight(ps) {
+    const pS = ps[0];
+    const pE = ps[ps.length - 1];
+    let minY;
+    let maxY;
+    if (pS[1] < pE[1]) {
+        minY = { ts: [0, 0], box: [pS, pS] };
+        maxY = { ts: [1, 1], box: [pE, pE] };
+    }
+    else {
+        minY = { ts: [1, 1], box: [pE, pE] };
+        maxY = { ts: [0, 0], box: [pS, pS] };
+    }
+    if (ps.length === 2) {
+        return { minY, maxY };
+    }
+    const [, dy] = toPowerBasis_1stDerivative(ps);
+    const rootsY = roots(dy, 0, 1) || [];
+    // Test points
+    for (let i = 0; i < rootsY.length; i++) {
+        const r = rootsY[i];
+        const ts = [r.tS, r.tE];
+        const box = getIntervalBox(ps, ts);
+        if (box[0][1] < minY.box[0][1]) {
+            minY = { ts, box };
+        }
+        if (box[1][1] > maxY.box[0][1]) {
+            maxY = { ts, box };
+        }
+    }
+    return { minY, maxY };
+}
+
+//# sourceMappingURL=get-y-bounds-tight.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-bounding-box.js
+
+
+/**
+ * Returns a tight axis-aligned bounding box of the given bezier curve.
+ *
+ * * **certified**: the box is guaranteed to engulf the given bezier curve.
+ *
+ * * returns the box in the form `[[minX, minY], [maxX, maxY]`
+ *
+ * @param ps an order 1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ *
+ * @doc mdx
+ */
+function getBoundingBox(ps) {
+    const xBounds = getXBoundsTight(ps);
+    const yBounds = getYBoundsTight(ps);
+    return [
+        [xBounds.minX.box[0][0], yBounds.minY.box[0][1]],
+        [xBounds.maxX.box[1][0], yBounds.maxY.box[1][1]]
+    ];
+}
+
+//# sourceMappingURL=get-bounding-box.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/length/control-point-lines-length.js
+
+/**
+ * Returns an upper bound for the length of the given bezier curve - this bound
+ * is not very strict as it uses the sum of the straight-line distances between
+ * control points as a measure.
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
+ *
+ * @doc mdx
+ */
+function controlPointLinesLength(ps) {
+    let totalLength = 0;
+    for (let i = 0; i < ps.length - 1; i++) {
+        totalLength += distanceBetween(ps[i], ps[i + 1]);
+    }
+    return totalLength;
+}
+
+//# sourceMappingURL=control-point-lines-length.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-bounding-box-tight.js
+
+
+
+
+const { sqrt: get_bounding_box_tight_sqrt } = Math;
+/**
+ * Returns a **non-certified**, **rotated**, **tight** bounding box of the given
+ * bezier curve as four ordered points of a rotated rectangle (with each given
+ * as `[x,y]`)
+ *
+ * @param ps an order 1,2 or 3 bezier curve given as an array of its control
+ * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ *
+ * @doc mdx
+ */
+function getBoundingBoxTight(ps) {
+    const [xS, yS] = ps[0];
+    const [xE, yE] = ps[ps.length - 1];
+    let sinθ;
+    let cosθ;
+    // take care of the case the endpoints are close together
+    const len = controlPointLinesLength(ps);
+    if (squaredDistanceBetween(ps[0], ps[ps.length - 1]) * 2 ** 8 < len * len) {
+        const [xE_, yE_] = evalDeCasteljau(ps, 0.5);
+        const hypotenuse = get_bounding_box_tight_sqrt((xE_ - xS) * (xE_ - xS) + (yE_ - yS) * (yE_ - yS));
+        sinθ = (yE_ - yS) / hypotenuse;
+        cosθ = (xE_ - xS) / hypotenuse;
+    }
+    else {
+        const hypotenuse = get_bounding_box_tight_sqrt((xE - xS) * (xE - xS) + (yE - yS) * (yE - yS));
+        sinθ = (yE - yS) / hypotenuse;
+        cosθ = (xE - xS) / hypotenuse;
+    }
+    const box = getNormalizedBoundingBox(ps, sinθ, cosθ);
+    const [[p0x, p0y], [p1x, p1y]] = box;
+    const axisAlignedBox = [
+        box[0], [p1x, p0y],
+        box[1], [p0x, p1y]
+    ];
+    const rotate_ = rotate(sinθ, cosθ);
+    return axisAlignedBox.map(p => translate(ps[0], rotate_(p)));
+}
+/**
+ * Helper function. Returns the bounding box of the normalized (i.e. first point
+ * moved to origin and rotated so that last point lies on x-axis) given cubic
+ * bezier.
+ *
+ * * returns the bounding box in the form [[minX, minY], [maxX,maxY]
+ *
+ * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * @param sinθ - Sine of angle made by line from first bezier point to
+ * last with x-axis.
+ * @param cosθ - Cosine of angle made by line from first bezier point
+ * to last with x-axis.
+ *
+ * @internal
+ */
+function getNormalizedBoundingBox(ps, sinθ, cosθ) {
+    const vectorToOrigin = ps[0].map(x => -x);
+    const f = translate(vectorToOrigin);
+    const boundingPs = ps.map(p => rotate(-sinθ, cosθ, f(p)));
+    return getBoundingBox(boundingPs);
+}
+
+//# sourceMappingURL=get-bounding-box-tight.js.map
 ;// ./node_modules/flo-graham-scan/node/get-smallest-idx-y-then-x.js
 /**
  * @internal
@@ -18051,6 +17764,1173 @@ function filterEqualPoints(ps) {
 const getBoundingHull = grahamScan;
 
 //# sourceMappingURL=get-bounding-hull.js.map
+;// ./node_modules/flo-boolean/node/geometry/get-bounding-box-.js
+
+
+const getBoundingBox$ = memoize(getBoundingBox);
+
+//# sourceMappingURL=get-bounding-box-.js.map
+;// ./node_modules/flo-boolean/node/main/add-debug-info-1.js
+
+
+function addDebugInfo1(bezierLoops) {
+    if (typeof _debug_ === 'undefined') {
+        return;
+    }
+    // Modifies the displayed SVG to reflect changes caused by `normalizeLoops`.
+    // if (typeof document !== 'undefined') { 
+    //     const pathStr = loopsToSvgPathStr(bezierLoops); 
+    //     const $svg = document.getElementsByClassName('shape')[0]; 
+    //     $svg.setAttributeNS(null, 'd', pathStr); 
+    // }
+    for (const loop of bezierLoops) {
+        _debug_.elems.loopPre.push(...bezierLoops);
+        _debug_.elems.loopsPre.push(bezierLoops);
+        for (const ps of loop) {
+            const lbb = getBoundingBox$(ps);
+            const tbb = getBoundingBoxTight(ps);
+            const bhull = getBoundingHull(ps, false);
+            _debug_.elems.bezier_.push(ps);
+            _debug_.elems.looseBoundingBox_.push(lbb);
+            _debug_.elems.tightBoundingBox_.push(tbb);
+            _debug_.elems.boundingHull_.push(bhull);
+        }
+    }
+}
+
+//# sourceMappingURL=add-debug-info-1.js.map
+;// ./node_modules/flo-boolean/node/shape/normalize/normalize-loop.js
+
+
+
+
+/**
+ * Returns new loops from the given loops by aligning the 53-bit double
+ * precision coordinates to 46-bit coordinates. This speeds up the algorithm
+ * considerably.
+ *
+ * The following guarantees are put in place for the returned loops:
+ * * All points are coerced onto a grid. In other words, such that the
+ *   significand of all coordinates are reduced to a specified number of bits
+ *   and the significant bits of all points 'overlap'.
+ *
+ * * No curves are disguised as higher order curves (this includes the case
+ *   that no bezier is of zero length and the case where there are an infinite
+ *   number of self-intersections). The curves are simply deflated exactly.
+ *
+ * * No cusps (this includes the case that all bezier end-points of each curve
+ *   are seperated. (this prevents infinite curvature at the endpoints, etc).
+ *   (this condition is not necessary for this algorithm but may help algorithms
+ *    down the line that needs such guarantees)
+ *
+ * @param bezierLoops
+ * @param maxBitLength
+ * @param expMax
+ */
+const normalizeLoops = timeFunctionCalls(function normalizeLoops(bezierLoops, expMax) {
+    const loops = bezierLoops
+        .slice()
+        .map(fixBeziers(expMax, (/* inlined export .MAX_BIT_LENGTH */46)))
+        .filter(loop => loop.length > 0);
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.timing.normalize = performance.now() - _debug_.timing.timingStart;
+    }
+    addDebugInfo1(loops);
+    return loops;
+});
+
+//# sourceMappingURL=normalize-loop.js.map
+;// ./node_modules/flo-boolean/node/shape/normalize/get-max-coordinate.js
+const { max: get_max_coordinate_max, abs: get_max_coordinate_abs } = Math;
+/**
+ * Returns the maximum control point coordinate value (x or y) within any loop.
+ * @param loops The array of loops
+ */
+function getMaxCoordinate(loops) {
+    let max_ = -Infinity;
+    for (const loop of loops) {
+        for (const ps of loop) {
+            for (const p of ps) {
+                for (const c of p) {
+                    max_ = get_max_coordinate_max(max_, get_max_coordinate_abs(c));
+                }
+            }
+        }
+    }
+    return max_;
+}
+
+//# sourceMappingURL=get-max-coordinate.js.map
+;// ./node_modules/flo-boolean/node/main/create-root-in-out.js
+function createRootInOut() {
+    return {
+        dir: undefined,
+        idx: 0,
+        parent: undefined,
+        children: new Set(),
+        windingNum: 0,
+        _x_: undefined,
+        // orientation: -1,
+        orientation: 0,
+        twin: undefined,
+        path: undefined,
+        nextAround: undefined,
+        prevAround: undefined,
+        loop: undefined,
+        container: undefined
+    };
+}
+
+//# sourceMappingURL=create-root-in-out.js.map
+;// ./node_modules/double-double/node/double-double/binary/dd-gte.js
+/**
+ * Returns `true` if `x1 >= x2`, `false` otherwise.
+ *
+ * @param x1 a double-double precision floating point number
+ * @param x2 a double-double precision floating point number
+ */
+function ddGte(x1, x2) {
+    if (x1[1] > x2[1]) {
+        return true;
+    }
+    if (x1[1] < x2[1]) {
+        return false;
+    }
+    if (x1[0] >= x2[0]) {
+        return true;
+    }
+    return false;
+}
+
+//# sourceMappingURL=dd-gte.js.map
+;// ./node_modules/flo-bezier3/node/bezier-piece/bezier-piece-to-bezier.js
+
+function bezierPieceToBezier(piece) {
+    const { ps, ts } = piece;
+    return fromTo(ps, ts[0], ts[1]);
+}
+
+//# sourceMappingURL=bezier-piece-to-bezier.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/get-shape-bounds.js
+
+
+const { min: get_shape_bounds_min, max: get_shape_bounds_max } = Math;
+const getShapeBounds$ = memoize(getShapeBounds);
+function getShapeBounds(pss) {
+    const bounds = pss.map(getBounds$);
+    return {
+        minX: get_shape_bounds_min(...bounds.map(bound => bound.box[0][0])),
+        maxX: get_shape_bounds_max(...bounds.map(bound => bound.box[1][0])),
+        minY: get_shape_bounds_min(...bounds.map(bound => bound.box[0][1])),
+        maxY: get_shape_bounds_max(...bounds.map(bound => bound.box[1][1])),
+    };
+}
+
+//# sourceMappingURL=get-shape-bounds.js.map
+;// ./node_modules/flo-boolean/node/is-loop-in-loop/is-loop-not-in-loop.js
+
+/**
+ * Returns `true` if the first loop is not wholly within the second. The converse
+ * is not necessarily true. It is assumed the loops don't intersect.
+ *
+ * @param loops
+ */
+function isLoopNotInLoop(loop1, loop2) {
+    const bounds1 = getShapeBounds$(loop1);
+    const bounds2 = getShapeBounds$(loop2);
+    return (bounds1.minX < bounds2.minX ||
+        bounds1.maxX > bounds2.maxX ||
+        bounds1.minY < bounds2.minY ||
+        bounds1.maxY > bounds2.maxY);
+}
+
+//# sourceMappingURL=is-loop-not-in-loop.js.map
+;// ./node_modules/flo-boolean/node/is-loop-in-loop/get-candidates.js
+
+
+/**
+ * Returns the curves of `loop` whose y-extent contains `y` (inclusive), i.e.
+ * the candidates a horizontal ray at level `y` could possibly cross.
+ *
+ * The first call for a given `loop` builds a cached, coordinate-compressed slab
+ * index in `O(n log n)`; each call then answers the stabbing query in
+ * `O(log n)` via binary search (plus the returned candidate array, which the
+ * caller must iterate anyway).
+ *
+ * @param loop a loop of curves
+ * @param y the ray level
+ */
+function getCandidates(bezierPieces, y) {
+    // For small loops the `O(n log n)` slab-index build isn't worth it - just
+    // scan all curves and test the y-extent directly.
+    if (bezierPieces.length < 10) {
+        const candidates = [];
+        for (let i = 0; i < bezierPieces.length; i++) {
+            const bezierPiece = bezierPieces[i];
+            const { ps } = bezierPiece;
+            const [[, minY], [, maxY]] = getBoundingBox$(ps);
+            if (minY <= y && maxY >= y) {
+                candidates.push(bezierPiece);
+            }
+        }
+        return candidates;
+    }
+    const index = buildSlabIndex$(bezierPieces);
+    const { ys, slabs } = index;
+    // `y` lies outside every curve's y-extent -> no candidates.
+    if (ys.length === 0 || y < ys[0] || y > ys[ys.length - 1]) {
+        return [];
+    }
+    // Binary search the compressed axis for the slab containing `y`.
+    const k = lowerBound(ys, y); // first boundary with ys[k] >= y
+    const slab = ys[k] === y
+        ? 2 * k // exactly on a boundary -> point-slab
+        : 2 * k - 1; // strictly between ys[k-1] and ys[k] -> interval-slab
+    return slabs[slab];
+}
+/**
+ * Returns the index of the first element in `arr` that is `>= x`
+ * (i.e. a standard lower-bound binary search). `arr` must be sorted ascending.
+ */
+function lowerBound(arr, x) {
+    let lo = 0;
+    let hi = arr.length;
+    while (lo < hi) {
+        const mid = (lo + hi) >>> 1;
+        if (arr[mid] < x) {
+            lo = mid + 1;
+        }
+        else {
+            hi = mid;
+        }
+    }
+    return lo;
+}
+/**
+ * Builds the coordinate-compressed slab index for a loop.
+ *
+ * @param loop a loop of curves
+ */
+const buildSlabIndex$ = memoize(function (bezierPieces) {
+    //------------------------------------------------------/
+    //---- Coordinate compression: gather + dedupe extents -/
+    //------------------------------------------------------/
+    const coords = new Set();
+    const extents = new Array(bezierPieces.length);
+    for (let i = 0; i < bezierPieces.length; i++) {
+        const { ps } = bezierPieces[i];
+        const [[, minY], [, maxY]] = getBoundingBox$(ps);
+        extents[i] = [minY, maxY];
+        coords.add(minY);
+        coords.add(maxY);
+    }
+    const ys = Array.from(coords).sort((a, b) => a - b);
+    const slabCount = ys.length === 0 ? 0 : 2 * ys.length - 1;
+    const slabs = new Array(slabCount);
+    for (let s = 0; s < slabCount; s++) {
+        slabs[s] = [];
+    }
+    //------------------------------------------------------/
+    //---- Bucket each curve into the slabs it covers ------/
+    //------------------------------------------------------/
+    // A curve with extent [minY, maxY] covers every slab from the point-slab of
+    // `minY` (index `2*a`) through the point-slab of `maxY` (index `2*b`),
+    // inclusive - which also includes all interval-slabs in between.
+    for (let i = 0; i < bezierPieces.length; i++) {
+        const [minY, maxY] = extents[i];
+        const loSlab = 2 * lowerBound(ys, minY); // both endpoints are present
+        const hiSlab = 2 * lowerBound(ys, maxY); // in `ys`, so this is exact
+        for (let s = loSlab; s <= hiSlab; s++) {
+            const bezierPiece = bezierPieces[i];
+            slabs[s].push(bezierPiece);
+        }
+    }
+    return { ys, slabs };
+});
+
+//# sourceMappingURL=get-candidates.js.map
+;// ./node_modules/flo-boolean/node/is-loop-in-loop/get-crossing-count-at-endpoints.js
+const { sign: get_crossing_count_at_endpoints_sign } = Math;
+/**
+ * `getIsCrossingUp(ps, t)` looks at a line / quadratic / cubic bezier `ps` that
+ * has one endpoint on the ray (`y === 0` at parameter `t`, where `t` is `0` for
+ * the first point or `1` for the last) and reports the direction the curve
+ * departs from that endpoint:
+ *
+ *   * `+1`  the curve leaves the endpoint going up   (first non-zero y is > 0)
+ *   * `-1`  the curve leaves the endpoint going down (first non-zero y is < 0)
+ *   * ` 0`  degenerate - every interior control point lies on the ray
+ *
+ * The endpoints are the edge cases used when computing winding numbers, so the
+ * `t === 0` and `t === 1` sides must behave symmetrically.
+ */
+function getCrossingCountAtEndpoints(ps, t) {
+    const ps_ = t === 0 ? ps : ps.toReversed();
+    const ys = [ps_[0]?.[1], ps_[1]?.[1], ps_[2]?.[1], ps_[3]?.[1]];
+    // Note: ys[0] is gauranteed to be 0 here.
+    let y;
+    let s;
+    y = ys[1];
+    // if (y === undefined) { return 0; }  // it's a point
+    s = get_crossing_count_at_endpoints_sign(y);
+    if (s !== 0) {
+        return s;
+    }
+    y = ys[2];
+    if (y === undefined) {
+        return 0;
+    } // it's a line
+    s = get_crossing_count_at_endpoints_sign(y);
+    if (s !== 0) {
+        return s;
+    }
+    y = ys[3];
+    if (y === undefined) {
+        return 0;
+    } // it's a quadratic bezier
+    return get_crossing_count_at_endpoints_sign(y);
+}
+
+//# sourceMappingURL=get-crossing-count-at-endpoints.js.map
+;// ./node_modules/flo-boolean/node/is-loop-in-loop/to-power-basis-root-at.js
+/* unused harmony import specifier */ var deflate;
+
+/**
+ * Returns the power basis representation of the y coordinate of a line,
+ * quadratic or cubic bezier curve.
+ *
+ * * the first control point is assumed to be at `y === 0`.
+ *
+ * * cubics return a quadratic polynomial, quadratics a linear, and lines just
+ *   a constant
+ * * intermediate calculations are done in double precision
+ * * returns the resulting power basis coordinate polynomial from
+ *   highest power to lowest
+ *
+ * @param cs an order 1,2 or 3 bezier curve given by an ordered array of its
+ * control points
+ */
+function toPowerBasisY0At0(ps) {
+    const y1 = ps[1][1];
+    if (ps.length === 2) {
+        return [y1];
+    }
+    const y2 = ps[2][1];
+    if (ps.length === 3) {
+        // y0 assumed zero
+        return [
+            y2 - 2 * y1,
+            2 * y1
+        ];
+    }
+    // ps.length === 4
+    // y0 assumed zero
+    const y3 = ps[3][1];
+    return [
+        y3 + 3 * (y1 - y2),
+        3 * (y2 - 2 * y1),
+        3 * y1,
+    ];
+}
+/**
+ * Returns the power basis representation of the y coordinate of a line,
+ * quadratic or cubic bezier curve.
+ *
+ * * the first and 2nd control point is assumed to be at `y === 0`.
+ *
+ * * cubics return a linear polynomial, quadratics just a constant and lines
+ *   the zero polynomial
+ * * intermediate calculations are done in double precision
+ * * returns the resulting power basis coordinate polynomial from
+ *   highest power to lowest
+ *
+ * @param cs an order 1,2 or 3 bezier curve given by an ordered array of its
+ * control points
+ */
+function toPowerBasisY00At0(ps) {
+    if (ps.length === 2) {
+        return [];
+    }
+    const y2 = ps[2][1];
+    if (ps.length === 3) {
+        // y0, y1 assumed zero
+        return [y2];
+    }
+    // ps.length === 4
+    // y0, y1 assumed zero
+    const y3 = ps[3][1];
+    return [
+        y3 - 3 * y2,
+        3 * y2
+    ];
+}
+/**
+ * Returns the power basis representation of the y coordinate of a line,
+ * quadratic or cubic bezier curve.
+ *
+ * * the first, 2nd and 3rd control point is assumed to be at `y === 0`.
+ *
+ * * cubics return a just a constant and quadratics and lines the zero
+ *   polynomial
+ * * intermediate calculations are done in double precision
+ * * returns the resulting power basis coordinate polynomial from
+ *   highest power to lowest
+ *
+ * @param cs an order 1,2 or 3 bezier curve given by an ordered array of its
+ * control points
+ */
+function toPowerBasisY000At0(ps) {
+    if (ps.length <= 3) {
+        // y0, y1, y2 assumed zero
+        return [];
+    }
+    // ps.length === 4
+    // y0, y1, y2 assumed zero
+    const y3 = ps[3][1];
+    return [y3];
+}
+function toPowerBasisY0At1(ps) {
+    const y0 = ps[0][1];
+    if (ps.length === 2) {
+        // y1 assumed zero
+        return [-y0];
+    }
+    const y1 = ps[1][1];
+    if (ps.length === 3) {
+        // y2 assumed zero
+        return [
+            -2 * y1 + y0,
+            -y0
+        ];
+    }
+    // ps.length === 4
+    const y2 = ps[2][1];
+    // y3 assumed zero
+    return [
+        3 * (y1 - y2) - y0,
+        -3 * y1 + 2 * y0,
+        -y0
+    ];
+}
+function toPowerBasisY00At1(ps) {
+    if (ps.length === 2) {
+        // y1, y0 assumed zero
+        return [];
+    }
+    const y0 = ps[0][1];
+    if (ps.length === 3) {
+        // y2, y1 assumed zero
+        return [y0];
+    }
+    // ps.length === 4
+    const y1 = ps[1][1];
+    // y3, y2 assumed zero
+    return [
+        3 * y1 - y0,
+        y0
+    ];
+}
+function toPowerBasisY000At1(ps) {
+    if (ps.length <= 3) {
+        return [];
+    }
+    // ps.length === 4
+    const y0 = ps[0][1];
+    // y3, y2, y1 assumed zero
+    return [-y0];
+}
+function toPowerBasisY0At0and1(ps) {
+    if (ps.length === 2) {
+        return []; // same case as `toPowerBasisY00At0`, ps.length === 2
+    }
+    const y1 = ps[1][1];
+    if (ps.length === 3) {
+        // y0 assumed zero
+        // y2 assumed zero
+        return [-2 * y1];
+    }
+    // ps.length === 4
+    // y0 assumed zero
+    // y3 assumed zero
+    const y2 = ps[2][1];
+    return [
+        3 * (y1 - y2),
+        -3 * y1
+    ];
+}
+/**
+ * Returns the power basis (highest power to lowest) of the y coordinate of a
+ * line, quadratic or cubic bezier curve with a *double* root at `t === 0` and a
+ * single root at `t === 1` already deflated out.
+ *
+ * * only a cubic can carry these 3 roots and still be non-trivial (it reduces
+ *   to a constant); lower orders give the zero polynomial.
+ */
+function toPowerBasisY00At0and0At1(ps) {
+    if (ps.length <= 3) {
+        // 3 forced roots on an order <= 2 curve => the zero polynomial
+        return [];
+    }
+    // ps.length === 4
+    // y0, y1 assumed zero (double root at 0)
+    // y3 assumed zero (root at 1)
+    const y2 = ps[2][1];
+    return [-3 * y2];
+}
+/**
+ * Returns the power basis (highest power to lowest) of the y coordinate of a
+ * line, quadratic or cubic bezier curve with a single root at `t === 0` and a
+ * *double* root at `t === 1` already deflated out.
+ *
+ * * only a cubic can carry these 3 roots and still be non-trivial (it reduces
+ *   to a constant); lower orders give the zero polynomial.
+ */
+function toPowerBasisY0At0and00At1(ps) {
+    if (ps.length <= 3) {
+        // 3 forced roots on an order <= 2 curve => the zero polynomial
+        return [];
+    }
+    // ps.length === 4
+    // y0 assumed zero (root at 0)
+    // y2, y3 assumed zero (double root at 1)
+    const y1 = ps[1][1];
+    return [3 * y1];
+}
+/**
+ * Returns the power basis (highest power to lowest) of the y coordinate of a
+ * line, quadratic or cubic bezier curve with a *double* root at `t === 0` and a
+ * *double* root at `t === 1` already deflated out.
+ *
+ * * 4 forced roots exceed the order of any line/quadratic/cubic, so the result
+ *   is always the zero polynomial. Included only for completeness.
+ */
+function toPowerBasisY00At0and00At1(_ps) {
+    return [];
+}
+function toPowerBasis3(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    return [
+        (y3 - y0) + 3 * (y1 - y2),
+        3 * ((y2 + y0) - 2 * y1),
+        3 * (y1 - y0),
+        y0
+    ];
+}
+/** @internal */
+function toPowerBasis2(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    return [
+        (y2 + y0) - 2 * y1,
+        2 * (y1 - y0),
+        y0
+    ];
+}
+/** @internal */
+function toPowerBasis1(ps) {
+    const [[x0, y0], [x1, y1]] = ps;
+    return [
+        y1 - y0,
+        y0
+    ];
+}
+/**
+ * Returns the full power basis (highest power to lowest) of the y coordinate of
+ * an order 1, 2 or 3 bezier curve.
+ */
+function toPowerBasisY(ps) {
+    return ps.length === 4 ? toPowerBasis3(ps) :
+        ps.length === 3 ? toPowerBasis2(ps) :
+            toPowerBasis1(ps);
+}
+/**
+ * Returns the power basis (highest power to lowest) of the y coordinate of an
+ * order 1, 2 or 3 bezier curve, with `numRoots0` known roots at `t === 0` and
+ * `numRoots1` known roots at `t === 1` deflated out.
+ *
+ * This subsumes every hand-specialised variant, e.g:
+ * * `toPowerBasisY0At0`     -> `toPowerBasisRootsAt(ps, 1, 0)`
+ * * `toPowerBasisY000At0`   -> `toPowerBasisRootsAt(ps, 3, 0)`
+ * * `toPowerBasisY00At1`    -> `toPowerBasisRootsAt(ps, 0, 2)`
+ * * `toPowerBasisY0At0and1` -> `toPowerBasisRootsAt(ps, 1, 1)`
+ *
+ * and the previously missing cases:
+ * * double root at 0 + single at 1 -> `toPowerBasisRootsAt(ps, 2, 1)`
+ * * single root at 0 + double at 1 -> `toPowerBasisRootsAt(ps, 1, 2)`
+ * * double root at 0 + double at 1 -> `toPowerBasisRootsAt(ps, 2, 2)`
+ */
+function toPowerBasisRootsAt(ps, numRoots0, numRoots1) {
+    let cs = toPowerBasisY(ps);
+    // divide by t^numRoots0       -> drop the lowest coefficient each time
+    for (let i = 0; i < numRoots0; i++) {
+        cs = deflate(cs, 0);
+    }
+    // divide by (t - 1)^numRoots1 -> synthetic division by root 1 each time
+    for (let i = 0; i < numRoots1; i++) {
+        cs = deflate(cs, 1);
+    }
+    return cs;
+}
+/**
+ * Exact-arithmetic alternative to `toPowerBasisRootsAt` with the same signature.
+ *
+ * Instead of forming the full power basis and deflating it (which enlarges the
+ * intermediate coefficients), this dispatches straight to the hand-specialised
+ * closed forms, keeping bit-length growth - and thus floating point headroom -
+ * to a minimum.
+ *
+ * For pre-conditioned order 1-3 beziers (2 to 4 control points, no degenerate
+ * quadratics/cubics) the only reachable `(numRoots0, numRoots1)` combinations
+ * are those handled below; combinations that would require the curve to be
+ * collinear with the ray (e.g. `(2,2)`, `(3,1)`, `(1,3)`) do not occur.
+ */
+function toPowerBasisRootsAtExact(ps, numRoots0, numRoots1) {
+    if (numRoots1 === 0) {
+        return numRoots0 === 0 ? toPowerBasisY(ps) :
+            numRoots0 === 1 ? toPowerBasisY0At0(ps) :
+                numRoots0 === 2 ? toPowerBasisY00At0(ps) :
+                    toPowerBasisY000At0(ps); // (3,0)
+    }
+    if (numRoots0 === 0) {
+        return numRoots1 === 1 ? toPowerBasisY0At1(ps) :
+            numRoots1 === 2 ? toPowerBasisY00At1(ps) :
+                toPowerBasisY000At1(ps); // (0,3)
+    }
+    // a root at each end
+    return numRoots0 === 1 && numRoots1 === 1 ? toPowerBasisY0At0and1(ps) :
+        numRoots0 === 2 && numRoots1 === 1 ? toPowerBasisY00At0and0At1(ps) :
+            numRoots0 === 1 && numRoots1 === 2 ? toPowerBasisY0At0and00At1(ps) :
+                toPowerBasisY00At0and00At1(ps); // (2,2) -> []
+}
+
+
+//# sourceMappingURL=to-power-basis-root-at.js.map
+;// ./node_modules/flo-boolean/node/is-loop-in-loop/is-loop-in-loop.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Returns `true` if the first loop is wholly contained within the second loop's
+ * boundary.
+ *
+ * * precondition: the loop must either wholly contained inside the loop or be
+ *   wholly outside.
+ *
+ * @param loop1
+ * @param loop2
+ */
+const _isLoopInLoop = timeFunctionCalls(function _isLoopInLoop(expMax, loop1, bezierPieces) {
+    // if (typeof _debug_ !== 'undefined') { _debug_.callCounts.lil1++; }
+    const loop2 = bezierPiecesToBeziers$(bezierPieces);
+    if (isLoopNotInLoop(loop1, loop2)) {
+        return false;
+    }
+    // Choose a NON-DEGENERATE ray-start point on `loop1`. A ray that passes
+    // exactly through a vertex of, or lies collinear with an edge of, `loop2`
+    // makes the crossing count ambiguous - `isPointInLoop` then returns
+    // `undefined`. Sample points on `loop1` until one gives a definite answer:
+    // sweep every bezier at a bisection sequence of parameter values
+    // 0, 1/2, 1/4, 3/4, 1/8, ... (t = 1 is skipped as it coincides with the
+    // next bezier's t = 0). Degenerate points form a measure-zero set, so this
+    // resolves almost immediately.
+    for (const t of bisectionParams(30)) {
+        for (const bezier of loop1) {
+            const p = toP(bezier, t);
+            const r = isPointInLoop(expMax, p, bezierPieces);
+            if (r !== undefined) {
+                return r;
+            }
+        }
+    }
+    // Unreachable for valid input: a valid loop always has a non-degenerate
+    // ray-start point well within 30 bisection levels.
+    throw new Error('_isLoopInLoop: no non-degenerate ray-start point found');
+});
+function isPointInLoop(expMax, p, bezierPieces) {
+    const count = getAxisAlignedRayLoopIntersections(expMax, bezierPieces, p);
+    if (count === undefined) {
+        return undefined;
+    }
+    return count % 2 !== 0;
+}
+/**
+ * Returns the number of times an axis-aligned ray from `p` crosses the loop,
+ * or `undefined` when the result is ambiguous - i.e. when a crossing falls
+ * within `2*eps` of an inexact piece boundary (an intersection parameter that
+ * is not exactly 0 or 1). The caller resolves this by retrying the ray from a
+ * different point.
+ *
+ * Crossings are counted delta-free:
+ * * roots are taken on the half-open parameter interval `[0,1)` so a vertex
+ *   shared by two curves is owned by exactly one of them and counted once;
+ * * each root contributes `multiplicity % 2`, so a transversal crossing (odd
+ *   multiplicity) counts while a tangential touch (even multiplicity) does not.
+ *
+ * @param loop a loop of curves
+ * @param p the point where the ray starts
+ * @param dir the ray direction
+ */
+const getAxisAlignedRayLoopIntersections = timeFunctionCalls(function getAxisAlignedRayLoopIntersections(expMax, bezierPieces, p) {
+    // if (typeof _debug_ !== 'undefined') { _debug_.callCounts.lil2++; }
+    const [X, Y] = p;
+    const candidates = getCandidates(bezierPieces, Y);
+    let count = 0;
+    for (let i = 0; i < candidates.length; i++) {
+        // if (typeof _debug_ !== 'undefined') { _debug_.callCounts.lil3++; }
+        const piece = candidates[i];
+        const { ps, ts } = piece;
+        // Check if ray origin is to right of bezier bounding box
+        const minX = getBoundingBox$(ps)[0][0];
+        if (minX > X) {
+            continue;
+        }
+        // if (typeof _debug_ !== 'undefined') { _debug_.callCounts.lil4++; }
+        //------------------------------------------------------/
+        //----------- Count ray crossings on bezier ------------/
+        //------------------------------------------------------/
+        // const ps_ = bezierPieceToBezier(piece);  // rather keep original `ps` by working with `BezierPiece` instead.
+        const tPs = ps.map(translate([0, -Y])); // exact (due to 46-bit alignment)
+        // exact polynomial since max bit-length increase === 4 and tPs is 46-bit aligned -> 50 bits max
+        // `tPs` may have 2, 3 or 4 control points (a line, quadratic or cubic).
+        const n = tPs.length;
+        // A control point at y === 0 (the ray has been translated to y = 0) means
+        // the curve passes exactly through the ray at that end, i.e. a guaranteed
+        // root: leading zeros from the start force successive roots at t = 0 and
+        // trailing zeros from the end force successive roots at t = 1. We deflate
+        // these known endpoint roots out of the polynomial so `roots` below only
+        // yields interior crossings - shared vertices are then not counted twice
+        // when the ray passes exactly through an endpoint. The count is capped at
+        // the curve order (`n - 1`); an all-zero (collinear) curve is handled by
+        // the `roots === undefined` branch below.
+        let numRoots0 = 0;
+        while (numRoots0 < n - 1 && tPs[numRoots0][1] === 0) {
+            numRoots0++;
+        }
+        let numRoots1 = 0;
+        while (numRoots1 < n - 1 && tPs[n - 1 - numRoots1][1] === 0) {
+            numRoots1++;
+        }
+        const poly = toPowerBasisRootsAtExact(tPs, numRoots0, numRoots1);
+        // Endpoint crossings (t = 0 and/or t = 1 lying exactly on the ray) were
+        // deflated out of `poly` above, so `roots` below reports only interior
+        // crossings. Account for each shared vertex here exactly once using the
+        // strict-above (half-open) convention: count a crossing only when the
+        // curve departs *above* the ray. A monotone crossing is then counted
+        // once (odd) while a local extremum is counted on both its adjacent
+        // edges (even) - both correct under the final `count % 2`.
+        //
+        // This runs before the collinear/no-root `continue` below so that
+        // endpoint-only crossings (e.g. a triple root at t = 0, whose deflated
+        // polynomial is a non-zero constant with no interior roots) aren't missed.
+        //
+        // `numRoots0`/`numRoots1` are derived from the *original* curve's
+        // endpoint control points, but a `BezierPiece` may cover only a
+        // sub-interval `ts` of that curve (e.g. the partial first/last piece of
+        // a run). So only count an endpoint the piece actually reaches:
+        // `ts[0] <= 0` for t = 0 and `ts[1] >= 1` for t = 1.
+        // A `BezierPiece` may carry a reversed sub-interval (`ts[0] > ts[1]`)
+        // for a swapped node; ray crossings depend only on the covered point
+        // set, so normalize to an increasing `[tS, tE]`.
+        const tS = Math.min(ts[0], ts[1]);
+        const tE = Math.max(ts[0], ts[1]);
+        if (numRoots0 > 0 && tS <= 0) {
+            const up = getCrossingCountAtEndpoints(tPs, 0) > 0;
+            const onRaySide = p[0] >= tPs[0][0];
+            if (up && onRaySide) {
+                count++;
+            }
+        }
+        if (numRoots1 > 0 && tE >= 1) {
+            const up = getCrossingCountAtEndpoints(tPs, 1) > 0;
+            const onRaySide = p[0] >= tPs[tPs.length - 1][0];
+            if (up && onRaySide) {
+                count++;
+            }
+        }
+        const tS_ = clamp(tS - 2 * eps, 0, 1); // error in roots (of original X calculation) is max 2 eps
+        const tE_ = clamp(tE + 2 * eps, 0, 1); // ...
+        // Roots of the coordinate perpendicular to the ray give the parameter
+        // values where the curve meets the ray's (infinite) line.
+        const rs = roots(poly, tS_, tE_);
+        if (rs === undefined || rs.length === 0) {
+            // The curve is collinear with the ray - the crossing count is "even"
+            continue;
+        }
+        for (const r of rs) {
+            const { t, multiplicity } = r;
+            // `tS`/`tE` are, in general, inexact: they are intersection
+            // parameters between two beziers (algebraic numbers) unless they are
+            // exactly 0 or 1 (a real curve endpoint). We widened the search by
+            // 2*eps to be sure of capturing every genuine root, but that means a
+            // root landing within 4*eps of such an inexact boundary is ambiguous
+            // - we cannot tell whether it truly lies inside this piece. Bail so
+            // the caller retries the ray from a different point.
+            if ((tS !== 0 && Math.abs(t - tS) <= 4 * eps) ||
+                (tE !== 1 && Math.abs(t - tE) <= 4 * eps)) {
+                return undefined;
+            }
+            // The below is more accurate but much slower then the calculation below
+            //----------------------------------------------------------------------
+            // const box = getIntervalBox(ps, [tS,tE]);
+            // const minX = box[0][0];
+            // const maxX = box[1][0];
+            // const along = toP(tPs, t)[0];
+            // const alongMin = minX;
+            // const alongMax = maxX;
+            //----------------------------------------------------------------------
+            //----------------------------------------------------------------------
+            const along = toP(tPs, t)[0];
+            // === max dX by definition for cubics * max error in roots * 2
+            const δ = (24 * (2 ** expMax)) * (4 * eps);
+            const alongMin = along - δ;
+            const alongMax = along + δ;
+            //----------------------------------------------------------------------
+            const onRaySideMin = p[0] > alongMin;
+            const onRaySideMax = p[0] > alongMax;
+            const canResolve = onRaySideMin === onRaySideMax;
+            if (!canResolve) {
+                // It would be very rare to get here
+                const rEs = refineK1(r, poly.map(c => [c]));
+                for (let j = 0; j < rEs.length; j++) {
+                    const { tS: etS, tE: etE, multiplicity: eMultiplicity } = rEs[j];
+                    // `te` is accurate enough that error will be smaller than that
+                    // of intersections between loops
+                    const te = ddDivBy2(ddAddDd(etS, etE)); // (teS + teE)/2
+                    const eAlong = evalDeCasteljauDd(tPs, te)[0];
+                    const eOnRaySide = ddGte([0, p[0]], eAlong);
+                    if (eOnRaySide) {
+                        count += eMultiplicity % 2;
+                    }
+                }
+            }
+            else {
+                // odd multiplicity = transversal crossing, even = tangential touch
+                if (canResolve && onRaySideMin) {
+                    count += multiplicity % 2;
+                }
+            }
+        }
+    }
+    return count;
+});
+/**
+ * Yields parameter values in bisection order - 0, 1/2, 1/4, 3/4, 1/8, 3/8, ...
+ * - up to `maxLevel` levels deep (t = 1 is intentionally omitted since it
+ * coincides with the next bezier's t = 0). Used to sample successively more
+ * ray-start points on a loop until a non-degenerate one is found.
+ */
+function* bisectionParams(maxLevel) {
+    yield 0;
+    for (let level = 1; level <= maxLevel; level++) {
+        const d = 2 ** level;
+        for (let num = 1; num < d; num += 2) {
+            yield num / d;
+        }
+    }
+}
+// memoize to preserve identity
+const bezierPiecesToBeziers$ = memoize(function (bezierPieces) {
+    return bezierPieces.map(bezierPieceToBezier);
+});
+/**
+ * Returns `true` if the first loop is wholly contained within the second loop's
+ * boundary.
+ *
+ * * precondition: the loop must either wholly contained inside the loop or be
+ *   wholly outside.
+ *
+ * * we use this intermediate function to ensure the second loop still has its
+ *   original beziers so no floating point issues arise
+ *
+ * @param loop1
+ * @param bezierPieces
+ */
+function isLoopInLoop(expMax, loop1, loop2) {
+    return _isLoopInLoop(expMax, loop1, loop2.map((ps) => ({ ps, ts: [0, 1] })));
+}
+
+//# sourceMappingURL=is-loop-in-loop.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/get-beziers-to-next-container.js
+function getBeziersToNextContainer(out) {
+    const outX = out._x_;
+    const inX = out.twin._x_;
+    //----------------------------
+    const curveS = outX.x.curve;
+    const tS = outX.x.ri.t;
+    const curveE = inX.x.curve;
+    const tE = inX.x.ri.t;
+    let curCurve = curveS;
+    let curT = tS;
+    const bezierPieces = [];
+    while (true) {
+        if (curCurve === curveE &&
+            (curT < tE || (curT === tE && bezierPieces.length !== 0))) {
+            const ps = curCurve.ps;
+            const ts = [curT, tE];
+            bezierPieces.push({ ps, ts });
+            return bezierPieces;
+        }
+        else {
+            const ps = curCurve.ps;
+            const ts = [curT, 1];
+            bezierPieces.push({ ps, ts });
+        }
+        curT = 0;
+        curCurve = curCurve.next;
+    }
+}
+
+//# sourceMappingURL=get-beziers-to-next-container.js.map
+;// ./node_modules/flo-boolean/node/main/bezier-pieces-from-out.js
+
+
+const bezierPiecesFromOut$ = memoize(function (out) {
+    const bezierPieces = [];
+    for (const out_ of out.path) {
+        // A `swapped` node is an original `In` whose `dir` was flipped so the
+        // trace treats it as an `Out`. Walking it forward would wrap the long
+        // way around the curve, so take its twin's (the original `Out`'s) short
+        // forward arc and reverse it (piece order and each piece's t-range).
+        if (out_.swapped) {
+            const pieces = getBeziersToNextContainer(out_.twin);
+            for (let i = pieces.length - 1; i >= 0; i--) {
+                const { ps, ts } = pieces[i];
+                bezierPieces.push({ ps, ts: [ts[1], ts[0]] });
+            }
+        }
+        else {
+            bezierPieces.push(...getBeziersToNextContainer(out_));
+        }
+    }
+    return bezierPieces;
+});
+
+//# sourceMappingURL=bezier-pieces-from-out.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/get-tightest-containing-loop.js
+
+
+/**
+ * Returns the tightest (deepest) loop in the containment tree rooted at `root`
+ * that contains the given `loop`.
+ *
+ * Starting from `root`, the tree is traversed downwards, descending into a
+ * node's children only while that node still contains `loop`. The last (deepest)
+ * *containing* node found is returned.
+ *
+ * * at this stage `loop` is the one with smallest `minY` (due to earlier sorting)
+ * * `root` is assumed to contain `loop`
+ *
+ * @param root the root of the containment tree to search
+ * @param loop the loop for which to find the tightest containing loop
+ */
+function getTightestContainingLoop(expMax, root, beziers) {
+    let containingLoop = root;
+    const stack = Array.from(root.children);
+    while (stack.length) {
+        const inOut = stack.pop();
+        f(inOut);
+    }
+    return containingLoop;
+    function f(parent) {
+        const bezierPieces = bezierPiecesFromOut$(parent);
+        if (_isLoopInLoop(expMax, beziers, bezierPieces)) {
+            containingLoop = parent;
+            for (const child of parent.children) {
+                stack.push(child);
+            }
+        }
+    }
+}
+
+//# sourceMappingURL=get-tightest-containing-loop.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/complete-paths/get-next-exit.js
+/**
+ * @param origOut
+ * @param additionalOutsToCheck
+ * @param takenOuts
+ */
+function getNextExit(origOut, additionalOutsToCheck, takenOuts) {
+    const markOutForChecking_ = markInOutForChecking(takenOuts, additionalOutsToCheck);
+    return function (prevOut) {
+        let in_ = prevOut.twin;
+        let toCount = 1;
+        let next = in_;
+        let outToUse;
+        do {
+            next = origOut.orientation === +1
+                ? next.nextAround
+                : next.prevAround;
+            if (next === in_) {
+                break;
+            }
+            toCount = toCount - next.dir;
+            if (next.dir === -1) {
+                continue;
+            }
+            const out = next;
+            if (!outToUse) {
+                // we are still rotating on the inside of the loop
+                if (toCount === 0) {
+                    outToUse = out;
+                }
+                else if (toCount === 1) {
+                    // ...must have the same orientation (see complexish2.svg in tests)
+                    markOutForChecking_(out, origOut.orientation, origOut);
+                }
+            }
+            else {
+                // else we are rotating on the outside of the loop
+                if (toCount === 0) {
+                    markOutForChecking_(out, origOut.orientation, origOut.parent);
+                }
+                else if (toCount === -1) {
+                    markOutForChecking_(out, -origOut.orientation, origOut.parent);
+                }
+            }
+        } while (true);
+        return outToUse;
+    };
+}
+function markInOutForChecking(takenOuts, additionalOutsToCheck) {
+    return function (out, orientation, origParent) {
+        if (takenOuts.has(out)) {
+            return;
+        }
+        const out_ = out;
+        if (out_.orientation !== undefined) {
+            return; // already assigned - see e.g. complex6.svg (would fail otherwise)
+        }
+        out_.orientation = orientation;
+        out_.parent = origParent;
+        out_.windingNum = origParent.windingNum + out_.orientation;
+        additionalOutsToCheck.push(out_);
+    };
+}
+
+//# sourceMappingURL=get-next-exit.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/complete-paths/complete-loop.js
+
+
+/**
+ * Completes a loop for a specific intersection point entry curve.
+ *
+ * @param takenOuts
+ * @param takenContainers
+ * @param origOut
+ */
+const completeLoop = timeFunctionCalls(function completeLoop(takenOuts, takenContainers, origOut) {
+    const additionalOutsToCheck = [];
+    const path = [];
+    // Move immediately to the outgoing start of the loop
+    let outToUse = origOut;
+    const getNextExit_ = getNextExit(origOut, additionalOutsToCheck, takenOuts);
+    do {
+        takenOuts.add(outToUse);
+        takenContainers.add(outToUse.container);
+        path.push(outToUse);
+        outToUse = getNextExit_(outToUse);
+    } while (outToUse !== origOut);
+    origOut.path = path;
+    return additionalOutsToCheck;
+});
+
+//# sourceMappingURL=complete-loop.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/complete-paths/complete-path.js
+
+/**
+ * Completes the path of a disjoint set of loops, i.e. this function is called
+ * for each disjoint set of paths.
+ *
+ * @param initialOut
+ * @param takenOuts
+ * @param takenContainers
+ */
+function completePath(initialOut, takenOuts, takenContainers) {
+    const outStack = [initialOut];
+    while (outStack.length) {
+        const origOut = outStack.pop();
+        if (takenOuts.has(origOut)) {
+            continue;
+        }
+        origOut.children = new Set();
+        const additionalOutsToCheck = completeLoop(takenOuts, takenContainers, origOut);
+        origOut.parent.children = origOut.parent.children || new Set();
+        origOut.parent.children.add(origOut);
+        outStack.push(...additionalOutsToCheck);
+    }
+}
+
+//# sourceMappingURL=complete-path.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/complete-paths/complete-paths.js
+
+
+
+
+const completePaths = timeFunctionCalls(function completePaths(expMax, minYContainers) {
+    const root = createRootInOut();
+    const takenOuts = new Set(); // Taken intersections
+    // `takenContainers` is critical in cases such as in the 'koldat52' vector
+    // where a `minY` container is part of multiple loops
+    const takenContainers = new Set();
+    for (let i = 0; i < minYContainers.length; i++) {
+        const container = minYContainers[i];
+        if (takenContainers.has(container) ||
+            container.inOuts.length === 0) {
+            // container already taken OR rare case in which containter engulfs loop completely
+            continue;
+        }
+        const { inOuts } = container;
+        const firstInOut = inOuts[0];
+        const lastInOut = inOuts[inOuts.length - 1];
+        const initialOut = firstInOut.dir === 1 ? firstInOut : lastInOut;
+        const beziers = initialOut.loop;
+        const parent = getTightestContainingLoop(expMax, root, beziers);
+        initialOut.parent = parent;
+        initialOut.orientation = lastInOut.dir;
+        initialOut.windingNum = parent.windingNum + lastInOut.dir;
+        // (initialOut as Mutable<Out>).orientation = lastInOut.dir * (parent.swapped ? -1 : 1);
+        // (initialOut as Mutable<Out>).windingNum = parent.windingNum + (lastInOut.dir * (parent.swapped ? -1 : 1));
+        initialOut.children = new Set();
+        completePath(initialOut, takenOuts, takenContainers);
+    }
+    return root;
+});
+
+//# sourceMappingURL=complete-paths.js.map
+;// ./node_modules/flo-poly/node/roots/root-interval.js
+/**
+ * Simple function that creates and returns an exact root (with a bracketing
+ * interval width of 0 and multiplicity 1)
+ *
+ * @param t
+ *
+ * @doc
+ */
+function createRootExact(t) {
+    return { t, tS: t, tE: t, multiplicity: 1 };
+}
+/**
+ * Simple function that returns the middle of the root bracketing interval - can
+ * be used to estimate the root
+ *
+ * @param ri a root interval
+ *
+ * @doc
+ */
+function mid(ri) {
+    return (ri.tS + ri.tE) / 2;
+}
+
+//# sourceMappingURL=root-interval.js.map
 ;// ./node_modules/flo-bezier3/node/simultaneous-properties/is-point-on-bezier-extension/is-point-on-bezier-extension-1.js
 
 
@@ -18138,6 +19018,83 @@ function isPointOnBezierExtension1(ps, p) {
 }
 
 //# sourceMappingURL=is-point-on-bezier-extension-1.js.map
+;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis/double/to-power-basis.js
+/**
+ * Returns the power basis representation of a bezier curve of order cubic or
+ * less.
+ *
+ * * intermediate calculations are done in double precision
+ * * returns the resulting power basis x and y coordinate polynomials from
+ * highest power to lowest, e.g. if `x(t) = at^2 + bt + c`
+ * and `y(t) = dt^2 + et + f` then  the result is returned
+ * as `[[a,b,c],[d,e,f]]`
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
+ * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ *
+ * @doc
+ */
+function toPowerBasis(ps) {
+    if (ps.length === 4) {
+        return to_power_basis_toPowerBasis3(ps);
+    }
+    if (ps.length === 3) {
+        return to_power_basis_toPowerBasis2(ps);
+    }
+    if (ps.length === 2) {
+        return to_power_basis_toPowerBasis1(ps);
+    }
+    if (ps.length === 1) {
+        return toPowerBasis0(ps);
+    }
+    throw new Error('The given bezier curve must be of order <= 3.');
+}
+/** @internal */
+function to_power_basis_toPowerBasis3(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    return [[
+            (x3 - x0) + 3 * (x1 - x2),
+            3 * ((x2 + x0) - 2 * x1),
+            3 * (x1 - x0),
+            x0
+        ], [
+            (y3 - y0) + 3 * (y1 - y2),
+            3 * ((y2 + y0) - 2 * y1),
+            3 * (y1 - y0),
+            y0
+        ]];
+}
+/** @internal */
+function to_power_basis_toPowerBasis2(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    return [[
+            (x2 + x0) - 2 * x1,
+            2 * (x1 - x0),
+            x0
+        ], [
+            (y2 + y0) - 2 * y1,
+            2 * (y1 - y0),
+            y0
+        ]];
+}
+/** @internal */
+function to_power_basis_toPowerBasis1(ps) {
+    const [[x0, y0], [x1, y1]] = ps;
+    return [[
+            x1 - x0,
+            x0,
+        ], [
+            y1 - y0,
+            y0,
+        ]];
+}
+/** @internal */
+function toPowerBasis0(ps) {
+    const [[x0, y0]] = ps;
+    return [[x0], [y0]];
+}
+
+//# sourceMappingURL=to-power-basis.js.map
 ;// ./node_modules/flo-bezier3/node/implicit-form/double/get-implicit-form2.js
 
 /**
@@ -18157,7 +19114,7 @@ function isPointOnBezierExtension1(ps, p) {
 function getImplicitForm2(ps) {
     // The implicit form is given by:
     // vₓₓx² +vₓᵧxy + vᵧᵧy² + vₓx + vᵧy + v = 0
-    const [[a2, a1, a0], [b2, b1, b0]] = toPowerBasis2(ps);
+    const [[a2, a1, a0], [b2, b1, b0]] = to_power_basis_toPowerBasis2(ps);
     const q1 = a2 * b1 - a1 * b2;
     const q2 = a2 * b0 - a0 * b2;
     const vₓₓ = -b2 * b2;
@@ -18593,7 +19550,7 @@ function isPointOnBezierExtension2(ps, p) {
 function getImplicitForm3(ps) {
     // The implicit form is given by:
     // vₓₓₓx³ + vₓₓᵧx²y + vₓᵧᵧxy² + vᵧᵧᵧy³ + vₓₓx² +vₓᵧxy + vᵧᵧy² + vₓx + vᵧy + v = 0
-    const [[a3, a2, a1, a0], [b3, b2, b1, b0]] = toPowerBasis3(ps);
+    const [[a3, a2, a1, a0], [b3, b2, b1, b0]] = to_power_basis_toPowerBasis3(ps);
     const a3b1 = a3 * b1;
     const a1b3 = a1 * b3;
     const a3b2 = a3 * b2;
@@ -19059,6 +20016,956 @@ function isPointOnBezierExtension(ps, p) {
 }
 
 //# sourceMappingURL=is-point-on-bezier-extension.js.map
+;// ./node_modules/flo-bezier3/node/intersection/bezier-bezier-intersection/x.js
+/** @internal */
+function getPFromBox(box) {
+    const tl = box[0];
+    const br = box[1];
+    return [
+        (tl[0] + br[0]) / 2,
+        (tl[1] + br[1]) / 2,
+    ];
+}
+
+//# sourceMappingURL=x.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/root-interval-to-distance-squared-interval.js
+
+const root_interval_to_distance_squared_interval_td = twoDiff;
+const root_interval_to_distance_squared_interval_eps = Number.EPSILON;
+/**
+ * Returns the distance interval squared given the root interval (currently
+ * ignoring multiplicity)
+ *
+ * @param box
+ * @param p
+ *
+ * @internal
+ */
+function rootIntervalToDistanceSquaredInterval(box, p) {
+    const bl = box[0];
+    const tr = box[1];
+    const minX = bl[0];
+    const minY = bl[1];
+    const maxX = tr[0];
+    const maxY = tr[1];
+    const x = p[0]; // <0>
+    const y = p[1]; // <0>
+    let minDSquared = Infinity;
+    let maxDSquared = -Infinity;
+    // for each corner of the interval box
+    for (const [a, b] of [[minX, minY], [minX, maxY], [maxX, minY], [maxX, maxY]]) {
+        /*
+        // distance to 1st corner of interval box - `distance² = x² + y²`
+        const dc1 = (a - x)**2 + (b - y)**2;
+        // max absolute roundoff error of `dc1`
+        // <4>dc1 <-- <4>(<3>(<1>(a - x)**2) + <3>(<1>((b - y)**2))
+        const dc1E = 4*γ1*((a + x)**2 + (b + y)**2);
+        const dc1Min = dc1 - dc1E;  // distance minus max error
+        const dc1Max = dc1 + dc1E;  // distance plus max error
+        */
+        /** distance to 1st corner of interval box - `distance² = x² + y²` */
+        const ax = root_interval_to_distance_squared_interval_td(a, x); // a - x
+        const by = root_interval_to_distance_squared_interval_td(b, y); // b - y
+        const dc1Exact = fastExpansionSum(expansionProduct(ax, ax), expansionProduct(by, by)); // ax**2 + bx**2
+        const dc1 = eEstimate(dc1Exact);
+        const dc1Min = dc1 * (1 - root_interval_to_distance_squared_interval_eps); // distance minus max error
+        const dc1Max = dc1 * (1 + root_interval_to_distance_squared_interval_eps); // distance plus max error
+        if (dc1Min <= minDSquared) {
+            minDSquared = dc1Min;
+        }
+        if (dc1Max >= maxDSquared) {
+            maxDSquared = dc1Max;
+        }
+    }
+    return [minDSquared, maxDSquared];
+}
+
+//# sourceMappingURL=root-interval-to-distance-squared-interval.js.map
+;// ./node_modules/double-double/node/double-double/unary/dd-mult-by-4.js
+/**
+ * Returns the result of multiplying the given double-double by 4.
+ * * The result is exact
+ * @param f a double-double precision floating point number
+ */
+function ddMultBy4(f) {
+    return [4 * f[0], 4 * f[1]];
+}
+
+//# sourceMappingURL=dd-mult-by-4.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-3-dd.js
+
+const get_footpoint_poly_3_dd_td = two_diff_twoDiff;
+const get_footpoint_poly_3_dd_qaq = ddAddDd;
+const get_footpoint_poly_3_dd_qmd = ddMultDouble2;
+const get_footpoint_poly_3_dd_qmq = ddMultDd;
+const get_footpoint_poly_3_dd_qm2 = ddMultBy2;
+const qm4 = ddMultBy4;
+const get_footpoint_poly_3_dd_qdq = ddDiffDd;
+/**
+ * Returns the polynomial whose roots are all the `t` values on the given bezier
+ * curve such that the line from the given point to the point on the bezier
+ * evaluated at `t` is tangent to the bezier curve at `t`.
+ *
+ * * intermediate calculations are done (and the final result returned in)
+ * double-double precision
+ *
+ * @param ps an order 3 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * @internal
+ */
+function getFootpointPoly3Dd(ps, p) {
+    //const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    const p0 = ps[0];
+    const p1 = ps[1];
+    const p2 = ps[2];
+    const p3 = ps[3];
+    const x0 = p0[0];
+    const y0 = p0[1];
+    const x1 = p1[0];
+    const y1 = p1[1];
+    const x2 = p2[0];
+    const y2 = p2[1];
+    const x3 = p3[0];
+    const y3 = p3[1];
+    const [x, y] = p;
+    const xx0 = get_footpoint_poly_3_dd_td(x0, x); // exact
+    const xx1 = get_footpoint_poly_3_dd_td(x1, x); // exact
+    const xx2 = get_footpoint_poly_3_dd_td(x2, x); // exact
+    const xx3 = get_footpoint_poly_3_dd_td(x3, x); // exact
+    const yy0 = get_footpoint_poly_3_dd_td(y0, y); // exact
+    const yy1 = get_footpoint_poly_3_dd_td(y1, y); // exact
+    const yy2 = get_footpoint_poly_3_dd_td(y2, y); // exact
+    const yy3 = get_footpoint_poly_3_dd_td(y3, y); // exact
+    const x00 = get_footpoint_poly_3_dd_qmq(xx0, xx0);
+    const x01 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx0, xx1));
+    const x02 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx0, xx2));
+    const x03 = get_footpoint_poly_3_dd_qm2(get_footpoint_poly_3_dd_qmq(xx0, xx3));
+    const x11 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(xx1, xx1));
+    const x12 = get_footpoint_poly_3_dd_qmd(18, get_footpoint_poly_3_dd_qmq(xx1, xx2));
+    const x13 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx1, xx3));
+    const x22 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(xx2, xx2));
+    const x23 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(xx2, xx3));
+    const x33 = get_footpoint_poly_3_dd_qmq(xx3, xx3);
+    const y00 = get_footpoint_poly_3_dd_qmq(yy0, yy0);
+    const y01 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy0, yy1));
+    const y02 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy0, yy2));
+    const y03 = get_footpoint_poly_3_dd_qm2(get_footpoint_poly_3_dd_qmq(yy0, yy3));
+    const y11 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(yy1, yy1));
+    const y12 = get_footpoint_poly_3_dd_qmd(18, get_footpoint_poly_3_dd_qmq(yy1, yy2));
+    const y13 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy1, yy3));
+    const y22 = get_footpoint_poly_3_dd_qmd(9, get_footpoint_poly_3_dd_qmq(yy2, yy2));
+    const y23 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qmq(yy2, yy3));
+    const y33 = get_footpoint_poly_3_dd_qmq(yy3, yy3);
+    const q1 = get_footpoint_poly_3_dd_qaq(x13, x22);
+    const q2 = get_footpoint_poly_3_dd_qaq(x03, x12);
+    const q3 = get_footpoint_poly_3_dd_qaq(x02, x11);
+    const r1 = get_footpoint_poly_3_dd_qaq(y13, y22);
+    const r2 = get_footpoint_poly_3_dd_qaq(y03, y12);
+    const r3 = get_footpoint_poly_3_dd_qaq(y02, y11);
+    // const t5 = 6*(((((x33 - x23) + (x00 - x01)) + q1) + (q3 - q2)) + 
+    //               ((((y33 - y23) + (y00 - y01)) + r1) + (r3 - r2)));
+    const t5 = get_footpoint_poly_3_dd_qmd(6, get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qdq(x33, x23), get_footpoint_poly_3_dd_qdq(x00, x01)), q1), get_footpoint_poly_3_dd_qdq(q3, q2)), get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qdq(y33, y23), get_footpoint_poly_3_dd_qdq(y00, y01)), r1), get_footpoint_poly_3_dd_qdq(r3, r2))));
+    //const t4 = 5*((((x23 + 5*x01) + 3*q2) - 2*(q1 + 2*q3 + 3*x00)) +
+    //              (((y23 + 5*y01) + 3*r2) - 2*(r1 + 2*r3 + 3*y00)));
+    const t4 = get_footpoint_poly_3_dd_qmd(5, get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(x23, get_footpoint_poly_3_dd_qmd(5, x01)), get_footpoint_poly_3_dd_qmd(3, q2)), get_footpoint_poly_3_dd_qm2(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(q1, get_footpoint_poly_3_dd_qm2(q3)), get_footpoint_poly_3_dd_qmd(3, x00)))), get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(y23, get_footpoint_poly_3_dd_qmd(5, y01)), get_footpoint_poly_3_dd_qmd(3, r2)), get_footpoint_poly_3_dd_qm2(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qaq(r1, get_footpoint_poly_3_dd_qm2(r3)), get_footpoint_poly_3_dd_qmd(3, y00))))));
+    //const t3 = 4*(((q1 - 3*(q2 - 2*q3)) - 5*(2*x01 - 3*x00)) +
+    //              ((r1 - 3*(r2 - 2*r3)) - 5*(2*y01 - 3*y00)));
+    const t3 = qm4(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qdq(q1, get_footpoint_poly_3_dd_qmd(3, (get_footpoint_poly_3_dd_qdq(q2, get_footpoint_poly_3_dd_qm2(q3))))), get_footpoint_poly_3_dd_qmd(5, get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qm2(x01), get_footpoint_poly_3_dd_qmd(3, x00)))), get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qdq(r1, get_footpoint_poly_3_dd_qmd(3, (get_footpoint_poly_3_dd_qdq(r2, get_footpoint_poly_3_dd_qm2(r3))))), get_footpoint_poly_3_dd_qmd(5, get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qm2(y01), get_footpoint_poly_3_dd_qmd(3, y00))))));
+    //const t2 = 3*((q2 - 2*(2*q3 - 5*(x01 - 2*x00))) +
+    //              (r2 - 2*(2*r3 - 5*(y01 - 2*y00))));
+    const t2 = get_footpoint_poly_3_dd_qmd(3, get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qdq(q2, get_footpoint_poly_3_dd_qm2(get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qm2(q3), get_footpoint_poly_3_dd_qmd(5, get_footpoint_poly_3_dd_qdq(x01, get_footpoint_poly_3_dd_qm2(x00)))))), get_footpoint_poly_3_dd_qdq(r2, get_footpoint_poly_3_dd_qm2(get_footpoint_poly_3_dd_qdq(get_footpoint_poly_3_dd_qm2(r3), get_footpoint_poly_3_dd_qmd(5, get_footpoint_poly_3_dd_qdq(y01, get_footpoint_poly_3_dd_qm2(y00))))))));
+    //const t1 = 2*((q3 - 5*(x01 - 3*x00)) +
+    //              (r3 - 5*(y01 - 3*y00)));
+    const t1 = get_footpoint_poly_3_dd_qm2(get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qdq(q3, get_footpoint_poly_3_dd_qmd(5, (get_footpoint_poly_3_dd_qdq(x01, get_footpoint_poly_3_dd_qmd(3, x00))))), get_footpoint_poly_3_dd_qdq(r3, get_footpoint_poly_3_dd_qmd(5, (get_footpoint_poly_3_dd_qdq(y01, get_footpoint_poly_3_dd_qmd(3, y00)))))));
+    //const t0 = ((x01 - 6*x00) +
+    //            (y01 - 6*y00));
+    const t0 = get_footpoint_poly_3_dd_qaq(get_footpoint_poly_3_dd_qdq(x01, get_footpoint_poly_3_dd_qmd(6, x00)), get_footpoint_poly_3_dd_qdq(y01, get_footpoint_poly_3_dd_qmd(6, y00)));
+    return [t5, t4, t3, t2, t1, t0];
+}
+
+//# sourceMappingURL=get-footpoint-poly-3-dd.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-2-dd.js
+
+const get_footpoint_poly_2_dd_td = two_diff_twoDiff;
+const get_footpoint_poly_2_dd_qaq = ddAddDd;
+const get_footpoint_poly_2_dd_qmd = ddMultDouble2;
+const get_footpoint_poly_2_dd_qmq = ddMultDd;
+const get_footpoint_poly_2_dd_qm2 = ddMultBy2;
+const qdifq = ddDiffDd;
+const get_footpoint_poly_2_dd_qm4 = ddMultBy4;
+/**
+ * Returns the polynomial whose roots are all the `t` values on the given bezier
+ * curve such that the line from the given point to the point on the bezier
+ * evaluated at `t` is tangent to the bezier curve at `t`.
+ *
+ * * intermediate calculations are done (and the final result returned in)
+ * double-double precision
+ *
+ * @param ps an order 2 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * @internal
+ */
+function getFootpointPoly2Dd(ps, p) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    const [x, y] = p;
+    const xx0 = get_footpoint_poly_2_dd_td(x0, x);
+    const xx1 = get_footpoint_poly_2_dd_td(x1, x);
+    const xx2 = get_footpoint_poly_2_dd_td(x2, x);
+    const yy0 = get_footpoint_poly_2_dd_td(y0, y);
+    const yy1 = get_footpoint_poly_2_dd_td(y1, y);
+    const yy2 = get_footpoint_poly_2_dd_td(y2, y);
+    const x00 = get_footpoint_poly_2_dd_qmq(xx0, xx0);
+    const x01 = get_footpoint_poly_2_dd_qmq(xx0, xx1);
+    const x02 = get_footpoint_poly_2_dd_qmq(xx0, xx2);
+    const x11 = get_footpoint_poly_2_dd_qmq(xx1, xx1);
+    const x12 = get_footpoint_poly_2_dd_qmq(xx1, xx2);
+    const x22 = get_footpoint_poly_2_dd_qmq(xx2, xx2);
+    const y00 = get_footpoint_poly_2_dd_qmq(yy0, yy0);
+    const y01 = get_footpoint_poly_2_dd_qmq(yy0, yy1);
+    const y02 = get_footpoint_poly_2_dd_qmq(yy0, yy2);
+    const y11 = get_footpoint_poly_2_dd_qmq(yy1, yy1);
+    const y12 = get_footpoint_poly_2_dd_qmq(yy1, yy2);
+    const y22 = get_footpoint_poly_2_dd_qmq(yy2, yy2);
+    const q1 = get_footpoint_poly_2_dd_qaq(y02, get_footpoint_poly_2_dd_qm2(y11));
+    const r1 = get_footpoint_poly_2_dd_qaq(x02, get_footpoint_poly_2_dd_qm2(x11));
+    //const t3 = ((y22 + y00) + 2*q1 - 4*(y12 + y01)) + 
+    //           ((x22 + x00) + 2*r1 - 4*(x12 + x01));
+    const t3 = get_footpoint_poly_2_dd_qaq(qdifq(get_footpoint_poly_2_dd_qaq(get_footpoint_poly_2_dd_qaq(y22, y00), get_footpoint_poly_2_dd_qm2(q1)), get_footpoint_poly_2_dd_qm4(get_footpoint_poly_2_dd_qaq(y12, y01))), qdifq(get_footpoint_poly_2_dd_qaq(get_footpoint_poly_2_dd_qaq(x22, x00), get_footpoint_poly_2_dd_qm2(r1)), get_footpoint_poly_2_dd_qm4(get_footpoint_poly_2_dd_qaq(x12, x01))));
+    //const t2 = 3*(((y12 - q1) + (3*y01 - y00)) + 
+    //              ((x12 - r1) + (3*x01 - x00)));
+    const t2 = get_footpoint_poly_2_dd_qmd(3, get_footpoint_poly_2_dd_qaq(get_footpoint_poly_2_dd_qaq(qdifq(y12, q1), qdifq(get_footpoint_poly_2_dd_qmd(3, y01), y00)), get_footpoint_poly_2_dd_qaq(qdifq(x12, r1), qdifq(get_footpoint_poly_2_dd_qmd(3, x01), x00))));
+    //const t1 = (q1 - 3*(2*y01 - y00)) + 
+    //           (r1 - 3*(2*x01 - x00));
+    const t1 = get_footpoint_poly_2_dd_qaq(qdifq(q1, get_footpoint_poly_2_dd_qmd(3, qdifq(get_footpoint_poly_2_dd_qm2(y01), y00))), qdifq(r1, get_footpoint_poly_2_dd_qmd(3, qdifq(get_footpoint_poly_2_dd_qm2(x01), x00))));
+    //const t0 = (y01 - y00) + 
+    //           (x01 - x00);
+    const t0 = get_footpoint_poly_2_dd_qaq(qdifq(y01, y00), qdifq(x01, x00));
+    return [t3, t2, t1, t0];
+}
+
+//# sourceMappingURL=get-footpoint-poly-2-dd.js.map
+;// ./node_modules/double-double/node/double-double/unary/dd-mult-by-neg-2.js
+/**
+ * Returns the result of multiplying the given double-double by -2.
+ * * The result is exact
+ * @param f a double-double precision floating point number
+ */
+function ddMultByNeg2(f) {
+    return [-2 * f[0], -2 * f[1]];
+}
+
+//# sourceMappingURL=dd-mult-by-neg-2.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/double-double/get-footpoint-poly-1-dd.js
+
+const get_footpoint_poly_1_dd_tp = twoProduct;
+const get_footpoint_poly_1_dd_qaq = ddAddDd;
+const qmn2 = ddMultByNeg2;
+/**
+ * Returns the polynomial whose roots are all the `t` values on the given bezier
+ * curve such that the line from the given point to the point on the bezier
+ * evaluated at `t` is tangent to the bezier curve at `t`.
+ *
+ * * intermediate calculations are done (and the final result returned in)
+ * double-double precision
+ *
+ * @param ps an order 1 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * @internal
+ */
+function getFootpointPoly1Dd(ps, p) {
+    const [[x0, y0], [x1, y1]] = ps;
+    const [x, y] = p;
+    const xx0 = x0 - x;
+    const xx1 = x1 - x;
+    const yy0 = y0 - y;
+    const yy1 = y1 - y;
+    const x00 = get_footpoint_poly_1_dd_tp(xx0, xx0);
+    const x01 = get_footpoint_poly_1_dd_tp(xx0, xx1);
+    const x11 = get_footpoint_poly_1_dd_tp(xx1, xx1);
+    const y00 = get_footpoint_poly_1_dd_tp(yy0, yy0);
+    const y01 = get_footpoint_poly_1_dd_tp(yy0, yy1);
+    const y11 = get_footpoint_poly_1_dd_tp(yy1, yy1);
+    const s1 = get_footpoint_poly_1_dd_qaq(x01, y01);
+    const s2 = get_footpoint_poly_1_dd_qaq(y00, x00);
+    //const t1 = (x11 + y11) + (s2 - 2*s1)
+    const t1 = get_footpoint_poly_1_dd_qaq(get_footpoint_poly_1_dd_qaq(x11, y11), get_footpoint_poly_1_dd_qaq(s2, qmn2(s1)));
+    //const t0 = s1 - s2;
+    const t0 = ddDiffDd(s1, s2);
+    return [t1, t0];
+}
+
+//# sourceMappingURL=get-footpoint-poly-1-dd.js.map
+;// ./node_modules/big-float-ts/node/double-expansion/e-mult-by-neg-2.js
+/**
+ * Multiply a floating point expansion by -2.
+ * * **error free**
+ * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ *
+ * @param e a floating point expansion
+ */
+function eMultByNeg2(e) {
+    const e_ = [];
+    for (let i = 0; i < e.length; i++) {
+        e_.push(-2 * e[i]);
+    }
+    return e_;
+}
+
+//# sourceMappingURL=e-mult-by-neg-2.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/exact/get-footpoint-poly-3-exact.js
+
+const get_footpoint_poly_3_exact_td = twoDiff;
+const get_footpoint_poly_3_exact_sce = scaleExpansion2;
+const get_footpoint_poly_3_exact_em2 = eMultBy2;
+const emn2 = eMultByNeg2;
+/**
+ * Returns the *exact* polynomial whose roots are all the `t` values on the
+ * given bezier curve such that the line from the given point to the point on
+ * the bezier evaluated at `t` is tangent to the bezier curve at `t`.
+ *
+ * * The returned polynomial coefficients are given densely as an array of
+ * [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf) floating
+ * point expansions from highest to lowest power,
+ * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`.
+ *
+ * @param ps an order 3 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ * @param p a point, e.g. `[1,2]`
+ */
+function getFootpointPoly3Exact(ps, p) {
+    //const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    const p0 = ps[0];
+    const p1 = ps[1];
+    const p2 = ps[2];
+    const p3 = ps[3];
+    const x0 = p0[0];
+    const y0 = p0[1];
+    const x1 = p1[0];
+    const y1 = p1[1];
+    const x2 = p2[0];
+    const y2 = p2[1];
+    const x3 = p3[0];
+    const y3 = p3[1];
+    const [x, y] = p;
+    const xx0 = get_footpoint_poly_3_exact_td(x0, x);
+    const xx1 = get_footpoint_poly_3_exact_td(x1, x);
+    const xx2 = get_footpoint_poly_3_exact_td(x2, x);
+    const xx3 = get_footpoint_poly_3_exact_td(x3, x);
+    const yy0 = get_footpoint_poly_3_exact_td(y0, y);
+    const yy1 = get_footpoint_poly_3_exact_td(y1, y);
+    const yy2 = get_footpoint_poly_3_exact_td(y2, y);
+    const yy3 = get_footpoint_poly_3_exact_td(y3, y);
+    const x00 = expansionProduct(xx0, xx0);
+    const x01 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx0, xx1));
+    const x02 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx0, xx2));
+    const x03 = get_footpoint_poly_3_exact_em2(expansionProduct(xx0, xx3));
+    const x11 = get_footpoint_poly_3_exact_sce(9, expansionProduct(xx1, xx1));
+    const x12 = get_footpoint_poly_3_exact_sce(18, expansionProduct(xx1, xx2));
+    const x13 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx1, xx3));
+    const x22 = get_footpoint_poly_3_exact_sce(9, expansionProduct(xx2, xx2));
+    const x23 = get_footpoint_poly_3_exact_sce(6, expansionProduct(xx2, xx3));
+    const x33 = expansionProduct(xx3, xx3);
+    const y00 = expansionProduct(yy0, yy0);
+    const y01 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy0, yy1));
+    const y02 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy0, yy2));
+    const y03 = get_footpoint_poly_3_exact_em2(expansionProduct(yy0, yy3));
+    const y11 = get_footpoint_poly_3_exact_sce(9, expansionProduct(yy1, yy1));
+    const y12 = get_footpoint_poly_3_exact_sce(18, expansionProduct(yy1, yy2));
+    const y13 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy1, yy3));
+    const y22 = get_footpoint_poly_3_exact_sce(9, expansionProduct(yy2, yy2));
+    const y23 = get_footpoint_poly_3_exact_sce(6, expansionProduct(yy2, yy3));
+    const y33 = expansionProduct(yy3, yy3);
+    const q1 = fastExpansionSum(x13, x22);
+    const q2 = fastExpansionSum(x03, x12);
+    const q3 = fastExpansionSum(x02, x11);
+    const r1 = fastExpansionSum(y13, y22);
+    const r2 = fastExpansionSum(y03, y12);
+    const r3 = fastExpansionSum(y02, y11);
+    //const t5 = 6*((x33 - x23 + q1 - q2 + q3 - x01 + x00) + 
+    //              (y33 - y23 + r1 - r2 + r3 - y01 + y00));
+    const t5a = eDiff(fastExpansionSum(fastExpansionSum(x33, x00), fastExpansionSum(q1, q3)), (fastExpansionSum(fastExpansionSum(q2, x23), x01)));
+    const t5b = eDiff(fastExpansionSum(fastExpansionSum(y33, y00), fastExpansionSum(r1, r3)), (fastExpansionSum(fastExpansionSum(r2, y23), y01)));
+    const t5 = get_footpoint_poly_3_exact_sce(6, fastExpansionSum(t5a, t5b));
+    //const t4 = 5*((x23 - 2*(q1 + 2*q3 + 3*x00) + 3*q2 + 5*x01) +
+    //              (y23 - 2*(r1 + 2*r3 + 3*y00) + 3*r2 + 5*y01));
+    const t4a = fastExpansionSum(emn2(fastExpansionSum(fastExpansionSum(q1, get_footpoint_poly_3_exact_em2(q3)), get_footpoint_poly_3_exact_sce(3, x00))), fastExpansionSum(fastExpansionSum(x23, get_footpoint_poly_3_exact_sce(3, q2)), get_footpoint_poly_3_exact_sce(5, x01)));
+    const t4b = fastExpansionSum(emn2(fastExpansionSum(fastExpansionSum(r1, get_footpoint_poly_3_exact_em2(r3)), get_footpoint_poly_3_exact_sce(3, y00))), fastExpansionSum(fastExpansionSum(y23, get_footpoint_poly_3_exact_sce(3, r2)), get_footpoint_poly_3_exact_sce(5, y01)));
+    const t4 = get_footpoint_poly_3_exact_sce(5, fastExpansionSum(t4a, t4b));
+    //const t3 = 4*((q1 - 3*(q2 - 2*q3) - 5*(2*x01 - 3*x00)) +
+    //              (r1 - 3*(r2 - 2*r3) - 5*(2*y01 - 3*y00)));
+    const t3a = fastExpansionSum(fastExpansionSum(q1, get_footpoint_poly_3_exact_sce(3, (eDiff(get_footpoint_poly_3_exact_em2(q3), q2)))), get_footpoint_poly_3_exact_sce(5, (eDiff(get_footpoint_poly_3_exact_sce(3, x00), get_footpoint_poly_3_exact_em2(x01)))));
+    const t3b = fastExpansionSum(fastExpansionSum(r1, get_footpoint_poly_3_exact_sce(3, (eDiff(get_footpoint_poly_3_exact_em2(r3), r2)))), get_footpoint_poly_3_exact_sce(5, (eDiff(get_footpoint_poly_3_exact_sce(3, y00), get_footpoint_poly_3_exact_em2(y01)))));
+    const t3 = get_footpoint_poly_3_exact_sce(4, fastExpansionSum(t3a, t3b));
+    //const t2 = 3*((q2 - 2*(2*q3 - 5*(x01 - 2*x00))) +
+    //              (r2 - 2*(2*r3 - 5*(y01 - 2*y00))));
+    const t2a = eDiff(q2, get_footpoint_poly_3_exact_em2(eDiff(get_footpoint_poly_3_exact_em2(q3), get_footpoint_poly_3_exact_sce(5, (eDiff(x01, get_footpoint_poly_3_exact_em2(x00)))))));
+    const t2b = eDiff(r2, get_footpoint_poly_3_exact_em2(eDiff(get_footpoint_poly_3_exact_em2(r3), get_footpoint_poly_3_exact_sce(5, (eDiff(y01, get_footpoint_poly_3_exact_em2(y00)))))));
+    const t2 = get_footpoint_poly_3_exact_sce(3, fastExpansionSum(t2a, t2b));
+    //const t1 = 2*((q3 - 5*(x01 - 3*x00)) +
+    //              (r3 - 5*(y01 - 3*y00)));
+    const t1a = eDiff(q3, get_footpoint_poly_3_exact_sce(5, (eDiff(x01, get_footpoint_poly_3_exact_sce(3, x00)))));
+    const t1b = eDiff(r3, get_footpoint_poly_3_exact_sce(5, (eDiff(y01, get_footpoint_poly_3_exact_sce(3, y00)))));
+    const t1 = get_footpoint_poly_3_exact_em2(fastExpansionSum(t1a, t1b));
+    //const t0 = ((x01 - 6*x00) +
+    //            (y01 - 6*y00));
+    const t0a = eDiff(x01, get_footpoint_poly_3_exact_sce(6, x00));
+    const t0b = eDiff(y01, get_footpoint_poly_3_exact_sce(6, y00));
+    const t0 = fastExpansionSum(t0a, t0b);
+    return [t5, t4, t3, t2, t1, t0].map(eCompress);
+}
+
+//# sourceMappingURL=get-footpoint-poly-3-exact.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/exact/get-footpoint-poly-2-exact.js
+
+const get_footpoint_poly_2_exact_td = twoDiff;
+const get_footpoint_poly_2_exact_sce = scaleExpansion2;
+const get_footpoint_poly_2_exact_em2 = eMultBy2;
+/**
+ * Returns the result of multiplying a floating point expansion by 4.
+ *
+ * * **error free**
+ *
+ * * see [[Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ *
+ * @param e a floating point expansion
+ *
+ * @internal
+ */
+function em4(e) {
+    const e_ = [];
+    for (let i = 0; i < e.length; i++) {
+        e_.push(4 * e[i]);
+    }
+    return e_;
+}
+/**
+ * Returns the *exact* polynomial whose roots are all the `t` values on the
+ * given bezier curve such that the line from the given point to the point on
+ * the bezier evaluated at `t` is tangent to the bezier curve at `t`.
+ *
+ * * The returned polynomial coefficients are given densely as an array of
+ * [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf) floating
+ * point expansions from highest to lowest power,
+ * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`.
+ *
+ * @param ps an order 2 curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * @internal
+ */
+function getFootpointPoly2Exact(ps, p) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    const [x, y] = p;
+    const xx0 = get_footpoint_poly_2_exact_td(x0, x);
+    const xx1 = get_footpoint_poly_2_exact_td(x1, x);
+    const xx2 = get_footpoint_poly_2_exact_td(x2, x);
+    const yy0 = get_footpoint_poly_2_exact_td(y0, y);
+    const yy1 = get_footpoint_poly_2_exact_td(y1, y);
+    const yy2 = get_footpoint_poly_2_exact_td(y2, y);
+    const x00 = expansionProduct(xx0, xx0);
+    const x01 = expansionProduct(xx0, xx1);
+    const x02 = expansionProduct(xx0, xx2);
+    const x11 = expansionProduct(xx1, xx1);
+    const x12 = expansionProduct(xx1, xx2);
+    const x22 = expansionProduct(xx2, xx2);
+    const y00 = expansionProduct(yy0, yy0);
+    const y01 = expansionProduct(yy0, yy1);
+    const y02 = expansionProduct(yy0, yy2);
+    const y11 = expansionProduct(yy1, yy1);
+    const y12 = expansionProduct(yy1, yy2);
+    const y22 = expansionProduct(yy2, yy2);
+    const q1 = fastExpansionSum(y02, get_footpoint_poly_2_exact_em2(y11));
+    const r1 = fastExpansionSum(x02, get_footpoint_poly_2_exact_em2(x11));
+    //const t3 = y22 + 2*q1 - 4*(y12 + y01) + y00 + 
+    //           x22 + 2*r1 - 4*(x12 + x01) + x00;
+    const t3a = fastExpansionSum(eDiff(fastExpansionSum(x22, get_footpoint_poly_2_exact_em2(r1)), em4(fastExpansionSum(x12, x01))), x00);
+    const t3b = fastExpansionSum(eDiff(fastExpansionSum(y22, get_footpoint_poly_2_exact_em2(q1)), em4(fastExpansionSum(y12, y01))), y00);
+    const t3 = fastExpansionSum(t3a, t3b);
+    //const t2 = 3*(y12 - q1 + 3*y01 - y00 + 
+    //              x12 - r1 + 3*x01 - x00);
+    const t2a = fastExpansionSum(eDiff(x12, r1), eDiff(get_footpoint_poly_2_exact_sce(3, x01), x00));
+    const t2b = fastExpansionSum(eDiff(y12, q1), eDiff(get_footpoint_poly_2_exact_sce(3, y01), y00));
+    const t2 = get_footpoint_poly_2_exact_sce(3, fastExpansionSum(t2a, t2b));
+    //const t1 = q1 - 3*(2*y01 - y00) + 
+    //           r1 - 3*(2*x01 - x00);
+    const t1a = eDiff(q1, get_footpoint_poly_2_exact_sce(3, eDiff(get_footpoint_poly_2_exact_em2(y01), y00)));
+    const t1b = eDiff(r1, get_footpoint_poly_2_exact_sce(3, eDiff(get_footpoint_poly_2_exact_em2(x01), x00)));
+    const t1 = fastExpansionSum(t1a, t1b);
+    //const t0 = y01 - y00 + 
+    //           x01 - x00;
+    const t0a = eDiff(y01, y00);
+    const t0b = eDiff(x01, x00);
+    const t0 = fastExpansionSum(t0a, t0b);
+    return [t3, t2, t1, t0].map(eCompress);
+}
+
+//# sourceMappingURL=get-footpoint-poly-2-exact.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/exact/get-footpoint-poly-1-exact.js
+
+const get_footpoint_poly_1_exact_td = twoDiff;
+const get_footpoint_poly_1_exact_emn2 = eMultByNeg2;
+/**
+ * Returns the *exact* polynomial whose roots are all the `t` values on the
+ * given bezier curve such that the line from the given point to the point on
+ * the bezier evaluated at `t` is tangent to the bezier curve at `t`.
+ *
+ * * The returned polynomial coefficients are given densely as an array of
+ * [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf) floating
+ * point expansions from highest to lowest power,
+ * e.g. `[[5],[-3],[0]]` represents the polynomial `5x^2 - 3x`.
+ *
+ * @param ps an order 1 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * @internal
+ */
+function getFootpointPoly1Exact(ps, p) {
+    const [[x0, y0], [x1, y1]] = ps;
+    const [x, y] = p;
+    const xx0 = get_footpoint_poly_1_exact_td(x0, x);
+    const xx1 = get_footpoint_poly_1_exact_td(x1, x);
+    const yy0 = get_footpoint_poly_1_exact_td(y0, y);
+    const yy1 = get_footpoint_poly_1_exact_td(y1, y);
+    const x00 = expansionProduct(xx0, xx0);
+    const x01 = expansionProduct(xx0, xx1);
+    const x11 = expansionProduct(xx1, xx1);
+    const y00 = expansionProduct(yy0, yy0);
+    const y01 = expansionProduct(yy0, yy1);
+    const y11 = expansionProduct(yy1, yy1);
+    const s1 = fastExpansionSum(x01, y01);
+    const s2 = fastExpansionSum(y00, x00);
+    //const t1 = x11 + y11 - 2*s1 + s2;
+    const t1 = fastExpansionSum(fastExpansionSum(x11, y11), fastExpansionSum(get_footpoint_poly_1_exact_emn2(s1), s2));
+    //const t0 = s1 - s2;
+    const t0 = eDiff(s1, s2);
+    return [t1, t0].map(eCompress);
+}
+
+//# sourceMappingURL=get-footpoint-poly-1-exact.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-coeffs/get-closest-on-bezier-from-point-error-counters.js
+const { abs: get_closest_on_bezier_from_point_error_counters_abs } = Math;
+/**
+ * Returns a representation of the error when calculating the polynomial whose
+ * roots are all the `t` values on the given bezier curve such that the line
+ * from the given point to the point on the bezier evaluated at `t` is tangent
+ * to the bezier at `t`.
+ *
+ * @param ps a cubic bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * ```
+ * return [
+ *      t5_,  // <9>
+ *      t4_,  // <10>
+ *      t3_,  // <10>
+ *      t2_,  // <10>
+ *      t1_,  // <9>
+ *      t0_   // <7>
+ * ];
+ * ```
+ *
+ * @internal
+ */
+function getClosestOnBezier3FromPointErrorCounters(ps, p) {
+    //const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    //const [xp, yp] = p;
+    const p0 = ps[0];
+    const p1 = ps[1];
+    const p2 = ps[2];
+    const p3 = ps[3];
+    const x0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[0]); // <0>  (error counters)
+    const y0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[1]); // <0>
+    const x1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[0]); // <0>
+    const y1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[1]); // <0>
+    const x2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[0]); // <0>
+    const y2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[1]); // <0>
+    const x3_ = get_closest_on_bezier_from_point_error_counters_abs(p3[0]); // <0>
+    const y3_ = get_closest_on_bezier_from_point_error_counters_abs(p3[1]); // <0>
+    const xp_ = get_closest_on_bezier_from_point_error_counters_abs(p[0]); // <0>
+    const yp_ = get_closest_on_bezier_from_point_error_counters_abs(p[1]); // <0>
+    // <1>xx0 <-- <1>(x0 - xp);
+    const xx0_ = x0_ + xp_;
+    // <1>xx1 <-- <1>(x1 - xp);
+    const xx1_ = x1_ + xp_;
+    // <1>xx2 <-- <1>(x2 - xp);
+    const xx2_ = x2_ + xp_;
+    // <1>xx3 <-- <1>(x3 - xp);
+    const xx3_ = x3_ + xp_;
+    // <1>yy0 <-- <1>(y0 - yp);
+    const yy0_ = y0_ + yp_;
+    // <1>yy1 <-- <1>(y1 - yp);
+    const yy1_ = y1_ + yp_;
+    // <1>yy2 <-- <1>(y2 - yp);
+    const yy2_ = y2_ + yp_;
+    // <1>yy3 <-- <1>(y3 - yp);
+    const yy3_ = y3_ + yp_;
+    // <3>x00 <-- <3>(<1>xx0*<1>xx0);
+    const x00_ = xx0_ * xx0_;
+    // <4>x01 <-- <4>(6 *<3>(<1>xx0*<1>xx1));
+    const x01_ = 6 * xx0_ * xx1_;
+    // <4>x02 <-- <4>(6 *<3>(<1>xx0*<1>xx2));
+    const x02_ = 6 * xx0_ * xx2_;
+    // <3>x03 <-- 2 *<3>(<1>xx0*<1>xx3);
+    const x03_ = 2 * xx0_ * xx3_;
+    // <4>x11 <-- <4>(9 *<3>(<1>xx1*<1>xx1));
+    const x11_ = 9 * xx1_ * xx1_;
+    // <4>x12 <-- <4>(18*<3>(<1>xx1*<1>xx2));
+    const x12_ = 18 * xx1_ * xx2_;
+    // <4>x13 <-- <4>(6 *<3>(<1>xx1*<1>xx3));
+    const x13_ = 6 * xx1_ * xx3_;
+    // <4>x22 <-- <4>(9 *<3>(<1>xx2*<1>xx2));
+    const x22_ = 9 * xx2_ * xx2_;
+    // <4>x23 <-- <4>(6 *<3>(<1>xx2*<1>xx3));
+    const x23_ = 6 * xx2_ * xx3_;
+    // <3>x33 <--    <3>(<1>xx3*<1>xx3);
+    const x33_ = xx3_ * xx3_;
+    const y00_ = yy0_ * yy0_;
+    const y01_ = 6 * yy0_ * yy1_;
+    const y02_ = 6 * yy0_ * yy2_;
+    const y03_ = 2 * yy0_ * yy3_;
+    const y11_ = 9 * yy1_ * yy1_;
+    const y12_ = 18 * yy1_ * yy2_;
+    const y13_ = 6 * yy1_ * yy3_;
+    const y22_ = 9 * yy2_ * yy2_;
+    const y23_ = 6 * yy2_ * yy3_;
+    const y33_ = yy3_ * yy3_;
+    // <5>q1 <-- (5>(<4>x13 + <4>x22);
+    const q1_ = x13_ + x22_;
+    // <5>q2 <-- (5>(<3>x03 + <4>x12);
+    const q2_ = x03_ + x12_;
+    // <5>q3 <-- (5>(<4>x02 + <4>x11);
+    const q3_ = x02_ + x11_;
+    const r1_ = y13_ + y22_; // <5>
+    const r2_ = y03_ + y12_; // <5>
+    const r3_ = y02_ + y11_; // <5>
+    // <9>t5 <-- <9>(6*<8>(<7>(<6>(<5>(<4>(x33 - x23) + <4>(x00 - x01)) + <5>q1) + <6>(q3 - q2)) + 
+    //                     <7>(<6>(<5>(<4>(y33 - y23) + <4>(y00 - y01)) + <5>r1) + <6>(r3 - r2))));
+    const t5_ = 6 * (((((x33_ + x23_) + (x00_ + x01_)) + q1_) + (q3_ + q2_)) +
+        ((((y33_ + y23_) + (y00_ + y01_)) + r1_) + (r3_ + r2_)));
+    // <10>t4 <-- <10>(5*<9>(<8>(<7>(<6>(x23 + <5>(5*x01)) + <6>(3*q2)) - 2*<7>(<6>(q1 + 2*q3) + <5>(3*x00))) +
+    //                       <8>(<7>(<6>(y23 + <5>(5*y01)) + <6>(3*r2)) - 2*<7>(<6>(r1 + 2*r3) + <5>(3*y00)))));
+    const t4_ = 5 * ((((x23_ + 5 * x01_) + 3 * q2_) + 2 * (q1_ + 2 * q3_ + 3 * x00_)) +
+        (((y23_ + 5 * y01_) + 3 * r2_) + 2 * (r1_ + 2 * r3_ + 3 * y00_)));
+    // <10>t3 <-- 4*<10>(<9>(<8>(q1 - <7>(3*<6>(q2 - 2*q3))) - <7>(5*<6>(2*x01 - <5>(3*x00)))) +
+    //                 <9>(<8>(r1 - <7>(3*<6>(r2 - 2*r3))) - <7>(5*<6>(2*y01 - <5>(3*y00)))))
+    const t3_ = 4 * (((q1_ + 3 * (q2_ + 2 * q3_)) + 5 * (2 * x01_ + 3 * x00_)) +
+        ((r1_ + 3 * (r2_ + 2 * r3_)) + 5 * (2 * y01_ + 3 * y00_)));
+    // <10>t2 <-- <10>(3*<9>(<8>(q2 - 2*<7>(2*q3 - <6>(5*<5>(x01 - 2*x00)))) +
+    //                       <8>(r2 - 2*<7>(2*r3 - <6>(5*<5>(y01 - 2*y00))))));
+    const t2_ = 3 * ((q2_ + 2 * (2 * q3_ + 5 * (x01_ + 2 * x00_))) +
+        (r2_ + 2 * (2 * r3_ + 5 * (y01_ + 2 * y00_))));
+    // <9>t1 <-- 2*<9>(<8>(q3 - <7>(5*<6>(x01 - <5>(3*x00)))) +
+    //                 <8>(r3 - <7>(5*<6>(y01 - <5>(3*y00)))));
+    const t1_ = 2 * ((q3_ + 5 * (x01_ + 3 * x00_)) +
+        (r3_ + 5 * (y01_ + 3 * y00_)));
+    // <7>t0 <-- <7>(<6>(x01 - <5>(6*x00)) +
+    //              <6>(y01 - <5>(6*y00)));
+    const t0_ = ((x01_ + 6 * x00_) +
+        (y01_ + 6 * y00_));
+    return [
+        t5_, // <9>
+        t4_, // <10>
+        t3_, // <10>
+        t2_, // <10>
+        t1_, // <9>
+        t0_ // <7>
+    ];
+}
+/**
+ * Returns a representation of the error when calculating the polynomial whose
+ * roots are all the `t` values on the given bezier curve such that the line
+ * from the given point to the point on the bezier evaluated at `t` is tangent
+ * to the bezier at `t`.
+ *
+ * @param ps a quadratic bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1]]`
+ * @param p a point, e.g. `[1,2]`
+ * ```
+ * return [
+ *      t3_,  // <7>
+ *      t2_,  // <8>
+ *      t1_,  // <7>
+ *      t0_   // <5>
+ * ];
+ * ```
+ *
+ * @internal
+ */
+function getClosestOnBezier2FromPointErrorCounters(ps, p) {
+    //const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    //const [xp, yp] = p;
+    const p0 = ps[0];
+    const p1 = ps[1];
+    const p2 = ps[2];
+    const x0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[0]); // <0>
+    const y0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[1]); // <0>
+    const x1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[0]); // <0>
+    const y1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[1]); // <0>
+    const x2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[0]); // <0>
+    const y2_ = get_closest_on_bezier_from_point_error_counters_abs(p2[1]); // <0>
+    const xp_ = get_closest_on_bezier_from_point_error_counters_abs(p[0]); // <0>
+    const yp_ = get_closest_on_bezier_from_point_error_counters_abs(p[1]); // <0>
+    // <1>xx0 <-- <1>(x0 - xp);
+    const xx0_ = x0_ + xp_;
+    // <1>xx1 <-- <1>(x1 - xp);
+    const xx1_ = x1_ + xp_;
+    // <1>xx2 <-- <1>(x2 - xp);
+    const xx2_ = x2_ + xp_;
+    // <1>yy0 <-- <1>(y0 - yp);
+    const yy0_ = y0_ + yp_;
+    // <1>yy1 <-- <1>(y1 - yp);
+    const yy1_ = y1_ + yp_;
+    // <1>yy2 <-- <1>(y2 - yp);
+    const yy2_ = y2_ + yp_;
+    // <3>x00 <-- <3>(xx0*xx0);
+    const x00_ = xx0_ * xx0_;
+    // <3>x01 <-- <3>(xx0*xx1);
+    const x01_ = xx0_ * xx1_;
+    // <3>x02 <-- <3>(xx0*xx2);
+    const x02_ = xx0_ * xx2_;
+    // <3>x11 <-- <3>(xx1*xx1);
+    const x11_ = xx1_ * xx1_;
+    // <3>x12 <-- <3>(xx1*xx2);
+    const x12_ = xx1_ * xx2_;
+    // <3>x22 <-- <3>(xx2*xx2);
+    const x22_ = xx2_ * xx2_;
+    const y00_ = yy0_ * yy0_;
+    const y01_ = yy0_ * yy1_;
+    const y02_ = yy0_ * yy2_;
+    const y11_ = yy1_ * yy1_;
+    const y12_ = yy1_ * yy2_;
+    const y22_ = yy2_ * yy2_;
+    // <4>q1 <-- <4>(y02 + 2*y11);
+    const q1_ = y02_ + 2 * y11_;
+    // <4>r1 <-- <4>(x02 + 2*x11);
+    const r1_ = x02_ + 2 * x11_;
+    // <7>t3 <-- <7>(<6>(<5>(<4>(y22 + y00) + 2*q1) - 4*<4>(y12 + y01))) + 
+    //              (<6>(<5>(<4>(x22 + x00) + 2*r1) - 4*<4>(x12 + x01)));
+    const t3_ = ((y22_ + y00_) + 2 * q1_ + 4 * (y12_ + y01_)) +
+        ((x22_ + x00_) + 2 * r1_ + 4 * (x12_ + x01_));
+    // <8>t2 <-- <8>(3*<7>(<6>(<5>(y12 - q1) + <5>(<4>(3*y01) - y00)) + 
+    //                     <6>(<5>(x12 - r1) + <5>(<4>(3*x01) - x00))));
+    const t2_ = 3 * (((y12_ + q1_) + (3 * y01_ + y00_)) +
+        ((x12_ + r1_) + (3 * x01_ + x00_)));
+    // <7>t1 <-- <7>(<6>(<4>q1 - <5>(3*<4>(2*y01 - y00))) + 
+    //               <6>(<4>r1 - <5>(3*<4>(2*x01 - x00))));
+    const t1_ = (q1_ + 3 * (2 * y01_ + y00_)) +
+        (r1_ + 3 * (2 * x01_ + x00_));
+    // <5>t0 <-- <5>(<4>(y01 - y00) + 
+    //              <4>(x01 - x00));
+    const t0_ = (y01_ + y00_) +
+        (x01_ + x00_);
+    return [
+        t3_, // <7>
+        t2_, // <8>
+        t1_, // <7>
+        t0_ // <5>
+    ];
+}
+/**
+ * Returns a representation of the error when calculating the polynomial whose
+ * roots are all the `t` values on the given bezier curve such that the line
+ * from the given point to the point on the bezier evaluated at `t` is tangent
+ * to the bezier at `t`.
+ *
+ * @param ps a linear bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * ```
+ * return [
+ *     t1,  // <6>
+ *     t0   // <5>
+ * ];
+ * ```
+ *
+ * @internal
+ */
+function getClosestOnBezier1FromPointErrorCounters(ps, p) {
+    //const [[x0, y0], [x1, y1]] = ps;
+    //const [xp, yp] = p;
+    const p0 = ps[0];
+    const p1 = ps[1];
+    const x0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[0]); // <0>
+    const y0_ = get_closest_on_bezier_from_point_error_counters_abs(p0[1]); // <0>
+    const x1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[0]); // <0>
+    const y1_ = get_closest_on_bezier_from_point_error_counters_abs(p1[1]); // <0>
+    const xp_ = get_closest_on_bezier_from_point_error_counters_abs(p[0]); // <0>
+    const yp_ = get_closest_on_bezier_from_point_error_counters_abs(p[1]); // <0>
+    // <1>xx0 <-- <1>(x0 - xp);
+    const xx0_ = x0_ + xp_;
+    // <1>xx1 <-- <1>(x1 - xp);
+    const xx1_ = x1_ + xp_;
+    // <1>yy0 <-- <1>(y0 - yp);
+    const yy0_ = y0_ + yp_;
+    // <1>yy1 <-- <1>(y1 - yp);
+    const yy1_ = y1_ + yp_;
+    // <3>x00 <-- <3>(xx0*xx0);
+    const x00_ = xx0_ * xx0_;
+    // <3>x01 <-- <3>(xx0*xx1);
+    const x01_ = xx0_ * xx1_;
+    // <3>x11 <-- <3>(xx1*xx1);
+    const x11_ = xx1_ * xx1_;
+    const y00_ = yy0_ * yy0_;
+    const y01_ = yy0_ * yy1_;
+    const y11_ = yy1_ * yy1_;
+    // <4>s1 <-- <4>(x01 + y01);
+    const s1_ = x01_ + y01_;
+    // <4>s2 <-- <4>(y00 + x00);
+    const s2_ = y00_ + x00_;
+    // <6>t1 = <6>(<4>(x11 + y11) + <5>(s2 - 2*s1));
+    const t1 = x11_ + y11_ + 2 * s1_ + s2_;
+    // <5>t0 = <5>(s1 - s2);
+    const t0 = s1_ + s2_;
+    return [
+        t1, // <6>
+        t0 // <5>
+    ];
+}
+
+//# sourceMappingURL=get-closest-on-bezier-from-point-error-counters.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/get-foot-points-polys-on-bezier-certified.js
+
+
+
+
+
+
+
+
+
+/**
+ * Returns the footpoint(s) (and parameter `t` value(s)) on the
+ * given bezier curve to the given point (with `t ∈ [0,1]`).
+ *
+ * * guaranteed accurate to within `4*Number.EPSILON` in the returned `t`
+ * value(s)
+ * * the returned point(s) are objects with the following properties:
+ *     * `p`: the best estimate point on the bezier curve (calculated from the root interval `ri`)
+ *     * `t`: the best estimate `t` parameter value (calculated from the root interval `ri`)
+ *     * `d`: the best estimate closest distance from the point to the bezier curve (calculated from the root interval `ri`)
+ *     * `ri`: a root interval guaranteed to contain the actual `t` value
+ *     * `box`: a small box guaranteed to contain the relevant point on the bezier curve
+ *     * `dSquaredI`: a small squared distance interval guaranteed to contain the actual distance squared
+ *        between the point and the bezier curve
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * @doc
+ */
+function getFootPointsOnBezierPolysCertified(ps, p) {
+    const order = ps.length - 1;
+    if (order === 3) {
+        return {
+            polyDd: getFootpointPoly3Dd(ps, p),
+            polyE: getClosestOnBezier3FromPointErrorCounters(ps, p).map(e => 10 * 2 * e),
+            getPolyExact: () => getFootpointPoly3Exact(ps, p)
+        };
+    }
+    else if (order === 2) {
+        return {
+            polyDd: getFootpointPoly2Dd(ps, p),
+            polyE: getClosestOnBezier2FromPointErrorCounters(ps, p).map(e => 8 * 2 * e),
+            getPolyExact: () => getFootpointPoly2Exact(ps, p)
+        };
+    }
+    else if (order === 1) {
+        return {
+            polyDd: getFootpointPoly1Dd(ps, p),
+            polyE: getClosestOnBezier1FromPointErrorCounters(ps, p).map(e => 6 * 2 * e),
+            getPolyExact: () => getFootpointPoly1Exact(ps, p)
+        };
+    }
+    else if (order === 0) {
+        return {
+            polyDd: [[0, 1]],
+            polyE: [0],
+            getPolyExact: () => [[1]]
+        };
+    }
+    else {
+        throw new Error('The given bezier curve must be of order 1, 2 or 3');
+    }
+}
+
+//# sourceMappingURL=get-foot-points-polys-on-bezier-certified.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/closest-and-furthest-point-on-bezier/closest-point-on-bezier-certified.js
+
+
+
+
+
+const { sqrt: closest_point_on_bezier_certified_sqrt } = Math;
+/**
+ * Returns the closest point(s) (and parameter `t` value(s)) on the given
+ * bezier curve to the given point (with `t ∈ [0,1]`).
+ *
+ * * guaranteed accurate to within `4*Number.EPSILON` in the returned `t`
+ * value(s)
+ * * in some cases there can be more than one closest point, e.g. on the axis
+ * of symmetry of a parabola
+ * * the returned point(s) are objects with the following properties:
+ *     * `p`: the best estimate point on the bezier curve (calculated from the root interval `ri`)
+ *     * `t`: the best estimate `t` parameter value (calculated from the root interval `ri`)
+ *     * `d`: the best estimate closest distance from the point to the bezier curve (calculated from the root interval `ri`)
+ *     * `ri`: a root interval guaranteed to contain the actual `t` value
+ *     * `box`: a small box guaranteed to contain the relevant point on the bezier curve
+ *     * `dSquaredI`: a small squared distance interval guaranteed to contain the actual distance squared
+ *        between the point and the bezier curve
+ *
+ * @param ps an order 0,1,2 or 3 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ * @param p a point, e.g. `[1,2]`
+ *
+ * @doc
+ */
+function closestPointOnBezierCertified(ps, p, lb = 0, ub = 1) {
+    const { polyDd, polyE, getPolyExact } = getFootPointsOnBezierPolysCertified(ps, p);
+    const ris = roots(polyDd, lb, ub, polyE, getPolyExact) || [];
+    ris.push({ t: lb, tS: lb, tE: lb, multiplicity: 1 });
+    ris.push({ t: ub, tS: ub, tE: ub, multiplicity: 1 });
+    const infos = ris.map((ri) => {
+        const box = getIntervalBox(ps, [ri.tS, ri.tE]);
+        const dSquaredI = rootIntervalToDistanceSquaredInterval(box, p);
+        return {
+            p: getPFromBox(box),
+            t: ri.t,
+            d: (closest_point_on_bezier_certified_sqrt(dSquaredI[0]) + closest_point_on_bezier_certified_sqrt(dSquaredI[1])) / 2,
+            dSquaredI,
+            box,
+            ri
+        };
+    });
+    /** the minimum max interval value */
+    let minMax = Infinity;
+    for (let i = 0; i < infos.length; i++) {
+        const diMax = infos[i].dSquaredI[1];
+        if (diMax < minMax) {
+            minMax = diMax;
+        }
+    }
+    const closestPointInfos = [];
+    for (let i = 0; i < infos.length; i++) {
+        const info = infos[i];
+        if (info.dSquaredI[0] <= minMax) {
+            closestPointInfos.push(info);
+        }
+    }
+    return closestPointInfos;
+}
+
+//# sourceMappingURL=closest-point-on-bezier-certified.js.map
 ;// ./node_modules/flo-bezier3/node/intersection/bezier-bezier-intersection/bezier-bezier-intersection-boundless.js
 
 
@@ -19132,19 +21039,20 @@ function intersectBoxes(a, b) {
 //# sourceMappingURL=intersect-boxes.js.map
 ;// ./node_modules/flo-boolean/node/get-critical-points/get-other-t.js
 
+
 // FUTURE - could this come from flo-bezier3
-function getOtherTs(ps1, ps2, ts2) {
+function getOtherTs(curveA, curveB, ts2) {
+    const { ps: ps1 } = curveA;
+    const { ps: ps2 } = curveB;
     if (ts2 === undefined) {
-        // infinite number of intersections
-        return undefined;
+        return undefined; // infinite number of intersections
     }
     if (ts2.length === 0) {
         return [];
     }
     const ts1 = bezierBezierIntersectionBoundless(ps2, ps1);
     if (ts1 === undefined) {
-        // infinite number of intersections
-        return undefined;
+        return undefined; // infinite number of intersections
     }
     if (ts1.length === 0) {
         return [];
@@ -19157,13 +21065,15 @@ function getOtherTs(ps1, ps2, ts2) {
         for (let j = 0; j < ts2.length; j++) {
             const box2 = is2[j];
             const box = intersectBoxes(box1, box2);
-            if (box !== undefined) {
-                // FUTURE important - combine boxes to make sense, i.e. combine better
-                // e.g. two odd multiplicity boxes should combine to a single even, etc. etc.
-                const x1 = { ri: ts1[i], box, kind: 1 };
-                const x2 = { ri: ts2[j], box, kind: 1 };
-                xPairs.push([x1, x2]);
+            if (box === undefined) {
+                continue;
             }
+            // FUTURE - combine boxes to make sense, i.e. combine better
+            // e.g. two odd multiplicity boxes should combine to a single even, etc. etc.
+            const p = toP(ps1, ts1[i].t);
+            const x1 = { ri: ts1[i], p, kind: 1, curve: curveA };
+            const x2 = { ri: ts2[j], p, kind: 1, curve: curveB };
+            xPairs.push([x1, x2]);
         }
     }
     return xPairs;
@@ -19192,8 +21102,8 @@ function doConvexPolygonsIntersect(polygonA, polygonB, closed) {
             const p2 = polygon[i % len];
             // find the vector perpendicular to this edge
             const normal = [p2[1] - p1[1], p1[0] - p2[0]];
-            let minA = Number.POSITIVE_INFINITY;
-            let maxA = Number.NEGATIVE_INFINITY;
+            let minA = Infinity;
+            let maxA = -Infinity;
             // for each vertex in the first shape, project it onto the line 
             // perpendicular to the edge and keep track of the min and max of 
             // these values
@@ -19210,8 +21120,8 @@ function doConvexPolygonsIntersect(polygonA, polygonB, closed) {
             // for each vertex in the second shape, project it onto the line 
             // perpendicular to the edge and keep track of the min and max of 
             // these values
-            let minB = Number.POSITIVE_INFINITY;
-            let maxB = Number.NEGATIVE_INFINITY;
+            let minB = Infinity;
+            let maxB = -Infinity;
             for (let k = 0; k < polygonB.length; k++) {
                 const projected = normal[0] * polygonB[k][0] +
                     normal[1] * polygonB[k][1];
@@ -19241,66 +21151,6 @@ function doConvexPolygonsIntersect(polygonA, polygonB, closed) {
 }
 
 //# sourceMappingURL=do-convex-polygons-intersect.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/classification/is-cubic-really-quad.js
-
-
-const is_cubic_really_quad_tp = two_product_twoProduct;
-const is_cubic_really_quad_fes = fastExpansionSum;
-const { abs: is_cubic_really_quad_abs } = Math;
-/**
- * Returns `true` if the given cubic bezier curve is really a quadratic (or
- * lower order) curve in disguise, i.e. it can be represent by a quadratic
- * bezier curve, `false` otherwise.
- *
- * * **exact**: not susceptible to floating point round-off
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
- *
- * @doc mdx
- */
-function isCubicReallyQuad(ps) {
-    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-    // The line below is unrolled (uses a toHybridQuadratic condition (points same?))
-    //if ((x3 + 3*x1) - (x0 + 3*x2) === 0 && 
-    //    (y3 + 3*y1) - (y0 + 3*y2) === 0) {
-    // Calculate an approximation of the above with error bounds and use it as
-    // a fast filter.
-    const u1 = 3 * x1;
-    const u1_ = is_cubic_really_quad_abs(3 * x1); // the absolute error in u1
-    const u2 = x3 + u1;
-    const u2_ = u1_ + is_cubic_really_quad_abs(u2); // the absolute error in u2
-    const v1 = 3 * x2;
-    const v1_ = is_cubic_really_quad_abs(3 * x2); // the absolute error in v1
-    const v2 = x0 + v1;
-    const v2_ = v1_ + is_cubic_really_quad_abs(v2); // the absolute error in v2
-    const w = u2 - v2;
-    const w_ = u2_ + v2_ + is_cubic_really_quad_abs(w); // the absolute error in w
-    // if w cannot possibly be zero, i.e. if the error is smaller than the value
-    if (is_cubic_really_quad_abs(w) - error_analysis_u * w_ > 0) {
-        // fast filter 1 passed
-        return false;
-    }
-    const q1 = 3 * y1;
-    const q1_ = is_cubic_really_quad_abs(3 * y1); // the absolute error in q1
-    const q2 = y3 + q1;
-    const q2_ = q1_ + is_cubic_really_quad_abs(q2); // the absolute error in q2
-    const r1 = 3 * y2;
-    const r1_ = is_cubic_really_quad_abs(3 * y2); // the absolute error in r1
-    const r2 = y0 + r1;
-    const r2_ = r1_ + is_cubic_really_quad_abs(r2); // the absolute error in r2
-    const s = q2 - r2;
-    const s_ = q2_ + r2_ + is_cubic_really_quad_abs(s); // the absolute error in s
-    if (is_cubic_really_quad_abs(s) - error_analysis_u * s_ > 0) {
-        // fast filter 2 passed
-        return false;
-    }
-    // unable to filter - go slow and exact
-    return (eSign(eDiff(is_cubic_really_quad_fes([x3], is_cubic_really_quad_tp(3, x1)), is_cubic_really_quad_fes([x0], is_cubic_really_quad_tp(3, x2)))) === 0 &&
-        eSign(eDiff(is_cubic_really_quad_fes([y3], is_cubic_really_quad_tp(3, y1)), is_cubic_really_quad_fes([y0], is_cubic_really_quad_tp(3, y2)))) === 0);
-}
-
-//# sourceMappingURL=is-cubic-really-quad.js.map
 ;// ./node_modules/flo-bezier3/node/global-properties/classification/is-quad-really-line.js
 
 const is_quad_really_line_ts = twoSum;
@@ -19348,28 +21198,6 @@ function isQuadReallyLine(ps) {
 }
 
 //# sourceMappingURL=is-quad-really-line.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/classification/is-really-point.js
-/**
- * Returns `true` if the given bezier curve has all control points coincident,
- * `false` otherwise.
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- *
- * @doc
- */
-function isReallyPoint(ps) {
-    const x = ps[0][0];
-    const y = ps[0][1];
-    for (let i = 1; i < ps.length; i++) {
-        if (x !== ps[i][0] || y !== ps[i][1]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-//# sourceMappingURL=is-really-point.js.map
 ;// ./node_modules/flo-bezier3/node/transformation/reduce-order-if-possible.js
 
 
@@ -19609,31 +21437,6 @@ function msbExponent(a) {
 }
 
 //# sourceMappingURL=msb-exponent.js.map
-;// ./node_modules/big-float-ts/node/basic/reduce-significand.js
-/**
- * Truncates a floating point value's significand and returns the result.
- * Similar to split, but with the ability to specify the number of bits to keep.
- *
- * Theorem 17 (Veltkamp-Dekker): Let a be a p-bit floating-point number, where
- * p >= 3. Choose a splitting point s such that p/2 <= s <= p-1. Then the
- * following algorithm will produce a (p-s)-bit value a_hi and a
- * nonoverlapping (s-1)-bit value a_lo such that abs(a_hi) >= abs(a_lo) and
- * a = a_hi + a_lo.
- *
- * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
- *
- * @param a a double
- * @param bits the number of significand bits to leave intact
- */
-function reduceSignificand(a, bits) {
-    const s = 53 - bits;
-    const f = 2 ** s + 1;
-    const c = f * a;
-    const r = c - (c - a);
-    return r;
-}
-
-//# sourceMappingURL=reduce-significand.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/e-to-bitlength.js
 
 
@@ -19882,6 +21685,27 @@ function getTransformedTs1(A, B) {
 const getAB1 = getAB(getTransform1);
 
 //# sourceMappingURL=get-ab1.js.map
+;// ./node_modules/big-float-ts/node/double-expansion/e-compare.js
+
+
+/**
+ * Returns 0 if a === b, a +tive value if a > b or a negative value if a < b.
+ *
+ * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ *
+ * "The easiest way to compare two expansions is to subtract one from the other,
+ * and test the sign of the result. An expansion’s sign can be easily tested
+ * because of the nonoverlapping property; simply check the sign of the
+ * expansion's most significant nonzero component..."
+ *
+ * @param a a floating point expansion
+ * @param b another floating point expansion
+ */
+function eCompare(a, b) {
+    return eSign(eDiff(a, b));
+}
+
+//# sourceMappingURL=e-compare.js.map
 ;// ./node_modules/flo-bezier3/node/intersection/get-endpoint-intersections/er-compare.js
 
 /**
@@ -20481,7 +22305,8 @@ function getMinMaxT(t) {
 ;// ./node_modules/flo-boolean/node/get-critical-points/get-intersection.js
 
 
-let ii = 0;
+
+
 /**
  *
  * @param curveA
@@ -20489,35 +22314,18 @@ let ii = 0;
  * @param expMax
  * @param isANextB is curveB the next curve after curveA, i.e. is A's next B
  */
-function getIntersection(curveA, curveB, expMax, isANextB) {
-    // console.log(isANextB);
+const getIntersection = timeFunctionCalls(function getIntersection(curveA, curveB, isANextB) {
     const ps1 = curveA.ps;
     const ps2 = curveB.ps;
     const xs = [];
     let ris2 = bezierBezierIntersectionBoundless(ps1, ps2);
-    // TODO
-    // if (isANextB && ii++ < 2) {
-    //     const P_ = ps1[ps1.length-1];
-    //     const _P = ps2[0];
-    //     // console.log(P_[0] === _P[0] && P_[1] === _P[1]);
-    //     const { coeffs, errBound, getPExact } = getCoeffsBezBez(ps1,ps2);
-    //     getImplicitForm3ExactPb
-    //     // console.log(coeffs);
-    // }
     if (ris2 === undefined) {
         // the curves have an infinte number of intersections
-        // some reasonable error bound -> to be fine-tuned, but cannot
-        // break the algorithm (unless its too small), only make it run slower.
-        const errBound = 2 ** (expMax - 47);
         const xPairs = getEndpointIntersections(ps1, ps2);
         for (const xPair of xPairs) {
-            const p1 = evalDeCasteljau(ps1, xPair.ri1.tS);
-            const box = [
-                [p1[0] - errBound, p1[1] - errBound],
-                [p1[0] + errBound, p1[1] + errBound],
-            ];
-            const ri1 = { x: { ri: xPair.ri1, kind: 5, box }, curve: curveA }; // exact overlap endpoint
-            const ri2 = { x: { ri: xPair.ri2, kind: 5, box }, curve: curveB }; // exact overlap endpoint
+            const p = toP(ps1, xPair.ri1.t);
+            const ri1 = { ri: xPair.ri1, kind: 5, p, curve: curveA }; // exact overlap endpoint
+            const ri2 = { ri: xPair.ri2, kind: 5, p, curve: curveB }; // exact overlap endpoint
             xs.push([ri1, ri2]);
         }
         return xs;
@@ -20529,60 +22337,12 @@ function getIntersection(curveA, curveB, expMax, isANextB) {
     if (ris2.length === 0) {
         return [];
     }
-    const xPairs = getOtherTs(ps1, ps2, ris2);
-    if (xPairs === undefined || xPairs.length === 0) {
-        return [];
-    }
-    for (const xPair of xPairs) {
-        const x1 = { x: xPair[0], curve: curveA };
-        const x2 = { x: xPair[1], curve: curveB };
-        xs.push([x1, x2]);
-    }
-    return xs;
-}
+    return getOtherTs(curveA, curveB, ris2) || [];
+});
 
 //# sourceMappingURL=get-intersection.js.map
-;// ./node_modules/flo-bezier3/node/local-properties-at-t/evaluate/double/eval-de-casteljau-with-err.js
-
-
-
-const eval_de_casteljau_with_err_1 = error_analysis_(1);
-/**
- * Returns the resulting point of evaluating the given bezier curve at the given
- * parameter `t` including a coordinate-wise error bound.
- *
- * * uses [De Casteljau's algorithm](https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm)
- * in double precision floating point arithmetic
- *
- * The resulting point is returned as `{ p: number[], pE: number[] }`,
- * where `p` is the point `[x,y]` and `pE` is the corresponding coordinate-wise
- * absolute error bound of the calculation.
- *
- * @param ps an order 1,2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param t the parameter value where the bezier should be evaluated
- *
- * @doc mdx
- **/
-function evalDeCasteljauWithErr(ps, t) {
-    const p = evalDeCasteljau(ps, t);
-    const pE = evalDeCasteljauError(ps, [0, t]);
-    if (ps.length === 4) {
-        return { p, pE: pE.map(e => 9 * eval_de_casteljau_with_err_1 * e) };
-    }
-    if (ps.length === 3) {
-        return { p, pE: pE.map(e => 6 * eval_de_casteljau_with_err_1 * e) };
-    }
-    if (ps.length === 2) {
-        return { p, pE: pE.map(e => 3 * eval_de_casteljau_with_err_1 * e) };
-    }
-    if (ps.length === 1) {
-        return { p: ps[0], pE: [0, 0] };
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-
-//# sourceMappingURL=eval-de-casteljau-with-err.js.map
 ;// ./node_modules/flo-boolean/node/get-critical-points/make-simple-x.js
+
 
 /**
  *
@@ -20591,26 +22351,10 @@ function evalDeCasteljauWithErr(ps, t) {
  * @param kind
  */
 function makeSimpleX(t, curve, kind) {
-    const ps = curve.ps;
-    if (t === 0) {
-        // we have the exact point
-        const pS = ps[0];
-        const box = [ps[0], ps[0]];
-        return { x: { ri: { t, tS: t, tE: t, multiplicity: 1 }, box, kind }, curve };
-    }
-    else if (t === 1) {
-        // we have the exact point
-        const pE = ps[ps.length - 1];
-        const box = [pE, pE];
-        return { x: { ri: { t, tS: t, tE: t, multiplicity: 1 }, box, kind }, curve };
-    }
-    // there will be some error in calculating the point
-    const { p, pE } = evalDeCasteljauWithErr(ps, t);
-    const box = [
-        [p[0] - pE[0], p[1] - pE[1]],
-        [p[0] + pE[0], p[1] + pE[1]]
-    ];
-    return { x: { ri: { t, tS: t, tE: t, multiplicity: 1 }, box, kind }, curve };
+    const { ps } = curve;
+    const ri = createRootExact(t);
+    const p = toP(ps, t);
+    return { ri, p, kind, curve };
 }
 
 //# sourceMappingURL=make-simple-x.js.map
@@ -20632,49 +22376,47 @@ function makeSimpleX(t, curve, kind) {
  * @param curveA
  * @param curveB
  */
-function getCurvesIntersections(expMax) {
-    return (curveA, curveB) => {
-        const psA = curveA.ps;
-        const psB = curveB.ps;
-        if (psA.length === 2 && psB.length === 2) {
-            return getLineLineIntersections(curveA, curveB, expMax);
+function getCurvesIntersections(curveA, curveB) {
+    const psA = curveA.ps;
+    const psB = curveB.ps;
+    if (psA.length === 2 && psB.length === 2) {
+        return getLineLineIntersections(curveA, curveB);
+    }
+    if (curveA.next === curveB || curveB.next === curveA) {
+        // curves are connected at endpoints
+        // closed bounding boxes are guaranteed to intersect - don't check
+        // check open bounding boxes
+        const aabbsIntersectOpen = areBoxesIntersecting(false, getBoundingBox$(psA), getBoundingBox$(psB));
+        if (!aabbsIntersectOpen) {
+            return checkEndpoints(curveA, curveB);
         }
-        if (curveA.next === curveB || curveB.next === curveA) {
-            // curves are connected at endpoints
-            // closed bounding boxes are guaranteed to intersect - don't check
-            // check open bounding boxes
-            const aabbsIntersectOpen = areBoxesIntersecting(false, getBoundingBox$(psA), getBoundingBox$(psB));
-            if (!aabbsIntersectOpen) {
-                return checkEndpoints(curveA, curveB);
-            }
-            // check open bounding hulls
-            const bbHullA = getBoundingHull(psA, false);
-            const bbHullB = getBoundingHull(psB, false);
-            const hullsIntersectOpen = doConvexPolygonsIntersect(bbHullA, bbHullB, false);
-            if (!hullsIntersectOpen) {
-                return checkEndpoints(curveA, curveB);
-            }
-            // neither aabbs (axis-aligned bounding boxes) nor hulls can split the curves
-            return curveB.next === curveA
-                ? getIntersection(curveB, curveA, expMax, true) // B-->A
-                : getIntersection(curveA, curveB, expMax, true); // A-->B
-        }
-        // curves are not connected at endpoints
-        // check closed bounding boxes
-        let possiblyIntersecting = areBoxesIntersecting(true, // closed (excluding boundary)
-        getBoundingBox$(psA), getBoundingBox$(psB));
-        if (!possiblyIntersecting) {
-            return undefined;
-        }
-        // check closed bounding hulls
+        // check open bounding hulls
         const bbHullA = getBoundingHull(psA, false);
         const bbHullB = getBoundingHull(psB, false);
-        possiblyIntersecting = doConvexPolygonsIntersect(bbHullA, bbHullB, true);
-        if (!possiblyIntersecting) {
-            return undefined;
+        const hullsIntersectOpen = doConvexPolygonsIntersect(bbHullA, bbHullB, false);
+        if (!hullsIntersectOpen) {
+            return checkEndpoints(curveA, curveB);
         }
-        return getIntersection(curveA, curveB, expMax, false);
-    };
+        // neither aabbs (axis-aligned bounding boxes) nor hulls can split the curves
+        return curveB.next === curveA
+            ? getIntersection(curveB, curveA, true) // B --> A
+            : getIntersection(curveA, curveB, true); // A --> B
+    }
+    // curves are not connected at endpoints
+    // check closed bounding boxes
+    let possiblyIntersecting = areBoxesIntersecting(true, // closed (excluding boundary)
+    getBoundingBox$(psA), getBoundingBox$(psB));
+    if (!possiblyIntersecting) {
+        return undefined;
+    }
+    // check closed bounding hulls
+    const bbHullA = getBoundingHull(psA, false);
+    const bbHullB = getBoundingHull(psB, false);
+    possiblyIntersecting = doConvexPolygonsIntersect(bbHullA, bbHullB, true);
+    if (!possiblyIntersecting) {
+        return undefined;
+    }
+    return getIntersection(curveA, curveB, false);
 }
 /**
  * Returns an un-ordered pair of intersections (excluding interface intersections,
@@ -20705,29 +22447,26 @@ function checkEndpoints(curveA, curveB) {
         // Check if they are in same k family (this *is* necessary for two curves
         // in same k-family joined end to end, e.g. ---A--->|---B---> in which
         // case ...)
-        const xPairs = getOtherTs(psA, psB, [createRootExact(1)]);
+        const xPairs = getOtherTs(curveA, curveB, [createRootExact(1)]);
         if (xPairs === undefined || xPairs.length === 0) {
             return undefined;
         }
         const xPair = xPairs[0];
         return [[
-                { x: xPair[0], curve: curveA },
+                xPair[0],
                 makeSimpleX(1, curveB, 1)
             ]];
     }
 }
-function getLineLineIntersections(curveA, curveB, expMax) {
+function getLineLineIntersections(curveA, curveB) {
     let psA = curveA.ps;
     let psB = curveB.ps;
     const bbA = getBoundingBox$(psA);
     const bbB = getBoundingBox$(psB);
-    // if (equal(psA,[[4,8],[4,7]]) && equal(psB,[[4,6],[4,8]])) {
-    //     console.log('testing');
-    // }
     if (curveA.next !== curveB && curveB.next !== curveA) {
         // the two line curves are not consecutive in the loop
         if (areBoxesIntersecting(true, bbA, bbB)) {
-            const xs = getIntersection(curveA, curveB, expMax, false);
+            const xs = getIntersection(curveA, curveB, false);
             return xs.length ? xs : undefined;
         }
         return undefined;
@@ -20779,10 +22518,11 @@ function getLineLineIntersections(curveA, curveB, expMax) {
 
 /**
  * Find and return all one-sided intersections on all given loops as a map from
- * each curve to an array of intersections on the curve, ordered by t value.
+ * each curve to an array of intersections on the curve, ordered by `t` value.
+ *
  * @param loops
  */
-function getIntersections(loops, expMax) {
+function getIntersections(loops) {
     const curves = [];
     for (const loop of loops) {
         for (const curve of loop.curves) {
@@ -20790,60 +22530,17 @@ function getIntersections(loops, expMax) {
         }
     }
     // Filter curves so that we eliminate those that can definitely not intersect
-    const _xs = sweepLine(curves, curve => getBoundingBox$(curve.ps)[0][0], curve => getBoundingBox$(curve.ps)[1][0], getCurvesIntersections(expMax));
-    const xs = [];
-    for (const _x of _xs) {
-        for (const x of _x.u) {
-            xs.push(x);
+    const rs = sweepLine(curves, curve => getBoundingBox$(curve.ps)[0][0], curve => getBoundingBox$(curve.ps)[1][0], getCurvesIntersections);
+    const xPairs = [];
+    for (const r of rs) {
+        for (const xPair of r.u) {
+            xPairs.push(xPair);
         }
     }
-    return xs;
+    return xPairs;
 }
 
 //# sourceMappingURL=get-intersections.js.map
-;// ./node_modules/flo-boolean/node/get-critical-points/set-intersection-next-values.js
-/**
- * Set each intersection on the given original loop's `next` and `prev` value.
- *
- * @param xPairs
- */
-function setIntersectionNextValues(xPairs) {
-    const xsByLoop = new Map();
-    for (const xPair of xPairs) {
-        for (const x_ of xPair) {
-            const loop = x_.curve.loop;
-            const xs_ = xsByLoop.get(loop) || [];
-            if (!xs_.length) {
-                xsByLoop.set(loop, xs_);
-            }
-            xs_.push(x_);
-        }
-    }
-    for (const item of xsByLoop) {
-        const xs = item[1];
-        if (!xs || !xs.length) {
-            continue;
-        }
-        xs.sort((xA, xB) => {
-            let r = xA.curve.idx - xB.curve.idx;
-            if (r !== 0) {
-                return r;
-            }
-            r = xA.x.ri.tS - xB.x.ri.tS;
-            if (r !== 0) {
-                return r;
-            }
-            return xA.in_ !== undefined ? -1 : +1;
-        });
-        const len = xs.length;
-        for (let i = 0; i < len; i++) {
-            xs[i].next = xs[(i + 1) % len];
-            xs[i].prev = xs[(i - 1 + len) % len];
-        }
-    }
-}
-
-//# sourceMappingURL=set-intersection-next-values.js.map
 ;// ./node_modules/big-float-ts/node/double-expansion/e-abs.js
 
 /**
@@ -21468,7 +23165,8 @@ function bezierSelfIntersection(ps, inRange = true) {
 //# sourceMappingURL=bezier-self-intersection.js.map
 ;// ./node_modules/flo-boolean/node/get-critical-points/get-self-intersections.js
 
-const get_self_intersections_eps = Number.EPSILON;
+
+
 /**
  * @param loops
  */
@@ -21478,7 +23176,6 @@ function getSelfIntersections(loops) {
         for (const curve of loop.curves) {
             const ps = curve.ps;
             const ts = bezierSelfIntersection(ps);
-            // if (ts === undefined) { continue; }  // there is no self-intersection
             if (ts.length === 0) {
                 continue;
             }
@@ -21486,18 +23183,18 @@ function getSelfIntersections(loops) {
             const kind = ts[0] === ts[1]
                 ? 3 /*cusp*/
                 : 2 /*self-intersection*/;
-            // FUTURE - fix box - must combine 2 boxes and bezierSelfIntersection must return intervals
-            const t0S = ts[0] - get_self_intersections_eps;
-            const t0E = ts[0] + get_self_intersections_eps;
-            const t1S = ts[1] - get_self_intersections_eps;
-            const t1E = ts[1] + get_self_intersections_eps;
-            const box0 = getIntervalBox(ps, [t0S, t0E]); // ts are within 1 upls accurate
-            const box1 = getIntervalBox(ps, [t1S, t1E]); // ts are within 1 upls accurate
-            xs.push([
-                // FUTURE - multiplicity relevant??
-                { x: { ri: { t: t0S, tS: t0S, tE: t0E, multiplicity: 1 }, box: box0, kind }, curve },
-                { x: { ri: { t: t1S, tS: t1S, tE: t1E, multiplicity: 1 }, box: box1, kind }, curve }
-            ]);
+            const ts0 = ts[0];
+            const ts1 = ts[1];
+            const t0S = ts0 - 4 * eps;
+            const t0E = ts0 + 4 * eps;
+            const t1S = ts1 - 4 * eps;
+            const t1E = ts1 + 4 * eps;
+            const p = toP(ps, ts0);
+            const ri0 = { t: t0S, tS: t0S, tE: t0E, multiplicity: 1 };
+            const ri1 = { t: t1S, tS: t1S, tE: t1E, multiplicity: 1 };
+            const x0 = { ri: ri0, p, kind, curve };
+            const x1 = { ri: ri1, p, kind, curve };
+            xs.push([x0, x1]);
         }
     }
     return xs;
@@ -21752,77 +23449,6 @@ function getAbsCurvatureExtremaPolys(ps) {
 }
 
 //# sourceMappingURL=get-abs-curvature-extrema-polys.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/classification/is-collinear.js
-
-/**
- * Returns `true` if the given bezier curve has all control points collinear,
- * `false` otherwise.
- *
- * * if you need to know whether a given bezier curve can be converted to an
- * order 1 bezier curve (a line) such that the same `(x,y)` point is returned
- * for the same `t` value then use e.g. [[isQuadReallyLine]] instead.
- *
- * * **exact** not susceptible to floating point round-off
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
- *
- * @doc mdx
- */
-function isCollinear(ps) {
-    if (ps.length === 4) {
-        // Cubic bezier
-        return (orient2d(ps[0], ps[1], ps[2]) === 0 &&
-            orient2d(ps[1], ps[2], ps[3]) === 0 &&
-            // The below check is necessary for if ps[1] === ps[2]
-            orient2d(ps[0], ps[2], ps[3]) === 0);
-    }
-    if (ps.length === 3) {
-        // Quadratic bezier
-        return orient2d(ps[0], ps[1], ps[2]) === 0;
-    }
-    if (ps.length <= 2) {
-        // Line (or point)
-        return true;
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-/**
- * Returns `true` if the given bezier curve has all control points the
- * same `y` value (possibly self-overlapping), `false` otherwise.
- *
- * @param ps An order 0, 1, 2 or 3 bezier curve.
- *
- * @doc
- */
-function isHorizontal(ps) {
-    const y = ps[0][1];
-    for (let i = 1; i < ps.length; i++) {
-        if (ps[i][1] !== y) {
-            return false;
-        }
-    }
-    return true;
-}
-/**
- * Returns `true` if the given bezier curve has all control points the
- * same `x` value (possibly self-overlapping), `false` otherwise.
- *
- * @param ps An order 0, 1, 2 or 3 bezier curve.
- *
- * @doc
- */
-function isVertical(ps) {
-    const x = ps[0][0];
-    for (let i = 1; i < ps.length; i++) {
-        if (ps[i][0] !== x) {
-            return false;
-        }
-    }
-    return true;
-}
-
-//# sourceMappingURL=is-collinear.js.map
 ;// ./node_modules/flo-bezier3/node/get-curvature-extrema/get-curvature-extrema-quadratic-poly.js
 /**
  * Returns the polynomial whose zero is the t value of maximum absolute
@@ -21994,25 +23620,23 @@ const κ = (/* unused pure expression or super */ null && (curvature));
 
 
 const { abs: get_excessive_curvatures_abs } = Math;
+const MAX_CURVATURE_AT_EXP_MAX_0 = 10_000_000;
 function getExcessiveCurvatures(expMax, loops) {
-    /** all one-sided Xs from */
     const xs = [];
-    // return xs;
-    // Get interface points
+    const maxCurvature = MAX_CURVATURE_AT_EXP_MAX_0 * (2 ** -expMax);
+    // Get points of extreme curvature
     for (const loop of loops) {
         for (const curve of loop.curves) {
-            const ps = curve.ps;
+            const { ps } = curve;
             const extrema = getCurvatureExtrema(ps);
             const { minima, maxima } = extrema;
             const minmaxs = [0, 1, ...minima, ...maxima];
             for (let t of minmaxs) {
-                //const k = eeCurvature(ps,[t]);
                 const k = get_excessive_curvatures_abs(curvature(ps, t));
-                if (k > 10_000_000 * 2 ** -expMax) {
-                    xs.push([
-                        makeSimpleX(t, curve, 7), // excessive curvature
-                        makeSimpleX(t, curve, 7), // excessive curvature
-                    ]);
+                if (k > maxCurvature) {
+                    const xA = makeSimpleX(t, curve, 7); // excessive curvature
+                    const xB = makeSimpleX(t, curve, 7); // ...
+                    xs.push([xA, xB]);
                 }
             }
         }
@@ -22021,1248 +23645,260 @@ function getExcessiveCurvatures(expMax, loops) {
 }
 
 //# sourceMappingURL=get-excessive-curvatures.js.map
-;// ./node_modules/flo-boolean/node/loop/get-min-y.js
-
-
+;// ./node_modules/flo-boolean/node/bezier/to-power-basis-1st-derivative-dd-46-o.js
 /**
+ * Returns the derivative of the power basis representation of a bezier
+ * curve of order cubic or less (with intermediate calculations done in
+ * double-double precision).
  *
- */
-const get_min_y_getMinY = memoize(function (loop) {
-    const { curves } = loop;
-    let bestY = getYBoundsTight(curves[0].ps).minY;
-    let bestCurve = curves[0];
-    for (let i = 1; i < curves.length; i++) {
-        const ps = curves[i].ps;
-        const minY = getYBoundsTight(ps).minY;
-        const v = minY.box[0][1];
-        const x = bestY.box[0][1];
-        if (v < x || (v === x && minY.ts[0] > bestY.ts[0])) {
-            bestY = minY;
-            bestCurve = curves[i];
-        }
-    }
-    return { curve: bestCurve, y: bestY };
-});
-
-//# sourceMappingURL=get-min-y.js.map
-;// ./node_modules/flo-boolean/node/get-critical-points/get-extreme.js
-
-
-/**
- * Get an extreme point (point with minimum y value) of the given loop.
+ * * modified to take advantage of coordinates being guaranteed to be 46-bit aligned
+ * * Returned coefficients are divided by 3 for cubics and 2 for quadratics
  *
- * @param loop
- */
-function getExtreme(loop) {
-    const { curve, y } = get_min_y_getMinY(loop);
-    const ts = y.ts;
-    if (ts[0] <= 0) {
-        return [
-            makeSimpleX(0, curve, 0), // extreme
-            makeSimpleX(1, curve.prev, 0) // extreme
-        ];
-    }
-    if (ts[1] >= 1) {
-        return [
-            makeSimpleX(1, curve, 0), // extreme
-            makeSimpleX(0, curve.next, 0) // extreme
-        ];
-    }
-    return [
-        // FUTURE - should multiplicity be undefined in these cases?
-        // FUTURE - do we need 2 intersections???
-        {
-            x: {
-                ri: { t: ts[0], tS: ts[0], tE: ts[1], multiplicity: 1 },
-                kind: 0,
-                box: y.box
-            },
-            curve
-        }, // extreme
-        {
-            x: {
-                ri: { t: ts[0], tS: ts[0], tE: ts[1], multiplicity: 1 },
-                kind: 0,
-                box: y.box
-            },
-            curve
-        } // extreme
-    ];
-}
-
-//# sourceMappingURL=get-extreme.js.map
-;// ./node_modules/flo-boolean/node/get-critical-points/get-extremes.js
-
-// FUTURE - include all interface points close to the extreme - they are the only
-// important interface points - or are they??
-/**
+ * * returns the resulting power basis x and y coordinate polynomials from
+ * highest power to lowest, e.g. if `x(t) = at^2 + bt + c`
+ * and `y(t) = dt^2 + et + f` then  the result is returned
+ * as `[[a,b,c],[d,e,f]]`, where the `a,b,c,...` are in double-double precision
  *
- * @param loops
- */
-function getExtremes(loops) {
-    const extremes = new Map();
-    const xs = [];
-    for (const loop of loops) {
-        const xPair = getExtreme(loop);
-        xs.push(xPair);
-        extremes.set(loop, xPair);
-    }
-    return { extremes, xs };
-}
-
-//# sourceMappingURL=get-extremes.js.map
-;// ./node_modules/flo-boolean/node/loop/normalize/to-grid.js
-
-/**
- * Sends a onto a fixed-spacing grid with 2**significantFigures divisions. Each
- * division is 2**maxExp / 2**significantFigures wide.
- * @param a
- * @param expMax log2(max extent of grid in positive and negative directions)
- *
- * @param significantFigures
- */
-function toGrid(a, expMax, significantFigures) {
-    const expA = Math.floor(Math.log2(Math.abs(a)));
-    const expDif = expMax - expA;
-    const newSig = significantFigures - expDif + 1;
-    if (newSig <= 0) {
-        return 0;
-    }
-    if (significantFigures >= 53) {
-        return a;
-    }
-    return reduceSignificand(a, newSig);
-}
-
-//# sourceMappingURL=to-grid.js.map
-;// ./node_modules/flo-boolean/node/containers/send-containers-to-grid.js
-
-/**
- * Returns the containers from the given containers by sending their boxes to a
- * grid with a smaller bitlength.
- *
- * @param containers
- * @param expMax
- * @param containerDim
- */
-function sendContainersToGrid(containers, expMax, containerDim) {
-    /**
-     * The exponent difference between expMax and the distance of critical
-     * points from the sides of the containers. This value cannot be higher
-     * than ⌈sqrt(n)⌉ where n is the number of intersections in a container.
-     * Assume n < 100 - this is a (mild) limitation of the algorithm
-     */
-    const expContainer = Math.log2(containerDim);
-    const expContainerAdj = expContainer - 3; // 2**-3 === 1/8 of container
-    const containers_ = containers.map(container => {
-        const box = container.box.map(p => p.map(c => {
-            return toGrid(c, expMax, expMax - expContainerAdj);
-        }));
-        return { ...container, box };
-    });
-    return containers_;
-}
-
-//# sourceMappingURL=send-containers-to-grid.js.map
-;// ./node_modules/flo-boolean/node/containers/filter-containers.js
-/**
- * Returns the containers that is the given containers filtered so that those
- * having only interface intersections or only a single (given as a pair) even
- * multiple intersection are not included.
- * @param containers
- */
-function filterContainers(containers) {
-    const containers_ = containers.filter(container => {
-        const xs = container.xs;
-        if (container.xs.length === 2) {
-            const _x_ = xs[0];
-            if (_x_.x.kind === 1 && _x_.x.ri.multiplicity % 2 === 0) {
-                // multiple even intersection - exclude
-                return false;
-            }
-        }
-        for (const x of container.xs) {
-            if (x.x.kind !== 4) {
-                // include container if any __X__ is not an interface
-                return true;
-            }
-        }
-        return false; // exclude container
-    });
-    return containers_;
-}
-
-//# sourceMappingURL=filter-containers.js.map
-;// ./node_modules/flo-boolean/node/containers/get-containers.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { compareInOut } from './get-container-in-outs/get-in-outs-via-sides/compare-in-out.js';
-
-// import { orderInOuts } from './order-in-outs.js';
-/**
- *
- * @param containerDim
- */
-function getContainers(loops, containerDim, expMax) {
-    const xs1 = getIntersections(loops, expMax);
-    const xs2 = getSelfIntersections(loops);
-    const xs3 = getInterfaceIntersections(loops);
-    const { extremes, xs: xs4 } = getExtremes(loops);
-    const xs5 = getExcessiveCurvatures(expMax, loops);
-    let xPairs = [...xs1, ...xs2, ...xs3, ...xs4, ...xs5];
-    // console.log('general  ', xs1);
-    // console.log('self     ', xs2);
-    // console.log('interface', xs3);
-    // console.log('topmost  ', xs4);
-    // console.log('excessive  ', xs5);
-    if (typeof _debug_ !== 'undefined') {
-        const { intersection } = _debug_.elems;
-        for (const xs of [xs1, xs2, xs3, xs4, xs5]) {
-            for (const xPair of xs) {
-                intersection.push(...xPair);
-            }
-        }
-    }
-    // initialize the containers with one of the one-sided intersections
-    // console.log(xPairs)
-    let containers = xPairs.map(xPair => ({
-        xs: xPair,
-        box: [
-            // FUTURE xs[0].box -> combine xs[0] and xs[1] boxes
-            [xPair[0].x.box[0][0] - containerDim, xPair[0].x.box[0][1] - containerDim],
-            [xPair[0].x.box[1][0] + containerDim, xPair[0].x.box[1][1] + containerDim]
-        ],
-        inOuts: undefined // to be set later
-    }));
-    // iterate, combining containers that overlap on each iteration 
-    while (true) {
-        /** container intersections as an array of Container pairs */
-        const is = sweepLine(containers, getLeftMost, getRightMost, areContainersIntersecting);
-        // if there are no more intersections between containers we're done
-        if (!is.length) {
-            break;
-        }
-        const graph = new Map();
-        addEdges(graph, is);
-        const connectedContainers = getConnectedComponents(graph);
-        const isolatedContainers = getIsolatedComponents(containers, connectedContainers);
-        containers = [
-            ...mergeContainers(connectedContainers),
-            ...isolatedContainers
-        ];
-    }
-    containers = filterContainers(containers);
-    containers = sendContainersToGrid(containers, expMax, containerDim);
-    if (typeof _debug_ !== 'undefined') {
-        _debug_.elems.container.push(...containers);
-    }
-    // Add the other half of the intersections too - all intersections has 
-    // exactly one opposite curve intersection (t values come in pairs)
-    // Also, set inOuts on each container, and `idx`
-    let ioIdx = 0;
-    for (const container of containers) {
-        for (const x of container.xs) {
-            x.container = container;
-        }
-        let inOuts;
-        ({ inOuts, ioIdx } = getContainerInOuts(container, ioIdx));
-        container.inOuts = inOuts;
-    }
-    // remove xs not belonging to a container (caused by filterContainers)
-    xPairs = xPairs.filter(x => x[0].container !== undefined);
-    setIntersectionNextValues(xPairs);
-    // Connect container ins and outs
-    for (const container of containers) {
-        for (const inOut of container.inOuts) {
-            if (inOut.dir === -1) {
-                continue;
-            }
-            const out = inOut;
-            let _x_ = out._x_;
-            // move to next 'in' __X__
-            while (true) {
-                _x_ = _x_.next;
-                if (_x_.in_ !== undefined) {
-                    break;
-                }
-            }
-            out.nextOrPrev = _x_.in_;
-            out.idx = out.nextOrPrev.idx;
-        }
-    }
-    for (const container of containers) {
-        for (const inOut of container.inOuts) {
-            // continue;
-            if (inOut.dir === +1) {
-                continue;
-            }
-            const in_ = inOut;
-            let _x_ = in_._x_;
-            // move to prev 'out' __X__
-            while (true) {
-                _x_ = _x_.prev;
-                if (_x_.out !== undefined) {
-                    break;
-                }
-            }
-            in_.nextOrPrev = _x_.out;
-            in_.idx = in_.nextOrPrev.idx;
-        }
-    }
-    // set `nextAround` and `prevAround` within container for each `inOut` for each `Container`
-    // for (const container of containers) {
-    //     orderInOuts(container);
-    // }
-    return { extremes, containers };
-}
-function getLeftMost(container) {
-    return container.box[0][0];
-}
-function getRightMost(container) {
-    return container.box[1][0];
-}
-
-//# sourceMappingURL=get-containers.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/get-outermost-in-and-out.js
-
-/**
- * Get initial intersection for the given loop. The loop must be such that
- * an extreme point on the loop forms part of an outermost loop that is outside
- * all other component loops that is formed by this loop and all other loops it
- * may intersect. This extreme point is guaranteed by the initial ordering of
- * the loops by their minimum y value.
- *
- * @param loop
- * @param parent
- */
-function getOutermostInAndOut(container, parent, loop) {
-    orderInOuts(container, 1); // `snugDir` doesn't really matters here
-    const inOuts = container.inOuts;
-    const firstInOut = inOuts[0];
-    const lastInOut = inOuts[inOuts.length - 1];
-    const initialOut = firstInOut.dir === 1
-        ? firstInOut
-        : lastInOut;
-    const orientation = lastInOut.dir;
-    const set = parent.idx === 0
-        ? new Set()
-        : parent.orientation === 1 ? parent.loopsIdxs : new Set();
-    firstInOut.orientation = orientation;
-    firstInOut.parent = parent;
-    firstInOut.windingNum = parent.windingNum + orientation;
-    firstInOut.loopsIdxs = new Set(set);
-    firstInOut.children = new Set();
-    if (orientation === 1) {
-        firstInOut.loopsIdxs?.add(loop.idx);
-    }
-    lastInOut.orientation = orientation;
-    lastInOut.parent = parent;
-    lastInOut.windingNum = parent.windingNum + orientation;
-    lastInOut.loopsIdxs = new Set(set);
-    lastInOut.children = new Set();
-    if (orientation === 1) {
-        lastInOut.loopsIdxs?.add(loop.idx);
-    }
-    return initialOut;
-}
-
-//# sourceMappingURL=get-outermost-in-and-out.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/classification/is-self-overlapping.js
-
-/**
- * Returns `true` if the given bezier has all control points collinear and
- * it is self-overlapping, i.e. if it intersects itself at an infinite number
- * of points.
- *
- * * a bezier curve can only intersect itself at an infinite number of
- * points if its locus is a 'self-overlapping line'.
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
- *
- * @doc mdx
- */
-function isSelfOverlapping(ps) {
-    if (!isCollinear(ps)) {
-        return false;
-    }
-    // Check if control points are non-strict monotone
-    const xs = ps.map(p => p[0]);
-    const ys = ps.map(p => p[1]);
-    return !(isMonotone(xs) && isMonotone(ys));
-}
-/**
- * Returns true if the given array of numbers are non-strict monotone increasing.
- * @param xs an array of numbers
- *
- * @internal
- */
-function isMonotoneIncreasing(xs) {
-    for (let i = 1; i < xs.length; i++) {
-        if (xs[i - 1] > xs[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-/**
- * Returns true if the given array of numbers are non-strict monotone decreasing.
- * @param xs an array of numbers
- *
- * @internal
- */
-function isMonotoneDecreasing(xs) {
-    for (let i = 1; i < xs.length; i++) {
-        if (xs[i - 1] < xs[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-/**
- * @param xs
- *
- * @internal
- */
-function isMonotone(xs) {
-    return isMonotoneIncreasing(xs) || isMonotoneDecreasing(xs);
-}
-
-//# sourceMappingURL=is-self-overlapping.js.map
-;// ./node_modules/flo-vector2d/node/distance-and-length/to-length.js
-/**
- * Returns the given 2-vector scaled to the given length.
- * @param p a vector
- * @param length the length to scale to
- */
-function toLength(p, length) {
-    const c = length / Math.sqrt(p[0] * p[0] + p[1] * p[1]);
-    return [c * p[0], c * p[1]];
-}
-
-//# sourceMappingURL=to-length.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/equal.js
-/**
- * Returns `true` if the two given bezier curves are exactly equal when compared
- * by value (deep equality), `false` otherwise
- *
- * @param ps1 an order 0,1,2 or 3 bezier curve given as an ordered array of its
+ * @param ps an order 0,1,2 or 3 bezier curve given by an ordered array of its
  * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param ps2 another bezier curve
  *
  * @doc
  */
-function equal(ps1, ps2) {
-    if (ps1 === ps2) {
-        return true;
-    }
-    if (ps1.length !== ps2.length) {
-        return false;
-    }
-    for (let i = 0; i < ps1.length; i++) {
-        if (ps1[i][0] !== ps2[i][0] || ps1[i][1] !== ps2[i][1]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-//# sourceMappingURL=equal.js.map
-;// ./node_modules/flo-boolean/node/loop/normalize/are-all-points-different.js
-/**
- * Returns true if all points in the given array are different, false otherwise.
- * @param ps An array of points.
- */
-function areAllPointsDifferent(ps) {
-    for (let i = 0; i < ps.length - 1; i++) {
-        for (let j = i + 1; j < ps.length; j++) {
-            if (ps[i][0] === ps[j][0] && ps[i][1] === ps[j][1]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-//# sourceMappingURL=are-all-points-different.js.map
-;// ./node_modules/flo-boolean/node/loop/normalize/fix-bezier-by-point-spacing.js
-
-// import { lengthSquaredUpperBound, isLine, isCubicReallyQuad, toQuadraticFromCubic } from "flo-bezier3";
-
-
-const { abs: fix_bezier_by_point_spacing_abs } = Math;
-/**
- * Returns the same bezier if its points are well-spaced, e.g. all points not
- * coincident, etc., else fix it, if possible, and return the fixed bezier,
- * else return undefined.
- *
- * @param ps a bezier
- * @param gridSpacing
- * @param sendToGrid
- */
-function fixBezierByPointSpacing(ps, gridSpacing, sendToGrid) {
-    if (ps === undefined) {
-        return undefined;
-    }
-    // Early filter - if all points coincide, we're done - degenerate to point
-    if (isReallyPoint(ps)) {
-        return undefined; // Cannot fix
-    }
-    if (ps.length === 2) {
-        // obviously no need to fix a line (that is not degenerate to a point)
-        return ps;
+function toPowerBasis_1stDerivative_46_O(ps) {
+    if (ps.length === 4) {
+        return toPowerBasis3_1stDerivative_46_O3(ps);
     }
     if (ps.length === 3) {
-        // Early filter - if no points coincide, we're done - well spaced
-        if (areAllPointsDifferent(ps)) {
-            // but if it s a line masquerading as a quadratic or cubic bezier
-            // then make it line
-            // return isLine(ps) ? [ps[0], ps[2]] : ps;
-            return isCollinear(ps) ? [ps[0], ps[2]] : ps;
-        }
-        // Is the quadratic bezier overlapping onto itself? 
-        if (arePsEqual(ps[0], ps[2])) {
-            // a quadratic with equal endpoints (and not degenerate to a point)
-            return undefined; // better to just remove it
-            // return [ps[0], ps[1]];
-        }
-        // At this point not all points same and not all points different and 
-        // not endpoints coincide, so either:
-        // * point 0 and 1 coincide
-        // * point 1 and 2 coincide
-        // but in that case we simply have a line
-        return [ps[0], ps[2]];
+        return toPowerBasis2_1stDerivative_46_O2(ps);
     }
-    // ---- at this point we must have a cubic
-    // Early filter - if no points coincide, we're done - well spaced
-    if (areAllPointsDifferent(ps)) {
-        const ps_ = checkCubicForLineOrQuad(ps);
-        if (ps_ === undefined) {
-            return undefined;
-        }
-        if (equal(ps_, ps)) {
-            return ps;
-        }
-        return fixBezierByPointSpacing(ps_, gridSpacing, sendToGrid);
-    }
-    if (arePsEqual(ps[0], ps[3])) {
-        // we should simply handle this case for cubics - lines and quadratics 
-        // degenerate into a point and a self-overlapping curve respectively.
-        // if (isCollinear(ps)) { return [ps[0], ps[3]]; }
-        if (isCollinear(ps)) {
-            return undefined;
-        }
-        // if (arePsEqual(ps[1], ps[2])) {
-        //     // it is a cubic degenerated to a line
-        //     return [ps[0], ps[2]];
-        // }
-        // no need to fix anything - it is a loop - it cannot be a line or a
-        // quadratic (they don't make loops)
-        return ps;
-    }
-    if (isCollinear(ps)) {
-        return [ps[0], ps[3]];
-    }
-    // At this point, either:
-    // * point 0, 1 and 2 coincide
-    // * point 1, 2 and 3 coincide
-    // * points 0,1 AND points 2,3 coincide
-    // * only point 0 and point 1 coincide
-    // * only point 0 and point 2 coincide
-    // * only point 1 and point 2 coincide
-    // * only point 1 and point 3 coincide
-    // * only point 2 and point 3 coincide
-    // If point 0, 1 and 2 coincide OR point 1, 2 and 3 coincide OR
-    // points 0,1 AND points 2,3 coincide we have a line
-    if ((arePsEqual(ps[0], ps[1]) &&
-        arePsEqual(ps[1], ps[2])) ||
-        (arePsEqual(ps[1], ps[2]) &&
-            arePsEqual(ps[2], ps[3])) ||
-        (arePsEqual(ps[0], ps[1]) &&
-            arePsEqual(ps[2], ps[3]))) {
-        return fixBezierByPointSpacing([ps[0], ps[ps.length - 1]], gridSpacing, sendToGrid);
-    }
-    // At this point, either:
-    // * only point 0 and point 1 coincides
-    // * only point 0 and point 2 coincides        
-    // * only point 1 and point 2 coincides
-    // * only point 1 and point 3 coincides
-    // * only point 2 and point 3 coincides
-    // If points 0,2 OR points 1,3 OR points 1,2 coincide we're done - they
-    // are not problematic
-    if (arePsEqual(ps[0], ps[2]) ||
-        arePsEqual(ps[1], ps[3]) ||
-        arePsEqual(ps[1], ps[2])) {
-        // these kinds of cubics cannot be quadratics and the case for a line
-        // has already been checked - we're done
-        return ps;
-    }
-    // At this point, either:
-    // * only point 0 and point 1 coincides
-    // * only point 2 and point 3 coincides
-    // it is a cubic with a cusp at an endpoint - these are fine for our
-    // algorithm but lets move them a little apart for later alogorithms 
-    // operating on our returned result.
-    if (arePsEqual(ps[0], ps[1])) {
-        // Move point 1 towards point 2 without surpassing it and ensuring it
-        // will be on a new grid point
-        // If squared distance between the points < 4 * gridSpacing just 
-        // move them onto each other - this shouldn't affect the overall 
-        // accuracy of the algorithm and it ensures the move > gridSpacing.
-        if (squaredDistanceBetween(ps[1], ps[2]) < 4 * gridSpacing) {
-            return [ps[0], ps[2], ps[2], ps[3]]; // cannot be a line or quad
-        }
-        else {
-            const v = toLength(from_to_fromTo(ps[1], ps[2]), 2 * gridSpacing);
-            const p1 = translate(ps[1], v);
-            return checkCubicForLineOrQuad([
-                ps[0],
-                sendToGrid(p1),
-                ps[2],
-                ps[3]
-            ]);
-        }
-    }
-    if (arePsEqual(ps[2], ps[3])) {
-        // Move point 2 towards point 1 without surpassing it and ensuring it
-        // will be on a new grid point
-        // If squared distance between the points < 4 * gridSpacing just 
-        // move them onto each other - this shouldn't affect the overall 
-        // accuracy of the algorithm and it ensures the move > gridSpacing.
-        if (squaredDistanceBetween(ps[2], ps[1]) < 4 * gridSpacing) {
-            return [
-                ps[0],
-                ps[1],
-                ps[1],
-                ps[3]
-            ]; // cannot be a line or quad
-        }
-        else {
-            const v = toLength(from_to_fromTo(ps[2], ps[1]), 2 * gridSpacing);
-            const p2 = translate(ps[2], v);
-            return checkCubicForLineOrQuad([
-                ps[0],
-                ps[1],
-                sendToGrid(p2),
-                ps[3]
-            ]);
-        }
-    }
+    return toPowerBasis1_1stDerivative_46(ps);
 }
-function checkCubicForLineOrQuad(ps) {
-    // return isLine(ps)
-    return isCollinear(ps)
-        ? [ps[0], ps[3]]
-        : isCubicReallyQuad(ps)
-            ? cubicToQuadratic(ps)
-            : ps;
+/** @internal */
+function toPowerBasis3_1stDerivative_46_O3(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
+    return [[
+            // (3*((x3 - x0) + 3*(x1 - x2))) / 3,
+            (x3 - x0) + 3 * (x1 - x2),
+            // (6*((x2 + x0) - 2*x1)) / 3,
+            2 * (x2 + x0 - 2 * x1),
+            // (3*(x1 - x0)) / 3
+            x1 - x0
+        ], [
+            // (3*((y3 - y0) + 3*(y1 - y2))) / 3,
+            (y3 - y0) + 3 * (y1 - y2),
+            // (6*((y2 + y0) - 2*y1)) / 3,
+            2 * (y2 + y0 - 2 * y1),
+            // (3*(y1 - y0)) / 3
+            y1 - y0
+        ]];
 }
-/** Returns true if the points are the same */
-function arePsEqual(p1, p2) {
-    return p1[0] === p2[0] && p1[1] === p2[1];
+/** @internal */
+function toPowerBasis2_1stDerivative_46_O2(ps) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = ps;
+    return [[
+            // (2*((x2 + x0) - 2*x1)) / 2
+            x2 + x0 - 2 * x1,
+            // (2*(x1 - x0)) / 2
+            x1 - x0,
+        ], [
+            // (2*((y2 + y0) - 2*y1)) / 2
+            y2 + y0 - 2 * y1,
+            // (2*(y1 - y0)) / 2
+            y1 - y0,
+        ]];
+}
+/** @internal */
+function toPowerBasis1_1stDerivative_46(ps) {
+    const [[x0, y0], [x1, y1]] = ps;
+    return [[x1 - x0], [y1 - y0]];
 }
 
-//# sourceMappingURL=fix-bezier-by-point-spacing.js.map
-;// ./node_modules/flo-boolean/node/loop/normalize/fix-beziers.js
+//# sourceMappingURL=to-power-basis-1st-derivative-dd-46-o.js.map
+;// ./node_modules/flo-boolean/node/bezier/get-bezier-turnarounds.js
+
+
+function getBezierTurnarounds(ps) {
+    if (ps.length === 2) {
+        return [];
+    } // It's a line
+    const [dx, dy] = toPowerBasis_1stDerivative_46_O(ps);
+    const rootsX = roots(dx, 0, 1) || [];
+    const rootsY = roots(dy, 0, 1) || [];
+    return [...rootsX, ...rootsY];
+}
+
+//# sourceMappingURL=get-bezier-turnarounds.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/get-turnarounds.js
+
+
+function getTurnarounds(loops) {
+    const turnarounds = [];
+    for (let loop of loops) {
+        for (let curve of loop.curves) {
+            const { ps } = curve;
+            const xPairs = getBezierTurnarounds(ps)
+                .map((ri) => {
+                const { t } = ri;
+                const p = toP(ps, t);
+                // `next`, `prev`, `container` will be set later
+                const xA = { p, ri, kind: 8, curve };
+                const xB = { p, ri, kind: 8, curve };
+                return [xA, xB];
+            });
+            turnarounds.push(...xPairs);
+        }
+    }
+    return turnarounds;
+}
+
+//# sourceMappingURL=get-turnarounds.js.map
+;// ./node_modules/flo-boolean/node/containers/get-containers/get-all-x-pairs.js
 
 
 
-function sendToGrid(expMax, maxBitLength) {
-    return (p) => {
-        const x = toGrid(p[0], expMax, maxBitLength);
-        const y = toGrid(p[1], expMax, maxBitLength);
-        if (x === p[0] && y === p[1]) {
-            return p; // keep point's identity
-        }
-        return [x, y];
-    };
-}
-function sendToGridNoop(p) { return p; }
+
+
+
+const getIntersections_ = timeFunctionCalls(getIntersections);
+const getSelfIntersections_ = timeFunctionCalls(getSelfIntersections);
+const getInterfaceIntersections_ = timeFunctionCalls(getInterfaceIntersections);
+const getExcessiveCurvatures_ = timeFunctionCalls(getExcessiveCurvatures);
+const getTurnarounds_ = timeFunctionCalls(getTurnarounds);
 /**
- * Returns the grid-aligned loop derived from the given input loop.
- *
- * Also ensures that:
- * * All points are coerced onto a grid.
- * * All bezier points of a single curve are seperated.
- * @param expMax The exponent, e, such that 2^e > all bezier coordinate points.
- * @param maxBitLength
+ * Returns intersections of all types on the given `loops`
  */
-function fixBeziers(expMax, maxBitLength, doSendToGrid = true) {
-    /** The actual control point grid spacing */
-    const gridSpacing = 2 ** expMax * 2 ** (-maxBitLength);
-    const sendToGrid_ = doSendToGrid
-        ? sendToGrid(expMax, maxBitLength)
-        : sendToGridNoop;
-    return (loop) => {
-        const newPss = [];
-        for (let i = 0; i < loop.length; i++) {
-            let ps = loop[i].slice();
-            // Get endpoint of last good bezier or else the original start point
-            const len = newPss.length;
-            const prevGoodBezier = newPss[len - 1];
-            const prevGoodBezierEndpoint = prevGoodBezier
-                ? prevGoodBezier[prevGoodBezier.length - 1]
-                : sendToGrid_(loop[0][0]); // Bit-align original start point
-            // Set the start point to the previous good bezier's endpoint
-            ps[0] = prevGoodBezierEndpoint;
-            // Align to grid before doing any further checks
-            ps = ps.map(p => sendToGrid_(p));
-            // Check if ps degenerates into a self-overlapping line
-            if (isSelfOverlapping(ps)) {
-                // Change into a line with endponts that of the original bezier
-                ps = [ps[0], ps[ps.length - 1]];
-            }
-            ps = fixBezierByPointSpacing(ps, gridSpacing, sendToGrid_);
-            if (ps !== undefined) {
-                newPss.push(ps);
-            }
-        }
-        const len = newPss.length;
-        if (!len) {
-            return [];
-        }
-        // Connect the last bezier end-point to the first bezier start-point.
-        const ps = newPss[len - 1];
-        ps[ps.length - 1] = newPss[0][0];
-        return newPss;
-    };
-}
-
-//# sourceMappingURL=fix-beziers.js.map
-;// ./node_modules/flo-boolean/node/loop/normalize/normalize-loop.js
-
-
-
-/**
- * Returns new loops from the given loops by aligning the 53-bit double
- * precision coordinates to 46-bit coordinates. This speeds up the algorithm
- * considerably.
- *
- * The following guarantees are put in place for the returned loops:
- * * All points are coerced onto a grid. In other words, such that the
- *   significand of all coordinates are reduced to a specified number of bits
- *   and the significant bits of all points 'overlap'.
- *
- * * No curves are disguised as higher order curves (this includes the case
- *   that no bezier is of zero length and the case where there are an infinite
- *   number of self-intersections). The curves are simply deflated exactly.
- *
- * * No cusps (this includes the case that all bezier end-points of each curve
- *   are seperated. (this prevents infinite curvature at the endpoints, etc).
- *   (this condition is not necessary for this algorithm but may help algorithms
- *    down the line that needs such guarantees)
- *
- * @param bezierLoops
- * @param maxBitLength
- * @param expMax
- * @param doScramble
- * @param doSendToGrid
- */
-function normalizeLoops(bezierLoops, maxBitLength, expMax, doScramble = false, doSendToGrid = true) {
-    const fixBeziers_ = fixBeziers(expMax, maxBitLength, doSendToGrid);
-    let loops = bezierLoops.slice();
-    // just for testing purposes
-    loops = doScramble ? scrambleLoops(loops, maxBitLength, expMax, 1) : loops;
-    loops = loops.map(fixBeziers_);
-    loops = loops.filter(loop => loop.length > 0);
+const getAllXPairs = timeFunctionCalls(function getAllXPairs(loops, minYXPairs, expMax) {
+    const xs1 = loops.map((_, idx) => [minYXPairs[idx], { ...minYXPairs[idx] }]);
+    // const xs1 = loops.map((_,idx) => [minYXPairs[idx]] as [X]);
+    const xs2 = getIntersections_(loops);
+    const xs3 = getSelfIntersections_(loops);
+    const xs4 = getInterfaceIntersections_(loops);
+    const xs5 = getExcessiveCurvatures_(expMax, loops);
+    const xs6 = getTurnarounds_(loops);
+    let xPairs = [xs1, xs2, xs3, xs4, xs5, xs6].flat(1);
     if (typeof _debug_ !== 'undefined') {
-        _debug_.timing.normalize = performance.now() - _debug_.timing.timingStart;
+        _debug_.elems.intersection.push(...xPairs.flat());
     }
-    return loops;
-}
-/** Just for testing purposes - not used in the actual algorithm */
-function scrambleLoops(loops, maxBitLength, expMax, mult = 0.02) {
-    const loops_ = [];
-    for (const loop of loops) {
-        const loop_ = [];
-        for (const bez of loop) {
-            const bez_ = bez.map(v => v.map(c => {
-                let c_ = 0;
-                let ii = 0;
-                let mblc;
-                let mbl = 0;
-                while (true) {
-                    if (++ii > 10) {
-                        break;
-                    }
-                    c_ = (c + Math.random()) * (1 + ((Math.random() - 0.7) * mult));
-                    c_ = toGrid(c_, expMax, maxBitLength);
-                    const bl = bitLength(c_);
-                    if (bl > mbl) {
-                        mbl = bl;
-                        mblc = c_;
-                    }
-                }
-                return mblc;
-            }));
-            loop_.push(bez_);
-        }
-        loops_.push(loop_);
-    }
-    return loops_;
-}
-
-//# sourceMappingURL=normalize-loop.js.map
-;// ./node_modules/flo-boolean/node/loop/normalize/get-max-coordinate.js
-
-/**
- * Returns the maximum control point coordinate value (x or y) within any loop.
- * @param loops The array of loops
- */
-const getMaxCoordinate = memoize((loops) => {
-    let max = 0;
-    for (const loop of loops) {
-        for (const ps of loop) {
-            for (const p of ps) {
-                for (const c of p) {
-                    const c_ = Math.abs(c);
-                    if (c_ > max) {
-                        max = c_;
-                    }
-                }
-            }
-        }
-    }
-    return max;
+    return xPairs;
 });
 
-//# sourceMappingURL=get-max-coordinate.js.map
-;// ./node_modules/flo-poly/node/basic/double/remove-leading-zeros.js
-/**
- * If the highest power coefficient of the given polynomial is 0 then
- * `removeLeadingZeros` can be called to remove all such highest terms so that
- * the returned array is a valid presentation of a polynomial.
- *
- * @param p a polynomial whose leading zeros should be removed
- *
- * @example
- * ```typescript
- * removeLeadingZeros([1e-18, 1e-10, 1e-1]); //=> [1e-18, 1e-10, 1e-1]
- * removeLeadingZeros([0, 1e-10, 1e-1]); //=> [1e-10, 1e-1]
- * ```
- *
- * @doc
- */
-function removeLeadingZeros(p) {
-    let lzCount = 0;
-    for (let i = 0; i <= p.length - 1; i++) {
-        if (p[i] !== 0) {
-            break;
-        }
-        lzCount++;
-    }
-    if (lzCount !== 0) {
-        p = p.slice(lzCount);
-    }
-    return p;
-}
-
-//# sourceMappingURL=remove-leading-zeros.js.map
-;// ./node_modules/flo-poly/node/basic/double/multiply.js
-/* unused harmony import specifier */ var multiply_removeLeadingZeros;
-
-const { max: multiply_max } = Math;
-/**
- * Returns the result of multiplying 2 polynomials in double precision.
- *
- * * see [polynomial arithmetic](https://en.wikipedia.org/wiki/Polynomial_arithmetic)
- * * see [polynomial multiplication](https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Polynomial_multiplication)
- * * see [polynomial multiplication](http://web.cs.iastate.edu/~cs577/handouts/polymultiply.pdf)
- *
- * @param p1 a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
- * @param p2 another polynomial.
- *
- * @example
- * ```typescript
- * multiply([1,2,3], [2,5,3,5]); //=> [2, 9, 19, 26, 19, 15]
- * ```
- *
- * @doc
- */
-function multiply(p1, p2) {
-    const d1 = p1.length - 1;
-    const d2 = p2.length - 1;
-    // if either or both is the zero polynomial
-    if (d1 < 0 || d2 < 0) {
-        return [];
-    }
-    const d = d1 + d2;
-    const r = new Array(d + 1).fill(0);
-    for (let i = 0; i < d1 + 1; i++) {
-        for (let j = 0; j < d2 + 1; j++) {
-            r[d - (i + j)] += (p1[d1 - i] * p2[d2 - j]);
-        }
-    }
-    return removeLeadingZeros(r);
-}
-/**
- * Returns the result of multiplying 2 polynomials in double precision using
- * the [Karatsuba](https://en.wikipedia.org/wiki/Karatsuba_algorithm)
- * divide-and-conquer algorithm (`O(n^log2(3)) ≈ O(n^1.585)`).
- *
- * @param p1 a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
- * @param p2 another polynomial.
- *
- * @example
- * ```typescript
- * multiplyKaratsuba([1,2,3], [2,5,3,5]); //=> [2, 9, 19, 26, 19, 15]
- * ```
- *
- * @doc
- */
-function multiplyKaratsuba(p1, p2) {
-    const d1 = p1.length - 1;
-    const d2 = p2.length - 1;
-    // if either or both is the zero polynomial
-    if (d1 < 0 || d2 < 0) {
-        return [];
-    }
-    return multiply_removeLeadingZeros(karatsuba(p1, p2));
-}
-/**
- * Karatsuba multiplication of two polynomials given (as everywhere in this
- * module) densely from highest to lowest power. The lowest powers sit at the
- * end of each array, so the polynomials are split by taking the trailing
- * coefficients as the low half, and all coefficient-wise additions are aligned
- * at the right (low-order) end.
- */
-function karatsuba(a, b) {
-    const la = a.length;
-    const lb = b.length;
-    if (la === 0 || lb === 0) {
-        return [];
-    }
-    const n = multiply_max(la, lb);
-    // base case: schoolbook multiplication for small inputs
-    if (n <= 9) {
-        const r = new Array(la + lb - 1).fill(0);
-        for (let i = 0; i < la; i++) {
-            for (let j = 0; j < lb; j++) {
-                r[i + j] += a[i] * b[j];
-            }
-        }
-        return r;
-    }
-    const m = n >> 1;
-    // the low half holds the lowest `m` powers, which live at the end
-    const aSplit = multiply_max(0, la - m);
-    const bSplit = multiply_max(0, lb - m);
-    const aHigh = a.slice(0, aSplit);
-    const aLow = a.slice(aSplit);
-    const bHigh = b.slice(0, bSplit);
-    const bLow = b.slice(bSplit);
-    // z0 = aLow * bLow,  z2 = aHigh * bHigh
-    const z0 = karatsuba(aLow, bLow);
-    const z2 = karatsuba(aHigh, bHigh);
-    // z1 = (aLow + aHigh)(bLow + bHigh) - z0 - z2
-    const z1 = subArr(subArr(karatsuba(addArr(aLow, aHigh), addArr(bLow, bHigh)), z0), z2);
-    // result = z2 * x^(2m) + z1 * x^m + z0
-    const result = new Array(la + lb - 1).fill(0);
-    addInto(result, z0, 0);
-    addInto(result, z1, m);
-    addInto(result, z2, 2 * m);
-    return result;
-}
-/** adds two highest-to-lowest coefficient arrays (aligned at the low end) */
-function addArr(a, b) {
-    const l = multiply_max(a.length, b.length);
-    const r = new Array(l).fill(0);
-    const oa = l - a.length;
-    const ob = l - b.length;
-    for (let i = 0; i < a.length; i++) {
-        r[oa + i] += a[i];
-    }
-    for (let i = 0; i < b.length; i++) {
-        r[ob + i] += b[i];
-    }
-    return r;
-}
-/** subtracts `b` from `a` (highest-to-lowest, aligned at the low end) */
-function subArr(a, b) {
-    const l = multiply_max(a.length, b.length);
-    const r = new Array(l).fill(0);
-    const oa = l - a.length;
-    const ob = l - b.length;
-    for (let i = 0; i < a.length; i++) {
-        r[oa + i] += a[i];
-    }
-    for (let i = 0; i < b.length; i++) {
-        r[ob + i] -= b[i];
-    }
-    return r;
-}
-/** adds `src` raised by `shift` powers into the highest-to-lowest `dst` */
-function addInto(dst, src, shift) {
-    const offset = dst.length - src.length - shift;
-    for (let i = 0; i < src.length; i++) {
-        dst[offset + i] += src[i];
-    }
-}
-
-//# sourceMappingURL=multiply.js.map
-;// ./node_modules/flo-poly/node/calculus/double/integrate.js
-/**
- * Returns the result of integrating the given polynomial in double precision.
- *
- * @param p a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
- * @param c the constant of intergration
- *
- * @example
- * ```typescript
- * integrate([3, 2, 1]); //=> [1, 1, 1, c]
- * ```
- *
- * @doc
- */
-function integrate(p, c) {
-    const d = p.length - 1;
-    const result = new Array(d + 2);
-    for (let i = 0; i < d + 1; i++) {
-        result[i] = p[i] / (d + 1 - i);
-    }
-    result[d + 1] = c;
-    return result;
-}
-
-//# sourceMappingURL=integrate.js.map
-;// ./node_modules/flo-poly/node/basic/double/add.js
-
-const { min: add_min, max: add_max } = Math;
-/**
- * Returns the result of adding two polynomials in double precision.
- *
- * @param p1 a polynomial with coefficients given densely as an array of double
- * floating point numbers from highest to lowest power, e.g. `[5,-3,0]`
- * represents the polynomial `5x^2 - 3x`
- * @param p2 another polynomial
- *
- * @example
- * ```typescript
- * add([1,2,3],[3,4]); //=> [1,5,7]
- * ```
- *
- * @doc
- */
-function add(p1, p2) {
-    // Initialize result array
-    const d1 = p1.length - 1;
-    const d2 = p2.length - 1;
-    const d = add_max(d1, d2);
-    // Add coefficients
-    const r = new Array(d + 1);
-    const minD = add_min(d1, d2);
-    // Add where both polynomials overlap
-    for (let i = 0; i <= minD; i++) {
-        r[d - i] = p1[d1 - i] + p2[d2 - i];
-    }
-    // Copy remaining coefficients from longer polynomial
-    for (let i = minD + 1; i <= d1; i++) {
-        r[d - i] = p1[d1 - i];
-    }
-    for (let i = minD + 1; i <= d2; i++) {
-        r[d - i] = p2[d2 - i];
-    }
-    // Ensure the result is a valid polynomial representation
-    return removeLeadingZeros(r);
-}
-
-//# sourceMappingURL=add.js.map
-;// ./node_modules/flo-boolean/node/loop/get-loop-area.js
-/* unused harmony import specifier */ var get_loop_area_ddAddDd;
-/* unused harmony import specifier */ var toPowerBasisDd;
-/* unused harmony import specifier */ var toPowerBasis_1stDerivativeDd;
-/* unused harmony import specifier */ var ddAdd;
-/* unused harmony import specifier */ var ddMultiply;
-/* unused harmony import specifier */ var ddNegate;
-/* unused harmony import specifier */ var ddIntegrate;
-/* unused harmony import specifier */ var ddHorner;
+//# sourceMappingURL=get-all-x-pairs.js.map
+;// ./node_modules/flo-boolean/node/bezier/get-bezier-min-y.js
 
 
 
 /**
- * Returns the area of the given shape.
+ * Returns the minimum y-coordinate (point and `t` value) of the given bezier
+ * curve.
  *
- * * see e.g. https://mathinsight.org/greens_theorem_find_area
- *
- * @param pss the shape given as a closed loop of bezier curves
- */
-function getShapeArea(pss) {
-    let totalArea = 0;
-    for (const ps of pss) {
-        const [x, y] = toPowerBasis(ps);
-        const [dx, dy] = toPowerBasis_1stDerivative(ps);
-        const xdy = multiply(x, dy);
-        const ydx = negate(multiply(y, dx));
-        const poly = integrate(add(xdy, ydx), 0);
-        const area = Horner(poly, 1);
-        totalArea += area;
-    }
-    return totalArea / 2;
-}
-/**
- * Returns the area of the given shape.
- *
- * * see e.g. https://mathinsight.org/greens_theorem_find_area
- *
- * @param pss the shape given as a closed loop of bezier curves
- */
-function ddGetShapeArea(pss) {
-    let totalArea = [0, 0];
-    for (const ps of pss) {
-        const [x, y] = toPowerBasisDd(ps);
-        const [dx, dy] = toPowerBasis_1stDerivativeDd(ps);
-        const xdy = ddMultiply(x, dy);
-        const ydx = ddNegate(ddMultiply(y, dx));
-        const poly = ddIntegrate(ddAdd(xdy, ydx), [0, 0]);
-        const area = ddHorner(poly, 1);
-        totalArea = get_loop_area_ddAddDd(totalArea, area);
-    }
-    return [totalArea[0] / 2, totalArea[1] / 2];
-}
-/**
- * @deprecated This function is deprecated. Use `getShapeArea` instead.
- *
- * Returns the area of the given Loop.
- * * see e.g. https://mathinsight.org/greens_theorem_find_area
- */
-function getLoopArea(loop) {
-    return getShapeArea(loop.beziers);
-}
-
-//# sourceMappingURL=get-loop-area.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/length/control-point-lines-length.js
-
-/**
- * Returns an upper bound for the length of the given bezier curve - this bound
- * is not very strict as it uses the sum of the straight-line distances between
- * control points as a measure.
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
- *
- * @doc mdx
- */
-function controlPointLinesLength(ps) {
-    let totalLength = 0;
-    for (let i = 0; i < ps.length - 1; i++) {
-        totalLength += distanceBetween(ps[i], ps[i + 1]);
-    }
-    return totalLength;
-}
-
-//# sourceMappingURL=control-point-lines-length.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-bounding-box-tight.js
-
-
-
-
-const { sqrt: get_bounding_box_tight_sqrt } = Math;
-/**
- * Returns a **non-certified**, **rotated**, **tight** bounding box of the given
- * bezier curve as four ordered points of a rotated rectangle (with each given
- * as `[x,y]`)
- *
- * @param ps an order 1,2 or 3 bezier curve given as an array of its control
+ * @param ps an order 1, 2 or 3 bezier curve given as an array of control
  * points, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
  *
  * @doc mdx
  */
-function getBoundingBoxTight(ps) {
-    const [xS, yS] = ps[0];
-    const [xE, yE] = ps[ps.length - 1];
-    let sinθ;
-    let cosθ;
-    // take care of the case the endpoints are close together
-    const len = controlPointLinesLength(ps);
-    if (squaredDistanceBetween(ps[0], ps[ps.length - 1]) * 2 ** 8 < len * len) {
-        const [xE_, yE_] = evalDeCasteljau(ps, 0.5);
-        const hypotenuse = get_bounding_box_tight_sqrt((xE_ - xS) * (xE_ - xS) + (yE_ - yS) * (yE_ - yS));
-        sinθ = (yE_ - yS) / hypotenuse;
-        cosθ = (xE_ - xS) / hypotenuse;
+function getBezierMinY(curve) {
+    const { ps } = curve;
+    const pS = ps[0];
+    const pE = ps[ps.length - 1];
+    let minY = pS[1] < pE[1]
+        ? { ri: createRootExact(0), p: pS, kind: 0, curve }
+        : { ri: createRootExact(1), p: pE, kind: 0, curve };
+    if (ps.length === 2) {
+        // It's a line
+        if (pS[1] === pE[1]) {
+            // so that forward and reverse bezier have the same minY point
+            const p = [(pS[0] + pE[0]) / 2, (pS[1] + pE[1]) / 2];
+            return { ri: createRootExact(0.5), p, kind: 0, curve };
+        }
+        return minY;
     }
-    else {
-        const hypotenuse = get_bounding_box_tight_sqrt((xE - xS) * (xE - xS) + (yE - yS) * (yE - yS));
-        sinθ = (yE - yS) / hypotenuse;
-        cosθ = (xE - xS) / hypotenuse;
-    }
-    const box = getNormalizedBoundingBox(ps, sinθ, cosθ);
-    const [[p0x, p0y], [p1x, p1y]] = box;
-    const axisAlignedBox = [
-        box[0], [p1x, p0y],
-        box[1], [p0x, p1y]
-    ];
-    const rotate_ = rotate_rotate(sinθ, cosθ);
-    return axisAlignedBox.map(p => translate(ps[0], rotate_(p)));
-}
-/**
- * Helper function. Returns the bounding box of the normalized (i.e. first point
- * moved to origin and rotated so that last point lies on x-axis) given cubic
- * bezier.
- *
- * * returns the bounding box in the form [[minX, minY], [maxX,maxY]
- *
- * @param ps - A cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @param sinθ - Sine of angle made by line from first bezier point to
- * last with x-axis.
- * @param cosθ - Cosine of angle made by line from first bezier point
- * to last with x-axis.
- *
- * @internal
- */
-function getNormalizedBoundingBox(ps, sinθ, cosθ) {
-    const vectorToOrigin = ps[0].map(x => -x);
-    const f = translate(vectorToOrigin);
-    const boundingPs = ps.map(p => rotate_rotate(-sinθ, cosθ, f(p)));
-    return getBoundingBox(boundingPs);
-}
-
-//# sourceMappingURL=get-bounding-box-tight.js.map
-;// ./node_modules/flo-boolean/node/main/add-debug-info-1.js
-
-
-function addDebugInfo1(bezierLoops) {
-    if (typeof _debug_ === 'undefined') {
-        return;
-    }
-    // Modifies the displayed SVG to reflect changes caused by `normalizeLoops`.
-    // if (typeof document !== 'undefined') { 
-    //     const pathStr = loopsToSvgPathStr(bezierLoops); 
-    //     const $svg = document.getElementsByClassName('shape')[0]; 
-    //     $svg.setAttributeNS(null, 'd', pathStr); 
-    // }
-    for (const loop of bezierLoops) {
-        _debug_.elems.loopPre.push(...bezierLoops);
-        _debug_.elems.loopsPre.push(bezierLoops);
-        for (const ps of loop) {
-            const lbb = getBoundingBox$(ps);
-            const tbb = getBoundingBoxTight(ps);
-            const bhull = getBoundingHull(ps, false);
-            _debug_.elems.bezier_.push(ps);
-            _debug_.elems.looseBoundingBox_.push(lbb);
-            _debug_.elems.tightBoundingBox_.push(tbb);
-            _debug_.elems.boundingHull_.push(bhull);
+    const [, dy] = toPowerBasis_1stDerivative_46_O(ps);
+    const ris = roots(dy, 0, 1) || [];
+    // Test points
+    for (let i = 0; i < ris.length; i++) {
+        const ri = ris[i];
+        const p = toP(ps, ri.t);
+        if (p[1] < minY.p[1]) {
+            minY = { ri, p, kind: 0, curve };
         }
     }
+    return minY;
 }
 
-//# sourceMappingURL=add-debug-info-1.js.map
+//# sourceMappingURL=get-bezier-min-y.js.map
+;// ./node_modules/flo-bezier3/node/global-properties/bounds/get-control-point-box.js
+/**
+ * Returns a tight axis-aligned bounding box of the given bezier curve's control
+ * points.
+ *
+ * * the box is not a tight bound of the bezier curve itself
+ * * the result is returned as `[[minX, minY], [maxX, maxY]]`
+ *
+ * @param ps an order 1,2 or 3 bezier curve given as an ordered array of its
+ * control point coordinates, e.g. `[[0,0], [1,1], [2,1], [2,0]]`
+ *
+ * @doc mdx
+ */
+function getControlPointBox(ps) {
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const p of ps) {
+        const x = p[0];
+        const y = p[1];
+        if (x < minX) {
+            minX = x;
+        }
+        if (x > maxX) {
+            maxX = x;
+        }
+        if (y < minY) {
+            minY = y;
+        }
+        if (y > maxY) {
+            maxY = y;
+        }
+    }
+    return [[minX, minY], [maxX, maxY]];
+}
+
+//# sourceMappingURL=get-control-point-box.js.map
+;// ./node_modules/flo-boolean/node/shape/get-min-y.js
+
+
+/**
+ *
+ */
+function getLoopMinY(loop) {
+    const { curves } = loop;
+    let bestY = undefined;
+    let bestCurve = curves[0];
+    let bestMinY = Infinity;
+    for (const curve of curves) {
+        const { ps } = curve;
+        // Lower bound on this curve's min y: the curve lies within its control
+        // point box, so its true min y is >= the box's top (min y).
+        const boxTop = getControlPointBox(ps)[0][1];
+        // Branch-and-bound prune: this curve cannot beat (or tie) the best found
+        // so far, so skip the (expensive) exact min-y computation.
+        if (boxTop > bestMinY) {
+            continue;
+        }
+        const minY = getBezierMinY(curve);
+        const v = minY.p[1];
+        if (bestY === undefined ||
+            v < bestMinY ||
+            (v === bestMinY && minY.ri.t > bestY.ri.t)) {
+            bestY = minY;
+            bestCurve = curve;
+            bestMinY = v;
+        }
+    }
+    return bestY;
+}
+
+//# sourceMappingURL=get-min-y.js.map
 ;// ./node_modules/flo-boolean/node/main/add-debug-info-2.js
 function addDebugInfo2(loopss) {
     if (typeof _debug_ === 'undefined') {
@@ -23271,7 +23907,10 @@ function addDebugInfo2(loopss) {
     for (const loops of loopss) {
         _debug_.elems.loop.push(...loops);
         _debug_.elems.loops.push(loops);
-        //console.log(loopsToSvgPathStr(loops.map(loop => loop.beziers)));
+    }
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.timing.simplifyPaths =
+            performance.now() - _debug_.timing.timingStart - _debug_.timing.normalize;
     }
     // ---------------------------------------------------------------------
     // Don't delete below commented lines - it is for creating test cases.
@@ -23291,14 +23930,367 @@ function addDebugInfo2(loopss) {
 }
 
 //# sourceMappingURL=add-debug-info-2.js.map
-;// ./node_modules/flo-boolean/node/loop/reverse-shape-orientation.js
-function reverseShapeOrientation(pss) {
-    return pss.map(ps => ps.toReversed()).toReversed();
+;// ./node_modules/flo-boolean/node/shape/get-shape-area.js
+
+/**
+ * Returns the signed winding number weighted area of the given shape.
+ *
+ * * also useful for finding the orientation of loops
+ *
+ * * see e.g. https://mathinsight.org/greens_theorem_find_area
+ *
+ * @param shape the shape given as a closed loop of bezier curves
+ */
+const getShapeArea$ = memoize(function (shape) {
+    let twiceArea = 0;
+    for (const ps of shape) {
+        // weights are ∫₀¹ (Bᵢ Bⱼ' − Bᵢ' Bⱼ) dt over the Bernstein basis
+        switch (ps.length) {
+            case 2: // line
+                twiceArea += get_shape_area_cross(ps, 0, 1);
+                break;
+            case 3: // quadratic
+                twiceArea +=
+                    (2 * get_shape_area_cross(ps, 0, 1) +
+                        get_shape_area_cross(ps, 0, 2) +
+                        2 * get_shape_area_cross(ps, 1, 2)) / 3;
+                break;
+            case 4: // cubic
+                twiceArea +=
+                    (6 * get_shape_area_cross(ps, 0, 1) +
+                        3 * get_shape_area_cross(ps, 0, 2) +
+                        get_shape_area_cross(ps, 0, 3) +
+                        3 * get_shape_area_cross(ps, 1, 2) +
+                        3 * get_shape_area_cross(ps, 1, 3) +
+                        6 * get_shape_area_cross(ps, 2, 3)) / 10;
+                break;
+        }
+    }
+    return twiceArea / 2;
+});
+// `x_i·y_j - x_j·y_i` for control points `i`,`j` of a piece
+function get_shape_area_cross(ps, i, j) {
+    return ps[i][0] * ps[j][1] - ps[j][0] * ps[i][1];
+}
+/**
+ * @deprecated This function is deprecated. Use `getShapeArea` instead.
+ *
+ * Returns the area of the given Loop.
+ * * see e.g. https://mathinsight.org/greens_theorem_find_area
+ */
+function getLoopArea(loop) {
+    return getShapeArea$(loop.beziers);
+}
+
+// import { toPowerBasis, toPowerBasis_1stDerivative } from "flo-bezier3";
+// import { multiply, add, negate, Horner, integrate } from 'flo-poly';
+/**
+ * THIS FUNCTION WAS REPLACED BY A MORE ACCURATE ONE
+ *
+ * Returns the area of the given shape.
+ *
+ * * see e.g. https://mathinsight.org/greens_theorem_find_area
+ *
+ * @param shape the shape given as a closed loop of bezier curves
+ */
+// function getShapeArea(
+//         shape: (number[][])[]) {
+//     let totalArea = 0;
+//     for (const ps of shape) {
+//         const [x,y] = toPowerBasis(ps);
+//         const [dx,dy] = toPowerBasis_1stDerivative(ps);
+//         const xdy = multiply(x, dy);
+//         const ydx = negate(multiply(y, dx));
+//         const poly = integrate(add(xdy, ydx), 0);
+//         const area = Horner(poly, 1);
+//         totalArea += area;
+//     }
+//     return totalArea / 2;
+// }
+//# sourceMappingURL=get-shape-area.js.map
+;// ./node_modules/flo-boolean/node/main/filter-loops-by-min-allowed-area.js
+
+const { abs: filter_loops_by_min_allowed_area_abs } = Math;
+function filterLoopsByMinAllowedArea(minLoopArea) {
+    return function (loopss) {
+        const loopss_ = [];
+        for (let i = 0; i < loopss.length; i++) {
+            const loops = loopss[i];
+            const loops_ = loops.filter(loop => filter_loops_by_min_allowed_area_abs(getShapeArea$(loop)) > minLoopArea);
+            if (loops_.length) {
+                loopss_.push(loops_);
+            }
+        }
+        return loopss_;
+    };
+}
+
+//# sourceMappingURL=filter-loops-by-min-allowed-area.js.map
+;// ./node_modules/flo-boolean/node/shape/reverse-shape-orientation.js
+/**
+ * Returns the result of reversing the orientation of the given shape.
+ *
+ * @param shape the shape given as a closed loop of bezier curves
+ */
+function reverseShapeOrientation(shape) {
+    return shape.map(ps => ps.toReversed()).toReversed();
 }
 
 //# sourceMappingURL=reverse-shape-orientation.js.map
-;// ./node_modules/flo-boolean/node/main/loop-from-out.js
+;// ./node_modules/flo-boolean/node/shape/get-jordan-turning-number.js
 
+const { sign: get_jordan_turning_number_sign } = Math;
+/**
+ * * **precondition**: `shape` **must** be a Jordan curve (simple, closed)
+ *
+ * * similar to `getTurningNumber` but much faster due to the Jordan curve
+ *   constraint / precondition
+ */
+function getJordanTurningNumber(shape) {
+    return get_jordan_turning_number_sign(getShapeArea$(shape));
+}
+
+//# sourceMappingURL=get-jordan-turning-number.js.map
+;// ./node_modules/flo-boolean/node/main/combine-bezier-pieces.js
+/**
+ * Returns the result of combining the given loop of bezier pieces where
+ * possible, e.g. two bezier pieces `{ ps: [[0,0],[1,1]], ts: [0,0.5] }` and
+ * `{ ps: [[0,0],[1,1]], ts: [0.5,0.7] }` are combined to become
+ * `{ ps: [[0,0],[1,1]], ts: [0,0.7] }`. The last and first are also checked
+ * against each other (since it forms a loop).
+ */
+function combineBezierPieces(loop) {
+    if (loop.length < 2) {
+        return loop;
+    }
+    const result = [];
+    for (const piece of loop) {
+        const last = result[result.length - 1];
+        if (last !== undefined && canCombine(last, piece)) {
+            result[result.length - 1] = combine(last, piece);
+        }
+        else {
+            result.push(piece);
+        }
+    }
+    // The pieces form a loop, so the last may continue into the first.
+    while (result.length >= 2 &&
+        canCombine(result[result.length - 1], result[0])) {
+        result[0] = combine(result.pop(), result[0]);
+    }
+    return result;
+}
+// Two pieces are one arc when they lie on the same underlying curve (same
+// `ps` reference), their t-ranges meet (`a.ts[1] === b.ts[0]`) and both run
+// in the same direction (so the merged range stays monotonic - a backtrack
+// at the meeting point must stay split).
+function canCombine(a, b) {
+    return (a.ps === b.ps &&
+        a.ts[1] === b.ts[0] &&
+        (a.ts[1] - a.ts[0]) * (b.ts[1] - b.ts[0]) > 0);
+}
+function combine(a, b) {
+    return { ps: a.ps, ts: [a.ts[0], b.ts[1]] };
+}
+
+//# sourceMappingURL=combine-bezier-pieces.js.map
+;// ./node_modules/flo-boolean/node/main/connect-endpoints.js
+/**
+ * Returns the result of connecting the endpoints of the given loop of bezier
+ * curves, e.g. if the last control point coordinates of a bezier doesn't match
+ * the next bezier's first control point then the last control point is changed
+ * to match it. This also applies to the last and first bezier curves in the
+ * loop.
+ *
+ * @param beziers
+ */
+function connectEndpoints(beziers) {
+    const n = beziers.length;
+    if (n === 0) {
+        return beziers;
+    }
+    return beziers.map((bezier, i) => {
+        const nextFirst = beziers[(i + 1) % n][0];
+        const last = bezier.length - 1;
+        return bezier.map((p, j) => j === last ? [...nextFirst] : p);
+    });
+}
+
+//# sourceMappingURL=connect-endpoints.js.map
+;// ./node_modules/flo-boolean/node/main/post-process.js
+
+
+
+
+
+
+
+
+
+
+
+function postProcess(__loopss, forceOrientationNegative, minLoopArea) {
+    const _loopss = __loopss.map(loops => {
+        return loops.map(bezierPieces => {
+            const bezierPieces_ = combineBezierPieces(bezierPieces);
+            const _beziers = bezierPieces_.map(bezierPieceToBezier);
+            const beziers = connectEndpoints(_beziers);
+            return beziers;
+        });
+    });
+    const loopss = forceOrientationNegative
+        ? _loopss.map(_loops => getJordanTurningNumber(_loops[0]) !== -1
+            ? _loops.map(reverseShapeOrientation)
+            : _loops)
+        : _loopss;
+    const minAreaFilter = timeFunctionCalls(filterLoopsByMinAllowedArea(minLoopArea));
+    const loopss_ = minAreaFilter(loopss)
+        .map(loops => loops.toSorted(compareLoopByMinY));
+    let loopIdx = 0;
+    const loopss__ = mapmap(loopss_, l => loopFromBeziers(l, loopIdx++));
+    addDebugInfo2(loopss__); // adds debug info used within __tests__ (and the demo)
+    // if (typeof _debug_ !== 'undefined') {
+    //     const { l1, l2, l3, lil1, lil2, lil3, lil4 } = _debug_.callCounts;
+    // console.log(lil1, lil2, lil3, lil4);
+    // console.log(l1,l2,l3);
+    // }
+    return loopss__;
+    // return loopss_;
+}
+
+//# sourceMappingURL=post-process.js.map
+;// ./node_modules/flo-boolean/node/main/rerun/get-or-creatre-rerun-container.js
+/**
+ * Rebuild container for `container.idx` created on first use.
+ */
+function getOrCreateRerunContainer(containers_, container) {
+    const { idx } = container;
+    let container_ = containers_[idx];
+    if (container_ === undefined) {
+        container_ = {
+            bigBox: container.bigBox,
+            box: container.box,
+            inOuts: [],
+            xs: container.xs
+        };
+        containers_[idx] = container_;
+    }
+    return container_;
+}
+
+//# sourceMappingURL=get-or-creatre-rerun-container.js.map
+;// ./node_modules/flo-boolean/node/main/rerun/rebuild-in-out.js
+/** builds a fresh `RebuiltInOut` copying the in/out's order-info caches */
+function rebuildInOut(inOut, dir, swapped) {
+    return {
+        idx: inOut.idx,
+        _x_: inOut._x_,
+        dir,
+        swapped,
+        oSideIdxs: inOut.oSideIdxs,
+        oFSC: inOut.oFSC,
+        oFSCE: inOut.oFSCE,
+        oSideIdx: inOut.oSideIdx,
+        container: undefined,
+        orientation: undefined,
+        windingNum: undefined,
+        children: undefined,
+        nextAround: undefined,
+        parent: undefined,
+        path: undefined,
+        prevAround: undefined,
+        twin: undefined,
+        loop: undefined
+    };
+}
+
+//# sourceMappingURL=rebuild-in-out.js.map
+;// ./node_modules/flo-boolean/node/main/rerun/rewire-containers.js
+
+
+
+
+
+const { sign: rewire_containers_sign } = Math;
+function rewireContainers(containers, outSets, _loopss) {
+    containers.forEach((container, idx) => container.idx = idx);
+    /** a sparse container array */
+    const containers_ = [];
+    const containersPerPath = [];
+    for (let i = 0; i < outSets.length; i++) { // an outer loop with holes
+        const outSet = outSets[i];
+        // Orientation the outer loop already has; holes must alternate against it.
+        const outerOrientation = rewire_containers_sign(outSet[0].windingNum - outSet[0].parentWinding);
+        // const paths: Out[][] = [];  // For debug only
+        for (let j = 0; j < outSet.length; j++) {
+            const outSetInf = outSet[j];
+            const { out, depth, windingNum, parentWinding } = outSetInf;
+            // A hole must wind opposite to its parent (islands opposite to holes,
+            // ...); only reverse a loop whose current orientation doesn't already
+            // match that depth alternation.
+            const orientation = rewire_containers_sign(windingNum - parentWinding);
+            const desiredOrientation = (depth % 2 === 0 ? 1 : -1) * outerOrientation;
+            const isReversed = orientation !== desiredOrientation;
+            const path = isReversed ? out.path.toReversed() : out.path;
+            // paths.push(path);  // For debug only
+            const containersForPath = new Set();
+            for (const inOut of path) {
+                const { twin } = inOut;
+                const dir_ = inOut.dir * (isReversed ? -1 : 1);
+                const inOut_ = rebuildInOut(inOut, dir_, isReversed);
+                const twin_ = rebuildInOut(twin, -dir_, isReversed);
+                inOut_.twin = twin_;
+                twin_.twin = inOut_;
+                const container1 = getOrCreateRerunContainer(containers_, inOut._x_.container);
+                container1.inOuts.push(inOut_);
+                const container2 = getOrCreateRerunContainer(containers_, twin._x_.container);
+                container2.inOuts.push(twin_);
+                inOut_.container = container1;
+                twin_.container = container2;
+                const loop = bezierPiecesToBeziers$(_loopss[i][j]);
+                inOut_.loop = loop;
+                twin_.loop = loop;
+                containersForPath.add(container1);
+            }
+            containersPerPath.push(containersForPath);
+        }
+    }
+    const minYContainerSet = new Set();
+    for (let i = 0; i < containersPerPath.length; i++) {
+        const containersForPath = containersPerPath[i];
+        let minContainer;
+        let minY = Infinity;
+        for (const c of containersForPath) {
+            if (c.box[0][1] < minY) {
+                minContainer = c;
+                minY = c.box[0][1];
+            }
+        }
+        minYContainerSet.add(minContainer);
+    }
+    containers_.forEach(container_ => {
+        if (container_.inOuts.length > 2 || minYContainerSet.has(container_)) {
+            container_.inOuts.sort(compareInOut);
+        }
+    });
+    containers_.forEach(container_ => setNextAndPrevAround(container_.inOuts));
+    const minYContainers = Array.from(minYContainerSet);
+    minYContainers.sort((a, b) => a.box[0][1] - b.box[0][1]);
+    return { containers_, minYContainers };
+}
+
+//# sourceMappingURL=rewire-containers.js.map
+;// ./node_modules/flo-boolean/node/bezier/reverse-bezier-piece.js
+function reverseBezierPiece(bezierPiece) {
+    const { ps, ts } = bezierPiece;
+    return {
+        ps,
+        ts: [ts[1], ts[0]]
+    };
+}
+
+//# sourceMappingURL=reverse-bezier-piece.js.map
+;// ./node_modules/flo-boolean/node/main/loop-from-out.js
 
 
 /**
@@ -23306,669 +24298,78 @@ function reverseShapeOrientation(pss) {
  * @param out
  * @param outerLoopOrientation
  * @param loopIdx identifies the loop during debugging
+ * @param depth number of selected ancestor loops (nesting level); determines
+ * the loop's orientation so that alternating levels (outer, hole, island, ...)
+ * are cut in and out correctly by the non-zero winding fill rule
  */
-function loopFromOut(out, outerLoopOrientation, loopIdx, forceOrientationNegative) {
-    const _beziers = out.bezierPieces?.map(bezierPieceToBezier);
-    if (_beziers === undefined) {
-        return loopFromBeziers([], loopIdx);
-    }
+function loopFromOut(out, outerLoopOrientation, depth) {
     const { orientation } = out;
-    const isOutermostLoop = loopIdx === 0;
-    const desiredOuterOrientation = forceOrientationNegative
-        ? -1
-        : outerLoopOrientation;
-    const desiredOrientation = isOutermostLoop
-        ? desiredOuterOrientation
-        : -desiredOuterOrientation;
-    const hasDesiredOrientation = desiredOrientation * orientation > 0;
-    const beziers = hasDesiredOrientation
-        ? _beziers
-        : reverseShapeOrientation(_beziers);
-    const loop = loopFromBeziers(beziers, loopIdx);
-    return loop;
+    // Even nesting levels (outer, island, ...) share the outer orientation;
+    // odd levels (holes, ...) get the opposite so nonzero fill carves them out.
+    const desiredOrientation = (depth % 2 === 0 ? 1 : -1) * outerLoopOrientation;
+    const bezierPieces = bezierPiecesFromOut$(out);
+    return desiredOrientation * orientation > 0
+        ? bezierPieces
+        : bezierPieces.map(reverseBezierPiece).toReversed();
 }
 
 //# sourceMappingURL=loop-from-out.js.map
-;// ./node_modules/flo-boolean/node/main/create-root-in-out.js
-function createRootInOut() {
-    return {
-        dir: undefined,
-        idx: 0,
-        parent: undefined,
-        children: new Set(),
-        windingNum: 0,
-        p: undefined,
-        _x_: undefined,
-        container: undefined,
-        loopsIdxs: new Set(),
-        orientation: -1
-    };
+;// ./node_modules/flo-boolean/node/main/loopss-from-outsets.js
+
+function loopssFromOutsets(outSets) {
+    const loopss = outSets.map(outSet => {
+        const outerLoopOrientation = outSet[0].out.orientation;
+        return outSet.map(({ out, depth }) => {
+            return loopFromOut(out, outerLoopOrientation, depth);
+        });
+    });
+    return loopss;
 }
 
-//# sourceMappingURL=create-root-in-out.js.map
-;// ./node_modules/flo-boolean/node/calc-paths/bezier-to-bezier-piece.js
-function bezierToBezierPiece(bezier) {
-    return {
-        ps: bezier,
-        ts: [0, 1]
-    };
-}
-
-//# sourceMappingURL=bezier-to-bezier-piece.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/classification/is-cubic-really-line.js
-
-
-const is_cubic_really_line_sce = scaleExpansion;
-const ediff = eDiff;
-const is_cubic_really_line_ts = twoSum;
-const esign = eSign;
-/**
- * Returns `true` if the given bezier curve has all control points collinear
- * *and* it can be converted to an order 1 bezier curve (a line) such that the
- * same `(x,y)` point is returned for the same `t` value, `false` otherwise.
- *
- * * **exact**: not susceptible to floating point round-off
- *
- * @param ps a cubic bezier curve given as an array of its control
- * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
- *
- * @doc mdx
- */
-function isCubicReallyLine(ps) {
-    // note: if cubic is really a quad then
-    // x3 + 3*(x1 - x2) === x0 && 
-    // y3 + 3*(y1 - y2) === y0
-    if (!isCollinear(ps)) {
-        return false;
-    }
-    const [p0, p1, p2, p3] = ps;
-    const [x0, y0] = p0;
-    const [x1, y1] = p1;
-    const [x2, y2] = p2;
-    const [x3, y3] = p3;
-    // convert middle two control points to single quad point
-    // [
-    //   (3*(x1 + x2) - (x0 + x3)) / 4, 
-    //   (3*(y1 + y2) - (y0 + y3)) / 4
-    // ]
-    const qx1 = ediff(is_cubic_really_line_sce(is_cubic_really_line_ts(x1 / 4, x2 / 4), 3), is_cubic_really_line_ts(x0 / 4, x3 / 4));
-    const qy1 = ediff(is_cubic_really_line_sce(is_cubic_really_line_ts(y1 / 4, y2 / 4), 3), is_cubic_really_line_ts(y0 / 4, y3 / 4));
-    // is quad really line:
-    //   if (x0 + x2 === 2*x1) && (y0 + y2 === 2*y1) OR
-    //   if ((x0 + x2)/2 === x1) && ((y0 + y2)/2 === y1)
-    return (esign(ediff(is_cubic_really_line_ts(x0 / 2, x3 / 2), qx1)) === 0 &&
-        esign(ediff(is_cubic_really_line_ts(y0 / 2, y3 / 2), qy1)) === 0);
-}
-
-//# sourceMappingURL=is-cubic-really-line.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/classification/classify.js
+//# sourceMappingURL=loopss-from-outsets.js.map
+;// ./node_modules/flo-boolean/node/main/rerun/rerun.js
 
 
 
 
-
-
-
-
-
-
-
-const classify_edif = eDiff;
-const classify_epr = expansionProduct;
-const classify_sce = scaleExpansion2;
-const classify_td = two_diff_twoDiff;
-const classify_ts = two_sum_twoSum;
-const classify_fes = fastExpansionSum;
-const classify_ge = growExpansion;
-const { abs: classify_abs } = Math;
-// The classifications form an equivalence class, in other words *all* 
-// possible planar polynomial bezier curves (of order <= 3) are represented and 
-// all options are mutually exclusive.
-const point = { order: 0, realOrder: 0, collinear: true, nodeType: 'n/a' };
-const lineGeneral = { order: 1, realOrder: 1, collinear: true, nodeType: 'n/a' };
-const lineDegenPoint = { order: 1, realOrder: 0, collinear: true, nodeType: 'n/a' };
-const quadGeneral = { order: 2, realOrder: 2, collinear: false, nodeType: 'n/a' };
-/** The curve is collinear but not a line (i.e. evaluating at `t` values won't correspond to same points) */
-const quadDegenCollinear = { order: 2, realOrder: 2, collinear: true, nodeType: 'n/a' };
-const quadDegenLine = { order: 2, realOrder: 1, collinear: true, nodeType: 'n/a' };
-const quadDegenPoint = { order: 2, realOrder: 0, collinear: true, nodeType: 'n/a' };
-const cubicGeneralCrunode = { order: 3, realOrder: 3, collinear: false, nodeType: 'crunode' };
-const cubicGeneralAcnode = { order: 3, realOrder: 3, collinear: false, nodeType: 'acnode' };
-const cubicGeneralCusp = { order: 3, realOrder: 3, collinear: false, nodeType: 'cusp' };
-const cubicGeneralExplicit = { order: 3, realOrder: 3, collinear: false, nodeType: 'explicit' };
-const cubicDegenCollinearCubic = { order: 3, realOrder: 3, collinear: true, nodeType: 'n/a' };
-const cubicDegenQuad = { order: 3, realOrder: 2, collinear: false, nodeType: 'n/a' };
-const cubicDegenCollinearQuad = { order: 3, realOrder: 2, collinear: true, nodeType: 'n/a' };
-const cubicDegenLine = { order: 3, realOrder: 1, collinear: true, nodeType: 'n/a' };
-const cubicDegenPoint = { order: 3, realOrder: 0, collinear: true, nodeType: 'n/a' };
-/**
- * The classifications form an equivalence class, in other words *all*
- * possible planar polynomial bezier curves (of order <= 3) are represented and
- * all options are mutually exclusive.
- */
-const classifications = (/* unused pure expression or super */ null && ({
-    point,
-    lineGeneral,
-    lineDegenPoint,
-    quadGeneral,
-    quadDegenCollinear,
-    quadDegenLine,
-    quadDegenPoint,
-    cubicGeneralCrunode,
-    cubicGeneralAcnode,
-    cubicGeneralCusp,
-    cubicGeneralExplicit,
-    cubicDegenCollinearCubic,
-    cubicDegenQuad,
-    cubicDegenCollinearQuad,
-    cubicDegenLine,
-    cubicDegenPoint
-}));
-function classify_isPoint(ps) {
-    return classify(ps) === point;
-}
-function isLineGeneral(ps) {
-    return classify(ps) === lineGeneral;
-}
-function isLineDegenPoint(ps) {
-    return classify(ps) === lineDegenPoint;
-}
-function isQuadGeneral(ps) {
-    return classify(ps) === quadGeneral;
-}
-function isQuadDegenCollinear(ps) {
-    return classify(ps) === quadDegenCollinear;
-}
-function isQuadDegenLine(ps) {
-    return classify(ps) === quadDegenLine;
-}
-function isQuadDegenPoint(ps) {
-    return classify(ps) === quadDegenPoint;
-}
-function isCubicGeneralCrunode(ps) {
-    return classify(ps) === cubicGeneralCrunode;
-}
-function isCubicGeneralAcnode(ps) {
-    return classify(ps) === cubicGeneralAcnode;
-}
-function isCubicGeneralCusp(ps) {
-    return classify(ps) === cubicGeneralCusp;
-}
-function isCubicGeneralExplicit(ps) {
-    return classify(ps) === cubicGeneralExplicit;
-}
-function isCubicDegenCollinearCubic(ps) {
-    return classify(ps) === cubicDegenCollinearCubic;
-}
-function isCubicDegenQuad(ps) {
-    return classify(ps) === cubicDegenQuad;
-}
-function isCubicDegenCollinearQuad(ps) {
-    return classify(ps) === cubicDegenCollinearQuad;
-}
-function isCubicDegenLine(ps) {
-    return classify(ps) === cubicDegenLine;
-}
-function isCubicDegenPoint(ps) {
-    return classify(ps) === cubicDegenPoint;
-}
-const classification = (/* unused pure expression or super */ null && ({
-    isPoint: classify_isPoint,
-    isLineGeneral,
-    isLineDegenPoint,
-    isQuadGeneral,
-    isQuadDegenCollinear,
-    isQuadDegenLine,
-    isQuadDegenPoint,
-    isCubicGeneralCrunode,
-    isCubicGeneralAcnode,
-    isCubicGeneralCusp,
-    isCubicGeneralExplicit,
-    isCubicDegenCollinearCubic,
-    isCubicDegenQuad,
-    isCubicDegenCollinearQuad,
-    isCubicDegenLine,
-    isCubicDegenPoint,
-}));
-/**
- * Returns a classification of the given bezier curve.
- *
- * * **exact**: not susceptible to floating point round-off
- *
- * @param ps a bezier curve of order 0,1,2 or 3 given as an array of its
- * control points.
- *
- * @doc mdx
- */
-function classify(ps) {
-    if (ps.length === 4) {
-        if (isCubicReallyQuad(ps)) {
-            return isCubicReallyLine(ps)
-                ? isReallyPoint(ps) ? cubicDegenPoint : cubicDegenLine
-                : isCollinear(ps) ? cubicDegenCollinearQuad : cubicDegenQuad;
-        }
-        return isCollinear(ps)
-            ? cubicDegenCollinearCubic
-            : classifyGeneralCubic(ps);
-    }
-    if (ps.length === 3) {
-        return isCollinear(ps)
-            ? isQuadReallyLine(ps)
-                ? isReallyPoint(ps) ? quadDegenPoint : quadDegenLine
-                : quadDegenCollinear
-            : quadGeneral;
-    }
-    if (ps.length === 2) {
-        return isReallyPoint(ps) ? lineDegenPoint : lineGeneral;
-    }
-    if (ps.length === 1) {
-        return point;
-    }
-    throw new Error('The given bezier curve must be of order <= 3');
-}
-/**
- * Return a complete classification of the given *general* cubic bezier curve as
- * either having an `acnode`, `crunode`, `cusp` or being an `explicit` curve.
- *
- * * **precondition**: the given bezier curve is a 'general' cubic, i.e. not all
- * points collinear and not degenerate to a quadratic curve, line or point.
- *
- * @param ps
- */
-function classifyGeneralCubic(ps) {
-    // First get fast naively calculated coefficients for self-intersection
-    const { coeffs: [a, b, c], errBound: [a_, b_, c_] } = getCoeffsBez3WithRunningError(ps);
-    // if error in `a` cannot discern it from zero
-    if (classify_abs(a) <= a_) {
-        // it is rare to get here 
-        // check for sure if a === 0 exactly
-        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
-        //const a3 = (x3 - x0) + 3*(x1 - x2);
-        //const a2 = (x2 + x0) - 2*x1;
-        //const b3 = (y3 - y0) + 3*(y1 - y2);
-        //const b2 = (y2 + y0) - 2*y1;
-        const a3 = classify_fes(classify_td(x3, x0), classify_sce(3, (classify_td(x1, x2))));
-        const a2 = classify_ge(classify_ts(x2, x0), -2 * x1);
-        const b3 = classify_fes(classify_td(y3, y0), classify_sce(3, (classify_td(y1, y2))));
-        const b2 = classify_ge(classify_ts(y2, y0), -2 * y1);
-        const a2b3 = classify_epr(a2, b3);
-        const a3b2 = classify_epr(a3, b2);
-        if (eCompare(a2b3, a3b2) === 0) {
-            // a === 0 => no roots possible! (also b === 0)
-            return cubicGeneralExplicit;
-        }
-    }
-    // `Discr` = discriminant = b^2 - 4ac
-    // calculate `Discr` and its absolute error Discr_
-    const bb = b * b;
-    const bb_ = 2 * b_ * classify_abs(b) + error_analysis_1 * bb; // the error in b**2
-    const ac4 = 4 * a * c;
-    const ac4_ = 4 * (a_ * classify_abs(c) + classify_abs(a) * c_) + error_analysis_1 * classify_abs(ac4);
-    const Discr = bb - ac4;
-    const Discr_ = bb_ + ac4_ + error_analysis_1 * classify_abs(Discr);
-    // if the discriminant is smaller than negative the error bound then
-    // certainly there are no roots, i.e. no cusp and no self-intersections
-    if (Discr < -Discr_) {
-        // discriminant is definitely negative
-        return cubicGeneralAcnode;
-    }
-    // if the discriminant is definitely positive
-    if (Discr > Discr_) {
-        // calculate roots naively as a fast pre-filter
-        return cubicGeneralCrunode;
-    }
-    // we need to check exactly - (a !== 0) at this point - tested for earlier
-    const [A, B, C] = getCoeffsBez3Exact(ps);
-    // exact - Discr = b^2 - 4ac
-    const eDiscr = classify_edif(classify_epr(B, B), classify_sce(4, classify_epr(A, C)));
-    const sgnDiscr = eSign(eDiscr);
-    return sgnDiscr < 0
-        ? cubicGeneralAcnode
-        : sgnDiscr > 0
-            ? cubicGeneralCrunode
-            : cubicGeneralCusp;
-}
-
-//# sourceMappingURL=classify.js.map
-;// ./node_modules/flo-bezier3/node/global-properties/total-absolute-curvature.js
-/* unused harmony import specifier */ var total_absolute_curvature_fromTo3InclErrorBound;
-/* unused harmony import specifier */ var getInflections;
-
-
-
-
-
-const { abs: total_absolute_curvature_abs, PI: 𝜋 } = Math;
-/**
- * Returns the total absolute curvature of the given bezier curve over the
- * given interval
- *
- * * the result is given in radians.
- *
- * @param ps an order 0,1,2 or 3 bezier curve given as an array of its control
- * points, e.g. `[[1,2],[3,4],[5,6],[7,8]]`
- * @param interval
- *
- * @doc mdx
- */
-function totalAbsoluteCurvature(ps, interval = [0, 1]) {
-    if (ps.length <= 3) {
-        return total_absolute_curvature_abs(totalCurvature(ps, interval));
-    }
-    if (ps.length === 4) {
-        const [tS, tE] = interval;
-        if (tS === tE) {
-            return 0;
-        }
-        const ps_ = total_absolute_curvature_fromTo3InclErrorBound(ps, tS, tE).ps;
-        const ts = [0, ...getInflections(ps_), 1];
-        let total = 0;
-        for (let i = 0; i < ts.length - 1; i++) {
-            total += total_absolute_curvature_abs(totalCurvature(ps_, [ts[i], ts[i + 1]]));
-        }
-        return total;
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-/**
- * Returns the total curvature of the bezier over the given interval.
- *
- * * the result is given in radians.
- *
- * @param ps a cubic bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
- * @param interval the interval of integration (often === [0,1])
- *
- * @doc mdx
- */
-function totalCurvature(ps, interval = [0, 1]) {
-    if (ps.length <= 2) {
-        return 0;
-    }
-    const [tS, tE] = interval;
-    if (tS === tE) {
-        return 0;
-    }
-    if (ps.length === 3) {
-        const ps_ = fromTo2InclErrorBound(ps, tS, tE).ps;
-        const [[x0, y0], [x1, y1], [x2, y2]] = ps_;
-        const tanS = [x1 - x0, y1 - y0];
-        const tanE = [x2 - x1, y2 - y1];
-        // guaranteed: |θ| <= 𝜋, curvature = θ
-        return getInterfaceRotation(tanS, tanE);
-    }
-    if (ps.length === 4) {
-        // guaranteed: curvature <= 2𝜋
-        const ps_ = fromTo3InclErrorBound(ps, tS, tE).ps;
-        const bezClass = classify(ps_);
-        const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps_;
-        const tanS = [x1 - x0, y1 - y0];
-        const tanM = [x2 - x1, y2 - y1];
-        const tanE = [x3 - x2, y3 - y2];
-        if ((tanM[0] === 0 && tanM[1] === 0) ||
-            bezClass.realOrder <= 2) {
-            return getInterfaceRotation(tanS, tanE);
-        }
-        const cpθ = getInterfaceRotation(tanS, tanM) +
-            getInterfaceRotation(tanM, tanE);
-        if (bezClass.nodeType === 'acnode' ||
-            bezClass.nodeType === 'cusp') {
-            return cpθ <= -𝜋
-                ? cpθ + 2 * 𝜋
-                : cpθ >= +𝜋
-                    ? cpθ - 2 * 𝜋
-                    : cpθ;
-        }
-        return cpθ;
-    }
-    throw new Error('The given bezier curve must be of order <= 3.');
-}
-
-//# sourceMappingURL=total-absolute-curvature.js.map
-;// ./node_modules/flo-boolean/node/loop/get-total-shape-curvature.js
 
 /**
- * Returns the total curvature around the shape.
+ * Rerun the paths after reversing `InOut`s whose orientation has been reversed.
  *
- * * the returned value will be a multiple of 2𝜋
+ * * creates cleaner (minimal) paths and ensures none of the output loops
+ *   overlap which can happen when some bezier curves exactly overlaps
  *
- * @param pss
+ * * **modifies** `cotainers` and `InOut`s in-place instead of creating new
+ *   ones
+ *
+ * @param expMax
+ * @param outSets
+ * @param containers
+ * @param _loopss
  */
-function getTotalShapeCurvature(pss) {
-    const len = pss.length;
-    // test the loop
-    let total = 0;
-    for (let i = 0; i < len; i++) {
-        const j = (i - 1 + len) % len;
-        const psI = pss[j];
-        const psO = pss[i];
-        const c = totalCurvature(psO, [0, 1]);
-        // disconutinuous curvature (turn) at interface between 2 beziers
-        const θ = getInterfaceRotation(tangent_tangent(psI, 1), tangent_tangent(psO, 0));
-        total += c + θ;
+function rerun(expMax, outSets, containers, _loopss) {
+    const { containers_, minYContainers } = rewireContainers(containers, outSets, _loopss);
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.elems.container.length = 0;
+        _debug_.elems.container.push(...containers_.filter(c => c !== undefined));
     }
-    return total;
+    //--------------------------------------------------------------------------
+    // Do the actual run on the new containers using OR
+    //--------------------------------------------------------------------------
+    const root = completePaths(expMax, minYContainers);
+    const outs = splitLoopTrees(root);
+    const outSets_ = outs
+        .map(getLoopsFromTree('OR'))
+        .filter(v => v.length !== 0);
+    // the paths taken after the rerun
+    // map(outSets_, outSet => map(outSet, ({ out, depth }) => {
+    //     console.log('POST: d=' + depth + ' ' + pathToStr(out.path))
+    // }));
+    return loopssFromOutsets(outSets_);
 }
 
-//# sourceMappingURL=get-total-shape-curvature.js.map
-;// ./node_modules/flo-boolean/node/loop/get-winding-number.js
-
-const { round: get_winding_number_round, PI } = Math;
-function getWindingNumber(pss) {
-    return get_winding_number_round(getTotalShapeCurvature(pss) / (2 * PI));
-}
-
-// Quokka tests
-// {
-//     const ps = [
-//         [
-//             [
-//                 51.641999999999825,
-//                 72.91900000000169
-//             ],
-//             [
-//                 51.55000000000291,
-//                 73.0659999999989
-//             ],
-//             [
-//                 57.93099999999686,
-//                 66.64800000000105
-//             ],
-//             [
-//                 69.99599999999919,
-//                 67.19200000000274
-//             ]
-//         ],
-//         [
-//             [
-//                 69.99599999999919,
-//                 67.19200000000274
-//             ],
-//             [
-//                 75.8289999999979,
-//                 67.48500000000058
-//             ],
-//             [
-//                 83.02900000000227,
-//                 70.15000000000146
-//             ],
-//             [
-//                 87.97600000000239,
-//                 75.86800000000221
-//             ]
-//         ],
-//         [
-//             [
-//                 87.97600000000239,
-//                 75.86800000000221
-//             ],
-//             [
-//                 92.98099999999977,
-//                 81.48399999999674
-//             ],
-//             [
-//                 94.93600000000151,
-//                 89.61099999999715
-//             ],
-//             [
-//                 92.59399999999732,
-//                 96.85800000000017
-//             ]
-//         ],
-//         [
-//             [
-//                 92.59399999999732,
-//                 96.85800000000017
-//             ],
-//             [
-//                 92.59199999999691,
-//                 96.86099999999715
-//             ],
-//             [
-//                 92.58600000000297,
-//                 96.86200000000099
-//             ],
-//             [
-//                 92.5769999999975,
-//                 96.86099999999715
-//             ]
-//         ],
-//         [
-//             [
-//                 92.5769999999975,
-//                 96.86099999999715
-//             ],
-//             [
-//                 92.30000000000291,
-//                 96.82800000000134
-//             ],
-//             [
-//                 88.59799999999814,
-//                 94.85399999999936
-//             ],
-//             [
-//                 83.76299999999901,
-//                 91.92199999999866
-//             ]
-//         ],
-//         [
-//             [
-//                 83.76299999999901,
-//                 91.92199999999866
-//             ],
-//             [
-//                 78.4340000000011,
-//                 88.85800000000017
-//             ],
-//             [
-//                 73.39600000000064,
-//                 85.71100000000297
-//             ],
-//             [
-//                 63.792999999997846,
-//                 81.65600000000268
-//             ]
-//         ],
-//         [
-//             [
-//                 63.792999999997846,
-//                 81.65600000000268
-//             ],
-//             [
-//                 63.82299999999668,
-//                 81.59199999999691
-//             ],
-//             [
-//                 58.788000000000466,
-//                 79.23599999999715
-//             ],
-//             [
-//                 54.81199999999808,
-//                 76.02399999999761
-//             ]
-//         ],
-//         [
-//             [
-//                 54.81199999999808,
-//                 76.02399999999761
-//             ],
-//             [
-//                 64.52399999999761,
-//                 74.74300000000221
-//             ],
-//             [
-//                 75.2390000000014,
-//                 76.8159999999989
-//             ],
-//             [
-//                 83.10700000000361,
-//                 83.68099999999686
-//             ]
-//         ],
-//         [
-//             [
-//                 83.10700000000361,
-//                 83.68099999999686
-//             ],
-//             [
-//                 83.04299999999785,
-//                 83.5199999999968
-//             ],
-//             [
-//                 82.66000000000349,
-//                 79.92700000000332
-//             ],
-//             [
-//                 78.06100000000151,
-//                 75.86200000000099
-//             ]
-//         ],
-//         [
-//             [
-//                 78.06100000000151,
-//                 75.86200000000099
-//             ],
-//             [
-//                 73.56311726887785,
-//                 71.78401296727594
-//             ],
-//             [
-//                 63.222137735292485,
-//                 67.96189880170712
-//             ],
-//             [
-//                 51.641999999999825,
-//                 72.91900000000169
-//             ]
-//         ]
-//     ];
-//     getWindingNumber(ps);//?
-// }
-//# sourceMappingURL=get-winding-number.js.map
-;// ./node_modules/flo-boolean/node/main/remove-micro-corners.js
-
-
-function removeMicroCorners(pss, lengthTol) {
-    getWindingNumber(pss); //?
-    const pss_ = pss
-        .map(ps => ps.map(p => [p[0], p[1]])) // make a copy
-        .filter(ps => controlPointLinesLength(ps) > lengthTol); // filter micros
-    const len = pss_.length;
-    for (let i = 0; i < len; i++) {
-        const psS = pss_[i];
-        const psE = pss_[(i + 1) % len];
-        const pE = psS[psS.length - 1];
-        const pS = psE[0];
-        if (pS[0] !== pE[0] || pS[1] !== pE[1]) {
-            pE[0] = pS[0];
-            pE[1] = pS[1];
-        }
-    }
-    return pss_;
-}
-
-//# sourceMappingURL=remove-micro-corners.js.map
+//# sourceMappingURL=rerun.js.map
 ;// ./node_modules/flo-boolean/node/main/simplify-paths.js
-/* unused harmony import specifier */ var mapOverTree;
 
 
 
@@ -23984,11 +24385,12 @@ function removeMicroCorners(pss, lengthTol) {
 
 
 
-
-
-
-
-const { abs: simplify_paths_abs, max: simplify_paths_max, ceil: simplify_paths_ceil, log2: simplify_paths_log2 } = Math;
+const { ceil: simplify_paths_ceil, log2: simplify_paths_log2 } = Math;
+/**
+ * A size multiplier for the containers holding critical points.
+ */
+const CONTAINER_SIZE_MULTIPLIER_EXP = 4;
+const CONTAINER_SIZE_MULTIPLIER_EXP_FOR_DEBUGGING = 30;
 /**
  * Returns the result of simplifying the given bezier loops so that the returned
  * loops is an array of loops.
@@ -24003,144 +24405,64 @@ const { abs: simplify_paths_abs, max: simplify_paths_max, ceil: simplify_paths_c
  * Also takes care of all special cases.
  *
  * @param loops an array of possibly intersecting paths
- * @param maxCoordinate optional; if not provided, it will be calculated; a
- * wrong value could cause the algorithm to fail
  */
-function simplifyPaths(bezierLoops, maxCoordinate, options = {}) {
-    // bezierLoops = bezierLoops.map(reverseShapeOrientation);  // For quick tests
+function simplifyPaths(bezierLoops, options = {}) {
+    //==========================================================================
+    // Preamble
+    //==========================================================================
     if (typeof _debug_ !== 'undefined') {
         _debug_.timing.timingStart = performance.now();
     }
-    /**
-     * All bezier coordinates will be truncated to this (bit-aligned) bitlength.
-     * Higher bitlengths would increase the running time of the algorithm
-     * considerably.
-     */
-    maxCoordinate = maxCoordinate || getMaxCoordinate(bezierLoops);
     /** The exponent, e, such that 2**e >= all bezier coordinate points. */
-    const expMax = simplify_paths_ceil(simplify_paths_log2(maxCoordinate));
-    const { inclMicroCorners = true, minLoopArea = (2 ** expMax * 2 ** (-12)) ** 2, forceOrientationNegative = false, 
-    // keepOriginalOrientation = false,
-    booleanOp = "OR", containerSizeMultiplier = 2 ** 4 } = options;
-    const gridSpacing = 2 ** expMax * 2 ** (-(/* inlined export .MAX_BIT_LENGTH */46));
-    /**
-     * A size (based on the max value of the tangent) for the containers holding
-     * critical points.
-     */
-    //==================================================================
-    // const containerSizeMultiplier = 2**4;
-    // const containerSizeMultiplier = 2**41;
-    //==================================================================
-    const containerDim = gridSpacing * containerSizeMultiplier;
-    bezierLoops = normalizeLoops(bezierLoops, (/* inlined export .MAX_BIT_LENGTH */46), expMax, false, true);
-    addDebugInfo1(bezierLoops);
-    bezierLoops.sort(orderLoopAscendingByMinY);
-    const loops = bezierLoops.map((loop, i) => loopFromBeziers(loop, i));
-    const { extremes, containers } = getContainers(loops, containerDim, expMax);
-    const root = createRootInOut();
-    // `takenLoops` is important in rare cases such as in the 'koldat52' vector
-    const takenLoops = new Set();
-    const takenOuts = new Set(); // Taken intersections
-    for (const loop of loops) {
-        if (takenLoops.has(loop)) {
-            continue;
-        }
-        takenLoops.add(loop);
-        const parent = getTightestContainingLoop(root, loop);
-        const container = extremes.get(loop)[0].container;
-        if (container.inOuts.length === 0) {
-            continue;
-        }
-        const initialOut = getOutermostInAndOut(container, parent, loop);
-        // Each loop generated will give rise to one componentLoop. 
-        const containerIsSimpleExtreme = 
-        // container.xs[0].x.kind === 0 && container.xs[1].x.kind === 0 &&  // kind === extreme
-        container.inOuts.length === 2 && // only 2 InOuts
-            container.xs.length === 2; // only 2 Xs
-        if (containerIsSimpleExtreme &&
-            container.inOuts[0].nextOrPrev === container.inOuts[1]) {
-            //---------------------------------------------------
-            // It's a Jordan curve: short-circuit `completePath`
-            //---------------------------------------------------
-            initialOut.bezierPieces = loop.beziers.map(bezierToBezierPiece);
-            initialOut.parent.children = initialOut.parent.children || new Set();
-            initialOut.parent.children.add(initialOut);
-            continue;
-        }
-        completePath(initialOut, takenLoops, takenOuts, false);
-        if (containerIsSimpleExtreme &&
-            initialOut.bezierPieces !== undefined) {
-            //-------------------------------------------------------------------
-            // combine first and last bezier so not to have an extraneous bezier
-            //-------------------------------------------------------------------
-            const { bezierPieces: bps } = initialOut;
-            const bp1 = bps[bps.length - 1];
-            const bp2 = bps[0];
-            if (bp1.ps === bp2.ps) {
-                const bp = {
-                    ps: bp1.ps,
-                    ts: [bp1.ts[0], bp2.ts[1]]
-                };
-                bps.shift();
-                bps.pop();
-                bps.unshift(bp);
-            }
-        }
+    const expMax = simplify_paths_ceil(simplify_paths_log2(getMaxCoordinate(bezierLoops)));
+    const { 
+    // minLoopArea = (2**(expMax - 16))**2,
+    minLoopArea = (2 ** (expMax - 16)) ** 2, forceOrientationNegative = false, booleanOp = "OR" } = options;
+    //--------------------------------------------------------------------------
+    const containerSizeMultiplierExp = typeof _debug_ === 'undefined'
+        ? CONTAINER_SIZE_MULTIPLIER_EXP
+        : CONTAINER_SIZE_MULTIPLIER_EXP_FOR_DEBUGGING;
+    const expGrid = expMax - (/* inlined export .MAX_BIT_LENGTH */46);
+    const expContainer = expGrid + containerSizeMultiplierExp;
+    //--------------------------------------------------------------------------
+    bezierLoops =
+        normalizeLoops(bezierLoops, expMax)
+            .sort(compareLoopByMinY);
+    const loops = bezierLoops.map(loopFromBeziers);
+    //==========================================================================
+    //==========================================================================
+    const minYXPairs = loops.map(getLoopMinY);
+    if (typeof _debug_ !== 'undefined') {
+        minYXPairs.forEach(_x_ => _debug_.elems.minY.push(_x_));
     }
-    const loopTrees = splitLoopTrees(root);
-    const getLoopsFromTree_ = getLoopsFromTree(booleanOp);
-    const outSets = loopTrees.map(getLoopsFromTree_)
+    const xPairs = getAllXPairs(loops, minYXPairs, expMax);
+    const containers = getContainers(xPairs, expMax, expContainer);
+    if (typeof _debug_ !== 'undefined') {
+        _debug_.elems.container.push(...containers);
+    }
+    const minYContainers = containers.filter(container => xsHasMinY(container.xs));
+    const root = completePaths(expMax, minYContainers);
+    const outs = splitLoopTrees(root);
+    const outSets = outs
+        .map(getLoopsFromTree(booleanOp))
         .filter(v => v.length !== 0);
     //----------------------------------------
-    // Give outer loop a positive orientation
+    // Create loops for all `outSets`
     //----------------------------------------
-    const loopss = outSets.map(outSet => {
-        const outerLoopOrientation = outSet[0].orientation;
-        return outSet.map((inOut, idx) => loopFromOut(inOut, outerLoopOrientation, idx, forceOrientationNegative));
-    });
-    //----------------------------------------------------------
-    // Filter each `loops` in `loopss` by min allowed loop area
-    //----------------------------------------------------------
-    const loopss_ = [];
-    for (let i = 0; i < loopss.length; i++) {
-        const loops = loopss[i];
-        const loops_ = loops.filter(loop => simplify_paths_abs(getShapeArea(loop.beziers)) > minLoopArea);
-        if (loops_.length) {
-            loops_.sort((loopA, loopB) => {
-                return orderLoopAscendingByMinY(loopA.beziers, loopB.beziers);
-            });
-            loopss_.push(loops_);
-        }
-    }
-    if (typeof _debug_ !== 'undefined') {
-        _debug_.timing.simplifyPaths = performance.now() - _debug_.timing.timingStart - _debug_.timing.normalize;
-    }
-    //-------------------------------------
-    // Remove "micro corners" if requested
-    //-------------------------------------
-    const _loopss_ = inclMicroCorners
-        ? loopss_
-        : loopss_.map(loops => loops.map(loop => {
-            const { beziers } = loop;
-            const lengthTol = simplify_paths_max(...containers.map(container => simplify_paths_abs(container.box[0][0] - container.box[1][0])), ...containers.map(container => simplify_paths_abs(container.box[0][1] - container.box[1][1])));
-            const beziers_ = removeMicroCorners(beziers, lengthTol);
-            return loopFromBeziers(beziers_, loop.idx);
-        }));
-    addDebugInfo2(_loopss_); // adds debug info used within __tests__ (and the demo)
-    // console.log(loopss_);
-    return _loopss_;
-}
-/** for debugging only */
-function simplifyInOut(inOut) {
-    return mapOverTree(inOut, io => ({
-        idx: io.idx, dir: io.dir, windingNum: io.windingNum,
-        children: undefined
-    }));
+    const loopss_ = loopssFromOutsets(outSets);
+    const loopss__ = postProcess(
+    // Use this for rerun:
+    rerun(expMax, outSets, containers, loopss_), 
+    // Use this if no rerun wanted:
+    // loopss_,
+    forceOrientationNegative, minLoopArea);
+    // if (typeof _debug_ !== 'undefined') { logTimings(); }
+    return loopss__;
 }
 
 //# sourceMappingURL=simplify-paths.js.map
 ;// ./src/loop/get-max-coordinate.ts
-const { max: get_max_coordinate_max, abs: get_max_coordinate_abs } = Math;
+const { max: loop_get_max_coordinate_max, abs: loop_get_max_coordinate_abs } = Math;
 /**
  * @internal
  * Returns the maximum control point coordinate value (x or y) within any loop.
@@ -24157,7 +24479,7 @@ function getLoopsMetrics(loops) {
             for (const p of ps) {
                 const x = p[0];
                 const y = p[1];
-                const c = get_max_coordinate_max(get_max_coordinate_abs(x), get_max_coordinate_abs(y));
+                const c = loop_get_max_coordinate_max(loop_get_max_coordinate_abs(x), loop_get_max_coordinate_abs(y));
                 if (c > maxCoordinate) {
                     maxCoordinate = c;
                 }
@@ -24369,7 +24691,7 @@ function closestPointOnBezier(ps, p, inclEndpoints = true) {
         ts.push(1);
     }
     // Get point with minimum distance
-    let minDSquared = Number.POSITIVE_INFINITY;
+    let minDSquared = Infinity;
     let minP = undefined;
     for (const t of ts) {
         const p_ = evalDeCasteljau(ps, t);
@@ -24431,7 +24753,7 @@ function furthestPointOnBezier(ps, p) {
     ts.push(0);
     ts.push(1);
     // Get point with minimum distance
-    let maxDSquared = Number.NEGATIVE_INFINITY;
+    let maxDSquared = -Infinity;
     let maxP = undefined;
     for (const t of ts) {
         const p_ = evalDeCasteljau(ps, t);
@@ -24458,7 +24780,7 @@ const { abs: max_abs_coordinate_abs } = Math;
  * @doc
  */
 function maxAbsCoordinate(ps) {
-    let m = Number.NEGATIVE_INFINITY;
+    let m = -Infinity;
     for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
         const absX = max_abs_coordinate_abs(p[0]);
@@ -24654,8 +24976,8 @@ function hausdorffDistanceOneSided(A, B, tolerance, maxIterations = 50) {
     const heap = new Heap(hausdorffCompare);
     heap.insert(initialInterval);
     let j = 0;
-    let bestHUpper = Number.POSITIVE_INFINITY;
-    let bestHLower = Number.NEGATIVE_INFINITY;
+    let bestHUpper = Infinity;
+    let bestHLower = -Infinity;
     while (true) {
         const interval = heap.heap[0]; // peek max
         const { tS, tE, hL, hR } = interval;
@@ -25297,7 +25619,7 @@ function has(set, k, l) {
  * @param k
  * @param l
  */
-function dual_set_add(set, k, l) {
+function add(set, k, l) {
     let lSet = set.get(k);
     if (lSet === undefined) {
         lSet = new Set();
@@ -25319,7 +25641,7 @@ function remove(set, k, l) {
     }
     return true;
 }
-const DualSetFs = { has, add: dual_set_add, remove };
+const DualSetFs = { has, add, remove };
 
 // TESTING
 // const s: DualSet<number,number> = new Map();
@@ -26070,7 +26392,7 @@ function cullCurvePieces1(curvePieces, xO) {
  * @param ps
  * @param t
  */
-function toP(ps, t) {
+function to_p_toP(ps, t) {
     return evalDeCasteljauDd(ps, [0, t]);
 }
 
@@ -26115,7 +26437,7 @@ function getCloseBoundaryPointsCertified(curvePieces, x) {
     return closestPointInfos.map(info => {
         const { curve, t } = info;
         const { ps } = curve;
-        const pDd = toP(ps, t);
+        const pDd = to_p_toP(ps, t);
         const p = pDd.map(c => c[0] + c[1]);
         return {
             curve, t, isSource: false, p, pDd
@@ -26230,7 +26552,7 @@ function calcBetterX(curvePiece3s, x, vectorToZeroV) {
 
 
 
-const { min: find_3_prong_for_delta3s_min, abs: find_3_prong_for_delta3s_abs, asin } = Math;
+const { min: find_3_prong_for_delta3s_min, abs: find_3_prong_for_delta3s_abs, asin: find_3_prong_for_delta3s_asin } = Math;
 /**
  * Finds a 3-prong using only the 3 given δs.
  *
@@ -26337,8 +26659,8 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             const corner = getCorner(pos.curve.ps, pos.curve.next.ps);
             const tans = corner.tangents;
             const perps = tans.map(rotate90Degrees);
-            const angleError1 = asin(cross(perps[0], v));
-            const angleError2 = asin(cross(v, perps[1]));
+            const angleError1 = find_3_prong_for_delta3s_asin(cross(perps[0], v));
+            const angleError2 = find_3_prong_for_delta3s_asin(cross(v, perps[1]));
             let angleError = 0;
             if (angleError1 > 0) {
                 angleError += angleError1;
@@ -26358,7 +26680,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             // and can thus just be added to cone method of looking at 
             // tolerance.
             // Should be close to zero and is close to the actual angle.
-            const cross_ = find_3_prong_for_delta3s_abs(asin(cross(v1, v2)));
+            const cross_ = find_3_prong_for_delta3s_abs(find_3_prong_for_delta3s_asin(cross(v1, v2)));
             totalAngleError += cross_;
         }
     }
@@ -26788,7 +27110,7 @@ function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
 
 
 
-let find_and_add_3_prong_ii = 0;
+let ii = 0;
 /**
  * @internal
  * Finds and add a 3-prong MAT circle to the given shape.
@@ -27138,7 +27460,7 @@ function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO
  *
  * @doc
  */
-function dd_horner_ddHorner(p, x) {
+function ddHorner(p, x) {
     let q = [0, 0];
     for (let i = 0; i < p.length; i++) {
         // q = p[i] + x*q;
@@ -27171,7 +27493,7 @@ const to_power_basis_dd_ts = two_sum_twoSum;
  *
  * @doc
  */
-function to_power_basis_dd_toPowerBasisDd(ps) {
+function toPowerBasisDd(ps) {
     if (ps.length === 4) {
         return toPowerBasis3Dd(ps);
     }
@@ -27246,43 +27568,6 @@ function toPowerBasis0Dd(ps) {
 }
 
 //# sourceMappingURL=to-power-basis-dd.js.map
-;// ./node_modules/double-double/node/double-mixed-double-double/dd-diff-double.js
-/**
- * Returns the result of subtracting the second given double-precision
- * floating point number from the first double-double precision float.
- *
- * * relative error bound: 3u^2 + 13u^3, i.e. fl(a-b) = (a-b)(1+ϵ),
- * where ϵ <= 3u^2 + 13u^3, u = 0.5 * Number.EPSILON
- * * the error bound is not sharp - the worst case that could be found by the
- * authors were 2.25u^2
- *
- * ALGORITHM 6 of https://hal.archives-ouvertes.fr/hal-01351529v3/document
- * @param x a double-double precision floating point number
- * @param y a double precision floating point number
- */
-function ddDiffDouble(x, y) {
-    const xl = x[0];
-    const xh = x[1];
-    //const [sl,sh] = twoSum(xh,yh);
-    const sh = xh - y;
-    const _1 = sh - xh;
-    const sl = (xh - (sh - _1)) + (-y - _1);
-    //const [tl,th] = twoSum(xl,yl);
-    const th = xl;
-    const _2 = th - xl;
-    const tl = (xl - (th - _2)) - _2;
-    const c = sl + th;
-    //const [vl,vh] = fastTwoSum(sh,c)
-    const vh = sh + c;
-    const vl = c - (vh - sh);
-    const w = tl + vl;
-    //const [zl,zh] = fastTwoSum(vh,w)
-    const zh = vh + w;
-    const zl = w - (zh - vh);
-    return [zl, zh];
-}
-
-//# sourceMappingURL=dd-diff-double.js.map
 ;// ./src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez2.ts
 
 
@@ -27292,7 +27577,7 @@ const dd_get_medial_point_coeffs_bez2_qmq = ddMultDd;
 const dd_get_medial_point_coeffs_bez2_qno = ddNegativeOf;
 const dd_get_medial_point_coeffs_bez2_qmn2 = ddMultByNeg2;
 const dd_get_medial_point_coeffs_bez2_qm2 = ddMultBy2;
-const qdd = ddDiffDouble;
+const dd_get_medial_point_coeffs_bez2_qdd = ddDiffDouble;
 /**
  * Returns the polynomial coefficients for the ray parameter `t` and the
  * curve parameter `s` that encode the medial condition for `q(t) = p + t⋅v`
@@ -27322,12 +27607,12 @@ function ddGetMedialPointCoeffsBez2(p, v, ps) {
     const [vx, vy] = v;
     const [[x0, y0]] = ps;
     // Quadratic bezier in power basis: b(s) = a⋅s² + b⋅s + c
-    const [[ax, bx], [ay, by]] = to_power_basis_dd_toPowerBasisDd(ps);
+    const [[ax, bx], [ay, by]] = toPowerBasisDd(ps);
     // u(s) = p - b(s) = u2⋅s² + u1⋅s + u0
     // const u0x = px - x0;
     // const u0y = py - y0;
-    const u0x = qdd(px, x0);
-    const u0y = qdd(py, y0);
+    const u0x = dd_get_medial_point_coeffs_bez2_qdd(px, x0);
+    const u0y = dd_get_medial_point_coeffs_bez2_qdd(py, y0);
     // Shared dot products.
     // const c1 = 2*(vx*ax + vy*ay);
     // const c0 = vx*bx + vy*by;
@@ -27545,7 +27830,7 @@ function ddGetMedialPointCoeffsBez3(p, v, ps) {
     const [px, py] = p;
     const [vx, vy] = v;
     // Cubic bezier in power basis: b(s) = a*s^3 + b*s^2 + c*s + d
-    const [[ax, bx, cx, [, dx]], [ay, by, cy, [, dy]]] = to_power_basis_dd_toPowerBasisDd(ps);
+    const [[ax, bx, cx, [, dx]], [ay, by, cy, [, dy]]] = toPowerBasisDd(ps);
     // const u0x = px - dx;
     // const u0y = py - dy;
     const u0x = dd_get_medial_point_coeffs_bez3_qdd(px, dx);
@@ -27786,7 +28071,7 @@ function ddGetMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
     // Quadratic bezier in power basis: b(s) = a⋅s² + b⋅s + c
-    const [[ax, bx], [ay, by]] = to_power_basis_dd_toPowerBasisDd(ps);
+    const [[ax, bx], [ay, by]] = toPowerBasisDd(ps);
     const [vx, vy] = v;
     // Same-curve assumption with explicit parameter `t`:
     // p = b(t) => u0 = p - c = t*(a*t + b).
@@ -27898,7 +28183,7 @@ function ddGetMedialPointCoeffsBez3_SameCurve(t, v, ps) {
     // -----------------------------------------------------
     const [vx, vy] = v;
     // Cubic bezier in power basis: b(s) = a*s^3 + b*s^2 + c*s + d
-    const [[ax, bx, cx], [ay, by, cy]] = to_power_basis_dd_toPowerBasisDd(ps);
+    const [[ax, bx, cx], [ay, by, cy]] = toPowerBasisDd(ps);
     // Shared dot products to reduce repeated multiplications.
     // const va = vx*ax + vy*ay;
     // const vb = vx*bx + vy*by;
@@ -28098,8 +28383,8 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angl
             //-----------------------
             // const AS = Horner(A, s);
             // const BS = Horner(B, s);
-            const ASDd = dd_horner_ddHorner(A, s);
-            const BSDd = dd_horner_ddHorner(B, s);
+            const ASDd = ddHorner(A, s);
+            const BSDd = ddHorner(B, s);
             const AS = ASDd[0] + ASDd[1];
             const BS = BSDd[0] + BSDd[1];
             // const CS = Horner(C, s);
@@ -28582,7 +28867,7 @@ const to_power_basis_1st_derivative_dd_qad = ddAddDouble; // error -> 2*u²
  *
  * @doc
  */
-function to_power_basis_1st_derivative_dd_toPowerBasis_1stDerivativeDd(ps) {
+function toPowerBasis_1stDerivativeDd(ps) {
     if (ps.length === 4) {
         return toPowerBasis3_1stDerivativeDd(ps);
     }
@@ -28703,12 +28988,12 @@ const dd_curvature_qdq = ddDiffDd;
  *
  */
 function ddCurvatureND(ps, t) {
-    const [dX, dY] = to_power_basis_1st_derivative_dd_toPowerBasis_1stDerivativeDd(ps);
+    const [dX, dY] = toPowerBasis_1stDerivativeDd(ps);
     const [ddX, ddY] = toPowerBasis_2ndDerivativeDd(ps);
-    const dx = dd_horner_ddHorner(dX, t);
-    const dy = dd_horner_ddHorner(dY, t);
-    const ddx = dd_horner_ddHorner(ddX, t);
-    const ddy = dd_horner_ddHorner(ddY, t);
+    const dx = ddHorner(dX, t);
+    const dy = ddHorner(dY, t);
+    const ddx = ddHorner(ddX, t);
+    const ddy = ddHorner(ddY, t);
     const a = dd_curvature_qdq(dd_curvature_qmq(dx, ddy), dd_curvature_qmq(dy, ddx));
     const _b = dd_curvature_qaq(dd_curvature_qmq(dx, dx), dd_curvature_qmq(dy, dy));
     const __b = dd_curvature_qmq(_b, dd_curvature_qmq(_b, _b));
@@ -28818,11 +29103,11 @@ function getInitialX(angle, isHoleClosing, maxOscRadius, yPos, nnorm) {
  * @doc mdx
  */
 function ddNormal(ps, t) {
-    const [dX, dY] = to_power_basis_1st_derivative_dd_toPowerBasis_1stDerivativeDd(ps);
-    const Y = dd_horner_ddHorner(dY, t);
+    const [dX, dY] = toPowerBasis_1stDerivativeDd(ps);
+    const Y = ddHorner(dY, t);
     return [
         [-Y[0], -Y[1]],
-        dd_horner_ddHorner(dX, t)
+        ddHorner(dX, t)
     ];
 }
 
@@ -28839,7 +29124,7 @@ function ddNormal(ps, t) {
 
 
 
-const { abs: find_2_prong_abs, sin, cos, max: find_2_prong_max, sqrt: find_2_prong_sqrt } = Math;
+const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max: find_2_prong_max, sqrt: find_2_prong_sqrt } = Math;
 /**
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
  * the second one is found by the algorithm.
@@ -28878,7 +29163,7 @@ function find2Prong(meta) {
         const _nnorm = [-normDd[0][1], -normDd[1][1]]; // Left-handed system (sorry)
         const nnorm = isHoleClosing
             ? [0, -maxOsculatingCircleRadius]
-            : (angle !== 0 ? rotate_rotate(sin(angle), cos(angle))(_nnorm) : _nnorm);
+            : (angle !== 0 ? rotate(find_2_prong_sin(angle), find_2_prong_cos(angle))(_nnorm) : _nnorm);
         const nnormDd = isHoleClosing || angle !== 0
             ? [[0, nnorm[0]], [0, nnorm[1]]]
             : [[-normDd[0][0], -normDd[0][1]], [-normDd[1][0], -normDd[1][1]]];
@@ -28914,7 +29199,7 @@ function find2Prong(meta) {
             add1Prong(meta, rO, xO, yPos);
             return undefined;
         }
-        const pDd = toP(curve.ps, s);
+        const pDd = to_p_toP(curve.ps, s);
         const p = pDd.map(c => c[0] + c[1]);
         const z = {
             curve, t: s, isSource: false,
@@ -29171,7 +29456,7 @@ function splitByCurvatureAndLength(ps, maxCurviness = 0.4, maxLength = 10, minTS
  *
  * @doc mdx
  */
-function get_inflections_getInflections(ps) {
+function getInflections(ps) {
     if (ps.length < 4) {
         // Neither lines, nor parabolas have inflection points
         return [];
@@ -29217,10 +29502,10 @@ function getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength) {
             }
             let ts = splitByCurvatureAndLength(ps, maxCurviness, maxLength);
             ts = ts.length === 2 ? [0.5] : ts;
-            ts.push(...get_inflections_getInflections(ps));
+            ts.push(...getInflections(ps));
             ts = ts.filter(t => t !== 0 && t !== 1);
             const byCurvatureAndLength = ts.map(t => {
-                const pDd = toP(curve.ps, t);
+                const pDd = to_p_toP(curve.ps, t);
                 const p = pDd.map(c => c[0] + c[1]);
                 return { curve, t, isSource: true, p, pDd };
             });
@@ -29333,7 +29618,7 @@ function getAbsCurvatureExtremaPolysDd(ps) {
     // dd(kappa^2)/dt === (x′′y′ − x′y′′)*((x′′′y′ − x′y′′′)(x′2 + y′2) − 3(x′x′′ + y′y′′)(x′′y′ − x′y′′))
     // Inflection points at: (x′′y′ − x′y′′) === 0
     // Max abs curvature at: ((x′′′y′ − x′y′′′)(x′2 + y′2) − 3(x′x′′ + y′y′′)(x′′y′ − x′y′′)) === 0
-    const [[dx2, dx1, dx0], [dy2, dy1, dy0]] = to_power_basis_1st_derivative_dd_toPowerBasis_1stDerivativeDd(ps); // max bitlength increase === 5
+    const [[dx2, dx1, dx0], [dy2, dy1, dy0]] = toPowerBasis_1stDerivativeDd(ps); // max bitlength increase === 5
     const [[ddx1, ddx0], [ddy1, ddy0]] = toPowerBasis_2ndDerivativeDd(ps); // max bitlength increase === 6
     const [[dddx], [dddy]] = toPowerBasis_3rdDerivativeDd(ps); // max bitlength increase === 6
     // ((x′′′y′ − x′y′′′)(x′2 + y′2) − 3(x′x′′ + y′y′′)(x′′y′ − x′y′′))
@@ -29583,7 +29868,7 @@ function getFor1ProngsOnLoop(minBezLength) {
             }
             const { ps } = curve;
             poss.push(...getCurvatureExtremaDd(ps).maxima.map(t => {
-                const pDd = toP(ps, t);
+                const pDd = to_p_toP(ps, t);
                 const p = pDd.map(c => c[0] + c[1]);
                 return { curve, t, isSource: true, p, pDd };
             }));
@@ -29600,7 +29885,7 @@ function getFor1ProngsOnLoop(minBezLength) {
 function toPrePoint(extreme) {
     const { curve, t } = extreme;
     const { ps } = curve;
-    const pDd = toP(ps, t);
+    const pDd = to_p_toP(ps, t);
     const p = pDd.map(c => c[0] + c[1]);
     return {
         curve,
@@ -29849,7 +30134,9 @@ function findMats(bezierLoops, options) {
         ...(options || {})
     });
     const { applySat, simplify, satScale, simplifyTolerance } = options_;
-    const loopss = simplifyPaths(bezierLoops, undefined, { forceOrientationNegative: true });
+    const loopss = simplifyPaths(bezierLoops, {
+        forceOrientationNegative: true,
+    });
     // console.log(loopsToSvgPathStr(bezierLoops));
     const mats = [];
     for (const loops of loopss) {

@@ -1,5 +1,4 @@
 import { tangent } from 'flo-bezier3';
-import { drawFs } from 'flo-draw';
 import { 
     fromTo, dot, cross, translate, lineLineIntersection, toUnitVector
 } from 'flo-vector2d';
