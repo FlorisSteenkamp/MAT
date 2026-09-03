@@ -1,5 +1,4 @@
 import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
-/** @internal */
 function getLargestVertex(cpNode) {
     const cpNodes = getAllOnLoop(cpNode);
     return cpNodes.reduce(function (maxCpNode, cpNode) {

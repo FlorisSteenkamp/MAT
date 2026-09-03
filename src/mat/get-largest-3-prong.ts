@@ -3,8 +3,9 @@ import { getAllOnLoop } from '../cp-node/fs/get-all-on-loop.js';
 import { getRealProngCount } from '../cp-node/fs/get-real-prong-count.js';
 
 
-/** @internal */
-function getLargest3Prong(cpNode: CpNode) {
+function getLargest3Prong(
+        cpNode: CpNode) {
+
     const cpNodes = getAllOnLoop(cpNode)
         .filter(cpNode => getRealProngCount(cpNode) >= 3);
 

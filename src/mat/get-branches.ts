@@ -20,9 +20,7 @@ function getBranches(
         const cpNode = cpNodeStack.pop()!;
         const branch = getBranch(cpNode);
 
-        if (branch.length === 0) {
-            continue;
-        }
+        if (branch.length === 0) { continue; }
 
         branches.push(branch);
 

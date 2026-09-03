@@ -18,13 +18,13 @@ function fromStringifyable(
     const cpNodes: CpNode[] = _cpNodes.map(cpNode_ => {
         const { id, pointOnShape, isHoleClosing, isIntersection } = cpNode_;
         const { circle, order, order2 } = pointOnShape;
-        const { curveIdx, loopIdx, p, t, isSource } = pointOnShape;
+        const { curveIdx, loopIdx, p, pDd, t, isSource } = pointOnShape;
 
         const curve = loops[loopIdx].curves[curveIdx];
 
         const pointOnShape_: PointOnShape = {
             circle,
-            curve, p, t, isSource,
+            curve, p, pDd, t, isSource,
             order, order2
         };
 

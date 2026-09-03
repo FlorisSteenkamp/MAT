@@ -18,6 +18,8 @@ export { findMats } from './find-mat/find-mats.js';
 export { trimMat } from './mat/trim-mat.js';
 export { toScaleAxis } from './sat/to-scale-axis.js';
 export { getBranches } from './mat/get-branches.js';
+export { getLargestVertex } from './mat/get-largest-vertex.js';
+export { getLargest3Prong } from './mat/get-largest-3-prong.js';
 export { enableDebugForMat } from './debug/debug.js';
 export { getShapeBounds } from './svg/get-shape-bounds.js';
 export { getBoundaryPieceBeziers } from './mat/get-boundary-piece-beziers.js';
@@ -37,6 +39,8 @@ export { getPartialMeta } from './find-mat/get-meta.js';
 export { findAndAddHoleClosing2Prongs } from './find-2-prong/find-and-add-hole-closing-2-prongs.js';
 export { reconstructFromMats } from './reconstruct-from-mat/reconstruct-from-mat.js';
 export { getOsculatingCircle } from './point-on-shape/get-osculating-circle.js';
+export { toStringifyable } from './cp-node/stringification/to-stringifyable.js';
+export { fromStringifyable } from './cp-node/stringification/from-stringifyable.js';
 
 
 // CpNodeFs functions
@@ -77,3 +81,4 @@ export { isTrivial } from './cp-node/fs/is-trivial.js';
 export { scaleCircle } from './geometry/circle.js';
 export { isOnSameLoop } from './cp-node/fs/is-on-same-loop.js';
 export { getAllOnLoop_ByLoop } from './cp-node/fs/get-all-on-loop-by-loop.js';
+export { getNonTerminatingOnCircle } from './cp-node/fs/get-non-terminating-on-circle.js';

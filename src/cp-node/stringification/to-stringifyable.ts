@@ -27,7 +27,7 @@ function toStringifyable(
             prev, next, nextOnCircle, prevOnCircle, holeCloserTwin,
         } = cpNode
 
-        const { curve, p, t, isSource, circle, order, order2 } = pointOnShape;
+        const { curve, p, pDd, t, isSource, circle, order, order2 } = pointOnShape;
         const { idx: curveIdx, loop, ps, prev: prevCurve, next: nextCurve } = curve;
 
         if (!loopSet.has(loop)) {
@@ -36,7 +36,7 @@ function toStringifyable(
 
         const posSimplified: PointOnShapeSimplified = {
             curveIdx, loopIdx: loop.idx!, p, t, isSource,
-            circle, order, order2
+            circle, order, order2, pDd,
         };
 
         cpNodes_.push({

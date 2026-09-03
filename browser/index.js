@@ -25570,7 +25570,6 @@ function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
 
 ;// ./src/mat/get-largest-vertex.ts
 
-/** @internal */
 function getLargestVertex(cpNode) {
     const cpNodes = getAllOnLoop(cpNode);
     return cpNodes.reduce(function (maxCpNode, cpNode) {
@@ -30251,6 +30250,23 @@ function trimMat(mat) {
 }
 
 
+;// ./src/mat/get-largest-3-prong.ts
+
+
+function getLargest3Prong(cpNode) {
+    const cpNodes = getAllOnLoop(cpNode)
+        .filter(cpNode => getRealProngCount(cpNode) >= 3);
+    if (cpNodes.length === 0) {
+        return undefined;
+    }
+    return cpNodes.reduce(function (maxCpNode, cpNode) {
+        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius
+            ? maxCpNode
+            : cpNode;
+    }, cpNodes[0]);
+}
+
+
 ;// ./src/debug/debug.ts
 function enableDebugForMat(debugOn) {
     if (!debugOn) {
@@ -30826,6 +30842,120 @@ function reconstruct_from_mat_getEdgeDirection(cpNode, fromOrTo) {
 }
 
 
+;// ./src/cp-node/stringification/loop-to-stringifyable.ts
+function loopToStringifyable(loop) {
+    const { idx, beziers } = loop;
+    return { idx: idx, beziers };
+}
+
+
+;// ./src/cp-node/stringification/to-stringifyable.ts
+
+/**
+ * Returns a deep clone of this `CpNode`. Can be used to copy the MAT
+ * since cloning a single `CpNode` necessarily implies cloning all
+ * `CpNode`s on the same MAT tree.
+ */
+function toStringifyable(cpNode) {
+    const cpNodes_ = [];
+    const loopSet = new Set();
+    //--------------------------------------------------------------------------
+    // Clone `CpNode`s with edges replaced with ids AND
+    // set the `nodeMap` to map original `CpNode`s to their ids.
+    //--------------------------------------------------------------------------
+    const cpStart = cpNode;
+    do {
+        const { id, isHoleClosing, isIntersection, pointOnShape, prev, next, nextOnCircle, prevOnCircle, holeCloserTwin, } = cpNode;
+        const { curve, p, pDd, t, isSource, circle, order, order2 } = pointOnShape;
+        const { idx: curveIdx, loop, ps, prev: prevCurve, next: nextCurve } = curve;
+        if (!loopSet.has(loop)) {
+            loopSet.add(loop);
+        }
+        const posSimplified = {
+            curveIdx, loopIdx: loop.idx, p, t, isSource,
+            circle, order, order2, pDd,
+        };
+        cpNodes_.push({
+            id, isHoleClosing, isIntersection,
+            pointOnShape: posSimplified,
+            prev: prev.id,
+            next: next.id,
+            prevOnCircle: prevOnCircle.id,
+            nextOnCircle: nextOnCircle.id,
+            holeCloserTwin: holeCloserTwin?.id
+        });
+        cpNode = cpNode.next;
+    } while (cpNode !== cpStart);
+    //--------------------------------------------------------------------------
+    const loops = Array.from(loopSet).sort((a, b) => a.idx - b.idx);
+    const loops_ = loops.map(loopToStringifyable);
+    return {
+        cpNodes: cpNodes_,
+        loops: loops_
+    };
+}
+
+
+;// ./src/cp-node/stringification/cp-node-stringifyable.ts
+const cp_node_stringifyable_EDGES = [
+    'prev', 'next',
+    'prevOnCircle', 'nextOnCircle',
+    'holeCloserTwin'
+];
+
+
+;// ./src/cp-node/stringification/loop-from-stringifyable.ts
+
+function loopFromStringifyable(loopStringifyable) {
+    const { idx, beziers } = loopStringifyable;
+    return loopFromBeziers(beziers, idx);
+}
+
+
+;// ./src/cp-node/stringification/from-stringifyable.ts
+
+
+function fromStringifyable(cpNodesStringifyable) {
+    const { cpNodes: _cpNodes, loops: _loops } = cpNodesStringifyable;
+    const loops = _loops.map(loopFromStringifyable);
+    //--------------------------------------------------------------------------
+    // First pass: build all CpNode objects with proper `cp`.
+    // Edges still hold number ids at this point.
+    //--------------------------------------------------------------------------
+    const cpNodes = _cpNodes.map(cpNode_ => {
+        const { id, pointOnShape, isHoleClosing, isIntersection } = cpNode_;
+        const { circle, order, order2 } = pointOnShape;
+        const { curveIdx, loopIdx, p, pDd, t, isSource } = pointOnShape;
+        const curve = loops[loopIdx].curves[curveIdx];
+        const pointOnShape_ = {
+            circle,
+            curve, p, pDd, t, isSource,
+            order, order2
+        };
+        return {
+            ...cpNode_,
+            id, isHoleClosing, isIntersection,
+            pointOnShape: pointOnShape_
+        };
+    });
+    //--------------------------------------------------------------------------
+    // Second pass: replace number id edges with real CpNode references.
+    //--------------------------------------------------------------------------
+    const nodeMap = new Map(cpNodes.map(n => [n.id, n]));
+    for (const cpNode of cpNodes) {
+        for (const edge of cp_node_stringifyable_EDGES) {
+            const id = cpNode[edge];
+            if (id === undefined) {
+                continue;
+            }
+            // @ts-ignore
+            cpNode[edge] = nodeMap.get(id);
+        }
+    }
+    return cpNodes[0];
+}
+
+
 ;// ./src/geometry/circle.ts
 /* unused harmony import specifier */ var circle_squaredDistanceBetween;
 
@@ -30855,6 +30985,10 @@ function engulfsCircle(c1, c2) {
 
 
 ;// ./src/index.ts
+
+
+
+
 
 
 
@@ -30921,4 +31055,5 @@ function engulfsCircle(c1, c2) {
 
 
 
-export { CpNodeFs, beziersToSvgPathStr, clone, cpNodeComparator, createInitialCpTree, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, getAllOnCircle, getAllOnLoop, getAllOnLoop_ByLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getOsculatingCircle, getPartialMeta, getPathsFromStr, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOnSameLoop, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, reconstructFromMats, removeVertex, scaleCircle, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, traverseCp, traverseEdges, traverseVertices, trimMat };
+
+export { CpNodeFs, beziersToSvgPathStr, clone, cpNodeComparator, createInitialCpTree, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, fromStringifyable, getAllOnCircle, getAllOnLoop, getAllOnLoop_ByLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getLargest3Prong, getLargestVertex, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getNonTerminatingOnCircle, getOsculatingCircle, getPartialMeta, getPathsFromStr, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOnSameLoop, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, reconstructFromMats, removeVertex, scaleCircle, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, toStringifyable, traverseCp, traverseEdges, traverseVertices, trimMat };
