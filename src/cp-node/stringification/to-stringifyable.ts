@@ -35,8 +35,8 @@ function toStringifyable(
         }
 
         const posSimplified: PointOnShapeSimplified = {
-            curveIdx, loopIdx: loop.idx!, p, t, isSource,
-            circle, order, order2, pDd,
+            curveIdx, loopIdx: loop.idx!, p, pDd, t, isSource,
+            circle, order, order2 
         };
 
         cpNodes_.push({

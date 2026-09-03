@@ -30872,8 +30872,8 @@ function toStringifyable(cpNode) {
             loopSet.add(loop);
         }
         const posSimplified = {
-            curveIdx, loopIdx: loop.idx, p, t, isSource,
-            circle, order, order2, pDd,
+            curveIdx, loopIdx: loop.idx, p, pDd, t, isSource,
+            circle, order, order2
         };
         cpNodes_.push({
             id, isHoleClosing, isIntersection,
@@ -30918,6 +30918,7 @@ function loopFromStringifyable(loopStringifyable) {
 function fromStringifyable(cpNodesStringifyable) {
     const { cpNodes: _cpNodes, loops: _loops } = cpNodesStringifyable;
     const loops = _loops.map(loopFromStringifyable);
+    const loopsByIdx = new Map(loops.map(loop => [loop.idx, loop]));
     //--------------------------------------------------------------------------
     // First pass: build all CpNode objects with proper `cp`.
     // Edges still hold number ids at this point.
@@ -30926,7 +30927,7 @@ function fromStringifyable(cpNodesStringifyable) {
         const { id, pointOnShape, isHoleClosing, isIntersection } = cpNode_;
         const { circle, order, order2 } = pointOnShape;
         const { curveIdx, loopIdx, p, pDd, t, isSource } = pointOnShape;
-        const curve = loops[loopIdx].curves[curveIdx];
+        const curve = loopsByIdx.get(loopIdx).curves[curveIdx];
         const pointOnShape_ = {
             circle,
             curve, p, pDd, t, isSource,

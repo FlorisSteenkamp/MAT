@@ -10,6 +10,7 @@ function fromStringifyable(
 
     const { cpNodes: _cpNodes, loops: _loops } = cpNodesStringifyable;
     const loops = _loops.map(loopFromStringifyable);
+    const loopsByIdx = new Map(loops.map(loop => [loop.idx, loop]));
 
     //--------------------------------------------------------------------------
     // First pass: build all CpNode objects with proper `cp`.
@@ -20,7 +21,7 @@ function fromStringifyable(
         const { circle, order, order2 } = pointOnShape;
         const { curveIdx, loopIdx, p, pDd, t, isSource } = pointOnShape;
 
-        const curve = loops[loopIdx].curves[curveIdx];
+        const curve = loopsByIdx.get(loopIdx)!.curves[curveIdx];
 
         const pointOnShape_: PointOnShape = {
             circle,
