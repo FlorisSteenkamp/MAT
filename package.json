@@ -36,7 +36,7 @@
         "flo-bezier3": "^8.1.1",
         "flo-boolean": "^6.0.2",
         "flo-gauss-quadrature": "^2.1.4",
-        "flo-ll-rb-tree": "^1.0.3",
+        "flo-ll-rb-tree": "^1.0.4",
         "flo-memoize": "^2.0.1",
         "flo-poly": "^8.1.4",
         "flo-vector2d": "^4.0.6"
