@@ -36,9 +36,12 @@ function addToCpTree(
         const cpTree = cpTrees.get(ppos.curve.loop)!;
         const pos: PointOnShape = { ...ppos, circle, order, order2: 0 };
 
-        const pred = neighbors === undefined
-            ? getCpNodeNeighbors(cpTree, ppos, order, 0)?.[0]
-            : neighbors[i][0];
+        const r = neighbors === undefined
+            ? getCpNodeNeighbors(cpTree, ppos, order, 0)
+            : neighbors[i];
+
+        const pred = r?.[0];
+        const succ = r?.[1];
 
         const cpNode = insertCpNode(
             insertIfOrderIsWrong,
@@ -47,7 +50,8 @@ function addToCpTree(
             cpTree,
             pos,
             pred,
-            pred?.next,
+            // pred?.next,
+            succ,
             meta.lastInsertId
         );
 

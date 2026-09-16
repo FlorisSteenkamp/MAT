@@ -34,7 +34,9 @@ function getFor1ProngsOnLoop(
             }));
         }
 
-        return poss;
+        return poss
+            // keep away from edges
+            .filter(pos => pos.t > 2**-20 && pos.t < 2**-20);
     }
 }
 

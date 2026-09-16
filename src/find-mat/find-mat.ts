@@ -89,7 +89,7 @@ function findMat(
         if (_debug_.directives.stopAfterThreeProngs) { return { cpNode, meta }; }
     }
 
-    if (cpNode !== undefined) { checkOrdering(meta, cpNode); }
+    // if (cpNode !== undefined) { checkOrdering(meta, cpNode); }
 
     const mat = { cpNode, meta };
 

@@ -27,10 +27,11 @@ function insertCpNode(
         lastInsertId: { id: number }): CpNode | undefined {
 
     if (pred !== undefined && succ !== undefined) {
-
         // !isOrderCorrect(cpTree, pos, pred.next, false)) {
         const orderCorrect = isOrderCorrect(cpTree, pred, pos, succ, false);
-        if (!orderCorrect) { console.log('aaaaa'); }
+        // if (!orderCorrect) {
+        //     console.log('aaaaa');
+        // }
         if (!insertIfOrderWrong && !orderCorrect) {
             return undefined;
         }

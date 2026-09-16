@@ -23,37 +23,51 @@ function isOrderCorrect(
         return true;
     }
 
-    const c = comparePoss(pos, succ.pointOnShape);
+    const a = pred.pointOnShape;
+    const b = pos;
+    const c = succ.pointOnShape;
 
+    // Let a = pred, b = pos, and c = succ.
+    // For a cyclic order we need:
+    // `(a < b && b < c)` || `(b < c && c < a)` || `(c < a && a < b)`
+    // Let `X = a < b, Y = b < c, Z = c < a` then
+    // `(X && Y)` || `(Y && Z)` || `(Z && X)`
 
-    if (c < 0) { return true; }
-    if (c === 0) { return false; }
+    const _X = comparePoss(a, b);
+    if (_X === 0) {  // two points must have different order
+        // console.log('aaa');
+        return false;
+    }  
+    const _Y = comparePoss(b, c);
+    if (_Y === 0) {  // two points must have different order
+        // console.log('bbb');
+        return false;
+    }  
+    const _Z = comparePoss(c, a);
+    if (_Z === 0) {
+        // console.log('bbb');
+        return false;
+    }  // impossible anyway at this point
 
-    const minNode = cpTree.getMinNode()!.datum;
-    const maxNode = cpTree.getMaxNode()!.datum;
+    // Now neither `_X` nor `_Y` nor `_Z` === `0`
+    const X = _X < 0;
+    const Y = _Y < 0;
+    const Z = _Z < 0;
 
-    // larger than all -> crossing zero on loop
-    const largerThanAll = comparePoss(pos, maxNode.pointOnShape!) >= 0;
-    const r = 
-        largerThanAll &&
-        minNode === succ;
+    // Cyclic order condition
+    if ((X && Y) || (Y && Z) || (Z && X)) { return true; }
 
+    // console.log(_X, _Y, _Z);
+    // console.log(cpTree.toArr().map(v => {
+    //     return {
+    //         curveIdx: v.pointOnShape.curve.idx,
+    //         t: v.pointOnShape.t,
+    //         order: v.pointOnShape.order,
+    //         order2: v.pointOnShape.order2
+    //     }
+    // }));
 
-    // const r = (pos === max.pointOnShape) && (next === min);
-
-    if (!r) {
-        console.log(c);
-        console.log(cpTree.toArr().map(v => {
-            return {
-                curveIdx: v.pointOnShape.curve.idx,
-                t: v.pointOnShape.t,
-                order: v.pointOnShape.order,
-                order2: v.pointOnShape.order2
-            }
-        }));
-    }
-
-    return r;
+    return false;
 }
 
 

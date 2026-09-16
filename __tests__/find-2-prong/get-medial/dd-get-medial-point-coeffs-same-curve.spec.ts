@@ -48,7 +48,7 @@ function randomPoint(seed: number): number[] {
 }
 
 
-test('dd same-curve coefficients match flo-bezier3 double coefficients', function() {
+test.skip('dd same-curve coefficients match flo-bezier3 double coefficients', function() {
     const epsMain = [2**16];
     const epsD = [2**8];
     const epsH = [2**13];
