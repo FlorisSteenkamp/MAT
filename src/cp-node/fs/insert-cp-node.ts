@@ -5,19 +5,33 @@ import { RbTree } from "flo-ll-rb-tree";
 import { isOrderCorrect } from "./is-order-correct.js";
 
 
+/**
+ * 
+ * @param insertIfOrderWrong order cannot be checked for hole-closers since they're on different loops
+ * @param isHoleClosing 
+ * @param isIntersection 
+ * @param cpTree 
+ * @param pos 
+ * @param pred predecessor (to `pos`) on sampe loop (found via `cpTree`)
+ * @param succ successor (to `pos`) on sampe loop (found via `cpTree`)
+ * @param lastInsertId 
+ */
 function insertCpNode(
         insertIfOrderWrong: boolean,
         isHoleClosing: boolean,
         isIntersection: boolean,
         cpTree: RbTree<CpNode>,
         pos: PointOnShape,
-        _prev: CpNode | undefined,
+        pred: CpNode | undefined,
+        succ: CpNode | undefined,
         lastInsertId: { id: number }): CpNode | undefined {
 
-    if (_prev !== undefined &&
-        !isOrderCorrect(cpTree, pos, _prev.next)) {
+    if (pred !== undefined && succ !== undefined) {
 
-        if (!insertIfOrderWrong) {
+        // !isOrderCorrect(cpTree, pos, pred.next, false)) {
+        const orderCorrect = isOrderCorrect(cpTree, pred, pos, succ, false);
+        if (!orderCorrect) { console.log('aaaaa'); }
+        if (!insertIfOrderWrong && !orderCorrect) {
             return undefined;
         }
     }
@@ -34,8 +48,8 @@ function insertCpNode(
     };
     lastInsertId.id++;
 
-    const prev = _prev === undefined ? cpNode : _prev;
-    const next = _prev === undefined ? cpNode : prev.next;
+    const prev = pred === undefined ? cpNode : pred;
+    const next = pred === undefined ? cpNode : prev.next;
 
     (next as Mutable<CpNode>).prev = cpNode;
     (prev as Mutable<CpNode>).next = cpNode;

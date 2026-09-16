@@ -12,7 +12,7 @@ import { getAllOnCircle } from '../cp-node/fs/get-all-on-circle.js';
  *
  * @param meta
  * @param cpStart The CpNode to start traversing from. 
-  */
+ */
 function findAndAdd3ProngsOnLoop(
         meta: MatMeta,
         cpStart: CpNode | undefined): CpNode | undefined {
@@ -25,8 +25,11 @@ function findAndAdd3ProngsOnLoop(
         reLoop = false;
         const cpNodeSet = new Set(getAllOnLoop(cpStart));
         for (const cpNode of cpNodeSet) {
-            const { closeBysFor3Prong, addedCpNodes } = 
-                findAndAdd3Prongs(meta, cpNode);
+            const threeProngs = findAndAdd3Prongs(meta, cpNode);
+            if (threeProngs === undefined) {
+                return getFirstItemOfSet(cpNodeGoodSet)!; 
+            }
+            const { closeBysFor3Prong, addedCpNodes } = threeProngs;
 
             if (addedCpNodes.length > 0) { reLoop = true; }
 

@@ -2,12 +2,15 @@ import type { Circle } from '../geometry/circle.js';
 import type { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { MatMeta } from '../mat/mat-meta.js';
-import { getCpNodeToLeftOrSame } from './get-cp-node-to-left-or-same.js';
+import { getCpNodeNeighbors } from './get-cp-node-neighbors.js';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
 import { joinSpokes } from '../add-n-prong.ts/join-spokes.js';
 
 
 /**
+ * Insert the given `poss` into the `cpTree` (within `meta`) and returns the
+ * newly inserted `CpNode`s.
+ * 
  * @param circle 
  * @param orders 
  * @param cpTrees 
@@ -23,7 +26,7 @@ function addToCpTree(
         orders: number[],
         meta: MatMeta,
         poss: PrePointOnShape[],
-        neighbors?: CpNode[]): { anyFailed: boolean, cpNodes: (CpNode | undefined) [] } {
+        neighbors?: [CpNode,CpNode][]): { anyFailed: boolean, cpNodes: (CpNode | undefined) [] } {
 
     const { cpTrees } = meta;
 
@@ -34,8 +37,8 @@ function addToCpTree(
         const pos: PointOnShape = { ...ppos, circle, order, order2: 0 };
 
         const pred = neighbors === undefined
-            ? getCpNodeToLeftOrSame(cpTree, ppos, order, 0)
-            : neighbors[i];
+            ? getCpNodeNeighbors(cpTree, ppos, order, 0)?.[0]
+            : neighbors[i][0];
 
         const cpNode = insertCpNode(
             insertIfOrderIsWrong,
@@ -44,6 +47,7 @@ function addToCpTree(
             cpTree,
             pos,
             pred,
+            pred?.next,
             meta.lastInsertId
         );
 

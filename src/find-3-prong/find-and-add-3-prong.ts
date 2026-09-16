@@ -25,7 +25,6 @@ function findAndAdd3Prong(
         δs.push([visitedCp, visitedCp.next]);
     }
 
-
     const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
 
     const { circle, poss, δ3s } = threeProngInfo;
@@ -50,7 +49,8 @@ function findAndAdd3Prong(
 
     const cpNodes = closeBysFor3Prong.length === 0
         ? addToCpTree(
-            true, false, circle, orders, meta, poss, δ3s.map(v => v[0])
+            // true, false, circle, orders, meta, poss, δ3s.map(v => v[0])
+            true, false, circle, orders, meta, poss, δ3s
         ).cpNodes
         : [];
 

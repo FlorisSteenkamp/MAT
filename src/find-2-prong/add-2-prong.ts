@@ -90,6 +90,7 @@ function closeHole(
         cpTrees.get(posAntipode.curve.loop)!,
         { ...posAntipode, order2: +1 },
         cpNodeAntipode,
+        undefined,  // unused
         meta.lastInsertId
     )! as Mutable<CpNode>;
     cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
@@ -100,8 +101,9 @@ function closeHole(
     const cpNodeSourceTwin = insertCpNode(
         true, true, false,
         cpTrees.get(posSource.curve.loop)!,
-        { ...cpNodeSource.pointOnShape!, order2: -1 },
+        { ...posSource!, order2: -1 },
         cpNodeSource.prev,
+        undefined,  // unused
         meta.lastInsertId
     )! as Mutable<CpNode>;
     cpNodeSourceTwin.holeCloserTwin = cpNodeSource;

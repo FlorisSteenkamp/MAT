@@ -2,7 +2,7 @@ import type { Loop } from 'flo-boolean';
 import type { CurvePiece  } from '../mat/curve-piece.js';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { MatMeta } from '../mat/mat-meta.js';
-import { getCpNodeToLeftOrSame } from '../mat/get-cp-node-to-left-or-same.js';
+import { getCpNodeNeighbors } from '../mat/get-cp-node-neighbors.js';
 import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
@@ -38,7 +38,7 @@ function getInitialCurvePieces(
                 : calcPosOrder(xO, yPos)
             : 0;
 
-    const cpNode = getCpNodeToLeftOrSame(cpTrees.get(loop)!, yPos, order, 0);
+    const cpNode = getCpNodeNeighbors(cpTrees.get(loop)!, yPos, order, 0)?.[0];
     if (!cpNode || 
         // The special case if there is only a single sharp corner or 
         // two-way terminating 2-prong currently in the MAT. Don't remove!

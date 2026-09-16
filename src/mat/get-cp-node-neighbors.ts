@@ -16,29 +16,31 @@ import { RbTree } from 'flo-ll-rb-tree';
  * @param order 
  * @param order2 
  */
-function getCpNodeToLeftOrSame(
+function getCpNodeNeighbors(
         cpTree: RbTree<CpNode>,
         pos: PrePointOnShape,
         order: number,
-        order2: number): CpNode | undefined {
+        order2: number): [CpNode,CpNode] | undefined {
 
     const pointOnShape = { ...pos, order, order2 };
     const cps = cpTree.findBounds({ pointOnShape } as CpNode);
+    const [cp0,cp1] = cps;
 
-    if (cps[0] === undefined && cps[1] === undefined) { 
+    if (cp0 === undefined && cp1 === undefined) { 
         // The tree is still empty
         return undefined;
     }
 
-    if (cps[0] === undefined || cps[1] === undefined) { 
-        // Smaller than all -> cptree.min() === cps[1].data OR
-        // Larger  than all -> cptree.max() === cps[0].data
-        // return cpTree.max(cpTree.root);
-        return cpTree.getMaxNode()?.datum;
+    if (cp0 === undefined || cp1 === undefined) { 
+        // Smaller than all OR larger than all
+        const minNode = cpTree.getMinNode()?.datum!;
+        const maxNode = cpTree.getMaxNode()?.datum!;
+
+        return [maxNode,minNode];
     }
 
-    return cps[0].datum;
+    return [cp0.datum, cp1.datum];
 }
 
 
-export { getCpNodeToLeftOrSame }
+export { getCpNodeNeighbors }

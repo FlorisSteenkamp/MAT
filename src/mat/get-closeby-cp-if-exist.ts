@@ -3,7 +3,7 @@ import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { Circle } from '../geometry/circle.js';
 import type { MatMeta } from './mat-meta.js';
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
-import { getCpNodeToLeftOrSame } from './get-cp-node-to-left-or-same.js';
+import { getCpNodeNeighbors } from './get-cp-node-neighbors.js';
 
 
 /** @internal */
@@ -36,7 +36,7 @@ function getCloseByCpIfExist(
     const DISTANCE_THRESHOLD_2 = 2**(maxCoordPowerOf2 - 46);
 
     const cpTree = cpTrees.get(pos.curve.loop)!;
-    const cur = getCpNodeToLeftOrSame(cpTree, pos, order, order2);
+    const cur = getCpNodeNeighbors(cpTree, pos, order, order2)?.[0];
     if (!cur) { return undefined; }
     const cpNodes = [cur, cur.next];
 

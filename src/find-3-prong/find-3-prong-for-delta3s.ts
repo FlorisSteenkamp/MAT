@@ -28,7 +28,7 @@ const { min, abs, asin } = Math;
  * @internal
  */
 function find3ProngForDelta3s(
-        δs: CpNode[][], 
+        δs: [CpNode, CpNode][], 
         idx: number, 
         k: number,
         curvePiecess: CurvePiece[][],
@@ -37,25 +37,33 @@ function find3ProngForDelta3s(
     const TOLERANCE = 2**(maxCoordPowerOf2 - 32);
     const MAX_ITERATIONS = 10;
 
-    const δs_ = [
+    const δs_: [[CpNode,CpNode], [CpNode,CpNode], [CpNode,CpNode]] = [
         δs[0],
         δs[idx], 
         δs[δs.length-1]
     ];
 
-    const curvePieces_ = [
+    const curvePieces_: [CurvePiece[], CurvePiece[], CurvePiece[]] = [
         curvePiecess[0], 
         curvePiecess[idx], 
-        curvePiecess[δs.length-1]
+        curvePiecess[δs.length - 1]
     ];
 
-    const δ3ss = [
+    const δ3ss: [
+        [[CpNode, CpNode], [CpNode, CpNode], [CpNode, CpNode]],
+        [[CpNode, CpNode], [CpNode, CpNode], [CpNode, CpNode]],
+        [[CpNode, CpNode], [CpNode, CpNode], [CpNode, CpNode]]
+    ] = [
         [δs_[0], δs_[1], δs_[2]],
         [δs_[1], δs_[2], δs_[0]],
         [δs_[2], δs_[0], δs_[1]],
     ];
 
-    const curvePiecess_ = [
+    const curvePiecess_: [
+        [CurvePiece[], CurvePiece[], CurvePiece[]],
+        [CurvePiece[], CurvePiece[], CurvePiece[]],
+        [CurvePiece[], CurvePiece[], CurvePiece[]]
+    ] = [
         [curvePieces_[0], curvePieces_[1], curvePieces_[2]],
         [curvePieces_[1], curvePieces_[2], curvePieces_[0]],
         [curvePieces_[2], curvePieces_[0], curvePieces_[1]],

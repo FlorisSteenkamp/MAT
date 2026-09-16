@@ -16,6 +16,7 @@ import { getFor2ProngsOnLoop } from './get-for-2-prongs-on-loop.js';
 import { getFor1ProngsOnLoop } from './get-for-1-prongs-on-loop.js';
 import { findAndAddHoleClosing2Prongs } from '../find-2-prong/find-and-add-hole-closing-2-prongs.js';
 import { getShapeBounds } from '../svg/get-shape-bounds.js';
+import { checkOrdering } from '../debug/functions/check-ordering.js';
 
 
 /**
@@ -85,10 +86,10 @@ function findMat(
     if (cpNode === undefined) { return undefined!; }
 
     if (typeof _debug_ !== 'undefined') {
-        if (_debug_.directives.stopAfterThreeProngs) { return { cpNode: cpNode!, meta }; }
+        if (_debug_.directives.stopAfterThreeProngs) { return { cpNode, meta }; }
     }
 
-    // if (cpNode !== undefined) { checkOrdering(cpTrees, cpNode); }
+    if (cpNode !== undefined) { checkOrdering(meta, cpNode); }
 
     const mat = { cpNode, meta };
 

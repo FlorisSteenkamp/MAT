@@ -14,7 +14,7 @@ import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
  * @internal
  */ 
 function find3Prong(
-        δs: CpNode[][],
+        δs: [CpNode, CpNode][],
         maxCoordPowerOf2: number): ThreeProngInfo {
 
     // FUTURE if `δs.length > (some threshold (say 4 or 5))` then add two-prongs

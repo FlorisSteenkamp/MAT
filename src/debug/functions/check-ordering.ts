@@ -4,82 +4,6 @@ import { CpNode } from "../../cp-node/cp-node.js";
 import { getAllOnLoop } from "../../cp-node/fs/get-all-on-loop.js";
 import { getProngCount } from "../../cp-node/fs/get-prong-count.js";
 import { isOrderCorrect } from "../../cp-node/fs/is-order-correct.js";
-import { comparePoss } from "../../point-on-shape/compare-poss.js";
-
-
-function checkOrdering(
-        meta: MatMeta,
-        cpStart: CpNode) {
-
-    const { cpTrees } = meta;
-
-    const cpNodes = getAllOnLoop(cpStart);
-
-    const wrongsPerLoop: Map<Loop,[Order,Order][]> = new Map();
-    for (const cpNodeA of cpNodes) {
-        const cpNodeB = cpNodeA.next;
-
-        const posA = cpNodeA.pointOnShape;
-        const idxA = posA.curve.idx;
-        const pA = posA.p;
-        const loopA = posA.curve.loop;
-        const cpTreeA = cpTrees.get(loopA)!;
-
-        const posB = cpNodeB.pointOnShape;
-        const idxB = posB.curve.idx;
-        const pB = posB.p;
-        // const loopB = posB.curve.loop;
-        // const cpTreeB = cpTrees.get(loopB)!;
-        
-        const orderCorrect = isOrderCorrect(
-            cpTreeA, posA, cpNodeB
-        )
-        if (!orderCorrect) {
-            const A: Order = {
-                prongCount: getProngCount(cpNodeA),
-                p: pA,
-                cpNode: cpNodeA,
-                curveIdx: idxA,
-                t: posA.t,
-                order: posA.order,
-                order2: posA.order2
-            }
-            const B: Order = {
-                prongCount: getProngCount(cpNodeB),
-                p: pB,
-                cpNode: cpNodeB,
-                curveIdx: idxB,
-                t: posB.t,
-                order: posB.order,
-                order2: posB.order2
-            }
-            const loopA = A.cpNode.pointOnShape.curve.loop;
-            let wrongs = wrongsPerLoop.get(loopA);
-            if (wrongs === undefined) {
-                wrongs = [];
-                wrongsPerLoop.set(loopA, wrongs);
-            }
-            wrongs.push([A,B]);
-        }
-    }
-
-    for (const [loop,wrongs] of wrongsPerLoop) {
-        let maxOrder = -Infinity;
-        let max: Order | undefined = undefined;
-        for (const wrong of wrongs) {
-            const A = wrong[0];
-            const B = wrong[1];
-            const c = comparePoss(A.cpNode.pointOnShape, B.cpNode.pointOnShape);
-            if (c > maxOrder) { 
-                
-            }
-            // console.log(wrong[0]);
-            // console.log(wrong[1]);
-            // console.log('---------');
-        }
-    }
-    // }
-}
 
 
 interface Order {
@@ -91,6 +15,65 @@ interface Order {
     t: number;
     order: number;
     order2: number;
+}
+
+
+function checkOrdering(
+        meta: MatMeta,
+        cpStart: CpNode) {
+
+    const { cpTrees } = meta;
+
+    const cpNodes = getAllOnLoop(cpStart);
+
+    const wrongsPerLoop: Map<Loop,[Order,Order][]> = new Map();
+    for (const cpNode of cpNodes) {
+        const pos = cpNode.pointOnShape;
+        const loop = pos.curve.loop;
+
+        if (loop !== cpNode.prev.pointOnShape.curve.loop ||
+            loop !== cpNode.next.pointOnShape.curve.loop) {
+
+            continue;
+        }
+
+        const cpTree = cpTrees.get(loop)!;
+
+        const orderCorrect = isOrderCorrect(
+            cpTree, cpNode.prev, cpNode.pointOnShape, cpNode.next, true
+        );
+        if (!orderCorrect) {
+            const A = toOrder(cpNode);
+            const B = toOrder(cpNode.next);
+
+            let wrongs = wrongsPerLoop.getOrInsert(loop, []);
+            wrongs.push([A,B]);
+        }
+    }
+
+    for (const [loop,wrongs] of wrongsPerLoop) {
+        for (const wrong of wrongs) {
+            const A = wrong[0];
+            const B = wrong[1];
+            // const c = comparePoss(A.cpNode.pointOnShape, B.cpNode.pointOnShape);
+
+            console.log(A);
+            console.log(B);
+            console.log('---------');
+        }
+    }
+}
+
+
+function toOrder(
+        cpNode: CpNode): Order {
+
+    const prongCount = getProngCount(cpNode);
+    const { pointOnShape } = cpNode;
+    const { p, t, order, order2, curve } = pointOnShape;
+    const curveIdx = curve.idx;
+
+    return { cpNode, prongCount, p, curveIdx, t, order, order2 };
 }
 
 
