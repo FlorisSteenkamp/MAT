@@ -58,10 +58,10 @@ function findMat(loops, maxCoordPowerOf2, options) {
     }
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterThreeProngs) {
-            return { cpNode: cpNode, meta };
+            return { cpNode, meta };
         }
     }
-    // if (cpNode !== undefined) { checkOrdering(cpTrees, cpNode); }
+    // if (cpNode !== undefined) { checkOrdering(meta, cpNode); }
     const mat = { cpNode, meta };
     addDebugInfo4();
     return mat;

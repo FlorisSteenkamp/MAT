@@ -6,6 +6,6 @@ import type { MatMeta } from '../mat/mat-meta.js';
  *
  * @param meta
  * @param cpStart The CpNode to start traversing from.
-  */
+ */
 declare function findAndAdd3ProngsOnLoop(meta: MatMeta, cpStart: CpNode | undefined): CpNode | undefined;
 export { findAndAdd3ProngsOnLoop };

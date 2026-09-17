@@ -12,7 +12,7 @@ import type { ThreeProngInfo } from './three-prong-info.js';
  *
  * @internal
  */
-declare function find3ProngForDelta3s(δs: CpNode[][], idx: number, k: number, curvePiecess: CurvePiece[][], maxCoordPowerOf2: number): {
+declare function find3ProngForDelta3s(δs: [CpNode, CpNode][], idx: number, k: number, curvePiecess: CurvePiece[][], maxCoordPowerOf2: number): {
     error: number;
     threeProngInfo: ThreeProngInfo;
 } | undefined;

@@ -5,7 +5,7 @@ function removeCpNode(cpNode, meta) {
     prev.next = next;
     next.prev = prev;
     const cpTree = cpTrees.get(cpNode.pointOnShape.curve.loop);
-    cpTree.remove(cpNode, false);
+    cpTree.remove(cpNode);
 }
 export { removeCpNode };
 //# sourceMappingURL=remove-cp-node.js.map

@@ -19,7 +19,7 @@ function findAndAdd2Prongs(meta, angleIncrement, for2Prongs, for1Prong) {
     const angleIncrement_ = angleIncrement * PI / 180;
     for (let i = 0; i < for2Prongs.length; i++) {
         const pos = for2Prongs[i];
-        const angles = getValidAngles(angleIncrement_, pos);
+        const angles = for1Prong ? [0] : getValidAngles(angleIncrement_, pos);
         for (const angle of angles) {
             const twoProngInfo = find2Prong_(false, for1Prong, angle, pos);
             if (twoProngInfo) {

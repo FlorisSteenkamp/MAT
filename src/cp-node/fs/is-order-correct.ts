@@ -36,16 +36,19 @@ function isOrderCorrect(
     const _X = comparePoss(a, b);
     if (_X === 0) {  // two points must have different order
         // console.log('aaa');
+        // throw 'a';
         return false;
     }  
     const _Y = comparePoss(b, c);
     if (_Y === 0) {  // two points must have different order
         // console.log('bbb');
+        // throw 'b';
         return false;
     }  
     const _Z = comparePoss(c, a);
     if (_Z === 0) {
         // console.log('bbb');
+        // throw 'c';
         return false;
     }  // impossible anyway at this point
 
@@ -56,6 +59,8 @@ function isOrderCorrect(
 
     // Cyclic order condition
     if ((X && Y) || (Y && Z) || (Z && X)) { return true; }
+
+    // throw 'd';
 
     // console.log(_X, _Y, _Z);
     // console.log(cpTree.toArr().map(v => {

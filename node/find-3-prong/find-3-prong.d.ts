@@ -9,5 +9,5 @@ import type { ThreeProngInfo } from './three-prong-info.js';
  *
  * @internal
  */
-declare function find3Prong(δs: CpNode[][], maxCoordPowerOf2: number): ThreeProngInfo;
+declare function find3Prong(δs: [CpNode, CpNode][], maxCoordPowerOf2: number): ThreeProngInfo;
 export { find3Prong };

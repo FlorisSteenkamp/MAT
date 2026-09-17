@@ -1,6 +1,6 @@
 import { comparePoss } from '../point-on-shape/compare-poss.js';
 /**
- * Returns the ordered bezier pieces between from the given boundary piece.
+ * Returns the ordered bezier pieces between the two given `CpNode`s.
  *
  * @param cpNodes - An ordered pair that represents the start and end points of
  * the boundary piece

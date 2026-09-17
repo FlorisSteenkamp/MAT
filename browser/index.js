@@ -1903,7 +1903,7 @@ function removeCpNode(cpNode, meta) {
     prev.next = next;
     next.prev = prev;
     const cpTree = cpTrees.get(cpNode.pointOnShape.curve.loop);
-    cpTree.remove(cpNode, false);
+    cpTree.remove(cpNode);
 }
 
 
@@ -2722,8 +2722,8 @@ function toPowerBasis_1stDerivative(ps) {
 function toPowerBasis3_1stDerivative(ps) {
     const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
     return [[
-            3 * ((x3 - x0) + 3 * (x1 - x2)),
-            6 * ((x2 + x0) - 2 * x1),
+            3 * ((x3 - x0) + 3 * (x1 - x2)), // max === 24*max(c); max 5 bit-length increase
+            6 * ((x2 + x0) - 2 * x1), // max === 24*max(c); max 5 bit-length increase
             3 * (x1 - x0)
         ], [
             3 * ((y3 - y0) + 3 * (y1 - y2)),
@@ -19053,9 +19053,9 @@ function toPowerBasis(ps) {
 function to_power_basis_toPowerBasis3(ps) {
     const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = ps;
     return [[
-            (x3 - x0) + 3 * (x1 - x2),
-            3 * ((x2 + x0) - 2 * x1),
-            3 * (x1 - x0),
+            (x3 - x0) + 3 * (x1 - x2), // max 3 bit-length increase
+            3 * ((x2 + x0) - 2 * x1), // max 4 bit-length increase
+            3 * (x1 - x0), // max 3 bit-length increase
             x0
         ], [
             (y3 - y0) + 3 * (y1 - y2),
@@ -19082,10 +19082,10 @@ function to_power_basis_toPowerBasis1(ps) {
     const [[x0, y0], [x1, y1]] = ps;
     return [[
             x1 - x0,
-            x0,
+            x0
         ], [
             y1 - y0,
-            y0,
+            y0
         ]];
 }
 /** @internal */
@@ -23541,12 +23541,7 @@ function getCurvatureExtrema(ps) {
         const dp2_ = Horner(dp2, t);
         const p1_ = Horner(p1, t);
         const secondDerivative = p1_ * dp2_;
-        if (secondDerivative >= 0) {
-            minima.push(t);
-        }
-        else {
-            maxima.push(t);
-        }
+        (secondDerivative >= 0 ? minima : maxima).push(t);
     }
     const inflections = roots(p1, 0, 1)?.map(r => r.t) || [];
     return { minima, maxima, inflections };
@@ -23558,6 +23553,45 @@ function getCurvatureExtrema(ps) {
 
 
 const { sqrt: curvature_sqrt } = Math;
+/**
+ * Returns the curvature `κ` of the given linear, quadratic or cubic bezier
+ * curve at a specific given parameter value `t`.
+ *
+ * * returns `Number.NaN` at a cusp - this can be tested for with `Number.isNaN`
+ *
+ * @param ps an order 1,2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the parameter value where the curvature should be evaluated
+ *
+ * @doc mdx
+ */
+function curvature(ps, t) {
+    const [N, D] = curvatureND(ps, t);
+    return N / D;
+}
+/**
+ * Alias for [[κ]].
+ *
+ * Returns the curvature `κ` of the given linear, quadratic or cubic bezier
+ * curve at a specific given parameter value `t`.
+ *
+ * * **alias**: [[curvature]]
+ *
+ * @param ps an order 1, 2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the parameter value where the curvature should be evaluated
+ *
+ * @doc
+ */
+const κ = (/* unused pure expression or super */ null && (curvature));
+/**
+ * Returns the radius of curvature.
+ *
+ * @param ps
+ * @param t
+ */
+function radiusOfCurvature(ps, t) {
+    const [N, D] = curvatureND(ps, t);
+    return D / N;
+}
 /**
  * Returns the numerator and denominator of curvature `[N,D]`, i.e. `κ = N/D`
  *
@@ -23575,45 +23609,6 @@ function curvatureND(ps, t) {
     const b = curvature_sqrt((dx * dx + dy * dy) ** 3);
     return [a, b];
 }
-/**
- * Returns the curvature `κ` of the given linear, quadratic or cubic bezier
- * curve at a specific given parameter value `t`.
- *
- * * returns `Number.NaN` at a cusp - this can be tested for with `Number.isNaN`
- *
- * @param ps an order 1,2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param t the parameter value where the curvature should be evaluated
- *
- * @doc mdx
- */
-function curvature(ps, t) {
-    const [N, D] = curvatureND(ps, t);
-    return N / D;
-}
-/**
- * Returns the radius of curvature.
- *
- * @param ps
- * @param t
- */
-function radiusOfCurvature(ps, t) {
-    const [N, D] = curvatureND(ps, t);
-    return D / N;
-}
-/**
- * Alias for [[κ]].
- *
- * Returns the curvature `κ` of the given linear, quadratic or cubic bezier
- * curve at a specific given parameter value `t`.
- *
- * * **alias**: [[curvature]]
- *
- * @param ps an order 1, 2 or 3 bezier curve, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
- * @param t the parameter value where the curvature should be evaluated
- *
- * @doc
- */
-const κ = (/* unused pure expression or super */ null && (curvature));
 
 //# sourceMappingURL=curvature.js.map
 ;// ./node_modules/flo-boolean/node/get-critical-points/get-excessive-curvatures.js
@@ -24900,7 +24895,7 @@ class Heap {
 }
 
 //# sourceMappingURL=heap.js.map
-;// ./node_modules/flo-bezier3/node/simultaneous-properties/hausdorff-distance/hausdorff-distance-one-sided.js
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/hausdorff-distance/hausdorff-distance-one-sided-extra.js
 
 
 
@@ -24912,26 +24907,15 @@ class Heap {
 
 
 /** @internal */
-const { max: hausdorff_distance_one_sided_max } = Math;
-// We need to calculate `H(A,B)`, the two sided Hausdorff distance between
-// the bezier curves `A` and `B` which equals `max(h(A,B), h(B,A))`, where
-// `h(A,B)` is the one sided Hausdorff distance from `A` to `B`
-// Let: ωf(σ) = sup{ |f(t) − f(t′)| : t, t′ ∈ [a,b] with |t − t′| ≤ σ }
-// where: δS = max[ (1 ≤ i ≤ M+1)(ti − ti−1) ] is the maximum distance between 
-// two consecutive parameter values
-// Lemma 2.1: 
-//   h(A,S) ≤ ωf(δS/2) and
-//   h(B,T) ≤ ωg(δT/2)
-// Theorem 2.3: (both curves discretized)
-//   |h(S,T) − h(A,B)| ≤ max[ h(A,S), h(B,T) ] 
-//                     ≤ max[ ωf(δS/2), ωg(δT/2) ]
-//  
-// (only A discretized)
-// |h(S,B) − h(A,B)| ≤ ωf(δS/2)
+const { max: hausdorff_distance_one_sided_extra_max } = Math;
 /**
  * Calculates and returns an accurate approximation to the one-sided Hausdorff
- * distance from the bezier curve `A` to the bezier curve `B`.
+ * distance from the bezier curve `A` to the bezier curve `B`, together with the
+ * parameter values and points on both curves where the distance is
+ * (approximately) achieved.
  *
+ * * this is the implementation backing `hausdorffDistanceOneSided`, which simply
+ * returns the `.d` property of this function's result
  * * partially based off [Computing the Hausdorff distance between two sets of parametric curves](https://www.semanticscholar.org/paper/COMPUTING-THE-HAUSDORFF-DISTANCE-BETWEEN-TWO-SETS-Kim-McLean/d2bd6529c4b118e389e1db209d8f1bf7467f9016)
  *
  * @param A a bezier curve (the 'from' curve) given by an ordered array of its
@@ -24949,21 +24933,25 @@ const { max: hausdorff_distance_one_sided_max } = Math;
  *
  * @doc mdx
  */
-function hausdorffDistanceOneSided(A, B, tolerance, maxIterations = 50) {
+function hausdorffDistanceOneSidedExtra(A, B, tolerance, maxIterations = 50) {
     if (A.length === 1) {
-        return closestPointOnBezier(B, A[0]).d;
+        const c = closestPointOnBezier(B, A[0]);
+        return { d: c.d, tA: 0, pA: A[0], tB: c.t, pB: c.p };
     }
     if (B.length === 1) {
-        return furthestPointOnBezier(A, B[0]).d;
+        const f = furthestPointOnBezier(A, B[0]);
+        return { d: f.d, tA: f.t, pA: f.p, tB: 0, pB: B[0] };
     }
     if (A.length === 2 && B.length === 2) {
         // Seperately handle the simple case of two lines
         // Find minimum distance from endpoints of A to B:
-        const EA0 = closestPointOnBezier(B, A[0]).d;
-        const EA1 = closestPointOnBezier(B, A[A.length - 1]).d;
-        return EA0 > EA1 ? EA0 : EA1;
+        const c0 = closestPointOnBezier(B, A[0]);
+        const c1 = closestPointOnBezier(B, A[A.length - 1]);
+        return c0.d > c1.d
+            ? { d: c0.d, tA: 0, pA: A[0], tB: c0.t, pB: c0.p }
+            : { d: c1.d, tA: 1, pA: A[A.length - 1], tB: c1.t, pB: c1.p };
     }
-    const l = hausdorff_distance_one_sided_max(maxAbsCoordinate(A), maxAbsCoordinate(B));
+    const l = hausdorff_distance_one_sided_extra_max(maxAbsCoordinate(A), maxAbsCoordinate(B));
     tolerance = tolerance || l / 1000_000;
     // an array of intervals
     const [eL, eR] = calcHErrorBound(A, 0, 1);
@@ -24976,8 +24964,8 @@ function hausdorffDistanceOneSided(A, B, tolerance, maxIterations = 50) {
     const heap = new Heap(hausdorffCompare);
     heap.insert(initialInterval);
     let j = 0;
-    let bestHUpper = Infinity;
     let bestHLower = -Infinity;
+    let bestTA = 0; // parameter on `A` achieving the running max lower bound
     while (true) {
         const interval = heap.heap[0]; // peek max
         const { tS, tE, hL, hR } = interval;
@@ -24989,24 +24977,37 @@ function hausdorffDistanceOneSided(A, B, tolerance, maxIterations = 50) {
         const pB = closestPointOnBezier(B, pM).p;
         const hM = distanceBetween(pM, pB);
         //---------------------------------------
-        const h = hausdorff_distance_one_sided_max(hL, hM, hR);
-        if (h > bestHLower) {
-            bestHLower = h;
+        // track *which* of the three parameters (tS, tM, tE) achieves the max
+        let hBest = hL, tABest = tS;
+        if (hM > hBest) {
+            hBest = hM;
+            tABest = tM;
         }
-        bestHUpper = getMaxHausdorff(interval);
+        if (hR > hBest) {
+            hBest = hR;
+            tABest = tE;
+        }
+        if (hBest > bestHLower) {
+            bestHLower = hBest;
+            bestTA = tABest;
+        }
+        const bestHUpper = getMaxHausdorff(interval);
         if (bestHUpper - bestHLower < tolerance) {
             // The lower bound is by far the best approximation for difficult cases (see the paper).
-            return bestHLower;
+            break;
         }
         if (j++ > maxIterations) {
             // The lower bound is by far the best approximation for difficult cases (see the paper).
-            return bestHLower;
+            break;
         }
         const iL = { tS, tE: tM, hL, hR: hM, hEL: ELL, hER: ELR };
         const iR = { tS: tM, tE, hL: hM, hR, hEL: ERL, hER: ERR };
         heap.swapMinOrMax(iL);
         heap.insert(iR);
     }
+    const pA = evalDeCasteljau(A, bestTA);
+    const cB = closestPointOnBezier(B, pA);
+    return { d: bestHLower, tA: bestTA, pA, tB: cB.t, pB: cB.p };
 }
 // Let: ωf(σ) = sup{ |f(t) − f(t′)| : t, t′ ∈ [a,b] with |t − t′| ≤ σ }
 //
@@ -25028,28 +25029,51 @@ function calcHErrorBound(A, tS, tE) {
     return [eL, eR];
 }
 
-// Quokka tests
-// const ls = [
-//     [[0,0],[1,1]],
-//     [[1,1],[2,1]],
-//     [[2,1],[3,2]],
-//     [[3,2],[4,1]],
-//     [[4,1],[5,0]]
-// ];
-// const b = [[0,0],[1,1],[4,1],[5,0]];
-// ls.map(l => hausdorffDistanceOneSided(l,b));//?
-// ls.map(l => hausdorffDistanceOneSided(b,l));//?
-// const q = [[0,0],[1,1],[2,0]];
-// const ts = Array.from({length: 4}, (_,i) => i/4);
-// ts.push(1);
-// const cs: number[][][] = [];
-// for (let i=0; i<ts.length - 1; i++) {
-//     const t1 = ts[i];//?
-//     const t2 = ts[1+i];//?
-//     const c = fromTo(q, t1, t2);
-//     cs.push(c);
-// }
-// hausdorffDistanceOneSided(cs[3], q);//?
+//# sourceMappingURL=hausdorff-distance-one-sided-extra.js.map
+;// ./node_modules/flo-bezier3/node/simultaneous-properties/hausdorff-distance/hausdorff-distance-one-sided.js
+
+// We need to calculate `H(A,B)`, the two sided Hausdorff distance between
+// the bezier curves `A` and `B` which equals `max(h(A,B), h(B,A))`, where
+// `h(A,B)` is the one sided Hausdorff distance from `A` to `B`
+// Let: ωf(σ) = sup{ |f(t) − f(t′)| : t, t′ ∈ [a,b] with |t − t′| ≤ σ }
+// where: δS = max[ (1 ≤ i ≤ M+1)(ti − ti−1) ] is the maximum distance between 
+// two consecutive parameter values
+// Lemma 2.1: 
+//   h(A,S) ≤ ωf(δS/2) and
+//   h(B,T) ≤ ωg(δT/2)
+// Theorem 2.3: (both curves discretized)
+//   |h(S,T) − h(A,B)| ≤ max[ h(A,S), h(B,T) ] 
+//                     ≤ max[ ωf(δS/2), ωg(δT/2) ]
+//  
+// (only A discretized)
+// |h(S,B) − h(A,B)| ≤ ωf(δS/2)
+/**
+ * Calculates and returns an accurate approximation to the one-sided Hausdorff
+ * distance from the bezier curve `A` to the bezier curve `B`.
+ *
+ * * to also obtain the parameter values and points at which the distance is
+ * achieved, use `hausdorffDistanceOneSidedExtra`
+ * * partially based off [Computing the Hausdorff distance between two sets of parametric curves](https://www.semanticscholar.org/paper/COMPUTING-THE-HAUSDORFF-DISTANCE-BETWEEN-TWO-SETS-Kim-McLean/d2bd6529c4b118e389e1db209d8f1bf7467f9016)
+ *
+ * @param A a bezier curve (the 'from' curve) given by an ordered array of its
+ * control points e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param B a bezier curve (the 'to' curve) given by an ordered array of its
+ * control points e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param tolerance optional; defaults to `max(maxAbsCoordinate(A),maxAbsCoordinate(B))/1000_000`;
+ * if the calculated absolute error bound is less than this, the result is
+ * returned; this is *not* a hard tolerance and the bound can be less
+ * accurate in hard cases (due to the `maxIterations` parameter). Luckily
+ * however, specifically the lower bound will be very accurate due to
+ * its fast convergence in such hard cases (see the paper)
+ * @param maxIterations optional; defaults to `50`; if the desired guaranteed error bound
+ * has not been achieved after `maxIterations` then the result will be returned
+ *
+ * @doc mdx
+ */
+function hausdorffDistanceOneSided(A, B, tolerance, maxIterations = 50) {
+    return hausdorffDistanceOneSidedExtra(A, B, tolerance, maxIterations).d;
+}
+
 //# sourceMappingURL=hausdorff-distance-one-sided.js.map
 ;// ./src/cp-node/fs/get-non-terminating-on-circle.ts
 
@@ -25109,24 +25133,32 @@ function getBranches(cpNode) {
 
 
 ;// ./node_modules/flo-ll-rb-tree/node/rb-tree/rb-tree.js
-const BLACK = 1;
-const RED = 0;
-class Node {
-    datum;
-    color = RED;
-    parent;
-    left;
-    right;
-    constructor(datum) {
-        this.datum = datum;
-    }
+
+function createNode(datum) {
+    return {
+        color: (/* inlined export .RED */0),
+        parent: undefined,
+        left: undefined,
+        right: undefined,
+        datum
+    };
 }
 class RbTree {
     compare;
     root;
+    size;
+    minNode;
+    maxNode;
+    minNodeStale = true;
+    maxNodeStale = true;
     constructor(compare) {
         this.compare = compare;
         this.root = undefined;
+        this.size = 0;
+        this.minNode = undefined;
+        this.maxNode = undefined;
+        this.minNodeStale = true;
+        this.maxNodeStale = true;
     }
     isEmpty() {
         return this.root === undefined;
@@ -25143,9 +25175,12 @@ class RbTree {
         return undefined;
     }
     insert(datum) {
+        this.minNodeStale = true;
+        this.maxNodeStale = true;
         if (this.root === undefined) {
-            this.root = new Node(datum);
-            this.root.color = BLACK;
+            this.root = createNode(datum);
+            this.root.color = (/* inlined export .BLACK */1);
+            this.size = 1;
             return;
         }
         let parent;
@@ -25159,7 +25194,7 @@ class RbTree {
             }
             node = c < 0 ? node.left : node.right;
         }
-        const inserted = new Node(datum);
+        const inserted = createNode(datum);
         inserted.parent = parent;
         if (this.compare(datum, parent.datum) < 0) {
             parent.left = inserted;
@@ -25167,15 +25202,19 @@ class RbTree {
         else {
             parent.right = inserted;
         }
+        this.size++;
         this.fixInsert(inserted);
     }
-    remove(datum, _all = false, _compareStrict) {
+    remove(datum) {
         const node = this.find(datum);
         if (node === undefined) {
             return undefined;
         }
         const removed = node.datum;
         this.removeNode(node);
+        this.size--;
+        this.minNodeStale = true;
+        this.maxNodeStale = true;
         return removed;
     }
     findBounds(datum) {
@@ -25194,21 +25233,116 @@ class RbTree {
         }
         return bounds;
     }
-    getMinNode(node) {
-        let curr = node === undefined ? this.root : node;
+    getMinNode() {
+        if (!this.minNodeStale) {
+            return this.minNode;
+        }
+        let curr = this.root;
         while (curr && curr.left) {
             curr = curr.left;
         }
+        this.minNode = curr;
+        this.minNodeStale = false;
         return curr;
     }
-    getMaxNode(node) {
-        let curr = node === undefined ? this.root : node;
+    getMaxNode() {
+        if (!this.maxNodeStale) {
+            return this.maxNode;
+        }
+        let curr = this.root;
         while (curr && curr.right) {
             curr = curr.right;
         }
+        this.maxNode = curr;
+        this.maxNodeStale = false;
         return curr;
     }
+    /**
+     * Checks that the tree satisfies the binary search tree ordering property
+     * and the red-black constraints (root is black, no red node has a red
+     * child, and every root-to-leaf path has the same number of black nodes).
+     *
+     * Returns `true` if all checks pass, `false` otherwise.
+     */
+    checkIntegrity() {
+        if (this.root === undefined) {
+            return true;
+        }
+        if (this.root.color !== (/* inlined export .BLACK */1)) {
+            return false;
+        }
+        const compare = this.compare;
+        // in-order predecessor for the BST ordering check
+        let prev = undefined;
+        // Returns the black-height of the subtree, or -1 if a violation was found.
+        function check(node) {
+            if (node === undefined) {
+                return 1;
+            }
+            const { left, right } = node;
+            // no red node has a red child
+            if (node.color === (/* inlined export .RED */0) &&
+                (left?.color === (/* inlined export .RED */0) || right?.color === (/* inlined export .RED */0))) {
+                return -1;
+            }
+            const leftHeight = check(left);
+            if (leftHeight === -1) {
+                return -1;
+            }
+            // BST ordering (in-order traversal must be strictly increasing)
+            if (prev !== undefined && compare(prev.datum, node.datum) >= 0) {
+                return -1;
+            }
+            prev = node;
+            const rightHeight = check(right);
+            if (rightHeight === -1) {
+                return -1;
+            }
+            // equal black-height on both sides
+            if (leftHeight !== rightHeight) {
+                return -1;
+            }
+            return leftHeight + (node.color === (/* inlined export .BLACK */1) ? 1 : 0);
+        }
+        return check(this.root) !== -1;
+    }
+    toStr(nodeToStrFunc) {
+        let treeStr = '';
+        if (this.root === undefined) {
+            return treeStr;
+        }
+        f(this.root);
+        return treeStr;
+        function f(node) {
+            treeStr += nodeToStrFunc(node);
+            if (node.left !== undefined) {
+                treeStr += '(';
+                f(node.left);
+                treeStr += ')';
+            }
+            if (node.right !== undefined) {
+                treeStr += '[';
+                f(node.right);
+                treeStr += ']';
+            }
+        }
+    }
+    toArr() {
+        const values = [];
+        f(this.root);
+        return values;
+        function f(node) {
+            if (node === undefined) {
+                return;
+            }
+            f(node.left);
+            values.push(node.datum);
+            f(node.right);
+        }
+    }
     removeNode(z) {
+        this.minNodeStale = true;
+        this.maxNodeStale = true;
         let y = z;
         let yOriginalColor = y.color;
         let x;
@@ -25224,7 +25358,10 @@ class RbTree {
             this.transplant(z, z.left);
         }
         else {
-            y = this.getMinNode(z.right);
+            y = z.right;
+            while (y.left) {
+                y = y.left;
+            }
             yOriginalColor = y.color;
             x = y.right;
             if (y.parent === z) {
@@ -25244,21 +25381,21 @@ class RbTree {
             y.left.parent = y;
             y.color = z.color;
         }
-        if (yOriginalColor === BLACK) {
+        if (yOriginalColor === (/* inlined export .BLACK */1)) {
             this.fixDelete(x, xParent);
         }
     }
     fixInsert(z) {
         let node = z;
-        while (node.parent && node.parent.color === RED) {
+        while (node.parent && node.parent.color === (/* inlined export .RED */0)) {
             const parent = node.parent;
             const grandParent = parent.parent;
             if (parent === grandParent.left) {
                 const uncle = grandParent.right;
-                if (this.colorOf(uncle) === RED) {
-                    parent.color = BLACK;
-                    uncle.color = BLACK;
-                    grandParent.color = RED;
+                if (this.colorOf(uncle) === (/* inlined export .RED */0)) {
+                    parent.color = (/* inlined export .BLACK */1);
+                    uncle.color = (/* inlined export .BLACK */1);
+                    grandParent.color = (/* inlined export .RED */0);
                     node = grandParent;
                 }
                 else {
@@ -25266,17 +25403,17 @@ class RbTree {
                         node = parent;
                         this.rotateLeft(node);
                     }
-                    node.parent.color = BLACK;
-                    grandParent.color = RED;
+                    node.parent.color = (/* inlined export .BLACK */1);
+                    grandParent.color = (/* inlined export .RED */0);
                     this.rotateRight(grandParent);
                 }
             }
             else {
                 const uncle = grandParent.left;
-                if (this.colorOf(uncle) === RED) {
-                    parent.color = BLACK;
-                    uncle.color = BLACK;
-                    grandParent.color = RED;
+                if (this.colorOf(uncle) === (/* inlined export .RED */0)) {
+                    parent.color = (/* inlined export .BLACK */1);
+                    uncle.color = (/* inlined export .BLACK */1);
+                    grandParent.color = (/* inlined export .RED */0);
                     node = grandParent;
                 }
                 else {
@@ -25284,43 +25421,43 @@ class RbTree {
                         node = parent;
                         this.rotateRight(node);
                     }
-                    node.parent.color = BLACK;
-                    grandParent.color = RED;
+                    node.parent.color = (/* inlined export .BLACK */1);
+                    grandParent.color = (/* inlined export .RED */0);
                     this.rotateLeft(grandParent);
                 }
             }
         }
-        this.root.color = BLACK;
+        this.root.color = (/* inlined export .BLACK */1);
     }
     fixDelete(x, parent) {
         let node = x;
         let nodeParent = parent;
-        while (node !== this.root && this.colorOf(node) === BLACK) {
+        while (node !== this.root && this.colorOf(node) === (/* inlined export .BLACK */1)) {
             if (nodeParent === undefined) {
                 break;
             }
             if (node === nodeParent?.left) {
                 let sibling = nodeParent.right;
-                if (this.colorOf(sibling) === RED) {
-                    sibling.color = BLACK;
-                    nodeParent.color = RED;
+                if (this.colorOf(sibling) === (/* inlined export .RED */0)) {
+                    sibling.color = (/* inlined export .BLACK */1);
+                    nodeParent.color = (/* inlined export .RED */0);
                     this.rotateLeft(nodeParent);
                     sibling = nodeParent.right;
                 }
-                if (this.colorOf(sibling?.left) === BLACK && this.colorOf(sibling?.right) === BLACK) {
+                if (this.colorOf(sibling?.left) === (/* inlined export .BLACK */1) && this.colorOf(sibling?.right) === (/* inlined export .BLACK */1)) {
                     if (sibling) {
-                        sibling.color = RED;
+                        sibling.color = (/* inlined export .RED */0);
                     }
                     node = nodeParent;
                     nodeParent = node?.parent;
                 }
                 else {
-                    if (this.colorOf(sibling?.right) === BLACK) {
+                    if (this.colorOf(sibling?.right) === (/* inlined export .BLACK */1)) {
                         if (sibling?.left) {
-                            sibling.left.color = BLACK;
+                            sibling.left.color = (/* inlined export .BLACK */1);
                         }
                         if (sibling) {
-                            sibling.color = RED;
+                            sibling.color = (/* inlined export .RED */0);
                             this.rotateRight(sibling);
                         }
                         sibling = nodeParent.right;
@@ -25328,9 +25465,9 @@ class RbTree {
                     if (sibling) {
                         sibling.color = nodeParent.color;
                     }
-                    nodeParent.color = BLACK;
+                    nodeParent.color = (/* inlined export .BLACK */1);
                     if (sibling?.right) {
-                        sibling.right.color = BLACK;
+                        sibling.right.color = (/* inlined export .BLACK */1);
                     }
                     this.rotateLeft(nodeParent);
                     node = this.root;
@@ -25339,26 +25476,26 @@ class RbTree {
             }
             else {
                 let sibling = nodeParent?.left;
-                if (this.colorOf(sibling) === RED) {
-                    sibling.color = BLACK;
-                    nodeParent.color = RED;
+                if (this.colorOf(sibling) === (/* inlined export .RED */0)) {
+                    sibling.color = (/* inlined export .BLACK */1);
+                    nodeParent.color = (/* inlined export .RED */0);
                     this.rotateRight(nodeParent);
                     sibling = nodeParent.left;
                 }
-                if (this.colorOf(sibling?.left) === BLACK && this.colorOf(sibling?.right) === BLACK) {
+                if (this.colorOf(sibling?.left) === (/* inlined export .BLACK */1) && this.colorOf(sibling?.right) === (/* inlined export .BLACK */1)) {
                     if (sibling) {
-                        sibling.color = RED;
+                        sibling.color = (/* inlined export .RED */0);
                     }
                     node = nodeParent;
                     nodeParent = nodeParent?.parent;
                 }
                 else {
-                    if (this.colorOf(sibling?.left) === BLACK) {
+                    if (this.colorOf(sibling?.left) === (/* inlined export .BLACK */1)) {
                         if (sibling?.right) {
-                            sibling.right.color = BLACK;
+                            sibling.right.color = (/* inlined export .BLACK */1);
                         }
                         if (sibling) {
-                            sibling.color = RED;
+                            sibling.color = (/* inlined export .RED */0);
                             this.rotateLeft(sibling);
                         }
                         sibling = nodeParent?.left;
@@ -25366,9 +25503,9 @@ class RbTree {
                     if (sibling) {
                         sibling.color = nodeParent.color;
                     }
-                    nodeParent.color = BLACK;
+                    nodeParent.color = (/* inlined export .BLACK */1);
                     if (sibling?.left) {
-                        sibling.left.color = BLACK;
+                        sibling.left.color = (/* inlined export .BLACK */1);
                     }
                     this.rotateRight(nodeParent);
                     node = this.root;
@@ -25377,7 +25514,7 @@ class RbTree {
             }
         }
         if (node) {
-            node.color = BLACK;
+            node.color = (/* inlined export .BLACK */1);
         }
     }
     transplant(u, v) {
@@ -25433,7 +25570,7 @@ class RbTree {
         x.parent = y;
     }
     colorOf(node) {
-        return node ? node.color : BLACK;
+        return node ? node.color : (/* inlined export .BLACK */1);
     }
 }
 
@@ -26706,7 +26843,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
 ;// ./src/mat/get-boundary-piece-beziers.ts
 
 /**
- * Returns the ordered bezier pieces between from the given boundary piece.
+ * Returns the ordered bezier pieces between the two given `CpNode`s.
  *
  * @param cpNodes - An ordered pair that represents the start and end points of
  * the boundary piece
@@ -26904,7 +27041,7 @@ function find3Prong(δs, maxCoordPowerOf2) {
 }
 
 
-;// ./src/mat/get-cp-node-to-left-or-same.ts
+;// ./src/mat/get-cp-node-neighbors.ts
 /**
  * @internal
  *
@@ -26918,50 +27055,107 @@ function find3Prong(δs, maxCoordPowerOf2) {
  * @param order
  * @param order2
  */
-function getCpNodeToLeftOrSame(cpTree, pos, order, order2) {
+function getCpNodeNeighbors(cpTree, pos, order, order2) {
     const pointOnShape = { ...pos, order, order2 };
     const cps = cpTree.findBounds({ pointOnShape });
-    if (cps[0] === undefined && cps[1] === undefined) {
+    const [cp0, cp1] = cps;
+    if (cp0 === undefined && cp1 === undefined) {
         // The tree is still empty
         return undefined;
     }
-    if (cps[0] === undefined || cps[1] === undefined) {
-        // Smaller than all -> cptree.min() === cps[1].data OR
-        // Larger  than all -> cptree.max() === cps[0].data
-        // return cpTree.max(cpTree.root);
-        return cpTree.getMaxNode()?.datum;
+    if (cp0 === undefined || cp1 === undefined) {
+        // Smaller than all OR larger than all
+        const minNode = cpTree.getMinNode()?.datum;
+        const maxNode = cpTree.getMaxNode()?.datum;
+        return [maxNode, minNode];
     }
-    return cps[0].datum;
+    return [cp0.datum, cp1.datum];
 }
 
 
 ;// ./src/cp-node/fs/is-order-correct.ts
 
-function isOrderCorrect(cpTree, pos, next) {
-    const c = comparePoss(pos, next.pointOnShape);
-    if (c < 0) {
+/**
+ *
+ * @param cpTree
+ * @param pos
+ * @param succ
+ * @param alreadyInserted set to `true` if the given `pos` has already been
+ * inserted, `false` otherwise.
+ */
+function isOrderCorrect(cpTree, pred, pos, succ, alreadyInserted) {
+    if (cpTree.size <= (alreadyInserted ? 2 : 1)) {
         return true;
     }
-    if (c === 0) {
+    const a = pred.pointOnShape;
+    const b = pos;
+    const c = succ.pointOnShape;
+    // Let a = pred, b = pos, and c = succ.
+    // For a cyclic order we need:
+    // `(a < b && b < c)` || `(b < c && c < a)` || `(c < a && a < b)`
+    // Let `X = a < b, Y = b < c, Z = c < a` then
+    // `(X && Y)` || `(Y && Z)` || `(Z && X)`
+    const _X = comparePoss(a, b);
+    if (_X === 0) { // two points must have different order
+        // console.log('aaa');
+        // throw 'a';
         return false;
     }
-    const minNode = cpTree.getMinNode();
-    if (minNode === undefined) { // if tree not empty
+    const _Y = comparePoss(b, c);
+    if (_Y === 0) { // two points must have different order
+        // console.log('bbb');
+        // throw 'b';
+        return false;
+    }
+    const _Z = comparePoss(c, a);
+    if (_Z === 0) {
+        // console.log('bbb');
+        // throw 'c';
+        return false;
+    } // impossible anyway at this point
+    // Now neither `_X` nor `_Y` nor `_Z` === `0`
+    const X = _X < 0;
+    const Y = _Y < 0;
+    const Z = _Z < 0;
+    // Cyclic order condition
+    if ((X && Y) || (Y && Z) || (Z && X)) {
         return true;
     }
-    const min = minNode.datum;
-    const max = cpTree.getMaxNode().datum;
-    // larger than all -> crossing zero on loop
-    return (comparePoss(max.pointOnShape, pos) < 0 && min === next);
+    // throw 'd';
+    // console.log(_X, _Y, _Z);
+    // console.log(cpTree.toArr().map(v => {
+    //     return {
+    //         curveIdx: v.pointOnShape.curve.idx,
+    //         t: v.pointOnShape.t,
+    //         order: v.pointOnShape.order,
+    //         order2: v.pointOnShape.order2
+    //     }
+    // }));
+    return false;
 }
 
 
 ;// ./src/cp-node/fs/insert-cp-node.ts
 
-function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, pos, _prev, lastInsertId) {
-    if (_prev !== undefined &&
-        !isOrderCorrect(cpTree, pos, _prev.next)) {
-        if (!insertIfOrderWrong) {
+/**
+ *
+ * @param insertIfOrderWrong order cannot be checked for hole-closers since they're on different loops
+ * @param isHoleClosing
+ * @param isIntersection
+ * @param cpTree
+ * @param pos
+ * @param pred predecessor (to `pos`) on sampe loop (found via `cpTree`)
+ * @param succ successor (to `pos`) on sampe loop (found via `cpTree`)
+ * @param lastInsertId
+ */
+function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, pos, pred, succ, lastInsertId) {
+    if (pred !== undefined && succ !== undefined) {
+        // !isOrderCorrect(cpTree, pos, pred.next, false)) {
+        const orderCorrect = isOrderCorrect(cpTree, pred, pos, succ, false);
+        // if (!orderCorrect) {
+        //     console.log('aaaaa');
+        // }
+        if (!insertIfOrderWrong && !orderCorrect) {
             return undefined;
         }
     }
@@ -26976,8 +27170,8 @@ function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree,
         prevOnCircle: undefined
     };
     lastInsertId.id++;
-    const prev = _prev === undefined ? cpNode : _prev;
-    const next = _prev === undefined ? cpNode : prev.next;
+    const prev = pred === undefined ? cpNode : pred;
+    const next = pred === undefined ? cpNode : prev.next;
     next.prev = cpNode;
     prev.next = cpNode;
     cpNode.prev = prev;
@@ -27018,6 +27212,9 @@ function byAngle(circle) {
 
 
 /**
+ * Insert the given `poss` into the `cpTree` (within `meta`) and returns the
+ * newly inserted `CpNode`s.
+ *
  * @param circle
  * @param orders
  * @param cpTrees
@@ -27033,10 +27230,14 @@ function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, 
         const order = orders[i];
         const cpTree = cpTrees.get(ppos.curve.loop);
         const pos = { ...ppos, circle, order, order2: 0 };
-        const pred = neighbors === undefined
-            ? getCpNodeToLeftOrSame(cpTree, ppos, order, 0)
+        const r = neighbors === undefined
+            ? getCpNodeNeighbors(cpTree, ppos, order, 0)
             : neighbors[i];
-        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, pos, pred, meta.lastInsertId);
+        const pred = r?.[0];
+        const succ = r?.[1];
+        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, pos, pred, 
+        // pred?.next,
+        succ, meta.lastInsertId);
         if (cpNode === undefined) {
             anyFailed = true;
         }
@@ -27071,7 +27272,7 @@ function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
     const DISTANCE_THRESHOLD = 2 ** (maxCoordPowerOf2 - 40); // approx. 1e-9 for 1024 x 1024 shapes
     const DISTANCE_THRESHOLD_2 = 2 ** (maxCoordPowerOf2 - 46);
     const cpTree = cpTrees.get(pos.curve.loop);
-    const cur = getCpNodeToLeftOrSame(cpTree, pos, order, order2);
+    const cur = getCpNodeNeighbors(cpTree, pos, order, order2)?.[0];
     if (!cur) {
         return undefined;
     }
@@ -27142,7 +27343,7 @@ function findAndAdd3Prong(meta, visitedCps) {
         }
     }
     const cpNodes = closeBysFor3Prong.length === 0
-        ? addToCpTree(true, false, circle, orders, meta, poss, δ3s.map(v => v[0])).cpNodes
+        ? addToCpTree(true, false, circle, orders, meta, poss, δ3s).cpNodes
         : [];
     return { closeBysFor3Prong, cpNodes: cpNodes };
 }
@@ -27206,7 +27407,7 @@ function findAndAdd3Prongs(meta, cpStart) {
  *
  * @param meta
  * @param cpStart The CpNode to start traversing from.
-  */
+ */
 function findAndAdd3ProngsOnLoop(meta, cpStart) {
     if (cpStart === undefined) {
         return undefined;
@@ -27217,7 +27418,11 @@ function findAndAdd3ProngsOnLoop(meta, cpStart) {
         reLoop = false;
         const cpNodeSet = new Set(getAllOnLoop(cpStart));
         for (const cpNode of cpNodeSet) {
-            const { closeBysFor3Prong, addedCpNodes } = findAndAdd3Prongs(meta, cpNode);
+            const threeProngs = findAndAdd3Prongs(meta, cpNode);
+            if (threeProngs === undefined) {
+                return getFirstItemOfSet(cpNodeGoodSet);
+            }
+            const { closeBysFor3Prong, addedCpNodes } = threeProngs;
             if (addedCpNodes.length > 0) {
                 reLoop = true;
             }
@@ -27280,8 +27485,8 @@ function createInitialCpTree(loops, sharpCornerss, lastInsertId) {
             const { curve } = ppos;
             const pos1 = { ...ppos, curve, t: 1, circle, order: -1, order2: 0 };
             const pos2 = { ...ppos, curve: curve.next, t: 0, circle, order: +1, order2: 0 };
-            cpNode1 = insertCpNode(true, false, false, cpTree, pos1, cpNode2, lastInsertId);
-            cpNode2 = insertCpNode(true, false, false, cpTree, pos2, cpNode1, lastInsertId);
+            cpNode1 = insertCpNode(true, false, false, cpTree, pos1, cpNode2, undefined, /* unused */ lastInsertId);
+            cpNode2 = insertCpNode(true, false, false, cpTree, pos2, cpNode1, undefined, /* unused */ lastInsertId);
             cpNode1.prevOnCircle = cpNode2;
             cpNode2.prevOnCircle = cpNode1;
             cpNode1.nextOnCircle = cpNode2;
@@ -27434,7 +27639,7 @@ function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO
                 ? +1
                 : calcPosOrder(xO, yPos)
         : 0;
-    const cpNode = getCpNodeToLeftOrSame(cpTrees.get(loop), yPos, order, 0);
+    const cpNode = getCpNodeNeighbors(cpTrees.get(loop), yPos, order, 0)?.[0];
     if (!cpNode ||
         // The special case if there is only a single sharp corner or 
         // two-way terminating 2-prong currently in the MAT. Don't remove!
@@ -29295,12 +29500,14 @@ function closeHole(meta, cpNodes) {
     const [cpNodeSource, cpNodeAntipode] = cpNodes;
     // Antipode - create and insert twin
     const posAntipode = cpNodeAntipode.pointOnShape;
-    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), { ...posAntipode, order2: +1 }, cpNodeAntipode, meta.lastInsertId);
+    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), { ...posAntipode, order2: +1 }, cpNodeAntipode, undefined, // unused
+    meta.lastInsertId);
     cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
     cpNodeAntipode.holeCloserTwin = cpNodeAntipodeTwin;
     // Source - create and insert twin
     const posSource = cpNodeSource.pointOnShape;
-    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), { ...cpNodeSource.pointOnShape, order2: -1 }, cpNodeSource.prev, meta.lastInsertId);
+    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), { ...posSource, order2: -1 }, cpNodeSource.prev, undefined, // unused
+    meta.lastInsertId);
     cpNodeSourceTwin.holeCloserTwin = cpNodeSource;
     cpNodeSource.holeCloserTwin = cpNodeSourceTwin;
     // Connect graph
@@ -29337,7 +29544,7 @@ function findAndAdd2Prongs(meta, angleIncrement, for2Prongs, for1Prong) {
     const angleIncrement_ = angleIncrement * find_and_add_2_prongs_PI / 180;
     for (let i = 0; i < for2Prongs.length; i++) {
         const pos = for2Prongs[i];
-        const angles = getValidAngles(angleIncrement_, pos);
+        const angles = for1Prong ? [0] : getValidAngles(angleIncrement_, pos);
         for (const angle of angles) {
             const twoProngInfo = find2Prong_(false, for1Prong, angle, pos);
             if (twoProngInfo) {
@@ -29872,7 +30079,9 @@ function getFor1ProngsOnLoop(minBezLength) {
                 return { curve, t, isSource: true, p, pDd };
             }));
         }
-        return poss;
+        return poss
+            // keep away from edges
+            .filter(pos => pos.t > 2 ** -20 && pos.t < 2 ** -20);
     };
 }
 
@@ -30077,10 +30286,10 @@ function findMat(loops, maxCoordPowerOf2, options) {
     }
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterThreeProngs) {
-            return { cpNode: cpNode, meta };
+            return { cpNode, meta };
         }
     }
-    // if (cpNode !== undefined) { checkOrdering(cpTrees, cpNode); }
+    // if (cpNode !== undefined) { checkOrdering(meta, cpNode); }
     const mat = { cpNode, meta };
     addDebugInfo4();
     return mat;

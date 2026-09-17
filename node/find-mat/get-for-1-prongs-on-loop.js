@@ -22,7 +22,9 @@ function getFor1ProngsOnLoop(minBezLength) {
                 return { curve, t, isSource: true, p, pDd };
             }));
         }
-        return poss;
+        return poss
+            // keep away from edges
+            .filter(pos => pos.t > 2 ** -20 && pos.t < 2 ** -20);
     };
 }
 export { getFor1ProngsOnLoop };

@@ -53,12 +53,14 @@ function closeHole(meta, cpNodes) {
     const [cpNodeSource, cpNodeAntipode] = cpNodes;
     // Antipode - create and insert twin
     const posAntipode = cpNodeAntipode.pointOnShape;
-    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), { ...posAntipode, order2: +1 }, cpNodeAntipode, meta.lastInsertId);
+    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), { ...posAntipode, order2: +1 }, cpNodeAntipode, undefined, // unused
+    meta.lastInsertId);
     cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
     cpNodeAntipode.holeCloserTwin = cpNodeAntipodeTwin;
     // Source - create and insert twin
     const posSource = cpNodeSource.pointOnShape;
-    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), { ...cpNodeSource.pointOnShape, order2: -1 }, cpNodeSource.prev, meta.lastInsertId);
+    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), { ...posSource, order2: -1 }, cpNodeSource.prev, undefined, // unused
+    meta.lastInsertId);
     cpNodeSourceTwin.holeCloserTwin = cpNodeSource;
     cpNodeSource.holeCloserTwin = cpNodeSourceTwin;
     // Connect graph

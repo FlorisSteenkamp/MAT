@@ -4,6 +4,6 @@ import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 interface ThreeProngInfo {
     readonly circle: Circle;
     readonly poss: PrePointOnShape[];
-    readonly δ3s: CpNode[][];
+    readonly δ3s: [[CpNode, CpNode], [CpNode, CpNode], [CpNode, CpNode]];
 }
 export type { ThreeProngInfo };

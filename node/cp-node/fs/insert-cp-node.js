@@ -1,8 +1,23 @@
 import { isOrderCorrect } from "./is-order-correct.js";
-function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, pos, _prev, lastInsertId) {
-    if (_prev !== undefined &&
-        !isOrderCorrect(cpTree, pos, _prev.next)) {
-        if (!insertIfOrderWrong) {
+/**
+ *
+ * @param insertIfOrderWrong order cannot be checked for hole-closers since they're on different loops
+ * @param isHoleClosing
+ * @param isIntersection
+ * @param cpTree
+ * @param pos
+ * @param pred predecessor (to `pos`) on sampe loop (found via `cpTree`)
+ * @param succ successor (to `pos`) on sampe loop (found via `cpTree`)
+ * @param lastInsertId
+ */
+function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, pos, pred, succ, lastInsertId) {
+    if (pred !== undefined && succ !== undefined) {
+        // !isOrderCorrect(cpTree, pos, pred.next, false)) {
+        const orderCorrect = isOrderCorrect(cpTree, pred, pos, succ, false);
+        // if (!orderCorrect) {
+        //     console.log('aaaaa');
+        // }
+        if (!insertIfOrderWrong && !orderCorrect) {
             return undefined;
         }
     }
@@ -17,8 +32,8 @@ function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree,
         prevOnCircle: undefined
     };
     lastInsertId.id++;
-    const prev = _prev === undefined ? cpNode : _prev;
-    const next = _prev === undefined ? cpNode : prev.next;
+    const prev = pred === undefined ? cpNode : pred;
+    const next = pred === undefined ? cpNode : prev.next;
     next.prev = cpNode;
     prev.next = cpNode;
     cpNode.prev = prev;

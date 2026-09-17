@@ -14,5 +14,5 @@ import { RbTree } from 'flo-ll-rb-tree';
  * @param order
  * @param order2
  */
-declare function getCpNodeToLeftOrSame(cpTree: RbTree<CpNode>, pos: PrePointOnShape, order: number, order2: number): CpNode | undefined;
-export { getCpNodeToLeftOrSame };
+declare function getCpNodeNeighbors(cpTree: RbTree<CpNode>, pos: PrePointOnShape, order: number, order2: number): [CpNode, CpNode] | undefined;
+export { getCpNodeNeighbors };

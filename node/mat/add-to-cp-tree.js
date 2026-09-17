@@ -1,7 +1,10 @@
-import { getCpNodeToLeftOrSame } from './get-cp-node-to-left-or-same.js';
+import { getCpNodeNeighbors } from './get-cp-node-neighbors.js';
 import { insertCpNode } from '../cp-node/fs/insert-cp-node.js';
 import { joinSpokes } from '../add-n-prong.ts/join-spokes.js';
 /**
+ * Insert the given `poss` into the `cpTree` (within `meta`) and returns the
+ * newly inserted `CpNode`s.
+ *
  * @param circle
  * @param orders
  * @param cpTrees
@@ -17,10 +20,14 @@ function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, 
         const order = orders[i];
         const cpTree = cpTrees.get(ppos.curve.loop);
         const pos = { ...ppos, circle, order, order2: 0 };
-        const pred = neighbors === undefined
-            ? getCpNodeToLeftOrSame(cpTree, ppos, order, 0)
+        const r = neighbors === undefined
+            ? getCpNodeNeighbors(cpTree, ppos, order, 0)
             : neighbors[i];
-        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, pos, pred, meta.lastInsertId);
+        const pred = r?.[0];
+        const succ = r?.[1];
+        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, pos, pred, 
+        // pred?.next,
+        succ, meta.lastInsertId);
         if (cpNode === undefined) {
             anyFailed = true;
         }

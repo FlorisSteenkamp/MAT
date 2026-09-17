@@ -15,7 +15,7 @@ function removeCpNode(
     (next as Mutable<CpNode>).prev = prev;
 
     const cpTree = cpTrees.get(cpNode.pointOnShape.curve.loop)!;
-    cpTree.remove(cpNode, false); 
+    cpTree.remove(cpNode); 
 }
 
 
