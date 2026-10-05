@@ -1,4 +1,5 @@
 import { EDGES } from "./cp-node-stringifyable";
+import { getAllOnCircle } from "../fs/get-all-on-circle.js";
 import { loopFromStringifyable } from './loop-from-stringifyable.js';
 function fromStringifyable(cpNodesStringifyable) {
     const { cpNodes: _cpNodes, loops: _loops } = cpNodesStringifyable;
@@ -36,6 +37,21 @@ function fromStringifyable(cpNodesStringifyable) {
             }
             // @ts-ignore
             cpNode[edge] = nodeMap.get(id);
+        }
+    }
+    //--------------------------------------------------------------------------
+    // Third pass: one shared `Circle` object per on-circle ring, as when the
+    // MAT was built (the JSON gave every contact point its own copy).
+    //--------------------------------------------------------------------------
+    const done = new Set();
+    for (const cpNode of cpNodes) {
+        if (done.has(cpNode)) {
+            continue;
+        }
+        const { circle } = cpNode.pointOnShape;
+        for (const cp of getAllOnCircle(cpNode)) {
+            done.add(cp);
+            cp.pointOnShape.circle = circle;
         }
     }
     return cpNodes[0];

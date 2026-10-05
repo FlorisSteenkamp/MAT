@@ -981,16 +981,15 @@ function getPathsFromStr(str) {
 /**
  * Returns a matrix of all distances between all nodes (O(n**3))
  *
- * @param graph
- */
-function floydWarshall(graph) {
+ * @param graph 
+ */ function floydWarshall(graph) {
     const V = graph.length;
-    const dist = Array.from(Array(V), () => new Array(V).fill(0));
+    const dist = Array.from(Array(V), ()=>new Array(V).fill(0));
     // Initialize the solution matrix same as input graph matrix Or we can
     // say the initial values of shortest distances are based on shortest
     // paths considering no intermediate vertex
-    for (let i = 0; i < V; i++) {
-        for (let j = 0; j < V; j++) {
+    for(let i = 0; i < V; i++){
+        for(let j = 0; j < V; j++){
             dist[i][j] = graph[i][j];
         }
     }
@@ -1001,11 +1000,11 @@ function floydWarshall(graph) {
     // intermediate vertices.
     // ---> After the end of a iteration, vertex no. k is added to the set
     // of intermediate vertices and the set becomes {0, 1, 2, .. k}
-    for (let k = 0; k < V; k++) {
+    for(let k = 0; k < V; k++){
         // Pick all vertices as source one by one
-        for (let i = 0; i < V; i++) {
+        for(let i = 0; i < V; i++){
             // Pick all vertices as destination for the above picked source
-            for (let j = 0; j < V; j++) {
+            for(let j = 0; j < V; j++){
                 // If vertex k is on the shortest path from i to j, then update
                 // the value of dist[i][j]
                 if (dist[i][k] + dist[k][j] < dist[i][j]) {
@@ -1016,44 +1015,42 @@ function floydWarshall(graph) {
     }
     return dist;
 }
-
-// floydWarshall(graph)
-// TESTING
-// Let us create the following weighted graph
-//
-//           10
-//    (0)--------->(3)
-//     |           /|\
-//   5 |            |
-//     |            | 1
-//    \|/           |
-//    (1)--------->(2)
-//           3
-// const INF = Infinity;
-// const graph = [
-//     [0, 5, INF, 10],
-//     [INF, 0, 3, INF],
-//     [INF, INF, 0, 1],
-//     [INF, INF, INF, 0],
-// ];
-// 0   5   8   9
-// INF 0   3   4
-// INF INF 0   1
-// INF INF INF 0
-// floydWarshall(graph);//?
+ // floydWarshall(graph)
+ // TESTING
+ // Let us create the following weighted graph
+ //
+ //           10
+ //    (0)--------->(3)
+ //     |           /|\
+ //   5 |            |
+ //     |            | 1
+ //    \|/           |
+ //    (1)--------->(2)
+ //           3
+ // const INF = Infinity;
+ // const graph = [
+ //     [0, 5, INF, 10],
+ //     [INF, 0, 3, INF],
+ //     [INF, INF, 0, 1],
+ //     [INF, INF, INF, 0],
+ // ];
+ // 0   5   8   9
+ // INF 0   3   4
+ // INF INF 0   1
+ // INF INF INF 0
+ // floydWarshall(graph);//?
 
 ;// ./src/cp-node/fs/get-all-on-loop.ts
 /**
- * Returns all `CpNode`s on the MAT that this `CpNode` is part of
+ * Returns all `CpNode`s on the MAT that this `CpNode` is part of 
  * starting from the current one and going anti-clockwise around the shape.
- */
-function getAllOnLoop(cpNode) {
+ */ function getAllOnLoop(cpNode) {
     const cpStart = cpNode;
     const cpNodes = [];
     do {
         cpNodes.push(cpNode);
         cpNode = cpNode.next;
-    } while (cpNode !== cpStart);
+    }while (cpNode !== cpStart)
     return cpNodes;
 }
 
@@ -1061,17 +1058,15 @@ function getAllOnLoop(cpNode) {
 ;// ./src/cp-node/fs/get-hole-closers.ts
 
 function getHoleClosers(cpNode) {
-    return getAllOnLoop(cpNode)
-        .filter(cpNode => cpNode.isHoleClosing);
+    return getAllOnLoop(cpNode).filter((cpNode)=>cpNode.isHoleClosing);
 }
 
 
 ;// ./src/cp-node/fs/get-cp-node-ordering.ts
 /**
  * For debugging.
- * @param cpNode
- */
-function getCpNodeOrdering(cpNode) {
+ * @param cpNode 
+ */ function getCpNodeOrdering(cpNode) {
     // const cp = cpNode.cp;
     const pos = cpNode.pointOnShape;
     return {
@@ -1086,36 +1081,36 @@ function getCpNodeOrdering(cpNode) {
 ;// ./src/cp-node/fs/get-prong-count.ts
 /**
  * Returns the number of contact points on the maximal disk circle implied
- * by this `CpNode`.
- *
+ * by this `CpNode`. 
+ * 
  * Note, however, that even one-prongs and sharp corners will return 2 (see
- * `isTerminating` for more details); if this is not desired use
+ * `isTerminating` for more details); if this is not desired use 
  * `getRealProngCount` instead which will return 1 in these cases.
- */
-function getProngCount(cpNode) {
+ */ function getProngCount(cpNode) {
     const startCpNode = cpNode;
     let cpNode_ = startCpNode;
     let i = 0;
     do {
         i++;
         cpNode_ = cpNode_.nextOnCircle;
-    } while (cpNode_ !== startCpNode);
+    }while (cpNode_ !== startCpNode)
     return i;
 }
 
 
 ;// ./src/cp-node/fs/get-all-on-circle.ts
 /**
- * Return this (except if exclThis is truthy) and the the other CpNodes
+ * Return this (except if exclThis is truthy) and the the other CpNodes 
  * around the maximal disk vertex circle in an anti-clockwise order.
- * @param exclThis If true the returned array does not include this
+ * @param exclThis If true the returned array does not include this 
  * `CpNode`.
- */
-function getAllOnCircle(cpNode, exclThis = false) {
+ */ function getAllOnCircle(cpNode, exclThis = false) {
     const startCpNode = cpNode;
-    const cpNodes = exclThis ? [] : [cpNode];
+    const cpNodes = exclThis ? [] : [
+        cpNode
+    ];
     let cpNode_ = cpNode.nextOnCircle;
-    while (cpNode_ !== startCpNode) {
+    while(cpNode_ !== startCpNode){
         cpNodes.push(cpNode_);
         cpNode_ = cpNode_.nextOnCircle;
     }
@@ -1127,26 +1122,25 @@ function getAllOnCircle(cpNode, exclThis = false) {
 /**
  * Returns `true` if this `CpNode` is terminating, i.e. implies a leaf MAT
  * vertex.
- *
+ * 
  * The following are some instances where this is the case:
- *
+ * 
  * * Sharp corners.
- *
+ * 
  * * Half of Hole-closers, i.e. `CpNode`s whose next `CpNode` is on a different
  * loop
- *
- * * Maximal disks with a single contact point.
+ * 
+ * * Maximal disks with a single contact point. 
  *   Note, however, that even in these cases there are two contact points stored
  *   (sitting 'on top' of each other) for the maximal disk. It can be seen as a
  *   limiting case of a two-prong where the distance between two of the contact
  *   points tend to zero. One point (represented by a `CpNode` of course) will
  *   be terminating with the other point being its `next`, whereas the other
  *   point will *not* be terminating and 'points' back into the shape.
- *
+ * 
  * * Some 3-prongs may also become terminating if the Scale Axis Transform is
  * applied to the shape.
- */
-function isTerminating(cpNode) {
+ */ function isTerminating(cpNode) {
     return cpNode === cpNode.next.prevOnCircle;
 }
 
@@ -1155,14 +1149,12 @@ function isTerminating(cpNode) {
 
 
 /**
- * Returns the number of contact points (up to planar coordinates) on the
- * maximal disk circle implied by this `CpNode`.
- *
+ * Returns the number of contact points (up to planar coordinates) on the 
+ * maximal disk circle implied by this `CpNode`. 
+ * 
  * See also `getProngCount`.
- */
-function getRealProngCount(cpNode) {
-    const nonTerminatingCpNodes = getAllOnCircle(cpNode)
-        .filter(cpNode => !isTerminating(cpNode));
+ */ function getRealProngCount(cpNode) {
+    const nonTerminatingCpNodes = getAllOnCircle(cpNode).filter((cpNode)=>!isTerminating(cpNode));
     return nonTerminatingCpNodes.length;
 }
 
@@ -1172,8 +1164,7 @@ function getRealProngCount(cpNode) {
 
 /**
  * Returns `true` if the `CpNode` has all branches terminating
- */
-function isTrivial(cpNode) {
+ */ function isTrivial(cpNode) {
     return getAllOnCircle(cpNode).every(isTerminating);
 }
 
@@ -1183,35 +1174,30 @@ function isTrivial(cpNode) {
 
 
 /**
- * Like isTerminating() but only returns true if all cpNodes on the circle
+ * Like `isTerminating` but only returns true if all `CpNode`s on the circle
  * (except this.prevOnCircle) is terminating.
- */
-function isFullyTerminating(cpNode) {
-    // const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
-    // return otherOnCircle.every(isTerminating);
+ */ function isFullyTerminating(cpNode) {
     if (!isTerminating(cpNode)) {
         return false;
     }
     if (isTrivial(cpNode)) {
         return true;
     }
-    while (cpNode.prev === cpNode.prevOnCircle) {
+    while(cpNode.prev === cpNode.prevOnCircle){
         cpNode = cpNode.prev;
     }
-    const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
-    return otherOnCircle.every(isTerminating);
+    return getAllOnCircle(cpNode.prevOnCircle, true).every(isTerminating);
 }
 
 
 ;// ./src/cp-node/fs/is-sharp.ts
 /**
- * Returns true if this `CpNode` represents a sharp corner, i.e. the
- * limiting case of a two-prong having zero radius.
- *
+ * Returns true if this `CpNode` represents a sharp corner, i.e. the 
+ * limiting case of a two-prong having zero radius. 
+ * 
  * Note that two `CpNode`s are stored for each sharp corner, one being
  * terminating and one not. See `isTerminating` for more details.
- */
-function isSharp(cpNode) {
+ */ function isSharp(cpNode) {
     return cpNode.pointOnShape.circle.radius === 0;
 }
 
@@ -1225,15 +1211,14 @@ function isSharp(cpNode) {
 
 /**
  * For debugging
- * @param cpNode
- */
-function enhanceCpNode(cpNode) {
+ * @param cpNode 
+ */ function enhanceCpNode(cpNode) {
     // const cp = cpNode.cp;
     const pos = cpNode.pointOnShape;
     const curve = pos.curve;
     return {
         ...cpNode,
-        pos, //: cpNode.cp.pointOnShape,
+        pos,
         p: pos.p,
         t: pos.t,
         isTerminating: isTerminating(cpNode),
@@ -1252,26 +1237,26 @@ function enhanceCpNode(cpNode) {
 
 /**
  * @internal
- *
+ * 
  * Traverses the shape from the given `CpNode` going around the shortest path
- * so that only a piece of the shape is traversed and returns the visited
+ * so that only a piece of the shape is traversed and returns the visited 
  * `CpNode`s (starting from the given `CpNode`).
- *
+ * 
  * @param cpStart The `CpNode` from where to start the traversal.
- */
-function traverseCp(cpStart) {
+ */ function traverseCp(cpStart) {
     let cpNode = cpStart;
     if (isTerminating(cpNode)) {
-        return [cpNode]; // one-sharp corner
+        return [
+            cpNode
+        ]; // one-sharp corner
     }
     const visitedCps = [];
     do {
         visitedCps.push(cpNode);
         const next = cpNode.next.prevOnCircle;
-        cpNode = cpNode === next
-            ? cpNode = cpNode.next.next // Terminal vertex
-            : cpNode = next; // Take last exit
-    } while (cpNode !== cpStart);
+        cpNode = cpNode === next ? cpNode = cpNode.next.next // Terminal vertex
+         : cpNode = next; // Take last exit
+    }while (cpNode !== cpStart)
     return visitedCps;
 }
 
@@ -1280,16 +1265,15 @@ function traverseCp(cpStart) {
 
 
 /**
- * Traverses all edges (depth first) of the given MAT tree starting at the given
+ * Traverses all edges (depth first) of the given MAT tree starting at the given 
  * vertex (represented by a `CpNode`).
  * @param cpNode Any `CpNode` representing the start vertex.
- * @param traverseEdgesCallback A callback function for each CpNode representing the vertex at the
+ * @param traverseEdgesCallback A callback function for each CpNode representing the vertex at the 
  * start of an edge.
- */
-function traverseEdges(cpNode, traverseEdgesCallback) {
+ */ function traverseEdges(cpNode, traverseEdgesCallback) {
     const cpNodes = getAllOnLoop(cpNode);
     const seen = new Set();
-    for (cpNode of cpNodes) {
+    for (cpNode of cpNodes){
         if (!isTerminating(cpNode) && !seen.has(cpNode.next.prevOnCircle)) {
             traverseEdgesCallback(cpNode);
         }
@@ -1301,18 +1285,17 @@ function traverseEdges(cpNode, traverseEdgesCallback) {
 ;// ./src/cp-node/fs/get-vertex-forward-children.ts
 
 /**
- * Similar to `getChildren` but returns the child nodes of the tree when
- * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this
- * way the dual graph of the tree can easily be traversed - see e.g.
- * `traverseVertices`. Generally, however, traversing the edges is
- * preferred as it returns the entire Medial Axis (by utilizing
+ * Similar to `getChildren` but returns the child nodes of the tree when 
+ * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this 
+ * way the dual graph of the tree can easily be traversed - see e.g. 
+ * `traverseVertices`. Generally, however, traversing the edges is 
+ * preferred as it returns the entire Medial Axis (by utilizing 
  * `getMatCurveToNext` on each returned edge).
- */
-function getVertexForwardChildren(cpNode) {
+ */ function getVertexForwardChildren(cpNode) {
     const children = [];
     const cpStart = cpNode;
     let cpNode_ = cpStart;
-    while (cpNode_ !== cpStart.prevOnCircle) {
+    while(cpNode_ !== cpStart.prevOnCircle){
         if (!isTerminating(cpNode_)) {
             children.push(cpNode_.next);
         }
@@ -1329,22 +1312,21 @@ function getVertexForwardChildren(cpNode) {
 /**
  * Traverses the MAT tree and calls the given callback function for each vertex
  * (represented by a `CpNode`) on the MAT.
- *
- * It is usually preferable to use `traverseEdges` as it allows for the
+ * 
+ * It is usually preferable to use `traverseEdges` as it allows for the 
  * traversal of all the smooth curves representing the MAT.
  * @param cpNode Any `CpNode` representing the start vertex.
  * @param traverseVerticesCallback A callback function taking a single `CpNode` as parameter.
- */
-function traverseVertices(cpStart, traverseVerticesCallback) {
+ */ function traverseVertices(cpStart, traverseVerticesCallback) {
     traverseVerticesCallback(cpStart);
     // Since the tree is unrooted we must iterate in all directions from the
     // given cpNode.
-    const cpNodes = getAllOnCircle(cpStart)
-        .filter(cpNode => !isTerminating(cpNode))
-        .map(cpNode => cpNode.next);
-    for (const cpNode of cpNodes) {
-        const cps = [cpNode];
-        while (cps.length) {
+    const cpNodes = getAllOnCircle(cpStart).filter((cpNode)=>!isTerminating(cpNode)).map((cpNode)=>cpNode.next);
+    for (const cpNode of cpNodes){
+        const cps = [
+            cpNode
+        ];
+        while(cps.length){
             const cp = cps.pop();
             traverseVerticesCallback(cp);
             cps.push(...getVertexForwardChildren(cp));
@@ -1354,23 +1336,32 @@ function traverseVertices(cpStart, traverseVerticesCallback) {
 
 
 ;// ./src/cp-node/fs/clone.ts
-/** @internal */
-const EDGES = ['prev', 'next', 'prevOnCircle', 'nextOnCircle', 'holeCloserTwin'];
+/** @internal */ const EDGES = [
+    'prev',
+    'next',
+    'prevOnCircle',
+    'nextOnCircle',
+    'holeCloserTwin'
+];
 /**
- * Returns a deep clone of this `CpNode`. Can be used to copy the MAT
- * since cloning a single `CpNode` necessarily implies cloning all
+ * Returns a deep clone of this `CpNode`. Can be used to copy the MAT 
+ * since cloning a single `CpNode` necessarily implies cloning all 
  * `CpNode`s on the same MAT tree.
- */
-function clone(cpNode) {
+ */ function clone(cpNode) {
     // Don't change this function to be recursive, the call stack may 
     // overflow if there are too many `CpNode`s.
     const nodeMap = new Map();
     const newCpNode = cloneWithoutEdges(cpNode);
     nodeMap.set(cpNode, newCpNode);
-    const cpStack = [{ cpNode, newCpNode }];
-    while (cpStack.length) {
+    const cpStack = [
+        {
+            cpNode,
+            newCpNode
+        }
+    ];
+    while(cpStack.length){
         const { cpNode, newCpNode } = cpStack.pop();
-        for (const edge of EDGES) {
+        for (const edge of EDGES){
             const node = cpNode[edge];
             if (node === undefined) {
                 continue;
@@ -1379,7 +1370,10 @@ function clone(cpNode) {
             if (!node_) {
                 node_ = cloneWithoutEdges(node);
                 nodeMap.set(node, node_);
-                cpStack.push({ cpNode: node, newCpNode: node_ });
+                cpStack.push({
+                    cpNode: node,
+                    newCpNode: node_
+                });
             }
             newCpNode[edge] = node_;
         }
@@ -1403,16 +1397,15 @@ function cloneWithoutEdges(cpNode) {
 
 ;// ./src/cp-node/fs/get-boundary-bezier-parts-to-next.ts
 /**
- * Returns the ordered `BezierPiece`s from this `CpNode` to the next `CpNode`
+ * Returns the ordered `BezierPiece`s from this `CpNode` to the next `CpNode` 
  * on the boundary.
- *
+ * 
  * * returns `[]` if (and only if) the next `CpNode` is on a different loop;
  * this differs from "returns `[]` if (and only if) the next `CpNode` is a
  * hole-closer" as half of hole-closers are on the same loop.
- *
+ * 
  * @param cpNode
- */
-function getBoundaryBezierPartsToNext(cpNode) {
+ */ function getBoundaryBezierPartsToNext(cpNode) {
     const cpThis = cpNode;
     const cpNext = cpNode.next;
     const posThis = cpThis.pointOnShape;
@@ -1427,10 +1420,21 @@ function getBoundaryBezierPartsToNext(cpNode) {
     }
     const bezierPieces = [];
     if (curveNext === curveThis) {
-        bezierPieces.push({ ps: posThis.curve.ps, ts: [posThis.t, posNext.t] });
-    }
-    else {
-        bezierPieces.push({ ps: posThis.curve.ps, ts: [posThis.t, 1] });
+        bezierPieces.push({
+            ps: posThis.curve.ps,
+            ts: [
+                posThis.t,
+                posNext.t
+            ]
+        });
+    } else {
+        bezierPieces.push({
+            ps: posThis.curve.ps,
+            ts: [
+                posThis.t,
+                1
+            ]
+        });
         addSkippedBezierPiecess(bezierPieces, posThis.curve, posNext.curve, posNext.t);
     }
     return bezierPieces;
@@ -1438,16 +1442,19 @@ function getBoundaryBezierPartsToNext(cpNode) {
 /**
  * Adds pieces of skipped beziers.
  * @internal
- */
-function addSkippedBezierPiecess(bezierPieces, curveStart, curveEnd, t1) {
+ */ function addSkippedBezierPiecess(bezierPieces, curveStart, curveEnd, t1) {
     let curveThis = curveStart;
     do {
         curveThis = curveThis.next;
         const tEnd = curveThis === curveEnd ? t1 : 1;
         bezierPieces.push({
-            ps: curveThis.ps, ts: [0, tEnd]
+            ps: curveThis.ps,
+            ts: [
+                0,
+                tEnd
+            ]
         });
-    } while (curveThis !== curveEnd);
+    }while (curveThis !== curveEnd)
 }
 
 
@@ -1885,13 +1892,12 @@ function fromTo(ps, tS, tE) {
 
 
 /**
- * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
+ * Returns the ordered bezier curves from this `CpNode` to the next `CpNode` 
  * on the boundary.
- *
+ * 
  * @param cpNode
- */
-function getBoundaryBeziersToNext(cpNode) {
-    return getBoundaryBezierPartsToNext(cpNode).map(bp => fromTo(bp.ps, bp.ts[0], bp.ts[1]));
+ */ function getBoundaryBeziersToNext(cpNode) {
+    return getBoundaryBezierPartsToNext(cpNode).map((bp)=>fromTo(bp.ps, bp.ts[0], bp.ts[1]));
 }
 
 
@@ -1913,34 +1919,32 @@ function removeCpNode(cpNode, meta) {
 
 /**
  * Removes a cpNode from the MAT.
- *
+ * 
  * @param cpTree The tree graph holding the `CpNodes` of the MAT.
  * @param cpNode The `CpNode` to remove.
- */
-function removeVertex(cpNode, meta) {
+ */ function removeVertex(cpNode, meta) {
     const prongCount = getProngCount(cpNode);
     if (prongCount !== 2) {
         throw new Error(`Cannot delete \`CpNode\` on ${prongCount}-prong`);
     }
-    getAllOnCircle(cpNode).forEach(cpNode => removeCpNode(cpNode, meta));
+    getAllOnCircle(cpNode).forEach((cpNode)=>removeCpNode(cpNode, meta));
 }
 
 
 ;// ./src/cp-node/fs/get-children.ts
 /**
- * Returns the children of this `CpNode` when seen as a MAT edge. Only
- * children in a 'forward' direction are returned. These include all edges
+ * Returns the children of this `CpNode` when seen as a MAT edge. Only 
+ * children in a 'forward' direction are returned. These include all edges 
  * except the 'backward' edge given by `prevOnCircle`, even terminating
  * edges.
- */
-function getChildren(cpNode) {
+ */ function getChildren(cpNode) {
     const children = [];
     const cp = cpNode.next;
     let cpNode_ = cp;
     do {
         children.push(cpNode_);
         cpNode_ = cpNode_.nextOnCircle;
-    } while (cpNode_.nextOnCircle !== cp);
+    }while (cpNode_.nextOnCircle !== cp)
     return children;
 }
 
@@ -3406,23 +3410,22 @@ function toPowerBasis_3rdDerivativeExact(ps) {
 
 const { sign } = Math;
 /**
- * Compare the curvature, κ, between two curves at t === 0.
- *
- * Returns a positive number if κ for psI > κ for psO, negative if κ for psI < κ
+ * Compare the curvature, κ, between two curves at t === 0. 
+ * 
+ * Returns a positive number if κ for psI > κ for psO, negative if κ for psI < κ 
  * for psO or zero if the curve extensions are identical (i.e. in same K-family).
- *
- * Precondition: The point psI evaluated at zero must === the point psO
+ * 
+ * Precondition: The point psI evaluated at zero must === the point psO 
  * evaluated at zero.
- *
+ * 
  * // FUTURE - is this correct?
- * Exact: Returns the exact result if the bithlength of all
+ * Exact: Returns the exact result if the bithlength of all 
  * coordinates <= 53 - 5 === 48 and are bit-aligned.
- *
- * @param psI An order 1, 2 or 3 bezier, e.g. [[0,0],[1,1],[2,1],[2,0]]
+ * 
+ * @param psI An order 1, 2 or 3 bezier, e.g. [[0,0],[1,1],[2,1],[2,0]] 
  * representing the incoming curve
  * @param psO Another bezier representing the outgoing curve
- */
-function compareCurvaturesAtInterface(psI, psO) {
+ */ function compareCurvaturesAtInterface(psI, psO) {
     // Get x' and y' for incoming curve evaluated at 0
     const [dxI, dyI] = tangentAt0Exact(psI);
     // Get x'' and y'' for incoming curve evaluated at 0
@@ -3505,8 +3508,8 @@ function compareCurvaturesAtInterface(psI, psO) {
     const dκO = expansionProduct(j2, d5);
     const sgn = eSign(eDiff(dκI, dκO));
     return signI > 0 ? sgn : -sgn;
-    // If the above returned value is still zero then the two curve extensions 
-    // are identical, i.e. in the same K-family
+// If the above returned value is still zero then the two curve extensions 
+// are identical, i.e. in the same K-family
 }
 
 
@@ -3514,22 +3517,21 @@ function compareCurvaturesAtInterface(psI, psO) {
 
 
 /**
- * Returns a positive value if the second bezier (of order 1, 2 or 3) curves
- * anti-clockwise with respect to the first at the point where the first bezier
+ * Returns a positive value if the second bezier (of order 1, 2 or 3) curves 
+ * anti-clockwise with respect to the first at the point where the first bezier 
  * ends and the second one starts. Returns a negative number if the turn is
- * clockwise. Returns 0 otherwise.
- *
+ * clockwise. Returns 0 otherwise. 
+ * 
  * The algorithm is a generalization of `ccw`, a.k.a `orient2d`.
- *
+ * 
  * The above obviously necessitates that their endpoints coincide as described.
- *
+ * 
  * Preconditions (for robustness):
  * * The bezier does not have infinite curvature at either endpoint
- *
+ * 
  * @param psI the incoming bezier that ends at the interface
  * @param psO the outgoing bezier that starts at the interface
- */
-function getInterfaceCcw(psI, psO) {
+ */ function getInterfaceCcw(psI, psO) {
     const lenI = psI.length;
     // second last control point of incoming curve
     let p0 = psI[lenI - 2];
@@ -3549,8 +3551,14 @@ function getInterfaceCcw(psI, psO) {
     const yI = twoDiff(p1[1], p0[1]); // tangent y-coordinate
     const xO = twoDiff(p2[0], p1[0]); // tangent x-coordinate
     const yO = twoDiff(p2[1], p1[1]); // tangent y-coordinate
-    const tangentI = [xI, yI];
-    const tangentO = [xO, yO];
+    const tangentI = [
+        xI,
+        yI
+    ];
+    const tangentO = [
+        xO,
+        yO
+    ];
     const dotTangents = dotPrecise(tangentI, tangentO);
     if (crossTangents !== 0 || dotTangents > 0) {
         return {
@@ -3583,10 +3591,9 @@ function pointsEqual(p1, p2) {
 }
 /**
  * The input is two exact double-double coefficient vectors
- *
+ * 
  * * returns the correct sign
- */
-function dotPrecise(tangentI, tangentO) {
+ */ function dotPrecise(tangentI, tangentO) {
     const abx = expansionProduct(tangentI[0], tangentO[0]);
     const aby = expansionProduct(tangentI[1], tangentO[1]);
     const dot = fastExpansionSum(abx, aby);
@@ -3594,10 +3601,9 @@ function dotPrecise(tangentI, tangentO) {
 }
 /**
  * Returns the cross from A to B to C
- *
+ * 
  * * returns the correct sign
- */
-function crossPrecise(p0, p1, p2) {
+ */ function crossPrecise(p0, p1, p2) {
     const a = twoDiff(p0[0], p2[0]);
     const b = twoDiff(p1[1], p2[1]);
     const c = twoDiff(p0[1], p2[1]);
@@ -3612,29 +3618,26 @@ function crossPrecise(p0, p1, p2) {
 ;// ./src/corner/get-corner.ts
 
 
-/**
+/** 
  * @internal
  * Angle in degrees to radians.
- */
-const DEGREES = {
+ */ const DEGREES = {
     //'0'    : 0.0000,
     0.25: 0.0050,
     1: 0.0167,
     4: 0.0698,
-    16: 0.2756,
+    16: 0.2756
 };
-/** @internal */
-// const DEGREE_LIMIT = DEGREES[1];
+/** @internal */ // const DEGREE_LIMIT = DEGREES[1];
 const DEGREE_LIMIT = DEGREES[4];
 //const DEGREE_LIMIT = DEGREES[16]; 
 /**
  * @internal
  * Returns a new corner with properties.
- *
+ * 
  * @param psI The incoming bezier that ends in the corner
  * @param psO The outgoing bezier that starts at the corner
- */
-function getCorner(psI, psO) {
+ */ function getCorner(psI, psO) {
     // `getInterfaceCcw` must return a number !== 0 if `psI` and `psO` are not
     // the same up to a curve extension with `t ∈ [-∞,+∞]`
     const { ccw, tangentI, tangentO, dotTangents } = getInterfaceCcw(psI, psO);
@@ -3642,8 +3645,8 @@ function getCorner(psI, psO) {
     const isDull = ccw > 0;
     // These use square root and are thus not exact
     const unitTangents = [
-        toUnitVector(tangentI.map(v => v[1])),
-        toUnitVector(tangentO.map(v => v[1])),
+        toUnitVector(tangentI.map((v)=>v[1])),
+        toUnitVector(tangentO.map((v)=>v[1]))
     ];
     // The cross calculated below should be exact due to beziers having been
     // normalized!
@@ -3654,8 +3657,7 @@ function getCorner(psI, psO) {
         // Curves go in same direction
         isQuiteSharp = crossTangents < -DEGREE_LIMIT;
         isQuiteDull = crossTangents > +DEGREE_LIMIT;
-    }
-    else {
+    } else {
         isQuiteSharp = isSharp;
         isQuiteDull = isDull;
     }
@@ -3674,8 +3676,7 @@ function getCorner(psI, psO) {
 
 /**
  * @internal
- */
-const getPosCorner$ = memoize(function (pos) {
+ */ const getPosCorner$ = memoize(function(pos) {
     const { t, curve } = pos;
     return getCorner(t === 1 ? curve.ps : curve.prev.ps, t === 1 ? curve.next.ps : curve.ps);
 });
@@ -3684,9 +3685,8 @@ const getPosCorner$ = memoize(function (pos) {
 ;// ./src/point-on-shape/is-pos-corner.ts
 /**
  * @internal
- */
-function isPosCorner(pos) {
-    return (pos.t === 0 || pos.t === 1);
+ */ function isPosCorner(pos) {
+    return pos.t === 0 || pos.t === 1;
 }
 
 
@@ -3695,8 +3695,7 @@ function isPosCorner(pos) {
 
 /**
  * @internal
- */
-function isPosSharpCorner(pos) {
+ */ function isPosSharpCorner(pos) {
     if (!isPosCorner(pos)) {
         return false;
     }
@@ -3708,15 +3707,15 @@ function isPosSharpCorner(pos) {
 
 
 
+const { sqrt: get_edge_direction_sqrt } = Math;
 /**
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).
- *
- * @param cpNode
- *
+ * 
+ * @param cpNode 
+ * 
  * @internal
- */
-function getEdgeDirection(cpNode) {
+ */ function getEdgeDirection(cpNode) {
     const circleCenter = cpNode.pointOnShape.circle.center;
     const cp1 = cpNode;
     const cp2 = cpNode.nextOnCircle;
@@ -3728,19 +3727,16 @@ function getEdgeDirection(cpNode) {
     if (!isPosSharpCorner(pos1)) {
         if (p1[0] === p2[0] && p1[1] === p2[1]) {
             vDir = from_to_fromTo(p1, circleCenter); // A 1-prong
-        }
-        else {
+        } else {
             vDir = rotate90Degrees(from_to_fromTo(p1, p2)); // not a 1-prong.
         }
-    }
-    else {
+    } else {
         let curve1;
         let curve2;
         if (pos1.t === 0) {
             curve1 = pos1.curve;
             curve2 = pos1.curve.prev;
-        }
-        else if (pos1.t === 1) {
+        } else if (pos1.t === 1) {
             curve1 = pos1.curve.next;
             curve2 = pos1.curve;
         }
@@ -3750,12 +3746,15 @@ function getEdgeDirection(cpNode) {
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
         // be calculated.
-        const cosθ = Math.sqrt((1 + x) / 2);
-        const sinθ = Math.sqrt((1 - x) / 2);
+        const cosθ = get_edge_direction_sqrt((1 + x) / 2);
+        const sinθ = get_edge_direction_sqrt((1 - x) / 2);
         vDir = rotate(sinθ, cosθ, tan2);
     }
     const v = translate(toUnitVector(vDir), circleCenter);
-    return [circleCenter, v];
+    return [
+        circleCenter,
+        v
+    ];
 }
 
 
@@ -3763,17 +3762,15 @@ function getEdgeDirection(cpNode) {
 
 
 const { abs: get_mat_curve_between_abs } = Math;
-/** @internal */
-const TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */
-const TOLERANCE_USE_LINE = 0.0001; // else cubic
+/** @internal */ const TOLERANCE_ADD_2PRONG = 0.01;
+/** @internal */ const TOLERANCE_USE_LINE = 0.0001; // else cubic
 /**
  * Returns the bezier curve from the maximal disk of one `CpNode` to another
  * `CpNode`'s maximal disk.
- * @param cpNodeFrom
- * @param cpNodeTo
- */
-function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
+ * 
+ * @param cpNodeFrom 
+ * @param cpNodeTo 
+ */ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
     const fromCc = cpNodeFrom.pointOnShape.circle.center;
     const fromL = getEdgeDirection(cpNodeFrom);
     const toCc = cpNodeTo.pointOnShape.circle.center;
@@ -3783,14 +3780,17 @@ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
     let twisted;
     if (!mid) {
         twisted = true;
-    }
-    else {
+    } else {
         const a = from_to_fromTo(fromCc, mid);
         const b = from_to_fromTo(toCc, mid);
         twisted = dot(a, c) < 0 || dot(b, c) > 0;
     }
     if (!twisted) {
-        return [fromCc, mid, toCc];
+        return [
+            fromCc,
+            mid,
+            toCc
+        ];
     }
     const r = rotate90Degrees(c);
     const w1 = from_to_fromTo(fromL[0], fromL[1]); // This is a unit vector
@@ -3799,7 +3799,10 @@ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
     const d2 = get_mat_curve_between_abs(cross(c, w2)) / (3 * 3);
     if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
         // FUTURE - not within tolerance - must add additional 2-prong
-        return [fromCc, toCc];
+        return [
+            fromCc,
+            toCc
+        ];
     }
     if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {
         // approximate with cubic bezier
@@ -3807,14 +3810,28 @@ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
         const m2 = interpolate(fromCc, toCc, 2 / 3);
         const v1 = translate(r, m1);
         const v2 = translate(r, m2);
-        const l1 = [m1, v1];
-        const l2 = [m2, v2];
+        const l1 = [
+            m1,
+            v1
+        ];
+        const l2 = [
+            m2,
+            v2
+        ];
         const mid1 = lineLineIntersection(fromL, l1);
         const mid2 = lineLineIntersection(toL, l2);
-        return [fromCc, mid1, mid2, toCc];
+        return [
+            fromCc,
+            mid1,
+            mid2,
+            toCc
+        ];
     }
     // Within tolerance - approximate with a straight line.
-    return [fromCc, toCc];
+    return [
+        fromCc,
+        toCc
+    ];
 }
 
 
@@ -3822,12 +3839,11 @@ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
 
 
 /**
- * Returns the bezier curve from the maximal disk of the given `CpNode` to the
- * next `CpNode`'s maximal disk and thus directly represents a piece of the
+ * Returns the bezier curve from the maximal disk of the given `CpNode` to the 
+ * next `CpNode`'s maximal disk and thus directly represents a piece of the 
  * medial axis.
- * @param cpNode
- */
-function getMatCurveToNext(cpNode) {
+ * @param cpNode 
+ */ function getMatCurveToNext(cpNode) {
     return getMatCurveBetween(cpNode, cpNode.next);
 }
 const getMatCurveToNext$ = memoize(getMatCurveToNext);
@@ -3835,14 +3851,13 @@ const getMatCurveToNext$ = memoize(getMatCurveToNext);
 
 ;// ./src/cp-node/fs/get-first-exit.ts
 /**
- * Returns the first `CpNode` (from this one by successively applying
+ * Returns the first `CpNode` (from this one by successively applying 
  * .nextOnCircle) that exits the circle.
- */
-function getFirstExit(cpNode) {
+ */ function getFirstExit(cpNode) {
     // const startNode = this as CpNode;
     const startNode = cpNode;
     let cpNode_ = startNode;
-    while (cpNode_.next === cpNode_.prevOnCircle) {
+    while(cpNode_.next === cpNode_.prevOnCircle){
         cpNode_ = cpNode_.next;
         if (cpNode_ === startNode) {
             // The very special case the MAT is a single point.
@@ -3854,18 +3869,17 @@ function getFirstExit(cpNode) {
 
 
 ;// ./src/cp-node/fs/is-on-same-circle.ts
-
 /**
  * Returns true if the 2 given `CpNode`s are on the same maximal disk
  * circle.
  *
+ * * O(1): all `CpNode`s on the same on-circle ring share the same `Circle`
+ *   object, and no other ring does (see `PointOnShape.circle`)
+ *
  * @param cpNode1 A `CpNode`.
  * @param cpNode2 Another `CpNode`
- */
-function isOnSameCircle(cpNode1, cpNode2) {
-    // const cpNodes = getAllOnCircle(cpNode1, true);
-    const cpNodes = getAllOnCircle(cpNode1);
-    return cpNodes.indexOf(cpNode2) >= 0;
+ */ function isOnSameCircle(cpNode1, cpNode2) {
+    return cpNode1.pointOnShape.circle === cpNode2.pointOnShape.circle;
 }
 
 
@@ -3873,13 +3887,12 @@ function isOnSameCircle(cpNode1, cpNode2) {
 
 /**
  * Returns true if this `CpNode`'s maximal disk has only one contact point
- * on the shape boundary (up to planar coordinates). These includes sharp
+ * on the shape boundary (up to planar coordinates). These includes sharp 
  * corners.
- *
+ * 
  * Note, however, that two `CpNode`s are stored for each such point to
  * preserve symmetry - see `isTerminating` for more details.
- */
-function isOneProng(cpNode) {
+ */ function isOneProng(cpNode) {
     return getRealProngCount(cpNode) === 1 && !cpNode.isHoleClosing;
 }
 
@@ -3898,21 +3911,20 @@ function isTwoProng(cpNode) {
 
 /**
  * Returns the branch associated with the give cpNode.
- *
+ * 
  * * the final `CpNode` is not returned to improve symmetry
- *
+ * 
  * @param cpNode `CpNode` representing the start vertex.
- */
-function getBranch(cpNode) {
+ */ function getBranch(cpNode) {
     if (isTrivial(cpNode)) {
         return [];
     }
     // Start from a leaf or 3-prong
-    while (isTerminating(cpNode)) {
+    while(isTerminating(cpNode)){
         cpNode = cpNode.nextOnCircle;
     }
     cpNode = cpNode.next;
-    while (getRealProngCount(cpNode) === 2) {
+    while(getRealProngCount(cpNode) === 2){
         cpNode = cpNode.next;
     }
     cpNode = cpNode.prevOnCircle;
@@ -3920,7 +3932,7 @@ function getBranch(cpNode) {
     do {
         branch.push(cpNode);
         cpNode = cpNode.next;
-    } while (!isFullyTerminating(cpNode) && getRealProngCount(cpNode) === 2);
+    }while (!isFullyTerminating(cpNode) && getRealProngCount(cpNode) === 2)
     return branch;
 }
 
@@ -3930,11 +3942,10 @@ function getBranch(cpNode) {
 
 /**
  * Returns the branch associated with the give cpNode
- *
+ * 
  * @param cpNode `CpNode` representing the start vertex.
- */
-function getBranchBeziers(cpNode) {
-    return getBranch(cpNode).map(b => getMatCurveToNext(b));
+ */ function getBranchBeziers(cpNode) {
+    return getBranch(cpNode).map((b)=>getMatCurveToNext(b));
 }
 
 
@@ -5208,32 +5219,38 @@ function totalLength(ps, maxCurviness = 0.4, gaussOrder = 16) {
 ;// ./src/cp-node/fs/get-all-between.ts
 /**
  * Returns all `CpNode`s between the two given ones (excluding the last one).
- *
+ * 
  * * If the second `CpNode` is never encountered all on the loop will be
  * returned.
- *
+ * 
  * @param cpNodeS start `CpNode`
  * @param cpNodeE end `CpNode`
  * @param inclAllIfEqual if `true` and first and last `CpNode`s are equal then
  * include all `CpNode`s around the loop, otherwise include none.
- */
-function getAllBetween(cpNodeS, cpNodeE, inclAllIfEqual = true) {
+ */ function getAllBetween(cpNodeS, cpNodeE, inclAllIfEqual = true) {
     if (!inclAllIfEqual && cpNodeS === cpNodeE) {
-        return { cpNodes: [], hasHoleCloser: false };
+        return {
+            cpNodes: [],
+            hasHoleCloser: false
+        };
     }
     const cpStart = cpNodeS;
-    const cpNodes = [cpStart];
+    const cpNodes = [
+        cpStart
+    ];
     let cpNode_ = cpNodeS.next;
     let hasHoleCloser = cpStart.isHoleClosing;
-    while (cpNode_ !== cpNodeE &&
-        cpNode_ !== cpStart) {
+    while(cpNode_ !== cpNodeE && cpNode_ !== cpStart){
         if (cpNode_.isHoleClosing) {
             hasHoleCloser = true;
         }
         cpNodes.push(cpNode_);
         cpNode_ = cpNode_.next;
     }
-    return { cpNodes, hasHoleCloser };
+    return {
+        cpNodes,
+        hasHoleCloser
+    };
 }
 
 
@@ -5242,26 +5259,28 @@ function getAllBetween(cpNodeS, cpNodeE, inclAllIfEqual = true) {
 
 /**
  * Returns all `CpNode`s between the two given ones (inclusive).
- *
+ * 
  * * If the second `CpNode` is never encountered all on the loop will be
  * returned.
- *
- * @param cpNode1
- * @param cpNode2
+ * 
+ * @param cpNode1 
+ * @param cpNode2 
  * @param inclAllIfEqual if `true` and first and last `CpNode`s are equal then
  * include all `CpNode`s around the loop, otherwise include none.
- */
-function getBoundaryBeziersBetween(cpNode1, cpNode2, inclAllIfEqual = true) {
+ */ function getBoundaryBeziersBetween(cpNode1, cpNode2, inclAllIfEqual = true) {
     const { cpNodes, hasHoleCloser } = getAllBetween(cpNode1, cpNode2, inclAllIfEqual);
     const pss = cpNodes.flatMap(getBoundaryBeziersToNext);
-    return { pss, hasHoleCloser };
+    return {
+        pss,
+        hasHoleCloser
+    };
 }
 
 
 ;// ./src/utils/sum.ts
 function sum(ns) {
     let total = 0;
-    for (let n of ns) {
+    for (let n of ns){
         total += n;
     }
     return total;
@@ -5275,16 +5294,15 @@ function sum(ns) {
 
 /**
  * See https://research.gold.ac.uk/id/eprint/31944/
- * @param cpNode
- */
-function getSalience(cpNode) {
+ * @param cpNode 
+ */ function getSalience(cpNode) {
     const cpNode1 = cpNode;
     const cpNode2 = cpNode.nextOnCircle;
     const bp1 = cpNode1.pointOnShape.p;
     const bp2 = cpNode2.pointOnShape.p;
     const d = distanceBetween(bp1, bp2);
     const { pss, hasHoleCloser } = getBoundaryBeziersBetween(cpNode1, cpNode2);
-    const s = sum(pss.map(ps => totalLength(ps)));
+    const s = sum(pss.map((ps)=>totalLength(ps)));
     return hasHoleCloser ? Infinity : s / d;
 }
 
@@ -5294,7 +5312,7 @@ function getSalience(cpNode) {
 function getMatCurvesBetween(cpNodeS, cpNodeE) {
     let cpNode = cpNodeS;
     const pss = [];
-    while (cpNode !== cpNodeE) {
+    while(cpNode !== cpNodeE){
         const ps = getMatCurveBetween(cpNode, cpNode.next);
         pss.push(ps);
         cpNode = cpNode.next;
@@ -5307,17 +5325,17 @@ function getMatCurvesBetween(cpNodeS, cpNodeE) {
 
 
 
+const { abs: get_angle_between_mat_curves_abs, asin: get_angle_between_mat_curves_asin, PI: π } = Math;
 /**
- *
- * @param cpNode1
- * @param cpNode2
- * @returns
- */
-function getInitialDegAngleBetweenMatCurves(cpNode1, cpNode2) {
+ * 
+ * @param cpNode1 
+ * @param cpNode2 
+ * @returns 
+ */ function getInitialDegAngleBetweenMatCurves(cpNode1, cpNode2) {
     const tan1 = toUnitVector(tangent_tangent(getMatCurveToNext(cpNode1), 0));
     const tan2 = toUnitVector(tangent_tangent(getMatCurveToNext(cpNode2), 0));
     const cross_ = cross(tan1, tan2);
-    const angle = Math.abs(Math.asin(cross_) * (180 / Math.PI));
+    const angle = get_angle_between_mat_curves_abs(get_angle_between_mat_curves_asin(cross_) * (180 / π));
     return angle;
 }
 
@@ -5326,7 +5344,7 @@ function getInitialDegAngleBetweenMatCurves(cpNode1, cpNode2) {
 
 function getAllVertices(cpNode) {
     const vertices = [];
-    traverseVertices(cpNode, cpNode => {
+    traverseVertices(cpNode, (cpNode)=>{
         vertices.push(cpNode);
     });
     return vertices;
@@ -5337,15 +5355,14 @@ function getAllVertices(cpNode) {
 /**
  * Compares two `PointOnShape`s according to their cyclic ordering imposed
  * by their relative positions on the shape boundary.
- *
+ * 
  * * Returns a +tive value if `a` is "further along" the loop
- *
+ * 
  * @param a The first `PointOnShape`.
  * @param b The second `PointOnShape`.
- *
+ * 
  * @internal
- */
-function comparePoss(a, b) {
+ */ function comparePoss(a, b) {
     let res;
     res = a.curve.idx - b.curve.idx;
     if (res !== 0) {
@@ -5368,11 +5385,10 @@ function comparePoss(a, b) {
 
 /**
  * Primarily for internal use.
- *
+ * 
  * Compares the order of two `CpNode`s. The order is cyclic and depends
  * on a `CpNode`'s relative position along the shape boundary.
- */
-function cpNodeComparator(a, b) {
+ */ function cpNodeComparator(a, b) {
     return comparePoss(a.pointOnShape, b.pointOnShape);
 }
 
@@ -5413,168 +5429,146 @@ function cpNodeComparator(a, b) {
 
 const CpNodeFs = {
     /**
-     * Returns the children of this `CpNode` when seen as a MAT edge. Only
-     * children in a 'forward' direction are returned. These include all edges
+     * Returns the children of this `CpNode` when seen as a MAT edge. Only 
+     * children in a 'forward' direction are returned. These include all edges 
      * except the 'backward' edge given by `prevOnCircle`, even terminating
      * edges.
-     */
-    getChildren: getChildren,
+     */ getChildren: getChildren,
     /**
-     * Similar to `getChildren` but returns the child nodes of the tree when
-     * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this
-     * way the dual graph of the tree can easily be traversed - see e.g.
-     * `traverseVertices`. Generally, however, traversing the edges is
-     * preferred as it returns the entire Medial Axis (by utilizing
+     * Similar to `getChildren` but returns the child nodes of the tree when 
+     * `CpNode` is seen as a MAT vertex point (as opposed to edge). In this 
+     * way the dual graph of the tree can easily be traversed - see e.g. 
+     * `traverseVertices`. Generally, however, traversing the edges is 
+     * preferred as it returns the entire Medial Axis (by utilizing 
      * `getMatCurveToNext` on each returned edge).
-     */
-    getVertexForwardChildren: getVertexForwardChildren,
+     */ getVertexForwardChildren: getVertexForwardChildren,
     /**
-     * Returns all `CpNode`s on the MAT that this `CpNode` is part of
+     * Returns all `CpNode`s on the MAT that this `CpNode` is part of 
      * starting from the current one and going anti-clockwise around the shape.
-     */
-    getAllOnLoop: getAllOnLoop,
+     */ getAllOnLoop: getAllOnLoop,
     /**
-     * Return this (except if exclThis is truthy) and the the other CpNodes
+     * Return this (except if exclThis is truthy) and the the other CpNodes 
      * around the maximal disk vertex circle in an anti-clockwise order.
-     * @param exclThis If true the returned array does not include this
+     * @param exclThis If true the returned array does not include this 
      * `CpNode`.
-     */
-    getAllOnCircle: getAllOnCircle,
+     */ getAllOnCircle: getAllOnCircle,
     /**
-     * Returns true if the 2 given `CpNode`s are on the same maximal disk
+     * Returns true if the 2 given `CpNode`s are on the same maximal disk 
      * circle.
      * @param cpNode1 A `CpNode`.
      * @param cpNode2 Another `CpNode`
-     */
-    isOnSameCircle: isOnSameCircle,
+     */ isOnSameCircle: isOnSameCircle,
     /**
-     * Returns true if this `CpNode` is terminating, i.e. implies a leaf MAT
+     * Returns true if this `CpNode` is terminating, i.e. implies a leaf MAT 
      * vertex.
-     *
+     * 
      * This is always the case for sharp corners and maximal disks with
      * a single contact point. Note, however, that even in these cases there are
-     * two contact points stored (sitting 'on top' of each other) for the
+     * two contact points stored (sitting 'on top' of each other) for the 
      * maximal disk. It can be seen as a limiting case of a two-prong where the
-     * distance between two of the contact points tend to zero. One point
-     * (represented by a `CpNode` of course) will be terminating with the
-     * other point being its `next`, whereas the other point will *not* be
+     * distance between two of the contact points tend to zero. One point 
+     * (represented by a `CpNode` of course) will be terminating with the 
+     * other point being its `next`, whereas the other point will *not* be 
      * terminating and 'points' back into the shape.
-     */
-    isTerminating: isTerminating,
+     */ isTerminating: isTerminating,
     /**
      * Like isTerminating() but only returns true if all cpNodes on the circle
      * (except this.prevOnCircle) is terminating.
-     */
-    isFullyTerminating: isFullyTerminating,
+     */ isFullyTerminating: isFullyTerminating,
     /**
-     * Returns the first `CpNode` (from this one by successively applying
+     * Returns the first `CpNode` (from this one by successively applying 
      * .nextOnCircle) that exits the circle.
-     */
-    getFirstExit: getFirstExit,
+     */ getFirstExit: getFirstExit,
     /**
-     * Returns true if this `CpNode` represents a sharp corner, i.e. the
-     * limiting case of a two-prong having zero radius.
-     *
+     * Returns true if this `CpNode` represents a sharp corner, i.e. the 
+     * limiting case of a two-prong having zero radius. 
+     * 
      * Note that two `CpNode`s are stored for each sharp corner, one being
      * terminating and one not. See `isTerminating` for more details.
-     */
-    isSharp: isSharp,
+     */ isSharp: isSharp,
     /**
      * Returns true if this `CpNode`'s maximal disk has only one contact point
-     * on the shape boundary (up to planar coordinates). These includes sharp
+     * on the shape boundary (up to planar coordinates). These includes sharp 
      * corners.
-     *
+     * 
      * Note, however, that two `CpNode`s are stored for each such point to
      * preserve symmetry - see `isTerminating` for more details.
-     */
-    isOneProng: isOneProng,
+     */ isOneProng: isOneProng,
     /**
      * Returns the number of contact points on the maximal disk circle implied
-     * by this `CpNode`.
-     *
+     * by this `CpNode`. 
+     * 
      * Note, however, that even one-prongs and sharp corners will return 2 (see
-     * `isTerminating` for more details); if this is not desired use
+     * `isTerminating` for more details); if this is not desired use 
      * `getRealProngCount` instead which will return 1 in these cases.
-     */
-    getProngCount: getProngCount,
+     */ getProngCount: getProngCount,
     /**
-     * Returns the number of contact points (up to planar coordinates) on the
-     * maximal disk circle implied by this `CpNode`.
-     *
+     * Returns the number of contact points (up to planar coordinates) on the 
+     * maximal disk circle implied by this `CpNode`. 
+     * 
      * See also `getProngCount`.
-     */
-    getRealProngCount: getRealProngCount,
+     */ getRealProngCount: getRealProngCount,
     /**
      * Primarily for internal use.
-     *
+     * 
      * Compares the order of two `CpNode`s. The order is cyclic and depends
      * on a `CpNode`'s relative position along the shape boundary.
-     */
-    cpNodeComparator: cpNodeComparator,
+     */ cpNodeComparator: cpNodeComparator,
     /**
      * For debugging
-     * @param cpNode
-     */
-    enhanceCpNode: enhanceCpNode,
+     * @param cpNode 
+     */ enhanceCpNode: enhanceCpNode,
     /**
      * @internal
-     *
+     * 
      * Traverses the shape from the given `CpNode` going around the shortest path
-     * so that only a piece of the shape is traversed and returns the visited
+     * so that only a piece of the shape is traversed and returns the visited 
      * `CpNode`s (starting from the given `CpNode`).
-     *
+     * 
      * @param cpStart The `CpNode` from where to start the traversal.
-     */
-    traverseCp: traverseCp,
+     */ traverseCp: traverseCp,
     /**
-     * Traverses all edges (depth first) of the given MAT tree starting at the given
+     * Traverses all edges (depth first) of the given MAT tree starting at the given 
      * vertex (represented by a `CpNode`).
      * @param cpNode Any `CpNode` representing the start vertex.
-     * @param traverseEdgesCallback A callback function for each CpNode representing the vertex at the
+     * @param traverseEdgesCallback A callback function for each CpNode representing the vertex at the 
      * start of an edge.
-     */
-    traverseEdges: traverseEdges,
+     */ traverseEdges: traverseEdges,
     /**
      * Traverses the MAT tree and calls the given callback function for each vertex
      * (represented by a `CpNode`) on the MAT.
-     *
-     * It is usually preferable to use `traverseEdges` as it allows for the
+     * 
+     * It is usually preferable to use `traverseEdges` as it allows for the 
      * traversal of all the smooth curves representing the MAT.
      * @param cpNode Any `CpNode` representing the start vertex.
      * @param traverseVerticesCallback A callback function taking a single `CpNode` as parameter.
-     */
-    traverseVertices: traverseVertices,
+     */ traverseVertices: traverseVertices,
     /**
-     * Returns a deep clone of this `CpNode`. Can be used to copy the MAT
-     * since cloning a single `CpNode` necessarily implies cloning all
+     * Returns a deep clone of this `CpNode`. Can be used to copy the MAT 
+     * since cloning a single `CpNode` necessarily implies cloning all 
      * `CpNode`s on the same MAT tree.
-     */
-    clone: clone,
+     */ clone: clone,
     /**
-     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
+     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode` 
      * on the boundary.
      * @param cpNode
-     */
-    getBoundaryBezierPartsToNext: getBoundaryBezierPartsToNext,
+     */ getBoundaryBezierPartsToNext: getBoundaryBezierPartsToNext,
     /**
-     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode`
+     * Returns the ordered bezier curves from this `CpNode` to the next `CpNode` 
      * on the boundary.
      * @param cpNode
-     */
-    getBoundaryBeziersToNext: getBoundaryBeziersToNext,
+     */ getBoundaryBeziersToNext: getBoundaryBeziersToNext,
     /**
      * Removes a `CpNode` from the MAT.
      * @param cpTree The tree graph holding the `CpNode`s of the MAT.
      * @param cpNode The `CpNode` to remove.
-     */
-    removeVertex: removeVertex,
+     */ removeVertex: removeVertex,
     /**
-     * Returns the bezier curve from the maximal disk of the given `CpNode` to the
-     * next `CpNode`'s maximal disk and thus directly represents a piece of the
+     * Returns the bezier curve from the maximal disk of the given `CpNode` to the 
+     * next `CpNode`'s maximal disk and thus directly represents a piece of the 
      * medial axis.
-     * @param cpNode
-     */
-    getMatCurveToNext: getMatCurveToNext,
+     * @param cpNode 
+     */ getMatCurveToNext: getMatCurveToNext,
     isTwoProng: isTwoProng,
     getBranch: getBranch,
     getBranchBeziers: getBranchBeziers,
@@ -5582,17 +5576,15 @@ const CpNodeFs = {
     /**
      * Returns the bezier curve from the maximal disk of one `CpNode` to another
      * `CpNode`'s maximal disk.
-     * @param cpNodeFrom
-     * @param cpNodeTo
-     */
-    getMatCurveBetween: getMatCurveBetween,
+     * @param cpNodeFrom 
+     * @param cpNodeTo 
+     */ getMatCurveBetween: getMatCurveBetween,
     /**
      * @internal
      * Returns a line segment of unit length starting in the given Vertex center and
      * pointing in the direction of the medial axis (viewed as a rooted tree).
-     * @param cpNode
-     */
-    getEdgeDirection: getEdgeDirection,
+     * @param cpNode 
+     */ getEdgeDirection: getEdgeDirection,
     getBoundaryBeziersBetween: getBoundaryBeziersBetween,
     getMatCurvesBetween: getMatCurvesBetween,
     getHoleClosers: getHoleClosers,
@@ -5604,15 +5596,14 @@ const CpNodeFs = {
 ;// ./src/cp-node/fs/is-special.ts
 
 function isSpecial(cpNode) {
-    return ((getRealProngCount(cpNode) !== 2) &&
-        !cpNode.isHoleClosing);
+    return getRealProngCount(cpNode) !== 2 && !cpNode.isHoleClosing;
 }
 
 
 ;// ./src/cp-node/fs/is-vertex.ts
 
 function isVertex(f) {
-    return (cpNode) => getAllOnCircle(cpNode).some(f);
+    return (cpNode)=>getAllOnCircle(cpNode).some(f);
 }
 
 
@@ -24462,16 +24453,15 @@ const { max: loop_get_max_coordinate_max, abs: loop_get_max_coordinate_abs } = M
  * @internal
  * Returns the maximum control point coordinate value (x or y) within any loop.
  * @param loops The array of loops
- */
-function getLoopsMetrics(loops) {
+ */ function getLoopsMetrics(loops) {
     let maxCoordinate = 0;
     let minX = +Infinity;
     let maxX = -Infinity;
     let minY = +Infinity;
     let maxY = -Infinity;
-    for (const loop of loops) {
-        for (const ps of loop) {
-            for (const p of ps) {
+    for (const loop of loops){
+        for (const ps of loop){
+            for (const p of ps){
                 const x = p[0];
                 const y = p[1];
                 const c = loop_get_max_coordinate_max(loop_get_max_coordinate_abs(x), loop_get_max_coordinate_abs(y));
@@ -24495,7 +24485,11 @@ function getLoopsMetrics(loops) {
     }
     const width = maxX - minX;
     const height = maxY - minY;
-    return { maxCoordinate, width, height };
+    return {
+        maxCoordinate,
+        width,
+        height
+    };
 }
 
 
@@ -25086,7 +25080,7 @@ function getNonTerminatingOnCircle(cpNode, exclThis = false) {
             cpNodes.push(cpNode_);
         }
         cpNode_ = cpNode_.nextOnCircle;
-    } while (cpNode_ !== startCpNode);
+    }while (cpNode_ !== startCpNode)
     return cpNodes;
 }
 
@@ -25096,16 +25090,17 @@ function getNonTerminatingOnCircle(cpNode, exclThis = false) {
 
 /**
  * Returns all branches associated with the give cpNode.
- *
+ * 
  * * the final `CpNode` of each branch is not returned to improve symmetry
- *
+ * 
  * @param cpNode `CpNode` representing the start vertex.
- */
-function getBranches(cpNode) {
+ */ function getBranches(cpNode) {
     const branches = [];
-    const cpNodeStack = [cpNode];
+    const cpNodeStack = [
+        cpNode
+    ];
     const takenBranches = new Set();
-    while (cpNodeStack.length > 0) {
+    while(cpNodeStack.length > 0){
         const cpNode = cpNodeStack.pop();
         const branch = getBranch(cpNode);
         if (branch.length === 0) {
@@ -25118,12 +25113,12 @@ function getBranches(cpNode) {
         takenBranches.add(cpNodeE);
         const _cpNodesS = getNonTerminatingOnCircle(cpNodeS, true);
         const _cpNodesE = getNonTerminatingOnCircle(cpNodeE, true);
-        const cpNodesS = _cpNodesS.filter(cpNode => !takenBranches.has(cpNode));
-        const cpNodesE = _cpNodesE.filter(cpNode => !takenBranches.has(cpNode));
-        for (const cpNode of cpNodesS) {
+        const cpNodesS = _cpNodesS.filter((cpNode)=>!takenBranches.has(cpNode));
+        const cpNodesE = _cpNodesE.filter((cpNode)=>!takenBranches.has(cpNode));
+        for (const cpNode of cpNodesS){
             takenBranches.add(cpNode);
         }
-        for (const cpNode of cpNodesE) {
+        for (const cpNode of cpNodesE){
             takenBranches.add(cpNode);
         }
         cpNodeStack.push(...cpNodesS, ...cpNodesE);
@@ -25580,11 +25575,10 @@ class RbTree {
 
 
 /**
- * @param cpNode
- *
+ * @param cpNode 
+ * 
  * @internal
- */
-function createNewCpTrees(cpNode) {
+ */ function createNewCpTrees(cpNode) {
     const cpTrees_ = new Map();
     getAllOnLoop(cpNode).forEach(createNewCpTree_);
     function createNewCpTree_(cpNode) {
@@ -25604,18 +25598,17 @@ function createNewCpTrees(cpNode) {
 /**
  * Finds the first `CpNode` in the same MAT tree for which `f` returns a
  * truthy value. Returns `undefined` if no such `CpNode` exists.
- *
+ * 
  * @param f a function that takes a `CpNode` and returns a `CpNode` or `undefined`
  * @param cpNode a `CpNode` on the MAT tree to search from
- */
-function findFirst(f, cpNode) {
+ */ function findFirst(f, cpNode) {
     const cpStart = cpNode;
     do {
         if (f(cpNode)) {
             return cpNode;
         }
         cpNode = cpNode.next;
-    } while (cpNode !== cpStart);
+    }while (cpNode !== cpStart)
     return undefined;
 }
 
@@ -25637,7 +25630,7 @@ const { max: simplify_mat_max } = Math;
 /**
  * Returns a new simplified MAT of the given one by replacing the piecewise
  * quad beziers composing the MAT with fewer ones to within a given tolerance.
- *
+ * 
  * @param cpNode a representation of the MAT
  * @param anlgeTolerance tolerance given as the degrees difference of the unit
  * direction vectors at the interface between curves. A tolerance of zero means
@@ -25646,22 +25639,21 @@ const { max: simplify_mat_max } = Math;
  * defaults to `2**-3`
  * @param maxIterations the max iterations of the Hausdorff Distance calculation,
  * defaults to `50`
- */
-function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
+ */ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
     let cpNode = clone(mat.cpNode);
     // Start from a leaf
-    while (!isTerminating(cpNode)) {
+    while(!isTerminating(cpNode)){
         cpNode = cpNode.next;
     }
     const branches = getBranches(cpNode);
     const canDeletes = new Set();
-    for (let k = 0; k < branches.length; k++) {
+    for(let k = 0; k < branches.length; k++){
         const branch = branches[k];
         // Try to remove some
         let j = 0;
-        while (j < branch.length) {
+        while(j < branch.length){
             const i = j;
-            while (true) {
+            while(true){
                 j++;
                 if (j === branch.length) {
                     break;
@@ -25669,8 +25661,7 @@ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
                 const hd = getTotalHausdorffDistance(i, j, branch, maxIterations);
                 if (hd > hausdorffTolerance) {
                     break;
-                }
-                else {
+                } else {
                     canDeletes.add(branch[j]);
                 }
             }
@@ -25681,9 +25672,8 @@ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
     }
     // cpNode = findFirst(cpNode_ => isTerminating(cpNode_) ? cpNode_ : undefined, cpNode)!;
     cpNode = findFirst(isTerminating, cpNode);
-    for (const cpNode of canDeletes) {
-        if (!isVertex(cpNode => (getProngCount(cpNode) !== 2) &&
-            !cpNode.isHoleClosing)(cpNode)) {
+    for (const cpNode of canDeletes){
+        if (!isVertex((cpNode)=>getProngCount(cpNode) !== 2 && !cpNode.isHoleClosing)(cpNode)) {
             removeVertex(cpNode, mat.meta);
         }
     }
@@ -25698,7 +25688,7 @@ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 50) {
 function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
     const hds = [];
     const longCurve = getMatCurveBetween(branch[i], branch[j].next);
-    for (; i < j + 1; i++) {
+    for(; i < j + 1; i++){
         hds.push(hausdorffDistanceOneSided(getMatCurveToNext(branch[i]), longCurve, hausdorffSpacing));
     }
     return simplify_mat_max(...hds);
@@ -25709,10 +25699,8 @@ function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
 
 function getLargestVertex(cpNode) {
     const cpNodes = getAllOnLoop(cpNode);
-    return cpNodes.reduce(function (maxCpNode, cpNode) {
-        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius
-            ? maxCpNode
-            : cpNode;
+    return cpNodes.reduce(function(maxCpNode, cpNode) {
+        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius ? maxCpNode : cpNode;
     }, cpNodes[0]);
 }
 
@@ -25720,11 +25708,10 @@ function getLargestVertex(cpNode) {
 ;// ./src/sat/get-leaves.ts
 
 
-/** @internal */
-function getLeaves(cpNode) {
+/** @internal */ function getLeaves(cpNode) {
     const leaves = [];
     const cps = getAllOnLoop(cpNode);
-    for (const cp of cps) {
+    for (const cp of cps){
         if (isFullyTerminating(cp) && !cp.isHoleClosing) {
             leaves.push(cp);
         }
@@ -25735,11 +25722,12 @@ function getLeaves(cpNode) {
 
 ;// ./src/utils/dual-set.ts
 /**
+ * A 'dual-set' in the sense that it needs two ordered keys.
+ */ /**
  * Get a value from the dual-set.
- * @param set
- * @param k
- */
-function has(set, k, l) {
+ * @param set 
+ * @param k 
+ */ function has(set, k, l) {
     const lSet = set.get(k);
     if (lSet === undefined) {
         return false;
@@ -25748,14 +25736,13 @@ function has(set, k, l) {
 }
 /**
  * Adds a value to the dual-set.
- *
+ * 
  * * destructively sets the value
- *
- * @param set
- * @param k
- * @param l
- */
-function add(set, k, l) {
+ * 
+ * @param set 
+ * @param k 
+ * @param l 
+ */ function add(set, k, l) {
     let lSet = set.get(k);
     if (lSet === undefined) {
         lSet = new Set();
@@ -25777,17 +25764,20 @@ function remove(set, k, l) {
     }
     return true;
 }
-const DualSetFs = { has, add, remove };
-
-// TESTING
-// const s: DualSet<number,number> = new Map();
-// add(s,1,2);
-// has(s,1,2);//?
-// has(s,2,1);//?
-// has(s,1,1);//?
-// add(s,1,1);
-// has(s,1,1);//?
-// has(s,1,2);//?
+const DualSetFs = {
+    has,
+    add,
+    remove
+};
+ // TESTING
+ // const s: DualSet<number,number> = new Map();
+ // add(s,1,2);
+ // has(s,1,2);//?
+ // has(s,2,1);//?
+ // has(s,1,1);//?
+ // add(s,1,1);
+ // has(s,1,1);//?
+ // has(s,1,2);//?
 
 ;// ./src/sat/cull.ts
 
@@ -25796,13 +25786,12 @@ const DualSetFs = { has, add, remove };
 
 /**
  * Returns the set of non-trivial forward edges starting from the given `CpNode`.
- *
+ * 
  * @param cpStart the start `CpNode`
- */
-function getNonTrivialForwardEdges(cpStart) {
+ */ function getNonTrivialForwardEdges(cpStart) {
     let cpNode = cpStart;
     let cpEnd = cpStart.prevOnCircle;
-    while (isTerminating(cpEnd)) {
+    while(isTerminating(cpEnd)){
         cpEnd = cpEnd.prevOnCircle;
     }
     const cps = [];
@@ -25811,50 +25800,45 @@ function getNonTrivialForwardEdges(cpStart) {
             cps.push(cpNode);
         }
         cpNode = cpNode.nextOnCircle;
-    } while (cpNode !== cpEnd);
+    }while (cpNode !== cpEnd)
     return cps;
 }
 /**
- * Returns the set of Vertices passing the following test: walk the MAT tree and
- * keep all Vertices not in the current cull set and any Vertices that have a
+ * Returns the set of Vertices passing the following test: walk the MAT tree and 
+ * keep all Vertices not in the current cull set and any Vertices that have a 
  * non-culled node further down the line toward the tree leaves.
- *
+ * 
  * @param culls the `CpNode`s (referred to by circles) that should be culled
  * @param maxCpNode the start `CpNode` which must represent the maximal vertex
- *
+ * 
  * @internal
- */
-function cull(culls, maxCpNode) {
+ */ function cull(culls, maxCpNode) {
     const leaves = getLeaves(maxCpNode);
-    while (leaves.length) {
+    while(leaves.length){
         const leaf = leaves.pop();
         const { center: c } = leaf.pointOnShape.circle;
-        if (!DualSetFs.has(culls, c[0], c[1]) ||
-            // Preserve topology.
-            leaf.isIntersection) {
+        if (!DualSetFs.has(culls, c[0], c[1]) || // Preserve topology.
+        leaf.isIntersection) {
             continue;
         }
         let cpNode = leaf.prevOnCircle; // Turn around
         let cut = false;
-        while (!cut) {
+        while(!cut){
             cpNode = cpNode.next;
             const { center: c } = cpNode.pointOnShape.circle;
             if (!DualSetFs.has(culls, c[0], c[1])) {
                 // Cut off the edge once a non-cull has been reached.
-                while (isTerminating(cpNode.prevOnCircle)) {
+                while(isTerminating(cpNode.prevOnCircle)){
                     cpNode = cpNode.prevOnCircle;
                 }
                 cut = true;
-            }
-            else if (isOnSameCircle(cpNode, maxCpNode)) {
+            } else if (isOnSameCircle(cpNode, maxCpNode)) {
                 cut = true; // We are at the max disk - cut whole edge
-            }
-            else {
+            } else {
                 const cps = getNonTrivialForwardEdges(cpNode);
                 if (cps.length === 1) {
                     continue;
-                }
-                else {
+                } else {
                     cut = true;
                 }
             }
@@ -25872,11 +25856,10 @@ function cull(culls, maxCpNode) {
 
 ;// ./src/sat/add-debug-info.ts
 /**
- * @param sat
- *
+ * @param sat 
+ * 
  * @internal
- */
-function addDebugInfo(timingStart) {
+ */ function addDebugInfo(timingStart) {
     if (typeof _debug_ === 'undefined') {
         return;
     }
@@ -25929,21 +25912,22 @@ function length_length(interval, ps, maxCurviness = 0.4, gaussOrder = 16) {
 
 
 function getSatCulls(cpNode, s) {
-    /**
-     * All vertices that are set to be culled initially. This may change later
-     * in order to preserve topology.
-     */
-    const culls = new Map();
+    /** 
+     * All vertices that are set to be culled initially. This may change later 
+     * in order to preserve topology. 
+     */ const culls = new Map();
     const rMap = new Map();
-    traverseEdges(cpNode, function (cpNode) {
-        /** The occulating radius stored with this vertex. */
-        const R = rMap.get(cpNode) || (s * cpNode.pointOnShape.circle.radius);
+    traverseEdges(cpNode, function(cpNode) {
+        /** The occulating radius stored with this vertex. */ const R = rMap.get(cpNode) || s * cpNode.pointOnShape.circle.radius;
         const cpNode_ = cpNode.next;
-        const l = length_length([0, 1], getMatCurveToNext(cpNode));
+        const l = length_length([
+            0,
+            1
+        ], getMatCurveToNext(cpNode));
         const r = cpNode_.pointOnShape.circle.radius;
         const r_ = s * r;
         if (R - l > r_) {
-            for (const cpNode of getAllOnCircle(cpNode_)) {
+            for (const cpNode of getAllOnCircle(cpNode_)){
                 rMap.set(cpNode, R - l); // Update osculating radii
                 if (!cpNode_.isHoleClosing) {
                     const { center: c } = cpNode_.pointOnShape.circle;
@@ -25957,7 +25941,7 @@ function getSatCulls(cpNode, s) {
 
 
 ;// ./src/sat/to-scale-axis.ts
-
+/** @internal */ 
 
 
 
@@ -25967,16 +25951,15 @@ function getSatCulls(cpNode, s) {
  * Apply and returns an enhanced version of the Scale Axis Transform (SAT) to
  * the given MAT. The returned SAT is guaranteed to be a subset of the MAT and
  * preserves topology at any scale.
- *
+ * 
  * Typically the MAT contains too many branches caused by minute details on the
  * boundary of the shape. The SAT is a simplification of the MAT that preserves
  * less detail the higher the applied scale factor. The severity at which noise
  * are removed depends on the local scale of the shape.
- *
+ * 
  * @param mat the Medial Axis Transform (MAT) on which to apply the SAT
  * @param s the scale factor >= 1 (e.g. 1.3)
- */
-function toScaleAxis(mat, s) {
+ */ function toScaleAxis(mat, s) {
     let timingStart = 0;
     if (typeof _debug_ !== 'undefined') {
         timingStart = performance.now();
@@ -26006,31 +25989,48 @@ const defaultMatOptions = {
     simplifyTolerance: 2 ** -4,
     minBezLength: 2 ** -6,
     angleIncrement: 15
-    // adaptiveTolerance: true,
 };
 const matOptionRanges = {
     maxCurviness: {
-        range: [0.01, 3],
+        range: [
+            0.01,
+            3
+        ],
         scaleByMaxCoordinate: false
     },
     maxLength: {
-        range: [1, 1024],
+        range: [
+            1,
+            1024
+        ],
         scaleByMaxCoordinate: true
     },
     angleIncrement: {
-        range: [0.1, 360],
+        range: [
+            0.1,
+            360
+        ],
         scaleByMaxCoordinate: false
     },
     satScale: {
-        range: [1, Infinity],
+        range: [
+            1,
+            Infinity
+        ],
         scaleByMaxCoordinate: false
     },
     simplifyTolerance: {
-        range: [2 ** -20, 2 ** 20],
+        range: [
+            2 ** -20,
+            2 ** 20
+        ],
         scaleByMaxCoordinate: true
     },
     minBezLength: {
-        range: [2 ** -20, 2],
+        range: [
+            2 ** -20,
+            2
+        ],
         scaleByMaxCoordinate: true
     }
 };
@@ -26040,8 +26040,10 @@ const matOptionRanges = {
 
 function clipOptions(maxCoordPowerOf2, options) {
     const scaleSigBits = 10; // 1024 x 1024
-    const options_ = { ...options };
-    for (const k in matOptionRanges) {
+    const options_ = {
+        ...options
+    };
+    for(const k in matOptionRanges){
         const key = k;
         let o = options_[key];
         const c = matOptionRanges[key];
@@ -26077,15 +26079,14 @@ function rotateNeg90Degrees(p) {
 
 
 /**
- * Calculates the order (to distinguish between points lying on top of each
+ * Calculates the order (to distinguish between points lying on top of each 
  * other) of the contact point if it is a dull corner.
- *
+ * 
  * @param circle
  * @param pos
- *
+ * 
  * @internal
- */
-function calcPosOrder(circleCenter, pos) {
+ */ function calcPosOrder(circleCenter, pos) {
     if (!isPosCorner(pos)) {
         return 0;
     }
@@ -26161,16 +26162,15 @@ const root_interval_to_distance_squared_interval_qaq = ddAddDd;
 const closest_boundary_point_root_interval_to_distance_squared_interval_eps = Number.EPSILON;
 /**
  * Returns the distance interval squared given the root interval (currently
- * ignoring multiplicity).
- *
+ * ignoring multiplicity). 
+ * 
  * * the result is returned as `[minPossibleSquared, maxPossibleSquared]` distance.
- *
+ * 
  * @param box
  * @param p
- *
+ * 
  * @internal
- */
-function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquaredInterval(box, p) {
+ */ function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquaredInterval(box, p) {
     const bl = box[0];
     const tr = box[1];
     const minX = bl[0];
@@ -26182,7 +26182,24 @@ function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquare
     let minDSquared = +Infinity;
     let maxDSquared = -Infinity;
     // for each corner of the interval box
-    for (const [a, b] of [[minX, minY], [minX, maxY], [maxX, minY], [maxX, maxY]]) {
+    for (const [a, b] of [
+        [
+            minX,
+            minY
+        ],
+        [
+            minX,
+            maxY
+        ],
+        [
+            maxX,
+            minY
+        ],
+        [
+            maxX,
+            maxY
+        ]
+    ]){
         /*
         // distance to 1st corner of interval box - `distance² = x² + y²`
         const dc1 = (a - x)**2 + (b - y)**2;
@@ -26191,9 +26208,7 @@ function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquare
         const dc1E = 4*γ1*((a + x)**2 + (b + y)**2);
         const dc1Min = dc1 - dc1E;  // distance minus max error
         const dc1Max = dc1 + dc1E;  // distance plus max error
-        */
-        /** distance to 1st corner of interval box - `distance² = x² + y²` */
-        const ax = closest_boundary_point_root_interval_to_distance_squared_interval_td(a, x); // a - x
+        */ /** distance to 1st corner of interval box - `distance² = x² + y²` */ const ax = closest_boundary_point_root_interval_to_distance_squared_interval_td(a, x); // a - x
         const by = closest_boundary_point_root_interval_to_distance_squared_interval_td(b, y); // b - y
         // const dc1Exact = eadd(emult(ax,ax),emult(by,by));  // ax**2 + bx**2
         // const dc1 = estimate(dc1Exact);
@@ -26210,7 +26225,10 @@ function root_interval_to_distance_squared_interval_rootIntervalToDistanceSquare
             maxDSquared = dc1Max;
         }
     }
-    return [minDSquared, maxDSquared];
+    return [
+        minDSquared,
+        maxDSquared
+    ];
 }
 
 
@@ -26233,40 +26251,35 @@ function squaredDistanceBetweenDd(x, y) {
 
 
 ;// ./src/error-analysis/gamma.ts
-/** `2 * 2^-53` -> 2x the standard round-of unit `=== Number.EPSILON` */
-const gamma_eps = Number.EPSILON;
-/** `2^-53` -> the standard round-of unit `=== eps/2` */
-const gamma_u = gamma_eps / 2;
-/** `2^-106` -> the standard round-of unit for double-double precision `=== (eps/2)**2` */
-const gamma_uu = gamma_u * gamma_u;
+/** `2 * 2^-53` -> 2x the standard round-of unit `=== Number.EPSILON` */ const gamma_eps = Number.EPSILON;
+/** `2^-53` -> the standard round-of unit `=== eps/2` */ const gamma_u = gamma_eps / 2;
+/** `2^-106` -> the standard round-of unit for double-double precision `=== (eps/2)**2` */ const gamma_uu = gamma_u * gamma_u;
 /**
  * The canonical floating point error function, γ.
- *
+ * 
  * * roughly `=== n * (Number.EPSILON / 2)`
  * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
- * @param n the parameter - typically a small positive integer, e.g. for
- * polynomial evaluation this === 2*d + 1, where d is the degree of the
+ * @param n the parameter - typically a small positive integer, e.g. for 
+ * polynomial evaluation this === 2*d + 1, where d is the degree of the 
  * polynomial
- *
+ * 
  * @doc
- */
-function gamma_(n) {
+ */ function gamma_(n) {
     const nu = n * gamma_u;
     return nu / (1 - nu);
 }
 /**
- * The canonical, once compensated (implying double-double precision),
+ * The canonical, once compensated (implying double-double precision), 
  * floating point error function.
- *
+ * 
  * * roughly `=== n * (Number.EPSILON / 2)**2`
  * * see e.g. [Algorithms for Accurate, Validated and Fast Polynomial Evaluation](https://hal.archives-ouvertes.fr/hal-00285603/document)
- * @param n the parameter - typically a small positive integer, e.g. for
- * polynomial evaluation this === 2*d + 1, where d is the degree of the
+ * @param n the parameter - typically a small positive integer, e.g. for 
+ * polynomial evaluation this === 2*d + 1, where d is the degree of the 
  * polynomial
- *
+ * 
  * @doc
- */
-function error_analysis_gamma_(n) {
+ */ function error_analysis_gamma_(n) {
     const nuu = n * gamma_uu;
     return nuu / (1 - nuu);
 }
@@ -26280,22 +26293,24 @@ function error_analysis_gamma_(n) {
 
 /**
  * @internal
- *
+ * 
  * @param curve the curve
  * @param x the point from which to check
  * @param tRange The allowed t range
- */
-function getPotentialClosestPointsOnCurveCertified(curve, x, tRange) {
+ */ function getPotentialClosestPointsOnCurveCertified(curve, x, tRange) {
     const [tS, tE] = tRange;
     const { ps } = curve;
     const infos = [];
     if (tS !== tE) {
         const { polyDd: pDd, polyE: pDd_, getPolyExact } = getFootPointsOnBezierPolysCertified(ps, x);
         const ris = roots(pDd, tS, tE, pDd_, getPolyExact) || [];
-        infos.push(...ris.map(ri => {
+        infos.push(...ris.map((ri)=>{
             const { tS: ts, tE: te, t: _t } = ri;
             const t = _t < 0 ? 0 : _t > 1 ? 1 : _t;
-            const box = getIntervalBox(ps, [ts, te]);
+            const box = getIntervalBox(ps, [
+                ts,
+                te
+            ]);
             const dSquaredI = root_interval_to_distance_squared_interval_rootIntervalToDistanceSquaredInterval(box, x);
             const t_ = t === 0 ? 1 : t;
             const curve_ = t === 0 ? curve.prev : curve;
@@ -26310,10 +26325,16 @@ function getPotentialClosestPointsOnCurveCertified(curve, x, tRange) {
     if (tS === tE) {
         ts.push(tS);
     }
-    infos.push(...ts.map(t => {
-        const p = evalDeCasteljauDd(ps, [0, t]).map(v => v[0] + v[1]);
+    infos.push(...ts.map((t)=>{
+        const p = evalDeCasteljauDd(ps, [
+            0,
+            t
+        ]).map((v)=>v[0] + v[1]);
         const d = squaredDistanceBetweenDd(p, x);
-        const dSquaredI = [d * (1 - gamma_eps), d * (1 + gamma_eps)];
+        const dSquaredI = [
+            d * (1 - gamma_eps),
+            d * (1 + gamma_eps)
+        ];
         const t_ = t === 0 ? 1 : t;
         const curve_ = t === 0 ? curve.prev : curve;
         return {
@@ -26332,14 +26353,13 @@ function getPotentialClosestPointsOnCurveCertified(curve, x, tRange) {
 const { min: get_best_distance_squared_min } = Math;
 const TOLERANCE = 1 + 2 ** -20;
 /**
- * Finds an initial distance such that the closest point can not be further than
+ * Finds an initial distance such that the closest point can not be further than 
  * this distance away.
- *
+ * 
  * @internal
- */
-function getBestDistanceSquared(curvePieces, xO) {
+ */ function getBestDistanceSquared(curvePieces, xO) {
     let bestSquaredDistance = Infinity;
-    for (let i = 0; i < curvePieces.length; i++) {
+    for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const { curve: { ps }, ts } = curvePiece;
         const p1 = evalDeCasteljau(ps, ts[0]);
@@ -26355,8 +26375,7 @@ function getBestDistanceSquared(curvePieces, xO) {
 
 /**
  * @internal
- */
-function getClosestSquareDistanceToRect(box, p) {
+ */ function getClosestSquareDistanceToRect(box, p) {
     const p0 = box[0];
     const p1 = box[1];
     const x0 = p0[0];
@@ -26368,30 +26387,29 @@ function getClosestSquareDistanceToRect(box, p) {
     if (xp < x0) {
         if (yp < y0) {
             return squaredDistanceBetween(box[0], p);
-        }
-        else if (yp > y1) {
-            return squaredDistanceBetween([x0, y1], p);
-        }
-        else {
+        } else if (yp > y1) {
+            return squaredDistanceBetween([
+                x0,
+                y1
+            ], p);
+        } else {
             return (x0 - xp) ** 2;
         }
-    }
-    else if (xp > x1) {
+    } else if (xp > x1) {
         if (yp < y0) {
-            return squaredDistanceBetween([x1, y0], p);
-        }
-        else if (yp > y1) {
+            return squaredDistanceBetween([
+                x1,
+                y0
+            ], p);
+        } else if (yp > y1) {
             return squaredDistanceBetween(box[1], p);
-        }
-        else {
+        } else {
             return (xp - x1) ** 2;
         }
-    }
-    else {
+    } else {
         if (yp < y0) {
             return (y0 - yp) ** 2;
-        }
-        else if (yp > y1) {
+        } else if (yp > y1) {
             return (yp - y1) ** 2;
         }
         return 0;
@@ -26409,18 +26427,17 @@ const get_bounding_box_getBoundingBox$ = memoize(getBoundingBox);
 
 
 /**
- * When checking distances, ignore all those with closest possible distance
+ * When checking distances, ignore all those with closest possible distance 
  * further than 'bestSquaredDistance', i.e. cull them.
- *
- * @param curvePieces
- * @param xO
- * @param xy2
- *
+ * 
+ * @param curvePieces 
+ * @param xO 
+ * @param xy2 
+ * 
  * @internal
- */
-function cullByLooseBoundingBox(curvePieces, xO, xy2) {
+ */ function cullByLooseBoundingBox(curvePieces, xO, xy2) {
     const curvePieces_ = [];
-    for (let i = 0; i < curvePieces.length; i++) {
+    for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const { ps } = curvePiece.curve;
         const boundingBox = get_bounding_box_getBoundingBox$(ps);
@@ -26457,19 +26474,25 @@ function squaredDistanceBetweenPointAndLineSegment(p, l) {
 //# sourceMappingURL=squared-distance-between-point-and-line-segment.js.map
 ;// ./src/geometry/get-closest-squared-distance-to-rotated-rect.ts
 
+const { min: get_closest_squared_distance_to_rotated_rect_min } = Math;
 /**
  * @internal
- */
-function getClosestSquaredDistanceToRotatedRect(ps, p) {
-    const ds = [0, 1, 2, 3]
-        .map(i => squaredDistanceBetweenPointAndLineSegment(p, [ps[i], ps[(i + 1) % 4]]));
+ */ function getClosestSquaredDistanceToRotatedRect(ps, p) {
+    const ds = [
+        0,
+        1,
+        2,
+        3
+    ].map((i)=>squaredDistanceBetweenPointAndLineSegment(p, [
+            ps[i],
+            ps[(i + 1) % 4]
+        ]));
     const width = squaredDistanceBetween(ps[0], ps[1]);
     const height = squaredDistanceBetween(ps[0], ps[3]);
-    if (ds[0] <= height && ds[2] <= height &&
-        ds[1] <= width && ds[3] <= width) {
+    if (ds[0] <= height && ds[2] <= height && ds[1] <= width && ds[3] <= width) {
         return 0; // Inside rotated rect
     }
-    return Math.min(...ds);
+    return get_closest_squared_distance_to_rotated_rect_min(...ds);
 }
 
 
@@ -26480,15 +26503,14 @@ function getClosestSquaredDistanceToRotatedRect(ps, p) {
 const getBoundingBoxTight$ = memoize(getBoundingBoxTight);
 /**
  * @internal
- * When checking distances, ignore all those with closest possible distance
+ * When checking distances, ignore all those with closest possible distance 
  * further than 'bestSquaredDistance', i.e. cull them.
- * @param curvePieces
- * @param p
- * @param bestSquaredDistance
- */
-function cullByTightBoundingBox(curvePieces, p, bestSquaredDistance) {
+ * @param curvePieces 
+ * @param p 
+ * @param bestSquaredDistance 
+ */ function cullByTightBoundingBox(curvePieces, p, bestSquaredDistance) {
     const candidateCurvePieces = [];
-    for (let i = 0; i < curvePieces.length; i++) {
+    for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const ps = curvePiece.curve.ps;
         const tightBoundingBox = getBoundingBoxTight$(ps);
@@ -26506,12 +26528,11 @@ function cullByTightBoundingBox(curvePieces, p, bestSquaredDistance) {
 
 
 /**
- * @param curvePieces
- * @param xO
- *
+ * @param curvePieces 
+ * @param xO 
+ * 
  * @internal
- */
-function cullCurvePieces1(curvePieces, xO) {
+ */ function cullCurvePieces1(curvePieces, xO) {
     const bestSquaredDistance = getBestDistanceSquared(curvePieces, xO);
     curvePieces = cullByLooseBoundingBox(curvePieces, xO, bestSquaredDistance);
     curvePieces = cullByTightBoundingBox(curvePieces, xO, bestSquaredDistance);
@@ -26524,12 +26545,14 @@ function cullCurvePieces1(curvePieces, xO) {
 /**
  * Returns the point `p` for the bezier curve `ps` at the parameter value `t`
  * with intermediate calculations done in double-double precision.
- *
- * @param ps
- * @param t
- */
-function to_p_toP(ps, t) {
-    return evalDeCasteljauDd(ps, [0, t]);
+ * 
+ * @param ps 
+ * @param t 
+ */ function to_p_toP(ps, t) {
+    return evalDeCasteljauDd(ps, [
+        0,
+        t
+    ]);
 }
 
 
@@ -26538,45 +26561,47 @@ function to_p_toP(ps, t) {
 
 
 /**
- * Returns the closest boundary point to the given point, limited to the given
+ * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
- *
+ * 
  * @param maxCoordPowerOf2
  * @param curvePieces
  * @param x
- *
+ * 
  * @internal
- */
-function getCloseBoundaryPointsCertified(curvePieces, x) {
+ */ function getCloseBoundaryPointsCertified(curvePieces, x) {
     curvePieces = cullCurvePieces1(curvePieces, x);
     const pInfos = [];
-    for (let i = 0; i < curvePieces.length; i++) {
+    for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const _pInfos = getPotentialClosestPointsOnCurveCertified(curvePiece.curve, x, curvePiece.ts);
         pInfos.push(..._pInfos);
     }
-    /** the minimum max interval value */
-    let minMax = Infinity;
-    for (let i = 0; i < pInfos.length; i++) {
+    /** the minimum max interval value */ let minMax = Infinity;
+    for(let i = 0; i < pInfos.length; i++){
         const diMax = pInfos[i].dSquaredI[1];
         if (diMax < minMax) {
             minMax = diMax;
         }
     }
     const closestPointInfos = [];
-    for (let i = 0; i < pInfos.length; i++) {
+    for(let i = 0; i < pInfos.length; i++){
         const info = pInfos[i];
         if (info.dSquaredI[0] <= minMax) {
             closestPointInfos.push(info);
         }
     }
-    return closestPointInfos.map(info => {
+    return closestPointInfos.map((info)=>{
         const { curve, t } = info;
         const { ps } = curve;
         const pDd = to_p_toP(ps, t);
-        const p = pDd.map(c => c[0] + c[1]);
+        const p = pDd.map((c)=>c[0] + c[1]);
         return {
-            curve, t, isSource: false, p, pDd
+            curve,
+            t,
+            isSource: false,
+            p,
+            pDd
         };
     });
 }
@@ -26586,24 +26611,23 @@ function getCloseBoundaryPointsCertified(curvePieces, x) {
 
 
 /**
- * Finds an initial 3-prong circle center point from which to iterate. The point
- * must be within the shape.
- *
+ * Finds an initial 3-prong circle center point from which to iterate. The point 
+ * must be within the shape. 
+ * 
  * @param maxCoordPowerOf2
- * @param δ3s the three boundary pieces of which we need to find the three
+ * @param δ3s the three boundary pieces of which we need to find the three 
  * 3-prong points.
- * @param curvePiece3s
- *
+ * @param curvePiece3s 
+ * 
  * @internal
- */
-function calcInitial3ProngCenter(δ3s, curvePiece3s) {
+ */ function calcInitial3ProngCenter(δ3s, curvePiece3s) {
     const circle = δ3s[0][0].pointOnShape.circle;
     const twoProngCircleCenter = circle.center;
     const pos = getCloseBoundaryPointsCertified(curvePiece3s[1], twoProngCircleCenter)[0];
     const meanPoints = [
         δ3s[0][0].pointOnShape.p,
         pos.p,
-        δ3s[2][1].pointOnShape.p,
+        δ3s[2][1].pointOnShape.p
     ];
     return circum_center_circumCenter(meanPoints);
 }
@@ -26613,13 +26637,12 @@ function calcInitial3ProngCenter(δ3s, curvePiece3s) {
 
 /**
  * @param maxCoordPowerOf2
- * @param x
- * @param curvePiece3s
- *
+ * @param x 
+ * @param curvePiece3s 
+ * 
  * @internal
- */
-function getClosestPoints(x, curvePiece3s) {
-    return curvePiece3s.map(curvePieces => {
+ */ function getClosestPoints(x, curvePiece3s) {
+    return curvePiece3s.map((curvePieces)=>{
         return getCloseBoundaryPointsCertified(curvePieces, x)[0];
     });
 }
@@ -26641,19 +26664,18 @@ function scale(p, c) {
 
 /**
  * Find new `x` and `ps` that are better estimates of the 3-prong circle.
- *
- * The potential function, V, is defined as the distance to the actual 3 prong
+ * 
+ * The potential function, V, is defined as the distance to the actual 3 prong 
  * circle center.
- *
+ * 
  * @param maxCoordPowerOf2
- * @param curvePiece3s The three boundary pieces, each of which should contain
+ * @param curvePiece3s The three boundary pieces, each of which should contain 
  * a point of the 3-prong to be found.
  * @param x The currently best guess at the center of the 3-prong circle.
  * @param vectorToZeroV
- *
+ * 
  * @internal
- */
-function calcBetterX(curvePiece3s, x, vectorToZeroV) {
+ */ function calcBetterX(curvePiece3s, x, vectorToZeroV) {
     const V = len(vectorToZeroV);
     let nu = 1;
     let better;
@@ -26664,16 +26686,20 @@ function calcBetterX(curvePiece3s, x, vectorToZeroV) {
     do {
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x);
-        newPoss = curvePiece3s.map(curvePieces => getCloseBoundaryPointsCertified(curvePieces, x)[0]);
+        newPoss = curvePiece3s.map((curvePieces)=>getCloseBoundaryPointsCertified(curvePieces, x)[0]);
         // Point of zero V
-        const newCircleCenter = circum_center_circumCenter(newPoss.map(pos => pos.p));
+        const newCircleCenter = circum_center_circumCenter(newPoss.map((pos)=>pos.p));
         const newVectorToZeroV = from_to_fromTo(newX, newCircleCenter);
         newV = len(newVectorToZeroV);
         better = newV < V;
         nu = nu / 2;
         i++;
-    } while (!better && i < 3);
-    return { newX, newV, newPoss };
+    }while (!better && i < 3)
+    return {
+        newX,
+        newV,
+        newPoss
+    };
 }
 
 
@@ -26691,16 +26717,15 @@ function calcBetterX(curvePiece3s, x, vectorToZeroV) {
 const { min: find_3_prong_for_delta3s_min, abs: find_3_prong_for_delta3s_abs, asin: find_3_prong_for_delta3s_asin } = Math;
 /**
  * Finds a 3-prong using only the 3 given δs.
- *
+ * 
  * @param δs the boundary pieces
  * @param idx δ identifier
  * @param k δs identifier
  * @param curvePiecess
  * @param maxCoordPowerOf2
- *
+ * 
  * @internal
- */
-function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
+ */ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     const TOLERANCE = 2 ** (maxCoordPowerOf2 - 32);
     const MAX_ITERATIONS = 10;
     const δs_ = [
@@ -26714,14 +26739,38 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
         curvePiecess[δs.length - 1]
     ];
     const δ3ss = [
-        [δs_[0], δs_[1], δs_[2]],
-        [δs_[1], δs_[2], δs_[0]],
-        [δs_[2], δs_[0], δs_[1]],
+        [
+            δs_[0],
+            δs_[1],
+            δs_[2]
+        ],
+        [
+            δs_[1],
+            δs_[2],
+            δs_[0]
+        ],
+        [
+            δs_[2],
+            δs_[0],
+            δs_[1]
+        ]
     ];
     const curvePiecess_ = [
-        [curvePieces_[0], curvePieces_[1], curvePieces_[2]],
-        [curvePieces_[1], curvePieces_[2], curvePieces_[0]],
-        [curvePieces_[2], curvePieces_[0], curvePieces_[1]],
+        [
+            curvePieces_[0],
+            curvePieces_[1],
+            curvePieces_[2]
+        ],
+        [
+            curvePieces_[1],
+            curvePieces_[2],
+            curvePieces_[0]
+        ],
+        [
+            curvePieces_[2],
+            curvePieces_[0],
+            curvePieces_[1]
+        ]
     ];
     const δ3s = δ3ss[k];
     const curvePiece3s = curvePiecess_[k];
@@ -26746,7 +26795,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     let j = 0; // Safeguard for slow convergence
     let x = calcInitial3ProngCenter(δ3s, curvePiece3s);
     let tolerance = Infinity;
-    while (tolerance > TOLERANCE && j < MAX_ITERATIONS) {
+    while(tolerance > TOLERANCE && j < MAX_ITERATIONS){
         j++;
         poss = getClosestPoints(x, curvePiece3s);
         if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
@@ -26756,7 +26805,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
             // loop. This check, for instance, would be eliminated completely.
             return undefined;
         }
-        const circumCenter = circum_center_circumCenter(poss.map(x => x.p));
+        const circumCenter = circum_center_circumCenter(poss.map((x)=>x.p));
         const vectorToZeroV = from_to_fromTo(x, circumCenter);
         if (!Number.isFinite(vectorToZeroV[0]) || !Number.isFinite(vectorToZeroV[1])) {
             // FUTURE - the code can be cleaned up and sped up a lot if we don't
@@ -26771,17 +26820,18 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
         const V = len(vectorToZeroV); // The 'potential'
         tolerance = find_3_prong_for_delta3s_abs(V - upds.newV);
     }
-    const radius = (distanceBetween(x, poss[0].p) +
-        distanceBetween(x, poss[1].p) +
-        distanceBetween(x, poss[2].p)) / 3;
-    const circle = { center: x, radius };
+    const radius = (distanceBetween(x, poss[0].p) + distanceBetween(x, poss[1].p) + distanceBetween(x, poss[2].p)) / 3;
+    const circle = {
+        center: x,
+        radius
+    };
     //-------------------------------------------------------------------------
     // Calculate the unit tangent vector at 3-prong circle points - they should 
     // be very close to tangent to the boundary piece tangents at those points 
     // (up to sign). Dull corners is a common special case.
     //-------------------------------------------------------------------------
     let totalAngleError = 0;
-    for (let i = 0; i < 3; i++) {
+    for(let i = 0; i < 3; i++){
         const pos = poss[i];
         //----------------------------
         // Tangent of circle at point
@@ -26805,14 +26855,13 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
                 angleError += angleError2;
             }
             totalAngleError += angleError;
-        }
-        else {
+        } else {
             //---------------------------
             // Tangent of curve at point
             //---------------------------
             const v2 = toUnitVector(tangent_tangent(pos.curve.ps, pos.t));
             // Cross is more numerically stable than Vector.dot at angles a
-            // multiple of `Math.PI` **and** is close to the actual angle value
+            // multiple of π **and** is close to the actual angle value
             // and can thus just be added to cone method of looking at 
             // tolerance.
             // Should be close to zero and is close to the actual angle.
@@ -26826,7 +26875,7 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     // candidate for the 3-prong.
     //-------------------------------------------------------------------------
     const closestDs = [];
-    for (let i = 0; i < curvePiecess.length; i++) {
+    for(let i = 0; i < curvePiecess.length; i++){
         const pos = getCloseBoundaryPointsCertified(curvePiecess[i], x)[0];
         closestDs.push(distanceBetween(pos.p, x));
     }
@@ -26836,7 +26885,14 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
     const W1 = 1;
     const W2 = 1;
     const error = W1 * radiusDelta + W2 * totalAngleError;
-    return { threeProngInfo: { poss, circle, δ3s }, error };
+    return {
+        threeProngInfo: {
+            poss,
+            circle,
+            δ3s
+        },
+        error
+    };
 }
 
 
@@ -26844,13 +26900,12 @@ function find3ProngForDelta3s(δs, idx, k, curvePiecess, maxCoordPowerOf2) {
 
 /**
  * Returns the ordered bezier pieces between the two given `CpNode`s.
- *
- * @param cpNodes - An ordered pair that represents the start and end points of
+ * 
+ * @param cpNodes - An ordered pair that represents the start and end points of 
  * the boundary piece
- *
+ * 
  * @internal
- */
-function getBoundaryPieceBeziers(cpNodes) {
+ */ function getBoundaryPieceBeziers(cpNodes) {
     let cpThis = cpNodes[0];
     const cpEnd = cpNodes[1];
     const curvePieces = [];
@@ -26894,8 +26949,7 @@ function getBoundaryPieceBeziers(cpNodes) {
             continue;
         }
         goStraight = false;
-        if (curveNext === curveThis &&
-            comparePoss(posNext, posThis) > 0) {
+        if (curveNext === curveThis && comparePoss(posNext, posThis) > 0) {
             // The boundary stays on the same curve segment *and* the next pos
             // is further along the *linear* boundary. If it is *not* further
             // on the *linear* boundary then this pos precedes the abrupt break
@@ -26905,7 +26959,11 @@ function getBoundaryPieceBeziers(cpNodes) {
             // possible for hole closers where the oderering of this and next
             // are the same except for `order2`
             curvePieces.push({
-                curve: curveThis, ts: [posThis.t, posNext.t]
+                curve: curveThis,
+                ts: [
+                    posThis.t,
+                    posNext.t
+                ]
             });
             cpThis = cpThis.next;
             continue;
@@ -26916,30 +26974,34 @@ function getBoundaryPieceBeziers(cpNodes) {
         // so split at t = 1.
         if (curveThis.loop === curveNext.loop) {
             const initialCurvePiece = {
-                curve: curveThis, ts: [posThis.t, 1]
+                curve: curveThis,
+                ts: [
+                    posThis.t,
+                    1
+                ]
             };
             curvePieces.push(initialCurvePiece);
             // Fill in any curves skipped between the two points.
             addSkippedBeziers(curvePieces, curveThis, curveNext, posNext.t);
-            // NOTE❗ Currently removed stichables; we're just checking for duplicates
-            // later in `find2Prong`; KEEP for possible future use.
-            // const finalCurvePiece = curvePieces[curvePieces.length - 1];
-            // if (initialCurvePiece.curve === finalCurvePiece!.curve) {
-            //     const { ts: tsS } = initialCurvePiece;
-            //     const { ts: tsE } = finalCurvePiece!;
-            //     // If it is a closed loop we must join the endpoints to prevent duplicate
-            //     // antipodal points later
-            //     if (tsS[0] === tsE[1]) {
-            //         initialCurvePiece.ts[0] = tsE[0];
-            //         if (curvePieces.length > 1) {
-            //             curvePieces.pop();
-            //         }
-            //         // console.log('was inner closed loop')
-            //     }
-            // }
+        // NOTE❗ Currently removed stichables; we're just checking for duplicates
+        // later in `find2Prong`; KEEP for possible future use.
+        // const finalCurvePiece = curvePieces[curvePieces.length - 1];
+        // if (initialCurvePiece.curve === finalCurvePiece!.curve) {
+        //     const { ts: tsS } = initialCurvePiece;
+        //     const { ts: tsE } = finalCurvePiece!;
+        //     // If it is a closed loop we must join the endpoints to prevent duplicate
+        //     // antipodal points later
+        //     if (tsS[0] === tsE[1]) {
+        //         initialCurvePiece.ts[0] = tsE[0];
+        //         if (curvePieces.length > 1) {
+        //             curvePieces.pop();
+        //         }
+        //         // console.log('was inner closed loop')
+        //     }
+        // }
         }
         cpThis = cpThis.next;
-    } while (cpThis !== cpEnd);
+    }while (cpThis !== cpEnd)
     // NOTE❗ Currently removed stichables; we're just checking for duplicates
     // later in `find2Prong`; KEEP for possible future use.
     // if (stichables.size > 0) {
@@ -26992,15 +27054,20 @@ function getBoundaryPieceBeziers(cpNodes) {
 /**
  * @internal
  * Adds pieces of skipped beziers
- */
-function addSkippedBeziers(curvePieces, curveStart, curveEnd, t1) {
+ */ function addSkippedBeziers(curvePieces, curveStart, curveEnd, t1) {
     // Walk forward through the loop until the end curve is reached.
     let curveThis = curveStart;
     do {
         curveThis = curveThis.next;
         const tEnd = curveThis === curveEnd ? t1 : 1;
-        curvePieces.push({ curve: curveThis, ts: [0, tEnd] });
-    } while (curveThis !== curveEnd);
+        curvePieces.push({
+            curve: curveThis,
+            ts: [
+                0,
+                tEnd
+            ]
+        });
+    }while (curveThis !== curveEnd)
 }
 
 
@@ -27009,14 +27076,13 @@ function addSkippedBeziers(curvePieces, curveStart, curveEnd, t1) {
 
 /**
  * Find and return a 3-prong from the given boundary piece.
- *
+ * 
  * @param δs A boundary piece
  * @param maxCoordPowerOf2 The maximum coordinate power of 2 value used to
  * calculate floating point tolerances.
- *
+ * 
  * @internal
- */
-function find3Prong(δs, maxCoordPowerOf2) {
+ */ function find3Prong(δs, maxCoordPowerOf2) {
     // FUTURE if `δs.length > (some threshold (say 4 or 5))` then add two-prongs
     // to reduced the number of permutations required
     // if (δs.length > 3) { console.log(δs.length); }
@@ -27024,8 +27090,8 @@ function find3Prong(δs, maxCoordPowerOf2) {
     // The best candidate amongst the different 'permutations' of the given δs.
     let threeProng;
     let smallestError = Infinity;
-    for (let i = 1; i < δs.length - 1; i++) {
-        for (let k = 0; k < 3; k++) {
+    for(let i = 1; i < δs.length - 1; i++){
+        for(let k = 0; k < 3; k++){
             const r = find3ProngForDelta3s(δs, i, k, curvePiecess, maxCoordPowerOf2);
             if (r === undefined) {
                 continue;
@@ -27044,20 +27110,25 @@ function find3Prong(δs, maxCoordPowerOf2) {
 ;// ./src/mat/get-cp-node-neighbors.ts
 /**
  * @internal
- *
+ * 
  * Returns the predecessor `CpNode` in the `CpTree` or the same one if they fall
  * on top of each other.
- *
+ * 
  * * returns `undefined` if the tree is still empty
- *
- * @param cpTree
- * @param pos
- * @param order
- * @param order2
- */
-function getCpNodeNeighbors(cpTree, pos, order, order2) {
-    const pointOnShape = { ...pos, order, order2 };
-    const cps = cpTree.findBounds({ pointOnShape });
+ * 
+ * @param cpTree 
+ * @param pos 
+ * @param order 
+ * @param order2 
+ */ function getCpNodeNeighbors(cpTree, pos, order, order2) {
+    const pointOnShape = {
+        ...pos,
+        order,
+        order2
+    };
+    const cps = cpTree.findBounds({
+        pointOnShape
+    });
     const [cp0, cp1] = cps;
     if (cp0 === undefined && cp1 === undefined) {
         // The tree is still empty
@@ -27067,23 +27138,28 @@ function getCpNodeNeighbors(cpTree, pos, order, order2) {
         // Smaller than all OR larger than all
         const minNode = cpTree.getMinNode()?.datum;
         const maxNode = cpTree.getMaxNode()?.datum;
-        return [maxNode, minNode];
+        return [
+            maxNode,
+            minNode
+        ];
     }
-    return [cp0.datum, cp1.datum];
+    return [
+        cp0.datum,
+        cp1.datum
+    ];
 }
 
 
 ;// ./src/cp-node/fs/is-order-correct.ts
 
 /**
- *
- * @param cpTree
- * @param pos
- * @param succ
+ * 
+ * @param cpTree 
+ * @param pos 
+ * @param succ 
  * @param alreadyInserted set to `true` if the given `pos` has already been
  * inserted, `false` otherwise.
- */
-function isOrderCorrect(cpTree, pred, pos, succ, alreadyInserted) {
+ */ function isOrderCorrect(cpTree, pred, pos, succ, alreadyInserted) {
     if (cpTree.size <= (alreadyInserted ? 2 : 1)) {
         return true;
     }
@@ -27096,13 +27172,13 @@ function isOrderCorrect(cpTree, pred, pos, succ, alreadyInserted) {
     // Let `X = a < b, Y = b < c, Z = c < a` then
     // `(X && Y)` || `(Y && Z)` || `(Z && X)`
     const _X = comparePoss(a, b);
-    if (_X === 0) { // two points must have different order
+    if (_X === 0) {
         // console.log('aaa');
         // throw 'a';
         return false;
     }
     const _Y = comparePoss(b, c);
-    if (_Y === 0) { // two points must have different order
+    if (_Y === 0) {
         // console.log('bbb');
         // throw 'b';
         return false;
@@ -27118,7 +27194,7 @@ function isOrderCorrect(cpTree, pred, pos, succ, alreadyInserted) {
     const Y = _Y < 0;
     const Z = _Z < 0;
     // Cyclic order condition
-    if ((X && Y) || (Y && Z) || (Z && X)) {
+    if (X && Y || Y && Z || Z && X) {
         return true;
     }
     // throw 'd';
@@ -27138,17 +27214,16 @@ function isOrderCorrect(cpTree, pred, pos, succ, alreadyInserted) {
 ;// ./src/cp-node/fs/insert-cp-node.ts
 
 /**
- *
+ * 
  * @param insertIfOrderWrong order cannot be checked for hole-closers since they're on different loops
- * @param isHoleClosing
- * @param isIntersection
- * @param cpTree
- * @param pos
+ * @param isHoleClosing 
+ * @param isIntersection 
+ * @param cpTree 
+ * @param pos 
  * @param pred predecessor (to `pos`) on sampe loop (found via `cpTree`)
  * @param succ successor (to `pos`) on sampe loop (found via `cpTree`)
- * @param lastInsertId
- */
-function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, pos, pred, succ, lastInsertId) {
+ * @param lastInsertId 
+ */ function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree, pos, pred, succ, lastInsertId) {
     if (pred !== undefined && succ !== undefined) {
         // !isOrderCorrect(cpTree, pos, pred.next, false)) {
         const orderCorrect = isOrderCorrect(cpTree, pred, pos, succ, false);
@@ -27182,26 +27257,32 @@ function insertCpNode(insertIfOrderWrong, isHoleClosing, isIntersection, cpTree,
 
 
 ;// ./src/add-n-prong.ts/join-spokes.ts
+const { atan2: join_spokes_atan2 } = Math;
 function joinSpokes(circle, cpNodes) {
     cpNodes = cpNodes.slice().sort(byAngle(circle));
     const len = cpNodes.length;
-    for (let i = 0; i < len; i++) {
+    for(let i = 0; i < len; i++){
         const cpNode = cpNodes[i];
         cpNode.nextOnCircle = cpNodes[(i + 1) % len];
         cpNode.prevOnCircle = cpNodes[(i - 1 + len) % len];
     }
 }
-/** @internal */
-function byAngle(circle) {
+/** @internal */ function byAngle(circle) {
     const c = circle.center;
-    return function (_a, _b) {
+    return function(_a, _b) {
         let a = _a.pointOnShape.p;
         let b = _b.pointOnShape.p;
         // Move onto origin
-        a = [a[0] - c[0], a[1] - c[1]];
-        b = [b[0] - c[0], b[1] - c[1]];
-        const a_ = Math.atan2(a[1], a[0]);
-        const b_ = Math.atan2(b[1], b[0]);
+        a = [
+            a[0] - c[0],
+            a[1] - c[1]
+        ];
+        b = [
+            b[0] - c[0],
+            b[1] - c[1]
+        ];
+        const a_ = join_spokes_atan2(a[1], a[0]);
+        const b_ = join_spokes_atan2(b[1], b[0]);
         return b_ - a_;
     };
 }
@@ -27214,29 +27295,30 @@ function byAngle(circle) {
 /**
  * Insert the given `poss` into the `cpTree` (within `meta`) and returns the
  * newly inserted `CpNode`s.
- *
- * @param circle
- * @param orders
- * @param cpTrees
- * @param poss
- * @param neighbors
- *
+ * 
+ * @param circle 
+ * @param orders 
+ * @param cpTrees 
+ * @param poss 
+ * @param neighbors 
+ * 
  * @internal
- */
-function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, poss, neighbors) {
+ */ function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, poss, neighbors) {
     const { cpTrees } = meta;
     let anyFailed = false;
-    const cpNodes = poss.map((ppos, i) => {
+    const cpNodes = poss.map((ppos, i)=>{
         const order = orders[i];
         const cpTree = cpTrees.get(ppos.curve.loop);
-        const pos = { ...ppos, circle, order, order2: 0 };
-        const r = neighbors === undefined
-            ? getCpNodeNeighbors(cpTree, ppos, order, 0)
-            : neighbors[i];
+        const pos = {
+            ...ppos,
+            circle,
+            order,
+            order2: 0
+        };
+        const r = neighbors === undefined ? getCpNodeNeighbors(cpTree, ppos, order, 0) : neighbors[i];
         const pred = r?.[0];
         const succ = r?.[1];
-        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, pos, pred, 
-        // pred?.next,
+        const cpNode = insertCpNode(insertIfOrderIsWrong, isHoleClosing, false, cpTree, pos, pred, // pred?.next,
         succ, meta.lastInsertId);
         if (cpNode === undefined) {
             anyFailed = true;
@@ -27246,28 +27328,30 @@ function addToCpTree(insertIfOrderIsWrong, isHoleClosing, circle, orders, meta, 
     if (!anyFailed) {
         joinSpokes(circle, cpNodes);
     }
-    return { anyFailed, cpNodes };
+    return {
+        anyFailed,
+        cpNodes
+    };
 }
 
 
 ;// ./src/mat/get-closeby-cp-if-exist.ts
 
 
-/** @internal */
-const get_closeby_cp_if_exist_DEGREES = 1;
-const ANGLE_THRESHOLD = Math.cos(get_closeby_cp_if_exist_DEGREES * (Math.PI / 180));
+const { cos: get_closeby_cp_if_exist_cos, PI: get_closeby_cp_if_exist_ } = Math;
+/** @internal */ const get_closeby_cp_if_exist_DEGREES = 1;
+const ANGLE_THRESHOLD = get_closeby_cp_if_exist_cos(get_closeby_cp_if_exist_DEGREES * (get_closeby_cp_if_exist_ / 180));
 /**
  * @internal
  * If another `CpNode` is close by (to the given implied (via `pos`, `order` and
  * `order2`) then return it, else return `undefined`.
- *
+ * 
  * @param meta
- * @param pos
- * @param circle
- * @param order
- * @param order2
- */
-function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
+ * @param pos 
+ * @param circle 
+ * @param order 
+ * @param order2 
+ */ function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
     const { cpTrees, maxCoordPowerOf2 } = meta;
     const DISTANCE_THRESHOLD = 2 ** (maxCoordPowerOf2 - 40); // approx. 1e-9 for 1024 x 1024 shapes
     const DISTANCE_THRESHOLD_2 = 2 ** (maxCoordPowerOf2 - 46);
@@ -27276,9 +27360,12 @@ function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
     if (!cur) {
         return undefined;
     }
-    const cpNodes = [cur, cur.next];
+    const cpNodes = [
+        cur,
+        cur.next
+    ];
     const { p, t } = pos;
-    for (const cpNode of cpNodes) {
+    for (const cpNode of cpNodes){
         const pos2 = cpNode.pointOnShape;
         const p2 = pos2.p;
         const d = distanceBetween(p, p2);
@@ -27289,13 +27376,12 @@ function getCloseByCpIfExist(meta, pos, circle, order, order2, forProngCount) {
         const v1 = toUnitVector(from_to_fromTo(p2, cpNode.pointOnShape.circle.center));
         const v2 = toUnitVector(from_to_fromTo(p, circle.center));
         const cosTheta = dot(v1, v2);
-        if (cosTheta > ANGLE_THRESHOLD ||
-            (d < DISTANCE_THRESHOLD_2 && t !== 0 && t !== 1)) {
+        if (cosTheta > ANGLE_THRESHOLD || d < DISTANCE_THRESHOLD_2 && t !== 0 && t !== 1) {
             if (forProngCount === 3) {
-                // console.log(cosTheta, d);
-                // console.log(t);
-                // console.log(d, DISTANCE_THRESHOLD_2)
-                // console.log(p,p2);
+            // console.log(cosTheta, d);
+            // console.log(t);
+            // console.log(d, DISTANCE_THRESHOLD_2)
+            // console.log(p,p2);
             }
             return cpNode;
         }
@@ -27318,20 +27404,22 @@ let ii = 0;
  * @param visitedCps
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.
- */
-function findAndAdd3Prong(meta, visitedCps) {
+ */ function findAndAdd3Prong(meta, visitedCps) {
     const δs = [];
-    for (const visitedCp of visitedCps) {
-        δs.push([visitedCp, visitedCp.next]);
+    for (const visitedCp of visitedCps){
+        δs.push([
+            visitedCp,
+            visitedCp.next
+        ]);
     }
     const threeProngInfo = find3Prong(δs, meta.maxCoordPowerOf2);
     const { circle, poss, δ3s } = threeProngInfo;
     const orders = [];
-    for (let i = 0; i < 3; i++) {
+    for(let i = 0; i < 3; i++){
         orders.push(calcPosOrder(circle.center, poss[i]));
     }
     const closeBysFor3Prong = [];
-    for (let i = 0; i < poss.length; i++) {
+    for(let i = 0; i < poss.length; i++){
         const pos = poss[i];
         const order = orders[i];
         const closeBy = getCloseByCpIfExist(meta, pos, circle, order, 0, 3);
@@ -27342,35 +27430,38 @@ function findAndAdd3Prong(meta, visitedCps) {
             }
         }
     }
-    const cpNodes = closeBysFor3Prong.length === 0
-        ? addToCpTree(true, false, circle, orders, meta, poss, δ3s).cpNodes
-        : [];
-    return { closeBysFor3Prong, cpNodes: cpNodes };
+    const cpNodes = closeBysFor3Prong.length === 0 ? addToCpTree(true, false, circle, orders, meta, poss, δ3s).cpNodes : [];
+    return {
+        closeBysFor3Prong,
+        cpNodes: cpNodes
+    };
 }
 
 
 ;// ./src/find-3-prong/find-and-add-3-prongs.ts
-
+/** @internal */ 
 
 
 let find_and_add_3_prongs_ii = 0;
 /**
   * Starting from some `CpNode`, traverses the shape going around Vertices
- * and if more than two Vertices have been visited in total then recursively
- * adds 3-prongs until only one or two Vertices have been visited.
- *
+ * and if more than two Vertices have been visited in total then recursively 
+ * adds 3-prongs until only one or two Vertices have been visited. 
+ * 
  * This process further subdivides the shape.
- *
+ * 
  * @param cpTrees
  * @param cpStart The ContactPoint from where to start the process.
  * @param extreme The maximum coordinate value used to calculate floating point
  * tolerances.
- *
+ * 
  * @internal
- */
-function findAndAdd3Prongs(meta, cpStart) {
+ */ function findAndAdd3Prongs(meta, cpStart) {
     if (isPosSharpCorner(cpStart.pointOnShape)) {
-        return { closeBysFor3Prong: undefined, addedCpNodes: [] };
+        return {
+            closeBysFor3Prong: undefined,
+            addedCpNodes: []
+        };
     }
     const addedCpNodes = [];
     do {
@@ -27384,15 +27475,21 @@ function findAndAdd3Prongs(meta, cpStart) {
         const { closeBysFor3Prong, cpNodes } = findAndAdd3Prong(meta, visitedCps);
         addedCpNodes.push(cpNodes);
         if (closeBysFor3Prong.length > 0) {
-            return { closeBysFor3Prong, addedCpNodes };
+            return {
+                closeBysFor3Prong,
+                addedCpNodes
+            };
         }
         if (typeof _debug_ !== 'undefined') {
             if (++find_and_add_3_prongs_ii === _debug_.directives.stopAfterThreeProngsNum) {
                 return undefined;
             }
         }
-    } while (true);
-    return { closeBysFor3Prong: undefined, addedCpNodes };
+    }while (true)
+    return {
+        closeBysFor3Prong: undefined,
+        addedCpNodes
+    };
 }
 
 
@@ -27406,18 +27503,17 @@ function findAndAdd3Prongs(meta, cpStart) {
  * Finds and adds all 3-prongs on a loop.
  *
  * @param meta
- * @param cpStart The CpNode to start traversing from.
- */
-function findAndAdd3ProngsOnLoop(meta, cpStart) {
+ * @param cpStart The CpNode to start traversing from. 
+ */ function findAndAdd3ProngsOnLoop(meta, cpStart) {
     if (cpStart === undefined) {
         return undefined;
     }
     const cpNodeGoodSet = new Set();
     let reLoop = true;
-    while (reLoop) {
+    while(reLoop){
         reLoop = false;
         const cpNodeSet = new Set(getAllOnLoop(cpStart));
-        for (const cpNode of cpNodeSet) {
+        for (const cpNode of cpNodeSet){
             const threeProngs = findAndAdd3Prongs(meta, cpNode);
             if (threeProngs === undefined) {
                 return getFirstItemOfSet(cpNodeGoodSet);
@@ -27428,12 +27524,11 @@ function findAndAdd3ProngsOnLoop(meta, cpStart) {
             }
             if (closeBysFor3Prong === undefined) {
                 cpNodeGoodSet.add(cpNode);
-            }
-            else {
+            } else {
                 reLoop = true;
                 replaceCloseBys(meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet);
             }
-            addedCpNodes.forEach(cpNodes => cpNodes.forEach(cpNode => cpNodeGoodSet.add(cpNode)));
+            addedCpNodes.forEach((cpNodes)=>cpNodes.forEach((cpNode)=>cpNodeGoodSet.add(cpNode)));
         }
         cpStart = getFirstItemOfSet(cpNodeGoodSet);
     }
@@ -27441,14 +27536,14 @@ function findAndAdd3ProngsOnLoop(meta, cpStart) {
 }
 // From https://stackoverflow.com/a/73281564/2010061
 function getFirstItemOfSet(set) {
-    for (const item of set) {
+    for (const item of set){
         return item;
     }
     return undefined;
 }
 function replaceCloseBys(meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
     const closeBy = closeBysFor3Prong[0];
-    getAllOnCircle(closeBy).forEach(v => {
+    getAllOnCircle(closeBy).forEach((v)=>{
         cpNodeSet.delete(v);
         cpNodeGoodSet.delete(v);
     });
@@ -27462,29 +27557,45 @@ function replaceCloseBys(meta, closeBysFor3Prong, cpNodeSet, cpNodeGoodSet) {
 
 /**
  * Creates the initial ContactPoint loops from the given sharp corners.
- *
+ * 
  * * ❗Modifies❗`cpTrees` and `lastInsertId`
- *
+ * 
  * @param loops
  * @param cpTrees
  * @param sharpCornerss
  * @param lastInsertId
- *
+ * 
  * @internal
- */
-function createInitialCpTree(loops, sharpCornerss, lastInsertId) {
+ */ function createInitialCpTree(loops, sharpCornerss, lastInsertId) {
     const cpTrees = new Map();
-    for (let k = 0; k < sharpCornerss.length; k++) {
+    for(let k = 0; k < sharpCornerss.length; k++){
         const cpTree = new RbTree(cpNodeComparator);
         cpTrees.set(loops[k], cpTree);
         const sharpCorners = sharpCornerss[k];
         let cpNode1 = undefined;
         let cpNode2 = undefined;
-        for (const ppos of sharpCorners) {
-            const circle = { center: ppos.p, radius: 0 };
+        for (const ppos of sharpCorners){
+            const circle = {
+                center: ppos.p,
+                radius: 0
+            };
             const { curve } = ppos;
-            const pos1 = { ...ppos, curve, t: 1, circle, order: -1, order2: 0 };
-            const pos2 = { ...ppos, curve: curve.next, t: 0, circle, order: +1, order2: 0 };
+            const pos1 = {
+                ...ppos,
+                curve,
+                t: 1,
+                circle,
+                order: -1,
+                order2: 0
+            };
+            const pos2 = {
+                ...ppos,
+                curve: curve.next,
+                t: 0,
+                circle,
+                order: +1,
+                order2: 0
+            };
             cpNode1 = insertCpNode(true, false, false, cpTree, pos1, cpNode2, undefined, /* unused */ lastInsertId);
             cpNode2 = insertCpNode(true, false, false, cpTree, pos2, cpNode1, undefined, /* unused */ lastInsertId);
             cpNode1.prevOnCircle = cpNode2;
@@ -27502,15 +27613,14 @@ function createInitialCpTree(loops, sharpCornerss, lastInsertId) {
 
 
 let timingStart;
-/** @internal */
-function getPartialMeta(loops) {
+/** @internal */ function getPartialMeta(loops) {
     const looseBoundingBoxes = [];
     const tightBoundingBoxes = [];
     const boundingHulls = [];
     const sharpCorners = [];
     const dullCorners = [];
-    for (const loop of loops) {
-        for (const curve of loop.curves) {
+    for (const loop of loops){
+        for (const curve of loop.curves){
             const ps = curve.ps;
             const hull = getBoundingHull(ps, true);
             boundingHulls.push(hull);
@@ -27521,8 +27631,7 @@ function getPartialMeta(loops) {
             const corner = getCorner(curve.ps, curve.next.ps);
             if (corner.isQuiteSharp) {
                 sharpCorners.push(curve);
-            }
-            else if (corner.isQuiteDull) {
+            } else if (corner.isQuiteDull) {
                 dullCorners.push(curve);
             }
         }
@@ -27541,8 +27650,7 @@ function get_meta_addDebugInfo1() {
     }
     timingStart = performance.now();
 }
-/** @internal */
-function get_meta_addDebugInfo2() {
+/** @internal */ function get_meta_addDebugInfo2() {
     if (typeof _debug_ === 'undefined') {
         return;
     }
@@ -27550,8 +27658,7 @@ function get_meta_addDebugInfo2() {
     _debug_.timing.holeClosers += now - timingStart;
     timingStart = now;
 }
-/** @internal */
-function addDebugInfo3() {
+/** @internal */ function addDebugInfo3() {
     if (typeof _debug_ === 'undefined') {
         return;
     }
@@ -27559,8 +27666,7 @@ function addDebugInfo3() {
     _debug_.timing.oneAnd2Prongs += now - timingStart;
     timingStart = now;
 }
-/** @internal */
-function addDebugInfo4() {
+/** @internal */ function addDebugInfo4() {
     if (typeof _debug_ === 'undefined') {
         return;
     }
@@ -27571,11 +27677,10 @@ function addDebugInfo4() {
 ;// ./src/find-mat/get-sharp-corners.ts
 
 
-/** @internal */
-function getSharpCornersOnLoop(minBezLength) {
-    return (loop) => {
+/** @internal */ function getSharpCornersOnLoop(minBezLength) {
+    return (loop)=>{
         const sharpCorners = [];
-        for (let i = 0; i < loop.curves.length; i++) {
+        for(let i = 0; i < loop.curves.length; i++){
             const curve = loop.curves[i];
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
@@ -27583,8 +27688,23 @@ function getSharpCornersOnLoop(minBezLength) {
             if (getCorner(curve.ps, curve.next.ps).isQuiteSharp) {
                 const { ps } = curve;
                 const p = ps[ps.length - 1];
-                const pDd = [[0, p[0]], [0, p[1]]];
-                sharpCorners.push({ curve, t: 1, isSource: true, p, pDd });
+                const pDd = [
+                    [
+                        0,
+                        p[0]
+                    ],
+                    [
+                        0,
+                        p[1]
+                    ]
+                ];
+                sharpCorners.push({
+                    curve,
+                    t: 1,
+                    isSource: true,
+                    p,
+                    pDd
+                });
             }
         }
         return sharpCorners;
@@ -27595,11 +27715,10 @@ function getSharpCornersOnLoop(minBezLength) {
 ;// ./src/find-mat/get-dull-corners-on-loop.ts
 
 
-/** @internal */
-function getDullCornersOnLoop(minBezLength) {
-    return (loop) => {
+/** @internal */ function getDullCornersOnLoop(minBezLength) {
+    return (loop)=>{
         const dullCorners = [];
-        for (let i = 0; i < loop.curves.length; i++) {
+        for(let i = 0; i < loop.curves.length; i++){
             const curve = loop.curves[i];
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
@@ -27607,9 +27726,30 @@ function getDullCornersOnLoop(minBezLength) {
             const { next, ps } = curve;
             if (getCorner(ps, next.ps).isQuiteDull) {
                 const p = ps[ps.length - 1];
-                const pDd = [[0, p[0]], [0, p[1]]];
-                dullCorners.push({ curve, t: 1, isSource: true, p, pDd });
-                dullCorners.push({ curve: next, t: 0, isSource: true, p, pDd });
+                const pDd = [
+                    [
+                        0,
+                        p[0]
+                    ],
+                    [
+                        0,
+                        p[1]
+                    ]
+                ];
+                dullCorners.push({
+                    curve,
+                    t: 1,
+                    isSource: true,
+                    p,
+                    pDd
+                });
+                dullCorners.push({
+                    curve: next,
+                    t: 0,
+                    isSource: true,
+                    p,
+                    pDd
+                });
             }
         }
         return dullCorners;
@@ -27623,30 +27763,34 @@ function getDullCornersOnLoop(minBezLength) {
 
 
 
-/** @internal */
-function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO) {
+/** @internal */ function getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO) {
     const { cpTrees } = meta;
     if (isHoleClosing) {
-        return loops
-            .filter(_loop => _loop !== loop)
-            .flatMap(loop => loop.curves
-            .map(curve => ({ curve, ts: [0, 1] })));
+        return loops.filter((_loop)=>_loop !== loop).flatMap((loop)=>loop.curves.map((curve)=>({
+                    curve,
+                    ts: [
+                        0,
+                        1
+                    ]
+                })));
     }
-    const order = isPosCorner(yPos) && getPosCorner$(yPos).isDull
-        ? yPos.t === 1 && angle === 0
-            ? -1
-            : yPos.t === 0
-                ? +1
-                : calcPosOrder(xO, yPos)
-        : 0;
+    const order = isPosCorner(yPos) && getPosCorner$(yPos).isDull ? yPos.t === 1 && angle === 0 ? -1 : yPos.t === 0 ? +1 : calcPosOrder(xO, yPos) : 0;
     const cpNode = getCpNodeNeighbors(cpTrees.get(loop), yPos, order, 0)?.[0];
-    if (!cpNode ||
-        // The special case if there is only a single sharp corner or 
-        // two-way terminating 2-prong currently in the MAT. Don't remove!
-        (cpNode === cpNode.next.next)) {
-        return loop.curves.map(curve => ({ curve, ts: [0, 1] }));
+    if (!cpNode || // The special case if there is only a single sharp corner or 
+    // two-way terminating 2-prong currently in the MAT. Don't remove!
+    cpNode === cpNode.next.next) {
+        return loop.curves.map((curve)=>({
+                curve,
+                ts: [
+                    0,
+                    1
+                ]
+            }));
     }
-    return getBoundaryPieceBeziers([cpNode, cpNode]);
+    return getBoundaryPieceBeziers([
+        cpNode,
+        cpNode
+    ]);
 }
 
 
@@ -27802,8 +27946,7 @@ const dd_get_medial_point_coeffs_bez2_qdd = ddDiffDouble;
  * @param v ray direction from `p`
  * @param ps quadratic bezier control points, i.e. an order 2 bezier curve
  * given as an array of control points, e.g. `[[0,0],[1,1],[2,1]]`
- */
-function ddGetMedialPointCoeffsBez2(p, v, ps) {
+ */ function ddGetMedialPointCoeffsBez2(p, v, ps) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
@@ -27887,11 +28030,36 @@ function ddGetMedialPointCoeffsBez2(p, v, ps) {
     const H1 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qmn2(dd_get_medial_point_coeffs_bez2_qmq(vu0, b2)), dd_get_medial_point_coeffs_bez2_qno(dd_get_medial_point_coeffs_bez2_qmq(c1, b0)));
     const H0 = dd_get_medial_point_coeffs_bez2_qaq(dd_get_medial_point_coeffs_bez2_qm2(dd_get_medial_point_coeffs_bez2_qmq(vu0, d0)), dd_get_medial_point_coeffs_bez2_qno(dd_get_medial_point_coeffs_bez2_qmq(c0, b0)));
     return {
-        A: [a2, a1, a0],
-        B: [b4, b3, b2, b1, b0],
-        C: [c1, c0],
-        D: [d3, d2, d1, d0],
-        H: [H5, H4, H3, H2, H1, H0]
+        A: [
+            a2,
+            a1,
+            a0
+        ],
+        B: [
+            b4,
+            b3,
+            b2,
+            b1,
+            b0
+        ],
+        C: [
+            c1,
+            c0
+        ],
+        D: [
+            d3,
+            d2,
+            d1,
+            d0
+        ],
+        H: [
+            H5,
+            H4,
+            H3,
+            H2,
+            H1,
+            H0
+        ]
     };
 }
 
@@ -27924,8 +28092,7 @@ const dd_get_medial_point_coeffs_bez1_qdd = ddDiffDouble;
  * @param v ray direction vector starting from `p`
  * @param ps order 1 bezier control points, i.e. a line segment
  * given as an array of control points, e.g. `[[0,0],[2,1]]`
- */
-function ddGetMedialPointCoeffsBez1(p, v, ps) {
+ */ function ddGetMedialPointCoeffsBez1(p, v, ps) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
@@ -27985,11 +28152,27 @@ function ddGetMedialPointCoeffsBez1(p, v, ps) {
     const H1 = dd_get_medial_point_coeffs_bez1_qmq(a0, d1);
     const H0 = dd_get_medial_point_coeffs_bez1_qaq(dd_get_medial_point_coeffs_bez1_qmq(a0, d0), dd_get_medial_point_coeffs_bez1_qno(dd_get_medial_point_coeffs_bez1_qmq(b0, c0)));
     return {
-        A: [a1, a0],
-        B: [b2, b1, b0],
-        C: [c0],
-        D: [d1, d0],
-        H: [H2, H1, H0]
+        A: [
+            a1,
+            a0
+        ],
+        B: [
+            b2,
+            b1,
+            b0
+        ],
+        C: [
+            c0
+        ],
+        D: [
+            d1,
+            d0
+        ],
+        H: [
+            H2,
+            H1,
+            H0
+        ]
     };
 }
 
@@ -28026,8 +28209,7 @@ const dd_get_medial_point_coeffs_bez3_qdd = ddDiffDouble;
  * @param v ray direction from `p`
  * @param ps cubic bezier control points, i.e. an order 3 bezier curve
  * given as an array of control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
- */
-function ddGetMedialPointCoeffsBez3(p, v, ps) {
+ */ function ddGetMedialPointCoeffsBez3(p, v, ps) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
@@ -28143,11 +28325,45 @@ function ddGetMedialPointCoeffsBez3(p, v, ps) {
     const H1 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qmn2(dd_get_medial_point_coeffs_bez3_qmq(vu0, b2)), dd_get_medial_point_coeffs_bez3_qmn2(dd_get_medial_point_coeffs_bez3_qmq(vb, b0)));
     const H0 = dd_get_medial_point_coeffs_bez3_qaq(dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmq(vu0, b1)), dd_get_medial_point_coeffs_bez3_qno(dd_get_medial_point_coeffs_bez3_qmq(vc, b0)));
     return {
-        A: [a3, a2, a1, a0],
-        B: [b6, b5, b4, b3, b2, b1, b0],
-        C: [c2, c1, c0],
-        D: [d5, d4, d3, d2, d1, d0],
-        H: [H8, H7, H6, H5, H4, H3, H2, H1, H0]
+        A: [
+            a3,
+            a2,
+            a1,
+            a0
+        ],
+        B: [
+            b6,
+            b5,
+            b4,
+            b3,
+            b2,
+            b1,
+            b0
+        ],
+        C: [
+            c2,
+            c1,
+            c0
+        ],
+        D: [
+            d5,
+            d4,
+            d3,
+            d2,
+            d1,
+            d0
+        ],
+        H: [
+            H8,
+            H7,
+            H6,
+            H5,
+            H4,
+            H3,
+            H2,
+            H1,
+            H0
+        ]
     };
 }
 
@@ -28163,7 +28379,7 @@ const dd_get_medial_point_coeffs_bez0_qdd = ddDiffDouble;
  * Returns the coefficients `a0` and `b0` for the linear equation
  * `a0⋅t + b0 = 0`, so the ray parameter can be recovered as `t = -b0/a0`.
  * That parameter value makes `q(t) = p + t⋅v` equidistant from `p` and `P`.
- *
+ * 
  * Let `p` be a fixed point in the plane.\
  * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.\
  * Let `P` be another point.\
@@ -28174,8 +28390,7 @@ const dd_get_medial_point_coeffs_bez0_qdd = ddDiffDouble;
  * @param p base point
  * @param v ray direction from `p`
  * @param P another "target" point, e.g. `[1,2]`
- */
-function ddGetMedialPointCoeffsBez0(p, v, P) {
+ */ function ddGetMedialPointCoeffsBez0(p, v, P) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
@@ -28195,7 +28410,10 @@ function ddGetMedialPointCoeffsBez0(p, v, P) {
     // const b0 = u0x*u0x + u0y*u0y;
     const a0 = dd_get_medial_point_coeffs_bez0_qaq(dd_get_medial_point_coeffs_bez0_qmq(dd_get_medial_point_coeffs_bez0_qm2(vx), u0x), dd_get_medial_point_coeffs_bez0_qmq(dd_get_medial_point_coeffs_bez0_qm2(vy), u0y));
     const b0 = dd_get_medial_point_coeffs_bez0_qaq(dd_get_medial_point_coeffs_bez0_qmq(u0x, u0x), dd_get_medial_point_coeffs_bez0_qmq(u0y, u0y));
-    return { a0, b0 };
+    return {
+        a0,
+        b0
+    };
 }
 
 
@@ -28215,7 +28433,7 @@ const getMedialPointCoeffss = [
  * Returns polynomial coefficients for ray parameter values `t`, bezier
  * parameter values `s` and medial points for points `q(t)` and b(s) (an order
  * 0, 1, 2 or 3 bezier curve) that satisfy the medial condition with respect to `p` and `ps`:
- *
+ * 
  * Let `p` be a fixed point in the plane.
  * Let `v` be a direction vector defining the ray `q(t) = p + t⋅v`.
  * Let `ps` be a cubic bezier curve.
@@ -28230,11 +28448,20 @@ const getMedialPointCoeffss = [
  * @param p base point
  * @param v ray direction from `p`
  * @param ps bezier control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
- */
-function ddGetMedialPointCoeffs(p, v, ps) {
+ */ function ddGetMedialPointCoeffs(p, v, ps) {
     if (ps.length === 1) {
         const { a0, b0 } = ddGetMedialPointCoeffsBez0(p, v, ps[0]);
-        return { A: [a0], B: [b0], C: [], D: [], H: [] };
+        return {
+            A: [
+                a0
+            ],
+            B: [
+                b0
+            ],
+            C: [],
+            D: [],
+            H: []
+        };
     }
     return getMedialPointCoeffss[ps.length](p, v, ps);
 }
@@ -28269,8 +28496,7 @@ const dd_get_medial_point_coeffs_bez2_same_curve_qm2 = ddMultBy2;
  * @param t parameter on `ps` where `p = b(t)`
  * @param v ray direction from `p`; assumed normal to `ps` at `t`
  * @param ps order 2 bezier control points, e.g. `[[0,0],[1,1],[2,1]]`
- */
-function ddGetMedialPointCoeffsBez2_SameCurve(t, v, ps) {
+ */ function ddGetMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
@@ -28341,11 +28567,20 @@ function ddGetMedialPointCoeffsBez2_SameCurve(t, v, ps) {
     // const l0 = c1*(br2*t + ab);
     const l0 = dd_get_medial_point_coeffs_bez2_same_curve_qmq(c1, dd_get_medial_point_coeffs_bez2_same_curve_qaq(dd_get_medial_point_coeffs_bez2_same_curve_qmd(t, br2), ab));
     return {
-        A: [ar0],
-        B: [br2, br1, br0],
+        A: [
+            ar0
+        ],
+        B: [
+            br2,
+            br1,
+            br0
+        ],
         // C: [c1, c0],
         // D: [d3, d2, d1, d0],
-        H: [H5, l0]
+        H: [
+            H5,
+            l0
+        ]
     };
 }
 
@@ -28380,8 +28615,7 @@ const dd_get_medial_point_coeffs_bez3_same_curve_qm2 = ddMultBy2;
  * @param t parameter on `ps` where `p = b(t)`
  * @param v ray direction from `p`; assumed normal to `ps` at `t`
  * @param ps order 3 bezier control points, e.g. `[[0,0],[1,1],[2,1],[3,0]]`
- */
-function ddGetMedialPointCoeffsBez3_SameCurve(t, v, ps) {
+ */ function ddGetMedialPointCoeffsBez3_SameCurve(t, v, ps) {
     // -----------------------------------------------------
     // See get-medial-points.md for implementation details.
     // -----------------------------------------------------
@@ -28519,11 +28753,35 @@ function ddGetMedialPointCoeffsBez3_SameCurve(t, v, ps) {
     const q1 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(H5, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(q2)), dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(-6, q3), dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, q4))))))));
     const q0 = dd_get_medial_point_coeffs_bez3_same_curve_qaq(H4, dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(q1)), dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qmd(-6, q2), dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, dd_get_medial_point_coeffs_bez3_same_curve_qaq(dd_get_medial_point_coeffs_bez3_same_curve_qm2(dd_get_medial_point_coeffs_bez3_same_curve_qm2(q3)), dd_get_medial_point_coeffs_bez3_same_curve_qno(dd_get_medial_point_coeffs_bez3_same_curve_qmd(t, q4)))))))));
     return {
-        A: [ar1, ar0],
-        B: [br4, br3, br2, br1, br0],
-        C: [c2, cr0],
-        D: [dr4, dr3, dr2, dr1, dr0],
-        H: [q4, q3, q2, q1, q0]
+        A: [
+            ar1,
+            ar0
+        ],
+        B: [
+            br4,
+            br3,
+            br2,
+            br1,
+            br0
+        ],
+        C: [
+            c2,
+            cr0
+        ],
+        D: [
+            dr4,
+            dr3,
+            dr2,
+            dr1,
+            dr0
+        ],
+        H: [
+            q4,
+            q3,
+            q2,
+            q1,
+            q0
+        ]
     };
 }
 
@@ -28546,10 +28804,9 @@ const get_closest_points_qmd = ddMultDouble1;
  * @param for1Prong defaults to `false`;
  * @param angle defaults to `0`;
  * @param curvePiece The curve piece
- *
+ * 
  * @internal
- */
-function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece) {
+ */ function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece) {
     const { curve, ts: [tS, tE] } = curvePiece;
     const { ps } = curve;
     const { curve: touchedCurve, t, p: y, pDd: yDd } = yPos;
@@ -28559,18 +28816,12 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angl
     let startPushed = false;
     let endPushed = false;
     let ss;
-    if (tS !== tE &&
-        !(shouldDeflate && ps.length === 2) &&
-        !(isTouched && ps.length === 3 && for1Prong)) {
-        const { A, B, H } = shouldDeflate
-            ? ps.length === 3
-                ? ddGetMedialPointCoeffsBez2_SameCurve(t, nnormDd, ps)
-                : ddGetMedialPointCoeffsBez3_SameCurve(t, nnormDd, ps)
-            : ddGetMedialPointCoeffs(yDd, nnormDd, ps);
+    if (tS !== tE && !(shouldDeflate && ps.length === 2) && !(isTouched && ps.length === 3 && for1Prong)) {
+        const { A, B, H } = shouldDeflate ? ps.length === 3 ? ddGetMedialPointCoeffsBez2_SameCurve(t, nnormDd, ps) : ddGetMedialPointCoeffsBez3_SameCurve(t, nnormDd, ps) : ddGetMedialPointCoeffs(yDd, nnormDd, ps);
         // const Hd = H.map(h => h[0] + h[1]);
         ss = roots(H, tS, tE) || [];
         //-----------------------
-        for (let i = 0; i < ss.length; i++) {
+        for(let i = 0; i < ss.length; i++){
             const ri = ss[i];
             const { tS: sS, tE: sE, t: _s } = ri;
             if (ri.multiplicity > 1) {
@@ -28604,17 +28855,24 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angl
             //     : -DS / CS;  // alternative
             const w = -BS / AS;
             if (w <= 0) {
-                // If `w` is negative the circle radius is negative -> discard
                 continue;
             }
-            const VDd = [get_closest_points_qmd(w, nnormDd[0]), get_closest_points_qmd(w, nnormDd[1])];
-            const V = [VDd[0][1], VDd[1][1]];
+            const VDd = [
+                get_closest_points_qmd(w, nnormDd[0]),
+                get_closest_points_qmd(w, nnormDd[1])
+            ];
+            const V = [
+                VDd[0][1],
+                VDd[1][1]
+            ];
             const d = get_closest_points_sqrt(lengthSquared(V));
             if (d <= 2 ** (maxCoordPowerOf2 - 40)) {
-                // If `w` <= 2**-40 -> discard
                 continue;
             }
-            const x = [y[0] + V[0], y[1] + V[1]];
+            const x = [
+                y[0] + V[0],
+                y[1] + V[1]
+            ];
             //-----------------------
             if (ri.tS <= tS && ri.tE >= tS) {
                 startPushed = true;
@@ -28630,32 +28888,36 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angl
             const info = {
                 curve: curve_,
                 s: s_,
-                d, x
+                d,
+                x
             };
             infos.push(info);
         }
     }
     //------------------------------------------
     const pLast = ps[ps.length - 1];
-    let dontPush1 = ((t === 0 && curve === touchedCurve.prev) ||
-        (t === 1 && curve === touchedCurve));
+    let dontPush1 = t === 0 && curve === touchedCurve.prev || t === 1 && curve === touchedCurve;
     //--------------------------------------
     // Also check curve start control point
     //--------------------------------------
     const PS = [];
     if (tS === 0) {
-        // We never check points at `t === 0` since they are covered by the previous curve's endpoint
-        // which cannot be culled if this curve`s `t === 0` is included
-    }
-    else if (tS === 1) {
+    // We never check points at `t === 0` since they are covered by the previous curve's endpoint
+    // which cannot be culled if this curve`s `t === 0` is included
+    } else if (tS === 1) {
         if (!dontPush1 && !startPushed) {
-            PS.push({ P: pLast, t: 1 });
+            PS.push({
+                P: pLast,
+                t: 1
+            });
         }
-    }
-    else {
+    } else {
         if (!startPushed) {
             const pp = evalDeCasteljau(ps, tS);
-            PS.push({ P: pp, t: tS });
+            PS.push({
+                P: pp,
+                t: tS
+            });
         }
     }
     //--------------------------------------
@@ -28663,24 +28925,28 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angl
     //--------------------------------------
     if (tS !== tE) {
         if (tE === 0) {
-            // We never check points at `t === 0` since they are covered by the previous curve's endpoint
-            // which cannot be culled if this curve`s `t === 0` is included
-        }
-        else if (tE === 1) {
+        // We never check points at `t === 0` since they are covered by the previous curve's endpoint
+        // which cannot be culled if this curve`s `t === 0` is included
+        } else if (tE === 1) {
             if (!dontPush1 && !endPushed) {
-                PS.push({ P: pLast, t: 1 });
+                PS.push({
+                    P: pLast,
+                    t: 1
+                });
                 dontPush1 = true;
             }
-        }
-        else {
+        } else {
             if (!endPushed) {
                 const pp = evalDeCasteljau(ps, tE);
-                PS.push({ P: pp, t: tE });
+                PS.push({
+                    P: pp,
+                    t: tE
+                });
             }
         }
     }
     //------------------------------------------
-    for (let i = 0; i < PS.length; i++) {
+    for(let i = 0; i < PS.length; i++){
         //-----------------------
         const { P, t: s } = PS[i];
         const { a0, b0 } = ddGetMedialPointCoeffsBez0(yDd, nnormDd, P);
@@ -28692,88 +28958,94 @@ function getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angl
         if (w < 2 ** -40) {
             continue;
         }
-        const VDd = [get_closest_points_qmd(w, nnormDd[0]), get_closest_points_qmd(w, nnormDd[1])];
-        const V = [VDd[0][1], VDd[1][1]];
+        const VDd = [
+            get_closest_points_qmd(w, nnormDd[0]),
+            get_closest_points_qmd(w, nnormDd[1])
+        ];
+        const V = [
+            VDd[0][1],
+            VDd[1][1]
+        ];
         const d = get_closest_points_sqrt(lengthSquared(V));
-        const x = [y[0] + V[0], y[1] + V[1]];
+        const x = [
+            y[0] + V[0],
+            y[1] + V[1]
+        ];
         const s_ = s === 0 ? 1 : s;
         const curve_ = s === 0 ? curve.prev : curve;
         const info = {
             curve: curve_,
             s: s_,
-            d, x
+            d,
+            x
         };
         infos.push(info);
     }
     return infos;
 }
-
-/**
+ /**
  * Recovers a numerically stable ray parameter `t` from linear equations
  * `A*t + B = 0` and (optionally) `C*t + D = 0` evaluated at a fixed `s`.
  *
  * If `C,D` are unavailable, this falls back to `-B/A`.
- */
-// function chooseStableT(
-//         A: number,
-//         B: number,
-//         C: number,
-//         D: number) {
-//     const epsScale = max(1, abs(A), abs(B), abs(C), abs(D));
-//     const eps = Number.EPSILON * epsScale;
-//     const denomAB = abs(A);
-//     const hasAB = denomAB > eps;
-//     const denomCD = abs(C);
-//     const hasCD = denomCD > eps;
-//     if (!hasAB && !hasCD) {
-//         return undefined;
-//     }
-//     if (hasAB && !hasCD) {
-//         return -B / A;
-//     }
-//     if (!hasAB && hasCD) {
-//         return -D / C;
-//     }
-//     const tAB = -B / A;
-//     const tCD = -D / C;
-//     // Score each candidate by how well it satisfies the *other* equation.
-//     const scoreAB = abs(C*tAB + D) / (abs(C) + abs(D) + eps);
-//     const scoreCD = abs(A*tCD + B) / (abs(A) + abs(B) + eps);
-//     return scoreAB <= scoreCD ? tAB : tCD;
-// }
+ */  // function chooseStableT(
+ //         A: number,
+ //         B: number,
+ //         C: number,
+ //         D: number) {
+ //     const epsScale = max(1, abs(A), abs(B), abs(C), abs(D));
+ //     const eps = Number.EPSILON * epsScale;
+ //     const denomAB = abs(A);
+ //     const hasAB = denomAB > eps;
+ //     const denomCD = abs(C);
+ //     const hasCD = denomCD > eps;
+ //     if (!hasAB && !hasCD) {
+ //         return undefined;
+ //     }
+ //     if (hasAB && !hasCD) {
+ //         return -B / A;
+ //     }
+ //     if (!hasAB && hasCD) {
+ //         return -D / C;
+ //     }
+ //     const tAB = -B / A;
+ //     const tCD = -D / C;
+ //     // Score each candidate by how well it satisfies the *other* equation.
+ //     const scoreAB = abs(C*tAB + D) / (abs(C) + abs(D) + eps);
+ //     const scoreCD = abs(A*tCD + B) / (abs(A) + abs(B) + eps);
+ //     return scoreAB <= scoreCD ? tAB : tCD;
+ // }
 
 ;// ./src/find-2-prong/get-medial/get-antipodal-points.ts
 
 /**
- * Returns the closest boundary point to the given point, limited to the given
+ * Returns the closest boundary point to the given point, limited to the given 
  * bezier pieces, including the beziers actually checked after culling.
- *
+ * 
  * @param maxCoordPowerOf2
  * @param nnorm
  * @param yPos
  * @param for1Prong defaults to `false`;
  * @param angle angle from normal
  * @param curvePieces
- *
+ * 
  * @internal
- */
-function getAntipodalPoints(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePieces) {
+ */ function getAntipodalPoints(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePieces) {
     const pInfoss = [];
-    for (let i = 0; i < curvePieces.length; i++) {
+    for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const pInfos = getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece);
         pInfoss.push(...pInfos);
     }
-    /** the minimum max value */
-    let minMax = Infinity;
-    for (let i = 0; i < pInfoss.length; i++) {
+    /** the minimum max value */ let minMax = Infinity;
+    for(let i = 0; i < pInfoss.length; i++){
         const diMax = pInfoss[i].d * (1 + 2 ** -46);
         if (diMax < minMax) {
             minMax = diMax;
         }
     }
     const antipodalPoints = [];
-    for (let i = 0; i < pInfoss.length; i++) {
+    for(let i = 0; i < pInfoss.length; i++){
         const info = pInfoss[i];
         const d = info.d * (1 - 2 ** -46);
         if (d <= minMax) {
@@ -28828,20 +29100,25 @@ const { abs: reduce_radius_abs } = Math;
 const reduce_radius_TOLERANCE = 1 + 2 ** -20;
 /**
  * Reduces the circle radius initially as an optimization step.
- *
+ * 
  * @param rO maximum possible initial radius
- *
+ * 
  * @internal
- */
-function reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm) {
+ */ function reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm) {
     let minRadiusSqrd = rO ** 2;
-    let x = [y[0] + nnorm[0], y[1] + nnorm[1]];
-    for (let i = 0; i < curvePieces.length; i++) {
+    let x = [
+        y[0] + nnorm[0],
+        y[1] + nnorm[1]
+    ];
+    for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const { ps } = curvePiece.curve;
         const pS = ps[0];
         const pE = ps[ps.length - 1];
-        for (const P of [pS, pE]) {
+        for (const P of [
+            pS,
+            pE
+        ]){
             if (squaredDistanceBetween(x, P) > minRadiusSqrd) {
                 continue; // short-circuit
             }
@@ -28854,11 +29131,17 @@ function reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm) {
             if (w < 2 ** -40) {
                 continue;
             }
-            const N = [w * nnorm[0], w * nnorm[1]];
+            const N = [
+                w * nnorm[0],
+                w * nnorm[1]
+            ];
             const r = lengthSquared(N);
             if (r < minRadiusSqrd) {
                 minRadiusSqrd = r;
-                x = [y[0] + N[0], y[1] + N[1]];
+                x = [
+                    y[0] + N[0],
+                    y[1] + N[1]
+                ];
             }
         }
     }
@@ -28877,22 +29160,21 @@ const cull_bezier_pieces_TOLERANCE = 1 + 2 ** -20;
 const cull_bezier_pieces_getBoundingBoxTight$ = memoize(getBoundingBoxTight);
 /**
  * Cull all `curvePieces` not within the given radius of a given point.
- *
+ * 
  * @param extreme
  * @param curvePieces
  * @param xO
  * @param xy2
- *
+ * 
  * @internal
- */
-function cullCurvePieces(curvePieces, xO, xy2) {
+ */ function cullCurvePieces(curvePieces, xO, xy2) {
     if (curvePieces.length <= 2) {
         // Curve pieces can never be less than 2 at this stage since a curve
         // endpoint will be shared between 2 curves
         return curvePieces;
     }
     let lastIdx = 0;
-    for (let i = 0; i < curvePieces.length; i++) {
+    for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const { ps } = curvePiece.curve;
         const rect = get_bounding_box_getBoundingBox$(ps);
@@ -28921,9 +29203,8 @@ function cullCurvePieces(curvePieces, xO, xy2) {
  * @hidden
  * Add a 1-prong to the MAT.
  * @param cpTrees
- * @param pos
- */
-function add1Prong(meta, radius, center, pos) {
+ * @param pos 
+ */ function add1Prong(meta, radius, center, pos) {
     if (isPosCorner(pos) && getPosCorner$(pos).isDull) {
         // This is a 1-prong at a dull corner.
         // FUTURE
@@ -28940,14 +29221,23 @@ function add1Prong(meta, radius, center, pos) {
         // }
         return;
     }
-    const circle = { radius, center };
+    const circle = {
+        radius,
+        center
+    };
     const order = calcPosOrder(circle.center, pos);
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
     if (getCloseByCpIfExist(meta, pos, circle, order, 0, 1)) {
         return;
     }
-    addToCpTree(false, false, circle, [-0.5, +0.5], meta, [pos, pos]);
+    addToCpTree(false, false, circle, [
+        -0.5,
+        +0.5
+    ], meta, [
+        pos,
+        pos
+    ]);
 }
 
 
@@ -28960,12 +29250,11 @@ const calc_seperation_tolerance_qmd = ddMultDouble1;
 const { acos } = Math;
 /**
  * Calculates and returns an appropriate seperation tolerance between `CpNode`s.
- *
+ * 
  * @param R radius of the circle implied by the curvature at the boundary
  * @param r radius of the MAT circle
  * @param θ angle between point...
- */
-function calcSeperationTolerance(R, r, δ) {
+ */ function calcSeperationTolerance(R, r, δ) {
     const a = r + δ;
     if (a >= R) {
         return Infinity;
@@ -28976,7 +29265,7 @@ function calcSeperationTolerance(R, r, δ) {
     const D_ = calc_seperation_tolerance_qaq(A_, calc_seperation_tolerance_qmd(δ, R_r_));
     const R_r = R - r;
     const A = r * R_r;
-    const N = A - r * δ - (δ * δ) / 2;
+    const N = A - r * δ - δ * δ / 2;
     const D = A + R_r * δ;
     const cosC = N / D;
     const Q = ddDivDd(N_, D_)[1];
@@ -28987,67 +29276,66 @@ function calcSeperationTolerance(R, r, δ) {
     // return r*θ;
     return r * θ;
 }
-
-// Quokka tests
-// /**
-//  * Calculates and returns an appropriate seperation tolerance between `CpNode`s.
-//  * 
-//  * @param R radius of the circle implied by the curvature at the boundary
-//  * @param r radius of the MAT circle
-//  * @param θ angle between point...
-//  */
-// function calcSeperationTolerance2(
-//         R: number,
-//         r: number,
-//         δ: number) {
-//     const a = r + δ;
-//     if (a >= R) {
-//         return Infinity;
-//     }
-//     const b = R - r;
-//     const c = R;    
-//     const N = c*c - a*a - b*b;
-//     const N_ = qdq(qdq(tp(c,c), tp(a,a)), tp(b,b));
-//     const D = 2*a*b;          
-//     const D_ = tp(-2*a,b);
-//     const Q = ddDivDd(N_,D_)[1];
-//     const cosC = -N/D;
-//     const C = acos(cosC);
-//     const CC = acos(Q);
-//     const θ = π - CC;
-//     return θ;
-//     // return r*θ;  // approximate arc with line
-// }
-// function degToRad(degrees: number) {
-//     return degrees/360*2*Math.PI;
-// }
-// function radToDeg(rad: number) {
-//     return rad*360/2/Math.PI;
-// }
-// const R = 699;
-// const r = 698;
-// const δ = 1000*2**-46;
-// calcSeperationTolerance(R,r,δ); 
-// calcSeperationTolerance2(R,r,δ);
-// calcSeperationTolerance3(R,r,δ);
-// // * see https://en.wikipedia.org/wiki/Law_of_cosines, Version suited to small angles
-// function calcSeperationTolerance3(
-//         R: number,
-//         r: number,
-//         δ: number) {
-//     const a = r + δ;
-//     const c = R - r;
-//     const b = R;    
-//     // c² = (a - b)² + 4ab*sin²(θ/2) OR
-//     // (c² - (a - b)²)/4ab = sin²(θ/2)
-//     const cc = c*c; 
-//     const abc = a*a + b*b - 2*a*b;
-//     const A = cc - abc;
-//     const B = sqrt(A/(4*a*b));
-//     const θ = 2*asin(B);
-//     return θ;
-//     // return r*θ;  // approximate arc with line
-// }
+ // Quokka tests
+ // /**
+ //  * Calculates and returns an appropriate seperation tolerance between `CpNode`s.
+ //  * 
+ //  * @param R radius of the circle implied by the curvature at the boundary
+ //  * @param r radius of the MAT circle
+ //  * @param θ angle between point...
+ //  */
+ // function calcSeperationTolerance2(
+ //         R: number,
+ //         r: number,
+ //         δ: number) {
+ //     const a = r + δ;
+ //     if (a >= R) {
+ //         return Infinity;
+ //     }
+ //     const b = R - r;
+ //     const c = R;    
+ //     const N = c*c - a*a - b*b;
+ //     const N_ = qdq(qdq(tp(c,c), tp(a,a)), tp(b,b));
+ //     const D = 2*a*b;          
+ //     const D_ = tp(-2*a,b);
+ //     const Q = ddDivDd(N_,D_)[1];
+ //     const cosC = -N/D;
+ //     const C = acos(cosC);
+ //     const CC = acos(Q);
+ //     const θ = π - CC;
+ //     return θ;
+ //     // return r*θ;  // approximate arc with line
+ // }
+ // function degToRad(degrees: number) {
+ //     return degrees/360*2*PI;
+ // }
+ // function radToDeg(rad: number) {
+ //     return rad*360/2/PI;
+ // }
+ // const R = 699;
+ // const r = 698;
+ // const δ = 1000*2**-46;
+ // calcSeperationTolerance(R,r,δ); 
+ // calcSeperationTolerance2(R,r,δ);
+ // calcSeperationTolerance3(R,r,δ);
+ // // * see https://en.wikipedia.org/wiki/Law_of_cosines, Version suited to small angles
+ // function calcSeperationTolerance3(
+ //         R: number,
+ //         r: number,
+ //         δ: number) {
+ //     const a = r + δ;
+ //     const c = R - r;
+ //     const b = R;    
+ //     // c² = (a - b)² + 4ab*sin²(θ/2) OR
+ //     // (c² - (a - b)²)/4ab = sin²(θ/2)
+ //     const cc = c*c; 
+ //     const abc = a*a + b*b - 2*a*b;
+ //     const A = cc - abc;
+ //     const B = sqrt(A/(4*a*b));
+ //     const θ = 2*asin(B);
+ //     return θ;
+ //     // return r*θ;  // approximate arc with line
+ // }
 
 ;// ./node_modules/flo-bezier3/node/to-power-basis/to-power-basis-1st-derivative/double-double/to-power-basis-1st-derivative-dd.js
 
@@ -29234,13 +29522,12 @@ function ddRadiusOfCurvature(ps, t) {
 const { sqrt: get_osculating_circle_sqrt } = Math;
 /**
  * Returns the osculating circle at this point of the curve.
- *
+ * 
  * @param minCurvature if not `Infinity` then the circle radius will be limited
  * to this value
  * @param pos the `PointOnShape` identifying the point
  * @param useMaxRadius
- */
-function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
+ */ function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
     const { curve, p, t } = pos;
     const { ps } = curve;
     const minCurvature = 1 / maxOsculatingCircleRadius;
@@ -29251,7 +29538,10 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
     const l = get_osculating_circle_sqrt(tx * tx + ty * ty);
     const scale = l * k;
     return [
-        [p[0] + tx / scale, p[1] + ty / scale],
+        [
+            p[0] + tx / scale,
+            p[1] + ty / scale
+        ],
         1 / k
     ];
 }
@@ -29261,21 +29551,23 @@ function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
 
 const { sqrt: get_initial_x_sqrt } = Math;
 /**
- *
+ * 
  * @param angle
  * @param isHoleClosing `true` if this is a hole-closing two-prong, `false` otherwise
  * @param maxOscRadius the maximum that the osculating circle radius can be
  * @param yPos the source point of the 2-prong to be found
- *
+ * 
  * @internal
-*/
-function getInitialX(angle, isHoleClosing, maxOscRadius, yPos, nnorm) {
+*/ function getInitialX(angle, isHoleClosing, maxOscRadius, yPos, nnorm) {
     let xO;
     let rO;
     const { p: y } = yPos;
     if (isHoleClosing) {
         return [
-            [y[0], y[1] - maxOscRadius], // xO
+            [
+                y[0],
+                y[1] - maxOscRadius
+            ],
             maxOscRadius // rO
         ];
     }
@@ -29286,10 +29578,19 @@ function getInitialX(angle, isHoleClosing, maxOscRadius, yPos, nnorm) {
     const [tx, ty] = nnorm;
     const l = get_initial_x_sqrt(tx * tx + ty * ty);
     const scale = maxOscRadius / l;
-    const v = [tx * scale, ty * scale];
-    xO = [p[0] + v[0], p[1] + v[1]];
+    const v = [
+        tx * scale,
+        ty * scale
+    ];
+    xO = [
+        p[0] + v[0],
+        p[1] + v[1]
+    ];
     rO = maxOscRadius;
-    return [xO, rO];
+    return [
+        xO,
+        rO
+    ];
 }
 
 
@@ -29330,29 +29631,28 @@ function ddNormal(ps, t) {
 
 const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max: find_2_prong_max, sqrt: find_2_prong_sqrt } = Math;
 /**
- * Adds a 2-prong to the MAT. The first point on the shape boundary is given and
+ * Adds a 2-prong to the MAT. The first point on the shape boundary is given and 
  * the second one is found by the algorithm.
- *
- * A 2-prong is defined as a MAT circle that touches the shape at exactly 2
+ * 
+ * A 2-prong is defined as a MAT circle that touches the shape at exactly 2 
  * points.
- *
+ * 
  * Before any 2-prongs are added the entire shape is our δΩ.
- *
- * As per the paper by Choi, Choi, Moon and Wee:
+ * 
+ * As per the paper by Choi, Choi, Moon and Wee: 
  *   "The starting point of this algorithm is a choice of a circle Br(x)
  *    centered at an interior point x which contains two boundary portions c and
  *    d of dΩ as in Fig. 19."
  * In fact, we (and they) start by fixing one point on the boundary beforehand.
- *
+ * 
  * @param meta
  * @param isHoleClosing `true` if this is a hole-closing two-prong, `false` otherwise
  * @param for1Prong
  * @param angle
  * @param yPos the source point of the 2-prong to be found
- *
+ * 
  * @internal
- */
-function find2Prong(meta) {
+ */ function find2Prong(meta) {
     const { loops, maxCoordPowerOf2, squaredDiagonalLength } = meta;
     //----------------------------
     // Initialize some tolerances
@@ -29364,13 +29664,33 @@ function find2Prong(meta) {
     return function find2ProngInner(isHoleClosing, for1Prong, angle, yPos) {
         const { curve: { loop, ps }, t, p: y } = yPos;
         const normDd = ddNormal(ps, t);
-        const _nnorm = [-normDd[0][1], -normDd[1][1]]; // Left-handed system (sorry)
-        const nnorm = isHoleClosing
-            ? [0, -maxOsculatingCircleRadius]
-            : (angle !== 0 ? rotate(find_2_prong_sin(angle), find_2_prong_cos(angle))(_nnorm) : _nnorm);
-        const nnormDd = isHoleClosing || angle !== 0
-            ? [[0, nnorm[0]], [0, nnorm[1]]]
-            : [[-normDd[0][0], -normDd[0][1]], [-normDd[1][0], -normDd[1][1]]];
+        const _nnorm = [
+            -normDd[0][1],
+            -normDd[1][1]
+        ]; // Left-handed system (sorry)
+        const nnorm = isHoleClosing ? [
+            0,
+            -maxOsculatingCircleRadius
+        ] : angle !== 0 ? rotate(find_2_prong_sin(angle), find_2_prong_cos(angle))(_nnorm) : _nnorm;
+        const nnormDd = isHoleClosing || angle !== 0 ? [
+            [
+                0,
+                nnorm[0]
+            ],
+            [
+                0,
+                nnorm[1]
+            ]
+        ] : [
+            [
+                -normDd[0][0],
+                -normDd[0][1]
+            ],
+            [
+                -normDd[1][0],
+                -normDd[1][1]
+            ]
+        ];
         // Get initial kissing circle guess
         let [xO, rO] = getInitialX(angle, isHoleClosing, maxOsculatingCircleRadius, yPos, nnorm);
         // The boundary piece that should contain the other point of 
@@ -29380,7 +29700,10 @@ function find2Prong(meta) {
         const xy2 = reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm);
         const xy = find_2_prong_sqrt(xy2);
         const l = find_2_prong_sqrt(nnorm[0] ** 2 + nnorm[1] ** 2);
-        xO = [y[0] + nnorm[0] / l * xy, y[1] + nnorm[1] / l * xy];
+        xO = [
+            y[0] + nnorm[0] / l * xy,
+            y[1] + nnorm[1] / l * xy
+        ];
         cullCurvePieces(curvePieces, xO, xy2);
         const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePieces);
         // FUTURE - if antipodalPoints.length > 1 let's just add an n-prong;
@@ -29404,12 +29727,18 @@ function find2Prong(meta) {
             return undefined;
         }
         const pDd = to_p_toP(curve.ps, s);
-        const p = pDd.map(c => c[0] + c[1]);
+        const p = pDd.map((c)=>c[0] + c[1]);
         const z = {
-            curve, t: s, isSource: false,
-            p, pDd
+            curve,
+            t: s,
+            isSource: false,
+            p,
+            pDd
         };
-        const circle = { center: x, radius: d };
+        const circle = {
+            center: x,
+            radius: d
+        };
         const yz = squaredDistanceBetweenDd(yPos.p, z.p);
         const xz = squaredDistanceBetweenDd(x, z.p);
         if (!isHoleClosing) {
@@ -29418,19 +29747,21 @@ function find2Prong(meta) {
             }
             // The lines below eliminate cases where the found 2-prong is too
             // close to a one-prong
-            const squaredSeperationTolerance = find_2_prong_max(calcSeperationTolerance(rO, find_2_prong_sqrt(xz), (2 ** 2) * errorTolerance), minSquaredSeperationTolerance);
+            const squaredSeperationTolerance = find_2_prong_max(calcSeperationTolerance(rO, find_2_prong_sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeperationTolerance);
             if (yz <= squaredSeperationTolerance) {
                 return undefined;
             }
         }
-        return { circle, z };
+        return {
+            circle,
+            z
+        };
     };
 }
-/** @internal */
-function areAllAntipodesSame(point, maxCoordPowerOf2) {
+/** @internal */ function areAllAntipodesSame(point, maxCoordPowerOf2) {
     const { curve, s: t, x } = point[0];
     const tol = 2 ** (maxCoordPowerOf2 - 40);
-    for (let i = 1; i < point.length; i++) {
+    for(let i = 1; i < point.length; i++){
         // const { curve: curve_, s: t_ } = point[i];
         // if (curve !== curve_ || t !== t_) {
         //     return false;
@@ -29458,20 +29789,27 @@ function areAllAntipodesSame(point, maxCoordPowerOf2) {
  * @param pposSource The source point on shape
  * @param pposAntipode The found antipodal point on shape
  * @param isHoleClosing True if this is a hole-closing 2-prong, false otherwise
- *
+ * 
  * @internal
- */
-function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
-    pposSource = pposSource.t === 0
-        ? { ...pposSource, curve: pposSource.curve.prev, t: 1 }
-        : pposSource;
+ */ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
+    pposSource = pposSource.t === 0 ? {
+        ...pposSource,
+        curve: pposSource.curve.prev,
+        t: 1
+    } : pposSource;
     const orderSource = calcPosOrder(circle.center, pposSource);
     const orderAntipode = calcPosOrder(circle.center, pposAntipode);
     const posAntipode = {
-        ...pposAntipode, circle, order: orderAntipode, order2: 0
+        ...pposAntipode,
+        circle,
+        order: orderAntipode,
+        order2: 0
     };
     const posSource = {
-        ...pposSource, circle, order: orderSource, order2: 0
+        ...pposSource,
+        circle,
+        order: orderSource,
+        order2: 0
     };
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
@@ -29481,9 +29819,15 @@ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
     if (!!getCloseByCpIfExist(meta, pposAntipode, circle, orderAntipode, 0, 2)) {
         return undefined;
     }
-    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, [orderSource, orderAntipode], meta, [posSource, posAntipode]);
+    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, [
+        orderSource,
+        orderAntipode
+    ], meta, [
+        posSource,
+        posAntipode
+    ]);
     if (anyFailed) {
-        cpNodes.forEach(cpNode => {
+        cpNodes.forEach((cpNode)=>{
             if (cpNode !== undefined) {
                 removeCpNode(cpNode, meta);
             }
@@ -29498,16 +29842,28 @@ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
 function closeHole(meta, cpNodes) {
     const { cpTrees } = meta;
     const [cpNodeSource, cpNodeAntipode] = cpNodes;
+    // The twins form their own on-circle ring (a separate MAT vertex - that
+    // is what cuts the hole), so they get their own (equal) `Circle` object:
+    // one `Circle` object per ring.
+    const twinCircle = {
+        ...cpNodeSource.pointOnShape.circle
+    };
     // Antipode - create and insert twin
     const posAntipode = cpNodeAntipode.pointOnShape;
-    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), { ...posAntipode, order2: +1 }, cpNodeAntipode, undefined, // unused
-    meta.lastInsertId);
+    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), {
+        ...posAntipode,
+        circle: twinCircle,
+        order2: +1
+    }, cpNodeAntipode, undefined, meta.lastInsertId);
     cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
     cpNodeAntipode.holeCloserTwin = cpNodeAntipodeTwin;
     // Source - create and insert twin
     const posSource = cpNodeSource.pointOnShape;
-    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), { ...posSource, order2: -1 }, cpNodeSource.prev, undefined, // unused
-    meta.lastInsertId);
+    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), {
+        ...posSource,
+        circle: twinCircle,
+        order2: -1
+    }, cpNodeSource.prev, undefined, meta.lastInsertId);
     cpNodeSourceTwin.holeCloserTwin = cpNodeSource;
     cpNodeSource.holeCloserTwin = cpNodeSourceTwin;
     // Connect graph
@@ -29523,7 +29879,7 @@ function closeHole(meta, cpNodes) {
 
 
 ;// ./src/find-2-prong/find-and-add-2-prongs.ts
-
+/** @internal */ 
 
 
 
@@ -29531,21 +29887,22 @@ const { PI: find_and_add_2_prongs_PI, atan2: find_and_add_2_prongs_atan2 } = Mat
 // const ANGLE = 15*PI/180;  // 15 degrees - don't make smaller than 2 degrees
 /**
  * Find and add two-prongs.
- * @param meta
- * @param angleIncrement
- * @param for2Prongs
+ * @param meta 
+ * @param angleIncrement 
+ * @param for2Prongs 
  * @param for1Prong
- *
+ * 
  * @internal
- */
-function findAndAdd2Prongs(meta, angleIncrement, for2Prongs, for1Prong) {
+ */ function findAndAdd2Prongs(meta, angleIncrement, for2Prongs, for1Prong) {
     let cpNode_;
     const find2Prong_ = find2Prong(meta);
     const angleIncrement_ = angleIncrement * find_and_add_2_prongs_PI / 180;
-    for (let i = 0; i < for2Prongs.length; i++) {
+    for(let i = 0; i < for2Prongs.length; i++){
         const pos = for2Prongs[i];
-        const angles = for1Prong ? [0] : getValidAngles(angleIncrement_, pos);
-        for (const angle of angles) {
+        const angles = for1Prong ? [
+            0
+        ] : getValidAngles(angleIncrement_, pos);
+        for (const angle of angles){
             const twoProngInfo = find2Prong_(false, for1Prong, angle, pos);
             if (twoProngInfo) {
                 const { circle, z } = twoProngInfo;
@@ -29562,7 +29919,9 @@ function findAndAdd2Prongs(meta, angleIncrement, for2Prongs, for1Prong) {
     return cpNode_;
 }
 function getValidAngles(angleIncrement_, ppos) {
-    const angles = [0];
+    const angles = [
+        0
+    ];
     if (ppos.t === 1) {
         const { curve } = ppos;
         const corner = getCorner(curve.ps, curve.next.ps);
@@ -29571,9 +29930,9 @@ function getValidAngles(angleIncrement_, ppos) {
             const tangentO = rotateNeg90Degrees(corner.tangents[1]);
             const a1 = (find_and_add_2_prongs_atan2(tangentI[1], tangentI[0]) + 2 * find_and_add_2_prongs_PI) % (2 * find_and_add_2_prongs_PI);
             const a2 = (find_and_add_2_prongs_atan2(tangentO[1], tangentO[0]) + 2 * find_and_add_2_prongs_PI) % (2 * find_and_add_2_prongs_PI);
-            const a3 = ((a2 - a1) + 2 * find_and_add_2_prongs_PI) % (2 * find_and_add_2_prongs_PI);
+            const a3 = (a2 - a1 + 2 * find_and_add_2_prongs_PI) % (2 * find_and_add_2_prongs_PI);
             let angle = angleIncrement_;
-            while (angle <= a3 - (angleIncrement_ / 2)) {
+            while(angle <= a3 - angleIncrement_ / 2){
                 angles.push(angle);
                 angle += angleIncrement_;
             }
@@ -29585,7 +29944,7 @@ function getValidAngles(angleIncrement_, ppos) {
 
 ;// ./src/find-2-prong/find-and-add-2-prongs-on-all-loops.ts
 
-/**
+/** 
  * @internal
  * Add 2 prongs. See comments on the add2Prong function.
  *
@@ -29593,10 +29952,9 @@ function getValidAngles(angleIncrement_, ppos) {
  * @param angleIncrement
  * @param for2Prongss
  * @param for1Prongs
- */
-function findAndAdd2ProngsOnAllLoops(meta, angleIncrement, for2Prongss, for1Prongs) {
+ */ function findAndAdd2ProngsOnAllLoops(meta, angleIncrement, for2Prongss, for1Prongs) {
     let cpNode;
-    for (let k = 0; k < for2Prongss.length; k++) {
+    for(let k = 0; k < for2Prongss.length; k++){
         const for2Prongs = for2Prongss[k];
         const _cpNode = findAndAdd2Prongs(meta, angleIncrement, for2Prongs, for1Prongs);
         cpNode = cpNode === undefined ? _cpNode : cpNode;
@@ -29689,31 +30047,38 @@ function getInflections(ps) {
 
 
 /**
- * Get useful points on the shape - these incude points of maximum curvature and
- * points at the bezier-bezier interfaces.
+ * Get useful points on the shape - these incude points of maximum curvature and 
+ * points at the bezier-bezier interfaces.  
  * @param loop
- * @param additionalPointCount
- *
+ * @param additionalPointCount 
+ * 
  * @internal
- */
-function getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength) {
-    return function (loop) {
+ */ function getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength) {
+    return function(loop) {
         const for2Prongs = [];
         const curves = loop.curves;
-        for (let i = 0; i < curves.length; i++) {
+        for(let i = 0; i < curves.length; i++){
             const curve = curves[i];
             const ps = curve.ps;
             if (controlPointLinesLength(ps) < minBezLength) {
                 continue;
             }
             let ts = splitByCurvatureAndLength(ps, maxCurviness, maxLength);
-            ts = ts.length === 2 ? [0.5] : ts;
+            ts = ts.length === 2 ? [
+                0.5
+            ] : ts;
             ts.push(...getInflections(ps));
-            ts = ts.filter(t => t !== 0 && t !== 1);
-            const byCurvatureAndLength = ts.map(t => {
+            ts = ts.filter((t)=>t !== 0 && t !== 1);
+            const byCurvatureAndLength = ts.map((t)=>{
                 const pDd = to_p_toP(curve.ps, t);
-                const p = pDd.map(c => c[0] + c[1]);
-                return { curve, t, isSource: true, p, pDd };
+                const p = pDd.map((c)=>c[0] + c[1]);
+                return {
+                    curve,
+                    t,
+                    isSource: true,
+                    p,
+                    pDd
+                };
             });
             for2Prongs.push(...byCurvatureAndLength);
         }
@@ -30059,29 +30424,33 @@ function getCurvatureExtremaDd(ps) {
 
 /**
  * Get points of maximum curvature.
- *
+ * 
  * @param loop
- *
+ * 
  * @internal
- */
-function getFor1ProngsOnLoop(minBezLength) {
-    return function (loop) {
+ */ function getFor1ProngsOnLoop(minBezLength) {
+    return function(loop) {
         const poss = [];
-        for (let i = 0; i < loop.curves.length; i++) {
+        for(let i = 0; i < loop.curves.length; i++){
             const curve = loop.curves[i];
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
             }
             const { ps } = curve;
-            poss.push(...getCurvatureExtremaDd(ps).maxima.map(t => {
+            poss.push(...getCurvatureExtremaDd(ps).maxima.map((t)=>{
                 const pDd = to_p_toP(ps, t);
-                const p = pDd.map(c => c[0] + c[1]);
-                return { curve, t, isSource: true, p, pDd };
+                const p = pDd.map((c)=>c[0] + c[1]);
+                return {
+                    curve,
+                    t,
+                    isSource: true,
+                    p,
+                    pDd
+                };
             }));
         }
-        return poss
-            // keep away from edges
-            .filter(pos => pos.t > 2 ** -20 && pos.t < 2 ** -20);
+        return poss// keep away from edges
+        .filter((pos)=>pos.t > 2 ** -20 && pos.t < 2 ** -20);
     };
 }
 
@@ -30094,38 +30463,53 @@ function toPrePoint(extreme) {
     const { curve, t } = extreme;
     const { ps } = curve;
     const pDd = to_p_toP(ps, t);
-    const p = pDd.map(c => c[0] + c[1]);
+    const p = pDd.map((c)=>c[0] + c[1]);
     return {
         curve,
         t: extreme.t,
         isSource: true,
-        p, pDd
+        p,
+        pDd
     };
 }
 function updateExtreme(extreme, curve, t, val, isMax) {
-    if ((isMax && (val > extreme.val || (val === extreme.val && t > extreme.t))) ||
-        (!isMax && (val < extreme.val || (val === extreme.val && t > extreme.t)))) {
+    if (isMax && (val > extreme.val || val === extreme.val && t > extreme.t) || !isMax && (val < extreme.val || val === extreme.val && t > extreme.t)) {
         extreme.curve = curve;
         extreme.t = t;
         extreme.val = val;
     }
 }
-/**
- * @internal
- */
-const getLoopBounds$ = memoize(function (loop) {
+/** 
+ * @internal 
+ */ const getLoopBounds$ = memoize(function(loop) {
     const mins = [
-        { curve: undefined, t: undefined, val: Infinity },
-        { curve: undefined, t: undefined, val: Infinity }
+        {
+            curve: undefined,
+            t: undefined,
+            val: Infinity
+        },
+        {
+            curve: undefined,
+            t: undefined,
+            val: Infinity
+        }
     ];
     const maxs = [
-        { curve: undefined, t: undefined, val: -Infinity },
-        { curve: undefined, t: undefined, val: -Infinity }
+        {
+            curve: undefined,
+            t: undefined,
+            val: -Infinity
+        },
+        {
+            curve: undefined,
+            t: undefined,
+            val: -Infinity
+        }
     ];
-    loop.curves.forEach(function (curve) {
+    loop.curves.forEach(function(curve) {
         const ps = curve.ps;
         const bounds = getBounds(ps);
-        for (let axis = 0; axis < 2; axis++) {
+        for(let axis = 0; axis < 2; axis++){
             updateExtreme(mins[axis], curve, bounds.ts[0][axis], bounds.box[0][axis], false);
             updateExtreme(maxs[axis], curve, bounds.ts[1][axis], bounds.box[1][axis], true);
         }
@@ -30144,8 +30528,7 @@ const getLoopBounds$ = memoize(function (loop) {
 /**
  * @internal
  * Get topmost PointOnShape of the given loop.
- */
-function getMinYPos(loop) {
+ */ function getMinYPos(loop) {
     return getLoopBounds$(loop).minY;
 }
 
@@ -30156,19 +30539,18 @@ function getMinYPos(loop) {
 
 /**
  * Find and add two-prongs that close any holes in the shape.
- *
+ * 
  * @param meta
- *
+ * 
  * @internal
- */
-function findAndAddHoleClosing2Prongs(meta) {
+ */ function findAndAddHoleClosing2Prongs(meta) {
     const { loops } = meta;
     // Find the topmost points on each loop.
     const minYs = loops.map(getMinYPos);
     let cpNode;
     const find2Prong_ = find2Prong(meta);
     // We start at 1 since 0 is the outer (root) loop
-    for (let k = 1; k < minYs.length; k++) {
+    for(let k = 1; k < minYs.length; k++){
         const pposSource = minYs[k];
         const posAntipode = find2Prong_(true, false, 0, pposSource);
         if (!posAntipode) {
@@ -30187,8 +30569,7 @@ function findAndAddHoleClosing2Prongs(meta) {
 ;// ./src/svg/get-shape-bounds.ts
 
 
-/** @internal */
-const get_shape_bounds_getShapeBounds = memoize(function (loops) {
+/** @internal */ const get_shape_bounds_getShapeBounds = memoize(function(loops) {
     let minX_ = +Infinity;
     let maxX_ = -Infinity;
     let minY_ = +Infinity;
@@ -30197,7 +30578,7 @@ const get_shape_bounds_getShapeBounds = memoize(function (loops) {
     let maxX;
     let minY;
     let maxY;
-    for (const loop of loops) {
+    for (const loop of loops){
         const bounds = getLoopBounds$(loop);
         if (bounds.minX.p[0] < minX_) {
             minX = bounds.minX;
@@ -30226,7 +30607,7 @@ const get_shape_bounds_getShapeBounds = memoize(function (loops) {
 
 
 ;// ./src/find-mat/find-mat.ts
-
+/** @internal */ 
 
 
 
@@ -30239,10 +30620,9 @@ const get_shape_bounds_getShapeBounds = memoize(function (loops) {
 /**
  * @internal
  * Find the MAT of the given loops.
- * @param loops The loops (that as a precondition must be ordered from highest
+ * @param loops The loops (that as a precondition must be ordered from highest 
  * (i.e. smallest y-value) topmost point loops to lowest)
- */
-function findMat(loops, maxCoordPowerOf2, options) {
+ */ function findMat(loops, maxCoordPowerOf2, options) {
     get_meta_addDebugInfo1();
     const { minBezLength, maxCurviness, maxLength, angleIncrement } = options;
     const getSharpCornersOnLoop_ = getSharpCornersOnLoop(minBezLength);
@@ -30250,21 +30630,29 @@ function findMat(loops, maxCoordPowerOf2, options) {
     const getFor2ProngsOnLoop_ = getFor2ProngsOnLoop(minBezLength, maxCurviness, maxLength);
     const getFor1ProngsOnLoop_ = getFor1ProngsOnLoop(minBezLength);
     const bounds = get_shape_bounds_getShapeBounds(loops);
-    const squaredDiagonalLength = (bounds.maxX.p[0] - bounds.minX.p[0]) ** 2 +
-        (bounds.maxY.p[1] - bounds.minY.p[1]) ** 2;
+    const squaredDiagonalLength = (bounds.maxX.p[0] - bounds.minX.p[0]) ** 2 + (bounds.maxY.p[1] - bounds.minY.p[1]) ** 2;
     const sharpCornersPerLoop = loops.map(getSharpCornersOnLoop_);
-    const lastInsertId = { id: 0 };
+    const lastInsertId = {
+        id: 0
+    };
     const cpTrees = createInitialCpTree(loops, sharpCornersPerLoop, lastInsertId);
     const _meta = getPartialMeta(loops);
     const meta = {
-        maxCoordPowerOf2, squaredDiagonalLength, loops, cpTrees, // pointToCpNode,
-        lastInsertId, ..._meta
+        maxCoordPowerOf2,
+        squaredDiagonalLength,
+        loops,
+        cpTrees,
+        lastInsertId,
+        ..._meta
     };
     let cpNode;
     cpNode = findAndAddHoleClosing2Prongs(meta);
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterHoleClosers) {
-            return { cpNode: cpNode, meta };
+            return {
+                cpNode: cpNode,
+                meta
+            };
         }
     }
     get_meta_addDebugInfo2();
@@ -30277,7 +30665,10 @@ function findMat(loops, maxCoordPowerOf2, options) {
     addDebugInfo3();
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterTwoProngs) {
-            return { cpNode: cpNode, meta };
+            return {
+                cpNode: cpNode,
+                meta
+            };
         }
     }
     cpNode = findAndAdd3ProngsOnLoop(meta, cpNode);
@@ -30286,18 +30677,22 @@ function findMat(loops, maxCoordPowerOf2, options) {
     }
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterThreeProngs) {
-            return { cpNode, meta };
+            return {
+                cpNode,
+                meta
+            };
         }
     }
     // if (cpNode !== undefined) { checkOrdering(meta, cpNode); }
-    const mat = { cpNode, meta };
+    const mat = {
+        cpNode,
+        meta
+    };
     addDebugInfo4();
     return mat;
 }
-
-/** Curvilinear Shape Features (CSFs) */
-// const csfs = getCsfs(meta, minBezLength, loops);
-// const ligatures = getLigatures(meta, csfs);
+ /** Curvilinear Shape Features (CSFs) */  // const csfs = getCsfs(meta, minBezLength, loops);
+ // const ligatures = getLigatures(meta, csfs);
 
 ;// ./src/find-mat/find-mats.ts
 /* unused harmony import specifier */ var find_mats_beziersToSvgPathStr;
@@ -30310,44 +30705,43 @@ function findMat(loops, maxCoordPowerOf2, options) {
 
 const { ceil: find_mats_ceil, log2: find_mats_log2 } = Math;
 /**
- * Finds and returns the Medial Axis Transforms (MATs) from the given array of
+ * Finds and returns the Medial Axis Transforms (MATs) from the given array of 
  * bezier loops representing shape boundaries.
- *
- * @param bezierLoops An array of (possibly intersecting) loops with each loop
- * representing one or more piecewise smooth closed curves (i.e. shapes). Each
- * loop consists of an array of beziers represented by an array of control
- * points with 2,3 or 4 elements corresponding to linear, quadratic and cubic
+ * 
+ * @param bezierLoops An array of (possibly intersecting) loops with each loop 
+ * representing one or more piecewise smooth closed curves (i.e. shapes). Each 
+ * loop consists of an array of beziers represented by an array of control 
+ * points with 2,3 or 4 elements corresponding to linear, quadratic and cubic 
  * beziers respectively. Each point is a two-element array (ordered pair), the
  * first of which is the x-coordinate and the second the y-coordinate.
- *
- * @param maxCurviness The maximum value the 'curviness' of a curve can have
- * before an additional MAT point is inserted in between. Defaults to 0.4.
- * (Curviness is measured as the total angle in radians between the consecutive
+ * 
+ * @param maxCurviness The maximum value the 'curviness' of a curve can have 
+ * before an additional MAT point is inserted in between. Defaults to 0.4. 
+ * (Curviness is measured as the total angle in radians between the consecutive 
  * vectors formed by the ordered control points of th bezier curve). The value
  * is clipped in the range `[0.01,3]`.
- *
- * @param maxLength The maximum length a curve can have before an additional MAT
- * point is inserted. This value is scaled to a reference 1024 x 1024
- * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the value will be
- * halved, e.g. from 10 to 5). Together with maxCurviness it represents a
- * tolerance for the accuracy of the MAT. Defaults to 4. The value is clipped
+ * 
+ * @param maxLength The maximum length a curve can have before an additional MAT 
+ * point is inserted. This value is scaled to a reference 1024 x 1024 
+ * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the value will be 
+ * halved, e.g. from 10 to 5). Together with maxCurviness it represents a 
+ * tolerance for the accuracy of the MAT. Defaults to 4. The value is clipped 
  * in [1,100].
- */
-function findMats(bezierLoops, options) {
+ */ function findMats(bezierLoops, options) {
     // if (typeof _debug_ !== 'undefined') { var timingStart = performance.now(); }
     const { maxCoordinate } = getLoopsMetrics(bezierLoops);
     const maxCoordPowerOf2 = find_mats_ceil(find_mats_log2(maxCoordinate));
     const options_ = clipOptions(maxCoordPowerOf2, {
         ...defaultMatOptions,
-        ...(options || {})
+        ...options || {}
     });
     const { applySat, simplify, satScale, simplifyTolerance } = options_;
     const loopss = simplifyPaths(bezierLoops, {
-        forceOrientationNegative: true,
+        forceOrientationNegative: true
     });
     // console.log(loopsToSvgPathStr(bezierLoops));
     const mats = [];
-    for (const loops of loopss) {
+    for (const loops of loopss){
         let mat = findMat(loops, maxCoordPowerOf2, options_);
         if (mat === undefined) {
             continue;
@@ -30366,12 +30760,11 @@ function findMats(bezierLoops, options) {
 }
 /**
  * Returns an SVG path string representation of the given bezier loops.
- * @param loops An array of loops having an array of bezier curves each given as
+ * @param loops An array of loops having an array of bezier curves each given as 
  * an array of control points.
- */
-function loopsToSvgPathStr(loops) {
+ */ function loopsToSvgPathStr(loops) {
     let str = '';
-    for (const loop of loops) {
+    for (const loop of loops){
         str = str + find_mats_beziersToSvgPathStr(loop) + '\n';
     }
     return str;
@@ -30385,22 +30778,21 @@ function loopsToSvgPathStr(loops) {
 
 /**
  * Cull all edges not part of a cycle in the MAT planar graph.
- * @param cpStart The start CpNode which must reprsesent the maximal 3-prong
+ * @param cpStart The start CpNode which must reprsesent the maximal 3-prong 
  * vertex.
- *
+ * 
  * @internal
- */
-function cullNonCycles(cpStart) {
+ */ function cullNonCycles(cpStart) {
     let cpNodeKept = cpStart;
     const leaves = getLeaves(cpStart);
-    while (leaves.length) {
+    while(leaves.length){
         const leaf = leaves.pop();
         // Preserve topology - keep cycles.
         if (leaf.isHoleClosing || leaf.isIntersection) {
             continue;
         }
         let cpNode = leaf.next; // Turn around
-        while (true) {
+        while(true){
             cpNode = cpNode.next;
             let cut = false;
             const cp1 = cpNode.prevOnCircle;
@@ -30409,15 +30801,12 @@ function cullNonCycles(cpStart) {
                 const cp2 = cpNode.nextOnCircle;
                 if (isOnSameCircle(cpNode, cpStart)) {
                     cut = true; // We are at the max disk - cut whole edge
-                }
-                else if (cpNode.next === cp2) {
+                } else if (cpNode.next === cp2) {
                     cpNode = cp2;
-                }
-                else if (cp2.next !== cp1) {
+                } else if (cp2.next !== cp1) {
                     cut = true; // Cut whole edge
                 }
-            }
-            else if (isTerminating(cpNode) && !cpNode.isIntersection) {
+            } else if (isTerminating(cpNode) && !cpNode.isIntersection) {
                 cpNodeKept = cpNode;
                 return undefined;
             }
@@ -30440,10 +30829,9 @@ function cullNonCycles(cpStart) {
 /**
  * Trims the given Medial Axis Transform so that only cycles remain. Similar to
  * toScaleAxis(mat, Infinity).
- *
+ * 
  * @param mat The MAT to trim.
- */
-function trimMat(mat) {
+ */ function trimMat(mat) {
     // FUTURE - clone entire `Mat` instead (the function already exists)
     const cpNode = cullNonCycles(clone(mat.cpNode));
     if (!cpNode) {
@@ -30463,21 +30851,18 @@ function trimMat(mat) {
 
 
 function getLargest3Prong(cpNode) {
-    const cpNodes = getAllOnLoop(cpNode)
-        .filter(cpNode => getRealProngCount(cpNode) >= 3);
+    const cpNodes = getAllOnLoop(cpNode).filter((cpNode)=>getRealProngCount(cpNode) >= 3);
     if (cpNodes.length === 0) {
         return undefined;
     }
-    return cpNodes.reduce(function (maxCpNode, cpNode) {
-        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius
-            ? maxCpNode
-            : cpNode;
+    return cpNodes.reduce(function(maxCpNode, cpNode) {
+        return maxCpNode.pointOnShape.circle.radius >= cpNode.pointOnShape.circle.radius ? maxCpNode : cpNode;
     }, cpNodes[0]);
 }
 
 
 ;// ./src/debug/debug.ts
-function enableDebugForMat(debugOn) {
+/** @internal */ function enableDebugForMat(debugOn) {
     if (!debugOn) {
         window._debug_ = undefined;
         return;
@@ -30507,7 +30892,7 @@ function enableDebugForMat(debugOn) {
             stopAfterTwoProngs: false,
             stopAfterTwoProngsNum: undefined,
             stopAfterThreeProngs: false,
-            stopAfterThreeProngsNum: undefined,
+            stopAfterThreeProngsNum: undefined
         }
     };
     window._debug_ = debug;
@@ -30515,17 +30900,15 @@ function enableDebugForMat(debugOn) {
 
 
 ;// ./src/sweep-line/sweep-line.ts
-/** @internal */
-const sweep_line_EVENT_LEFT = 0;
-/** @internal */
-const sweep_line_EVENT_RIGHT = 1;
+/** @internal */ const sweep_line_EVENT_LEFT = 0;
+/** @internal */ const sweep_line_EVENT_RIGHT = 1;
 /**
  * @internal
  * Generalized sweepline algorithm.
- *
+ * 
  * Typically used to turn O(n^2) algorithms into roughly O(n logn) algorithms.
- *
- * @param items An array of items that are to be compared. Items should
+ * 
+ * @param items An array of items that are to be compared. Items should 
  * typically be geometric objects in 2d space with well-defined left and right
  * endpoints.
  * @param getLeftmostPoint A function that returns the leftmost point of the
@@ -30534,11 +30917,10 @@ const sweep_line_EVENT_RIGHT = 1;
  * geometric object of interest.
  * @param predicate A predicate that takes two geometric objects and returns
  * true if they are of interest or false otherwise.
- */
-function sweep_line_sweepLine(items, getLeftmost, getRightmost, predicate) {
+ */ function sweep_line_sweepLine(items, getLeftmost, getRightmost, predicate) {
     // Initialize event queue to contain all endpoints.
     const events = [];
-    for (const item of items) {
+    for (const item of items){
         events.push({
             type: sweep_line_EVENT_LEFT,
             item,
@@ -30552,19 +30934,20 @@ function sweep_line_sweepLine(items, getLeftmost, getRightmost, predicate) {
     }
     events.sort(sweep_line_compare);
     const activeItems = new Set();
-    /** A list of pairs of items that passed the predicate */
-    const pairedItems = [];
-    for (const event of events) {
+    /** A list of pairs of items that passed the predicate */ const pairedItems = [];
+    for (const event of events){
         const { item } = event;
         if (event.type === sweep_line_EVENT_LEFT) {
-            for (const activeItem of activeItems.values()) {
+            for (const activeItem of activeItems.values()){
                 if (predicate(item, activeItem)) {
-                    pairedItems.push([item, activeItem]);
+                    pairedItems.push([
+                        item,
+                        activeItem
+                    ]);
                 }
             }
             activeItems.add(item);
-        }
-        else if (event.type === sweep_line_EVENT_RIGHT) {
+        } else if (event.type === sweep_line_EVENT_RIGHT) {
             activeItems.delete(event.item);
         }
     }
@@ -30577,8 +30960,7 @@ function sweep_line_sweepLine(items, getLeftmost, getRightmost, predicate) {
  * before the left.
  * @param a An event
  * @param b Another event
- */
-function sweep_line_compare(a, b) {
+ */ function sweep_line_compare(a, b) {
     const res = a.x - b.x;
     if (res !== 0) {
         return res;
@@ -30591,17 +30973,18 @@ function sweep_line_compare(a, b) {
 ;// ./src/cp-node/fs/get-implied-boundary-bezier-between.ts
 
 
-/** @internal */
-const get_implied_boundary_bezier_between_TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */
-const get_implied_boundary_bezier_between_TOLERANCE_USE_LINE = 0.0001; // else cubic
+const { abs: get_implied_boundary_bezier_between_abs } = Math;
+/** @internal */ const get_implied_boundary_bezier_between_TOLERANCE_ADD_2PRONG = 0.01;
+/** @internal */ const get_implied_boundary_bezier_between_TOLERANCE_USE_LINE = 0.0001; // else cubic
 function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
     const posA = cpNodeA.pointOnShape;
     const posB = cpNodeB.pointOnShape;
     let { curve: curveA, p: pA, t: tA } = posA;
     let { curve: curveB, p: pB, t: tB } = posB;
     if (pA[0] === pB[0] && pA[1] === pB[1]) {
-        return [pA];
+        return [
+            pA
+        ];
     }
     if (tA === 1) {
         tA = 0;
@@ -30613,27 +30996,36 @@ function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
     }
     const { ps: psA } = curveA;
     const { ps: psB } = curveB;
-    const lA = [pA, translate(pA)(toUnitVector(tangent_tangent(psA, tA)))];
-    const lB = [pB, translate(pB)(toUnitVector(tangent_tangent(psB, tB)))];
+    const lA = [
+        pA,
+        translate(pA)(toUnitVector(tangent_tangent(psA, tA)))
+    ];
+    const lB = [
+        pB,
+        translate(pB)(toUnitVector(tangent_tangent(psB, tB)))
+    ];
     const mid = lineLineIntersection(lA, lB);
     const c = from_to_fromTo(pA, pB);
     let twisted;
     if (!mid) {
         twisted = true;
-    }
-    else {
+    } else {
         const a = from_to_fromTo(pA, mid);
         const b = from_to_fromTo(pB, mid);
         twisted = dot(a, c) < 0 || dot(b, c) > 0;
     }
     if (!twisted) {
         // drawFs.bezier(g, [pA, mid!, pB], 'thin10 pink nofill', 0)
-        return [pA, mid, pB];
+        return [
+            pA,
+            mid,
+            pB
+        ];
     }
     const w1 = from_to_fromTo(lA[0], lA[1]); // This is a unit vector
     const w2 = from_to_fromTo(lB[0], lB[1]); // This is a unit vector
-    const d1 = Math.abs(cross(c, w1)) / (3 * 3);
-    const d2 = Math.abs(cross(c, w2)) / (3 * 3);
+    const d1 = get_implied_boundary_bezier_between_abs(cross(c, w1)) / (3 * 3);
+    const d2 = get_implied_boundary_bezier_between_abs(cross(c, w2)) / (3 * 3);
     if (d1 > get_implied_boundary_bezier_between_TOLERANCE_ADD_2PRONG || d2 > get_implied_boundary_bezier_between_TOLERANCE_ADD_2PRONG) {
         // not within tolerance
         return undefined;
@@ -30643,7 +31035,10 @@ function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
         return undefined; // add 2-prong
     }
     // Within tolerance - approximate with a straight line.
-    return [pA, pB];
+    return [
+        pA,
+        pB
+    ];
 }
 
 
@@ -30661,24 +31056,21 @@ const getMatDistanceToNext$ = memoize(getMatDistanceToNext);
 
 ;// ./src/floyd-warshall/get-hole-closer-pairs.ts
 /**
- *
- * @param holeClosers
- * @returns
- */
-// FUTURE - this function is currently O(n^2) but could be made O(n).
+ * 
+ * @param holeClosers 
+ * @returns 
+ */ // FUTURE - this function is currently O(n^2) but could be made O(n).
 // FUTURE - only `pointOnShape.p` is checked but `pointOnShape.t` should also be checked
 // or better yet, `CpNode.cp.order` and `CpNode.cp.order2`, etc.
 function getHoleCloserPairs(holeClosers) {
     const pairs = new Map();
-    for (let hcA of holeClosers) {
-        for (let hcB of holeClosers) {
+    for (let hcA of holeClosers){
+        for (let hcB of holeClosers){
             const cA = hcA.pointOnShape.circle.center;
             const cB = hcB.pointOnShape.circle.center;
             const cpA = hcA.pointOnShape.p;
             const cpB = hcB.pointOnShape.p;
-            if (hcB !== hcA &&
-                cA[0] === cB[0] && cA[1] === cB[1] &&
-                cpA[0] === cpB[0] && cpA[1] === cpB[1]) {
+            if (hcB !== hcA && cA[0] === cB[0] && cA[1] === cB[1] && cpA[0] === cpB[0] && cpA[1] === cpB[1]) {
                 pairs.set(hcA, hcB);
             }
         }
@@ -30697,20 +31089,20 @@ function getGraph(specialVertices, holeClosers) {
     const pairs = getHoleCloserPairs(holeClosers);
     const V = specialVertices.length;
     const graph = [];
-    for (let i = 0; i < V; i++) {
+    for(let i = 0; i < V; i++){
         const cpNodeA = specialVertices[i];
         const row = [];
-        for (let j = 0; j < V; j++) {
+        for(let j = 0; j < V; j++){
             const cpNodeB = specialVertices[j];
             if (i === j) {
                 row.push(0);
                 continue;
             }
             let minD = Infinity;
-            for (const toChild of getAllOnCircle(cpNodeA)) {
+            for (const toChild of getAllOnCircle(cpNodeA)){
                 let d = getMatDistanceToNext$(toChild);
                 let child = toChild.next;
-                while (true) {
+                while(true){
                     if (isOnSameCircle(child, cpNodeB)) {
                         break; // Found path from A to B
                     }
@@ -30746,12 +31138,11 @@ function getHoleCloserNext(pairs, holeCloser) {
 /**
  * Returns the result of mapping the array to the given depth and, optionally,
  * filtering out `undefined` leaf values.
- *
- * @param tss
- * @param f
- * @param filterUndefined
- */
-function mapDeep(depth, tss, f, filterUndefined) {
+ * 
+ * @param tss 
+ * @param f 
+ * @param filterUndefined 
+ */ function mapDeep(depth, tss, f, filterUndefined) {
     if (!Number.isInteger(depth) || depth < 1) {
         throw new Error('depth must be an integer >= 1');
     }
@@ -30759,7 +31150,7 @@ function mapDeep(depth, tss, f, filterUndefined) {
         const a = arr;
         if (d === 1) {
             const ts_ = [];
-            for (let i = 0; i < a.length; i++) {
+            for(let i = 0; i < a.length; i++){
                 const v = f(a[i]);
                 if (!filterUndefined || v !== undefined) {
                     ts_.push(v);
@@ -30768,7 +31159,7 @@ function mapDeep(depth, tss, f, filterUndefined) {
             return ts_;
         }
         const tss_ = [];
-        for (let i = 0; i < a.length; i++) {
+        for(let i = 0; i < a.length; i++){
             tss_.push(mapRec(d - 1, a[i]));
         }
         return tss_;
@@ -30782,19 +31173,17 @@ function mapDeep(depth, tss, f, filterUndefined) {
 /**
  * In-place removes trivial 3-prongs from the SAT graph; just to simplify
  * subsequent processing.
- *
+ * 
  * These are 3-prongs that are induced by the SAT construction, and do
  * not correspond to actual 3-prongs in the shape.
- *
+ * 
  * @param sat the SAT
- */
-function removeSatInducedTrivial3Prongs(sat) {
+ */ function removeSatInducedTrivial3Prongs(sat) {
     let { cpNode } = sat;
     let cpStart = cpNode;
     do {
-        if (isFullyTerminating(cpNode) ||
-            // cpNode.isHoleClosing ||  // hole-closers are fully terminating
-            cpNode.next !== cpNode.nextOnCircle) {
+        if (isFullyTerminating(cpNode) || // cpNode.isHoleClosing ||  // hole-closers are fully terminating
+        cpNode.next !== cpNode.nextOnCircle) {
             cpNode = cpNode.next;
             continue;
         }
@@ -30817,7 +31206,7 @@ function removeSatInducedTrivial3Prongs(sat) {
             cpStart = cpNode; // ...otherwise the loop will never terminate
         }
         cpNode = cpNode.next;
-    } while (cpNode !== cpStart);
+    }while (cpNode !== cpStart)
     // ...otherwise the caller will have a reference to a node that has been removed from the graph
     sat.cpNode = cpNode;
     return sat;
@@ -30826,29 +31215,29 @@ function removeSatInducedTrivial3Prongs(sat) {
 
 ;// ./src/cp-node/fs/is-on-same-loop.ts
 function isOnSameLoop(cpNode1, cpNode2) {
-    return (cpNode1.pointOnShape.curve.loop ===
-        cpNode2.pointOnShape.curve.loop);
+    return cpNode1.pointOnShape.curve.loop === cpNode2.pointOnShape.curve.loop;
 }
 
 
 ;// ./src/cp-node/fs/get-all-on-loop-by-loop.ts
 /**
- * Returns all `CpNode`s on the MAT that this `CpNode` is part of
+ * Returns all `CpNode`s on the MAT that this `CpNode` is part of 
  * starting from the current one and going anti-clockwise around the shape
  * going loop by loop.
- *
+ * 
  * * sometimes more useful than `getAllOnLoop` since this function returns an
  *   array of `CpNode`s for each loop seperately.
- */
-function getAllOnLoop_ByLoop(cpNode) {
+ */ function getAllOnLoop_ByLoop(cpNode) {
     const cpNodess = [];
-    const cpStarts = [cpNode];
+    const cpStarts = [
+        cpNode
+    ];
     const cpStartSet = new Set(cpStarts);
     if (cpNode.isHoleClosing) {
         cpStartSet.add(cpNode.prevOnCircle.holeCloserTwin);
     }
     cpStartSet.add(cpNode);
-    while (cpStarts.length > 0) {
+    while(cpStarts.length > 0){
         const cpNodes = [];
         const cpStart = cpStarts.pop();
         const _loop = cpStart.pointOnShape.curve.loop;
@@ -30867,7 +31256,7 @@ function getAllOnLoop_ByLoop(cpNode) {
                 cpStarts.push(twin);
             }
             cpNode = cpNode.prev.holeCloserTwin;
-        } while (cpNode !== cpStart);
+        }while (cpNode !== cpStart)
         cpNodess.push(cpNodes);
     }
     return cpNodess;
@@ -30880,7 +31269,7 @@ function getAllOnLoop_ByLoop(cpNode) {
 
 function getCpNodessForSat(sat) {
     let { cpNode } = sat;
-    while (!isFullyTerminating(cpNode)) {
+    while(!isFullyTerminating(cpNode)){
         cpNode = cpNode.next;
     }
     if (!isOnSameLoop(cpNode, cpNode.next)) {
@@ -30901,18 +31290,15 @@ const { max: reconstruct_from_mat_max, abs: reconstruct_from_mat_abs, round: rec
 // let ii = 0;
 /**
  * * used for debugging only
- *
- * @param mats
- *
+ * 
+ * @param mats 
+ * 
  * @internal
- */
-function reconstructFromMats(mats, minNumAccurateBits = undefined) {
-    const maxPO2 = reconstruct_from_mat_max(...mats.map(mat => mat.meta.maxCoordPowerOf2));
+ */ function reconstructFromMats(mats, minNumAccurateBits = undefined) {
+    const maxPO2 = reconstruct_from_mat_max(...mats.map((mat)=>mat.meta.maxCoordPowerOf2));
     const recoverBoundary_ = recoverBoundary(maxPO2, minNumAccurateBits);
     // Really only required if getSats was called on the `Mat`s
-    const cpNodessPerSat = mats
-        .map(removeSatInducedTrivial3Prongs)
-        .map(getCpNodessForSat);
+    const cpNodessPerSat = mats.map(removeSatInducedTrivial3Prongs).map(getCpNodessForSat);
     const r = mapDeep(3, cpNodessPerSat, recoverBoundary_, true);
     // ii;//?
     return r;
@@ -30920,13 +31306,12 @@ function reconstructFromMats(mats, minNumAccurateBits = undefined) {
 const FROM = 0;
 const TO = 1;
 /**
- *
- * @param cpNode
- *
+ * 
+ * @param cpNode 
+ * 
  * @internal
- */
-function recoverBoundary(maxPO2, minNumAccurateBits) {
-    return function (cpNode) {
+ */ function recoverBoundary(maxPO2, minNumAccurateBits) {
+    return function(cpNode) {
         const cpNode_ = cpNode.next;
         const pos = cpNode.pointOnShape;
         const pos_ = cpNode_.pointOnShape;
@@ -30941,8 +31326,7 @@ function recoverBoundary(maxPO2, minNumAccurateBits) {
             return undefined;
         }
         const d = distanceBetween(circle.center, p);
-        if (getRealProngCount(cpNode)) {
-        }
+        if (getRealProngCount(cpNode)) {}
         // DON'T remove these - they tell us the accuracy of the algorithm
         // if (!closeTo(2**34)(circle.radius, d) && getRealProngCount(cpNode) === 3) {
         //     ii++;
@@ -30965,18 +31349,14 @@ function recoverBoundary(maxPO2, minNumAccurateBits) {
         if (minNumAccurateBits !== undefined) {
             const TOL = 2 ** (maxPO2 - minNumAccurateBits);
             if (reconstruct_from_mat_abs(circle.radius - d) > TOL) {
-                throw new Error(`Medial circle radius must be about the same (2**${reconstruct_from_mat_round(reconstruct_from_mat_log2(TOL))}) ` +
-                    `as distance from medial circle center to point on shape, ` +
-                    `found: medial radius ${circle.radius}, distance: ${d}`);
+                throw new Error(`Medial circle radius must be about the same (2**${reconstruct_from_mat_round(reconstruct_from_mat_log2(TOL))}) ` + `as distance from medial circle center to point on shape, ` + `found: medial radius ${circle.radius}, distance: ${d}`);
             }
         }
         return getBoundaryPiece(cpNode);
     };
 }
-/** @internal */
-const reconstruct_from_mat_TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */
-const reconstruct_from_mat_TOLERANCE_USE_LINE = 0.0001; // else cubic
+/** @internal */ const reconstruct_from_mat_TOLERANCE_ADD_2PRONG = 0.01;
+/** @internal */ const reconstruct_from_mat_TOLERANCE_USE_LINE = 0.0001; // else cubic
 function getBoundaryPiece(cpNode) {
     const cpNode_ = cpNode.next;
     const pos = cpNode.pointOnShape;
@@ -30992,14 +31372,17 @@ function getBoundaryPiece(cpNode) {
     let twisted;
     if (!mid) {
         twisted = true;
-    }
-    else {
+    } else {
         const a = from_to_fromTo(fromCc, mid);
         const b = from_to_fromTo(toCc, mid);
         twisted = dot(a, c) < 0 || dot(b, c) > 0;
     }
     if (!twisted) {
-        return [fromCc, mid, toCc];
+        return [
+            fromCc,
+            mid,
+            toCc
+        ];
     }
     const r = rotate90Degrees(c);
     const w1 = from_to_fromTo(fromL[0], fromL[1]); // This is a unit vector
@@ -31008,7 +31391,10 @@ function getBoundaryPiece(cpNode) {
     const d2 = reconstruct_from_mat_abs(cross(c, w2)) / (3 * 3);
     if (d1 > reconstruct_from_mat_TOLERANCE_ADD_2PRONG || d2 > reconstruct_from_mat_TOLERANCE_ADD_2PRONG) {
         // FUTURE - not within tolerance - must add additional 2-prong
-        return [fromCc, toCc];
+        return [
+            fromCc,
+            toCc
+        ];
     }
     if (d1 > reconstruct_from_mat_TOLERANCE_USE_LINE || d2 > reconstruct_from_mat_TOLERANCE_USE_LINE) {
         // approximate with cubic bezier
@@ -31016,22 +31402,35 @@ function getBoundaryPiece(cpNode) {
         const m2 = interpolate(fromCc, toCc, 2 / 3);
         const v1 = translate(r, m1);
         const v2 = translate(r, m2);
-        const l1 = [m1, v1];
-        const l2 = [m2, v2];
+        const l1 = [
+            m1,
+            v1
+        ];
+        const l2 = [
+            m2,
+            v2
+        ];
         const mid1 = lineLineIntersection(fromL, l1);
         const mid2 = lineLineIntersection(toL, l2);
-        return [fromCc, mid1, mid2, toCc];
+        return [
+            fromCc,
+            mid1,
+            mid2,
+            toCc
+        ];
     }
     // Within tolerance - approximate with a straight line.
-    return [fromCc, toCc];
+    return [
+        fromCc,
+        toCc
+    ];
 }
 /**
  * Returns a line segment of unit length starting at the given point and
  * being tangent to the shape boundary.
- *
+ * 
  * @internal
- */
-function reconstruct_from_mat_getEdgeDirection(cpNode, fromOrTo) {
+ */ function reconstruct_from_mat_getEdgeDirection(cpNode, fromOrTo) {
     let { pointOnShape } = cpNode;
     let { curve, t, p } = pointOnShape;
     let { ps } = curve;
@@ -31047,25 +31446,30 @@ function reconstruct_from_mat_getEdgeDirection(cpNode, fromOrTo) {
     }
     const tangent = tangent_tangent(ps, t);
     const v = translate(p, tangent);
-    return [p, v];
+    return [
+        p,
+        v
+    ];
 }
 
 
 ;// ./src/cp-node/stringification/loop-to-stringifyable.ts
 function loopToStringifyable(loop) {
     const { idx, beziers } = loop;
-    return { idx: idx, beziers };
+    return {
+        idx: idx,
+        beziers
+    };
 }
 
 
 ;// ./src/cp-node/stringification/to-stringifyable.ts
 
 /**
- * Returns a deep clone of this `CpNode`. Can be used to copy the MAT
- * since cloning a single `CpNode` necessarily implies cloning all
+ * Returns a deep clone of this `CpNode`. Can be used to copy the MAT 
+ * since cloning a single `CpNode` necessarily implies cloning all 
  * `CpNode`s on the same MAT tree.
- */
-function toStringifyable(cpNode) {
+ */ function toStringifyable(cpNode) {
     const cpNodes_ = [];
     const loopSet = new Set();
     //--------------------------------------------------------------------------
@@ -31074,18 +31478,27 @@ function toStringifyable(cpNode) {
     //--------------------------------------------------------------------------
     const cpStart = cpNode;
     do {
-        const { id, isHoleClosing, isIntersection, pointOnShape, prev, next, nextOnCircle, prevOnCircle, holeCloserTwin, } = cpNode;
+        const { id, isHoleClosing, isIntersection, pointOnShape, prev, next, nextOnCircle, prevOnCircle, holeCloserTwin } = cpNode;
         const { curve, p, pDd, t, isSource, circle, order, order2 } = pointOnShape;
         const { idx: curveIdx, loop, ps, prev: prevCurve, next: nextCurve } = curve;
         if (!loopSet.has(loop)) {
             loopSet.add(loop);
         }
         const posSimplified = {
-            curveIdx, loopIdx: loop.idx, p, pDd, t, isSource,
-            circle, order, order2
+            curveIdx,
+            loopIdx: loop.idx,
+            p,
+            pDd,
+            t,
+            isSource,
+            circle,
+            order,
+            order2
         };
         cpNodes_.push({
-            id, isHoleClosing, isIntersection,
+            id,
+            isHoleClosing,
+            isIntersection,
             pointOnShape: posSimplified,
             prev: prev.id,
             next: next.id,
@@ -31094,9 +31507,9 @@ function toStringifyable(cpNode) {
             holeCloserTwin: holeCloserTwin?.id
         });
         cpNode = cpNode.next;
-    } while (cpNode !== cpStart);
+    }while (cpNode !== cpStart)
     //--------------------------------------------------------------------------
-    const loops = Array.from(loopSet).sort((a, b) => a.idx - b.idx);
+    const loops = Array.from(loopSet).sort((a, b)=>a.idx - b.idx);
     const loops_ = loops.map(loopToStringifyable);
     return {
         cpNodes: cpNodes_,
@@ -31107,8 +31520,10 @@ function toStringifyable(cpNode) {
 
 ;// ./src/cp-node/stringification/cp-node-stringifyable.ts
 const cp_node_stringifyable_EDGES = [
-    'prev', 'next',
-    'prevOnCircle', 'nextOnCircle',
+    'prev',
+    'next',
+    'prevOnCircle',
+    'nextOnCircle',
     'holeCloserTwin'
 ];
 
@@ -31124,42 +31539,71 @@ function loopFromStringifyable(loopStringifyable) {
 ;// ./src/cp-node/stringification/from-stringifyable.ts
 
 
+
 function fromStringifyable(cpNodesStringifyable) {
     const { cpNodes: _cpNodes, loops: _loops } = cpNodesStringifyable;
     const loops = _loops.map(loopFromStringifyable);
-    const loopsByIdx = new Map(loops.map(loop => [loop.idx, loop]));
+    const loopsByIdx = new Map(loops.map((loop)=>[
+            loop.idx,
+            loop
+        ]));
     //--------------------------------------------------------------------------
     // First pass: build all CpNode objects with proper `cp`.
     // Edges still hold number ids at this point.
     //--------------------------------------------------------------------------
-    const cpNodes = _cpNodes.map(cpNode_ => {
+    const cpNodes = _cpNodes.map((cpNode_)=>{
         const { id, pointOnShape, isHoleClosing, isIntersection } = cpNode_;
         const { circle, order, order2 } = pointOnShape;
         const { curveIdx, loopIdx, p, pDd, t, isSource } = pointOnShape;
         const curve = loopsByIdx.get(loopIdx).curves[curveIdx];
         const pointOnShape_ = {
             circle,
-            curve, p, pDd, t, isSource,
-            order, order2
+            curve,
+            p,
+            pDd,
+            t,
+            isSource,
+            order,
+            order2
         };
         return {
             ...cpNode_,
-            id, isHoleClosing, isIntersection,
+            id,
+            isHoleClosing,
+            isIntersection,
             pointOnShape: pointOnShape_
         };
     });
     //--------------------------------------------------------------------------
     // Second pass: replace number id edges with real CpNode references.
     //--------------------------------------------------------------------------
-    const nodeMap = new Map(cpNodes.map(n => [n.id, n]));
-    for (const cpNode of cpNodes) {
-        for (const edge of cp_node_stringifyable_EDGES) {
+    const nodeMap = new Map(cpNodes.map((n)=>[
+            n.id,
+            n
+        ]));
+    for (const cpNode of cpNodes){
+        for (const edge of cp_node_stringifyable_EDGES){
             const id = cpNode[edge];
             if (id === undefined) {
                 continue;
             }
             // @ts-ignore
             cpNode[edge] = nodeMap.get(id);
+        }
+    }
+    //--------------------------------------------------------------------------
+    // Third pass: one shared `Circle` object per on-circle ring, as when the
+    // MAT was built (the JSON gave every contact point its own copy).
+    //--------------------------------------------------------------------------
+    const done = new Set();
+    for (const cpNode of cpNodes){
+        if (done.has(cpNode)) {
+            continue;
+        }
+        const { circle } = cpNode.pointOnShape;
+        for (const cp of getAllOnCircle(cpNode)){
+            done.add(cp);
+            cp.pointOnShape.circle = circle;
         }
     }
     return cpNodes[0];
@@ -31173,17 +31617,18 @@ function fromStringifyable(cpNodesStringifyable) {
  * Returns a scaled version of the given circle without changing its center.
  * @param circle
  * @param s multiplier
- */
-function scaleCircle(circle, s) {
-    return { center: circle.center, radius: s * circle.radius };
+ */ function scaleCircle(circle, s) {
+    return {
+        center: circle.center,
+        radius: s * circle.radius
+    };
 }
 /**
  * Returns true if the first circle engulfs the second.
- *
- * @param c1
- * @param c2
- */
-function engulfsCircle(c1, c2) {
+ * 
+ * @param c1 
+ * @param c2 
+ */ function engulfsCircle(c1, c2) {
     if (c1.radius <= c2.radius) {
         return false;
     }

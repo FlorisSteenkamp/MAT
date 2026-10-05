@@ -1,8 +1,9 @@
 import { distanceBetween, toUnitVector, fromTo, dot } from 'flo-vector2d';
 import { getCpNodeNeighbors } from './get-cp-node-neighbors.js';
+const { cos, PI: π } = Math;
 /** @internal */
 const DEGREES = 1;
-const ANGLE_THRESHOLD = Math.cos(DEGREES * (Math.PI / 180));
+const ANGLE_THRESHOLD = cos(DEGREES * (π / 180));
 /**
  * @internal
  * If another `CpNode` is close by (to the given implied (via `pos`, `order` and

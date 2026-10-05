@@ -1,6 +1,7 @@
 import { toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse as reverseVec, dot } from 'flo-vector2d';
 import { tangent } from 'flo-bezier3';
 import { isPosSharpCorner } from '../../point-on-shape/is-pos-sharp-corner.js';
+const { sqrt } = Math;
 /**
  * Returns a line segment of unit length starting in the given Vertex center and
  * pointing in the direction of the medial axis (viewed as a rooted tree).
@@ -43,8 +44,8 @@ function getEdgeDirection(cpNode) {
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
         // be calculated.
-        const cosθ = Math.sqrt((1 + x) / 2);
-        const sinθ = Math.sqrt((1 - x) / 2);
+        const cosθ = sqrt((1 + x) / 2);
+        const sinθ = sqrt((1 - x) / 2);
         vDir = rotate(sinθ, cosθ, tan2);
     }
     const v = translate(toUnitVector(vDir), circleCenter);

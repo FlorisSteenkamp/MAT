@@ -51,15 +51,19 @@ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
 function closeHole(meta, cpNodes) {
     const { cpTrees } = meta;
     const [cpNodeSource, cpNodeAntipode] = cpNodes;
+    // The twins form their own on-circle ring (a separate MAT vertex - that
+    // is what cuts the hole), so they get their own (equal) `Circle` object:
+    // one `Circle` object per ring.
+    const twinCircle = { ...cpNodeSource.pointOnShape.circle };
     // Antipode - create and insert twin
     const posAntipode = cpNodeAntipode.pointOnShape;
-    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), { ...posAntipode, order2: +1 }, cpNodeAntipode, undefined, // unused
+    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), { ...posAntipode, circle: twinCircle, order2: +1 }, cpNodeAntipode, undefined, // unused
     meta.lastInsertId);
     cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
     cpNodeAntipode.holeCloserTwin = cpNodeAntipodeTwin;
     // Source - create and insert twin
     const posSource = cpNodeSource.pointOnShape;
-    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), { ...posSource, order2: -1 }, cpNodeSource.prev, undefined, // unused
+    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), { ...posSource, circle: twinCircle, order2: -1 }, cpNodeSource.prev, undefined, // unused
     meta.lastInsertId);
     cpNodeSourceTwin.holeCloserTwin = cpNodeSource;
     cpNodeSource.holeCloserTwin = cpNodeSourceTwin;

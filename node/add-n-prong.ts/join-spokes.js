@@ -1,3 +1,4 @@
+const { atan2 } = Math;
 function joinSpokes(circle, cpNodes) {
     cpNodes = cpNodes.slice().sort(byAngle(circle));
     const len = cpNodes.length;
@@ -16,8 +17,8 @@ function byAngle(circle) {
         // Move onto origin
         a = [a[0] - c[0], a[1] - c[1]];
         b = [b[0] - c[0], b[1] - c[1]];
-        const a_ = Math.atan2(a[1], a[0]);
-        const b_ = Math.atan2(b[1], b[0]);
+        const a_ = atan2(a[1], a[0]);
+        const b_ = atan2(b[1], b[0]);
         return b_ - a_;
     };
 }

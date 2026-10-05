@@ -65,10 +65,10 @@ export { calcSeperationTolerance };
 //     // return r*θ;  // approximate arc with line
 // }
 // function degToRad(degrees: number) {
-//     return degrees/360*2*Math.PI;
+//     return degrees/360*2*PI;
 // }
 // function radToDeg(rad: number) {
-//     return rad*360/2/Math.PI;
+//     return rad*360/2/PI;
 // }
 // const R = 699;
 // const r = 698;
