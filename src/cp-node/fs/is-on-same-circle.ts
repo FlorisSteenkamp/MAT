@@ -1,11 +1,13 @@
 import { CpNode } from "../cp-node.js";
-import { getAllOnCircle } from "./get-all-on-circle.js";
 
 
 /**
- * Returns true if the 2 given `CpNode`s are on the same maximal disk 
+ * Returns true if the 2 given `CpNode`s are on the same maximal disk
  * circle.
- * 
+ *
+ * * O(1): all `CpNode`s on the same on-circle ring share the same `Circle`
+ *   object, and no other ring does (see `PointOnShape.circle`)
+ *
  * @param cpNode1 A `CpNode`.
  * @param cpNode2 Another `CpNode`
  */
@@ -13,10 +15,7 @@ function isOnSameCircle(
         cpNode1: CpNode,
         cpNode2: CpNode) {
 
-    // const cpNodes = getAllOnCircle(cpNode1, true);
-    const cpNodes = getAllOnCircle(cpNode1);
-
-    return cpNodes.indexOf(cpNode2) >= 0;
+    return cpNode1.pointOnShape.circle === cpNode2.pointOnShape.circle;
 }
 
 

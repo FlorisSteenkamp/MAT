@@ -83,12 +83,17 @@ function closeHole(
 
     const [cpNodeSource, cpNodeAntipode] = cpNodes as Mutable<CpNode>[];
 
+    // The twins form their own on-circle ring (a separate MAT vertex - that
+    // is what cuts the hole), so they get their own (equal) `Circle` object:
+    // one `Circle` object per ring.
+    const twinCircle: Circle = { ...cpNodeSource.pointOnShape.circle };
+
     // Antipode - create and insert twin
     const posAntipode = cpNodeAntipode.pointOnShape;
     const cpNodeAntipodeTwin = insertCpNode(
         true, true, false,
         cpTrees.get(posAntipode.curve.loop)!,
-        { ...posAntipode, order2: +1 },
+        { ...posAntipode, circle: twinCircle, order2: +1 },
         cpNodeAntipode,
         undefined,  // unused
         meta.lastInsertId
@@ -101,7 +106,7 @@ function closeHole(
     const cpNodeSourceTwin = insertCpNode(
         true, true, false,
         cpTrees.get(posSource.curve.loop)!,
-        { ...posSource!, order2: -1 },
+        { ...posSource!, circle: twinCircle, order2: -1 },
         cpNodeSource.prev,
         undefined,  // unused
         meta.lastInsertId

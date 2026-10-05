@@ -44,6 +44,11 @@ interface PointOnShape extends PrePointOnShape {
      * The (cached) maximal disk circle touching this point.
      * Calculated from `curve` and `t` (if 2-prong source point, else
      * from `curve` and `t` of the antipodal 2-prong point).
+     *
+     * * the same `Circle` object is shared by all `CpNode`s on the same
+     *   on-circle ring (`nextOnCircle`), and only by them - so object
+     *   identity identifies the MAT vertex (hole-closer twins form their own
+     *   ring, with their own equal circle)
      */
     readonly circle: Circle;
     /** Internally used to order two points lying at the same planar point. */

@@ -1,7 +1,9 @@
 import type { PointOnShape } from "../../point-on-shape/point-on-shape.js";
 import type { CpNode } from "../cp-node";
 import type { CpNodeStringifyable } from "./cp-node-stringifyable";
+import type { Mutable } from "../../utils/mutable.js";
 import { EDGES } from "./cp-node-stringifyable";
+import { getAllOnCircle } from "../fs/get-all-on-circle.js";
 import { loopFromStringifyable } from './loop-from-stringifyable.js';
 
 
@@ -48,6 +50,21 @@ function fromStringifyable(
 
             // @ts-ignore
             cpNode[edge] = nodeMap.get(id)!;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Third pass: one shared `Circle` object per on-circle ring, as when the
+    // MAT was built (the JSON gave every contact point its own copy).
+    //--------------------------------------------------------------------------
+    const done = new Set<CpNode>();
+    for (const cpNode of cpNodes) {
+        if (done.has(cpNode)) { continue; }
+
+        const { circle } = cpNode.pointOnShape;
+        for (const cp of getAllOnCircle(cpNode)) {
+            done.add(cp);
+            (cp.pointOnShape as Mutable<PointOnShape>).circle = circle;
         }
     }
 
