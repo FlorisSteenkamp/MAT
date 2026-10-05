@@ -1,8 +1,8 @@
+import type { CpNode } from '../cp-node.js';
 import { tangent } from 'flo-bezier3';
-import { 
-    fromTo, dot, cross, translate, lineLineIntersection, toUnitVector
-} from 'flo-vector2d';
-import { CpNode } from '../cp-node.js';
+import { fromTo, dot, cross, translate, lineLineIntersection, toUnitVector } from 'flo-vector2d';
+
+const { abs } = Math;
 
 
 /** @internal */
@@ -56,8 +56,8 @@ function getImpliedBoundaryBezierBetween(
     const w1 = fromTo(lA[0], lA[1]);  // This is a unit vector
     const w2 = fromTo(lB[0], lB[1]);  // This is a unit vector
 
-    const d1 = Math.abs(cross(c, w1)) / (3*3); 
-    const d2 = Math.abs(cross(c, w2)) / (3*3); 
+    const d1 = abs(cross(c, w1)) / (3*3); 
+    const d2 = abs(cross(c, w2)) / (3*3); 
 
     if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
         // not within tolerance

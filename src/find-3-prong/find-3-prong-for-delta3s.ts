@@ -174,7 +174,7 @@ function find3ProngForDelta3s(
             const v2 = toUnitVector( tangent(pos.curve.ps, pos.t) );
             
             // Cross is more numerically stable than Vector.dot at angles a
-            // multiple of `Math.PI` **and** is close to the actual angle value
+            // multiple of π **and** is close to the actual angle value
             // and can thus just be added to cone method of looking at 
             // tolerance.
             

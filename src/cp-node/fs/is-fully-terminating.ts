@@ -5,13 +5,10 @@ import { isTrivial } from "./is-trivial.js";
 
 
 /**
- * Like isTerminating() but only returns true if all cpNodes on the circle
+ * Like `isTerminating` but only returns true if all `CpNode`s on the circle
  * (except this.prevOnCircle) is terminating.
  */
 function isFullyTerminating(cpNode: CpNode) {
-    // const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
-
-    // return otherOnCircle.every(isTerminating);
     if (!isTerminating(cpNode)) {
         return false;
     }
@@ -24,9 +21,8 @@ function isFullyTerminating(cpNode: CpNode) {
         cpNode = cpNode.prev;
     }
 
-    const otherOnCircle = getAllOnCircle(cpNode.prevOnCircle, true);
-
-    return otherOnCircle.every(isTerminating);
+    return getAllOnCircle(cpNode.prevOnCircle, true)
+        .every(isTerminating);
 }
 
 

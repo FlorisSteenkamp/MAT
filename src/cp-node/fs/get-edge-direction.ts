@@ -4,6 +4,8 @@ import { toUnitVector, fromTo, rotate, translate, rotate90Degrees, reverse as re
 import { tangent } from 'flo-bezier3';
 import { isPosSharpCorner } from '../../point-on-shape/is-pos-sharp-corner.js';
 
+const { sqrt } = Math;
+
 
 /**
  * Returns a line segment of unit length starting in the given Vertex center and
@@ -54,8 +56,8 @@ function getEdgeDirection(
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
         // be calculated.
-        const cosθ = Math.sqrt((1 + x)/2);
-        const sinθ = Math.sqrt((1 - x)/2);
+        const cosθ = sqrt((1 + x)/2);
+        const sinθ = sqrt((1 - x)/2);
         
         vDir = rotate(sinθ, cosθ, tan2);
     }

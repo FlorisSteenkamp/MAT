@@ -1,6 +1,9 @@
 
+const { PI: π } = Math;
+
+
 function radToDeg(rad: number) {
-    return rad*180/Math.PI;
+    return rad*180/π;
 }
 
 

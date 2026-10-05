@@ -3,6 +3,8 @@ import { getMedialPointCoeffs } from 'flo-bezier3';
 import { ddGetMedialPointCoeffs } from '../../../src/get-medial-points/double-double/dd-get-medial-point-coeffs.js';
 import { squares } from 'squares-rng';
 
+const { floor, abs } = Math;
+
 
 function toDdVec(v: number[]): number[][] {
     return v.map(x => [0, x]);
@@ -19,7 +21,7 @@ function randomNumberIn01(seed: number): number {
 
 function randomSignedValue(seed: number): number {
     const sign = randomNumberIn01(seed) < 0.5 ? -1 : 1;
-    const exponent = Math.floor(randomNumberIn01(seed + 1) * 81) - 40;
+    const exponent = floor(randomNumberIn01(seed + 1) * 81) - 40;
     const mantissa = 1 + randomNumberIn01(seed + 2);
 
     return sign * mantissa * 2**exponent;
@@ -46,7 +48,7 @@ test('ddGetMedialPointCoeffs matches flo-bezier3 double coefficients', function(
             let v = randomPoint(seed); seed += 11;
 
             // Keep the direction away from near-zero vectors.
-            if (Math.abs(v[0]) + Math.abs(v[1]) < 2**-20) {
+            if (abs(v[0]) + abs(v[1]) < 2**-20) {
                 v = [v[0] + 1, v[1] - 1];
             }
 

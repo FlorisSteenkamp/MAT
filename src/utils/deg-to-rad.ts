@@ -1,7 +1,9 @@
 
+const { PI: π } = Math;
+
 function degToRad(degrees: number) {
-    return degrees/360*2*Math.PI;
+    return degrees/180*π;
 }
 
 
-export { degToRad };
+export { degToRad }

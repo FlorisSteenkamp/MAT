@@ -89,10 +89,10 @@ export { calcSeperationTolerance }
 
 
 // function degToRad(degrees: number) {
-//     return degrees/360*2*Math.PI;
+//     return degrees/360*2*PI;
 // }
 // function radToDeg(rad: number) {
-//     return rad*360/2/Math.PI;
+//     return rad*360/2/PI;
 // }
 
 

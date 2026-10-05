@@ -17,6 +17,7 @@ const TOLERANCE_USE_LINE = 0.0001; // else cubic
 /**
  * Returns the bezier curve from the maximal disk of one `CpNode` to another
  * `CpNode`'s maximal disk.
+ * 
  * @param cpNodeFrom 
  * @param cpNodeTo 
  */

@@ -5,6 +5,8 @@ import { ddGetMedialPointCoeffsBez2_SameCurve } from '../../../src/get-medial-po
 import { ddGetMedialPointCoeffsBez3_SameCurve } from '../../../src/get-medial-points/double-double/dd-get-medial-point-coeffs-bez3-same-curve.js';
 import { ddNormal } from 'flo-bezier3';
 
+const { abs, floor } = Math;
+
 
 function toDdVec(v: number[]): number[][] {
     return v.map(x => [0, x]);
@@ -17,7 +19,7 @@ function ddPolyToDouble(poly: number[][]): number[] {
 function normalizedPoly(poly: number[]): number[] {
     let m = 0;
     for (const x of poly) {
-        const ax = Math.abs(x);
+        const ax = abs(x);
         if (ax > m) { m = ax; }
     }
 
@@ -34,8 +36,8 @@ function randomNumberIn01(seed: number): number {
 
 function randomSignedValue(seed: number): number {
     const sign = randomNumberIn01(seed) < 0.5 ? -1 : 1;
-    const exponent = Math.floor(randomNumberIn01(seed + 1) * 61) - 30;
-    const mantissa = 1 + Math.floor(randomNumberIn01(seed + 2) * 2**20);
+    const exponent = floor(randomNumberIn01(seed + 1) * 61) - 30;
+    const mantissa = 1 + floor(randomNumberIn01(seed + 2) * 2**20);
 
     return sign * mantissa * 2**exponent;
 }
@@ -67,7 +69,7 @@ test.skip('dd same-curve coefficients match flo-bezier3 double coefficients', fu
 
         const n2Dd = ddNormal(ps2, t);
         let v2 = [n2Dd[0][1], n2Dd[1][1]];
-        if (Math.abs(v2[0]) + Math.abs(v2[1]) < 2**-20) {
+        if (abs(v2[0]) + abs(v2[1]) < 2**-20) {
             v2 = [v2[0] + 1, v2[1] - 1];
         }
         const v2Dd = toDdVec(v2);
@@ -89,7 +91,7 @@ test.skip('dd same-curve coefficients match flo-bezier3 double coefficients', fu
 
         const n3Dd = ddNormal(ps3, t);
         let v3 = [n3Dd[0][1], n3Dd[1][1]];
-        if (Math.abs(v3[0]) + Math.abs(v3[1]) < 2**-20) {
+        if (abs(v3[0]) + abs(v3[1]) < 2**-20) {
             v3 = [v3[0] + 1, v3[1] - 1];
         }
         const v3Dd = toDdVec(v3);

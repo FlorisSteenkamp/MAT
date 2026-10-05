@@ -1,7 +1,9 @@
+import type { CpNode } from "../cp-node.js";
 import { tangent } from "flo-bezier3";
 import { cross, toUnitVector } from "flo-vector2d";
-import { CpNode } from "../cp-node.js";
 import { getMatCurveToNext } from "./get-mat-curve-to-next.js";
+
+const { abs, asin, PI: π } = Math;
 
 
 /**
@@ -24,7 +26,7 @@ function getInitialDegAngleBetweenMatCurves(
     ));
 
     const cross_ = cross(tan1, tan2);
-    const angle = Math.abs(Math.asin( cross_ ) * (180/Math.PI));
+    const angle = abs(asin( cross_ ) * (180/π));
 
     return angle;
 }

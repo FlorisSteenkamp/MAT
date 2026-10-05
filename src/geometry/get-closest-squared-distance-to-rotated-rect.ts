@@ -1,6 +1,6 @@
-import { 
-    squaredDistanceBetweenPointAndLineSegment, squaredDistanceBetween 
-} from 'flo-vector2d';
+import { squaredDistanceBetweenPointAndLineSegment, squaredDistanceBetween } from 'flo-vector2d';
+
+const { min } = Math;
 
 
 /**
@@ -23,7 +23,7 @@ function getClosestSquaredDistanceToRotatedRect(ps: number[][], p: number[]) {
         return 0; // Inside rotated rect
     }
 
-    return Math.min(...ds);
+    return min(...ds);
 }
 
 
