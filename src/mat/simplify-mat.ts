@@ -12,7 +12,7 @@ import { isTerminating } from '../cp-node/fs/is-terminating.js';
 import { isVertex } from '../cp-node/fs/is-vertex.js';
 import { getProngCount } from '../cp-node/fs/get-prong-count.js';
 
-const { max } = Math;
+const { max, min } = Math;
 
 
 // FUTURE could be made faster by binary "search" on hausdorff curves?
@@ -100,13 +100,16 @@ function getTotalHausdorffDistance(
         hausdorffSpacing: number) {
 
     const hds: number[] = [];
-    const longCurve = getMatCurveBetween(branch[i], branch[j].next);
+    const longCurves = getMatCurveBetween(branch[i], branch[j].next);
     for (; i<j+1; i++) {
-        hds.push(hausdorffDistanceOneSided(
-            getMatCurveToNext(branch[i]),
-            longCurve,
-            hausdorffSpacing
-        ));
+        for (const ps of getMatCurveToNext(branch[i])) {
+            // The one-sided Hausdorff distance from `ps` to the piecewise 
+            // curve `longCurves` is bounded above by the minimum of the 
+            // distances to each piece.
+            hds.push(min(...longCurves.map(longCurve => 
+                hausdorffDistanceOneSided(ps, longCurve, hausdorffSpacing)
+            )));
+        }
     }
 
     return max(...hds);

@@ -7,8 +7,10 @@ import { getMatCurveToNext } from "./get-mat-curve-to-next.js";
 function getMatDistanceToNext(
         cpNode: CpNode) {
 
-    const ps = getMatCurveToNext(cpNode);
-    const l = totalLength(ps);
+    let l = 0;
+    for (const ps of getMatCurveToNext(cpNode)) {
+        l += totalLength(ps);
+    }
 
     return l;
 }
