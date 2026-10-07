@@ -5,7 +5,7 @@ import { CpNode } from '../cp-node.js';
  * medial axis.
  * @param cpNode
  */
-declare function getMatCurveToNext(cpNode: CpNode): number[][];
+declare function getMatCurveToNext(cpNode: CpNode): number[][][];
 declare const getMatCurveToNext$: typeof getMatCurveToNext & {
     readonly weakMapS: WeakMap<object, {
         readonly weakMap: WeakMap<object, any>;

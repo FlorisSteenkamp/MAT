@@ -1,59 +1,15 @@
-import { tangent } from 'flo-bezier3';
-import { fromTo, dot, cross, translate, lineLineIntersection, toUnitVector } from 'flo-vector2d';
-const { abs } = Math;
-/** @internal */
-const TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */
-const TOLERANCE_USE_LINE = 0.0001; // else cubic
+import { getBoundaryTangentLine } from '../../point-on-shape/get-boundary-tangent-line.js';
+import { getBeziersFromTangents } from '../../utils/get-beziers-from-tangents.js';
+/**
+ * Returns the bezier curves (an array of 1 or 2 lines or quadratics joined
+ * smoothly) approximating the shape boundary between the contact points of
+ * two `CpNode`s.
+ *
+ * @param cpNodeA
+ * @param cpNodeB
+ */
 function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
-    const posA = cpNodeA.pointOnShape;
-    const posB = cpNodeB.pointOnShape;
-    let { curve: curveA, p: pA, t: tA } = posA;
-    let { curve: curveB, p: pB, t: tB } = posB;
-    if (pA[0] === pB[0] && pA[1] === pB[1]) {
-        return [pA];
-    }
-    if (tA === 1) {
-        tA = 0;
-        curveA = curveA.next;
-    }
-    if (tB === 0) {
-        tB = 1;
-        curveB = curveB.prev;
-    }
-    const { ps: psA } = curveA;
-    const { ps: psB } = curveB;
-    const lA = [pA, translate(pA)(toUnitVector(tangent(psA, tA)))];
-    const lB = [pB, translate(pB)(toUnitVector(tangent(psB, tB)))];
-    const mid = lineLineIntersection(lA, lB);
-    const c = fromTo(pA, pB);
-    let twisted;
-    if (!mid) {
-        twisted = true;
-    }
-    else {
-        const a = fromTo(pA, mid);
-        const b = fromTo(pB, mid);
-        twisted = dot(a, c) < 0 || dot(b, c) > 0;
-    }
-    if (!twisted) {
-        // drawFs.bezier(g, [pA, mid!, pB], 'thin10 pink nofill', 0)
-        return [pA, mid, pB];
-    }
-    const w1 = fromTo(lA[0], lA[1]); // This is a unit vector
-    const w2 = fromTo(lB[0], lB[1]); // This is a unit vector
-    const d1 = abs(cross(c, w1)) / (3 * 3);
-    const d2 = abs(cross(c, w2)) / (3 * 3);
-    if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
-        // not within tolerance
-        return undefined;
-    }
-    if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {
-        // approximate with cubic bezier?
-        return undefined; // add 2-prong
-    }
-    // Within tolerance - approximate with a straight line.
-    return [pA, pB];
+    return getBeziersFromTangents(getBoundaryTangentLine(cpNodeA.pointOnShape, true), getBoundaryTangentLine(cpNodeB.pointOnShape, false));
 }
 export { getImpliedBoundaryBezierBetween };
 //# sourceMappingURL=get-implied-boundary-bezier-between.js.map

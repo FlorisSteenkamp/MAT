@@ -2540,34 +2540,6 @@ function memoize(f, maxPrimitiveCacheLengths, logCacheMissHit = false) {
 }
 
 //# sourceMappingURL=memoize.js.map
-;// ./node_modules/flo-vector2d/node/lines-and-segments/line-line-intersection.js
-/**
- * Find point where two lines intersect. Returns he point where the two lines
- * intersect or undefined if they don't intersect or are the same line.
- * see Wikipedia https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
- * @param l1 A line
- * @param l2 Another line
- */
-function lineLineIntersection(l1, l2) {
-    const [[x1, y1], [x2, y2]] = l1;
-    const [[x3, y3], [x4, y4]] = l2;
-    const x1_ = x2 - x1;
-    const y1_ = y2 - y1;
-    const x2_ = x4 - x3;
-    const y2_ = y4 - y3;
-    const denom = x2_ * y1_ - y2_ * x1_;
-    if (denom === 0) {
-        // parallel
-        return undefined;
-    }
-    const b = ((y3 - y1) * x1_ - (x3 - x1) * y1_) / denom;
-    return [
-        x3 + b * x2_,
-        y3 + b * y2_
-    ];
-}
-
-//# sourceMappingURL=line-line-intersection.js.map
 ;// ./node_modules/flo-vector2d/node/from-to.js
 /**
  * Returns the second 2-vector minus the first.
@@ -2579,17 +2551,6 @@ function from_to_fromTo(p, q) {
 }
 
 //# sourceMappingURL=from-to.js.map
-;// ./node_modules/flo-vector2d/node/dot.js
-/**
- * Returns the dot (inner) product between two 2-vectors.
- * @param a the first vector
- * @param b the second vector
- */
-function dot(a, b) {
-    return a[0] * b[0] + a[1] * b[1];
-}
-
-//# sourceMappingURL=dot.js.map
 ;// ./node_modules/flo-vector2d/node/affine-transformations/linear/rotate-90-degrees.js
 /**
  * Returns a 90 degrees rotated version of the given 2-vector.
@@ -2600,47 +2561,6 @@ function rotate90Degrees(p) {
 }
 
 //# sourceMappingURL=rotate-90-degrees.js.map
-;// ./node_modules/flo-vector2d/node/cross.js
-/**
- * Returns the cross product signed magnitude between two 2-vectors.
- * @param a the first vector
- * @param b the second vector
- */
-function cross(a, b) {
-    return a[0] * b[1] - a[1] * b[0];
-}
-
-//# sourceMappingURL=cross.js.map
-;// ./node_modules/flo-vector2d/node/interpolate.js
-/**
- * Performs linear interpolation between two 2d points and returns the
- * resulting point.
- * @param p the first point.
- * @param q the second point.
- * @param t the interpolation fraction (often in [0,1]).
- */
-function interpolate(p, q, t) {
-    return [
-        p[0] + (q[0] - p[0]) * t,
-        p[1] + (q[1] - p[1]) * t
-    ];
-}
-
-//# sourceMappingURL=interpolate.js.map
-;// ./node_modules/flo-vector2d/node/affine-transformations/translate/translate.js
-// From: https://en.wikipedia.org/wiki/Affine_transformation
-// "If X is the point set of an affine space, then every affine transformation 
-// on X can be represented as the composition of a linear transformation on X 
-// and a translation of X"
-function translate(a, b) {
-    function f(b) {
-        return [a[0] + b[0], a[1] + b[1]];
-    }
-    // Curry the function
-    return b === undefined ? f : f(b);
-}
-
-//# sourceMappingURL=translate.js.map
 ;// ./node_modules/flo-vector2d/node/distance-and-length/to-unit-vector.js
 /**
  * Returns the given 2-vector scaled to a length of one.
@@ -2662,6 +2582,31 @@ function reverse(p) {
 }
 
 //# sourceMappingURL=reverse.js.map
+;// ./node_modules/flo-vector2d/node/dot.js
+/**
+ * Returns the dot (inner) product between two 2-vectors.
+ * @param a the first vector
+ * @param b the second vector
+ */
+function dot(a, b) {
+    return a[0] * b[0] + a[1] * b[1];
+}
+
+//# sourceMappingURL=dot.js.map
+;// ./node_modules/flo-vector2d/node/affine-transformations/translate/translate.js
+// From: https://en.wikipedia.org/wiki/Affine_transformation
+// "If X is the point set of an affine space, then every affine transformation 
+// on X can be represented as the composition of a linear transformation on X 
+// and a translation of X"
+function translate(a, b) {
+    function f(b) {
+        return [a[0] + b[0], a[1] + b[1]];
+    }
+    // Curry the function
+    return b === undefined ? f : f(b);
+}
+
+//# sourceMappingURL=translate.js.map
 ;// ./node_modules/flo-poly/node/evaluate/double/horner.js
 /**
  * Returns the result of evaluating a univariate polynomial using
@@ -2773,7 +2718,7 @@ function toPowerBasis1_1stDerivative(ps) {
  *
  * @doc mdx
  */
-function tangent_tangent(ps, t) {
+function tangent(ps, t) {
     const [dX, dY] = toPowerBasis_1stDerivative(ps);
     return [
         Horner(dX, t),
@@ -2782,6 +2727,17 @@ function tangent_tangent(ps, t) {
 }
 
 //# sourceMappingURL=tangent.js.map
+;// ./node_modules/flo-vector2d/node/cross.js
+/**
+ * Returns the cross product signed magnitude between two 2-vectors.
+ * @param a the first vector
+ * @param b the second vector
+ */
+function cross(a, b) {
+    return a[0] * b[1] - a[1] * b[0];
+}
+
+//# sourceMappingURL=cross.js.map
 ;// ./node_modules/big-float-ts/node/basic/two-diff.js
 /**
  * Returns the exact result of subtracting b from a (as a floating point
@@ -3740,8 +3696,8 @@ const { sqrt: get_edge_direction_sqrt } = Math;
             curve1 = pos1.curve.next;
             curve2 = pos1.curve;
         }
-        const tan1 = toUnitVector(tangent_tangent(curve1.ps, 0));
-        const tan2 = reverse(toUnitVector(tangent_tangent(curve2.ps, 1)));
+        const tan1 = toUnitVector(tangent(curve1.ps, 0));
+        const tan2 = reverse(toUnitVector(tangent(curve2.ps, 1)));
         const x = dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
@@ -3758,80 +3714,164 @@ const { sqrt: get_edge_direction_sqrt } = Math;
 }
 
 
-;// ./src/cp-node/fs/get-mat-curve-between.ts
-
-
-const { abs: get_mat_curve_between_abs } = Math;
-/** @internal */ const TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */ const TOLERANCE_USE_LINE = 0.0001; // else cubic
+;// ./node_modules/flo-vector2d/node/lines-and-segments/line-line-intersection.js
 /**
- * Returns the bezier curve from the maximal disk of one `CpNode` to another
- * `CpNode`'s maximal disk.
+ * Find point where two lines intersect. Returns he point where the two lines
+ * intersect or undefined if they don't intersect or are the same line.
+ * see Wikipedia https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
+ * @param l1 A line
+ * @param l2 Another line
+ */
+function lineLineIntersection(l1, l2) {
+    const [[x1, y1], [x2, y2]] = l1;
+    const [[x3, y3], [x4, y4]] = l2;
+    const x1_ = x2 - x1;
+    const y1_ = y2 - y1;
+    const x2_ = x4 - x3;
+    const y2_ = y4 - y3;
+    const denom = x2_ * y1_ - y2_ * x1_;
+    if (denom === 0) {
+        // parallel
+        return undefined;
+    }
+    const b = ((y3 - y1) * x1_ - (x3 - x1) * y1_) / denom;
+    return [
+        x3 + b * x2_,
+        y3 + b * y2_
+    ];
+}
+
+//# sourceMappingURL=line-line-intersection.js.map
+;// ./node_modules/flo-vector2d/node/interpolate.js
+/**
+ * Performs linear interpolation between two 2d points and returns the
+ * resulting point.
+ * @param p the first point.
+ * @param q the second point.
+ * @param t the interpolation fraction (often in [0,1]).
+ */
+function interpolate(p, q, t) {
+    return [
+        p[0] + (q[0] - p[0]) * t,
+        p[1] + (q[1] - p[1]) * t
+    ];
+}
+
+//# sourceMappingURL=interpolate.js.map
+;// ./src/utils/get-beziers-from-tangents.ts
+
+const { abs: get_beziers_from_tangents_abs } = Math;
+/** @internal */ const TOLERANCE_ADD_2PRONG = 0.01;
+/** @internal */ const TOLERANCE_USE_LINE = 0.0001; // else 2 quadratics
+/**
+ * Returns an array of 1 or 2 bezier curves (each a line or a quadratic) that
+ * together form a smooth curve from the start point of `l0` to the start point
+ * of `l1` such that the curve is tangent to `l0` at its start and tangent to 
+ * `l1` at its end.
  * 
- * @param cpNodeFrom 
- * @param cpNodeTo 
- */ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
-    const fromCc = cpNodeFrom.pointOnShape.circle.center;
-    const fromL = getEdgeDirection(cpNodeFrom);
-    const toCc = cpNodeTo.pointOnShape.circle.center;
-    const toL = getEdgeDirection(cpNodeTo.prevOnCircle);
-    const mid = lineLineIntersection(fromL, toL);
-    const c = from_to_fromTo(fromCc, toCc);
+ * * `l0` and `l1` are given as `[p, p + dir]` where `p` is the curve endpoint
+ * and `dir` is the tangent direction pointing in the direction of travel along
+ * the curve (i.e. into the curve at the start and out of the curve at the end)
+ * * if the tangent lines are not 'twisted' a single quadratic is returned
+ * * if the tangent lines are 'twisted' (the curve must have an inflection) 
+ * either 2 quadratics joined smoothly at the inflection (or, if the deviation 
+ * from a straight line is small enough, a single line) are returned as an 
+ * approximation
+ * 
+ * @param l0 the tangent line at the start of the curve
+ * @param l1 the tangent line at the end of the curve
+ * 
+ * @internal
+ */ function getBeziersFromTangents(l0, l1) {
+    const p0 = l0[0];
+    const p1 = l1[0];
+    const mid = lineLineIntersection(l0, l1);
+    const c = from_to_fromTo(p0, p1);
     let twisted;
     if (!mid) {
         twisted = true;
     } else {
-        const a = from_to_fromTo(fromCc, mid);
-        const b = from_to_fromTo(toCc, mid);
-        twisted = dot(a, c) < 0 || dot(b, c) > 0;
+        const a = from_to_fromTo(p0, mid);
+        const b = from_to_fromTo(p1, mid);
+        // (`<= 0` / `>= 0`: an intersection *at* an endpoint, which happens for
+        // collinear tangents, would give a degenerate quadratic with a zero
+        // end tangent - treat it as twisted so a line results instead)
+        twisted = dot(a, c) <= 0 || dot(b, c) >= 0;
     }
     if (!twisted) {
         return [
-            fromCc,
-            mid,
-            toCc
+            [
+                p0,
+                mid,
+                p1
+            ]
         ];
     }
-    const r = rotate90Degrees(c);
-    const w1 = from_to_fromTo(fromL[0], fromL[1]); // This is a unit vector
-    const w2 = from_to_fromTo(toL[0], toL[1]); // This is a unit vector
-    const d1 = get_mat_curve_between_abs(cross(c, w1)) / (3 * 3);
-    const d2 = get_mat_curve_between_abs(cross(c, w2)) / (3 * 3);
-    if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
+    const w0 = from_to_fromTo(l0[0], l0[1]);
+    const w1 = from_to_fromTo(l1[0], l1[1]);
+    const d0 = get_beziers_from_tangents_abs(cross(c, w0)) / (3 * 3);
+    const d1 = get_beziers_from_tangents_abs(cross(c, w1)) / (3 * 3);
+    if (d0 > TOLERANCE_ADD_2PRONG || d1 > TOLERANCE_ADD_2PRONG) {
         // FUTURE - not within tolerance - must add additional 2-prong
         return [
-            fromCc,
-            toCc
+            [
+                p0,
+                p1
+            ]
         ];
     }
-    if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {
-        // approximate with cubic bezier
-        const m1 = interpolate(fromCc, toCc, 1 / 3);
-        const m2 = interpolate(fromCc, toCc, 2 / 3);
-        const v1 = translate(r, m1);
-        const v2 = translate(r, m2);
-        const l1 = [
+    if (d0 > TOLERANCE_USE_LINE || d1 > TOLERANCE_USE_LINE) {
+        // Approximate with 2 quadratic beziers joined smoothly at the 
+        // inflection. The control points lie on the tangent lines at 1/4 and
+        // 3/4 along the chord (this is the midpoint degree reduction of the 
+        // cubic having control points at 1/3 and 2/3 along the chord).
+        const r = rotate90Degrees(c);
+        const m0 = interpolate(p0, p1, 1 / 4);
+        const m1 = interpolate(p0, p1, 3 / 4);
+        const c0 = lineLineIntersection(l0, [
+            m0,
+            translate(r, m0)
+        ]);
+        const c1 = lineLineIntersection(l1, [
             m1,
-            v1
-        ];
-        const l2 = [
-            m2,
-            v2
-        ];
-        const mid1 = lineLineIntersection(fromL, l1);
-        const mid2 = lineLineIntersection(toL, l2);
+            translate(r, m1)
+        ]);
+        const j = interpolate(c0, c1, 1 / 2);
         return [
-            fromCc,
-            mid1,
-            mid2,
-            toCc
+            [
+                p0,
+                c0,
+                j
+            ],
+            [
+                j,
+                c1,
+                p1
+            ]
         ];
     }
     // Within tolerance - approximate with a straight line.
     return [
-        fromCc,
-        toCc
+        [
+            p0,
+            p1
+        ]
     ];
+}
+
+
+;// ./src/cp-node/fs/get-mat-curve-between.ts
+
+
+/**
+ * Returns the bezier curves (an array of 1 or 2 lines or quadratics joined
+ * smoothly) from the maximal disk of one `CpNode` to another `CpNode`'s 
+ * maximal disk.
+ * 
+ * @param cpNodeFrom 
+ * @param cpNodeTo 
+ */ function getMatCurveBetween(cpNodeFrom, cpNodeTo) {
+    return getBeziersFromTangents(getEdgeDirection(cpNodeFrom), getEdgeDirection(cpNodeTo.prevOnCircle));
 }
 
 
@@ -3941,11 +3981,12 @@ function isTwoProng(cpNode) {
 
 
 /**
- * Returns the branch associated with the give cpNode
+ * Returns the (flattened) array of bezier curves (lines or quadratics) 
+ * representing the branch associated with the given cpNode
  * 
  * @param cpNode `CpNode` representing the start vertex.
  */ function getBranchBeziers(cpNode) {
-    return getBranch(cpNode).map((b)=>getMatCurveToNext(b));
+    return getBranch(cpNode).flatMap(getMatCurveToNext);
 }
 
 
@@ -5309,12 +5350,18 @@ function sum(ns) {
 
 ;// ./src/cp-node/fs/get-mat-curves-between.ts
 
-function getMatCurvesBetween(cpNodeS, cpNodeE) {
+/**
+ * Returns the (flattened) array of bezier curves (lines or quadratics) 
+ * representing the medial axis from one `CpNode` to another by following
+ * `next` repeatedly.
+ * 
+ * @param cpNodeS 
+ * @param cpNodeE 
+ */ function getMatCurvesBetween(cpNodeS, cpNodeE) {
     let cpNode = cpNodeS;
     const pss = [];
     while(cpNode !== cpNodeE){
-        const ps = getMatCurveBetween(cpNode, cpNode.next);
-        pss.push(ps);
+        pss.push(...getMatCurveBetween(cpNode, cpNode.next));
         cpNode = cpNode.next;
     }
     return pss;
@@ -5325,16 +5372,18 @@ function getMatCurvesBetween(cpNodeS, cpNodeE) {
 
 
 
-const { abs: get_angle_between_mat_curves_abs, asin: get_angle_between_mat_curves_asin, PI: π } = Math;
+const { abs: get_angle_between_mat_curves_abs, asin: get_angle_between_mat_curves_asin, min: get_angle_between_mat_curves_min, max: get_angle_between_mat_curves_max, PI: π } = Math;
 /**
  * 
  * @param cpNode1 
  * @param cpNode2 
  * @returns 
  */ function getInitialDegAngleBetweenMatCurves(cpNode1, cpNode2) {
-    const tan1 = toUnitVector(tangent_tangent(getMatCurveToNext(cpNode1), 0));
-    const tan2 = toUnitVector(tangent_tangent(getMatCurveToNext(cpNode2), 0));
-    const cross_ = cross(tan1, tan2);
+    const tan1 = toUnitVector(tangent(getMatCurveToNext(cpNode1)[0], 0));
+    const tan2 = toUnitVector(tangent(getMatCurveToNext(cpNode2)[0], 0));
+    // clamp: rounding can push the cross product of two unit vectors just
+    // outside [-1,1], which would make `asin` return `NaN`
+    const cross_ = get_angle_between_mat_curves_max(-1, get_angle_between_mat_curves_min(1, cross(tan1, tan2)));
     const angle = get_angle_between_mat_curves_abs(get_angle_between_mat_curves_asin(cross_) * (180 / π));
     return angle;
 }
@@ -25625,7 +25674,7 @@ class RbTree {
 
 
 
-const { max: simplify_mat_max } = Math;
+const { max: simplify_mat_max, min: simplify_mat_min } = Math;
 // FUTURE could be made faster by binary "search" on hausdorff curves?
 /**
  * Returns a new simplified MAT of the given one by replacing the piecewise
@@ -25687,9 +25736,14 @@ const { max: simplify_mat_max } = Math;
 }
 function getTotalHausdorffDistance(i, j, branch, hausdorffSpacing) {
     const hds = [];
-    const longCurve = getMatCurveBetween(branch[i], branch[j].next);
+    const longCurves = getMatCurveBetween(branch[i], branch[j].next);
     for(; i < j + 1; i++){
-        hds.push(hausdorffDistanceOneSided(getMatCurveToNext(branch[i]), longCurve, hausdorffSpacing));
+        for (const ps of getMatCurveToNext(branch[i])){
+            // The one-sided Hausdorff distance from `ps` to the piecewise 
+            // curve `longCurves` is bounded above by the minimum of the 
+            // distances to each piece.
+            hds.push(simplify_mat_min(...longCurves.map((longCurve)=>hausdorffDistanceOneSided(ps, longCurve, hausdorffSpacing))));
+        }
     }
     return simplify_mat_max(...hds);
 }
@@ -25920,10 +25974,13 @@ function getSatCulls(cpNode, s) {
     traverseEdges(cpNode, function(cpNode) {
         /** The occulating radius stored with this vertex. */ const R = rMap.get(cpNode) || s * cpNode.pointOnShape.circle.radius;
         const cpNode_ = cpNode.next;
-        const l = length_length([
-            0,
-            1
-        ], getMatCurveToNext(cpNode));
+        let l = 0;
+        for (const ps of getMatCurveToNext(cpNode)){
+            l += length_length([
+                0,
+                1
+            ], ps);
+        }
         const r = cpNode_.pointOnShape.circle.radius;
         const r_ = s * r;
         if (R - l > r_) {
@@ -26859,7 +26916,7 @@ const { min: find_3_prong_for_delta3s_min, abs: find_3_prong_for_delta3s_abs, as
             //---------------------------
             // Tangent of curve at point
             //---------------------------
-            const v2 = toUnitVector(tangent_tangent(pos.curve.ps, pos.t));
+            const v2 = toUnitVector(tangent(pos.curve.ps, pos.t));
             // Cross is more numerically stable than Vector.dot at angles a
             // multiple of π **and** is close to the actual angle value
             // and can thus just be added to cone method of looking at 
@@ -30970,75 +31027,54 @@ function getLargest3Prong(cpNode) {
 }
 
 
+;// ./src/point-on-shape/get-boundary-tangent-line.ts
+
+
+/**
+ * Returns a line segment starting at the given point on the shape boundary and
+ * being tangent to the boundary at that point.
+ * 
+ * * the returned line is of the form `[p, p + tangent]` where `p` is the
+ * point on the shape (the tangent is not normalized)
+ * * if the point falls on the boundary between two curves then the curve
+ * the point starts (if `fromElseTo` is `true`) or ends (if `fromElseTo` is 
+ * `false`) is used
+ * 
+ * @param pos the point on the shape
+ * @param fromElseTo `true` if the tangent is to be taken as leaving the point,
+ * `false` if it is to be taken as arriving at the point
+ * 
+ * @internal
+ */ function getBoundaryTangentLine(pos, fromElseTo) {
+    let { curve, t } = pos;
+    const { p } = pos;
+    if (fromElseTo && t === 1) {
+        t = 0;
+        curve = curve.next;
+    }
+    if (!fromElseTo && t === 0) {
+        t = 1;
+        curve = curve.prev;
+    }
+    return [
+        p,
+        translate(p, tangent(curve.ps, t))
+    ];
+}
+
+
 ;// ./src/cp-node/fs/get-implied-boundary-bezier-between.ts
 
 
-const { abs: get_implied_boundary_bezier_between_abs } = Math;
-/** @internal */ const get_implied_boundary_bezier_between_TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */ const get_implied_boundary_bezier_between_TOLERANCE_USE_LINE = 0.0001; // else cubic
-function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
-    const posA = cpNodeA.pointOnShape;
-    const posB = cpNodeB.pointOnShape;
-    let { curve: curveA, p: pA, t: tA } = posA;
-    let { curve: curveB, p: pB, t: tB } = posB;
-    if (pA[0] === pB[0] && pA[1] === pB[1]) {
-        return [
-            pA
-        ];
-    }
-    if (tA === 1) {
-        tA = 0;
-        curveA = curveA.next;
-    }
-    if (tB === 0) {
-        tB = 1;
-        curveB = curveB.prev;
-    }
-    const { ps: psA } = curveA;
-    const { ps: psB } = curveB;
-    const lA = [
-        pA,
-        translate(pA)(toUnitVector(tangent_tangent(psA, tA)))
-    ];
-    const lB = [
-        pB,
-        translate(pB)(toUnitVector(tangent_tangent(psB, tB)))
-    ];
-    const mid = lineLineIntersection(lA, lB);
-    const c = from_to_fromTo(pA, pB);
-    let twisted;
-    if (!mid) {
-        twisted = true;
-    } else {
-        const a = from_to_fromTo(pA, mid);
-        const b = from_to_fromTo(pB, mid);
-        twisted = dot(a, c) < 0 || dot(b, c) > 0;
-    }
-    if (!twisted) {
-        // drawFs.bezier(g, [pA, mid!, pB], 'thin10 pink nofill', 0)
-        return [
-            pA,
-            mid,
-            pB
-        ];
-    }
-    const w1 = from_to_fromTo(lA[0], lA[1]); // This is a unit vector
-    const w2 = from_to_fromTo(lB[0], lB[1]); // This is a unit vector
-    const d1 = get_implied_boundary_bezier_between_abs(cross(c, w1)) / (3 * 3);
-    const d2 = get_implied_boundary_bezier_between_abs(cross(c, w2)) / (3 * 3);
-    if (d1 > get_implied_boundary_bezier_between_TOLERANCE_ADD_2PRONG || d2 > get_implied_boundary_bezier_between_TOLERANCE_ADD_2PRONG) {
-        // not within tolerance
-        return undefined;
-    }
-    if (d1 > get_implied_boundary_bezier_between_TOLERANCE_USE_LINE || d2 > get_implied_boundary_bezier_between_TOLERANCE_USE_LINE) {
-        // approximate with cubic bezier?
-        return undefined; // add 2-prong
-    }
-    // Within tolerance - approximate with a straight line.
-    return [
-        pA,
-        pB
-    ];
+/**
+ * Returns the bezier curves (an array of 1 or 2 lines or quadratics joined
+ * smoothly) approximating the shape boundary between the contact points of 
+ * two `CpNode`s.
+ * 
+ * @param cpNodeA 
+ * @param cpNodeB 
+ */ function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
+    return getBeziersFromTangents(getBoundaryTangentLine(cpNodeA.pointOnShape, true), getBoundaryTangentLine(cpNodeB.pointOnShape, false));
 }
 
 
@@ -31047,8 +31083,10 @@ function getImpliedBoundaryBezierBetween(cpNodeA, cpNodeB) {
 
 
 function getMatDistanceToNext(cpNode) {
-    const ps = getMatCurveToNext(cpNode);
-    const l = totalLength(ps);
+    let l = 0;
+    for (const ps of getMatCurveToNext(cpNode)){
+        l += totalLength(ps);
+    }
     return l;
 }
 const getMatDistanceToNext$ = memoize(getMatDistanceToNext);
@@ -31286,6 +31324,7 @@ function getCpNodessForSat(sat) {
 
 
 
+
 const { max: reconstruct_from_mat_max, abs: reconstruct_from_mat_abs, round: reconstruct_from_mat_round, log2: reconstruct_from_mat_log2 } = Math;
 // let ii = 0;
 /**
@@ -31301,10 +31340,10 @@ const { max: reconstruct_from_mat_max, abs: reconstruct_from_mat_abs, round: rec
     const cpNodessPerSat = mats.map(removeSatInducedTrivial3Prongs).map(getCpNodessForSat);
     const r = mapDeep(3, cpNodessPerSat, recoverBoundary_, true);
     // ii;//?
-    return r;
+    // Flatten the (1 or 2) beziers per boundary piece into a single array of
+    // beziers per loop.
+    return r.map((loops)=>loops.map((pieces)=>pieces.flat()));
 }
-const FROM = 0;
-const TO = 1;
 /**
  * 
  * @param cpNode 
@@ -31355,101 +31394,14 @@ const TO = 1;
         return getBoundaryPiece(cpNode);
     };
 }
-/** @internal */ const reconstruct_from_mat_TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */ const reconstruct_from_mat_TOLERANCE_USE_LINE = 0.0001; // else cubic
-function getBoundaryPiece(cpNode) {
-    const cpNode_ = cpNode.next;
-    const pos = cpNode.pointOnShape;
-    const pos_ = cpNode_.pointOnShape;
-    const { p } = pos;
-    const { p: p_ } = pos_;
-    const fromCc = p;
-    const fromL = reconstruct_from_mat_getEdgeDirection(cpNode, FROM);
-    const toCc = p_;
-    const toL = reconstruct_from_mat_getEdgeDirection(cpNode_, TO);
-    const mid = lineLineIntersection(fromL, toL);
-    const c = from_to_fromTo(fromCc, toCc);
-    let twisted;
-    if (!mid) {
-        twisted = true;
-    } else {
-        const a = from_to_fromTo(fromCc, mid);
-        const b = from_to_fromTo(toCc, mid);
-        twisted = dot(a, c) < 0 || dot(b, c) > 0;
-    }
-    if (!twisted) {
-        return [
-            fromCc,
-            mid,
-            toCc
-        ];
-    }
-    const r = rotate90Degrees(c);
-    const w1 = from_to_fromTo(fromL[0], fromL[1]); // This is a unit vector
-    const w2 = from_to_fromTo(toL[0], toL[1]); // This is a unit vector
-    const d1 = reconstruct_from_mat_abs(cross(c, w1)) / (3 * 3);
-    const d2 = reconstruct_from_mat_abs(cross(c, w2)) / (3 * 3);
-    if (d1 > reconstruct_from_mat_TOLERANCE_ADD_2PRONG || d2 > reconstruct_from_mat_TOLERANCE_ADD_2PRONG) {
-        // FUTURE - not within tolerance - must add additional 2-prong
-        return [
-            fromCc,
-            toCc
-        ];
-    }
-    if (d1 > reconstruct_from_mat_TOLERANCE_USE_LINE || d2 > reconstruct_from_mat_TOLERANCE_USE_LINE) {
-        // approximate with cubic bezier
-        const m1 = interpolate(fromCc, toCc, 1 / 3);
-        const m2 = interpolate(fromCc, toCc, 2 / 3);
-        const v1 = translate(r, m1);
-        const v2 = translate(r, m2);
-        const l1 = [
-            m1,
-            v1
-        ];
-        const l2 = [
-            m2,
-            v2
-        ];
-        const mid1 = lineLineIntersection(fromL, l1);
-        const mid2 = lineLineIntersection(toL, l2);
-        return [
-            fromCc,
-            mid1,
-            mid2,
-            toCc
-        ];
-    }
-    // Within tolerance - approximate with a straight line.
-    return [
-        fromCc,
-        toCc
-    ];
-}
 /**
- * Returns a line segment of unit length starting at the given point and
- * being tangent to the shape boundary.
+ * Returns the bezier curves (1 or 2 lines or quadratics) approximating the 
+ * shape boundary from the contact point of the given `CpNode` to that of the 
+ * next `CpNode`.
  * 
  * @internal
- */ function reconstruct_from_mat_getEdgeDirection(cpNode, fromOrTo) {
-    let { pointOnShape } = cpNode;
-    let { curve, t, p } = pointOnShape;
-    let { ps } = curve;
-    if (fromOrTo === FROM && t === 1) {
-        t = 0;
-        curve = curve.next;
-        ps = curve.ps;
-    }
-    if (fromOrTo === TO && t === 0) {
-        t = 1;
-        curve = curve.prev;
-        ps = curve.ps;
-    }
-    const tangent = tangent_tangent(ps, t);
-    const v = translate(p, tangent);
-    return [
-        p,
-        v
-    ];
+ */ function getBoundaryPiece(cpNode) {
+    return getBeziersFromTangents(getBoundaryTangentLine(cpNode.pointOnShape, true), getBoundaryTangentLine(cpNode.next.pointOnShape, false));
 }
 
 

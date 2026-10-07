@@ -14,7 +14,10 @@ function getSatCulls(cpNode, s) {
         /** The occulating radius stored with this vertex. */
         const R = rMap.get(cpNode) || (s * cpNode.pointOnShape.circle.radius);
         const cpNode_ = cpNode.next;
-        const l = length([0, 1], getMatCurveToNext(cpNode));
+        let l = 0;
+        for (const ps of getMatCurveToNext(cpNode)) {
+            l += length([0, 1], ps);
+        }
         const r = cpNode_.pointOnShape.circle.radius;
         const r_ = s * r;
         if (R - l > r_) {

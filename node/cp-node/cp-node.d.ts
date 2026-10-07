@@ -23,9 +23,10 @@ import { PointOnShape } from '../point-on-shape/point-on-shape.js';
  * following other branches on the MAT.
  *
  * Call `getMatCurveBetween(cpNodeFrom, cpNodeTo)` or `getMatCurveToNext(cpNode)`
- * (replacing the older CpNode.`matCurveToNextVertex`) to get a bezier curve
- * from the maximal disk of this `CpNode` to the next `CpNode`'s
- * maximal disk and thus directly representing a piece of the medial axis.
+ * (replacing the older CpNode.`matCurveToNextVertex`) to get the bezier curves
+ * (1 or 2 lines or quadratics joined smoothly) from the maximal disk of this
+ * `CpNode` to the next `CpNode`'s maximal disk and thus directly representing
+ * a piece of the medial axis.
  *
  * The function, `getChildren`, returns the children of this `CpNode` when
  * seen as a MAT edge. Only children in a 'forward' direction are returned. These

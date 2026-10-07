@@ -1,10 +1,17 @@
 import { getMatCurveBetween } from './get-mat-curve-between.js';
+/**
+ * Returns the (flattened) array of bezier curves (lines or quadratics)
+ * representing the medial axis from one `CpNode` to another by following
+ * `next` repeatedly.
+ *
+ * @param cpNodeS
+ * @param cpNodeE
+ */
 function getMatCurvesBetween(cpNodeS, cpNodeE) {
     let cpNode = cpNodeS;
     const pss = [];
     while (cpNode !== cpNodeE) {
-        const ps = getMatCurveBetween(cpNode, cpNode.next);
-        pss.push(ps);
+        pss.push(...getMatCurveBetween(cpNode, cpNode.next));
         cpNode = cpNode.next;
     }
     return pss;

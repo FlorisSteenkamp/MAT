@@ -1,9 +1,10 @@
-import { distanceBetween, fromTo as fromToVec, dot, rotate90Degrees, cross, interpolate, translate, lineLineIntersection } from 'flo-vector2d';
-import { tangent as getTangent } from 'flo-bezier3';
+import { distanceBetween } from 'flo-vector2d';
 import { mapDeep } from '../utils/map-deep.js';
 import { removeSatInducedTrivial3Prongs } from './remove-sat-induced-trivial-3prongs.js';
 import { getCpNodessForSat } from './get-cp-nodess-for-sat.js';
 import { getRealProngCount } from '../cp-node/fs/get-real-prong-count.js';
+import { getBoundaryTangentLine } from '../point-on-shape/get-boundary-tangent-line.js';
+import { getBeziersFromTangents } from '../utils/get-beziers-from-tangents.js';
 const { max, abs, round, log2 } = Math;
 // let ii = 0;
 /**
@@ -22,10 +23,10 @@ function reconstructFromMats(mats, minNumAccurateBits = undefined) {
         .map(getCpNodessForSat);
     const r = mapDeep(3, cpNodessPerSat, recoverBoundary_, true);
     // ii;//?
-    return r;
+    // Flatten the (1 or 2) beziers per boundary piece into a single array of
+    // beziers per loop.
+    return r.map(loops => loops.map(pieces => pieces.flat()));
 }
-const FROM = 0;
-const TO = 1;
 /**
  *
  * @param cpNode
@@ -80,81 +81,15 @@ function recoverBoundary(maxPO2, minNumAccurateBits) {
         return getBoundaryPiece(cpNode);
     };
 }
-/** @internal */
-const TOLERANCE_ADD_2PRONG = 0.01;
-/** @internal */
-const TOLERANCE_USE_LINE = 0.0001; // else cubic
-function getBoundaryPiece(cpNode) {
-    const cpNode_ = cpNode.next;
-    const pos = cpNode.pointOnShape;
-    const pos_ = cpNode_.pointOnShape;
-    const { p } = pos;
-    const { p: p_ } = pos_;
-    const fromCc = p;
-    const fromL = getEdgeDirection(cpNode, FROM);
-    const toCc = p_;
-    const toL = getEdgeDirection(cpNode_, TO);
-    const mid = lineLineIntersection(fromL, toL);
-    const c = fromToVec(fromCc, toCc);
-    let twisted;
-    if (!mid) {
-        twisted = true;
-    }
-    else {
-        const a = fromToVec(fromCc, mid);
-        const b = fromToVec(toCc, mid);
-        twisted = dot(a, c) < 0 || dot(b, c) > 0;
-    }
-    if (!twisted) {
-        return [fromCc, mid, toCc];
-    }
-    const r = rotate90Degrees(c);
-    const w1 = fromToVec(fromL[0], fromL[1]); // This is a unit vector
-    const w2 = fromToVec(toL[0], toL[1]); // This is a unit vector
-    const d1 = abs(cross(c, w1)) / (3 * 3);
-    const d2 = abs(cross(c, w2)) / (3 * 3);
-    if (d1 > TOLERANCE_ADD_2PRONG || d2 > TOLERANCE_ADD_2PRONG) {
-        // FUTURE - not within tolerance - must add additional 2-prong
-        return [fromCc, toCc];
-    }
-    if (d1 > TOLERANCE_USE_LINE || d2 > TOLERANCE_USE_LINE) {
-        // approximate with cubic bezier
-        const m1 = interpolate(fromCc, toCc, 1 / 3);
-        const m2 = interpolate(fromCc, toCc, 2 / 3);
-        const v1 = translate(r, m1);
-        const v2 = translate(r, m2);
-        const l1 = [m1, v1];
-        const l2 = [m2, v2];
-        const mid1 = lineLineIntersection(fromL, l1);
-        const mid2 = lineLineIntersection(toL, l2);
-        return [fromCc, mid1, mid2, toCc];
-    }
-    // Within tolerance - approximate with a straight line.
-    return [fromCc, toCc];
-}
 /**
- * Returns a line segment of unit length starting at the given point and
- * being tangent to the shape boundary.
+ * Returns the bezier curves (1 or 2 lines or quadratics) approximating the
+ * shape boundary from the contact point of the given `CpNode` to that of the
+ * next `CpNode`.
  *
  * @internal
  */
-function getEdgeDirection(cpNode, fromOrTo) {
-    let { pointOnShape } = cpNode;
-    let { curve, t, p } = pointOnShape;
-    let { ps } = curve;
-    if (fromOrTo === FROM && t === 1) {
-        t = 0;
-        curve = curve.next;
-        ps = curve.ps;
-    }
-    if (fromOrTo === TO && t === 0) {
-        t = 1;
-        curve = curve.prev;
-        ps = curve.ps;
-    }
-    const tangent = getTangent(ps, t);
-    const v = translate(p, tangent);
-    return [p, v];
+function getBoundaryPiece(cpNode) {
+    return getBeziersFromTangents(getBoundaryTangentLine(cpNode.pointOnShape, true), getBoundaryTangentLine(cpNode.next.pointOnShape, false));
 }
 export { reconstructFromMats };
 //# sourceMappingURL=reconstruct-from-mat.js.map
