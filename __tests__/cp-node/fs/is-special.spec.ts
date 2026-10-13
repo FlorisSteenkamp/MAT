@@ -10,7 +10,7 @@ test('isSpecial', function() {
     const allOnLoop = getAllOnLoop(cpNode);
 
     for (const n of allOnLoop) {
-        const expected = getRealProngCount(n) !== 2 && !n.isHoleClosing;
+        const expected = getRealProngCount(n) !== 2 || n.isHoleClosing;
         expect(isSpecial(n)).toBe(expected);
     }
 });

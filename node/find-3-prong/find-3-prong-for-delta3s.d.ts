@@ -7,12 +7,13 @@ import type { ThreeProngInfo } from './three-prong-info.js';
  * @param δs the boundary pieces
  * @param idx δ identifier
  * @param k δs identifier
- * @param curvePiecess
+ * @param curvePiecess the curve pieces of each boundary piece
+ * @param allCurvePieces all of the above flattened into one array
  * @param maxCoordPowerOf2
  *
  * @internal
  */
-declare function find3ProngForDelta3s(δs: [CpNode, CpNode][], idx: number, k: number, curvePiecess: CurvePiece[][], maxCoordPowerOf2: number): {
+declare function find3ProngForDelta3s(δs: [CpNode, CpNode][], idx: number, k: number, curvePiecess: CurvePiece[][], allCurvePieces: CurvePiece[], maxCoordPowerOf2: number): {
     error: number;
     threeProngInfo: ThreeProngInfo;
 } | undefined;

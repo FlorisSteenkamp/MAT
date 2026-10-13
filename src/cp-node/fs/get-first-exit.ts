@@ -1,25 +1,26 @@
-import { CpNode } from "../cp-node.js";
+import type { CpNode } from "../cp-node.js";
+import { isTerminating } from "./is-terminating.js";
 
 
 /**
- * Returns the first `CpNode` (from this one by successively applying 
- * .nextOnCircle) that exits the circle.
+ * Returns the first `CpNode` *after* the given one (by successively applying 
+ * `.nextOnCircle`) that exits the circle, i.e. the first one that is not
+ * terminating - the given `CpNode` itself is never returned.
+ * 
+ * * returns `undefined` if no other `CpNode` on the circle exits (e.g. the 
+ *   other `CpNode` of a 1-prong, or the MAT is a single point)
  */
-function getFirstExit(cpNode: CpNode) {
-    // const startNode = this as CpNode;
-    const startNode = cpNode;
-    let cpNode_ = startNode;
+function getFirstExit(cpNode: CpNode): CpNode | undefined {
+    let cpNode_ = cpNode.nextOnCircle;
 
-    while (cpNode_.next === cpNode_.prevOnCircle) {
-        cpNode_ = cpNode_.next;
-
-        if (cpNode_ === startNode) {
-            // The very special case the MAT is a single point.
-            return undefined; 
+    while (cpNode_ !== cpNode) {
+        if (!isTerminating(cpNode_)) {
+            return cpNode_;
         }
+        cpNode_ = cpNode_.nextOnCircle;
     }
 
-    return cpNode_;
+    return undefined;
 }
 
 

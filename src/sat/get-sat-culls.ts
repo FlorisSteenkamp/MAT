@@ -1,44 +1,46 @@
-import type { DualSet } from "../utils/dual-set.js";
 import type { CpNode } from "../cp-node/cp-node.js";
-import { length } from "flo-bezier3";
-import { getAllOnCircle } from "../cp-node/fs/get-all-on-circle.js";
-import { getMatCurveToNext } from "../cp-node/fs/get-mat-curve-to-next.js";
+import type { Circle } from "../geometry/circle.js";
+import { getMatDistanceToNext } from "../cp-node/fs/get-distance-to-next.js";
 import { traverseEdges } from "../cp-node/fs/traverse-edges.js";
-import { DualSetFs } from "../utils/dual-set.js";
 
 
+/**
+ * Returns the set of MAT vertices (identified by their `Circle` - all `CpNode`s
+ * on a vertex share the same `Circle` object) that are to be culled by the
+ * Scale Axis Transform with the given scale factor.
+ *
+ * @param cpNode the `CpNode` representing the maximal vertex
+ * @param s the scale factor
+ *
+ * @internal
+ */
 function getSatCulls(
-        cpNode: CpNode, 
-        s: number) {
+        cpNode: CpNode,
+        s: number): Set<Circle> {
 
-    /** 
-     * All vertices that are set to be culled initially. This may change later 
-     * in order to preserve topology. 
+    /**
+     * All vertices that are set to be culled initially. This may change later
+     * in order to preserve topology.
      */
-    const culls: DualSet<number,number> = new Map();
+    const culls = new Set<Circle>();
 
-    const rMap: Map<CpNode,number> = new Map();
+    /** The osculating radius stored with each vertex. */
+    const rMap = new Map<Circle, number>();
 
     traverseEdges(cpNode, function(cpNode) {
-        /** The occulating radius stored with this vertex. */
-        const R = rMap.get(cpNode) || (s*cpNode.pointOnShape.circle.radius);
+        const circle = cpNode.pointOnShape.circle;
+        const R = rMap.get(circle) ?? s*circle.radius;
 
         const cpNode_ = cpNode.next;
+        const circle_ = cpNode_.pointOnShape.circle;
 
-        let l = 0;
-        for (const ps of getMatCurveToNext(cpNode)) {
-            l += length([0,1], ps);
-        }
+        const l = getMatDistanceToNext(cpNode);
 
-        const r = cpNode_.pointOnShape.circle.radius;
-        const r_ = s*r;
+        const r_ = s*circle_.radius;
         if (R - l > r_) {
-            for (const cpNode of getAllOnCircle(cpNode_)) {
-                rMap.set(cpNode, R - l); // Update osculating radii
-                if (!cpNode_.isHoleClosing) {
-                    const { center: c } = cpNode_.pointOnShape.circle;
-                    DualSetFs.add(culls, c[0], c[1]);
-                }
+            rMap.set(circle_, R - l); // Update osculating radius
+            if (!cpNode_.isHoleClosing) {
+                culls.add(circle_);
             }
         }
     });

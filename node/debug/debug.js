@@ -1,13 +1,24 @@
+/** Returns a fresh (empty) set of debug `Elems`. */
+function createEmptyElems() {
+    return {
+        looseBoundingBoxes: [],
+        tightBoundingBoxes: [],
+        boundingHulls: [],
+        sharpCorners: [],
+        dullCorners: []
+    };
+}
 function enableDebugForMat(debugOn) {
     if (!debugOn) {
-        window._debug_ = undefined;
+        globalThis._debug_ = undefined;
         return;
     }
-    let debug = window._debug_;
+    let debug = globalThis._debug_;
     debug = {
         ...debug,
         elems: {
-            ...debug?.elems
+            ...debug?.elems,
+            ...createEmptyElems()
         },
         timing: {
             ...debug?.timing,
@@ -31,7 +42,7 @@ function enableDebugForMat(debugOn) {
             stopAfterThreeProngsNum: undefined,
         }
     };
-    window._debug_ = debug;
+    globalThis._debug_ = debug;
 }
-export { enableDebugForMat };
+export { enableDebugForMat, createEmptyElems };
 //# sourceMappingURL=debug.js.map

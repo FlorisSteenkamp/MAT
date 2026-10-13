@@ -1,7 +1,6 @@
 import { toPowerBasisDd } from 'flo-bezier3';
-import { twoDiff, ddMultDouble2, ddAddDd, ddMultDd, ddNegativeOf, ddMultByNeg2, ddMultBy2, ddDiffDouble } from 'double-double';
+import { ddMultDouble2, ddAddDd, ddMultDd, ddNegativeOf, ddMultByNeg2, ddMultBy2, ddDiffDouble } from 'double-double';
 
-const td = twoDiff;
 const qmd = ddMultDouble2;
 const qaq = ddAddDd;
 const qmq = ddMultDd;

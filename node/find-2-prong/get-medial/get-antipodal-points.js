@@ -4,7 +4,6 @@ import { getClosestPoint } from './get-closest-points.js';
  * bezier pieces, including the beziers actually checked after culling.
  *
  * @param maxCoordPowerOf2
- * @param nnorm
  * @param yPos
  * @param for1Prong defaults to `false`;
  * @param angle angle from normal
@@ -12,11 +11,11 @@ import { getClosestPoint } from './get-closest-points.js';
  *
  * @internal
  */
-function getAntipodalPoints(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePieces) {
+function getAntipodalPoints(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, curvePieces) {
     const pInfoss = [];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
-        const pInfos = getClosestPoint(maxCoordPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece);
+        const pInfos = getClosestPoint(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, curvePiece);
         pInfoss.push(...pInfos);
     }
     /** the minimum max value */

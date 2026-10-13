@@ -6,10 +6,10 @@ import { getInitialCurvePieces } from './get-initial-bezier-pieces.js';
 import { getAntipodalPoints } from './get-medial/get-antipodal-points.js';
 import { reduceRadius } from './reduce-radius.js';
 import { squaredDistanceBetweenDd } from './squared-distance-between-dd.js';
-import { cullCurvePieces } from './cull-bezier-pieces.js';
+import { cullCurvePieces } from '../closest-boundary-point/cull-curve-pieces.js';
 import { add1Prong } from './add-1-prong.js';
 import { toP } from '../point-on-shape/to-p.js';
-import { calcSeperationTolerance } from './calc-seperation-tolerance.js';
+import { calcSquaredSeperationTolerance } from './calc-seperation-tolerance.js';
 import { getInitialX } from './get-initial-x.js';
 import { ddNormal } from 'flo-bezier3';
 import { rotate } from 'flo-vector2d';
@@ -85,26 +85,24 @@ function find2Prong(
         );
 
         // The lines below is an optimization.
-        const xy2 = reduceRadius(maxCoordPowerOf2, rO, curvePieces, y, nnorm);
+        const xy2 = reduceRadius(rO, curvePieces, y, nnorm);
         const xy = sqrt(xy2);
 
         const l = sqrt(nnorm[0]**2 + nnorm[1]**2);
         xO = [y[0] + nnorm[0]/l*xy, y[1] + nnorm[1]/l*xy];
 
-        cullCurvePieces(curvePieces, xO, xy2);
+        // (the extra multiplier accounts for floating point error)
+        const culledCurvePieces = cullCurvePieces(curvePieces, xO, (1 + 2**-20)*xy2);
 
         const antipodalPoints = getAntipodalPoints(
-            maxCoordPowerOf2, nnorm, nnormDd, yPos,
+            maxCoordPowerOf2, nnormDd, yPos,
             for1Prong, angle,
-            curvePieces
+            culledCurvePieces
         );
 
         // FUTURE - if antipodalPoints.length > 1 let's just add an n-prong;
         if (antipodalPoints.length !== 1) {
             if (antipodalPoints.length === 0) {
-                if (isHoleClosing) {
-                    console.log(yPos)
-                }
                 return undefined;
             }
             if (!isHoleClosing && !areAllAntipodesSame(antipodalPoints, maxCoordPowerOf2)) {
@@ -144,7 +142,7 @@ function find2Prong(
             // The lines below eliminate cases where the found 2-prong is too
             // close to a one-prong
             const squaredSeperationTolerance = max(
-                calcSeperationTolerance(rO, sqrt(xz), (2**2)*errorTolerance),
+                calcSquaredSeperationTolerance(rO, sqrt(xz), (2**2)*errorTolerance),
                 minSquaredSeperationTolerance
             );
             if (yz <= squaredSeperationTolerance) {
@@ -171,7 +169,7 @@ function areAllAntipodesSame(
         // }
 
         const { x: x_ } = point[i];
-        if (abs(x[0] - x_[0]) > tol || abs(x[0] - x_[0]) > tol) {
+        if (abs(x[0] - x_[0]) > tol || abs(x[1] - x_[1]) > tol) {
             return false;
         }
     }

@@ -1,60 +1,47 @@
-import { twoDiff, ddMultDd, ddAddDd } from 'double-double';
-const td = twoDiff;
-const qmq = ddMultDd;
-const qaq = ddAddDd;
-const eps = Number.EPSILON;
+import { eps } from '../error-analysis/gamma.js';
+const { max } = Math;
 /**
- * Returns the distance interval squared given the root interval (currently
- * ignoring multiplicity).
+ * Relative widening of the interval bounds - see the error analysis in
+ * `rootIntervalToDistanceSquaredInterval`: the exact first order requirement
+ * is `4u = 2eps` (`u = eps/2` the unit roundoff); `4eps = 2**-50` (exactly
+ * representable) leaves room for the `O(u²)` terms.
+ */
+const WIDEN = 4 * eps;
+/**
+ * Returns an interval `[min, max]` guaranteed to contain the squared distance
+ * from the point `p` to *any* point of a curve piece, given an axis-aligned
+ * box that is guaranteed to engulf that piece (see `getIntervalBox`).
  *
- * * the result is returned as `[minPossibleSquared, maxPossibleSquared]` distance.
+ * * the minimum squared distance to the box is attained on its boundary (or
+ *   is `0` if `p` is inside): per axis the distance is the gap between `p` and
+ *   the box's range on that axis (`0` if `p` is within the range)
+ * * the maximum squared distance to the box is attained at a corner: per axis
+ *   it is the larger of the distances to the two range ends
  *
- * @param box
- * @param p
+ * Error analysis (`u = eps/2` the unit roundoff, `fl(a∘b) = (a∘b)(1+δ)`,
+ * `|δ| <= u`): all inputs are doubles and each bound is computed with 3
+ * roundings per term path (subtraction, square, sum - `max` is exact) and
+ * widened with 1 more, so the computed bound is within a factor `(1±u)⁴` of
+ * the exact one before widening and `WIDEN >= 4u + O(u²)` makes the interval
+ * rigorous. (A gap of `0` is exact: `fl(a-b)` has the sign of `a-b`.)
+ *
+ * @param box the engulfing box given as `[[minX, minY], [maxX, maxY]]`
+ * @param p the point
  *
  * @internal
  */
 function rootIntervalToDistanceSquaredInterval(box, p) {
-    const bl = box[0];
-    const tr = box[1];
-    const minX = bl[0];
-    const minY = bl[1];
-    const maxX = tr[0];
-    const maxY = tr[1];
-    const x = p[0]; // <0>
-    const y = p[1]; // <0>
-    let minDSquared = +Infinity;
-    let maxDSquared = -Infinity;
-    // for each corner of the interval box
-    for (const [a, b] of [[minX, minY], [minX, maxY], [maxX, minY], [maxX, maxY]]) {
-        /*
-        // distance to 1st corner of interval box - `distance² = x² + y²`
-        const dc1 = (a - x)**2 + (b - y)**2;
-        // max absolute roundoff error of `dc1`
-        // <4>dc1 <-- <4>(<3>(<1>(a - x)**2) + <3>(<1>((b - y)**2))
-        const dc1E = 4*γ1*((a + x)**2 + (b + y)**2);
-        const dc1Min = dc1 - dc1E;  // distance minus max error
-        const dc1Max = dc1 + dc1E;  // distance plus max error
-        */
-        /** distance to 1st corner of interval box - `distance² = x² + y²` */
-        const ax = td(a, x); // a - x
-        const by = td(b, y); // b - y
-        // const dc1Exact = eadd(emult(ax,ax),emult(by,by));  // ax**2 + bx**2
-        // const dc1 = estimate(dc1Exact);
-        const dc1Dd = qaq(qmq(ax, ax), qmq(by, by)); // ax**2 + bx**2
-        const dc1 = dc1Dd[1];
-        // const dc1Min = dc1*(1 - 2**maxCoordPowerOf2*eps);  // distance minus max error
-        // const dc1Max = dc1*(1 + 2**maxCoordPowerOf2*eps);  // distance plus max error
-        const dc1Min = dc1 * (1 - eps); // distance minus max error
-        const dc1Max = dc1 * (1 + eps); // distance plus max error
-        if (dc1Min <= minDSquared) {
-            minDSquared = dc1Min;
-        }
-        if (dc1Max >= maxDSquared) {
-            maxDSquared = dc1Max;
-        }
-    }
-    return [minDSquared, maxDSquared];
+    const [[minX, minY], [maxX, maxY]] = box;
+    const [x, y] = p;
+    // per axis gap between `p` and the box (`0` if `p` is within range)
+    const dxMin = max(minX - x, 0, x - maxX);
+    const dyMin = max(minY - y, 0, y - maxY);
+    // per axis distance from `p` to the furthest end of the box's range
+    const dxMax = max(x - minX, maxX - x);
+    const dyMax = max(y - minY, maxY - y);
+    const minDSquared = dxMin * dxMin + dyMin * dyMin;
+    const maxDSquared = dxMax * dxMax + dyMax * dyMax;
+    return [minDSquared * (1 - WIDEN), maxDSquared * (1 + WIDEN)];
 }
 export { rootIntervalToDistanceSquaredInterval };
 //# sourceMappingURL=root-interval-to-distance-squared-interval.js.map

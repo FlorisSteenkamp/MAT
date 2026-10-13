@@ -44,7 +44,7 @@ test('getClosestPoints', function() {
     const def = deflate(H,t);//?
     // def = [47279295, -157379071.5, 100304568, -23598664.03125, 1904993.75390625]
 
-    const r = getClosestPoint(maxPowerOf2, nnorm, nnormDd, yPos, for1Prong, angle, curvePiece);
+    const r = getClosestPoint(maxPowerOf2, nnormDd, yPos, for1Prong, angle, curvePiece);
 
     r;//?
 

@@ -1,4 +1,5 @@
 import type { Corner } from "./corner.js";
+import { memoize } from 'flo-memoize';
 import { cross, toUnitVector } from "flo-vector2d";
 import { getInterfaceCcw } from './get-interface-ccw.js';
 
@@ -70,4 +71,12 @@ function getCorner(
 }
 
 
-export { getCorner }
+/**
+ * Memoized version of `getCorner` (keyed on the two control point arrays).
+ * 
+ * @internal
+ */
+const getCorner$ = memoize(getCorner);
+
+
+export { getCorner, getCorner$ }

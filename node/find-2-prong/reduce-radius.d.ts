@@ -6,5 +6,5 @@ import type { CurvePiece } from '../mat/curve-piece.js';
  *
  * @internal
  */
-declare function reduceRadius(maxCoordPowerOf2: number, rO: number, curvePieces: CurvePiece[], y: number[], nnorm: number[]): number;
+declare function reduceRadius(rO: number, curvePieces: CurvePiece[], y: number[], nnorm: number[]): number;
 export { reduceRadius };

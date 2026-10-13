@@ -59,7 +59,7 @@ interface MatOptions {
      * 
      * * Only applies if `simplify` is `true`
      * * Defaults to `1/16`
-     * * The value is clipped in `[2**-10,1024]`
+     * * The value is clipped in `[2**-20,2**20]`
      * * scaled to a 1024x1024 vector image size, i.e. a value of `1` on such
      * a vector image will have a `1` pixel accuracy. If the vector is, say,
      * 512x400 then the accuracy is scaled to `1/2` a pixel. This ensures
@@ -72,7 +72,7 @@ interface MatOptions {
      * 
      * * it is not recommended to change this value
      * * scaled to a 1024x1024 vector image size
-     * * Defaults to `1/16`
+     * * Defaults to `1/64`
      */
     readonly minBezLength?: number;
 

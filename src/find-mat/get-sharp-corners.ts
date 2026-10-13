@@ -2,7 +2,7 @@ import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { Loop } from 'flo-boolean';
 import { controlPointLinesLength } from 'flo-bezier3';
 import { toP } from '../point-on-shape/to-p.js';
-import { getCorner } from '../corner/get-corner.js';
+import { getCorner$ } from '../corner/get-corner.js';
 
 
 /** @internal */
@@ -19,7 +19,7 @@ function getSharpCornersOnLoop(
                 continue;
             }
             
-            if (getCorner(curve.ps, curve.next.ps).isQuiteSharp) {
+            if (getCorner$(curve.ps, curve.next.ps).isQuiteSharp) {
                 const { ps } = curve;
 
                 const p = ps[ps.length - 1];

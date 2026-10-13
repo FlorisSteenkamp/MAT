@@ -1,4 +1,4 @@
-import type { CpNode } from "flo-mat";
+import { CpNode } from "../cp-node.js";
 
 
 function isOnSameLoop(
@@ -12,4 +12,4 @@ function isOnSameLoop(
 }
 
 
-export { isOnSameLoop }
+export { isOnSameLoop }

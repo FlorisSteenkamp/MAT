@@ -31,7 +31,7 @@ function calcBetterX(
 
     let nu = 1;
     let better;
-    let newX;
+    let newX: number[];
     let newPoss: PrePointOnShape[];
     let newV;
     let i = 0;  // Safeguard
@@ -40,7 +40,7 @@ function calcBetterX(
         newX = translate(shift, x); 
 
         newPoss = curvePiece3s.map(curvePieces => 
-            getCloseBoundaryPointsCertified(curvePieces, x)[0]
+            getCloseBoundaryPointsCertified(curvePieces, newX)[0]
         );
 
         // Point of zero V

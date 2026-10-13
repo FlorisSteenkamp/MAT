@@ -1,7 +1,7 @@
 import type { Corner } from "../corner/corner.js";
 import type { Curve } from "flo-boolean";
 import { memoize } from 'flo-memoize';
-import { getCorner } from "../corner/get-corner.js";
+import { getCorner$ } from "../corner/get-corner.js";
 
 
 /**
@@ -12,7 +12,7 @@ const getPosCorner$ = memoize(function(
 
     const { t, curve } = pos;
 
-    return getCorner(
+    return getCorner$(
         t === 1 ? curve.ps : curve.prev.ps,
         t === 1 ? curve.next.ps : curve.ps,
     );

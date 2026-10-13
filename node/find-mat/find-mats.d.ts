@@ -11,18 +11,12 @@ import { MatOptions } from './mat-options.js';
  * beziers respectively. Each point is a two-element array (ordered pair), the
  * first of which is the x-coordinate and the second the y-coordinate.
  *
- * @param maxCurviness The maximum value the 'curviness' of a curve can have
- * before an additional MAT point is inserted in between. Defaults to 0.4.
- * (Curviness is measured as the total angle in radians between the consecutive
- * vectors formed by the ordered control points of th bezier curve). The value
- * is clipped in the range `[0.01,3]`.
- *
- * @param maxLength The maximum length a curve can have before an additional MAT
- * point is inserted. This value is scaled to a reference 1024 x 1024
- * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the value will be
- * halved, e.g. from 10 to 5). Together with maxCurviness it represents a
- * tolerance for the accuracy of the MAT. Defaults to 4. The value is clipped
- * in [1,100].
+ * @param options the `MatOptions` (see there for a description of each option
+ * and its default), e.g. `maxCurviness` and `maxLength` together determine the
+ * accuracy of the MAT, `simplify` and `simplifyTolerance` control the
+ * simplification of the result and `applySat` and `satScale` whether and how
+ * the Scale Axis Transform is applied. Missing options take their defaults
+ * (`defaultMatOptions`) and all values are clipped to their allowed ranges.
  */
 declare function findMats(bezierLoops: number[][][][], options?: MatOptions): Mat[];
 export { findMats };

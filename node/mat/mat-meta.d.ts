@@ -1,16 +1,10 @@
 import type { Loop } from 'flo-boolean';
 import type { CpNode } from '../cp-node/cp-node.js';
-import type { Curve } from 'flo-boolean';
 import { RbTree } from 'flo-ll-rb-tree';
 interface MatMeta {
     /** The minimum power of 2 such that `2**maxCoordPowerOf2 >= "the max coordinate"` */
     readonly maxCoordPowerOf2: number;
     readonly squaredDiagonalLength: number;
-    readonly looseBoundingBoxes: number[][][];
-    readonly tightBoundingBoxes: number[][][];
-    readonly boundingHulls: number[][][];
-    readonly sharpCorners: Curve[];
-    readonly dullCorners: Curve[];
     readonly loops: Loop[];
     /**
      * Primarily for internal use. A tree structure storing the

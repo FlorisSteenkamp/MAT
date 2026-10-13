@@ -1,6 +1,6 @@
 import { findAndAdd3ProngsOnLoop } from '../find-3-prong/find-and-add-3-prongs-on-loop.js';
 import { createInitialCpTree } from './create-initial-cp-tree.js';
-import { getPartialMeta, addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
+import { addDebugElems, addDebugInfo1, addDebugInfo2, addDebugInfo3, addDebugInfo4 } from './get-meta.js';
 import { getSharpCornersOnLoop } from './get-sharp-corners.js';
 import { getDullCornersOnLoop } from './get-dull-corners-on-loop.js';
 import { findAndAdd2ProngsOnAllLoops } from '../find-2-prong/find-and-add-2-prongs-on-all-loops.js';
@@ -16,6 +16,7 @@ import { getShapeBounds } from '../svg/get-shape-bounds.js';
  */
 function findMat(loops, maxCoordPowerOf2, options) {
     addDebugInfo1();
+    addDebugElems(loops);
     const { minBezLength, maxCurviness, maxLength, angleIncrement } = options;
     const getSharpCornersOnLoop_ = getSharpCornersOnLoop(minBezLength);
     const getDullCornersOnLoop_ = getDullCornersOnLoop(minBezLength);
@@ -27,10 +28,9 @@ function findMat(loops, maxCoordPowerOf2, options) {
     const sharpCornersPerLoop = loops.map(getSharpCornersOnLoop_);
     const lastInsertId = { id: 0 };
     const cpTrees = createInitialCpTree(loops, sharpCornersPerLoop, lastInsertId);
-    const _meta = getPartialMeta(loops);
     const meta = {
         maxCoordPowerOf2, squaredDiagonalLength, loops, cpTrees, // pointToCpNode,
-        lastInsertId, ..._meta
+        lastInsertId
     };
     let cpNode;
     cpNode = findAndAddHoleClosing2Prongs(meta);
@@ -61,7 +61,6 @@ function findMat(loops, maxCoordPowerOf2, options) {
             return { cpNode, meta };
         }
     }
-    // if (cpNode !== undefined) { checkOrdering(meta, cpNode); }
     const mat = { cpNode, meta };
     addDebugInfo4();
     return mat;

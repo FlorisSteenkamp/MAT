@@ -79,16 +79,11 @@ function getMats1(): Mat[] {
     const cpNode = fromStringifyable(cpNodeStringifyable1);
 
     return [{ cpNode, meta: {
-        boundingHulls: undefined!,
         cpTrees: undefined!,
         loops: undefined!,
-        dullCorners: undefined!,
         lastInsertId: undefined!,
-        looseBoundingBoxes: undefined!,
         maxCoordPowerOf2: undefined!,
-        sharpCorners: undefined!,
-        squaredDiagonalLength: undefined!,
-        tightBoundingBoxes: undefined!
+        squaredDiagonalLength: undefined!
     } }];
 }
 

@@ -25,7 +25,7 @@ function calcBetterX(curvePiece3s, x, vectorToZeroV) {
     do {
         const shift = scale(vectorToZeroV, nu);
         newX = translate(shift, x);
-        newPoss = curvePiece3s.map(curvePieces => getCloseBoundaryPointsCertified(curvePieces, x)[0]);
+        newPoss = curvePiece3s.map(curvePieces => getCloseBoundaryPointsCertified(curvePieces, newX)[0]);
         // Point of zero V
         const newCircleCenter = circumCenter(newPoss.map(pos => pos.p));
         const newVectorToZeroV = fromTo(newX, newCircleCenter);

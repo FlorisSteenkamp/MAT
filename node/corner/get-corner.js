@@ -1,3 +1,4 @@
+import { memoize } from 'flo-memoize';
 import { cross, toUnitVector } from "flo-vector2d";
 import { getInterfaceCcw } from './get-interface-ccw.js';
 /**
@@ -55,5 +56,11 @@ function getCorner(psI, psO) {
         isQuiteDull
     };
 }
-export { getCorner };
+/**
+ * Memoized version of `getCorner` (keyed on the two control point arrays).
+ *
+ * @internal
+ */
+const getCorner$ = memoize(getCorner);
+export { getCorner, getCorner$ };
 //# sourceMappingURL=get-corner.js.map

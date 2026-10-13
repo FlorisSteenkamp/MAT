@@ -41,8 +41,8 @@ function createInitialCpTree(
             const pos1: PointOnShape = { ...ppos, curve,             t: 1, circle, order: -1, order2: 0 };
             const pos2: PointOnShape = { ...ppos, curve: curve.next, t: 0, circle, order: +1, order2: 0 };
 
-            cpNode1 = insertCpNode(true, false, false, cpTree, pos1, cpNode2, undefined, /* unused */ lastInsertId)!;
-            cpNode2 = insertCpNode(true, false, false, cpTree, pos2, cpNode1, undefined, /* unused */ lastInsertId)!;
+            cpNode1 = insertCpNode(true, false, false, cpTree, pos1, cpNode2, undefined, lastInsertId)!;
+            cpNode2 = insertCpNode(true, false, false, cpTree, pos2, cpNode1, undefined, lastInsertId)!;
             
             cpNode1.prevOnCircle = cpNode2;
             cpNode2.prevOnCircle = cpNode1;

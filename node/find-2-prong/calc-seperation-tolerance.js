@@ -1,97 +1,40 @@
-import { ddAddDd, twoProduct, ddDiffDd, ddDivDd, twoDiff, ddMultDouble1 } from 'double-double';
-const tp = twoProduct;
-const qaq = ddAddDd;
-const qdq = ddDiffDd;
-const qmd = ddMultDouble1;
-const { acos } = Math;
 /**
- * Calculates and returns an appropriate seperation tolerance between `CpNode`s.
+ * Returns the *squared* separation tolerance between the two contact points
+ * `y` (the source point) and `z` (the antipode) of a candidate 2-prong: if
+ * `|yz|²` is below it the antipode is indistinguishable (to within the error
+ * tolerance `δ`) from the circle merely grazing the boundary at `y` - the
+ * near-1-prong case - and the 2-prong should be rejected.
  *
- * @param R radius of the circle implied by the curvature at the boundary
+ * Derivation: the MAT circle (radius `r`) is tangent to the boundary at `y`
+ * and so is the osculating circle there (radius `R`), both centers lying on
+ * the inward normal at `y`. Approximating the boundary near `y` by the
+ * osculating circle, the MAT circle enlarged by `δ` crosses it at the angle
+ * `θ` (at the MAT center, measured from `y`) given by the law of cosines:
+ *
+ *     cos θ = (r(R-r) - rδ - δ²/2) / ((R-r)(r+δ))
+ *
+ * Points of the MAT circle within that angle of `y` are within `δ` of the
+ * boundary. The chord `|yz|` subtending `θ` is `2r·sin(θ/2)`, and since
+ * `2sin²(θ/2) = 1 - cos θ = (Rδ + δ²/2) / ((R-r)(r+δ))` the squared chord is
+ *
+ *     |yz|² = r²(2Rδ + δ²) / ((R-r)(r+δ))
+ *
+ * which is what is returned - in closed form, without the cancellation that
+ * recovering a tiny `θ` from `cos θ` suffers from.
+ *
+ * @param R radius of the osculating circle of the boundary at `y`
  * @param r radius of the MAT circle
- * @param θ angle between point...
+ * @param δ the error tolerance on distances
+ *
+ * @internal
  */
-function calcSeperationTolerance(R, r, δ) {
-    const a = r + δ;
-    if (a >= R) {
+function calcSquaredSeperationTolerance(R, r, δ) {
+    if (r + δ >= R) {
+        // The enlarged MAT circle is at least as large as the osculating
+        // circle: every point on it is within tolerance of the boundary.
         return Infinity;
     }
-    const R_r_ = twoDiff(R, r);
-    const A_ = qmd(r, R_r_);
-    const N_ = qdq(qdq(A_, tp(r, δ)), tp(δ, δ / 2));
-    const D_ = qaq(A_, qmd(δ, R_r_));
-    const R_r = R - r;
-    const A = r * R_r;
-    const N = A - r * δ - (δ * δ) / 2;
-    const D = A + R_r * δ;
-    const cosC = N / D;
-    const Q = ddDivDd(N_, D_)[1];
-    // const Q = N_[1]/D_[1];
-    const C = acos(cosC);
-    const CC = acos(Q);
-    const θ = CC;
-    // return r*θ;
-    return r * θ;
+    return r * r * (2 * R * δ + δ * δ) / ((R - r) * (r + δ));
 }
-export { calcSeperationTolerance };
-// Quokka tests
-// /**
-//  * Calculates and returns an appropriate seperation tolerance between `CpNode`s.
-//  * 
-//  * @param R radius of the circle implied by the curvature at the boundary
-//  * @param r radius of the MAT circle
-//  * @param θ angle between point...
-//  */
-// function calcSeperationTolerance2(
-//         R: number,
-//         r: number,
-//         δ: number) {
-//     const a = r + δ;
-//     if (a >= R) {
-//         return Infinity;
-//     }
-//     const b = R - r;
-//     const c = R;    
-//     const N = c*c - a*a - b*b;
-//     const N_ = qdq(qdq(tp(c,c), tp(a,a)), tp(b,b));
-//     const D = 2*a*b;          
-//     const D_ = tp(-2*a,b);
-//     const Q = ddDivDd(N_,D_)[1];
-//     const cosC = -N/D;
-//     const C = acos(cosC);
-//     const CC = acos(Q);
-//     const θ = π - CC;
-//     return θ;
-//     // return r*θ;  // approximate arc with line
-// }
-// function degToRad(degrees: number) {
-//     return degrees/360*2*PI;
-// }
-// function radToDeg(rad: number) {
-//     return rad*360/2/PI;
-// }
-// const R = 699;
-// const r = 698;
-// const δ = 1000*2**-46;
-// calcSeperationTolerance(R,r,δ); 
-// calcSeperationTolerance2(R,r,δ);
-// calcSeperationTolerance3(R,r,δ);
-// // * see https://en.wikipedia.org/wiki/Law_of_cosines, Version suited to small angles
-// function calcSeperationTolerance3(
-//         R: number,
-//         r: number,
-//         δ: number) {
-//     const a = r + δ;
-//     const c = R - r;
-//     const b = R;    
-//     // c² = (a - b)² + 4ab*sin²(θ/2) OR
-//     // (c² - (a - b)²)/4ab = sin²(θ/2)
-//     const cc = c*c; 
-//     const abc = a*a + b*b - 2*a*b;
-//     const A = cc - abc;
-//     const B = sqrt(A/(4*a*b));
-//     const θ = 2*asin(B);
-//     return θ;
-//     // return r*θ;  // approximate arc with line
-// }
+export { calcSquaredSeperationTolerance };
 //# sourceMappingURL=calc-seperation-tolerance.js.map

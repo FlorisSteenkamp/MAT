@@ -1,5 +1,5 @@
 import { controlPointLinesLength } from 'flo-bezier3';
-import { getCorner } from '../corner/get-corner.js';
+import { getCorner$ } from '../corner/get-corner.js';
 /** @internal */
 function getSharpCornersOnLoop(minBezLength) {
     return (loop) => {
@@ -9,7 +9,7 @@ function getSharpCornersOnLoop(minBezLength) {
             if (controlPointLinesLength(curve.ps) < minBezLength) {
                 continue;
             }
-            if (getCorner(curve.ps, curve.next.ps).isQuiteSharp) {
+            if (getCorner$(curve.ps, curve.next.ps).isQuiteSharp) {
                 const { ps } = curve;
                 const p = ps[ps.length - 1];
                 const pDd = [[0, p[0]], [0, p[1]]];

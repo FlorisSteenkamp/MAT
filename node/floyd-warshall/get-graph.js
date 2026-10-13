@@ -1,54 +1,57 @@
-import { getAllOnCircle } from "../cp-node/fs/get-all-on-circle.js";
 import { getMatDistanceToNext$ } from "../cp-node/fs/get-distance-to-next.js";
-import { isOnSameCircle } from "../cp-node/fs/is-on-same-circle.js";
 import { isVertexSpecial } from "../cp-node/fs/is-vertex-special.js";
-import { getHoleCloserPairs } from "./get-hole-closer-pairs.js";
-function getGraph(specialVertices, holeClosers) {
-    const pairs = getHoleCloserPairs(holeClosers);
+/**
+ * Returns the adjacency matrix (MAT edge lengths, `Infinity` if not adjacent)
+ * of the given special vertices (leaves, 3-prongs, ...) seen as the vertices of
+ * a graph with the MAT branches between them as edges.
+ *
+ * * for each vertex every MAT edge leaving it is walked once, up to the next
+ *   special vertex; if that vertex is one of the given ones the walked length
+ *   is its distance (the minimum over all such walks if there are several)
+ *
+ * @param specialVertices the special `CpNode`s (one per vertex)
+ */
+function getGraph(specialVertices) {
     const V = specialVertices.length;
+    // the column of each given vertex, identified by its circle (all `CpNode`s
+    // on a vertex share the same `Circle` object)
+    const columnOf = new Map(specialVertices.map((cpNode, j) => [cpNode.pointOnShape.circle, j]));
     const graph = [];
     for (let i = 0; i < V; i++) {
         const cpNodeA = specialVertices[i];
-        const row = [];
-        for (let j = 0; j < V; j++) {
-            const cpNodeB = specialVertices[j];
-            if (i === j) {
-                row.push(0);
-                continue;
-            }
-            let minD = Infinity;
-            for (const toChild of getAllOnCircle(cpNodeA)) {
-                let d = getMatDistanceToNext$(toChild);
-                let child = toChild.next;
-                while (true) {
-                    if (isOnSameCircle(child, cpNodeB)) {
-                        break; // Found path from A to B
+        const row = new Array(V).fill(Infinity);
+        row[i] = 0;
+        // walk each edge leaving the vertex up to the next special vertex
+        let toChild = cpNodeA;
+        do {
+            let d = getMatDistanceToNext$(toChild);
+            let child = toChild.next;
+            while (true) {
+                const j = columnOf.get(child.pointOnShape.circle);
+                if (j !== undefined) {
+                    // Found a path from A to one of the given vertices
+                    if (j !== i && d < row[j]) {
+                        row[j] = d;
                     }
-                    if (child.isHoleClosing) {
-                        // Hole closer found - don't go around loop 
-                        child = getHoleCloserNext(pairs, child);
-                        continue;
-                    }
-                    if (isVertexSpecial(child)) {
-                        // we only find the immediate next special ones
-                        d = Infinity;
-                        break; // Next special vertex found but it's not B
-                    }
-                    d += getMatDistanceToNext$(child);
-                    child = child.next;
+                    break;
                 }
-                if (d < minD) {
-                    minD = d;
+                if (child.isHoleClosing) {
+                    // Hole closer found - skip it (don't go around loop)
+                    child = child.holeCloserTwin.next;
+                    continue;
                 }
+                if (isVertexSpecial(child)) {
+                    // we only find the immediate next special ones
+                    break; // Next special vertex found but it's not a given one
+                }
+                d += getMatDistanceToNext$(child);
+                child = child.next;
             }
-            row.push(minD);
-        }
+            toChild = toChild.nextOnCircle;
+        } while (toChild !== cpNodeA);
         graph.push(row);
     }
     return graph;
-}
-function getHoleCloserNext(pairs, holeCloser) {
-    return pairs.get(holeCloser).next;
 }
 export { getGraph };
 //# sourceMappingURL=get-graph.js.map

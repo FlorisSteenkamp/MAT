@@ -1,5 +1,7 @@
-import { squaredDistanceBetween } from 'flo-vector2d';
 /**
+ * Returns the closest squared distance from the point `p` to the given
+ * axis-aligned box `[[minX, minY], [maxX, maxY]]`, i.e. `0` if `p` is inside.
+ *
  * @internal
  */
 function getClosestSquareDistanceToRect(box, p) {
@@ -13,10 +15,10 @@ function getClosestSquareDistanceToRect(box, p) {
     const yp = p[1];
     if (xp < x0) {
         if (yp < y0) {
-            return squaredDistanceBetween(box[0], p);
+            return (x0 - xp) ** 2 + (y0 - yp) ** 2;
         }
         else if (yp > y1) {
-            return squaredDistanceBetween([x0, y1], p);
+            return (x0 - xp) ** 2 + (yp - y1) ** 2;
         }
         else {
             return (x0 - xp) ** 2;
@@ -24,10 +26,10 @@ function getClosestSquareDistanceToRect(box, p) {
     }
     else if (xp > x1) {
         if (yp < y0) {
-            return squaredDistanceBetween([x1, y0], p);
+            return (xp - x1) ** 2 + (y0 - yp) ** 2;
         }
         else if (yp > y1) {
-            return squaredDistanceBetween(box[1], p);
+            return (xp - x1) ** 2 + (yp - y1) ** 2;
         }
         else {
             return (xp - x1) ** 2;

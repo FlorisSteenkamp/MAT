@@ -1,12 +1,14 @@
 import { ddCurvature } from 'flo-bezier3';
 const { sqrt } = Math;
 /**
- * Returns the osculating circle at this point of the curve.
+ * Returns the osculating circle at this point of the curve as
+ * `[center, radius]`.
  *
- * @param minCurvature if not `Infinity` then the circle radius will be limited
- * to this value
+ * @param maxOsculatingCircleRadius the circle radius will be limited to this
+ * value (i.e. the curvature is taken to be at least its reciprocal)
  * @param pos the `PointOnShape` identifying the point
- * @param useMaxRadius
+ * @param norm the (not necessarily unit) normal at the point pointing towards
+ * the center of the circle
  */
 function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
     const { curve, p, t } = pos;

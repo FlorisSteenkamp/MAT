@@ -8,12 +8,13 @@ import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
 import { getCloseBoundaryPointsCertified } from '../closest-boundary-point/get-close-boundary-points-certified.js';
-import { getCorner } from '../corner/get-corner.js';
+import { cullCurvePieces } from '../closest-boundary-point/cull-curve-pieces.js';
+import { getCorner$ } from '../corner/get-corner.js';
 import { isPosCorner } from '../point-on-shape/is-pos-corner.js';
 import { getPosCorner$ } from '../point-on-shape/get-pos-corner.js';
 import { isSharp } from '../cp-node/fs/is-sharp.js';
 
-const { min, abs, asin } = Math;
+const { abs, asin } = Math;
 
 
 /**
@@ -22,56 +23,34 @@ const { min, abs, asin } = Math;
  * @param δs the boundary pieces
  * @param idx δ identifier
  * @param k δs identifier
- * @param curvePiecess
+ * @param curvePiecess the curve pieces of each boundary piece
+ * @param allCurvePieces all of the above flattened into one array
  * @param maxCoordPowerOf2
  * 
  * @internal
  */
+
 function find3ProngForDelta3s(
         δs: [CpNode, CpNode][], 
         idx: number, 
         k: number,
         curvePiecess: CurvePiece[][],
+        allCurvePieces: CurvePiece[],
         maxCoordPowerOf2: number): { error: number, threeProngInfo: ThreeProngInfo } | undefined {
 
     const TOLERANCE = 2**(maxCoordPowerOf2 - 32);
     const MAX_ITERATIONS = 10;
 
-    const δs_: [[CpNode,CpNode], [CpNode,CpNode], [CpNode,CpNode]] = [
-        δs[0],
-        δs[idx], 
-        δs[δs.length-1]
-    ];
-
-    const curvePieces_: [CurvePiece[], CurvePiece[], CurvePiece[]] = [
-        curvePiecess[0], 
-        curvePiecess[idx], 
-        curvePiecess[δs.length - 1]
-    ];
-
-    const δ3ss: [
-        [[CpNode, CpNode], [CpNode, CpNode], [CpNode, CpNode]],
-        [[CpNode, CpNode], [CpNode, CpNode], [CpNode, CpNode]],
-        [[CpNode, CpNode], [CpNode, CpNode], [CpNode, CpNode]]
-    ] = [
-        [δs_[0], δs_[1], δs_[2]],
-        [δs_[1], δs_[2], δs_[0]],
-        [δs_[2], δs_[0], δs_[1]],
-    ];
-
-    const curvePiecess_: [
-        [CurvePiece[], CurvePiece[], CurvePiece[]],
-        [CurvePiece[], CurvePiece[], CurvePiece[]],
-        [CurvePiece[], CurvePiece[], CurvePiece[]]
-    ] = [
-        [curvePieces_[0], curvePieces_[1], curvePieces_[2]],
-        [curvePieces_[1], curvePieces_[2], curvePieces_[0]],
-        [curvePieces_[2], curvePieces_[0], curvePieces_[1]],
-    ]
-
-
-    const δ3s = δ3ss[k];
-    const curvePiece3s = curvePiecess_[k];
+    // The three boundary pieces (and their curve pieces) with the first, 
+    // the `idx`th and the last taken, rotated so that the one with index `k`
+    // comes first (the first one is treated specially below).
+    const δs_ = [δs[0], δs[idx], δs[δs.length-1]];
+    const curvePieces_ = [curvePiecess[0], curvePiecess[idx], curvePiecess[δs.length-1]];
+    const r = (i: number) => (k + i) % 3;
+    const δ3s: [[CpNode,CpNode], [CpNode,CpNode], [CpNode,CpNode]] = 
+        [δs_[r(0)], δs_[r(1)], δs_[r(2)]];
+    const curvePiece3s: [CurvePiece[], CurvePiece[], CurvePiece[]] = 
+        [curvePieces_[r(0)], curvePieces_[r(1)], curvePieces_[r(2)]];
 
     if (isSharp(δ3s[0][0])) { return undefined; }
 
@@ -96,19 +75,22 @@ function find3ProngForDelta3s(
     let j = 0;  // Safeguard for slow convergence
     let x = calcInitial3ProngCenter(δ3s, curvePiece3s);
 
+    if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
+
+        // FUTURE - the code can be cleaned up and sped up a lot if we don't
+        // use this function as is but instead use δs[0] and δs[2] as is
+        // and make δs[1] include all the rest of the beziers around the 
+        // loop. This check, for instance, would be eliminated completely.
+        return undefined;
+    }
+
+    // the closest points on the three boundary pieces to the current center
+    poss = getClosestPoints(x, curvePiece3s);
+
     let tolerance = Infinity;
     while (tolerance > TOLERANCE && j < MAX_ITERATIONS) { 
         j++;
-        
-        poss = getClosestPoints(x, curvePiece3s);
-        if (!Number.isFinite(x[0]) || !Number.isFinite(x[1])) {
 
-            // FUTURE - the code can be cleaned up and sped up a lot if we don't
-            // use this function as is but instead use δs[0] and δs[2] as is
-            // and make δs[1] include all the rest of the beziers around the 
-            // loop. This check, for instance, would be eliminated completely.
-            return undefined;
-        }
 
         const circumCenter = getCircumCenter(poss.map(x => x.p));
         const vectorToZeroV = fromTo(x, circumCenter);
@@ -123,6 +105,8 @@ function find3ProngForDelta3s(
         }
         const upds = calcBetterX(curvePiece3s, x, vectorToZeroV);
         x = upds.newX;
+        // `calcBetterX` already found the closest points at the new center -
+        // use them for the next iteration instead of searching again
         poss = upds.newPoss;
 
         const V = len(vectorToZeroV); // The 'potential'
@@ -155,7 +139,7 @@ function find3ProngForDelta3s(
         // Check if point is on dull crorner
         //-----------------------------------
         if (isPosCorner(pos) && getPosCorner$(pos).isDull) {
-            const corner = getCorner(pos.curve.ps, pos.curve.next.ps);
+            const corner = getCorner$(pos.curve.ps, pos.curve.next.ps);
             const tans = corner.tangents;
             const perps = tans.map( rotate90Degrees );
                 
@@ -190,16 +174,15 @@ function find3ProngForDelta3s(
     // point to the 3-prong. It should be around 0. If not, this is not a good 
     // candidate for the 3-prong.
     //-------------------------------------------------------------------------
-    const closestDs = [];
-    for (let i=0; i<curvePiecess.length; i++) {
-        const pos = getCloseBoundaryPointsCertified(
-            curvePiecess[i],
-            x
-        )[0];
-
-        closestDs.push( distanceBetween(pos.p, x) );
-    }
-    const closestD = min(...closestDs);
+    // Only boundary pieces that come within the radius of the center can be
+    // closer than the three touching pieces, so cull against the radius first
+    // (cheap, memoized bounding box tests) and run the (expensive) certified
+    // closest point search once on the survivors only. The touching pieces 
+    // always survive (their distance is about the radius) so the result is
+    // the true closest distance over all the boundary pieces.
+    const nearCurvePieces = cullCurvePieces(allCurvePieces, x, (1 + 2**-20)*radius*radius);
+    const closestPos = getCloseBoundaryPointsCertified(nearCurvePieces, x)[0];
+    const closestD = closestPos === undefined ? radius : distanceBetween(closestPos.p, x);
     const radiusDelta = abs(radius - closestD);
 
     // Weights below still need to be optimized.

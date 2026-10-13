@@ -1,10 +1,9 @@
 import type { Debug }   from '../debug/debug.js';
 import type { Loop } from 'flo-boolean';
-import type { Curve } from 'flo-boolean';
-import type { MatMeta } from '../mat/mat-meta.js';
-import { getBoundingHull, getBoundingBoxTight } from 'flo-bezier3';
-import { getBoundingBox$ } from '../geometry/get-bounding-box-.js';
+import { getBoundingHull } from 'flo-bezier3';
+import { getBoundingBox$, getBoundingBoxTight$ } from '../geometry/get-bounding-box-.js';
 import { getCorner } from '../corner/get-corner.js';
+import { createEmptyElems } from '../debug/debug.js';
 
 
 /** @internal */
@@ -14,52 +13,47 @@ declare const _debug_: Debug;
 let timingStart: number;
 
 
-/** @internal */
-function getPartialMeta(
-        loops: Loop[]): Omit<
-            MatMeta,
-            | 'cpTrees'
-            // | 'pointToCpNode'
-            | 'loops'
-            | 'maxCoordPowerOf2'
-            | 'squaredDiagonalLength'
-            | 'lastInsertId'
-        > {
+/**
+ * @internal
+ * Resets the generated debug `_debug_.elems` (if debug is enabled) so that
+ * they only reflect the current `findMats` call.
+ */
+function resetDebugElems() {
+    if (typeof _debug_ === 'undefined') { return; }
 
-    const looseBoundingBoxes: number[][][] = [];
-    const tightBoundingBoxes: number[][][] = [];
-    const boundingHulls: number[][][] = [];
-    const sharpCorners: Curve[] = [];
-    const dullCorners: Curve[] = [];
+    _debug_.elems = { ..._debug_.elems, ...createEmptyElems() };
+}
+
+
+/**
+ * @internal
+ * Adds (if debug is enabled) the loose and tight bounding boxes, the bounding
+ * hulls and the sharp and dull corners of the given loops' curves to
+ * `_debug_.elems` for later inspection by consumers.
+ */
+function addDebugElems(loops: Loop[]) {
+    if (typeof _debug_ === 'undefined') { return; }
+
+    const { 
+        looseBoundingBoxes, tightBoundingBoxes, boundingHulls,
+        sharpCorners, dullCorners
+    } = _debug_.elems;
 
     for (const loop of loops) {
         for (const curve of loop.curves) {
             const ps = curve.ps;
-            const hull = getBoundingHull(ps, true)!;
 
-            boundingHulls.push(hull);
+            boundingHulls.push(getBoundingHull(ps, true)!);
+            looseBoundingBoxes.push(getBoundingBox$(ps));
+            tightBoundingBoxes.push(getBoundingBoxTight$(ps));
 
-            const looseBoundingBox = getBoundingBox$(ps);
-            looseBoundingBoxes.push(looseBoundingBox);
-
-            const tightBoundingBox = getBoundingBoxTight(ps);
-            tightBoundingBoxes.push(tightBoundingBox);
-
-            const corner = getCorner(curve.ps, curve.next.ps);
+            const corner = getCorner(ps, curve.next.ps);
             if (corner.isQuiteSharp) {
                 sharpCorners.push(curve);
             } else if (corner.isQuiteDull) {
                 dullCorners.push(curve);
             }
         }
-    }
-
-    return {
-        looseBoundingBoxes,
-        tightBoundingBoxes,
-        boundingHulls,
-        sharpCorners,
-        dullCorners
     }
 }
 
@@ -102,7 +96,8 @@ function addDebugInfo4() {
 
 
 export {
-    getPartialMeta,
+    resetDebugElems,
+    addDebugElems,
     addDebugInfo1,
     addDebugInfo2,
     addDebugInfo3,

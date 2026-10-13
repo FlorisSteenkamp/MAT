@@ -13,6 +13,7 @@ import { getBoundaryPieceBeziers } from '../mat/get-boundary-piece-beziers.js';
  * 
  * @internal
  */ 
+
 function find3Prong(
         δs: [CpNode, CpNode][],
         maxCoordPowerOf2: number): ThreeProngInfo {
@@ -22,6 +23,8 @@ function find3Prong(
     // if (δs.length > 3) { console.log(δs.length); }
 
     const curvePiecess = δs.map(getBoundaryPieceBeziers);
+    // all the curve pieces of all the boundary pieces (for culling against)
+    const allCurvePieces = curvePiecess.flat();
 
     // The best candidate amongst the different 'permutations' of the given δs.
     let threeProng: ThreeProngInfo;
@@ -30,7 +33,7 @@ function find3Prong(
     for (let i=1; i<δs.length - 1; i++) {
         for (let k=0; k<3; k++) {
             const r = find3ProngForDelta3s(
-                δs, i, k, curvePiecess, maxCoordPowerOf2
+                δs, i, k, curvePiecess, allCurvePieces, maxCoordPowerOf2
             );
 
             if (r === undefined) { continue; }

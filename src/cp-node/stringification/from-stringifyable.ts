@@ -1,8 +1,8 @@
 import type { PointOnShape } from "../../point-on-shape/point-on-shape.js";
-import type { CpNode } from "../cp-node";
-import type { CpNodeStringifyable } from "./cp-node-stringifyable";
+import type { CpNode } from "../cp-node.js";
+import type { CpNodeStringifyable } from "./cp-node-stringifyable.js";
 import type { Mutable } from "../../utils/mutable.js";
-import { EDGES } from "./cp-node-stringifyable";
+import { EDGES } from "./cp-node-stringifyable.js";
 import { getAllOnCircle } from "../fs/get-all-on-circle.js";
 import { loopFromStringifyable } from './loop-from-stringifyable.js';
 

@@ -58,7 +58,7 @@ function sweepLine<T>(
            if (event.type === EVENT_LEFT) {
                for (const activeItem of activeItems.values()) {
                    if (predicate(item, activeItem)) { 
-                    pairedItems.push([item, activeItem]);
+                        pairedItems.push([item, activeItem]);
                    }
                }
 

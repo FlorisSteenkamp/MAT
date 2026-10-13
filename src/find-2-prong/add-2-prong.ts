@@ -1,6 +1,6 @@
 import type { CpNode } from '../cp-node/cp-node.js';
 import type { Circle } from '../geometry/circle.js';
-import type { PointOnShape, PrePointOnShape } from '../point-on-shape/point-on-shape.js';
+import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { MatMeta } from '../mat/mat-meta.js';
 import type { Mutable } from '../utils/mutable.js';
 import { calcPosOrder } from '../point-on-shape/calc-pos-order.js';
@@ -35,13 +35,6 @@ function add2Prong(
     const orderSource = calcPosOrder(circle.center, pposSource);
     const orderAntipode = calcPosOrder(circle.center, pposAntipode);
 
-    const posAntipode: PointOnShape = {
-        ...pposAntipode, circle, order: orderAntipode, order2: 0
-    };
-    const posSource: PointOnShape = {
-        ...pposSource, circle, order: orderSource, order2: 0
-    }
-
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
     if (!!getCloseByCpIfExist(meta, pposSource, circle, orderSource, 0, 2)) {
@@ -55,7 +48,7 @@ function add2Prong(
         isHoleClosing, isHoleClosing, circle,
         [orderSource, orderAntipode],
         meta,
-        [posSource, posAntipode]
+        [pposSource, pposAntipode]
     );
 
     if (anyFailed) {

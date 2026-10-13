@@ -16,10 +16,6 @@ function getAllOnLoop_ByLoop(
 
     const cpStarts: CpNode[] = [cpNode];
     const cpStartSet = new Set(cpStarts);
-    if (cpNode.isHoleClosing) {
-        cpStartSet.add(cpNode.prevOnCircle.holeCloserTwin!);
-    }
-    cpStartSet.add(cpNode);
 
     while (cpStarts.length > 0) {
         const cpNodes: CpNode[] = [];

@@ -2,7 +2,7 @@ import { distanceBetween } from 'flo-vector2d';
 import { mapDeep } from '../utils/map-deep.js';
 import { removeSatInducedTrivial3Prongs } from './remove-sat-induced-trivial-3prongs.js';
 import { getCpNodessForSat } from './get-cp-nodess-for-sat.js';
-import { getRealProngCount } from '../cp-node/fs/get-real-prong-count.js';
+import { clone } from '../cp-node/fs/clone.js';
 import { getBoundaryTangentLine } from '../point-on-shape/get-boundary-tangent-line.js';
 import { getBeziersFromTangents } from '../utils/get-beziers-from-tangents.js';
 const { max, abs, round, log2 } = Math;
@@ -15,10 +15,17 @@ const { max, abs, round, log2 } = Math;
  * @internal
  */
 function reconstructFromMats(mats, minNumAccurateBits = undefined) {
-    const maxPO2 = max(...mats.map(mat => mat.meta.maxCoordPowerOf2));
+    let maxPO2 = -Infinity;
+    for (const mat of mats) {
+        maxPO2 = max(maxPO2, mat.meta.maxCoordPowerOf2);
+    }
     const recoverBoundary_ = recoverBoundary(maxPO2, minNumAccurateBits);
+    // `removeSatInducedTrivial3Prongs` relinks nodes in place so work on 
+    // clones - the given `Mat`s must not be modified. (Only 
+    // `meta.maxCoordPowerOf2` is used from the metas so they can be shared.)
     // Really only required if getSats was called on the `Mat`s
     const cpNodessPerSat = mats
+        .map(mat => ({ cpNode: clone(mat.cpNode), meta: mat.meta }))
         .map(removeSatInducedTrivial3Prongs)
         .map(getCpNodessForSat);
     const r = mapDeep(3, cpNodessPerSat, recoverBoundary_, true);
@@ -49,8 +56,6 @@ function recoverBoundary(maxPO2, minNumAccurateBits) {
             return undefined;
         }
         const d = distanceBetween(circle.center, p);
-        if (getRealProngCount(cpNode)) {
-        }
         // DON'T remove these - they tell us the accuracy of the algorithm
         // if (!closeTo(2**34)(circle.radius, d) && getRealProngCount(cpNode) === 3) {
         //     ii++;

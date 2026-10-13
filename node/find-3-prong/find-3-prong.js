@@ -14,12 +14,14 @@ function find3Prong(δs, maxCoordPowerOf2) {
     // to reduced the number of permutations required
     // if (δs.length > 3) { console.log(δs.length); }
     const curvePiecess = δs.map(getBoundaryPieceBeziers);
+    // all the curve pieces of all the boundary pieces (for culling against)
+    const allCurvePieces = curvePiecess.flat();
     // The best candidate amongst the different 'permutations' of the given δs.
     let threeProng;
     let smallestError = Infinity;
     for (let i = 1; i < δs.length - 1; i++) {
         for (let k = 0; k < 3; k++) {
-            const r = find3ProngForDelta3s(δs, i, k, curvePiecess, maxCoordPowerOf2);
+            const r = find3ProngForDelta3s(δs, i, k, curvePiecess, allCurvePieces, maxCoordPowerOf2);
             if (r === undefined) {
                 continue;
             }

@@ -2,7 +2,8 @@ import type { CurvePiece  } from '../mat/curve-piece.js';
 import type { FootAndEndpointInfo } from './foot-and-endpoint-info.js';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
-import { cullCurvePieces1 } from './cull-bezier-pieces-1.js';
+import { cullCurvePieces } from './cull-curve-pieces.js';
+import { getBestDistanceSquared } from './get-best-distance-squared.js';
 import { toP } from '../point-on-shape/to-p.js';
 
 
@@ -20,7 +21,9 @@ function getCloseBoundaryPointsCertified(
         curvePieces: CurvePiece[], 
         x: number[]): PrePointOnShape[] {
     
-    curvePieces = cullCurvePieces1(curvePieces, x);
+    // cull the pieces that cannot contain the closest point (the best
+    // squared distance already includes a floating point tolerance)
+    curvePieces = cullCurvePieces(curvePieces, x, getBestDistanceSquared(curvePieces, x));
  
     const pInfos: FootAndEndpointInfo[] = [];
     for (let i=0; i<curvePieces.length; i++) {

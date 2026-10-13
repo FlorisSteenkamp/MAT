@@ -1,6 +1,5 @@
 import { CpNode } from '../cp-node.js';
 import { getRealProngCount } from './get-real-prong-count.js';
-import { isFullyTerminating } from './is-fully-terminating.js';
 import { isTerminating } from './is-terminating.js';
 import { isTrivial } from './is-trivial.js';
 
@@ -34,7 +33,7 @@ function getBranch(
     do {
         branch.push(cpNode);
         cpNode = cpNode.next;
-    } while (!isFullyTerminating(cpNode) && getRealProngCount(cpNode) === 2)
+    } while (getRealProngCount(cpNode) === 2)
 
     return branch;
 }

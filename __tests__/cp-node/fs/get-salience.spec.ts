@@ -34,10 +34,23 @@ test('getSalience', function() {
 
     // the boundary is never shorter than the chord
     for (const cp of getAllOnLoop(cpNode)) {
-        if (getRealProngCount(cp) < 2) { continue; }  // 1-prongs: chord is 0
+        if (getRealProngCount(cp) < 2) { continue; }  // 1-prongs: see below
         const s = getSalience(cp);
         expect(Number.isFinite(s)).toBe(true);
         expect(s).toBeGreaterThanOrEqual(1);
+    }
+
+    // 1-prongs (two nodes at the same point): the terminating node has no
+    // boundary between itself and its twin - salience 0 - while the twin has
+    // the entire boundary - salience Infinity. Ids 0 and 1 at the corner
+    // [24,8] are such a pair.
+    expect(getSalience(byId(0))).toBe(0);
+    expect(getSalience(byId(1))).toBe(Infinity);
+    for (const cp of getAllOnLoop(cpNode)) {
+        if (getRealProngCount(cp) >= 2) { continue; }
+        const s = getSalience(cp);
+        expect(Number.isNaN(s)).toBe(false);
+        expect(s === 0 || s === Infinity).toBe(true);
     }
 });
 

@@ -1,7 +1,6 @@
-import { memoize } from 'flo-memoize';
 import { getLoopBounds$ } from './get-loop-bounds.js';
 /** @internal */
-const getShapeBounds = memoize(function (loops) {
+function getShapeBounds(loops) {
     let minX_ = +Infinity;
     let maxX_ = -Infinity;
     let minY_ = +Infinity;
@@ -35,6 +34,6 @@ const getShapeBounds = memoize(function (loops) {
         maxX: maxX,
         maxY: maxY
     };
-});
+}
 export { getShapeBounds };
 //# sourceMappingURL=get-shape-bounds.js.map

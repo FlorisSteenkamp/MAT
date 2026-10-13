@@ -1,5 +1,6 @@
 import { getPotentialClosestPointsOnCurveCertified } from './get-potential-closest-points-on-curve-certified.js';
-import { cullCurvePieces1 } from './cull-bezier-pieces-1.js';
+import { cullCurvePieces } from './cull-curve-pieces.js';
+import { getBestDistanceSquared } from './get-best-distance-squared.js';
 import { toP } from '../point-on-shape/to-p.js';
 /**
  * Returns the closest boundary point to the given point, limited to the given
@@ -12,7 +13,9 @@ import { toP } from '../point-on-shape/to-p.js';
  * @internal
  */
 function getCloseBoundaryPointsCertified(curvePieces, x) {
-    curvePieces = cullCurvePieces1(curvePieces, x);
+    // cull the pieces that cannot contain the closest point (the best
+    // squared distance already includes a floating point tolerance)
+    curvePieces = cullCurvePieces(curvePieces, x, getBestDistanceSquared(curvePieces, x));
     const pInfos = [];
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];

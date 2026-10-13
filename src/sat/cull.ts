@@ -1,9 +1,8 @@
 import type { CpNode } from '../cp-node/cp-node.js';
-import type { DualSet } from '../utils/dual-set.js';
+import type { Circle } from '../geometry/circle.js';
 import type { Mutable } from '../utils/mutable.js';
 import { getLeaves } from './get-leaves.js';
 import { isTerminating } from '../cp-node/fs/is-terminating.js';
-import { DualSetFs } from '../utils/dual-set.js';
 import { isOnSameCircle } from '../cp-node/fs/is-on-same-circle.js';
 
 
@@ -32,17 +31,18 @@ function getNonTrivialForwardEdges(cpStart: CpNode) {
 
 
 /**
- * Returns the set of Vertices passing the following test: walk the MAT tree and 
- * keep all Vertices not in the current cull set and any Vertices that have a 
- * non-culled node further down the line toward the tree leaves.
- * 
- * @param culls the `CpNode`s (referred to by circles) that should be culled
+ * Culls (in place) the vertices of the given MAT tree: walking the tree from
+ * the maximal vertex, all vertices in the cull set are removed except those
+ * that have a non-culled vertex further down the line toward the tree leaves
+ * (which are kept to preserve the topology).
+ *
+ * @param culls the vertices (identified by their `Circle`) that should be culled
  * @param maxCpNode the start `CpNode` which must represent the maximal vertex
  * 
  * @internal
  */
 function cull(
-        culls: DualSet<number, number>,
+        culls: Set<Circle>,
         maxCpNode: CpNode) {
 
     const leaves = getLeaves(maxCpNode);
@@ -50,8 +50,7 @@ function cull(
     while (leaves.length) {
         const leaf = leaves.pop()!;
 
-        const { center: c } = leaf.pointOnShape.circle;
-        if (!DualSetFs.has(culls, c[0], c[1]) ||
+        if (!culls.has(leaf.pointOnShape.circle) ||
             // Preserve topology.
             leaf.isIntersection) {
 
@@ -63,8 +62,7 @@ function cull(
         while (!cut) {
             cpNode = cpNode.next;
 
-            const { center: c } = cpNode.pointOnShape.circle;
-            if (!DualSetFs.has(culls, c[0], c[1])) {
+            if (!culls.has(cpNode.pointOnShape.circle)) {
                 // Cut off the edge once a non-cull has been reached.
                 while (isTerminating(cpNode.prevOnCircle)) {
                     cpNode = cpNode.prevOnCircle;
@@ -83,14 +81,12 @@ function cull(
             }
         }
 
-        if (cut) {
-            const cp1 = cpNode.prevOnCircle as Mutable<CpNode>;
-            cp1.next = cpNode;
-            (cpNode as Mutable<CpNode>).prev = cp1;
-
-            cp1.nextOnCircle = cpNode;
-            (cpNode as Mutable<CpNode>).prevOnCircle = cp1;
-        }
+        // Cut the edge: link the node we stopped at directly to the one before
+        // it on its circle (`cut` is necessarily `true` here; the on-circle
+        // links are already consistent by the ring invariant)
+        const cp1 = cpNode.prevOnCircle as Mutable<CpNode>;
+        cp1.next = cpNode;
+        (cpNode as Mutable<CpNode>).prev = cp1;
     }
 }
 

@@ -1,7 +1,7 @@
 import { find2Prong } from './find-2-prong.js';
 import { add2Prong } from './add-2-prong.js';
 import { rotateNeg90Degrees } from 'flo-vector2d';
-import { getCorner } from '../corner/get-corner.js';
+import { getCorner$ } from '../corner/get-corner.js';
 const { PI, atan2 } = Math;
 // const ANGLE = 15*PI/180;  // 15 degrees - don't make smaller than 2 degrees
 /**
@@ -40,7 +40,7 @@ function getValidAngles(angleIncrement_, ppos) {
     const angles = [0];
     if (ppos.t === 1) {
         const { curve } = ppos;
-        const corner = getCorner(curve.ps, curve.next.ps);
+        const corner = getCorner$(curve.ps, curve.next.ps);
         if (corner.isQuiteDull) {
             const tangentI = rotateNeg90Degrees(corner.tangents[0]);
             const tangentO = rotateNeg90Degrees(corner.tangents[1]);

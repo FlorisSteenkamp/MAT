@@ -21,6 +21,8 @@ function findAndAdd3Prongs(meta, cpStart) {
         return { closeBysFor3Prong: undefined, addedCpNodes: [] };
     }
     const addedCpNodes = [];
+    let maxIterations = undefined;
+    let iterations = 0;
     do {
         if (cpStart === undefined) {
             continue;
@@ -28,6 +30,20 @@ function findAndAdd3Prongs(meta, cpStart) {
         const visitedCps = traverseCp(cpStart);
         if (visitedCps.length <= 2) {
             break;
+        }
+        // Each added 3-prong splits off a part of the traversed face so the
+        // number of iterations is bounded by the initial face size. If the
+        // face does not shrink (e.g. a geometrically invalid vertex causing the
+        // same 3-prong to be re-inserted again and again) fail loudly instead
+        // of looping forever.
+        if (maxIterations === undefined) {
+            maxIterations = 2 * visitedCps.length + 16;
+        }
+        if (++iterations > maxIterations) {
+            const pos = cpStart.pointOnShape;
+            throw new Error(`findAndAdd3Prongs: no convergence after ${iterations} iterations ` +
+                `(face with ${visitedCps.length} vertices, start CpNode id ${cpStart.id} ` +
+                `on curve ${pos.curve.idx} at t = ${pos.t}, radius ${pos.circle.radius})`);
         }
         const { closeBysFor3Prong, cpNodes } = findAndAdd3Prong(meta, visitedCps);
         addedCpNodes.push(cpNodes);

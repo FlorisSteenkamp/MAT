@@ -1,4 +1,4 @@
-import { EDGES } from "./cp-node-stringifyable";
+import { EDGES } from "./cp-node-stringifyable.js";
 import { getAllOnCircle } from "../fs/get-all-on-circle.js";
 import { loopFromStringifyable } from './loop-from-stringifyable.js';
 function fromStringifyable(cpNodesStringifyable) {

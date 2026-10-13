@@ -1,8 +1,7 @@
 import { roots } from 'flo-poly';
-import { evalDeCasteljauDd, getFootPointsOnBezierPolysCertified, getIntervalBox } from 'flo-bezier3';
+import { getFootPointsOnBezierPolysCertified, getIntervalBox } from 'flo-bezier3';
 import { rootIntervalToDistanceSquaredInterval } from './root-interval-to-distance-squared-interval.js';
-import { squaredDistanceBetweenDd } from "../find-2-prong/squared-distance-between-dd.js";
-import { eps } from '../error-analysis/gamma.js';
+import { getEndpointInfoCertified } from './get-endpoint-info.js';
 /**
  * @internal
  *
@@ -31,22 +30,9 @@ function getPotentialClosestPointsOnCurveCertified(curve, x, tRange) {
             };
         }));
     }
-    const ts = tRange.slice();
-    if (tS === tE) {
-        ts.push(tS);
-    }
-    infos.push(...ts.map(t => {
-        const p = evalDeCasteljauDd(ps, [0, t]).map(v => v[0] + v[1]);
-        const d = squaredDistanceBetweenDd(p, x);
-        const dSquaredI = [d * (1 - eps), d * (1 + eps)];
-        const t_ = t === 0 ? 1 : t;
-        const curve_ = t === 0 ? curve.prev : curve;
-        return {
-            curve: curve_,
-            t: t_,
-            dSquaredI
-        };
-    }));
+    // the endpoints of the range (just the one if the range is a single point)
+    const ts = tS === tE ? [tS] : [tS, tE];
+    infos.push(...ts.map(t => getEndpointInfoCertified(curve, x, t)));
     return infos;
 }
 export { getPotentialClosestPointsOnCurveCertified };

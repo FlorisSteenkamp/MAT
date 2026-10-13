@@ -8,7 +8,7 @@ export type { PointOnShape } from './point-on-shape/point-on-shape.js';
 export type { Circle } from './geometry/circle.js';
 export type { CurvePiece } from './mat/curve-piece.js';
 export type { Timing } from './debug/debug.js';
-export type { Debug } from './debug/debug.js';
+export type { Debug, Elems } from './debug/debug.js';
 export type { MatOptions } from './find-mat/mat-options.js';
 
 export { floydWarshall } from './floyd-warshall/floyd-warshall.js';
@@ -35,7 +35,8 @@ export { getSharpCornersOnLoop } from './find-mat/get-sharp-corners.js';
 export { getFor2ProngsOnLoop } from './find-mat/get-for-2-prongs-on-loop.js';
 export { getPotentialClosestPointsOnCurveCertified } from './closest-boundary-point/get-potential-closest-points-on-curve-certified.js';
 export { getCloseBoundaryPointsCertified } from './closest-boundary-point/get-close-boundary-points-certified.js';
-export { getPartialMeta } from './find-mat/get-meta.js';
+export { cloneMat } from './mat/clone-mat.js';
+export { cloneMeta } from './mat/clone-meta.js';
 export { findAndAddHoleClosing2Prongs } from './find-2-prong/find-and-add-hole-closing-2-prongs.js';
 export { reconstructFromMats } from './reconstruct-from-mat/reconstruct-from-mat.js';
 export { getOsculatingCircle } from './point-on-shape/get-osculating-circle.js';

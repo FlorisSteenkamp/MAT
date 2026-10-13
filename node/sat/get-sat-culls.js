@@ -1,32 +1,34 @@
-import { length } from "flo-bezier3";
-import { getAllOnCircle } from "../cp-node/fs/get-all-on-circle.js";
-import { getMatCurveToNext } from "../cp-node/fs/get-mat-curve-to-next.js";
+import { getMatDistanceToNext } from "../cp-node/fs/get-distance-to-next.js";
 import { traverseEdges } from "../cp-node/fs/traverse-edges.js";
-import { DualSetFs } from "../utils/dual-set.js";
+/**
+ * Returns the set of MAT vertices (identified by their `Circle` - all `CpNode`s
+ * on a vertex share the same `Circle` object) that are to be culled by the
+ * Scale Axis Transform with the given scale factor.
+ *
+ * @param cpNode the `CpNode` representing the maximal vertex
+ * @param s the scale factor
+ *
+ * @internal
+ */
 function getSatCulls(cpNode, s) {
     /**
      * All vertices that are set to be culled initially. This may change later
      * in order to preserve topology.
      */
-    const culls = new Map();
+    const culls = new Set();
+    /** The osculating radius stored with each vertex. */
     const rMap = new Map();
     traverseEdges(cpNode, function (cpNode) {
-        /** The occulating radius stored with this vertex. */
-        const R = rMap.get(cpNode) || (s * cpNode.pointOnShape.circle.radius);
+        const circle = cpNode.pointOnShape.circle;
+        const R = rMap.get(circle) ?? s * circle.radius;
         const cpNode_ = cpNode.next;
-        let l = 0;
-        for (const ps of getMatCurveToNext(cpNode)) {
-            l += length([0, 1], ps);
-        }
-        const r = cpNode_.pointOnShape.circle.radius;
-        const r_ = s * r;
+        const circle_ = cpNode_.pointOnShape.circle;
+        const l = getMatDistanceToNext(cpNode);
+        const r_ = s * circle_.radius;
         if (R - l > r_) {
-            for (const cpNode of getAllOnCircle(cpNode_)) {
-                rMap.set(cpNode, R - l); // Update osculating radii
-                if (!cpNode_.isHoleClosing) {
-                    const { center: c } = cpNode_.pointOnShape.circle;
-                    DualSetFs.add(culls, c[0], c[1]);
-                }
+            rMap.set(circle_, R - l); // Update osculating radius
+            if (!cpNode_.isHoleClosing) {
+                culls.add(circle_);
             }
         }
     });

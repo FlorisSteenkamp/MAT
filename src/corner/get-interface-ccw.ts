@@ -1,4 +1,4 @@
-import { eAdd, eCompress, eEstimate, eMult, eNegativeOf, eProduct, orient2d, twoDiff } from 'big-float-ts';
+import { eAdd, eEstimate, eMult, eNegativeOf, twoDiff } from 'big-float-ts';
 import { compareCurvaturesAtInterface } from "./compare-curvatures-at-interface.js";
 
 
@@ -137,4 +137,4 @@ function crossPrecise(
 }
 
 
-export { getInterfaceCcw }
+export { getInterfaceCcw }

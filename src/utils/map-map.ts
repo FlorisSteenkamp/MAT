@@ -19,7 +19,7 @@ function mapmap<T,U>(
         for (let j=0; j<ts.length; j++) {
             const v = f(ts[j]);
             if (filter(v)) {
-                ts_.push(f(ts[j]));
+                ts_.push(v);
             }
         }
         tss_.push(ts_);

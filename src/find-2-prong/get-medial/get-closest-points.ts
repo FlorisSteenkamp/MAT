@@ -4,21 +4,20 @@ import type { PrePointOnShape } from "../../point-on-shape/point-on-shape.js";
 import type { AntipodalPoint } from './antipodal-point.js';
 import { ddMultDouble1 } from 'double-double';
 import { lengthSquared } from "flo-vector2d";
-import { roots, Horner, ddHorner } from 'flo-poly';
-import { evalDeCasteljau, getMedialPointCoeffs, getMedialPointCoeffsBez0 } from 'flo-bezier3';
+import { roots, ddHorner } from 'flo-poly';
+import { evalDeCasteljau } from 'flo-bezier3';
 import { ddGetMedialPointCoeffs } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs.js';
 import { ddGetMedialPointCoeffsBez2_SameCurve } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs-bez2-same-curve.js';
 import { ddGetMedialPointCoeffsBez3_SameCurve } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs-bez3-same-curve.js';
 import { ddGetMedialPointCoeffsBez0 } from '../../get-medial-points/double-double/dd-get-medial-point-coeffs-bez0.js';
 
-const { sqrt, abs, max } = Math;
+const { sqrt, abs } = Math;
 
 const qmd = ddMultDouble1;
 
 
 /**
  * @param maxCoordPowerOf2
- * @param nnorm
  * @param yPos The point on the shape
  * @param for1Prong defaults to `false`;
  * @param angle defaults to `0`;
@@ -28,7 +27,6 @@ const qmd = ddMultDouble1;
  */
 function getClosestPoint(
         maxCoordPowerOf2: number,
-        nnorm: number[], 
         nnormDd: number[][],
         yPos: PrePointOnShape,
         for1Prong: boolean,
@@ -90,8 +88,7 @@ function getClosestPoint(
             const _AS = abs(AS);
             // const _CS = abs(CS);
 
-            // if (max(_AS, _CS) < 2**-40) { continue; }
-            if (max(_AS) < 2**-40) { continue; }
+            if (_AS < 2**-40) { continue; }
 
             // const w = _AS > _CS
             //     ? -BS / AS
@@ -144,7 +141,7 @@ function getClosestPoint(
     //------------------------------------------
     const pLast = ps[ps.length - 1];
 
-    let dontPush1 = (
+    const dontPush1 = (
         (t === 0 && curve === touchedCurve!.prev) ||
         (t === 1 && curve === touchedCurve)
     );
@@ -177,7 +174,7 @@ function getClosestPoint(
             // which cannot be culled if this curve`s `t === 0` is included
         } else if (tE === 1) {
             if (!dontPush1 && !endPushed) {
-                PS.push({ P: pLast, t: 1 }); dontPush1 = true;
+                PS.push({ P: pLast, t: 1 });
             }
         } else {
             if (!endPushed) {
@@ -228,45 +225,3 @@ function getClosestPoint(
 
 
 export { getClosestPoint }
-
-
-
-/**
- * Recovers a numerically stable ray parameter `t` from linear equations
- * `A*t + B = 0` and (optionally) `C*t + D = 0` evaluated at a fixed `s`.
- *
- * If `C,D` are unavailable, this falls back to `-B/A`.
- */
-// function chooseStableT(
-//         A: number,
-//         B: number,
-//         C: number,
-//         D: number) {
-
-//     const epsScale = max(1, abs(A), abs(B), abs(C), abs(D));
-//     const eps = Number.EPSILON * epsScale;
-
-//     const denomAB = abs(A);
-//     const hasAB = denomAB > eps;
-//     const denomCD = abs(C);
-//     const hasCD = denomCD > eps;
-
-//     if (!hasAB && !hasCD) {
-//         return undefined;
-//     }
-//     if (hasAB && !hasCD) {
-//         return -B / A;
-//     }
-//     if (!hasAB && hasCD) {
-//         return -D / C;
-//     }
-
-//     const tAB = -B / A;
-//     const tCD = -D / C;
-
-//     // Score each candidate by how well it satisfies the *other* equation.
-//     const scoreAB = abs(C*tAB + D) / (abs(C) + abs(D) + eps);
-//     const scoreCD = abs(A*tCD + B) / (abs(A) + abs(B) + eps);
-
-//     return scoreAB <= scoreCD ? tAB : tCD;
-// }

@@ -2,7 +2,7 @@ import type { CurvePiece } from '../mat/curve-piece.js';
 import { getMedialPointCoeffsBez0 } from "flo-bezier3";
 import { lengthSquared, squaredDistanceBetween } from "flo-vector2d";
 
-const { abs } = Math;
+const { abs, sqrt } = Math;
 
 
 const TOLERANCE = 1 + 2**-20;
@@ -16,14 +16,16 @@ const TOLERANCE = 1 + 2**-20;
  * @internal
  */
 function reduceRadius(
-        maxCoordPowerOf2: number,
         rO: number,
-        curvePieces: CurvePiece[], 
+        curvePieces: CurvePiece[],
         y: number[],
         nnorm: number[]): number {
 
     let minRadiusSqrd = rO**2;
-    let x = [y[0] + nnorm[0], y[1] + nnorm[1]];
+    // the center of the initial circle (radius `rO`) - `nnorm` is not
+    // necessarily of unit length so scale it
+    const s = rO / sqrt(lengthSquared(nnorm));
+    let x = [y[0] + s*nnorm[0], y[1] + s*nnorm[1]];
 
     for (let i=0; i<curvePieces.length; i++) {
         const curvePiece = curvePieces[i];

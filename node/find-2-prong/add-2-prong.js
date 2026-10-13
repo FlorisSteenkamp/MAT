@@ -20,12 +20,6 @@ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
         : pposSource;
     const orderSource = calcPosOrder(circle.center, pposSource);
     const orderAntipode = calcPosOrder(circle.center, pposAntipode);
-    const posAntipode = {
-        ...pposAntipode, circle, order: orderAntipode, order2: 0
-    };
-    const posSource = {
-        ...pposSource, circle, order: orderSource, order2: 0
-    };
     // Make sure there isn't already a ContactPoint close by - it can cause
     // floating point stability issues.
     if (!!getCloseByCpIfExist(meta, pposSource, circle, orderSource, 0, 2)) {
@@ -34,7 +28,7 @@ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
     if (!!getCloseByCpIfExist(meta, pposAntipode, circle, orderAntipode, 0, 2)) {
         return undefined;
     }
-    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, [orderSource, orderAntipode], meta, [posSource, posAntipode]);
+    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, [orderSource, orderAntipode], meta, [pposSource, pposAntipode]);
     if (anyFailed) {
         cpNodes.forEach(cpNode => {
             if (cpNode !== undefined) {

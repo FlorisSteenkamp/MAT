@@ -1,5 +1,22 @@
 import { getCurvatureExtremaDd, controlPointLinesLength } from 'flo-bezier3';
+import { distanceBetween } from 'flo-vector2d';
 import { toP } from '../point-on-shape/to-p.js';
+/**
+ * @internal
+ * Curvature maxima closer than this (in parameter space) to a curve endpoint
+ * are ignored - they are handled by the corner logic.
+ */
+const EDGE_T_TOLERANCE = 2 ** -20;
+/**
+ * @internal
+ * Curvature maxima closer than this fraction of the curve's control polygon
+ * length to a curve endpoint are ignored. A curve with (near) coincident
+ * control points at an end has (near) zero speed there and its curvature
+ * blows up towards that end; the resulting "maximum" (that can be well
+ * inside the parameter tolerance above) is an artifact and not a feature of
+ * the shape.
+ */
+const EDGE_DISTANCE_TOLERANCE = 2 ** -20;
 /**
  * Get points of maximum curvature.
  *
@@ -12,19 +29,30 @@ function getFor1ProngsOnLoop(minBezLength) {
         const poss = [];
         for (let i = 0; i < loop.curves.length; i++) {
             const curve = loop.curves[i];
-            if (controlPointLinesLength(curve.ps) < minBezLength) {
+            const { ps } = curve;
+            const len = controlPointLinesLength(ps);
+            if (len < minBezLength) {
                 continue;
             }
-            const { ps } = curve;
-            poss.push(...getCurvatureExtremaDd(ps).maxima.map(t => {
+            const pS = ps[0];
+            const pE = ps[ps.length - 1];
+            const edgeDistanceTolerance = len * EDGE_DISTANCE_TOLERANCE;
+            for (const t of getCurvatureExtremaDd(ps).maxima) {
+                // keep away from edges (in parameter space)
+                if (t < EDGE_T_TOLERANCE || t > 1 - EDGE_T_TOLERANCE) {
+                    continue;
+                }
                 const pDd = toP(ps, t);
                 const p = pDd.map(c => c[0] + c[1]);
-                return { curve, t, isSource: true, p, pDd };
-            }));
+                // keep away from edges (in distance)
+                if (distanceBetween(p, pS) < edgeDistanceTolerance ||
+                    distanceBetween(p, pE) < edgeDistanceTolerance) {
+                    continue;
+                }
+                poss.push({ curve, t, isSource: true, p, pDd });
+            }
         }
-        return poss
-            // keep away from edges
-            .filter(pos => pos.t > 2 ** -20 && pos.t < 2 ** -20);
+        return poss;
     };
 }
 export { getFor1ProngsOnLoop };

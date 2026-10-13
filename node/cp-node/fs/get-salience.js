@@ -3,7 +3,17 @@ import { totalLength } from "flo-bezier3";
 import { getBoundaryBeziersBetween } from "./get-boundary-beziers-between.js";
 import { sum } from '../../utils/sum.js';
 /**
+ * Returns the salience of the given `CpNode`: the ratio of the boundary length
+ * from its contact point forward to the next contact point on its circle to
+ * the straight distance between those two points.
+ *
+ * * `Infinity` if that stretch of boundary passes a hole closer
+ * * `0` if the two contact points coincide with no boundary in between (the
+ *   terminating `CpNode` of a 1-prong) - the other `CpNode` of a 1-prong,
+ *   whose stretch is the entire boundary, gives `Infinity`
+ *
  * See https://research.gold.ac.uk/id/eprint/31944/
+ *
  * @param cpNode
  */
 function getSalience(cpNode) {
@@ -14,7 +24,13 @@ function getSalience(cpNode) {
     const d = distanceBetween(bp1, bp2);
     const { pss, hasHoleCloser } = getBoundaryBeziersBetween(cpNode1, cpNode2);
     const s = sum(pss.map(ps => totalLength(ps)));
-    return hasHoleCloser ? Infinity : s / d;
+    if (hasHoleCloser) {
+        return Infinity;
+    }
+    if (s === 0) {
+        return 0;
+    } // (avoids `0/0` for the 1-prong case)
+    return s / d;
 }
 export { getSalience };
 //# sourceMappingURL=get-salience.js.map

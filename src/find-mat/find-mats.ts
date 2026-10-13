@@ -1,10 +1,11 @@
-import { beziersToSvgPathStr, simplifyPaths } from 'flo-boolean';
+import { simplifyPaths } from 'flo-boolean';
 import { getLoopsMetrics } from '../loop/get-max-coordinate.js';
 import { Mat } from '../mat/mat.js';
 import { simplifyMat } from '../mat/simplify-mat.js';
 import { toScaleAxis } from '../sat/to-scale-axis.js';
 import { clipOptions } from './clip-options.js';
 import { findMat  } from './find-mat.js';
+import { resetDebugElems } from './get-meta.js';
 import { defaultMatOptions, MatOptions } from './mat-options.js';
 
 
@@ -21,25 +22,20 @@ const { ceil, log2 } = Math;
  * points with 2,3 or 4 elements corresponding to linear, quadratic and cubic 
  * beziers respectively. Each point is a two-element array (ordered pair), the
  * first of which is the x-coordinate and the second the y-coordinate.
- * 
- * @param maxCurviness The maximum value the 'curviness' of a curve can have 
- * before an additional MAT point is inserted in between. Defaults to 0.4. 
- * (Curviness is measured as the total angle in radians between the consecutive 
- * vectors formed by the ordered control points of th bezier curve). The value
- * is clipped in the range `[0.01,3]`.
- * 
- * @param maxLength The maximum length a curve can have before an additional MAT 
- * point is inserted. This value is scaled to a reference 1024 x 1024 
- * grid (e.g. if the shape fits in a 512 x 512 axis-aligned box the value will be 
- * halved, e.g. from 10 to 5). Together with maxCurviness it represents a 
- * tolerance for the accuracy of the MAT. Defaults to 4. The value is clipped 
- * in [1,100].
+ *
+ * @param options the `MatOptions` (see there for a description of each option
+ * and its default), e.g. `maxCurviness` and `maxLength` together determine the
+ * accuracy of the MAT, `simplify` and `simplifyTolerance` control the
+ * simplification of the result and `applySat` and `satScale` whether and how
+ * the Scale Axis Transform is applied. Missing options take their defaults
+ * (`defaultMatOptions`) and all values are clipped to their allowed ranges.
  */
 function findMats(
         bezierLoops: number[][][][],
         options?: MatOptions): Mat[] {
 
     // if (typeof _debug_ !== 'undefined') { var timingStart = performance.now(); }
+    resetDebugElems();
     const { maxCoordinate } = getLoopsMetrics(bezierLoops);
     const maxCoordPowerOf2 = ceil(log2(maxCoordinate));
 
@@ -59,7 +55,6 @@ function findMats(
         forceOrientationNegative: true,
     });
 
-    // console.log(loopsToSvgPathStr(bezierLoops));
 
     const mats: Mat[] = [];
     for (const loops of loopss) {
@@ -71,7 +66,7 @@ function findMats(
         }
 
         if (simplify) {
-            mat = simplifyMat(mat, simplifyTolerance, 50)
+            mat = simplifyMat(mat, simplifyTolerance)
         }
 
         mats.push(mat);
@@ -83,23 +78,6 @@ function findMats(
     return mats;
 }
 
-
-
-/**
- * Returns an SVG path string representation of the given bezier loops.
- * @param loops An array of loops having an array of bezier curves each given as 
- * an array of control points.
- */
-function loopsToSvgPathStr(
-        loops: number[][][][]) {
-
-    let str = '';
-    for (const loop of loops) {
-        str = str + beziersToSvgPathStr(loop) + '\n';
-    }
-
-    return str;
-}
 
 
 export { findMats }
