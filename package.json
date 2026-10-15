@@ -34,7 +34,7 @@
         "big-float-ts": "^4.0.5",
         "double-double": "^4.0.0",
         "flo-bezier3": "^10.0.0",
-        "flo-boolean": "^6.0.3",
+        "flo-boolean": "^6.0.4",
         "flo-gauss-quadrature": "^2.1.4",
         "flo-ll-rb-tree": "^1.0.4",
         "flo-memoize": "^2.0.1",
