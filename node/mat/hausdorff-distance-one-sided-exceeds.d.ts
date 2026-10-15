@@ -33,47 +33,28 @@ declare function closestPointOnCurves(p: number[], curves: number[][][]): Foot;
 declare function distanceToCurves(p: number[], curves: number[][][]): number;
 /**
  * Returns `true` if the one-sided Hausdorff distance from the bezier curve `A`
- * to the piecewise bezier curve `B` exceeds `tolerance` and `false` otherwise.
+ * to the piecewise bezier curve `B` (possibly) exceeds `tolerance` and `false`
+ * if it is certainly within `tolerance`.
  *
- * * this is a *decision procedure* and is thus much cheaper than computing the
- * distance (e.g. via `hausdorffDistanceOneSided` from `flo-bezier3`) and then
- * comparing it: it stops as soon as either a point on `A` further than
- * `tolerance` from `B` is found (a certified *lower* bound exceeding the
- * tolerance) or every piece of `A` is certified to be within `tolerance`
- * (a certified *upper* bound)
- * * `A` is bisected into parameter intervals; the upper bound on an interval
- * `[tS,tE]` is the smaller of
- *     * `(hS + hE + L)/2` where `hS`, `hE` are (upper bounds on) the
- *       distances from its endpoints to `B` and `L` is the control polygon
- *       length of `A` restricted to the interval (an upper bound on its arc
- *       length): any point on the interval is within `L` of both endpoints so
- *       its distance to `B` is at most `min(hS + l, hE + (L - l))` with `l`
- *       the arc length from the start, maximized at `(hS + hE + L)/2`
- *     * the maximum distance from the foot (on `B`) of either endpoint to the
- *       control points of `A` restricted to the interval (the sub-curve lies
- *       within the convex hull of its control points, within which the
- *       distance to a fixed point is maximized at a vertex)
- * * the distances from sample points on `A` to `B` are found cheaply by
- * Newton iteration from the feet of the neighboring samples - these are upper
- * bounds (any point on `B` gives one) which suffice for certifying the
- * acceptance of an interval; only when such a bound exceeds the tolerance is
- * the certified (and expensive) closest point computed to decide whether the
- * tolerance is really exceeded
+ * * a decision procedure by `hausdorffDistanceOneSidedBounds` of `flo-bezier3`
+ * with the stopping thresholds `tolerance - margin` (lower) and `tolerance`
+ * (upper) - it stops as soon as either certified bound settles the question
+ * * it is conservative: `false` is certain (up to floating point roundoff)
+ * while `true` may also be returned if the distance lies within `margin`
+ * *below* `tolerance`
+ * * since `margin > 0` it is guaranteed to stop (the bounds converge so one
+ * of the thresholds is reached once they are within `margin` of each other)
+ * so no iteration limit is needed
  * * `B` need not be smooth, nor need its pieces be connected
- * * the result is approximate only to the extent that the floating point
- * evaluations are, i.e. a decision is only taken once it is certain up to
- * roundoff
  *
  * @param A the 'from' bezier curve given by its control points
  * @param B the 'to' piecewise bezier curve given as an array of bezier curves
  * @param tolerance the distance to compare against
- * @param maxIterations the maximum number of interval bisections (each
- * costing one cheap closest point calculation) before giving up, in which
- * case `true` is returned (the conservative answer for simplification
- * purposes); defaults to `1000` (curves only just within tolerance may
- * need many bisections, especially where they run nearly parallel to `B`)
+ * @param margin the width (`> 0`) of the band below `tolerance` within which
+ * the answer may conservatively be `true`; smaller values trade time for
+ * accepting curves that are only just within tolerance
  *
  * @internal
  */
-declare function hausdorffDistanceOneSidedExceeds(A: number[][], B: number[][][], tolerance: number, maxIterations?: number): boolean;
+declare function hausdorffDistanceOneSidedExceeds(A: number[][], B: number[][][], tolerance: number, margin: number): boolean;
 export { hausdorffDistanceOneSidedExceeds, distanceToCurves, closestPointOnCurves };

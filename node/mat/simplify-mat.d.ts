@@ -23,11 +23,12 @@ import type { Mat } from './mat.js';
  * @param hausdorffTolerance the maximum one-sided Hausdorff distance (in
  * coordinate units) from the original to the simplified MAT - defaults to
  * `2**-3`
- * @param maxIterations the max bisections of each Hausdorff distance check
- * (see `hausdorffDistanceOneSidedExceeds`) after which the check conservatively
- * fails (so that the span is split rather than accepted) - defaults to `1000`;
- * lower values trade simplification quality for a bound on the time spent on
- * curves that are only just within tolerance
+ * @param hausdorffMargin the width (`> 0`, in coordinate units) of the band
+ * just below `hausdorffTolerance` within which a Hausdorff distance check may
+ * conservatively fail (so that the span is split rather than accepted) - see
+ * `hausdorffDistanceOneSidedExceeds`; defaults to `hausdorffTolerance/1024`;
+ * larger values trade simplification quality for less time spent on curves
+ * that are only just within tolerance
  */
-declare function simplifyMat(mat: Mat, hausdorffTolerance?: number, maxIterations?: number): Mat;
+declare function simplifyMat(mat: Mat, hausdorffTolerance?: number, hausdorffMargin?: number): Mat;
 export { simplifyMat };

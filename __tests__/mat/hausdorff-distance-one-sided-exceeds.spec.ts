@@ -58,14 +58,14 @@ describe('hausdorffDistanceOneSidedExceeds', function() {
                 const hd = hausdorffDistanceOneSided(A, B, 2**-30, 10_000);
                 expect(hd).toBeGreaterThan(0);
 
-                // tolerances on both sides of the reference value (a large
-                // iteration budget is given since certifying a distance that
-                // is *just* within tolerance requires resolving the curve to
-                // within the margin - e.g. the folded quadratic is at a
-                // uniform distance of 1 from the first line)
+                // tolerances on both sides of the reference value, with the
+                // band `[tolerance - margin, tolerance]` (in which the answer
+                // may conservatively be `true`) never containing it (e.g. the
+                // folded quadratic is at a uniform distance of 1 from the
+                // first line)
                 for (const f of [1/4, 1/2, 1 - 2*MARGIN, 1 + 2*MARGIN, 2, 4]) {
                     const tolerance = f*hd;
-                    const exceeds = hausdorffDistanceOneSidedExceeds(A, [B], tolerance, 1_000_000);
+                    const exceeds = hausdorffDistanceOneSidedExceeds(A, [B], tolerance, MARGIN*hd);
                     expect(exceeds).toBe(hd > tolerance);
                     checks++;
                 }
@@ -90,34 +90,45 @@ describe('hausdorffDistanceOneSidedExceeds', function() {
 
                 // the sampled value is a lower bound accurate to about
                 // `speed/4096` which is ~0.05 here, so stay well clear of it
-                expect(hausdorffDistanceOneSidedExceeds(A, Bs, hd*(1 - 2**-3), 1000)).toBe(true);
-                expect(hausdorffDistanceOneSidedExceeds(A, Bs, hd*(1 + 2**-3), 1000)).toBe(false);
+                expect(hausdorffDistanceOneSidedExceeds(A, Bs, hd*(1 - 2**-3), MARGIN*hd)).toBe(true);
+                expect(hausdorffDistanceOneSidedExceeds(A, Bs, hd*(1 + 2**-3), MARGIN*hd)).toBe(false);
             }
         }
     });
 
     test('decides trivially for a point or line to a line', function() {
         const B = [[[0,1], [100,1]]];
-        expect(hausdorffDistanceOneSidedExceeds([[50,0]], B, 0.5)).toBe(true);
-        expect(hausdorffDistanceOneSidedExceeds([[50,0]], B, 1.5)).toBe(false);
-        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], B, 0.5)).toBe(true);
-        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], B, 1.5)).toBe(false);
+        expect(hausdorffDistanceOneSidedExceeds([[50,0]], B, 0.5, 2**-20)).toBe(true);
+        expect(hausdorffDistanceOneSidedExceeds([[50,0]], B, 1.5, 2**-20)).toBe(false);
+        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], B, 0.5, 2**-20)).toBe(true);
+        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], B, 1.5, 2**-20)).toBe(false);
         // a line to a line not parallel to it - the max is at an endpoint
-        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], [[[0,0], [100,10]]], 9.9)).toBe(true);
-        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], [[[0,0], [100,10]]], 10.1)).toBe(false);
+        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], [[[0,0], [100,10]]], 9.9, 2**-20)).toBe(true);
+        expect(hausdorffDistanceOneSidedExceeds([[0,0], [100,0]], [[[0,0], [100,10]]], 10.1, 2**-20)).toBe(false);
     });
 
-    test('is conservative when the iteration budget is exhausted', function() {
-        // the endpoints of `A` lie on `B` but the middle is 10 away; the
-        // initial upper bound is half the control polygon length (~54) so
-        // with no bisections allowed a tolerance of 30 cannot be certified
-        // either way and the check must fail
+    test('is conservative within the margin', function() {
+        // the endpoints of `A` lie on `B` and the middle (`t = 1/2`, the
+        // first point tried) is 10 away, which is the distance
         const A = [[0,0], [50,20], [100,0]];
         const B = [[[0,0], [100,0]]];
-        expect(hausdorffDistanceOneSidedExceeds(A, B, 30, 0)).toBe(true);
-        // with a budget it decides correctly
-        expect(hausdorffDistanceOneSidedExceeds(A, B, 30, 50)).toBe(false);
-        expect(hausdorffDistanceOneSidedExceeds(A, B, 9.9, 50)).toBe(true);
+        // decides correctly outside the margin
+        expect(hausdorffDistanceOneSidedExceeds(A, B, 10.5, 0.1)).toBe(false);
+        expect(hausdorffDistanceOneSidedExceeds(A, B, 9.9, 0.1)).toBe(true);
+        // the distance (10) is within the margin below the tolerance (10.2)
+        // so the check may stop as soon as it finds it (the upper bound
+        // then still being well above the tolerance) and fail conservatively
+        expect(hausdorffDistanceOneSidedExceeds(A, B, 10.2, 1)).toBe(true);
+    });
+
+    test('accepts a curve only just within tolerance (given a small margin)', function() {
+        // a case from simplifying a glyph's MAT that the previous iteration
+        // limited version (1000 bisections) failed conservatively: the
+        // distance is ~0.12345
+        const A = [[199.92633401418215,339.1925881622451],[227.00454513420547,344.68770359828403],[253.738391585154,339.5929808754821]];
+        const B = [[[199.92633401418215,339.1925881622451],[240.45719229000727,347.41771588431595],[277.7519825791059,332.617403229154]]];
+        expect(hausdorffDistanceOneSidedExceeds(A, B, 0.125, 2**-13)).toBe(false);
+        expect(hausdorffDistanceOneSidedExceeds(A, B, 0.123, 2**-13)).toBe(true);
     });
 
     test('distanceToCurves is the minimum over the pieces', function() {

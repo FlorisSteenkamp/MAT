@@ -46,13 +46,14 @@ const END_FRACTION = 1 / 8;
  * @param hausdorffTolerance the maximum one-sided Hausdorff distance (in
  * coordinate units) from the original to the simplified MAT - defaults to
  * `2**-3`
- * @param maxIterations the max bisections of each Hausdorff distance check
- * (see `hausdorffDistanceOneSidedExceeds`) after which the check conservatively
- * fails (so that the span is split rather than accepted) - defaults to `1000`;
- * lower values trade simplification quality for a bound on the time spent on
- * curves that are only just within tolerance
+ * @param hausdorffMargin the width (`> 0`, in coordinate units) of the band
+ * just below `hausdorffTolerance` within which a Hausdorff distance check may
+ * conservatively fail (so that the span is split rather than accepted) - see
+ * `hausdorffDistanceOneSidedExceeds`; defaults to `hausdorffTolerance/1024`;
+ * larger values trade simplification quality for less time spent on curves
+ * that are only just within tolerance
  */
-function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 1000) {
+function simplifyMat(mat, hausdorffTolerance = 2 ** -3, hausdorffMargin = hausdorffTolerance / 1024) {
     let cpNode = clone(mat.cpNode);
     // The clone gets its own `cpTrees` (removing vertices below must not
     // touch the trees of the given `mat`) - they are kept up to date by
@@ -65,7 +66,7 @@ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 1000) {
     const branches = getBranches(cpNode);
     const toRemove = [];
     for (let k = 0; k < branches.length; k++) {
-        simplifyBranch(branches[k], hausdorffTolerance, maxIterations, toRemove);
+        simplifyBranch(branches[k], hausdorffTolerance, hausdorffMargin, toRemove);
     }
     for (const cpNode of toRemove) {
         removeVertex(cpNode, meta);
@@ -84,7 +85,7 @@ function simplifyMat(mat, hausdorffTolerance = 2 ** -3, maxIterations = 1000) {
  *
  * @internal
  */
-function simplifyBranch(branch, tolerance, maxIterations, toRemove) {
+function simplifyBranch(branch, tolerance, margin, toRemove) {
     const n = branch.length; // the number of edges
     if (n < 2) {
         return;
@@ -147,7 +148,7 @@ function simplifyBranch(branch, tolerance, maxIterations, toRemove) {
         outer: for (let k = i; k <= j; k++) {
             const pieces = curves[k];
             for (let m = 0; m < pieces.length; m++) {
-                if (hausdorffDistanceOneSidedExceeds(pieces[m], longCurves, tolerance, maxIterations)) {
+                if (hausdorffDistanceOneSidedExceeds(pieces[m], longCurves, tolerance, margin)) {
                     splitV = getSplitVertexForEdge(i, j, k, m, pieces.length);
                     break outer;
                 }
