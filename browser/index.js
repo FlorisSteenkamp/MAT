@@ -1,106 +1,4 @@
 
-;// ./node_modules/flo-boolean/node/shape/loop-from-beziers.js
-/**
- * @param beziers a pre-ordered array of bezier curves to add initially.
- * @param idx an optional index to assign to the loop - it can be anything
- */
-function loopFromBeziers(beziers = [], idx) {
-    const curves = [];
-    const loop = { beziers, curves, idx };
-    if (beziers.length === 0) {
-        return loop;
-    }
-    let prev = undefined;
-    let j = 0;
-    for (let i = 0; i < beziers.length; i++) {
-        if (isPoint(beziers[i])) {
-            continue;
-        }
-        const curve = {
-            loop,
-            ps: beziers[i],
-            prev: prev,
-            next: undefined,
-            idx: j
-        };
-        if (prev) {
-            prev.next = curve;
-        }
-        prev = curve;
-        curves.push(curve);
-        j++;
-    }
-    // close loop
-    const lastCurve = curves[curves.length - 1];
-    curves[0].prev = lastCurve;
-    lastCurve.next = curves[0];
-    lastCurve.ps[lastCurve.ps.length - 1] = curves[0].ps[0];
-    return loop;
-}
-function isPoint(ps) {
-    if (ps.length <= 1) {
-        return true;
-    }
-    const p0 = ps[0];
-    const p1 = ps[1];
-    const p01Same = p0[0] === p1[0] && p0[1] === p1[1];
-    if (ps.length === 2) {
-        return p01Same;
-    }
-    const p2 = ps[2];
-    const p12Same = p1[0] === p2[0] && p1[1] === p2[1];
-    if (ps.length === 3) {
-        return p01Same && p12Same;
-    }
-    const p3 = ps[3];
-    const p23Same = p2[0] === p3[0] && p2[1] === p3[1];
-    return p01Same && p12Same && p23Same;
-}
-
-//# sourceMappingURL=loop-from-beziers.js.map
-;// ./node_modules/flo-boolean/node/svg/beziers-to-svg-path-str.js
-/**
- * Returns an SVG path string representation of the given bezier loop.
- *
- * @param beziers an array of bezier curves each given as an array of
- * control points
- */
-function beziersToSvgPathStr(beziers) {
-    const strs = [];
-    for (let i = 0; i < beziers.length; i++) {
-        const ps = beziers[i];
-        if (i === 0) {
-            strs.push('M ' +
-                ps[0][0].toString() + ' ' +
-                ps[0][1].toString());
-        }
-        if (ps.length === 4) {
-            strs.push('C ' +
-                ps[1][0].toString() + ' ' +
-                ps[1][1].toString() + ' ' +
-                ps[2][0].toString() + ' ' +
-                ps[2][1].toString() + ' ' +
-                ps[3][0].toString() + ' ' +
-                ps[3][1].toString() + ' ');
-        }
-        else if (ps.length === 3) {
-            strs.push('Q ' +
-                ps[1][0].toString() + ' ' +
-                ps[1][1].toString() + ' ' +
-                ps[2][0].toString() + ' ' +
-                ps[2][1].toString() + ' ');
-        }
-        else if (ps.length === 2) {
-            strs.push('L ' +
-                ps[1][0].toString() + ' ' +
-                ps[1][1].toString() + ' ');
-        }
-    }
-    strs.push(' z');
-    return strs.join('\n');
-}
-
-//# sourceMappingURL=beziers-to-svg-path-str.js.map
 ;// ./node_modules/flo-boolean/node/svg/path-segment/z.js
 /**
  * Z and z: (from www.w3.org)
@@ -974,6 +872,108 @@ function getPathsFromStr(str) {
 }
 
 //# sourceMappingURL=get-paths-from-str.js.map
+;// ./node_modules/flo-boolean/node/svg/beziers-to-svg-path-str.js
+/**
+ * Returns an SVG path string representation of the given bezier loop.
+ *
+ * @param beziers an array of bezier curves each given as an array of
+ * control points
+ */
+function beziersToSvgPathStr(beziers) {
+    const strs = [];
+    for (let i = 0; i < beziers.length; i++) {
+        const ps = beziers[i];
+        if (i === 0) {
+            strs.push('M ' +
+                ps[0][0].toString() + ' ' +
+                ps[0][1].toString());
+        }
+        if (ps.length === 4) {
+            strs.push('C ' +
+                ps[1][0].toString() + ' ' +
+                ps[1][1].toString() + ' ' +
+                ps[2][0].toString() + ' ' +
+                ps[2][1].toString() + ' ' +
+                ps[3][0].toString() + ' ' +
+                ps[3][1].toString() + ' ');
+        }
+        else if (ps.length === 3) {
+            strs.push('Q ' +
+                ps[1][0].toString() + ' ' +
+                ps[1][1].toString() + ' ' +
+                ps[2][0].toString() + ' ' +
+                ps[2][1].toString() + ' ');
+        }
+        else if (ps.length === 2) {
+            strs.push('L ' +
+                ps[1][0].toString() + ' ' +
+                ps[1][1].toString() + ' ');
+        }
+    }
+    strs.push(' z');
+    return strs.join('\n');
+}
+
+//# sourceMappingURL=beziers-to-svg-path-str.js.map
+;// ./node_modules/flo-boolean/node/shape/loop-from-beziers.js
+/**
+ * @param beziers a pre-ordered array of bezier curves to add initially.
+ * @param idx an optional index to assign to the loop - it can be anything
+ */
+function loopFromBeziers(beziers = [], idx) {
+    const curves = [];
+    const loop = { beziers, curves, idx };
+    if (beziers.length === 0) {
+        return loop;
+    }
+    let prev = undefined;
+    let j = 0;
+    for (let i = 0; i < beziers.length; i++) {
+        if (isPoint(beziers[i])) {
+            continue;
+        }
+        const curve = {
+            loop,
+            ps: beziers[i],
+            prev: prev,
+            next: undefined,
+            idx: j
+        };
+        if (prev) {
+            prev.next = curve;
+        }
+        prev = curve;
+        curves.push(curve);
+        j++;
+    }
+    // close loop
+    const lastCurve = curves[curves.length - 1];
+    curves[0].prev = lastCurve;
+    lastCurve.next = curves[0];
+    lastCurve.ps[lastCurve.ps.length - 1] = curves[0].ps[0];
+    return loop;
+}
+function isPoint(ps) {
+    if (ps.length <= 1) {
+        return true;
+    }
+    const p0 = ps[0];
+    const p1 = ps[1];
+    const p01Same = p0[0] === p1[0] && p0[1] === p1[1];
+    if (ps.length === 2) {
+        return p01Same;
+    }
+    const p2 = ps[2];
+    const p12Same = p1[0] === p2[0] && p1[1] === p2[1];
+    if (ps.length === 3) {
+        return p01Same && p12Same;
+    }
+    const p3 = ps[3];
+    const p23Same = p2[0] === p3[0] && p2[1] === p3[1];
+    return p01Same && p12Same && p23Same;
+}
+
+//# sourceMappingURL=loop-from-beziers.js.map
 ;// ./src/floyd-warshall/floyd-warshall.ts
 // A JavaScript program for Floyd Warshall All Pairs Shortest Path algorithm.
 // From https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/
@@ -35113,4 +35113,5 @@ function fromStringifyable(cpNodesStringifyable) {
 
 
 
-export { CpNodeFs, beziersToSvgPathStr, clone, cloneMat, cloneMeta, cpNodeComparator, createInitialCpTree, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, fromStringifyable, getAllOnCircle, getAllOnLoop, getAllOnLoop_ByLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getLargest3Prong, getLargestVertex, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getNonTerminatingOnCircle, getOsculatingCircle, getPathsFromStr, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOnSameLoop, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, reconstructFromMats, removeVertex, scaleCircle, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, toStringifyable, traverseCp, traverseEdges, traverseVertices, trimMat };
+
+export { CpNodeFs, beziersToSvgPathStr, clone, cloneMat, cloneMeta, cpNodeComparator, createInitialCpTree, enableDebugForMat, enhanceCpNode, find2Prong, findAndAddHoleClosing2Prongs, findMats, floydWarshall, fromStringifyable, getAllOnCircle, getAllOnLoop, getAllOnLoop_ByLoop, getAllVertices, getBoundaryBezierPartsToNext, getBoundaryBeziersBetween, getBoundaryBeziersToNext, getBoundaryPieceBeziers, getBranch, getBranchBeziers, getBranches, getChildren, getCloseBoundaryPointsCertified, getClosestSquareDistanceToRect, getEdgeDirection, getFirstExit, getFor2ProngsOnLoop, getGraph, getHoleClosers, getImpliedBoundaryBezierBetween, getInitialDegAngleBetweenMatCurves, getLargest3Prong, getLargestVertex, getLeaves, getMatCurveBetween, getMatCurveToNext, getMatCurvesBetween, getNonTerminatingOnCircle, getOsculatingCircle, getPathsFromStr, getPotentialClosestPointsOnCurveCertified, getProngCount, getRealProngCount, getSalience, getSatCulls, get_shape_bounds_getShapeBounds as getShapeBounds, getSharpCornersOnLoop, getVertexForwardChildren, isFullyTerminating, isOnSameCircle, isOnSameLoop, isOneProng, isSharp, isTerminating, isTrivial, isTwoProng, isVertexSpecial, loopFromBeziers, reconstructFromMats, removeVertex, scaleCircle, simplifyMat, sweep_line_sweepLine as sweepLine, toScaleAxis, toStringifyable, traverseCp, traverseEdges, traverseVertices, trimMat };

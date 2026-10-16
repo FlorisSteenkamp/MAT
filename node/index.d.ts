@@ -78,3 +78,4 @@ export { scaleCircle } from './geometry/circle.js';
 export { isOnSameLoop } from './cp-node/fs/is-on-same-loop.js';
 export { getAllOnLoop_ByLoop } from './cp-node/fs/get-all-on-loop-by-loop.js';
 export { getNonTerminatingOnCircle } from './cp-node/fs/get-non-terminating-on-circle.js';
+export { getLeaves } from './sat/get-leaves.js';
