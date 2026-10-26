@@ -3,7 +3,7 @@ import type { CurvePiece } from '../mat/curve-piece.js';
 import type { ThreeProngInfo } from './three-prong-info.js';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import { circumCenter as getCircumCenter, fromTo, len, distanceBetween, toUnitVector, rotate90Degrees, cross } from 'flo-vector2d';
-import { tangent } from 'flo-bezier3';
+import { tangent2 } from 'flo-bezier3';
 import { calcInitial3ProngCenter } from './calc-initial-3-prong-center.js';
 import { getClosestPoints } from './get-closest-points.js';
 import { calcBetterX } from './calc-better-x.js';
@@ -155,7 +155,7 @@ function find3ProngForDelta3s(
             //---------------------------
             // Tangent of curve at point
             //---------------------------
-            const v2 = toUnitVector( tangent(pos.curve.ps, pos.t) );
+            const v2 = toUnitVector( tangent2(pos.curve.ps, pos.t) );
             
             // Cross is more numerically stable than Vector.dot at angles a
             // multiple of π **and** is close to the actual angle value

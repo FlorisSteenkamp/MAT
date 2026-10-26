@@ -16,9 +16,10 @@ const { sqrt } = Math;
 function getInitialX(
         angle: number,
         isHoleClosing: boolean,
+        minOscRadius: number,
         maxOscRadius: number,
         yPos: PrePointOnShape,
-        nnorm: number[]): [number[],number] {
+        nnorm: number[]): [number[],number] | undefined {
 
     let xO: number[];
     let rO: number;
@@ -33,9 +34,9 @@ function getInitialX(
     }
 
     if (angle === 0) {
-        return getOsculatingCircle(maxOscRadius, yPos, nnorm);
+        return getOsculatingCircle(minOscRadius, maxOscRadius, yPos, nnorm);
     }
-     
+
     const { p } = yPos;
     const [tx, ty] = nnorm;
     const l = sqrt(tx*tx + ty*ty);

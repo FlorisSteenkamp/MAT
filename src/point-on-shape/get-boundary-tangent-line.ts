@@ -1,5 +1,5 @@
 import type { PointOnShape } from './point-on-shape.js';
-import { tangent } from 'flo-bezier3';
+import { tangent2 } from 'flo-bezier3';
 import { translate } from 'flo-vector2d';
 
 
@@ -29,7 +29,7 @@ function getBoundaryTangentLine(
     if (fromElseTo && t === 1) { t = 0; curve = curve.next; }
     if (!fromElseTo && t === 0) { t = 1; curve = curve.prev; }
 
-    return [p, translate(p, tangent(curve.ps, t))];
+    return [p, translate(p, tangent2(curve.ps, t))];
 }
 
 

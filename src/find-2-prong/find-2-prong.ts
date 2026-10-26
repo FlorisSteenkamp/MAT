@@ -9,13 +9,13 @@ import { squaredDistanceBetweenDd } from './squared-distance-between-dd.js';
 import { cullCurvePieces } from '../closest-boundary-point/cull-curve-pieces.js';
 import { add1Prong } from './add-1-prong.js';
 import { toP } from '../point-on-shape/to-p.js';
-import { calcSquaredSeperationTolerance } from './calc-seperation-tolerance.js';
+import { calcSquaredSeparationTolerance } from './calc-separation-tolerance.js';
 import { getInitialX } from './get-initial-x.js';
-import { ddNormal } from 'flo-bezier3';
+import { ddNormal2 } from 'flo-bezier3';
 import { rotate } from 'flo-vector2d';
 
 
-const { abs, sin, cos, max, sqrt } = Math;
+const { abs, sin, cos, max, sqrt, floor, log2 } = Math;
 
 
 /**
@@ -49,10 +49,17 @@ function find2Prong(
     //----------------------------
     // Initialize some tolerances
     //----------------------------
-    const minSquaredSeperationTolerance = (2**(maxCoordPowerOf2 - 21))**2;
+    const POWER = 21;
+    const minSquaredSeparationTolerance = (2**(maxCoordPowerOf2 - POWER))**2;
     const errorTolerance = 2**(maxCoordPowerOf2 - 46);
-    const maxOsculatingCircleRadius = sqrt(squaredDiagonalLength);
+    const maxOscRadius = sqrt(squaredDiagonalLength);
     const oneProngTolerance = 2**(maxCoordPowerOf2 - 32);
+    // Half the min separation: the maximal disk at a point is never larger
+    // than the osculating circle there, and its 2 contact points are at most
+    // a diameter apart, so any 2-prong from a point with a smaller osculating
+    // radius would be rejected by the separation check anyway.
+    const minOscRadius = 2**(maxCoordPowerOf2 - (POWER + 1));
+
 
     return function find2ProngInner(
             isHoleClosing: boolean,
@@ -62,10 +69,14 @@ function find2Prong(
 
 
         const { curve: { loop, ps }, t, p: y } = yPos;
-        const normDd = ddNormal(ps, t);
+        // `ddNormal2` (unlike `ddNormal`) is not the zero vector where the
+        // first derivative vanishes; scaled (exactly) to about unit length so
+        // that the tolerances used in the search do not depend on the speed of
+        // the curve at `t`
+        const normDd = ddScaleToAboutUnit(ddNormal2(ps, t));
         const _nnorm = [-normDd[0][1], -normDd[1][1]];  // Left-handed system (sorry)
         const nnorm = isHoleClosing
-            ? [0, -maxOsculatingCircleRadius]
+            ? [0, -maxOscRadius]
             : (angle !== 0 ? rotate(sin(angle), cos(angle))(_nnorm) : _nnorm);
 
         const nnormDd = isHoleClosing || angle !== 0
@@ -73,10 +84,14 @@ function find2Prong(
             : [[-normDd[0][0], -normDd[0][1]], [-normDd[1][0], -normDd[1][1]]];
 
         // Get initial kissing circle guess
-        let [xO,rO] = getInitialX(
-            angle, isHoleClosing, maxOsculatingCircleRadius, yPos, nnorm
+        const Oc = getInitialX(
+            angle, isHoleClosing, minOscRadius, maxOscRadius, yPos, nnorm
         );
+        if (Oc === undefined) {
+            return undefined;  // osculating radius is too small
+        }
 
+        let [xO,rO] = Oc;
 
         // The boundary piece that should contain the other point of 
         // the 2-prong circle. (Defined by start and end points).
@@ -141,17 +156,36 @@ function find2Prong(
 
             // The lines below eliminate cases where the found 2-prong is too
             // close to a one-prong
-            const squaredSeperationTolerance = max(
-                calcSquaredSeperationTolerance(rO, sqrt(xz), (2**2)*errorTolerance),
-                minSquaredSeperationTolerance
+            const squaredSeparationTolerance = max(
+                calcSquaredSeparationTolerance(rO, sqrt(xz), (2**2)*errorTolerance),
+                minSquaredSeparationTolerance
             );
-            if (yz <= squaredSeperationTolerance) {
+            if (yz <= squaredSeparationTolerance) {
                 return undefined;
             } 
         }
 
         return { circle, z };
     }
+}
+
+
+/**
+ * @internal
+ * Returns the given double-double vector scaled by a power of 2 (and thus
+ * exactly) such that its largest coordinate (in absolute value) is in `[1,2)`.
+ *
+ * The zero vector is returned unchanged.
+ */
+function ddScaleToAboutUnit(
+        v: number[][]): number[][] {
+
+    const m = max(abs(v[0][1]), abs(v[1][1]));
+    if (m === 0) { return v; }
+
+    const s = 2**-floor(log2(m));
+
+    return v.map(c => [c[0]*s, c[1]*s]);
 }
 
 

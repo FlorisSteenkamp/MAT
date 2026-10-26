@@ -22,7 +22,11 @@ const qmd = ddMultDouble1;
  * @param for1Prong defaults to `false`;
  * @param angle defaults to `0`;
  * @param curvePiece The curve piece
- * 
+ *
+ * Returns `undefined` if a touching point is found on the source's own curve
+ * whose circle is too small to resolve, i.e. if the maximal disk at `yPos`
+ * is (numerically) of zero radius.
+ *
  * @internal
  */
 function getClosestPoint(
@@ -31,7 +35,7 @@ function getClosestPoint(
         yPos: PrePointOnShape,
         for1Prong: boolean,
         angle: number,
-        curvePiece: CurvePiece): AntipodalPoint[] {
+        curvePiece: CurvePiece): AntipodalPoint[] | undefined {
 
     const { curve, ts: [tS,tE] } = curvePiece;
     const { ps } = curve;
@@ -105,6 +109,12 @@ function getClosestPoint(
             const d = sqrt(lengthSquared(V));
 
             if (d <= 2**(maxCoordPowerOf2 - 40)) {
+                // After deflation (of the root at `t` itself) this is a real
+                // touching point on the source's own curve, i.e. the maximal
+                // disk at `y` is too small - don't let a further away point
+                // be used instead
+                if (shouldDeflate) { return undefined; }
+
                 // If `w` <= 2**-40 -> discard
                 continue;
             }

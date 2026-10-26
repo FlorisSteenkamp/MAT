@@ -28,7 +28,7 @@
  *
  * @internal
  */
-function calcSquaredSeperationTolerance(
+function calcSquaredSeparationTolerance(
         R: number,
         r: number,
         δ: number): number {
@@ -43,4 +43,4 @@ function calcSquaredSeperationTolerance(
 }
 
 
-export { calcSquaredSeperationTolerance }
+export { calcSquaredSeparationTolerance }

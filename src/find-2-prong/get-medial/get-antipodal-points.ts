@@ -33,6 +33,9 @@ function getAntipodalPoints(
             curvePiece
         );
 
+        // the maximal disk at `yPos` is too small - there are no antipodes
+        if (pInfos === undefined) { return []; }
+
         pInfoss.push(...pInfos);
     }
 
