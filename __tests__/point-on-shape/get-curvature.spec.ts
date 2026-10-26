@@ -33,3 +33,21 @@ test('`getCurvature` at an end whose last control point is snapped next to the e
     // curvature of the snapped curve at `t === 1` is `0`
     expect(getCurvature(psSnapped, 1)).toEqual(0);
 });
+
+
+test('`getCurvature` at a degenerate end is signed by the side the curve bends to', function() {
+    // mirrored (in `y = 646`) so it bends the other way
+    const psMirrored = [[260,642],[260,646],[257,646],[257,646]];
+    expect(getCurvature(psMirrored, 1)).toEqual(-Infinity);
+
+    // reversed so the degenerate end is at `t === 0`
+    const psReversed = psEqual.slice().reverse();
+    expect(getCurvature(psReversed, 0)).toEqual(-Infinity);
+});
+
+
+test('`getCurvature` at a degenerate end of a straight curve', function() {
+    const ps = [[0,0],[5,5],[5,5],[5,5]];
+
+    expect(getCurvature(ps, 1)).toEqual(0);
+});

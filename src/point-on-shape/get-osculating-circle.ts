@@ -1,5 +1,5 @@
 import type { PrePointOnShape } from './point-on-shape.js';
-import { ddCurvatureND } from 'flo-bezier3';
+import { ddCurvatureND, tangent2 } from 'flo-bezier3';
 import { ddDivDd } from 'double-double';
 import { clamp } from 'flo-boolean';
 
@@ -46,10 +46,12 @@ function getOsculatingCircle(
  * Returns the curvature of the given bezier curve at `t`
  * 
  * * intermediate calculations done in double-double precision
- * * returns `Infinite` instead of `NaN` for infinite curvature
- * 
- * @param ps 
- * @param t 
+ * * returns `±Infinity` instead of `NaN` for infinite curvature, i.e. at an
+ * end where the first derivative vanishes (signed by the side the curve
+ * bends to) or at an interior cusp (always `+Infinity`)
+ *
+ * @param ps
+ * @param t
  */
 function getCurvature(
         ps: number[][],
@@ -57,10 +59,22 @@ function getCurvature(
 
     const [N,D] = ddCurvatureND(ps, t);
     if (N[1] === 0) {
-        if (D[1] === 0) {
-            return Infinity;
-        }
-        return 0;
+        if (D[1] !== 0) { return 0; }
+
+        // 0/0 - the first derivative vanishes
+        if (t !== 0 && t !== 1) { return Infinity; }  // interior cusp
+
+        // Near the end the curve leaves the (limit) tangent line towards the
+        // opposite end point
+        const len = ps.length;
+        const pE = t === 0 ? ps[0] : ps[len-1];  // the end point
+        const pF = t === 0 ? ps[len-1] : ps[0];  // the opposite end point
+        const [tx,ty] = tangent2(ps, t);
+        const c = tx*(pF[1] - pE[1]) - ty*(pF[0] - pE[0]);
+
+        // the sign is flipped to match the convention below; `c === 0` means
+        // a straight line
+        return c === 0 ? 0 : (c < 0 ? Infinity : -Infinity);
     }
 
     const kDd = ddDivDd(N,D);  // not degenerate

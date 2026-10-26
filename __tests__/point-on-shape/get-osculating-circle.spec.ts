@@ -49,6 +49,16 @@ test('`getOsculatingCircle` at an end whose last control point is snapped next t
 });
 
 
+test('`getOsculatingCircle` at an end whose last control point equals the end point and that bends away from the center', function() {
+    // mirrored (in `y = 646`) so it bends away from `norm`
+    const ps = [[260,642],[260,646],[257,646],[257,646]];
+
+    // infinite curvature away from the center - the radius is clamped to the max
+    expect(getOsculatingCircle(minRadius, maxRadius, getPos(ps, 1, p), norm))
+        .toEqual([[257, 646 + maxRadius], maxRadius]);
+});
+
+
 function getPos(
         ps: number[][],
         t: number,
