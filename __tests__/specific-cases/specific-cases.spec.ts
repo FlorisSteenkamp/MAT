@@ -20,6 +20,7 @@ type TestCase = {
 
 
 const testCaseSvgs = [
+    "aq_H", "hat",
     "Q_V",
     ".notdef", "woodland", "exclam", "testD", "testL", "testO",
     "testComplex", "ampersand", "testComplexish", "quotesingle", "parenleft", "parenright",
