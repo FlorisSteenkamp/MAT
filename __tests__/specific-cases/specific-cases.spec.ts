@@ -20,6 +20,8 @@ type TestCase = {
 
 
 const testCaseSvgs = [
+    "intersecting1",
+    "koldat51-min",
     "aq_H", "hat",
     "Q_V",
     ".notdef", "woodland", "exclam", "testD", "testL", "testO",
@@ -41,7 +43,7 @@ const testCaseSvgs = [
     "china1", "circle_in_circle", "circle_in_square", "concave_poly",
     "EEE", "fff", "gecko", "hart",
     "A-2", "B-2",
-    "CCC", "DDD", "E-2", "holepole", "holy_poly", "intersecting", "intersecting1",
+    "CCC", "DDD", "E-2", "holepole", "holy_poly", "intersecting",
     "koldat", "koldat14", "koldat15", "koldat16", "koldat17", "koldat18",
     "koldat19", "koldat2", "koldat20", "koldat21", "koldat22", "koldat23", "koldat24", "koldat25",
     "koldat26", "koldat3", "koldat4",

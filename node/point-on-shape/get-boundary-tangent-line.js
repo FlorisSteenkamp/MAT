@@ -1,4 +1,4 @@
-import { tangent } from 'flo-bezier3';
+import { tangent2 } from 'flo-bezier3';
 import { translate } from 'flo-vector2d';
 /**
  * Returns a line segment starting at the given point on the shape boundary and
@@ -27,7 +27,7 @@ function getBoundaryTangentLine(pos, fromElseTo) {
         t = 1;
         curve = curve.prev;
     }
-    return [p, translate(p, tangent(curve.ps, t))];
+    return [p, translate(p, tangent2(curve.ps, t))];
 }
 export { getBoundaryTangentLine };
 //# sourceMappingURL=get-boundary-tangent-line.js.map

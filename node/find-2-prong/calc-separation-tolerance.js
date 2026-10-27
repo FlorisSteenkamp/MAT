@@ -28,5 +28,13 @@
  *
  * @internal
  */
-declare function calcSquaredSeperationTolerance(R: number, r: number, δ: number): number;
-export { calcSquaredSeperationTolerance };
+function calcSquaredSeparationTolerance(R, r, δ) {
+    if (r + δ >= R) {
+        // The enlarged MAT circle is at least as large as the osculating
+        // circle: every point on it is within tolerance of the boundary.
+        return Infinity;
+    }
+    return r * r * (2 * R * δ + δ * δ) / ((R - r) * (r + δ));
+}
+export { calcSquaredSeparationTolerance };
+//# sourceMappingURL=calc-separation-tolerance.js.map

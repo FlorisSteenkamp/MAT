@@ -16,6 +16,10 @@ function getAntipodalPoints(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, c
     for (let i = 0; i < curvePieces.length; i++) {
         const curvePiece = curvePieces[i];
         const pInfos = getClosestPoint(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, curvePiece);
+        // the maximal disk at `yPos` is too small - there are no antipodes
+        if (pInfos === undefined) {
+            return [];
+        }
         pInfoss.push(...pInfos);
     }
     /** the minimum max value */

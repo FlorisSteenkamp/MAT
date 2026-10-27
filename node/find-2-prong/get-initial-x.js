@@ -9,7 +9,7 @@ const { sqrt } = Math;
  *
  * @internal
 */
-function getInitialX(angle, isHoleClosing, maxOscRadius, yPos, nnorm) {
+function getInitialX(angle, isHoleClosing, minOscRadius, maxOscRadius, yPos, nnorm) {
     let xO;
     let rO;
     const { p: y } = yPos;
@@ -20,7 +20,7 @@ function getInitialX(angle, isHoleClosing, maxOscRadius, yPos, nnorm) {
         ];
     }
     if (angle === 0) {
-        return getOsculatingCircle(maxOscRadius, yPos, nnorm);
+        return getOsculatingCircle(minOscRadius, maxOscRadius, yPos, nnorm);
     }
     const { p } = yPos;
     const [tx, ty] = nnorm;

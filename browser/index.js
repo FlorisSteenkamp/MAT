@@ -2732,6 +2732,108 @@ function evaluate1stDerivative(ps, t) {
 const tangent = evaluate1stDerivative;
 
 //# sourceMappingURL=tangent.js.map
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/tangent/double/get-degenerate-direction.js
+
+
+/**
+ * Returns the direction the given curve leaves the point at `t` in (or arrives
+ * in if `t === 1`) given that the tangent vanishes at `t`; returns `[0,0]` if
+ * all control points coincide.
+ *
+ * * uses double precision calculations internally
+ *
+ * @param ps a quadratic or cubic bezier curve given by its ordered control
+ * points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the parameter value where the tangent vanishes
+ *
+ * @internal
+ */
+function getDegenerateDirection(ps, t) {
+    if (ps.length === 4) {
+        const [p0, p1, p2, p3] = ps;
+        if (t === 0) {
+            // Points 0 and 1 (necessarily) coincide; use the first point that
+            // does not coincide with point 0 (if any) for the direction.
+            if (!pointsCoincide(p0, p2)) {
+                return from_to_fromTo(p0, p2);
+            }
+            if (!pointsCoincide(p0, p3)) {
+                return from_to_fromTo(p0, p3);
+            }
+            return [0, 0]; // All four points coincide. No direction possible.
+        }
+        if (t === 1) {
+            // Points 2 and 3 (necessarily) coincide; use the last point that
+            // does not coincide with point 3 (if any) for the direction.
+            if (!pointsCoincide(p1, p3)) {
+                return from_to_fromTo(p1, p3);
+            }
+            if (!pointsCoincide(p0, p3)) {
+                return from_to_fromTo(p0, p3);
+            }
+            return [0, 0]; // All four points coincide. No direction possible.
+        }
+        // An interior cusp is the only remaining cause of the degenerate
+        // tangent. Split the curve at the cusp and use the direction from the
+        // cusp to the 3rd control point of the right piece (the 2nd control
+        // point coincides with the cusp since the tangent vanishes there).
+        const ps_ = fromTo(ps, t, 1);
+        return from_to_fromTo(ps_[0], ps_[2]);
+    }
+    if (ps.length === 3) {
+        const [p0, , p2] = ps;
+        if (t === 0 || t === 1) {
+            // Points 0 and 1 coincide (if `t === 0`) or points 1 and 2
+            // coincide (if `t === 1`) - the direction is from point 0 to
+            // point 2 in both cases (and `[0,0]` if all three coincide)
+            return from_to_fromTo(p0, p2);
+        }
+        // An interior cusp is the only remaining cause of the degenerate
+        // tangent (the control polygon 'folds back' on itself, e.g.
+        // `[[0,0],[1,0],[0,0]]`). Split the curve at the cusp and use the
+        // direction from the cusp to the last control point of the right
+        // piece (its 2nd control point coincides with the cusp).
+        const ps_ = fromTo(ps, t, 1);
+        return from_to_fromTo(ps_[0], ps_[2]);
+    }
+    return [0, 0];
+}
+/** @internal */
+function pointsCoincide(p, q) {
+    return p[0] === q[0] && p[1] === q[1];
+}
+
+//# sourceMappingURL=get-degenerate-direction.js.map
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/tangent/double/tangent2.js
+
+
+/**
+ * Returns the tangent vector (not necessarily of unit length) of an
+ * order 0,1,2 or 3 bezier curve at a specific given parameter value `t`.
+ *
+ * * uses double precision calculations internally
+ * * unlike [[tangent]], if the tangent vanishes at `t` (e.g. at a cusp or
+ * where control points coincide) a tangent is still returned (based on the
+ * direction the curve leaves the point in; or arrives at the point in if
+ * `t === 1`); only if all control points coincide is `[0,0]` returned
+ *
+ * @param ps a linear, quadratic or cubic bezier curve given by its ordered
+ * control points, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the parameter value where the tangent should be evaluated
+ *
+ * @doc mdx
+ */
+function tangent2(ps, t) {
+    const v = tangent(ps, t);
+    if (ps.length < 3 || v[0] !== 0 || v[1] !== 0) {
+        // Non-degenerate cases
+        return v;
+    }
+    // Degenerate cases - the tangent vanishes at `t`
+    return getDegenerateDirection(ps, t);
+}
+
+//# sourceMappingURL=tangent2.js.map
 ;// ./node_modules/flo-vector2d/node/cross.js
 /**
  * Returns the cross product signed magnitude between two 2-vectors.
@@ -3623,8 +3725,8 @@ const { sqrt: get_edge_direction_sqrt } = Math;
             curve1 = pos1.curve.next;
             curve2 = pos1.curve;
         }
-        const tan1 = toUnitVector(tangent(curve1.ps, 0));
-        const tan2 = reverse(toUnitVector(tangent(curve2.ps, 1)));
+        const tan1 = toUnitVector(tangent2(curve1.ps, 0));
+        const tan2 = reverse(toUnitVector(tangent2(curve2.ps, 1)));
         const x = dot(tan1, tan2);
         // Recall the identities sin(acos(x)) = sqrt(1-x^2), etc. Also 
         // recall the half angle formulas. Then the rotation matrix, R, can 
@@ -18773,9 +18875,14 @@ function getBeziersToNextContainer(out) {
 ;// ./node_modules/flo-boolean/node/main/bezier-pieces-from-out.js
 
 
-const bezierPiecesFromOut$ = memoize(function (out) {
+/**
+ * Returns the bezier pieces of the given (closed) path of `Out`s.
+ *
+ * @param path
+ */
+function bezierPiecesFromPath(path) {
     const bezierPieces = [];
-    for (const out_ of out.path) {
+    for (const out_ of path) {
         // A `swapped` node is an original `In` whose `dir` was flipped so the
         // trace treats it as an `Out`. Walking it forward would wrap the long
         // way around the curve, so take its twin's (the original `Out`'s) short
@@ -18792,6 +18899,9 @@ const bezierPiecesFromOut$ = memoize(function (out) {
         }
     }
     return bezierPieces;
+}
+const bezierPiecesFromOut$ = memoize(function (out) {
+    return bezierPiecesFromPath(out.path);
 });
 
 //# sourceMappingURL=bezier-pieces-from-out.js.map
@@ -18897,7 +19007,280 @@ function markInOutForChecking(takenOuts, additionalOutsToCheck) {
 }
 
 //# sourceMappingURL=get-next-exit.js.map
+;// ./node_modules/flo-boolean/node/shape/get-shape-area.js
+
+/**
+ * Returns the signed winding number weighted area of the given shape.
+ *
+ * * also useful for finding the orientation of loops
+ *
+ * * see e.g. https://mathinsight.org/greens_theorem_find_area
+ *
+ * @param shape the shape given as a closed loop of bezier curves
+ */
+const getShapeArea$ = memoize(function (shape) {
+    let twiceArea = 0;
+    for (const ps of shape) {
+        // weights are ∫₀¹ (Bᵢ Bⱼ' − Bᵢ' Bⱼ) dt over the Bernstein basis
+        switch (ps.length) {
+            case 2: // line
+                twiceArea += get_shape_area_cross(ps, 0, 1);
+                break;
+            case 3: // quadratic
+                twiceArea +=
+                    (2 * get_shape_area_cross(ps, 0, 1) +
+                        get_shape_area_cross(ps, 0, 2) +
+                        2 * get_shape_area_cross(ps, 1, 2)) / 3;
+                break;
+            case 4: // cubic
+                twiceArea +=
+                    (6 * get_shape_area_cross(ps, 0, 1) +
+                        3 * get_shape_area_cross(ps, 0, 2) +
+                        get_shape_area_cross(ps, 0, 3) +
+                        3 * get_shape_area_cross(ps, 1, 2) +
+                        3 * get_shape_area_cross(ps, 1, 3) +
+                        6 * get_shape_area_cross(ps, 2, 3)) / 10;
+                break;
+        }
+    }
+    return twiceArea / 2;
+});
+// `x_i·y_j - x_j·y_i` for control points `i`,`j` of a piece
+function get_shape_area_cross(ps, i, j) {
+    return ps[i][0] * ps[j][1] - ps[j][0] * ps[i][1];
+}
+/**
+ * @deprecated This function is deprecated. Use `getShapeArea` instead.
+ *
+ * Returns the area of the given Loop.
+ * * see e.g. https://mathinsight.org/greens_theorem_find_area
+ */
+function getLoopArea(loop) {
+    return getShapeArea$(loop.beziers);
+}
+
+// import { toPowerBasis, toPowerBasis_1stDerivative } from "flo-bezier3";
+// import { multiply, add, negate, Horner, integrate } from 'flo-poly';
+/**
+ * THIS FUNCTION WAS REPLACED BY A MORE ACCURATE ONE
+ *
+ * Returns the area of the given shape.
+ *
+ * * see e.g. https://mathinsight.org/greens_theorem_find_area
+ *
+ * @param shape the shape given as a closed loop of bezier curves
+ */
+// function getShapeArea(
+//         shape: (number[][])[]) {
+//     let totalArea = 0;
+//     for (const ps of shape) {
+//         const [x,y] = toPowerBasis(ps);
+//         const [dx,dy] = toPowerBasis_1stDerivative(ps);
+//         const xdy = multiply(x, dy);
+//         const ydx = negate(multiply(y, dx));
+//         const poly = integrate(add(xdy, ydx), 0);
+//         const area = Horner(poly, 1);
+//         totalArea += area;
+//     }
+//     return totalArea / 2;
+// }
+//# sourceMappingURL=get-shape-area.js.map
+;// ./node_modules/flo-boolean/node/calc-paths/complete-paths/split-loop-at-self-touches.js
+
+
+
+const { sign: split_loop_at_self_touches_sign, abs: split_loop_at_self_touches_abs } = Math;
+/**
+ * Splits the loop just traced from `origOut` wherever it touches itself, i.e.
+ * wherever its path passes through the same container more than once.
+ *
+ * Since `getNextExit` always turns tightly around the inside of the loop being
+ * traced, the traced loop can touch itself where another loop only touches it
+ * at a single point, e.g. an island touching the tip of a hole (see
+ * `koldat51-min.svg`). Such a loop is split at the touch point by re-pairing
+ * its two `In`/`Out` pairs within the container (which does not introduce any
+ * crossings) and the split-off loop becomes:
+ * * a child of the remaining loop (with opposite orientation) if the pieces
+ * are nested, e.g. an island touching its surrounding hole, or
+ * * a sibling of the remaining loop (with the same orientation) otherwise,
+ * e.g. two islands touching each other.
+ *
+ * The `Out`s marked for checking while tracing the loop are re-parented
+ * accordingly.
+ *
+ * * **modifies** `path`, `parent`, `children`, `orientation` and `windingNum`
+ * of the involved `Out`s
+ *
+ * @param origOut the `Out` from which the loop was traced
+ * @param stepMarks maps each `Out` of the traced path to the `Out`s marked for
+ * checking while finding its next exit
+ */
+function splitLoopAtSelfTouches(origOut, stepMarks) {
+    // the rotation direction used in `getNextExit` while tracing
+    const rotation = origOut.orientation;
+    const nodes = [origOut];
+    while (nodes.length) {
+        const node = nodes.pop();
+        const newNode = splitOnce(node, rotation, stepMarks);
+        if (newNode !== undefined) {
+            nodes.push(node, newNode);
+        }
+    }
+}
+/**
+ * Splits the given loop at its first (valid) self-touch (if any) and returns
+ * the `Out` representing the split-off loop (or `undefined` if no split
+ * occurred).
+ *
+ * @param node
+ * @param rotation
+ * @param stepMarks
+ */
+function splitOnce(node, rotation, stepMarks) {
+    const { path } = node;
+    const n = path.length;
+    const firstVisit = new Map();
+    for (let j = 0; j < n; j++) {
+        const container = path[j].container;
+        const i = firstVisit.get(container);
+        if (i === undefined) {
+            firstVisit.set(container, j);
+            continue;
+        }
+        // The loop enters the container at `inA`, leaves at `path[i]`, enters
+        // again at `inB` and leaves again at `path[j]`
+        const outI = path[i];
+        const outJ = path[j];
+        const stepA = path[(i - 1 + n) % n];
+        const stepB = path[j - 1];
+        const inA = stepA.twin;
+        const inB = stepB.twin;
+        // Re-pairing `inB -> outI` and `inA -> outJ` must not cross any other
+        // pairs within the container
+        const arcI = getArc(outI, inB, rotation, [inA, outJ]);
+        const arcJ = getArc(outJ, inA, rotation, [inB, outI]);
+        if (arcI === undefined || arcJ === undefined) {
+            continue;
+        }
+        //----------------------------------------------------------------------
+        // Split the path into `pieceI` (starting at `outI`) and `pieceJ`
+        // (containing the rest)
+        //----------------------------------------------------------------------
+        // (`pieceJ` keeps `path[0]` first so that a loop's path always starts
+        // at the `Out` representing it)
+        const pieceI = path.slice(i, j);
+        const pieceJ = [...path.slice(0, i), ...path.slice(j)];
+        // Within the container, re-bucket the marks of the two steps entering
+        // it so that each step only holds the marks adjacent to its own piece
+        const marksAtX = [...stepMarks.get(stepA), ...stepMarks.get(stepB)];
+        stepMarks.set(stepB, marksAtX.filter(m => arcI.has(m)));
+        stepMarks.set(stepA, marksAtX.filter(m => !arcI.has(m)));
+        // `node` is `path[0]`
+        const [pieceN, pieceO] = i === 0
+            ? [pieceI, pieceJ]
+            : [pieceJ, pieceI];
+        const newNode = pieceO[0];
+        const areaN = getPathArea(pieceN);
+        const areaO = getPathArea(pieceO);
+        const marksAdjacentTo = (piece) => piece.flatMap(step => stepMarks.get(step) ?? []);
+        const { parent, orientation } = node;
+        if (split_loop_at_self_touches_sign(areaN) === split_loop_at_self_touches_sign(areaO)) {
+            //------------------------------------------------------------------
+            // siblings, e.g. two islands touching each other
+            //------------------------------------------------------------------
+            node.path = pieceN;
+            setNode(newNode, pieceO, parent, orientation);
+            for (const mark of marksAdjacentTo(pieceO)) {
+                if (mark.parent === node) {
+                    setMarkParent(mark, newNode);
+                }
+            }
+            return newNode;
+        }
+        //----------------------------------------------------------------------
+        // nested, e.g. an island touching its surrounding hole
+        //----------------------------------------------------------------------
+        const isNodeOuter = split_loop_at_self_touches_abs(areaN) >= split_loop_at_self_touches_abs(areaO);
+        const [outerNode, innerNode] = isNodeOuter
+            ? [node, newNode]
+            : [newNode, node];
+        const [outerPiece, innerPiece] = isNodeOuter
+            ? [pieceN, pieceO]
+            : [pieceO, pieceN];
+        // marks need to be classified before parents are changed
+        const marksInside = marksAdjacentTo(path).filter(m => m.parent === node);
+        const marksInInner = marksAdjacentTo(innerPiece).filter(m => m.parent === parent);
+        if (!isNodeOuter) {
+            // the loops (islands) already split off now belong to the new outer loop
+            for (const child of [...(node.children ?? [])]) {
+                setParent(child, newNode);
+            }
+        }
+        setNode(outerNode, outerPiece, parent, orientation);
+        setNode(innerNode, innerPiece, outerNode, -orientation);
+        for (const mark of marksInside) {
+            setMarkParent(mark, outerNode);
+        }
+        for (const mark of marksInInner) {
+            setMarkParent(mark, innerNode);
+        }
+        return newNode;
+    }
+    return undefined;
+}
+/**
+ * Returns the set of `In`s and `Out`s strictly between `from` and `to` when
+ * rotating around their container in the given direction, or `undefined` if
+ * `to` cannot be reached without passing one of the `forbidden` ones or if the
+ * `In`s and `Out`s in between are not balanced (in which case re-pairing would
+ * cause a crossing).
+ */
+function getArc(from, to, rotation, forbidden) {
+    const arc = new Set();
+    let count = 0;
+    let inOut = from;
+    while (true) {
+        inOut = rotation === +1 ? inOut.nextAround : inOut.prevAround;
+        if (inOut === to) {
+            break;
+        }
+        if (inOut === from || forbidden.includes(inOut)) {
+            return undefined;
+        }
+        arc.add(inOut);
+        count += inOut.dir;
+    }
+    return count === 0 ? arc : undefined;
+}
+function setNode(node, path, parent, orientation) {
+    node.path = path;
+    node.orientation = orientation;
+    node.children = node.children ?? new Set();
+    setParent(node, parent);
+}
+/** Moves the given loop (with its `path` already set) to the given parent. */
+function setParent(out, parent) {
+    out.parent?.children?.delete(out);
+    const parent_ = parent;
+    parent_.children = parent_.children ?? new Set();
+    parent_.children.add(out);
+    setMarkParent(out, parent);
+}
+/**
+ * Sets the parent of an `Out` marked for checking (it will only be added to its
+ * parent's `children` once its loop is traced, see `completePath`).
+ */
+function setMarkParent(out, parent) {
+    out.parent = parent;
+    out.windingNum = parent.windingNum + out.orientation;
+}
+function getPathArea(path) {
+    return getShapeArea$(bezierPiecesFromPath(path).map(bezierPieceToBezier));
+}
+
+//# sourceMappingURL=split-loop-at-self-touches.js.map
 ;// ./node_modules/flo-boolean/node/calc-paths/complete-paths/complete-loop.js
+
 
 
 /**
@@ -18913,13 +19296,19 @@ const completeLoop = timeFunctionCalls(function completeLoop(takenOuts, takenCon
     // Move immediately to the outgoing start of the loop
     let outToUse = origOut;
     const getNextExit_ = getNextExit(origOut, additionalOutsToCheck, takenOuts);
+    /** the `Out`s marked for checking at each step of the path */
+    const stepMarks = new Map();
     do {
         takenOuts.add(outToUse);
         takenContainers.add(outToUse.container);
         path.push(outToUse);
+        const markCount = additionalOutsToCheck.length;
+        const prevOut = outToUse;
         outToUse = getNextExit_(outToUse);
+        stepMarks.set(prevOut, additionalOutsToCheck.slice(markCount));
     } while (outToUse !== origOut);
     origOut.path = path;
+    splitLoopAtSelfTouches(origOut, stepMarks);
     // console.log(pathToStr(path));
     return additionalOutsToCheck;
 });
@@ -18973,11 +19362,17 @@ const completePaths = timeFunctionCalls(function completePaths(expMax, minYConta
         const firstInOut = inOuts[0];
         const lastInOut = inOuts[inOuts.length - 1];
         const initialOut = firstInOut.dir === 1 ? firstInOut : lastInOut;
+        // The orientation follows from the side of the (outside facing) `Out`
+        // we start at - it can *not* be taken from the other end since when
+        // loops touch at the topmost point the first and last `InOut`s can
+        // belong to different loops (e.g. both be `Out`s, see
+        // `touching-triangle-ring.svg`)
+        const orientation = initialOut === firstInOut ? -1 : +1;
         const beziers = initialOut.loop;
         const parent = getTightestContainingLoop(expMax, root, beziers);
         initialOut.parent = parent;
-        initialOut.orientation = lastInOut.dir;
-        initialOut.windingNum = parent.windingNum + lastInOut.dir;
+        initialOut.orientation = orientation;
+        initialOut.windingNum = parent.windingNum + orientation;
         // (initialOut as Mutable<Out>).orientation = lastInOut.dir * (parent.swapped ? -1 : 1);
         // (initialOut as Mutable<Out>).windingNum = parent.windingNum + (lastInOut.dir * (parent.swapped ? -1 : 1));
         initialOut.children = new Set();
@@ -27382,84 +27777,6 @@ function addDebugInfo2(loopss) {
 }
 
 //# sourceMappingURL=add-debug-info-2.js.map
-;// ./node_modules/flo-boolean/node/shape/get-shape-area.js
-
-/**
- * Returns the signed winding number weighted area of the given shape.
- *
- * * also useful for finding the orientation of loops
- *
- * * see e.g. https://mathinsight.org/greens_theorem_find_area
- *
- * @param shape the shape given as a closed loop of bezier curves
- */
-const getShapeArea$ = memoize(function (shape) {
-    let twiceArea = 0;
-    for (const ps of shape) {
-        // weights are ∫₀¹ (Bᵢ Bⱼ' − Bᵢ' Bⱼ) dt over the Bernstein basis
-        switch (ps.length) {
-            case 2: // line
-                twiceArea += get_shape_area_cross(ps, 0, 1);
-                break;
-            case 3: // quadratic
-                twiceArea +=
-                    (2 * get_shape_area_cross(ps, 0, 1) +
-                        get_shape_area_cross(ps, 0, 2) +
-                        2 * get_shape_area_cross(ps, 1, 2)) / 3;
-                break;
-            case 4: // cubic
-                twiceArea +=
-                    (6 * get_shape_area_cross(ps, 0, 1) +
-                        3 * get_shape_area_cross(ps, 0, 2) +
-                        get_shape_area_cross(ps, 0, 3) +
-                        3 * get_shape_area_cross(ps, 1, 2) +
-                        3 * get_shape_area_cross(ps, 1, 3) +
-                        6 * get_shape_area_cross(ps, 2, 3)) / 10;
-                break;
-        }
-    }
-    return twiceArea / 2;
-});
-// `x_i·y_j - x_j·y_i` for control points `i`,`j` of a piece
-function get_shape_area_cross(ps, i, j) {
-    return ps[i][0] * ps[j][1] - ps[j][0] * ps[i][1];
-}
-/**
- * @deprecated This function is deprecated. Use `getShapeArea` instead.
- *
- * Returns the area of the given Loop.
- * * see e.g. https://mathinsight.org/greens_theorem_find_area
- */
-function getLoopArea(loop) {
-    return getShapeArea$(loop.beziers);
-}
-
-// import { toPowerBasis, toPowerBasis_1stDerivative } from "flo-bezier3";
-// import { multiply, add, negate, Horner, integrate } from 'flo-poly';
-/**
- * THIS FUNCTION WAS REPLACED BY A MORE ACCURATE ONE
- *
- * Returns the area of the given shape.
- *
- * * see e.g. https://mathinsight.org/greens_theorem_find_area
- *
- * @param shape the shape given as a closed loop of bezier curves
- */
-// function getShapeArea(
-//         shape: (number[][])[]) {
-//     let totalArea = 0;
-//     for (const ps of shape) {
-//         const [x,y] = toPowerBasis(ps);
-//         const [dx,dy] = toPowerBasis_1stDerivative(ps);
-//         const xdy = multiply(x, dy);
-//         const ydx = negate(multiply(y, dx));
-//         const poly = integrate(add(xdy, ydx), 0);
-//         const area = Horner(poly, 1);
-//         totalArea += area;
-//     }
-//     return totalArea / 2;
-// }
-//# sourceMappingURL=get-shape-area.js.map
 ;// ./node_modules/flo-boolean/node/main/filter-loops-by-min-allowed-area.js
 
 const { abs: filter_loops_by_min_allowed_area_abs } = Math;
@@ -30552,7 +30869,7 @@ const { abs: find_3_prong_for_delta3s_abs, asin: find_3_prong_for_delta3s_asin }
             //---------------------------
             // Tangent of curve at point
             //---------------------------
-            const v2 = toUnitVector(tangent(pos.curve.ps, pos.t));
+            const v2 = toUnitVector(tangent2(pos.curve.ps, pos.t));
             // Cross is more numerically stable than Vector.dot at angles a
             // multiple of π **and** is close to the actual angle value
             // and can thus just be added to cone method of looking at 
@@ -32483,7 +32800,11 @@ const get_closest_points_qmd = ddMultDouble1;
  * @param for1Prong defaults to `false`;
  * @param angle defaults to `0`;
  * @param curvePiece The curve piece
- * 
+ *
+ * Returns `undefined` if a touching point is found on the source's own curve
+ * whose circle is too small to resolve, i.e. if the maximal disk at `yPos`
+ * is (numerically) of zero radius.
+ *
  * @internal
  */ function getClosestPoint(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, curvePiece) {
     const { curve, ts: [tS, tE] } = curvePiece;
@@ -32545,6 +32866,13 @@ const get_closest_points_qmd = ddMultDouble1;
             ];
             const d = get_closest_points_sqrt(lengthSquared(V));
             if (d <= 2 ** (maxCoordPowerOf2 - 40)) {
+                // After deflation (of the root at `t` itself) this is a real
+                // touching point on the source's own curve, i.e. the maximal
+                // disk at `y` is too small - don't let a further away point
+                // be used instead
+                if (shouldDeflate) {
+                    return undefined;
+                }
                 continue;
             }
             const x = [
@@ -32680,6 +33008,10 @@ const get_closest_points_qmd = ddMultDouble1;
     for(let i = 0; i < curvePieces.length; i++){
         const curvePiece = curvePieces[i];
         const pInfos = getClosestPoint(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, curvePiece);
+        // the maximal disk at `yPos` is too small - there are no antipodes
+        if (pInfos === undefined) {
+            return [];
+        }
         pInfoss.push(...pInfos);
     }
     /** the minimum max value */ let minMax = Infinity;
@@ -32864,7 +33196,7 @@ function squaredDistanceBetweenDd(x, y) {
 }
 
 
-;// ./src/find-2-prong/calc-seperation-tolerance.ts
+;// ./src/find-2-prong/calc-separation-tolerance.ts
 /**
  * Returns the *squared* separation tolerance between the two contact points
  * `y` (the source point) and `z` (the antipode) of a candidate 2-prong: if
@@ -32894,7 +33226,7 @@ function squaredDistanceBetweenDd(x, y) {
  * @param δ the error tolerance on distances
  *
  * @internal
- */ function calcSquaredSeperationTolerance(R, r, δ) {
+ */ function calcSquaredSeparationTolerance(R, r, δ) {
     if (r + δ >= R) {
         // The enlarged MAT circle is at least as large as the osculating
         // circle: every point on it is within tolerance of the boundary.
@@ -33070,7 +33402,7 @@ function ddCurvatureND(ps, t) {
  */
 function ddCurvature(ps, t) {
     const [N, D] = ddCurvatureND(ps, t);
-    return ddDivDd(N, D);
+    return dd_curvature_ddDivDd(N, D);
 }
 /**
  * Returns the radius of curvature.
@@ -33086,23 +33418,27 @@ function ddRadiusOfCurvature(ps, t) {
 //# sourceMappingURL=dd-curvature.js.map
 ;// ./src/point-on-shape/get-osculating-circle.ts
 
+
+
 const { sqrt: get_osculating_circle_sqrt } = Math;
 /**
  * Returns the osculating circle at this point of the curve as
  * `[center, radius]`.
  *
- * @param maxOsculatingCircleRadius the circle radius will be limited to this
+ * @param maxRadius the circle radius will be limited to this
  * value (i.e. the curvature is taken to be at least its reciprocal)
  * @param pos the `PointOnShape` identifying the point
  * @param norm the (not necessarily unit) normal at the point pointing towards
  * the center of the circle
- */ function getOsculatingCircle(maxOsculatingCircleRadius, pos, norm) {
+ */ function getOsculatingCircle(minRadius, maxRadius, pos, norm) {
     const { curve, p, t } = pos;
     const { ps } = curve;
-    const minCurvature = 1 / maxOsculatingCircleRadius;
-    const kDd = ddCurvature(ps, t);
-    const k_ = -(kDd[0] + kDd[1]);
-    const k = k_ < minCurvature ? minCurvature : k_;
+    const maxCurvature = 1 / minRadius;
+    const minCurvature = 1 / maxRadius;
+    const k = clamp(getCurvature(ps, t), minCurvature, maxCurvature);
+    if (k === maxCurvature) {
+        return undefined;
+    }
     const [tx, ty] = norm;
     const l = get_osculating_circle_sqrt(tx * tx + ty * ty);
     const scale = l * k;
@@ -33113,6 +33449,40 @@ const { sqrt: get_osculating_circle_sqrt } = Math;
         ],
         1 / k
     ];
+}
+/**
+ * Returns the curvature of the given bezier curve at `t`
+ * 
+ * * intermediate calculations done in double-double precision
+ * * returns `±Infinity` instead of `NaN` for infinite curvature, i.e. at an
+ * end where the first derivative vanishes (signed by the side the curve
+ * bends to) or at an interior cusp (always `+Infinity`)
+ *
+ * @param ps
+ * @param t
+ */ function getCurvature(ps, t) {
+    const [N, D] = ddCurvatureND(ps, t);
+    if (N[1] === 0) {
+        if (D[1] !== 0) {
+            return 0;
+        }
+        // 0/0 - the first derivative vanishes
+        if (t !== 0 && t !== 1) {
+            return Infinity;
+        } // interior cusp
+        // Near the end the curve leaves the (limit) tangent line towards the
+        // opposite end point
+        const len = ps.length;
+        const pE = t === 0 ? ps[0] : ps[len - 1]; // the end point
+        const pF = t === 0 ? ps[len - 1] : ps[0]; // the opposite end point
+        const [tx, ty] = tangent2(ps, t);
+        const c = tx * (pF[1] - pE[1]) - ty * (pF[0] - pE[0]);
+        // the sign is flipped to match the convention below; `c === 0` means
+        // a straight line
+        return c === 0 ? 0 : c < 0 ? Infinity : -Infinity;
+    }
+    const kDd = ddDivDd(N, D); // not degenerate
+    return -(kDd[0] + kDd[1]);
 }
 
 
@@ -33127,7 +33497,7 @@ const { sqrt: get_initial_x_sqrt } = Math;
  * @param yPos the source point of the 2-prong to be found
  * 
  * @internal
-*/ function getInitialX(angle, isHoleClosing, maxOscRadius, yPos, nnorm) {
+*/ function getInitialX(angle, isHoleClosing, minOscRadius, maxOscRadius, yPos, nnorm) {
     let xO;
     let rO;
     const { p: y } = yPos;
@@ -33141,7 +33511,7 @@ const { sqrt: get_initial_x_sqrt } = Math;
         ];
     }
     if (angle === 0) {
-        return getOsculatingCircle(maxOscRadius, yPos, nnorm);
+        return getOsculatingCircle(minOscRadius, maxOscRadius, yPos, nnorm);
     }
     const { p } = yPos;
     const [tx, ty] = nnorm;
@@ -33163,29 +33533,134 @@ const { sqrt: get_initial_x_sqrt } = Math;
 }
 
 
-;// ./node_modules/flo-bezier3/node/local-properties-at-t/normal/double-double/dd-normal.js
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/tangent/double-double/dd-tangent.js
 
 
 /**
- * * Returns a normal vector (not necessarily of unit length) of a bezier curve
- * at a specific given parameter value `t` by simply taking the `tangent` at
- * that point and rotating it by 90 degrees.
+ * Returns the tangent vector (in double-double precision not necessarily of
+ * unit length) of an order 0,1,2 or 3 bezier curve at a specific given
+ * parameter value `t`, i.e. returns the `[x,y]` value of the once
+ * differentiated (with respect to `t`) bezier curve's power basis when
+ * evaluated at `t`.
  *
  * @param ps a linear, quadratic or cubic bezier, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
  * @param t the `t` parameter
  *
  * @doc mdx
  */
-function ddNormal(ps, t) {
+function ddTangent(ps, t) {
     const [dX, dY] = toPowerBasis_1stDerivativeDd(ps);
-    const Y = ddHorner(dY, t);
     return [
-        [-Y[0], -Y[1]],
-        ddHorner(dX, t)
+        ddHorner(dX, t),
+        ddHorner(dY, t)
     ];
 }
 
-//# sourceMappingURL=dd-normal.js.map
+//# sourceMappingURL=dd-tangent.js.map
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/tangent/double-double/dd-tangent2.js
+
+
+
+const dd_tangent2_td = two_diff_twoDiff;
+/**
+ * Returns the tangent vector (in double-double precision not necessarily of
+ * unit length) of an order 0,1,2 or 3 bezier curve at a specific given
+ * parameter value `t`.
+ *
+ * * uses double-double precision calculations internally
+ * * unlike [[ddTangent]], if the tangent vanishes at `t` (e.g. at a cusp or
+ * where control points coincide) a tangent is still returned (based on the
+ * direction the curve leaves the point in; or arrives at the point in if
+ * `t === 1`); only if all control points coincide is `[0,0]` returned
+ * * at `t === 0` and `t === 1` degeneracy is decided by *exact* equality of
+ * the end control points and the fallback direction is calculated exactly;
+ * at an interior cusp the fallback direction is calculated in double
+ * precision only (by splitting the curve at `t`)
+ *
+ * @param ps a linear, quadratic or cubic bezier, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the `t` parameter
+ *
+ * @doc mdx
+ */
+function ddTangent2(ps, t) {
+    const len = ps.length;
+    if (len < 3) {
+        return ddTangent(ps, t);
+    }
+    if (t === 0) {
+        if (!pointsCoincide(ps[0], ps[1])) {
+            return ddTangent(ps, t);
+        }
+        // Points 0 and 1 coincide; use the first point that does not
+        // coincide with point 0 (if any) for the direction.
+        const p0 = ps[0];
+        const q = len === 4 && pointsCoincide(p0, ps[2]) ? ps[3] : ps[2];
+        return dd_tangent2_fromTo(p0, q);
+    }
+    if (t === 1) {
+        if (!pointsCoincide(ps[len - 2], ps[len - 1])) {
+            return ddTangent(ps, t);
+        }
+        // The last 2 points coincide; use the last point that does not
+        // coincide with the last point (if any) for the direction.
+        const p = ps[len - 1];
+        const q = len === 4 && pointsCoincide(ps[1], p) ? ps[0] : ps[len - 3];
+        return dd_tangent2_fromTo(q, p);
+    }
+    const v = ddTangent(ps, t);
+    if (v[0][1] !== 0 || v[1][1] !== 0) {
+        // Non-degenerate cases
+        return v;
+    }
+    // An interior cusp - the tangent vanishes at `t`
+    const [x, y] = getDegenerateDirection(ps, t);
+    return [[0, x], [0, y]];
+}
+/**
+ * Returns the exact vector from `p` to `q` as a double-double vector.
+ *
+ * @internal
+ */
+function dd_tangent2_fromTo(p, q) {
+    return [
+        dd_tangent2_td(q[0], p[0]),
+        dd_tangent2_td(q[1], p[1])
+    ];
+}
+
+//# sourceMappingURL=dd-tangent2.js.map
+;// ./node_modules/flo-bezier3/node/local-properties-at-t/normal/double-double/dd-normal2.js
+
+/**
+ * Returns a normal vector (not necessarily of unit length) of a bezier curve
+ * at a specific given parameter value `t` by simply taking the `tangent` at
+ * that point and rotating it by 90 degrees.
+ *
+ * * uses double-double precision calculations internally
+ * * unlike [[ddNormal]], if the tangent vanishes at `t` (e.g. at a cusp or
+ * where control points coincide) a normal is still returned (based on the
+ * direction the curve leaves the point in; or arrives at the point in if
+ * `t === 1`); only if all control points coincide is `[0,0]` returned
+ * * at `t === 0` and `t === 1` degeneracy is decided by *exact* equality of
+ * the end control points and the fallback direction is calculated exactly;
+ * at an interior cusp the fallback direction is calculated in double
+ * precision only (by splitting the curve at `t`)
+ * * equals [[ddTangent2]] rotated by 90 degrees
+ *
+ * @param ps a linear, quadratic or cubic bezier, e.g. `[[0,0],[1,1],[2,1],[2,0]]`
+ * @param t the `t` parameter
+ *
+ * @doc mdx
+ */
+function ddNormal2(ps, t) {
+    const [X, Y] = ddTangent2(ps, t);
+    return [
+        [-Y[0], -Y[1]],
+        X
+    ];
+}
+
+//# sourceMappingURL=dd-normal2.js.map
 ;// ./src/find-2-prong/find-2-prong.ts
 
 
@@ -33198,7 +33673,7 @@ function ddNormal(ps, t) {
 
 
 
-const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max: find_2_prong_max, sqrt: find_2_prong_sqrt } = Math;
+const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max: find_2_prong_max, sqrt: find_2_prong_sqrt, floor: find_2_prong_floor, log2: find_2_prong_log2 } = Math;
 /**
  * Adds a 2-prong to the MAT. The first point on the shape boundary is given and 
  * the second one is found by the algorithm.
@@ -33226,20 +33701,30 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
     //----------------------------
     // Initialize some tolerances
     //----------------------------
-    const minSquaredSeperationTolerance = (2 ** (maxCoordPowerOf2 - 21)) ** 2;
+    const POWER = 21;
+    const minSquaredSeparationTolerance = (2 ** (maxCoordPowerOf2 - POWER)) ** 2;
     const errorTolerance = 2 ** (maxCoordPowerOf2 - 46);
-    const maxOsculatingCircleRadius = find_2_prong_sqrt(squaredDiagonalLength);
+    const maxOscRadius = find_2_prong_sqrt(squaredDiagonalLength);
     const oneProngTolerance = 2 ** (maxCoordPowerOf2 - 32);
+    // Half the min separation: the maximal disk at a point is never larger
+    // than the osculating circle there, and its 2 contact points are at most
+    // a diameter apart, so any 2-prong from a point with a smaller osculating
+    // radius would be rejected by the separation check anyway.
+    const minOscRadius = 2 ** (maxCoordPowerOf2 - (POWER + 1));
     return function find2ProngInner(isHoleClosing, for1Prong, angle, yPos) {
         const { curve: { loop, ps }, t, p: y } = yPos;
-        const normDd = ddNormal(ps, t);
+        // `ddNormal2` (unlike `ddNormal`) is not the zero vector where the
+        // first derivative vanishes; scaled (exactly) to about unit length so
+        // that the tolerances used in the search do not depend on the speed of
+        // the curve at `t`
+        const normDd = ddScaleToAboutUnit(ddNormal2(ps, t));
         const _nnorm = [
             -normDd[0][1],
             -normDd[1][1]
         ]; // Left-handed system (sorry)
         const nnorm = isHoleClosing ? [
             0,
-            -maxOsculatingCircleRadius
+            -maxOscRadius
         ] : angle !== 0 ? rotate(find_2_prong_sin(angle), find_2_prong_cos(angle))(_nnorm) : _nnorm;
         const nnormDd = isHoleClosing || angle !== 0 ? [
             [
@@ -33261,7 +33746,11 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
             ]
         ];
         // Get initial kissing circle guess
-        let [xO, rO] = getInitialX(angle, isHoleClosing, maxOsculatingCircleRadius, yPos, nnorm);
+        const Oc = getInitialX(angle, isHoleClosing, minOscRadius, maxOscRadius, yPos, nnorm);
+        if (Oc === undefined) {
+            return undefined; // osculating radius is too small
+        }
+        let [xO, rO] = Oc;
         // The boundary piece that should contain the other point of 
         // the 2-prong circle. (Defined by start and end points).
         const curvePieces = getInitialCurvePieces(angle, isHoleClosing, loop, loops, meta, yPos, xO);
@@ -33314,8 +33803,8 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
             }
             // The lines below eliminate cases where the found 2-prong is too
             // close to a one-prong
-            const squaredSeperationTolerance = find_2_prong_max(calcSquaredSeperationTolerance(rO, find_2_prong_sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeperationTolerance);
-            if (yz <= squaredSeperationTolerance) {
+            const squaredSeparationTolerance = find_2_prong_max(calcSquaredSeparationTolerance(rO, find_2_prong_sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeparationTolerance);
+            if (yz <= squaredSeparationTolerance) {
                 return undefined;
             }
         }
@@ -33324,6 +33813,23 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
             z
         };
     };
+}
+/**
+ * @internal
+ * Returns the given double-double vector scaled by a power of 2 (and thus
+ * exactly) such that its largest coordinate (in absolute value) is in `[1,2)`.
+ *
+ * The zero vector is returned unchanged.
+ */ function ddScaleToAboutUnit(v) {
+    const m = find_2_prong_max(find_2_prong_abs(v[0][1]), find_2_prong_abs(v[1][1]));
+    if (m === 0) {
+        return v;
+    }
+    const s = 2 ** -find_2_prong_floor(find_2_prong_log2(m));
+    return v.map((c)=>[
+            c[0] * s,
+            c[1] * s
+        ]);
 }
 /** @internal */ function areAllAntipodesSame(point, maxCoordPowerOf2) {
     const { curve, s: t, x } = point[0];
@@ -34492,7 +34998,7 @@ const { ceil: find_mats_ceil, log2: find_mats_log2 } = Math;
     }
     return [
         p,
-        translate(p, tangent(curve.ps, t))
+        translate(p, tangent2(curve.ps, t))
     ];
 }
 
@@ -34709,7 +35215,7 @@ function isOnSameLoop(cpNode1, cpNode2) {
  * going loop by loop.
  * 
  * * sometimes more useful than `getAllOnLoop` since this function returns an
- *   array of `CpNode`s for each loop seperately.
+ *   array of `CpNode`s for each loop separately.
  */ function getAllOnLoop_ByLoop(cpNode) {
     const cpNodess = [];
     const cpStarts = [

@@ -5,7 +5,7 @@ import type { CpNode } from '../cp-node.js';
  * going loop by loop.
  *
  * * sometimes more useful than `getAllOnLoop` since this function returns an
- *   array of `CpNode`s for each loop seperately.
+ *   array of `CpNode`s for each loop separately.
  */
 declare function getAllOnLoop_ByLoop(cpNode: CpNode): CpNode[][];
 export { getAllOnLoop_ByLoop };

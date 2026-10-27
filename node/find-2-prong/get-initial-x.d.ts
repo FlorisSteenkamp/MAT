@@ -8,5 +8,5 @@ import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
  *
  * @internal
 */
-declare function getInitialX(angle: number, isHoleClosing: boolean, maxOscRadius: number, yPos: PrePointOnShape, nnorm: number[]): [number[], number];
+declare function getInitialX(angle: number, isHoleClosing: boolean, minOscRadius: number, maxOscRadius: number, yPos: PrePointOnShape, nnorm: number[]): [number[], number] | undefined;
 export { getInitialX };
