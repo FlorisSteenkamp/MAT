@@ -3,6 +3,8 @@ import { find3Prong } from './find-3-prong.js';
 import { addToCpTree } from '../mat/add-to-cp-tree.js';
 import { getCloseByCpIfExist } from '../mat/get-closeby-cp-if-exist.js';
 import { getProngCount } from '../cp-node/fs/get-prong-count.js';
+import { getVertexOnSameDisk } from '../add-n-prong.ts/get-vertex-on-same-disk.js';
+import { addToVertex } from '../add-n-prong.ts/add-to-vertex.js';
 let ii = 0;
 /**
  * @internal
@@ -23,11 +25,22 @@ function findAndAdd3Prong(meta, visitedCps) {
     for (let i = 0; i < 3; i++) {
         orders.push(calcPosOrder(circle.center, poss[i]));
     }
+    const closeBys = poss.map((pos, i) => getCloseByCpIfExist(meta, pos, circle, orders[i], 0, 3));
+    // If the 3-prong is (numerically) the maximal disk of an existing vertex
+    // then add its contact points to that vertex (making it an n-prong)
+    // instead of adding a vertex on top of it
+    const vertex = getVertexOnSameDisk(meta, circle, closeBys);
+    if (vertex !== undefined) {
+        const newPoss = poss.filter((_, i) => closeBys[i] === undefined);
+        const cpNodes = newPoss.length > 0
+            ? addToVertex(true, meta, vertex, newPoss)
+            : undefined;
+        if (cpNodes !== undefined) {
+            return { closeBysFor3Prong: [], cpNodes };
+        }
+    }
     const closeBysFor3Prong = [];
-    for (let i = 0; i < poss.length; i++) {
-        const pos = poss[i];
-        const order = orders[i];
-        const closeBy = getCloseByCpIfExist(meta, pos, circle, order, 0, 3);
+    for (const closeBy of closeBys) {
         if (closeBy !== undefined) {
             const prongCount = getProngCount(closeBy);
             if (prongCount <= 2 && !closeBy.isHoleClosing) {

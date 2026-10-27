@@ -23,7 +23,7 @@ function findAndAddHoleClosing2Prongs(meta) {
         }
         // FUTURE - handle case of n-prong, i.e. more than one antipode
         // - currently we only handle case of single antipode (the general case)
-        const { circle, z } = posAntipode;
+        const { circle, zs: [z] } = posAntipode;
         const _cpNode = add2Prong(meta, circle, pposSource, z, true);
         cpNode = cpNode === undefined ? _cpNode : cpNode;
     }

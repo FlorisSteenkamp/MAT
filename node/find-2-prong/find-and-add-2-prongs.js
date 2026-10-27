@@ -1,5 +1,5 @@
 import { find2Prong } from './find-2-prong.js';
-import { add2Prong } from './add-2-prong.js';
+import { addNProng } from '../add-n-prong.ts/add-n-prong.js';
 import { rotateNeg90Degrees } from 'flo-vector2d';
 import { getCorner$ } from '../corner/get-corner.js';
 const { PI, atan2 } = Math;
@@ -23,8 +23,8 @@ function findAndAdd2Prongs(meta, angleIncrement, for2Prongs, for1Prong) {
         for (const angle of angles) {
             const twoProngInfo = find2Prong_(false, for1Prong, angle, pos);
             if (twoProngInfo) {
-                const { circle, z } = twoProngInfo;
-                const cpNode = add2Prong(meta, circle, pos, z, false);
+                const { circle, zs } = twoProngInfo;
+                const cpNode = addNProng(meta, circle, [pos, ...zs]);
                 cpNode_ = cpNode_ || cpNode;
             }
             if (typeof _debug_ !== 'undefined') {

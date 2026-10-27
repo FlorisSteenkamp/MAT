@@ -17,6 +17,9 @@ const { abs, sin, cos, max, sqrt, floor, log2 } = Math;
  * A 2-prong is defined as a MAT circle that touches the shape at exactly 2
  * points.
  *
+ * If the circle touches the shape at more points (an n-prong, n > 2) all its
+ * contact points (other than the source point) are returned.
+ *
  * Before any 2-prongs are added the entire shape is our δΩ.
  *
  * As per the paper by Choi, Choi, Moon and Wee:
@@ -79,44 +82,48 @@ function find2Prong(meta) {
         // (the extra multiplier accounts for floating point error)
         const culledCurvePieces = cullCurvePieces(curvePieces, xO, (1 + 2 ** -20) * xy2);
         const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, culledCurvePieces);
-        // FUTURE - if antipodalPoints.length > 1 let's just add an n-prong;
-        if (antipodalPoints.length !== 1) {
-            if (antipodalPoints.length === 0) {
-                return undefined;
-            }
-            if (!isHoleClosing && !areAllAntipodesSame(antipodalPoints, maxCoordPowerOf2)) {
-                // At this point there is multiple antipodal points (zs) for the given
-                // source point so do not add the 2-prong, it will be caught when 
-                // adding 3+-prongs.
-                return undefined;
-            }
+        if (antipodalPoints.length === 0) {
+            return undefined;
         }
-        const { x, d, curve, s } = antipodalPoints[0];
+        // All antipodal points are at the same distance (up to floating point
+        // error) and thus on the same maximal disk, i.e. if there is more than
+        // one this is an n-prong (n > 2)
+        const { x, d } = antipodalPoints[0];
         if (for1Prong && rO < (1 - oneProngTolerance) * d) {
             add1Prong(meta, rO, xO, yPos);
             return undefined;
         }
-        const pDd = toP(curve.ps, s);
-        const p = pDd.map(c => c[0] + c[1]);
-        const z = {
-            curve, t: s, isSource: false,
-            p, pDd
-        };
         const circle = { center: x, radius: d };
+        const zs = antipodalPoints.map(({ curve, s }) => {
+            const pDd = toP(curve.ps, s);
+            const p = pDd.map(c => c[0] + c[1]);
+            return { curve, t: s, isSource: false, p, pDd };
+        });
+        if (isHoleClosing) {
+            return { circle, zs: [zs[0]] };
+        }
+        const z = zs[0];
         const yz = squaredDistanceBetweenDd(yPos.p, z.p);
         const xz = squaredDistanceBetweenDd(x, z.p);
-        if (!isHoleClosing) {
-            if (yz === 0) {
-                return undefined;
-            }
-            // The lines below eliminate cases where the found 2-prong is too
-            // close to a one-prong
-            const squaredSeparationTolerance = max(calcSquaredSeparationTolerance(rO, sqrt(xz), (2 ** 2) * errorTolerance), minSquaredSeparationTolerance);
-            if (yz <= squaredSeparationTolerance) {
-                return undefined;
+        if (yz === 0) {
+            return undefined;
+        }
+        // The lines below eliminate cases where the found 2-prong is too
+        // close to a one-prong
+        const squaredSeparationTolerance = max(calcSquaredSeparationTolerance(rO, sqrt(xz), (2 ** 2) * errorTolerance), minSquaredSeparationTolerance);
+        if (yz <= squaredSeparationTolerance) {
+            return undefined;
+        }
+        // Other antipodal points this close to `y` or to one another are
+        // (numerically) the same contact point
+        const zs_ = [z];
+        for (const z of zs.slice(1)) {
+            const ps = [yPos.p, ...zs_.map(z_ => z_.p)];
+            if (ps.every(p => squaredDistanceBetweenDd(p, z.p) > squaredSeparationTolerance)) {
+                zs_.push(z);
             }
         }
-        return { circle, z };
+        return { circle, zs: zs_ };
     };
 }
 /**
@@ -133,22 +140,6 @@ function ddScaleToAboutUnit(v) {
     }
     const s = 2 ** -floor(log2(m));
     return v.map(c => [c[0] * s, c[1] * s]);
-}
-/** @internal */
-function areAllAntipodesSame(point, maxCoordPowerOf2) {
-    const { curve, s: t, x } = point[0];
-    const tol = 2 ** (maxCoordPowerOf2 - 40);
-    for (let i = 1; i < point.length; i++) {
-        // const { curve: curve_, s: t_ } = point[i];
-        // if (curve !== curve_ || t !== t_) {
-        //     return false;
-        // }
-        const { x: x_ } = point[i];
-        if (abs(x[0] - x_[0]) > tol || abs(x[1] - x_[1]) > tol) {
-            return false;
-        }
-    }
-    return true;
 }
 export { find2Prong };
 //# sourceMappingURL=find-2-prong.js.map

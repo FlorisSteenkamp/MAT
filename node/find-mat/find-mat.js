@@ -8,6 +8,7 @@ import { getFor2ProngsOnLoop } from './get-for-2-prongs-on-loop.js';
 import { getFor1ProngsOnLoop } from './get-for-1-prongs-on-loop.js';
 import { findAndAddHoleClosing2Prongs } from '../find-2-prong/find-and-add-hole-closing-2-prongs.js';
 import { getShapeBounds } from '../svg/get-shape-bounds.js';
+import { mergeVerticesOnSameDisk } from '../add-n-prong.ts/merge-vertices-on-same-disk.js';
 /**
  * @internal
  * Find the MAT of the given loops.
@@ -56,6 +57,8 @@ function findMat(loops, maxCoordPowerOf2, options) {
     if (cpNode === undefined) {
         return undefined;
     }
+    // e.g. an n-prong (n > 3) found as several 3-prongs
+    cpNode = mergeVerticesOnSameDisk(meta, cpNode);
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterThreeProngs) {
             return { cpNode, meta };

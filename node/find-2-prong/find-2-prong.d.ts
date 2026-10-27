@@ -8,6 +8,9 @@ import type { MatMeta } from '../mat/mat-meta.js';
  * A 2-prong is defined as a MAT circle that touches the shape at exactly 2
  * points.
  *
+ * If the circle touches the shape at more points (an n-prong, n > 2) all its
+ * contact points (other than the source point) are returned.
+ *
  * Before any 2-prongs are added the entire shape is our δΩ.
  *
  * As per the paper by Choi, Choi, Moon and Wee:
@@ -26,6 +29,6 @@ import type { MatMeta } from '../mat/mat-meta.js';
  */
 declare function find2Prong(meta: MatMeta): (isHoleClosing: boolean, for1Prong: boolean, angle: number, yPos: PrePointOnShape) => {
     circle: Circle;
-    z: PrePointOnShape;
+    zs: PrePointOnShape[];
 } | undefined;
 export { find2Prong };

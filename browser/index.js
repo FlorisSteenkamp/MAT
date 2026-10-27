@@ -28111,6 +28111,195 @@ const { max: loop_get_max_coordinate_max, abs: loop_get_max_coordinate_abs } = M
 }
 
 
+;// ./src/loop/merge-touching-loops.ts
+
+
+
+/**
+ * @internal
+ * Returns the given loops (of a single shape) with loops that touch at a point
+ * (i.e. share a vertex) merged into a single boundary walk, e.g. a hole
+ * touching the outer loop.
+ *
+ * Loops that touch at a point are returned separately (by `simplifyPaths`)
+ * even when the material near the point lies in thin wedges each bounded by a
+ * curve of *both* loops. The boundary walk must then go from the incoming curve
+ * of one loop to the outgoing curve of the other so that every pair of
+ * consecutive curves is a real corner of the material (and so that a touching
+ * hole doesn't need a hole-closer; the medial axis has no cycle around it).
+ *
+ * At each such point the curves are sorted (exactly) by angle and each
+ * incoming curve is followed by the next curve anti-clockwise, i.e. the one on
+ * the other side of the material sector. If the loops' own pairing is already
+ * correct (e.g. a material island inside a hole touching the hole's boundary)
+ * nothing changes.
+ *
+ * Merges that would split a walk (e.g. a hole touching the outer loop at 2
+ * points, which splits the material into 2 parts) are not supported - in that
+ * case (or if the pairing cannot be determined) the loops are returned as is.
+ *
+ * Precondition: the loops are ordered by their topmost points (the order is
+ * kept, a merged loop taking the place of its first constituent loop).
+ *
+ * @param loops
+ */ function mergeTouchingLoops(loops) {
+    if (loops.length < 2) {
+        return loops;
+    }
+    const raysAt = getRaysAtSharedPoints(loops);
+    if (raysAt.length === 0) {
+        return loops;
+    }
+    // The curve following each incoming curve where it differs from `next`
+    const succ = new Map();
+    for (const rays of raysAt){
+        rays.sort(compareRays);
+        for(let i = 0; i < rays.length; i++){
+            const ray = rays[i];
+            const ray_ = rays[(i + 1) % rays.length];
+            if (!ray.isIn) {
+                continue;
+            }
+            if (ray_.isIn || compareRays(ray, ray_) === 0) {
+                // inconsistent / unresolvable geometry
+                return loops;
+            }
+            if (ray.curve.next !== ray_.curve) {
+                succ.set(ray.curve, ray_.curve);
+            }
+        }
+    }
+    if (succ.size === 0) {
+        return loops;
+    }
+    // Walk the new successor relation
+    const walks = [];
+    const walkOf = new Map();
+    const visited = new Set();
+    for (const loop of loops){
+        for (const curve of loop.curves){
+            if (visited.has(curve)) {
+                continue;
+            }
+            const walk = [];
+            let c = curve;
+            do {
+                visited.add(c);
+                walk.push(c);
+                const w = walkOf.get(c.loop);
+                if (w !== undefined && w !== walks.length) {
+                    // the loop is split over 2 walks - not supported
+                    return loops;
+                }
+                walkOf.set(c.loop, walks.length);
+                c = succ.get(c) ?? c.next;
+            }while (c !== curve)
+            walks.push(walk);
+        }
+    }
+    return walks.map((walk, i)=>{
+        // Unchanged loops are returned as is
+        const loop = walk[0].loop;
+        if (walk.length === loop.curves.length) {
+            return loop;
+        }
+        return loopFromBeziers(walk.map((c)=>c.ps), i);
+    });
+}
+/**
+ * @internal
+ * Returns the rays at each point where curves of 2 or more different loops
+ * meet (only at curve endpoints).
+ */ function getRaysAtSharedPoints(loops) {
+    const raysAt = new Map();
+    const loopsAt = new Map();
+    const add = (curve, isIn)=>{
+        const ps = isIn ? curve.ps.slice().reverse() : curve.ps;
+        const key = `${ps[0][0]},${ps[0][1]}`;
+        let rays = raysAt.get(key);
+        let loops_ = loopsAt.get(key);
+        if (rays === undefined) {
+            rays = [];
+            raysAt.set(key, rays);
+            loops_ = new Set();
+            loopsAt.set(key, loops_);
+        }
+        rays.push({
+            curve,
+            isIn,
+            ps,
+            dir: getDirection(ps)
+        });
+        loops_.add(curve.loop);
+    };
+    for (const loop of loops){
+        for (const curve of loop.curves){
+            add(curve, false);
+            add(curve, true);
+        }
+    }
+    return [
+        ...raysAt
+    ].filter(([key])=>loopsAt.get(key).size > 1).map(([, rays])=>rays);
+}
+/**
+ * @internal
+ * Returns the exact direction in which the given bezier leaves its first
+ * point, i.e. `ps[k] - ps[0]` with `k` the first index for which it is not
+ * the zero vector (the first non-vanishing derivative at `t = 0` points in
+ * that direction).
+ */ function getDirection(ps) {
+    const [x0, y0] = ps[0];
+    for(let k = 1; k < ps.length; k++){
+        const [x, y] = ps[k];
+        if (x !== x0 || y !== y0) {
+            return [
+                twoDiff(x, x0),
+                twoDiff(y, y0)
+            ];
+        }
+    }
+    return [
+        [
+            0,
+            0
+        ],
+        [
+            0,
+            0
+        ]
+    ]; // a point - should not happen
+}
+/**
+ * @internal
+ * Anti-clockwise angular comparison of 2 rays leaving the same point, starting
+ * from the positive x-axis.
+ *
+ * Returns `0` only if the order cannot be determined.
+ */ function compareRays(a, b) {
+    const ha = halfPlane(a.dir);
+    const hb = halfPlane(b.dir);
+    if (ha !== hb) {
+        return ha - hb;
+    }
+    const cross = eSign(eDiff(expansionProduct(a.dir[0], b.dir[1]), expansionProduct(a.dir[1], b.dir[0])));
+    if (cross !== 0) {
+        return -cross;
+    }
+    // Same direction - the ray curving more anti-clockwise comes later
+    return compareCurvaturesAtInterface(a.ps, b.ps);
+}
+/**
+ * @internal
+ * Returns `0` for directions with angle in `[0,π)` and `1` for those in
+ * `[π,2π)`.
+ */ function halfPlane(dir) {
+    const x = dir[0][1];
+    const y = dir[1][1];
+    return y > 0 || y === 0 && x > 0 ? 0 : 1;
+}
+
+
 ;// ./src/cp-node/fs/get-non-terminating-on-circle.ts
 
 function getNonTerminatingOnCircle(cpNode, exclThis = false) {
@@ -31319,7 +31508,108 @@ const ANGLE_THRESHOLD = get_closeby_cp_if_exist_cos(get_closeby_cp_if_exist_DEGR
 }
 
 
+;// ./src/add-n-prong.ts/get-vertex-on-same-disk.ts
+
+
+
+const { abs: get_vertex_on_same_disk_abs } = Math;
+/**
+ * @internal
+ * Returns `true` if the vertex of the given `CpNode` has the given maximal
+ * disk (up to the accuracy of the 3-prong search) and can have contact points
+ * added to it, i.e. it is not a hole-closer, sharp corner or 1-prong.
+ *
+ * @param meta
+ * @param cpNode
+ * @param circle
+ */ function isVertexOnDisk(meta, cpNode, circle) {
+    // (the 3-prong search converges to about this accuracy)
+    const tol = 2 ** (meta.maxCoordPowerOf2 - 32);
+    const { center, radius } = cpNode.pointOnShape.circle;
+    return radius !== 0 && !cpNode.isHoleClosing && !isOneProng(cpNode) && distanceBetween(center, circle.center) <= tol && get_vertex_on_same_disk_abs(radius - circle.radius) <= tol;
+}
+/**
+ * @internal
+ * Given the `CpNode`s (if any) lying close by each contact point of a new
+ * maximal disk (see `getCloseByCpIfExist`), returns a `CpNode` of an existing
+ * vertex with the same maximal disk (see `isVertexOnDisk`), or `undefined` if
+ * there is none.
+ *
+ * The new disk's contact points should then be added to that vertex (making it
+ * an n-prong) instead of adding another vertex on top of it.
+ *
+ * Also returns `undefined` if a close by `CpNode` belongs to some *other*
+ * vertex.
+ *
+ * @param meta
+ * @param circle the new maximal disk
+ * @param closeBys the close by `CpNode` (if any) of each new contact point
+ */ function getVertexOnSameDisk(meta, circle, closeBys) {
+    const vertex = closeBys.find((cpNode)=>cpNode !== undefined && isVertexOnDisk(meta, cpNode, circle));
+    if (vertex === undefined) {
+        return undefined;
+    }
+    const ring = getAllOnCircle(vertex);
+    if (closeBys.some((cpNode)=>cpNode !== undefined && !ring.includes(cpNode))) {
+        return undefined;
+    }
+    return vertex;
+}
+
+
+;// ./src/add-n-prong.ts/add-to-vertex.ts
+
+
+
+
+
+
+/**
+ * @internal
+ * Adds the given contact points to the existing vertex (maximal disk) of the
+ * given `CpNode`, e.g. turning a 3-prong into a 4-prong, and returns the newly
+ * inserted `CpNode`s (or `undefined` if they could not be inserted, in which
+ * case nothing changes).
+ *
+ * The contact points are assumed to lie on the vertex's circle.
+ *
+ * @param insertIfOrderIsWrong
+ * @param meta
+ * @param vertex a `CpNode` on the vertex
+ * @param poss the contact points to add
+ */ function addToVertex(insertIfOrderIsWrong, meta, vertex, poss) {
+    const { cpTrees, lastInsertId } = meta;
+    const { circle } = vertex.pointOnShape;
+    const cpNodes = [];
+    for (const pos of poss){
+        const order = calcPosOrder(circle.center, pos);
+        const cpTree = cpTrees.get(pos.curve.loop);
+        const r = getCpNodeNeighbors(cpTree, pos, order, 0);
+        const pred = r?.[0];
+        const succ = r?.[1];
+        const cpNode = insertCpNode(insertIfOrderIsWrong, false, false, cpTree, {
+            ...pos,
+            circle,
+            order,
+            order2: 0
+        }, pred, succ, lastInsertId);
+        if (cpNode === undefined) {
+            cpNodes.forEach((cpNode)=>removeCpNode(cpNode, meta));
+            return undefined;
+        }
+        cpNodes.push(cpNode);
+    }
+    joinSpokes(circle, [
+        ...getAllOnCircle(vertex),
+        ...cpNodes
+    ]);
+    return cpNodes;
+}
+
+
 ;// ./src/find-3-prong/find-and-add-3-prong.ts
+
+
 
 
 
@@ -31347,11 +31637,23 @@ let ii = 0;
     for(let i = 0; i < 3; i++){
         orders.push(calcPosOrder(circle.center, poss[i]));
     }
+    const closeBys = poss.map((pos, i)=>getCloseByCpIfExist(meta, pos, circle, orders[i], 0, 3));
+    // If the 3-prong is (numerically) the maximal disk of an existing vertex
+    // then add its contact points to that vertex (making it an n-prong)
+    // instead of adding a vertex on top of it
+    const vertex = getVertexOnSameDisk(meta, circle, closeBys);
+    if (vertex !== undefined) {
+        const newPoss = poss.filter((_, i)=>closeBys[i] === undefined);
+        const cpNodes = newPoss.length > 0 ? addToVertex(true, meta, vertex, newPoss) : undefined;
+        if (cpNodes !== undefined) {
+            return {
+                closeBysFor3Prong: [],
+                cpNodes
+            };
+        }
+    }
     const closeBysFor3Prong = [];
-    for(let i = 0; i < poss.length; i++){
-        const pos = poss[i];
-        const order = orders[i];
-        const closeBy = getCloseByCpIfExist(meta, pos, circle, order, 0, 3);
+    for (const closeBy of closeBys){
         if (closeBy !== undefined) {
             const prongCount = getProngCount(closeBy);
             if (prongCount <= 2 && !closeBy.isHoleClosing) {
@@ -33681,6 +33983,9 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
  * A 2-prong is defined as a MAT circle that touches the shape at exactly 2 
  * points.
  * 
+ * If the circle touches the shape at more points (an n-prong, n > 2) all its
+ * contact points (other than the source point) are returned.
+ * 
  * Before any 2-prongs are added the entire shape is our δΩ.
  * 
  * As per the paper by Choi, Choi, Moon and Wee: 
@@ -33765,52 +34070,69 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
         // (the extra multiplier accounts for floating point error)
         const culledCurvePieces = cullCurvePieces(curvePieces, xO, (1 + 2 ** -20) * xy2);
         const antipodalPoints = getAntipodalPoints(maxCoordPowerOf2, nnormDd, yPos, for1Prong, angle, culledCurvePieces);
-        // FUTURE - if antipodalPoints.length > 1 let's just add an n-prong;
-        if (antipodalPoints.length !== 1) {
-            if (antipodalPoints.length === 0) {
-                return undefined;
-            }
-            if (!isHoleClosing && !areAllAntipodesSame(antipodalPoints, maxCoordPowerOf2)) {
-                // At this point there is multiple antipodal points (zs) for the given
-                // source point so do not add the 2-prong, it will be caught when 
-                // adding 3+-prongs.
-                return undefined;
-            }
+        if (antipodalPoints.length === 0) {
+            return undefined;
         }
-        const { x, d, curve, s } = antipodalPoints[0];
+        // All antipodal points are at the same distance (up to floating point
+        // error) and thus on the same maximal disk, i.e. if there is more than
+        // one this is an n-prong (n > 2)
+        const { x, d } = antipodalPoints[0];
         if (for1Prong && rO < (1 - oneProngTolerance) * d) {
             add1Prong(meta, rO, xO, yPos);
             return undefined;
         }
-        const pDd = to_p_toP(curve.ps, s);
-        const p = pDd.map((c)=>c[0] + c[1]);
-        const z = {
-            curve,
-            t: s,
-            isSource: false,
-            p,
-            pDd
-        };
         const circle = {
             center: x,
             radius: d
         };
+        const zs = antipodalPoints.map(({ curve, s })=>{
+            const pDd = to_p_toP(curve.ps, s);
+            const p = pDd.map((c)=>c[0] + c[1]);
+            return {
+                curve,
+                t: s,
+                isSource: false,
+                p,
+                pDd
+            };
+        });
+        if (isHoleClosing) {
+            return {
+                circle,
+                zs: [
+                    zs[0]
+                ]
+            };
+        }
+        const z = zs[0];
         const yz = squaredDistanceBetweenDd(yPos.p, z.p);
         const xz = squaredDistanceBetweenDd(x, z.p);
-        if (!isHoleClosing) {
-            if (yz === 0) {
-                return undefined;
-            }
-            // The lines below eliminate cases where the found 2-prong is too
-            // close to a one-prong
-            const squaredSeparationTolerance = find_2_prong_max(calcSquaredSeparationTolerance(rO, find_2_prong_sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeparationTolerance);
-            if (yz <= squaredSeparationTolerance) {
-                return undefined;
+        if (yz === 0) {
+            return undefined;
+        }
+        // The lines below eliminate cases where the found 2-prong is too
+        // close to a one-prong
+        const squaredSeparationTolerance = find_2_prong_max(calcSquaredSeparationTolerance(rO, find_2_prong_sqrt(xz), 2 ** 2 * errorTolerance), minSquaredSeparationTolerance);
+        if (yz <= squaredSeparationTolerance) {
+            return undefined;
+        }
+        // Other antipodal points this close to `y` or to one another are
+        // (numerically) the same contact point
+        const zs_ = [
+            z
+        ];
+        for (const z of zs.slice(1)){
+            const ps = [
+                yPos.p,
+                ...zs_.map((z_)=>z_.p)
+            ];
+            if (ps.every((p)=>squaredDistanceBetweenDd(p, z.p) > squaredSeparationTolerance)) {
+                zs_.push(z);
             }
         }
         return {
             circle,
-            z
+            zs: zs_
         };
     };
 }
@@ -33831,62 +34153,49 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
             c[1] * s
         ]);
 }
-/** @internal */ function areAllAntipodesSame(point, maxCoordPowerOf2) {
-    const { curve, s: t, x } = point[0];
-    const tol = 2 ** (maxCoordPowerOf2 - 40);
-    for(let i = 1; i < point.length; i++){
-        // const { curve: curve_, s: t_ } = point[i];
-        // if (curve !== curve_ || t !== t_) {
-        //     return false;
-        // }
-        const { x: x_ } = point[i];
-        if (find_2_prong_abs(x[0] - x_[0]) > tol || find_2_prong_abs(x[1] - x_[1]) > tol) {
-            return false;
-        }
-    }
-    return true;
-}
 
 
-;// ./src/find-2-prong/add-2-prong.ts
+;// ./src/add-n-prong.ts/add-n-prong.ts
+
 
 
 
 
 
 /**
- * Adds a 2-prong contact circle to the shape.
+ * @internal
+ * Adds an n-prong (n >= 2) maximal disk (not a hole-closer) to the MAT and
+ * returns one of its `CpNode`s (or `undefined` if nothing was added).
+ *
+ * If some contact point lies on top of a contact point of an existing vertex
+ * with the same maximal disk then the new contact points are added to that
+ * vertex instead. Otherwise, if any contact point lies on top of an existing
+ * `CpNode`, nothing is added (it can cause floating point stability issues).
  *
  * @param meta
- * @param circle Circle containing the 2 contact points
- * @param pposSource The source point on shape
- * @param pposAntipode The found antipodal point on shape
- * @param isHoleClosing True if this is a hole-closing 2-prong, false otherwise
- * 
- * @internal
- */ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
-    pposSource = pposSource.t === 0 ? {
-        ...pposSource,
-        curve: pposSource.curve.prev,
-        t: 1
-    } : pposSource;
-    const orderSource = calcPosOrder(circle.center, pposSource);
-    const orderAntipode = calcPosOrder(circle.center, pposAntipode);
-    // Make sure there isn't already a ContactPoint close by - it can cause
-    // floating point stability issues.
-    if (!!getCloseByCpIfExist(meta, pposSource, circle, orderSource, 0, 2)) {
+ * @param circle the maximal disk
+ * @param poss the contact points
+ */ function addNProng(meta, circle, poss) {
+    // A point at `t === 0` is represented as the end of the previous curve
+    poss = poss.map((pos)=>pos.t === 0 ? {
+            ...pos,
+            curve: pos.curve.prev,
+            t: 1
+        } : pos);
+    const orders = poss.map((pos)=>calcPosOrder(circle.center, pos));
+    const closeBys = poss.map((pos, i)=>getCloseByCpIfExist(meta, pos, circle, orders[i], 0, poss.length));
+    const vertex = getVertexOnSameDisk(meta, circle, closeBys);
+    if (vertex !== undefined) {
+        const newPoss = poss.filter((_, i)=>closeBys[i] === undefined);
+        if (newPoss.length === 0) {
+            return undefined;
+        }
+        return addToVertex(false, meta, vertex, newPoss)?.[0];
+    }
+    if (closeBys.some((closeBy)=>closeBy !== undefined)) {
         return undefined;
     }
-    if (!!getCloseByCpIfExist(meta, pposAntipode, circle, orderAntipode, 0, 2)) {
-        return undefined;
-    }
-    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, [
-        orderSource,
-        orderAntipode
-    ], meta, [
-        pposSource,
-        pposAntipode
-    ]);
+    const { anyFailed, cpNodes } = addToCpTree(false, false, circle, orders, meta, poss);
     if (anyFailed) {
         cpNodes.forEach((cpNode)=>{
             if (cpNode !== undefined) {
@@ -33895,47 +34204,7 @@ const { abs: find_2_prong_abs, sin: find_2_prong_sin, cos: find_2_prong_cos, max
         });
         return undefined;
     }
-    if (isHoleClosing) {
-        closeHole(meta, cpNodes);
-    }
-    return cpNodes[0]; // return the source `CpNode`
-}
-function closeHole(meta, cpNodes) {
-    const { cpTrees } = meta;
-    const [cpNodeSource, cpNodeAntipode] = cpNodes;
-    // The twins form their own on-circle ring (a separate MAT vertex - that
-    // is what cuts the hole), so they get their own (equal) `Circle` object:
-    // one `Circle` object per ring.
-    const twinCircle = {
-        ...cpNodeSource.pointOnShape.circle
-    };
-    // Antipode - create and insert twin
-    const posAntipode = cpNodeAntipode.pointOnShape;
-    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), {
-        ...posAntipode,
-        circle: twinCircle,
-        order2: +1
-    }, cpNodeAntipode, undefined, meta.lastInsertId);
-    cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
-    cpNodeAntipode.holeCloserTwin = cpNodeAntipodeTwin;
-    // Source - create and insert twin
-    const posSource = cpNodeSource.pointOnShape;
-    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), {
-        ...posSource,
-        circle: twinCircle,
-        order2: -1
-    }, cpNodeSource.prev, undefined, meta.lastInsertId);
-    cpNodeSourceTwin.holeCloserTwin = cpNodeSource;
-    cpNodeSource.holeCloserTwin = cpNodeSourceTwin;
-    // Connect graph
-    cpNodeSourceTwin.prevOnCircle = cpNodeAntipodeTwin;
-    cpNodeSourceTwin.nextOnCircle = cpNodeAntipodeTwin;
-    cpNodeAntipodeTwin.prevOnCircle = cpNodeSourceTwin;
-    cpNodeAntipodeTwin.nextOnCircle = cpNodeSourceTwin;
-    cpNodeAntipode.next = cpNodeSource;
-    cpNodeSource.prev = cpNodeAntipode;
-    cpNodeSourceTwin.next = cpNodeAntipodeTwin;
-    cpNodeAntipodeTwin.prev = cpNodeSourceTwin;
+    return cpNodes[0];
 }
 
 
@@ -33966,8 +34235,11 @@ const { PI: find_and_add_2_prongs_PI, atan2: find_and_add_2_prongs_atan2 } = Mat
         for (const angle of angles){
             const twoProngInfo = find2Prong_(false, for1Prong, angle, pos);
             if (twoProngInfo) {
-                const { circle, z } = twoProngInfo;
-                const cpNode = add2Prong(meta, circle, pos, z, false);
+                const { circle, zs } = twoProngInfo;
+                const cpNode = addNProng(meta, circle, [
+                    pos,
+                    ...zs
+                ]);
                 cpNode_ = cpNode_ || cpNode;
             }
             if (typeof _debug_ !== 'undefined') {
@@ -34582,6 +34854,97 @@ function updateExtreme(extreme, curve, t, val, isMax) {
 }
 
 
+;// ./src/find-2-prong/add-2-prong.ts
+
+
+
+
+
+/**
+ * Adds a 2-prong contact circle to the shape.
+ *
+ * @param meta
+ * @param circle Circle containing the 2 contact points
+ * @param pposSource The source point on shape
+ * @param pposAntipode The found antipodal point on shape
+ * @param isHoleClosing True if this is a hole-closing 2-prong, false otherwise
+ * 
+ * @internal
+ */ function add2Prong(meta, circle, pposSource, pposAntipode, isHoleClosing) {
+    pposSource = pposSource.t === 0 ? {
+        ...pposSource,
+        curve: pposSource.curve.prev,
+        t: 1
+    } : pposSource;
+    const orderSource = calcPosOrder(circle.center, pposSource);
+    const orderAntipode = calcPosOrder(circle.center, pposAntipode);
+    // Make sure there isn't already a ContactPoint close by - it can cause
+    // floating point stability issues.
+    if (!!getCloseByCpIfExist(meta, pposSource, circle, orderSource, 0, 2)) {
+        return undefined;
+    }
+    if (!!getCloseByCpIfExist(meta, pposAntipode, circle, orderAntipode, 0, 2)) {
+        return undefined;
+    }
+    const { anyFailed, cpNodes } = addToCpTree(isHoleClosing, isHoleClosing, circle, [
+        orderSource,
+        orderAntipode
+    ], meta, [
+        pposSource,
+        pposAntipode
+    ]);
+    if (anyFailed) {
+        cpNodes.forEach((cpNode)=>{
+            if (cpNode !== undefined) {
+                removeCpNode(cpNode, meta);
+            }
+        });
+        return undefined;
+    }
+    if (isHoleClosing) {
+        closeHole(meta, cpNodes);
+    }
+    return cpNodes[0]; // return the source `CpNode`
+}
+function closeHole(meta, cpNodes) {
+    const { cpTrees } = meta;
+    const [cpNodeSource, cpNodeAntipode] = cpNodes;
+    // The twins form their own on-circle ring (a separate MAT vertex - that
+    // is what cuts the hole), so they get their own (equal) `Circle` object:
+    // one `Circle` object per ring.
+    const twinCircle = {
+        ...cpNodeSource.pointOnShape.circle
+    };
+    // Antipode - create and insert twin
+    const posAntipode = cpNodeAntipode.pointOnShape;
+    const cpNodeAntipodeTwin = insertCpNode(true, true, false, cpTrees.get(posAntipode.curve.loop), {
+        ...posAntipode,
+        circle: twinCircle,
+        order2: +1
+    }, cpNodeAntipode, undefined, meta.lastInsertId);
+    cpNodeAntipodeTwin.holeCloserTwin = cpNodeAntipode;
+    cpNodeAntipode.holeCloserTwin = cpNodeAntipodeTwin;
+    // Source - create and insert twin
+    const posSource = cpNodeSource.pointOnShape;
+    const cpNodeSourceTwin = insertCpNode(true, true, false, cpTrees.get(posSource.curve.loop), {
+        ...posSource,
+        circle: twinCircle,
+        order2: -1
+    }, cpNodeSource.prev, undefined, meta.lastInsertId);
+    cpNodeSourceTwin.holeCloserTwin = cpNodeSource;
+    cpNodeSource.holeCloserTwin = cpNodeSourceTwin;
+    // Connect graph
+    cpNodeSourceTwin.prevOnCircle = cpNodeAntipodeTwin;
+    cpNodeSourceTwin.nextOnCircle = cpNodeAntipodeTwin;
+    cpNodeAntipodeTwin.prevOnCircle = cpNodeSourceTwin;
+    cpNodeAntipodeTwin.nextOnCircle = cpNodeSourceTwin;
+    cpNodeAntipode.next = cpNodeSource;
+    cpNodeSource.prev = cpNodeAntipode;
+    cpNodeSourceTwin.next = cpNodeAntipodeTwin;
+    cpNodeAntipodeTwin.prev = cpNodeSourceTwin;
+}
+
+
 ;// ./src/find-2-prong/find-and-add-hole-closing-2-prongs.ts
 
 
@@ -34607,7 +34970,7 @@ function updateExtreme(extreme, curve, t, val, isMax) {
         }
         // FUTURE - handle case of n-prong, i.e. more than one antipode
         // - currently we only handle case of single antipode (the general case)
-        const { circle, z } = posAntipode;
+        const { circle, zs: [z] } = posAntipode;
         const _cpNode = add2Prong(meta, circle, pposSource, z, true);
         cpNode = cpNode === undefined ? _cpNode : cpNode;
     }
@@ -34654,8 +35017,114 @@ function updateExtreme(extreme, curve, t, val, isMax) {
 }
 
 
+;// ./src/add-n-prong.ts/merge-vertices-on-same-disk.ts
+
+
+
+
+
+
+
+/**
+ * @internal
+ * Merges adjacent MAT vertices that have the same maximal disk (see
+ * `isVertexOnDisk`) into a single n-prong, i.e. contracts the (numerically)
+ * zero length MAT edges between them; returns a `CpNode` of the MAT.
+ *
+ * Such vertices are found when the contact points of an n-prong (n > 3) are
+ * found separately, e.g. as two 3-prongs, each with its own floating point
+ * error.
+ *
+ * Contracting an edge keeps the MAT a tree. Where the two vertices touch the
+ * boundary at the same point (the edge's boundary piece on that side has zero
+ * length) only one `CpNode` is kept.
+ *
+ * @param meta
+ * @param cpStart
+ */ function mergeVerticesOnSameDisk(meta, cpStart) {
+    const removed = new Set();
+    let anyMerged = true;
+    while(anyMerged){
+        anyMerged = false;
+        for (const cpNode of getAllOnLoop(cpStart)){
+            if (removed.has(cpNode) || isTerminating(cpNode)) {
+                continue;
+            }
+            const next = cpNode.next;
+            const circle = cpNode.pointOnShape.circle;
+            if (next.pointOnShape.circle === circle) {
+                continue;
+            }
+            if (!isVertexOnDisk(meta, cpNode, circle) || !isVertexOnDisk(meta, next, circle)) {
+                continue;
+            }
+            if (merge_vertices_on_same_disk_merge(meta, cpNode, next, removed)) {
+                anyMerged = true;
+                if (removed.has(cpStart)) {
+                    cpStart = cpNode;
+                }
+            }
+        }
+    }
+    return cpStart;
+}
+/**
+ * @internal
+ * Merges the vertex of `cpNodeB` into that of `cpNodeA`; returns `false` (and
+ * changes nothing) if the merged contact points cannot be ordered.
+ */ function merge_vertices_on_same_disk_merge(meta, cpNodeA, cpNodeB, removed) {
+    // (contact points of the 2 vertices are found with errors similar to
+    // those of their maximal disks - see `isVertexOnDisk`)
+    const tol = 2 ** (meta.maxCoordPowerOf2 - 32);
+    const isSamePoint = (a, b)=>distanceBetween(a.pointOnShape.p, b.pointOnShape.p) <= tol;
+    const ringA = getAllOnCircle(cpNodeA);
+    const ringB = getAllOnCircle(cpNodeB);
+    // Of each pair of `CpNode`s (one of each vertex) adjacent on the boundary
+    // at the same point keep only the one of vertex A
+    const toRemove = new Set();
+    for (const cpNode of ringA){
+        if (ringB.includes(cpNode.next) && isSamePoint(cpNode, cpNode.next)) {
+            toRemove.add(cpNode.next);
+        }
+        if (ringB.includes(cpNode.prev) && isSamePoint(cpNode, cpNode.prev)) {
+            toRemove.add(cpNode.prev);
+        }
+    }
+    const ring = [
+        ...ringA,
+        ...ringB.filter((cpNode)=>!toRemove.has(cpNode))
+    ];
+    // The contact points must be distinct to be ordered around the circle
+    for(let i = 0; i < ring.length; i++){
+        for(let j = i + 1; j < ring.length; j++){
+            if (isSamePoint(ring[i], ring[j])) {
+                return false;
+            }
+        }
+    }
+    const { circle } = cpNodeA.pointOnShape;
+    for (const cpNode of toRemove){
+        removeCpNode(cpNode, meta);
+        removed.add(cpNode);
+    }
+    for (const cpNode of ringB){
+        if (toRemove.has(cpNode)) {
+            continue;
+        }
+        // (`CpNode`s on the same ring share the same `Circle` object)
+        cpNode.pointOnShape = {
+            ...cpNode.pointOnShape,
+            circle
+        };
+    }
+    joinSpokes(circle, ring);
+    return true;
+}
+
+
 ;// ./src/find-mat/find-mat.ts
 /** @internal */ 
+
 
 
 
@@ -34722,6 +35191,8 @@ function updateExtreme(extreme, curve, t, val, isMax) {
     if (cpNode === undefined) {
         return undefined;
     }
+    // e.g. an n-prong (n > 3) found as several 3-prongs
+    cpNode = mergeVerticesOnSameDisk(meta, cpNode);
     if (typeof _debug_ !== 'undefined') {
         if (_debug_.directives.stopAfterThreeProngs) {
             return {
@@ -34741,6 +35212,7 @@ function updateExtreme(extreme, curve, t, val, isMax) {
  // const ligatures = getLigatures(meta, csfs);
 
 ;// ./src/find-mat/find-mats.ts
+
 
 
 
@@ -34782,7 +35254,9 @@ const { ceil: find_mats_ceil, log2: find_mats_log2 } = Math;
     });
     const mats = [];
     for (const loops of loopss){
-        let mat = findMat(loops, maxCoordPowerOf2, options_);
+        // e.g. a hole touching the outer loop at a point
+        const loops_ = mergeTouchingLoops(loops);
+        let mat = findMat(loops_, maxCoordPowerOf2, options_);
         if (mat === undefined) {
             continue;
         }

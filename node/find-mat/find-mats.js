@@ -1,5 +1,6 @@
 import { simplifyPaths } from 'flo-boolean';
 import { getLoopsMetrics } from '../loop/get-max-coordinate.js';
+import { mergeTouchingLoops } from '../loop/merge-touching-loops.js';
 import { simplifyMat } from '../mat/simplify-mat.js';
 import { toScaleAxis } from '../sat/to-scale-axis.js';
 import { clipOptions } from './clip-options.js';
@@ -40,7 +41,9 @@ function findMats(bezierLoops, options) {
     });
     const mats = [];
     for (const loops of loopss) {
-        let mat = findMat(loops, maxCoordPowerOf2, options_);
+        // e.g. a hole touching the outer loop at a point
+        const loops_ = mergeTouchingLoops(loops);
+        let mat = findMat(loops_, maxCoordPowerOf2, options_);
         if (mat === undefined) {
             continue;
         }
