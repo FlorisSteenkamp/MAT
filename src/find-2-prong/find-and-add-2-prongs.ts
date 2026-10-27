@@ -5,7 +5,7 @@ import type { Debug } from '../debug/debug.js';
 import type { PrePointOnShape } from '../point-on-shape/point-on-shape.js';
 import type { MatMeta } from '../mat/mat-meta.js';
 import { find2Prong } from './find-2-prong.js';
-import { add2Prong } from './add-2-prong.js';
+import { addNProng } from '../add-n-prong.ts/add-n-prong.js';
 import { rotateNeg90Degrees } from 'flo-vector2d';
 import { getCorner$ } from '../corner/get-corner.js';
 
@@ -45,8 +45,8 @@ function findAndAdd2Prongs(
             );
 
             if (twoProngInfo) {
-                const { circle, z } = twoProngInfo;
-                const cpNode = add2Prong(meta, circle, pos, z, false);
+                const { circle, zs } = twoProngInfo;
+                const cpNode = addNProng(meta, circle, [pos, ...zs]);
                 cpNode_ = cpNode_ || cpNode;
             }
 
