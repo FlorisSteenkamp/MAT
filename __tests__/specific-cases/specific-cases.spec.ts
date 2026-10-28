@@ -20,6 +20,8 @@ type TestCase = {
 
 
 const testCaseSvgs = [
+    "Q_V4",
+    "Q_V4-y-flip",
     "intersecting1",
     "koldat51-min",
     "aq_H", "hat",
